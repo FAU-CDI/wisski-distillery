@@ -155,6 +155,7 @@ sudo bash /factory/remove.sh SLUG
 
 ## TODO
 
+- Compare with Mark Fichtner approach
 - More documentation
     - Document and improve`update.sh`
     - User-level documentation
