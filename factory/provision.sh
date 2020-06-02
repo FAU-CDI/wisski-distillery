@@ -100,7 +100,7 @@ cat << EOF > repo-config.ttl
 
             owlim:owlim-license "" ;
 
-            owlim:base-URL "http://$INSTANCE_DOMAIN#" ;
+            owlim:base-URL "http://$INSTANCE_DOMAIN/owlim#" ;
             owlim:defaultNS "" ;
             owlim:entity-index-size "10000000" ;
             owlim:entity-id-size  "32" ;
@@ -187,7 +187,14 @@ systemctl reload apache2
 # TODO: Certbot support
 
 # and done!
-log_info " => Finished"
-log_info " => Your Drupal Instance is available at http://$INSTANCE_DOMAIN"
-log_info " => Your Drupal username is '$DRUPAL_USER', your password is '$DRUPAL_PASS'. "
-
+log_info " => Finished, your Drupal details are: "
+echo "URL:                  http://$INSTANCE_DOMAIN"
+echo "Username:             $DRUPAL_USER"
+echo "Password:             $DRUPAL_PASS"
+log_info " => Your GraphDB details (for WissKi Salz) are: "
+echo "Read URL:             http://127.0.0.1:7200/repositories/$GRAPHDB_REPO"
+echo "Write URL:            http://127.0.0.1:7200/repositories/$GRAPHDB_REPO/statements"
+echo "Writable:             yes"
+echo "Default Graph URI:    http://$INSTANCE_DOMAIN/owlim#"
+echo "Ontology Paths:       (empty)"
+echo "SameAs property:      http://www.w3.org/2002/07/owl#sameAs"
