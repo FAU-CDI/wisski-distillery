@@ -163,7 +163,7 @@ sudo bash /factory/remove.sh SLUG
         - First steps after provisioning
 - Writeup approach to SSL (Wildcard cert with proxy that downgrades connections to plain http, or mod_md)
 - Automatically setup SALZ adapter (if this is possible)
-- Setup users for GraphDB and enable security
+- Setup users for GraphDB and enable security, is this supported by WissKi SALZ?
 - Allow customization of GraphDB paths
 
 
