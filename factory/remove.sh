@@ -22,7 +22,7 @@ systemctl reload apache2
 # Delete the MySQL database next. 
 log_info " => Deleting MySQL database '$MYSQL_DATABASE' and user '$MYSQL_USER'. "
 mysql -e "DROP DATABASE IF EXISTS \`${MYSQL_DATABASE}\`;" || true
-mysql -e "DROP USER IF EXISTS \`${DBNAME}\`@localhost;"  || true
+mysql -e "DROP USER IF EXISTS \`${MYSQL_USER}\`@localhost;"  || true
 
 # Clear the GraphDB repository. 
 log_info " => Deleting GraphDB repository '$GRAPHDB_REPO'"
