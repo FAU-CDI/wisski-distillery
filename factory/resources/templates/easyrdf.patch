@@ -1,0 +1,4 @@
+281c281
+<         if (preg_match("|^HTTP/([\d\.x]+) (\d+) ([^\r\n]+)|", $status, $m)) {
+---
+>         if(preg_match("|^HTTP/([\d\.x]+) (\d+) ([^\r\n]*)|", $status, $m)) {

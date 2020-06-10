@@ -62,6 +62,7 @@ GRAPHDB_REPO="${GRAPHDB_REPO_PREFIX}${USERNAME_BASE}"
 BASE_DIR="$DRUPAL_ROOT/$INSTANCE_DOMAIN"
 COMPOSER_DIR="$BASE_DIR/project"
 WEB_DIR="$COMPOSER_DIR/web"
+ONTOLOGY_DIR="$WEB_DIR/sites/default/files/ontology"
 
 # Setup aliases for drush and composer. 
 alias composer="sudo -u $SYSTEM_USER /usr/local/bin/composer"

@@ -35,7 +35,7 @@ apt-get install -y curl php-cli php-mbstring git unzip
 curl -sS https://getcomposer.org/installer -o "$tmpdir/composer-setup.php"
 php $tmpdir/composer-setup.php --install-dir=/usr/local/bin --filename=composer
 
-# Install required php extensions for Drupal and WissKi. 
+# Install required php extensions for Drupal and WissKI. 
 log_info " => Installing required php extensions"
 apt-get install -y php-xml php-gd php-mysql php-common php-xmlrpc php-soap php-gd php-intl php-mysql php-zip php-curl php-ssh2
 
@@ -46,6 +46,15 @@ apt-get -y install mariadb-server
 # Install apache and required php extensions. 
 log_info " => Installing apache2, php and auth modules"
 apt-get install -y apache2 libapache2-mod-php libapache2-mpm-itk
+
+# Install apache and required php extensions. 
+log_info " => Enabling apache 'rewrite' module"
+a2enmod rewrite
+
+# Copy over the wisski templates
+log_info " => Copying over Apache Templates"
+mkdir -p "$WISSKI_COMMON_PATH"
+cp -v $SCRIPT_DIR/resources/wisski-apache-common/* "$WISSKI_COMMON_PATH"
 
 # Make the directory for all drupal instances to live in. 
 log_info " => Making root directory for Drupal Installations"
@@ -85,19 +94,7 @@ chown -R graphdb:graphdb /opt/graphdb
 # This file uses the users created above, and also hard-codes listening address and maximum memory. 
 # This avoids having to write the config file using bash hacks. 
 log_info " => Making 'graphdb.service'"
-cat << "EOF" > /etc/systemd/system/graphdb.service
-[Unit]
-Description=GraphDB
-
-[Service]
-Type=simple
-User=graphdb
-Group=graphdb
-ExecStart=/opt/graphdb/bin/graphdb –Xmx6g -Dgraphdb.connector.address=127.0.0.1
-
-[Install]
-WantedBy=multi-user.target
-EOF
+load_template 'graphdb.service' > /etc/systemd/system/graphdb.service
 
 # We just created a service, so now start it and put it into autostart mode. 
 log_info " => Starting and enabling graphdb.service"

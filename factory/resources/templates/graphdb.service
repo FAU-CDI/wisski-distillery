@@ -1,0 +1,17 @@
+# This file contains a systemd service for GraphDB.
+# It was tailed to a WissKI service and may or may not work in general. 
+
+[Unit]
+Description=GraphDB
+
+[Service]
+Type=simple
+# use the special graphdb user and group, so that other users can not just access this system. 
+User=graphdb
+Group=graphdb
+
+# The options here make it listen only on 127.0.0.1; this prevents external users from attempting access.  
+ExecStart=/opt/graphdb/bin/graphdb –Xmx6g -Dgraphdb.connector.address=127.0.0.1
+
+[Install]
+WantedBy=multi-user.target

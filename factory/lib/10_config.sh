@@ -125,4 +125,11 @@ if ! is_valid_number "$PASSWORD_LENGTH"; then
    exit 1;
 fi
 
+# The 'PUBLIC_PORT' must be a valid number. 
+if ! is_valid_number "$PUBLIC_PORT"; then
+   log_error "Variable 'PUBLIC_PORT' is missing or not a valid number. ";
+   log_info "Please verify that it is set correctly in '.env'. ";
+   exit 1;
+fi
+
 log_ok "Read and validated configuration file. "

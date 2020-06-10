@@ -1,4 +1,4 @@
-# Automatic Drupal and WissKi factory scripts
+# Automatic Drupal and WissKI factory scripts
 
 This repository contains a factory server implementation that creates and maintains a list of Drupal Instances. 
 
@@ -39,7 +39,7 @@ In particular, these are:
 - serveral PHP modules that are dependencies of Drupal
 - [MariaDB](https://mariadb.org/) -- an SQL database
 - [Apache2](https://httpd.apache.org/), the corresponding php and [mpm-itk](http://mpm-itk.sesse.net/) modules -- a webserver
-- [GraphDB](http://graphdb.ontotext.com/) - an SPARQL backend for WissKi
+- [GraphDB](http://graphdb.ontotext.com/) - an SPARQL backend for WissKI
 
 With the exception of GraphDB all these components can be installed using Debian's package manager 'apt'. 
 To install GraphDB, a zip with the binaries needs to be unpacked, and then a systemd service for it needs to be created. 
@@ -53,24 +53,24 @@ sudo bash /factory/system_install.sh /path/to/graphdb.zip
 
 In principle this script is idempotent, meaning it can be run multiple times achieving the same effect. 
 
-## Provisioning a new WissKi instance  -- 'provision.sh'
+## Provisioning a new WissKI instance  -- 'provision.sh'
 
 *TLDR: `sudo bash provision.sh slug-of-new-website`*
 
-A new WissKi instance consists of several components:
+A new WissKI instance consists of several components:
 
 - A [Drupal](https://www.drupal.org/) instance, managed as a [Composer](https://getcomposer.org/) project
 - An [Apache](https://httpd.apache.org/) the makes the above available externally
 - An [SQL](https://mariadb.org/) database, to store Drupal Nodes in
 - A [GraphDB](https://graphdb.ontotext.com/) repository to store RDF triples in
 
-Each WissKi instance is identified by a ``slug''. 
-This is a preferably short name that is used to form a domain name for the WissKi instance. 
+Each WissKI instance is identified by a ``slug''. 
+This is a preferably short name that is used to form a domain name for the WissKI instance. 
 This factory assumes that each instance is a subdomain of a given domain. 
 For example, if the given domain is 'wisskis.example.com' and the slug of a particular instance is 'blue', the subdomain used by this instance would be 'blue.wisskis.example.com'. 
 The given domain can be configured within the '.env' file. 
 
-In this implementation we furthermore isolate each WissKi instance from the rest of the system.
+In this implementation we furthermore isolate each WissKI instance from the rest of the system.
 For this purpose, we make use of an appropriate system user, an appropriate SQL user and a GraphDB user. 
 **Note: GraphDB users are not yet implemented **
 
@@ -79,7 +79,7 @@ We thus use the following process to provision a new instance:
 __1. We create a new system user and hoem directory__
 
 The username is derived from the slug, with a configurable prefix. 
-The home directory for this user will contain the Drupal PHP files needed to run a WissKi. 
+The home directory for this user will contain the Drupal PHP files needed to run a WissKI. 
 For this reason, the home directory for each user is a subdirectory at a standardized location. 
 By default this is `/var/www/factory/$USER', but this can be customized. 
 
@@ -101,13 +101,14 @@ The password for the 'admin' user is randomly generated in this process.
 
 __5. Create a GraphDB repository__
 
-Next, we create a dedidcated GraphDB repository for the WissKi instance. 
+Next, we create a dedidcated GraphDB repository for the WissKI instance. 
 *TODO*: Create a GraphDB user. 
 
-__6. Add WissKi modules to Drupal__
+__6. Add WissKI modules to Drupal__
 
-Next, we add the required WissKi modules to Drupal. 
-*TODO*: Configure the WissKi modules automatically. 
+Next, we add the required WissKI modules to Drupal. 
+Also patch EasyRDF and make an ontology directory. 
+*TODO*: Configure the WissKI modules automatically. 
 
 __7. Create a Apache VHost configuration__
 
@@ -122,11 +123,11 @@ To do so, use:
 sudo bash /factory/provision.sh SLUG
 ```
 
-## Manually editing WissKi instances -- 'shell.sh'
+## Manually editing WissKI instances -- 'shell.sh'
 
 Sometimes it is needed to make manual adjustments to an individual instance. 
 For this purpose, the `shell.sh` script exists. 
-It opens an interactive shell in the context of a given WissKi instance. 
+It opens an interactive shell in the context of a given WissKI instance. 
 In particular it:
 - switches to the appropriate system user
 - sets up the '$PATH' environment variable to allow using 'drush' and 'composer'
@@ -137,25 +138,25 @@ To use it, run:
 sudo bash /factory/shell.sh SLUG
 ```
 
-## Removing an existing WissKi instance -- 'remove.sh'
+## Purge an existing WissKI instance -- 'purge.sh'
 
 * TODO: Document this more *
 
 
-Sometimes it is required to remove a given WissKi instance. 
+Sometimes it is required to remove a given WissKI instance. 
 In particular all parts belonging to it should be removed. 
 
 
 To use it, run:
 
 ```bash
-sudo bash /factory/remove.sh SLUG
+sudo bash /factory/purge.sh SLUG
 ```
 
 
 ## TODO
 
-- Compare with Mark Fichtner approach
+- Compare with Mark Fichtners approach
 - More documentation
     - Document and improve`update.sh`
     - User-level documentation
@@ -164,8 +165,8 @@ sudo bash /factory/remove.sh SLUG
         - First steps after provisioning
 - Writeup approach to SSL (Wildcard cert with proxy that downgrades connections to plain http, or mod_md)
 - Automatically setup SALZ adapter (if this is possible)
-- Setup users for GraphDB and enable security, is this supported by WissKi SALZ?
-- Allow customization of GraphDB paths
+- Setup users for GraphDB and enable security, is this supported by WissKI SALZ?
+- Allow customization of GraphDB installation paths
 
 
 ## License

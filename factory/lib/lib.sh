@@ -17,4 +17,5 @@ LIB_DIR="$SCRIPT_DIR/lib"
 source "$LIB_DIR/00_init.sh";
 source "$LIB_DIR/10_config.sh";
 source "$LIB_DIR/20_slug.sh";
-source "$LIB_DIR/30_utils.sh";
+source "$LIB_DIR/30_templates.sh";
+source "$LIB_DIR/40_utils.sh";

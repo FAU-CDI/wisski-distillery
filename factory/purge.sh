@@ -9,7 +9,7 @@ cd "$DIR"
 source "$DIR/lib/lib.sh"
 require_slug_argument
 
-# Delete the apache configurationf files first. 
+# Delete the apache configuration files first. 
 # This prevents drupal from being served. 
 log_info " => Removing apache configuration files"
 rm "$APACHE_CONFIG_SITE_ENABLED" || true
@@ -23,6 +23,7 @@ systemctl reload apache2
 log_info " => Deleting MySQL database '$MYSQL_DATABASE' and user '$MYSQL_USER'. "
 mysql -e "DROP DATABASE IF EXISTS \`${MYSQL_DATABASE}\`;" || true
 mysql -e "DROP USER IF EXISTS \`${MYSQL_USER}\`@localhost;"  || true
+mysql -e "FLUSH PRIVILEGES;"
 
 # Clear the GraphDB repository. 
 log_info " => Deleting GraphDB repository '$GRAPHDB_REPO'"
@@ -36,4 +37,4 @@ delgroup "$SYSTEM_USER" || true
 log_info " => Removing directory '$BASE_DIR'"
 rm -rf "$BASE_DIR"
 
-log_info " => Finished, '$INSTANCE_DOMAIN' has been removed. "
+log_info " => Finished, '$INSTANCE_DOMAIN' has been purged. "
