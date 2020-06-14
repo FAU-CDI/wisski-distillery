@@ -1,4 +1,4 @@
-# Automatic Drupal and WissKI factory scripts
+# WissKI-Distillery
 
 This repository contains a factory server implementation that creates and maintains a list of Drupal Instances. 
 
@@ -99,10 +99,10 @@ We run the Drupal installation scripts.
 Here we tell Drupal about the database credentials, and initialize an initial 'admin' user for the drupal instance. 
 The password for the 'admin' user is randomly generated in this process. 
 
-__5. Create a GraphDB repository__
+__5. Create a GraphDB repository and user__
 
 Next, we create a dedidcated GraphDB repository for the WissKI instance. 
-*TODO*: Create a GraphDB user. 
+We also create a new GraphDB user with access to this repository. 
 
 __6. Add WissKI modules to Drupal__
 
@@ -165,7 +165,8 @@ sudo bash /factory/purge.sh SLUG
         - First steps after provisioning
 - Writeup approach to SSL (Wildcard cert with proxy that downgrades connections to plain http, or mod_md)
 - Automatically setup SALZ adapter (if this is possible)
-- Setup users for GraphDB and enable security, is this supported by WissKI SALZ?
+- Investigate support for GraphDB Auth in WissKI Salz
+    - Eventually enable security if needed
 - Allow customization of GraphDB installation paths
 
 

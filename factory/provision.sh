@@ -95,13 +95,26 @@ drupal_sites_permission_workaround
 
 # Create a new repository for GraphDB. 
 # Use the template for this.
-# TODO: Permissions for GraphdDB
 log_info " => Generating new GraphDB repository '$GRAPHDB_REPO'"
 load_template "graphdb-repo.ttl" "GRAPHDB_REPO" "${GRAPHDB_REPO}" "INSTANCE_DOMAIN" "${INSTANCE_DOMAIN}" | \
 curl -X POST \
     http://127.0.0.1:7200/rest/repositories \
-    -H 'Content-Type: multipart/form-data' \
+    --header 'Content-Type: multipart/form-data' \
     -F "config=@-"
+
+# Generate a random password for the GraphDB user
+log_info " => Generating a new GraphDB password"
+GRAPHDB_PASSWORD="$(randompw)"
+
+# Create the user and grant them access to the creatd database. 
+log_info " => Creating GraphDB user '$GRAPHDB_USER'"
+load_template "graphdb-user.json" "GRAPHDB_USER" "${GRAPHDB_USER}" "GRAPHDB_REPO" "${GRAPHDB_REPO}" | \
+curl -X POST \
+    "http://127.0.0.1:7200/rest/security/user/${GRAPHDB_USER}" \
+    --header 'Content-Type: application/json' \
+    --header 'Accept: text/plain' \
+    --header "X-GraphDB-Password: $GRAPHDB_PASSWORD" \
+    -d @-
 
 # create a directory for ontologies. 
 log_info " => Creating '$ONTOLOGY_DIR'"
@@ -137,7 +150,7 @@ log_ok "Some things below may fail. If that is the case, run: "
 log_ok "$ a2ensite \"${INSTANCE_DOMAIN}\""
 log_ok "$ systemctl reload apache2"
 log_ok "$ $SCRIPT_DIR/shell.sh $SLUG"
-log_ok "Your installation details are as follows"
+log_ok "Your installation details are as follows:"
 function printdetails() {
     echo "URL:                  http://$INSTANCE_DOMAIN"
     echo "Username:             $DRUPAL_USER"
@@ -151,6 +164,32 @@ function printdetails() {
     echo "SameAs property:      http://www.w3.org/2002/07/owl#sameAs"
 }
 printdetails
+
+function alldetails() {
+    echo "# Automatically generated WissKi details"
+    echo "# generated $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+    echo "SLUG=$SLUG"
+    echo "INSTANCE_DOMAIN=$INSTANCE_DOMAIN"
+    echo "# System"
+    echo "SYSTEM_USER=$SYSTEM_USER"
+    echo "# Drupal"
+    echo "DRUPAL_USER=$DRUPAL_USER"
+    echo "DRUPAL_PASSWORD=$DRUPAL_PASSWORD"
+    echo "# MySQL"
+    echo "MYSQL_USER=$MYSQL_USER"
+    echo "MYSQL_PASSWORD=$MYSQL_PASSWORD"
+    echo "MYSQL_DATABASE=$MYSQL_DATABASE"
+    echo "# GraphDB"
+    echo "GRAPHDB_USER=$GRAPHDB_USER"
+    echo "GRAPHDB_PASSWORD=$GRAPHDB_PASSWORD"
+    echo "GRAPHDB_REPO=$GRAPHDB_REPO"
+}
+
+# put installation details in ENV_FILE
+log_info " => Storing installation details in $ENV_FILE"
+alldetails > "$ENV_FILE"
+chown "$SYSTEM_USER:$SYSTEM_USER" "$ENV_FILE"
+chmod o-r "$ENV_FILE"
 
 # Enable the WissKI modules. 
 log_info " => Enable Wisski modules"

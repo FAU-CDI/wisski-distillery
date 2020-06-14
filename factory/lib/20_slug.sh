@@ -60,6 +60,7 @@ GRAPHDB_REPO="${GRAPHDB_REPO_PREFIX}${USERNAME_BASE}"
 
 # Compute the base directory for the files that will live on disk. 
 BASE_DIR="$DRUPAL_ROOT/$INSTANCE_DOMAIN"
+ENV_FILE="$BASE_DIR/wisski-env"
 COMPOSER_DIR="$BASE_DIR/project"
 WEB_DIR="$COMPOSER_DIR/web"
 ONTOLOGY_DIR="$WEB_DIR/sites/default/files/ontology"

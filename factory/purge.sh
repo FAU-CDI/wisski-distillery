@@ -29,6 +29,10 @@ mysql -e "FLUSH PRIVILEGES;"
 log_info " => Deleting GraphDB repository '$GRAPHDB_REPO'"
 curl -X DELETE http://127.0.0.1:7200/rest/repositories/$GRAPHDB_REPO/
 
+log_info " => Deleting GraphDB user '$GRAPHDB_USER'"
+curl -X DELETE http://127.0.0.1:7200/rest/security/user/$GRAPHDB_USER/
+
+
 log_info " => Deleting system user and group '$SYSTEM_USER'"
 deluser "$SYSTEM_USER" || true
 delgroup "$SYSTEM_USER" || true
