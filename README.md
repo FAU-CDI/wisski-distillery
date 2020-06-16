@@ -92,7 +92,10 @@ The database password is randomly generated and only made available directly to 
 __3. Initialize a new composer project__
 
 Within the home directory of the dedicated user, we create a new composer project that requires [drupal/recommended-project](https://github.com/drupal/recommended-project)` as well as drush. 
-
+By default, this setup creates a new installation of the newest Drupal Version -- Drupal 9.x at the time of writing. 
+However, WissKi is not yet compatible with Drupal 9.x. 
+For this reason, by default this script installs Drupal 8.x instead. 
+An optional flag, `USE_DRUPAL_9` can be provided to force
 __4. Run the Drupal Installation scripts__
 
 We run the Drupal installation scripts. 
