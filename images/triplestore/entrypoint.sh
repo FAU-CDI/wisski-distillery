@@ -1,10 +1,13 @@
 #!/bin/bash
 set -e
 
-# chown the volumes to graphdb
-chown -R graphdb:graphdb /opt/graphdb/data
-chown -R graphdb:graphdb /opt/graphdb/work
-chown -R graphdb:graphdb /opt/graphdb/logs
+# Because we want to run graphdb as a limited user
+# we need to make sure that the volumes are writable. 
+# Because of that, we 'chown'
 
-# run graphdb as a limited user
+chown graphdb:graphdb /opt/graphdb/data
+chown graphdb:graphdb /opt/graphdb/work
+chown graphdb:graphdb /opt/graphdb/logs
+
+# switch to the graphdb user, and run graphdb
 su graphdb -c "/opt/graphdb/bin/graphdb $@"
