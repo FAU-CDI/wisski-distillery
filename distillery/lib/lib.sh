@@ -16,6 +16,7 @@ LIB_DIR="$SCRIPT_DIR/lib"
 # These contain functionality used in the various scripts. 
 source "$LIB_DIR/00_init.sh";
 source "$LIB_DIR/10_config.sh";
-source "$LIB_DIR/20_slug.sh";
-source "$LIB_DIR/30_templates.sh";
-source "$LIB_DIR/40_utils.sh";
+source "$LIB_DIR/20_sql.sh";
+source "$LIB_DIR/30_slug.sh";
+source "$LIB_DIR/40_templates.sh";
+source "$LIB_DIR/50_utils.sh";

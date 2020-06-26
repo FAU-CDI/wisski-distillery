@@ -44,3 +44,18 @@ function log_warn() {
 function log_error() {
    echo -e "\033[0;31m$1\033[0m"
 }
+
+if [ -n "$DISABLE_LOG" ]; then
+   function log_info() {
+      true
+   }
+   function log_ok() {
+      true
+   }
+   function log_warn() {
+      true
+   }
+   function log_error() {
+      true
+   }
+fi

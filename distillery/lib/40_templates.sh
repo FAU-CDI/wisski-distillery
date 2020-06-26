@@ -8,7 +8,8 @@ if [[ "$0" = "$BASH_SOURCE" ]]; then
    exit 1;
 fi
 
-TEMPLATE_DIR="$SCRIPT_DIR/resources/templates/"
+RESOURCE_DIR="$SCRIPT_DIR/resources"
+TEMPLATE_DIR="$RESOURCE_DIR/templates/"
 
 # load_template will load a template $1 from the template directory
 # and replace ${$2} with $3, ${$4} with $5 etc. 
@@ -28,6 +29,20 @@ function load_template() {
 
     # finally echo out the template
     echo "$TEMPLATE"
+}
+
+# install_resource_dir will copy over a resource directory
+# to a destination path recursively. 
+function install_resource_dir() {
+    from="$RESOURCE_DIR/$1"
+    to=$2
+
+    # copythe template files
+    for filename in "$from"/*; do
+        dest="$to/`basename "${filename}"`"
+        echo "Writing \"$dest\""
+        cp -r "$filename"  "$dest"
+    done
 }
 
 # path where common apache files will be installed. 

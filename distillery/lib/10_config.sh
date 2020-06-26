@@ -67,6 +67,15 @@ function is_valid_number() {
    fi;
 }
 
+# 'is_valid_email' checks if a value is a valid email address
+function is_valid_email() {
+   if [[ "$1" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+      return 0;
+   else
+      return 1;
+   fi
+}
+
 # The 'DRUPAL_ROOT' variable must be an absolute path. 
 if ! is_valid_abspath "$DRUPAL_ROOT"; then
    log_error "Variable 'DRUPAL_ROOT' is missing or not a valid path. ";
@@ -75,10 +84,11 @@ if ! is_valid_abspath "$DRUPAL_ROOT"; then
    exit 1;
 fi
 
-# The 'SYSTEM_USER_PREFIX' variable must be a valid slug. 
-if ! is_valid_slug "$SYSTEM_USER_PREFIX"; then
-   log_error "Variable 'SYSTEM_USER_PREFIX' is missing or not a valid slug. ";
+# The 'COMPOSER_ROOT' variable must be an absolute path. 
+if ! is_valid_abspath "$COMPOSER_ROOT"; then
+   log_error "Variable 'COMPOSER_ROOT' is missing or not a valid path. ";
    log_info "Please verify that it is set correctly in '.env'. ";
+   log_info "Please ensure that it does not end in '/'. ";
    exit 1;
 fi
 
@@ -96,6 +106,21 @@ if ! is_valid_slug "$MYSQL_DATABASE_PREFIX"; then
    exit 1;
 fi
 
+# The 'DISTILLERY_BOOKKEEPING_DATABASE' variable must be a valid slug. 
+if ! is_valid_slug "$DISTILLERY_BOOKKEEPING_DATABASE"; then
+   log_error "Variable 'DISTILLERY_BOOKKEEPING_DATABASE' is missing or not a valid slug. ";
+   log_info "Please verify that it is set correctly in '.env'. ";
+   exit 1;
+fi
+
+# The 'DISTILLERY_BOOKKEEPING_TABLE' variable must be a valid slug. 
+if ! is_valid_slug "$DISTILLERY_BOOKKEEPING_TABLE"; then
+   log_error "Variable 'DISTILLERY_BOOKKEEPING_TABLE' is missing or not a valid slug. ";
+   log_info "Please verify that it is set correctly in '.env'. ";
+   exit 1;
+fi
+
+
 # The 'GRAPHDB_USER_PREFIX' variable must be a valid slug. 
 if ! is_valid_slug "$GRAPHDB_USER_PREFIX"; then
    log_error "Variable 'DATABASE_PREFIX' is missing or not a valid slug. ";
@@ -110,12 +135,20 @@ if ! is_valid_slug "$GRAPHDB_REPO_PREFIX"; then
    exit 1;
 fi
 
-
-# The 'DOMAIN' variable must be a valid domain. 
+# The 'DEFAULT_DOMAIN' variable must be a valid domain. 
 if ! is_valid_domain "$DEFAULT_DOMAIN"; then
    log_error "Variable 'DEFAULT_DOMAIN' is missing or not a valid domain. ";
    log_info "Please verify that it is set correctly in '.env'. ";
    exit 1;
+fi
+
+# The 'CERTBOT_EMAIL' variable should either be empty or a valid email
+if [ -n "$CERTBOT_EMAIL" ]; then
+   if ! is_valid_email "$CERTBOT_EMAIL"; then
+         log_error "Variable 'CERTBOT_EMAIL' is not a valid email address. ";
+         log_info "Please verify that it is set correctly in '.env' or remove it completly. ";
+         exit 1;
+   fi;
 fi
 
 # The 'PASSWORD_LENGTH' variable must be a valid number. 
@@ -125,11 +158,11 @@ if ! is_valid_number "$PASSWORD_LENGTH"; then
    exit 1;
 fi
 
-# The 'PUBLIC_PORT' must be a valid number. 
-if ! is_valid_number "$PUBLIC_PORT"; then
-   log_error "Variable 'PUBLIC_PORT' is missing or not a valid number. ";
-   log_info "Please verify that it is set correctly in '.env'. ";
-   exit 1;
-fi
+# paths to composer things
+COMPOSER_WEB_DIR="$COMPOSER_ROOT/core/web"
+COMPOSER_TRIPLESTORE_DIR="$COMPOSER_ROOT/core/triplestore"
+COMPOSER_SQL_DIR="$COMPOSER_ROOT/core/sql"
+COMPOSER_INSTANCES_DIR="$COMPOSER_ROOT/instances"
+
 
 log_ok "Read and validated configuration file. "

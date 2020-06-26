@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+    triplestore:
+        build: .
+        ports:
+            - "127.0.0.1:7200:7200"
+        volumes:
+            - './data/data:/opt/graphdb/data'
+            - './data/work:/opt/graphdb/work'
+            - './data/logs:/opt/graphdb/logs'
+        restart: always
+
+networks:
+    default:
+        external:
+          name: distillery

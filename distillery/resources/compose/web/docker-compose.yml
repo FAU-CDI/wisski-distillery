@@ -1,0 +1,45 @@
+version: "3.7"
+
+services:
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "vhost:/etc/nginx/vhost.d"
+      - "htpasswd:/etc/nginx/htpasswd"
+      - "html:/usr/share/nginx/html"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - "certs:/etc/nginx/certs"
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: true
+    restart: always
+    networks:
+      - default
+
+  letsencrypt-nginx-proxy-companion:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "htpasswd:/etc/nginx/htpasswd"
+      - "vhost:/etc/nginx/vhost.d"
+      - "html:/usr/share/nginx/html"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - "certs:/etc/nginx/certs"
+    restart: always
+    networks:
+      - default
+    depends_on:
+      - nginx-proxy
+
+volumes:
+  vhost:
+  html:
+  certs:
+  htpasswd:
+
+networks:
+  default:
+    external:
+      name: distillery

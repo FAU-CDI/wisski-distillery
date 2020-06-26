@@ -2,6 +2,8 @@
 
 This repository contains a factory server implementation that creates and maintains a list of Drupal Instances. 
 
+** This documentation is not yet updated to the new approach **
+
 ** This is a work in progress and nothing in this repository is ready for production use ** 
 
 ## Overview

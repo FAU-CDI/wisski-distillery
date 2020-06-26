@@ -21,8 +21,7 @@ function require_slug_argument() {
 
     log_info " => Deriving configuration for '$SLUG'. "
     echo "Domain Name:          $INSTANCE_DOMAIN"
-    echo "Base Directory:       $BASE_DIR"
-    echo "System User:          $SYSTEM_USER"
+    echo "Base Directory:       $INSTANCE_BASE_DIR"
     echo "MySQL User:           $MYSQL_USER"
     echo "MySQL Database:       $MYSQL_DATABASE"
     echo "GraphDB User:         $GRAPHDB_USER"
@@ -52,29 +51,17 @@ USERNAME_BASE="${USERNAME_BASE//_/--u}"
 USERNAME_BASE="${USERNAME_BASE//./-}"
 
 # Generate the user and database names for the various systems
-SYSTEM_USER="${SYSTEM_USER_PREFIX}${USERNAME_BASE}"
 MYSQL_USER="${MYSQL_USER_PREFIX}${USERNAME_BASE}"
 MYSQL_DATABASE="${MYSQL_DATABASE_PREFIX}${USERNAME_BASE}"
 GRAPHDB_USER="${GRAPHDB_USER_PREFIX}${USERNAME_BASE}"
 GRAPHDB_REPO="${GRAPHDB_REPO_PREFIX}${USERNAME_BASE}"
 
 # Compute the base directory for the files that will live on disk. 
-BASE_DIR="$DRUPAL_ROOT/$INSTANCE_DOMAIN"
-ENV_FILE="$BASE_DIR/wisski-env"
-COMPOSER_DIR="$BASE_DIR/project"
-WEB_DIR="$COMPOSER_DIR/web"
-ONTOLOGY_DIR="$WEB_DIR/sites/default/files/ontology"
+INSTANCE_BASE_DIR="$COMPOSER_INSTANCES_DIR/$INSTANCE_DOMAIN"
+INSTANCE_DATA_DIR="$INSTANCE_BASE_DIR/data/"
 
-# Setup aliases for drush and composer. 
-alias composer="sudo -u $SYSTEM_USER /usr/local/bin/composer"
-alias drush="sudo -u $SYSTEM_USER $COMPOSER_DIR/vendor/bin/drush"
+if [ -n "$CERTBOT_EMAIL" ]; then
+    LETSENCRYPT_HOST="$INSTANCE_DOMAIN"
+    LETSENCRYPT_EMAIL="$CERTBOT_EMAIL"
+fi;
 
-# Because of a bug in Drupal we constantly have to reset the permissions of the site directory. 
-# See https://www.drupal.org/project/drupal/issues/3091285. 
-function drupal_sites_permission_workaround() {
-    chmod -R u+w "$WEB_DIR/sites/"
-}
-
-# Apache configuration paths
-APACHE_CONFIG_SITE_AVAILABLE="/etc/apache2/sites-available/${INSTANCE_DOMAIN}.conf"
-APACHE_CONFIG_SITE_ENABLED="/etc/apache2/sites-enabled/${INSTANCE_DOMAIN}.conf"
