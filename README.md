@@ -39,7 +39,7 @@ vagrant up
 
 # open a shell inside the vm
 # for debugging purposes forward port 7200 (GraphDB) and 8080 (phpmyadmin)
-vagrant ssh -- -L 12
+vagrant ssh -- -L 7200:127.0.0.1:7200 -L 8080:127.0.0.1:8080
 ```
 
 
