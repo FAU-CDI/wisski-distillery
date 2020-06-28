@@ -1,17 +1,16 @@
 # WissKI-Distillery
 
-This repository contains a factory server implementation that creates and maintains a list of Drupal Instances. 
+WissKI-Distillery is a Docker-based server for multiple [WissKI](https://wiss-ki.eu/) Instances. 
 
-** This documentation is not yet updated to the new approach **
-
-** This is a work in progress and nothing in this repository is ready for production use ** 
+** This project is still a work in progress and nothing in this repository is ready for production use ** 
 
 ## Overview
 
 This project consists of the following:
 
 - this README
-- several bash scripts in the 'factory' folder that are described below
+- bash scripts for setting up and managing the distillery server
+- bash scripts for backing up the server
 - a `Vagrantfile` for local testing
 
 The bash scripts are dependency-free and only assume that a basic debian system is available. 
@@ -19,52 +18,89 @@ The scripts have been tested only under Debian 10, but may also work under older
 All scripts expect to be run as root, and will fail when this is not the case. 
 Each script is well-commented and all commands are explained. 
 
-Configuration of the bash scripts can be done in the file 'factory/.env'. 
-A sample configuration file (with documented defaults) is available in 'factory/.env.sample'. 
+Configuration of the bash scripts can be done in the file `distillery/.env`. 
+A sample configuration file (with documented defaults) is available in `distillery/.env.sample`. 
 To get started, it is sufficient to run:
 
 ```bash
-cd factory/
+cd distillery/
 cp .env.sample .env
 your-favorite-editor .env # open and customize, usually only the domain needs adjusting
 ```
 
+## Vagrantfile
+
 For local testing, it is recommended to use [Vagrant](https://www.vagrantup.com/) and the provided `Vagrantfile`. 
+After installing vagrant, run:
+
+```bash
+# start the vargant box
+vagrant up
+
+# open a shell inside the vm
+# for debugging purposes forward port 7200 (GraphDB) and 8080 (phpmyadmin)
+vagrant ssh -- -L 12
+```
+
 
 ## Preparing the Server -- 'system_install.sh'
 
-*TLDR: `sudo bash /factory/system_install.sh /path/to/graphdb.zip`*
+*TLDR: `sudo bash /dustillery/system_install.sh /path/to/graphdb.zip`*
 
-To prepare the server for becoming a WissKI factory, a few components need to be installed. 
-In particular, these are:
-- [PHP](https://www.php.net/) and [Composer](https://getcomposer.org/) -- for getting and running the Drupal Code
-- serveral PHP modules that are dependencies of Drupal
-- [MariaDB](https://mariadb.org/) -- an SQL database
-- [Apache2](https://httpd.apache.org/), the corresponding php and [mpm-itk](http://mpm-itk.sesse.net/) modules -- a webserver
+To prepare the server for becoming a WissKI factory, several core Docker Instances must be installed. 
+These are:
+
+- [nginx-proxy](https://github.com/nginx-proxy/nginx-proxy) -an automated nginx reverse proxy
+    - This will delegate individual hostnames to appropriate docker containers, see [this blog post](http://jasonwilder.com/blog/2014/03/25/automated-nginx-reverse-proxy-for-docker/) for an overview. 
+    - Optionally makes use of [docker-letsencrypt-nginx-proxy-companion](https://github.com/nginx-proxy/docker-letsencrypt-nginx-proxy-companion) to automatically provision and renew HTTPS certificates. 
+    - See [distillery/resources/compose/web](distillery/resources/compose/web) for implementation details. 
+
+- [MariaDB](https://mariadb.org/) - a SQL server
+    - It is configured to run inside a docker container
+    - A passwordless `root` account is created, which can only be used from inside the container. 
+    - A `bookkeeping` database and table is created by default, to store known WissKI instance metadata in. 
+    - A database shell can be opened using `sudo /distillery/mysql.sh`. 
+    - A [phpmyadmin](https://www.phpmyadmin.net/) is started on `127.0.0.1:8080`. 
+    - See [distillery/resources/compose/sql](distillery/resources/compose/sql) for implementation details. 
+
 - [GraphDB](http://graphdb.ontotext.com/) - an SPARQL backend for WissKI
+    - It is configured to run inside a docker container. 
+    - The Workbench API is started on `127.0.0.1:7200`. 
+    - Security is not enabled at the moment. 
+    - See [distillery/resources/compose/triplestore](distillery/resources/compose/triplestore) for implementation details. 
 
-With the exception of GraphDB all these components can be installed using Debian's package manager 'apt'. 
-To install GraphDB, a zip with the binaries needs to be unpacked, and then a systemd service for it needs to be created. 
+To manage multiple docker containers, this script makes heavy use of [docker-compose](https://docs.docker.com/compose/). 
 
-These steps can be performed automatically. 
-In particular, after obtaining a license and the installation zip file for 'GraphDB', one can run the 'factory/system_install.sh' script as follows to setup all components:
+Setting up these steps is fully automatic.
+In particular, after obtaining a license and the installation zip file for 'GraphDB', one can run the 'distillery/system_install.sh' script as follows to setup all components:
 
 ```bash
-sudo bash /factory/system_install.sh /path/to/graphdb.zip
+sudo bash /distillery/system_install.sh /path/to/graphdb.zip
 ```
 
 In principle this script is idempotent, meaning it can be run multiple times achieving the same effect. 
 
+## Updating the Docker Containers -- 'system_update.sh'
+
+For security purposes, the core containers should be regularly updated. 
+To achieve this, the docker container images should be rebuilt and restarted. 
+
+This can be done using:
+
+```bash
+sudo bash /distillery/system_update.sh
+```
+
 ## Provisioning a new WissKI instance  -- 'provision.sh'
 
-*TLDR: `sudo bash provision.sh slug-of-new-website`*
+*TLDR: `sudo /distillery/provision.sh slug-of-new-website`*
 
 A new WissKI instance consists of several components:
 
-- A [Drupal](https://www.drupal.org/) instance, managed as a [Composer](https://getcomposer.org/) project
-- An [Apache](https://httpd.apache.org/) the makes the above available externally
-- An [SQL](https://mariadb.org/) database, to store Drupal Nodes in
-- A [GraphDB](https://graphdb.ontotext.com/) repository to store RDF triples in
+- A Drupal instance inside a lightweight php runtime container
+- An entry in the SQL bookkeeping table that stores instance meta-data
+- An SQL database and user for Drupal
+- A GraphDB repository and user as SPARQL endpoint
 
 Each WissKI instance is identified by a ``slug''. 
 This is a preferably short name that is used to form a domain name for the WissKI instance. 
@@ -72,51 +108,43 @@ This factory assumes that each instance is a subdomain of a given domain.
 For example, if the given domain is 'wisskis.example.com' and the slug of a particular instance is 'blue', the subdomain used by this instance would be 'blue.wisskis.example.com'. 
 The given domain can be configured within the '.env' file. 
 
-In this implementation we furthermore isolate each WissKI instance from the rest of the system.
-For this purpose, we make use of an appropriate system user, an appropriate SQL user and a GraphDB user. 
-**Note: GraphDB users are not yet implemented **
+We use the following process to provision a new instance:
 
-We thus use the following process to provision a new instance:
+__1. Create a new docker-compose.yml file__
 
-__1. We create a new system user and hoem directory__
-
-The username is derived from the slug, with a configurable prefix. 
-The home directory for this user will contain the Drupal PHP files needed to run a WissKI. 
-For this reason, the home directory for each user is a subdirectory at a standardized location. 
-By default this is `/var/www/factory/$USER', but this can be customized. 
+In this step we first create a directory on the real system to hold all files relating to this instance. 
+By default, this takes place inside `/var/www/deploy/instances/$DOMAIN`, but this can be configured. 
+We then create a docker-compose file in this directory that is ready for running the runtime container. 
 
 __2. Create an appropriate SQL database and user__
 
 We create a new SQL database to eventually store Drupal-related data in. 
-The user and database names are again generated from the slug. 
+The user and database names are generated from the slug. 
 The database password is randomly generated and only made available directly to the Drupal instance later. 
 
-__3. Initialize a new composer project__
-
-Within the home directory of the dedicated user, we create a new composer project that requires [drupal/recommended-project](https://github.com/drupal/recommended-project)` as well as drush. 
-
-__4. Run the Drupal Installation scripts__
-
-We run the Drupal installation scripts. 
-Here we tell Drupal about the database credentials, and initialize an initial 'admin' user for the drupal instance. 
-The password for the 'admin' user is randomly generated in this process. 
-
-__5. Create a GraphDB repository and user__
+__3. Create a GraphDB repository and user__
 
 Next, we create a dedidcated GraphDB repository for the WissKI instance. 
 We also create a new GraphDB user with access to this repository. 
 
-__6. Add WissKI modules to Drupal__
+__4. Provision the instance inside the container__
 
-Next, we add the required WissKI modules to Drupal. 
-Also patch EasyRDF and make an ontology directory. 
-*TODO*: Configure the WissKI modules automatically. 
+We start the container in provisioning mode. 
 
-__7. Create a Apache VHost configuration__
+This does the following:
 
-Finally, we create an apache vhost configuration that makes the drupal website available. 
-*TODO*: SSL
+- Creates a new composer project that requires [drupal/recommended-project](https://github.com/drupal/recommended-project)`. 
+- Installs `drush` into this project. 
+- Runs the `drush site-install` command to configure the Drupal instance. Generates a random password to use. 
+- Adds and enables WissKI-specific modules for this instance. 
 
+Currently the WissKI Salz instance is not enabled programatically. 
+Instead all credentials (along with instructions on how to configure it) are printed to the command line. 
+
+
+__6. Start the Docker Container__
+
+Finally, we can start the docker container. 
 
 These steps can be performed automatically. 
 To do so, use:
@@ -125,29 +153,11 @@ To do so, use:
 sudo bash /factory/provision.sh SLUG
 ```
 
-## Manually editing WissKI instances -- 'shell.sh'
-
-Sometimes it is needed to make manual adjustments to an individual instance. 
-For this purpose, the `shell.sh` script exists. 
-It opens an interactive shell in the context of a given WissKI instance. 
-In particular it:
-- switches to the appropriate system user
-- sets up the '$PATH' environment variable to allow using 'drush' and 'composer'
-
-To use it, run:
-
-```bash
-sudo bash /factory/shell.sh SLUG
-```
-
 ## Purge an existing WissKI instance -- 'purge.sh'
-
-* TODO: Document this more *
 
 
 Sometimes it is required to remove a given WissKI instance. 
 In particular all parts belonging to it should be removed. 
-
 
 To use it, run:
 
@@ -155,23 +165,56 @@ To use it, run:
 sudo bash /factory/purge.sh SLUG
 ```
 
-
-## TODO
-
-- Compare with Mark Fichtners approach
-- More documentation
-    - Document and improve`update.sh`
-    - User-level documentation
-        - What is a factory?
-        - Why a factory?
-        - First steps after provisioning
-- Writeup approach to SSL (Wildcard cert with proxy that downgrades connections to plain http, or mod_md)
-- Automatically setup SALZ adapter (if this is possible)
-- Investigate support for GraphDB Auth in WissKI Salz
-    - Eventually enable security if needed
-- Allow customization of GraphDB installation paths
-
+To ensure 
 
 ## License
 
-Licensed under GPL 3. 
+This project and associated files in this repository are licensed as follows:
+
+    WissKI-Distillery - A docker-based WissKI instance server
+    Copyright (C) 2020 The KWARC Group <kwarc.info>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+Please see `agpl-3.0.txt` for a legally binding license text. 
+The short summary of the license is:
+
+- You may use this software for any purpose, including commerical. 
+- You may create derivative works, and use those for any purpose, including commerical. 
+
+if you follow the following conditions:
+
+- You provide the end-user with a copy of this license. 
+- You make the source code of any derivative works available. 
+- Any derivative works clearly list changes made. 
+- You license any derivative works under the same license. 
+
+This also applies if you only run a backend service based on this software. 
+
+
+## TODO
+
+- User-level documentation
+    - What is a factory?
+    - Why a factory?
+    - First steps after provisioning
+- Automatically setup SALZ adapter (if this is possible)
+- Enable authentication for GraphDB
+- Investigate support for GraphDB Auth in WissKI Salz
+    - Eventually enable security if needed
+    - Switch to a different TripleStore alltogether?
+- Investigate managing phpmyadmin
+- Investigate managing graphdb
+- Investigate delegating shell access
+- Investigate delegating ftp access
