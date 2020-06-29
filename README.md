@@ -172,7 +172,7 @@ To ensure
 This project and associated files in this repository are licensed as follows:
 
     WissKI-Distillery - A docker-based WissKI instance server
-    Copyright (C) 2020 The KWARC Group <kwarc.info>
+    Copyright (C) 2020 AGFD <https://www.agfd.fau.de/>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
@@ -187,7 +187,7 @@ This project and associated files in this repository are licensed as follows:
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-Please see `agpl-3.0.txt` for a legally binding license text. 
+Please see `LICENSE` for a legally binding license text. 
 The short summary of the license is:
 
 - You may use this software for any purpose, including commerical. 
