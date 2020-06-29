@@ -76,17 +76,9 @@ function is_valid_email() {
    fi
 }
 
-# The 'DRUPAL_ROOT' variable must be an absolute path. 
-if ! is_valid_abspath "$DRUPAL_ROOT"; then
-   log_error "Variable 'DRUPAL_ROOT' is missing or not a valid path. ";
-   log_info "Please verify that it is set correctly in '.env'. ";
-   log_info "Please ensure that it does not end in '/'. ";
-   exit 1;
-fi
-
-# The 'COMPOSER_ROOT' variable must be an absolute path. 
-if ! is_valid_abspath "$COMPOSER_ROOT"; then
-   log_error "Variable 'COMPOSER_ROOT' is missing or not a valid path. ";
+# The 'DEPLOY_ROOT' variable must be an absolute path. 
+if ! is_valid_abspath "$DEPLOY_ROOT"; then
+   log_error "Variable 'DEPLOY_ROOT' is missing or not a valid path. ";
    log_info "Please verify that it is set correctly in '.env'. ";
    log_info "Please ensure that it does not end in '/'. ";
    exit 1;
@@ -159,10 +151,10 @@ if ! is_valid_number "$PASSWORD_LENGTH"; then
 fi
 
 # paths to composer things
-COMPOSER_WEB_DIR="$COMPOSER_ROOT/core/web"
-COMPOSER_TRIPLESTORE_DIR="$COMPOSER_ROOT/core/triplestore"
-COMPOSER_SQL_DIR="$COMPOSER_ROOT/core/sql"
-COMPOSER_INSTANCES_DIR="$COMPOSER_ROOT/instances"
+DEPLOY_WEB_DIR="$DEPLOY_ROOT/core/web"
+DEPLOY_TRIPLESTORE_DIR="$DEPLOY_ROOT/core/triplestore"
+DEPLOY_SQL_DIR="$DEPLOY_ROOT/core/sql"
+DEPLOY_INSTANCES_DIR="$DEPLOY_ROOT/instances"
 
 
 log_ok "Read and validated configuration file. "

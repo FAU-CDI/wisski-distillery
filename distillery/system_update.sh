@@ -15,15 +15,15 @@ function update_stack() {
 }
 
 log_info "=> Rebuilding and restarting 'web' stack"
-update_stack "$COMPOSER_WEB_DIR"
+update_stack "$DEPLOY_WEB_DIR"
 
 # build and start the triplestore
 log_info "=> Rebuilding and restarting 'triplestore' stack"
-update_stack "$COMPOSER_TRIPLESTORE_DIR"
+update_stack "$DEPLOY_TRIPLESTORE_DIR"
 
 # build and start the triplestore
 log_info "=> Rebuilding and restarting 'sql' stack"
-update_stack "$COMPOSER_SQL_DIR"
+update_stack "$DEPLOY_SQL_DIR"
 
 # TODO: Iterate over all the instance
 # and a  pull_and_update

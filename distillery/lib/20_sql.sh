@@ -34,7 +34,7 @@ function _wait_for_sql_internal() {
 
 # 'dockerized_mysql' runs an sql command in the sql docker container
 function dockerized_mysql() {
-    pushd "$COMPOSER_SQL_DIR" > /dev/null
+    pushd "$DEPLOY_SQL_DIR" > /dev/null
     docker exec -i `docker-compose ps -q sql` mysql "$@"
     retval=$?
     popd > /dev/null
@@ -43,7 +43,7 @@ function dockerized_mysql() {
 
 # 'dockerized_mysql' runs an sql command in the sql docker container interactively
 function dockerized_mysql_interactive() {
-    pushd "$COMPOSER_SQL_DIR" > /dev/null
+    pushd "$DEPLOY_SQL_DIR" > /dev/null
     docker exec -ti `docker-compose ps -q sql` mysql "$@"
     retval=$?
     popd > /dev/null

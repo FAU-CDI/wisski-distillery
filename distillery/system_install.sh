@@ -46,34 +46,34 @@ log_info "=> Installing docker-compose"
 pip3 install --upgrade docker-compose
 
 log_info "=> Creating docker-compose directories"
-mkdir -p "$COMPOSER_INSTANCES_DIR"
-mkdir -p "$COMPOSER_WEB_DIR"
-mkdir -p "$COMPOSER_TRIPLESTORE_DIR"
-mkdir -p "$COMPOSER_SQL_DIR"
+mkdir -p "$DEPLOY_INSTANCES_DIR"
+mkdir -p "$DEPLOY_WEB_DIR"
+mkdir -p "$DEPLOY_TRIPLESTORE_DIR"
+mkdir -p "$DEPLOY_SQL_DIR"
 
 log_info "=> Creating 'distillery' network"
 docker network create distillery || true
 
 log_info "=> Creating 'docker-compose' files for the 'web'. "
-install_resource_dir "compose/web" "$COMPOSER_WEB_DIR"
+install_resource_dir "compose/web" "$DEPLOY_WEB_DIR"
 
 # copy over the directory
 log_info "=> Creating 'docker-compose' files for the 'triplestore'. "
-install_resource_dir "compose/triplestore" "$COMPOSER_TRIPLESTORE_DIR"
+install_resource_dir "compose/triplestore" "$DEPLOY_TRIPLESTORE_DIR"
 
 # copy the graphdb.zip
-echo "Writing \"$COMPOSER_TRIPLESTORE_DIR/graphdb.zip\""
-cp "$GRAPHDB_ZIP" "$COMPOSER_TRIPLESTORE_DIR/graphdb.zip"
+echo "Writing \"$DEPLOY_TRIPLESTORE_DIR/graphdb.zip\""
+cp "$GRAPHDB_ZIP" "$DEPLOY_TRIPLESTORE_DIR/graphdb.zip"
 
 # create data (volume) location
-mkdir -p "$COMPOSER_TRIPLESTORE_DIR/data/data/"
-mkdir -p "$COMPOSER_TRIPLESTORE_DIR/data/work/"
-mkdir -p "$COMPOSER_TRIPLESTORE_DIR/data/logs/"
+mkdir -p "$DEPLOY_TRIPLESTORE_DIR/data/data/"
+mkdir -p "$DEPLOY_TRIPLESTORE_DIR/data/work/"
+mkdir -p "$DEPLOY_TRIPLESTORE_DIR/data/logs/"
 
 # copy over the sql resource directory, then ensure the data diretory for sql exists. 
 log_info "=> Creating 'docker-compose' files for the 'sql'. "
-install_resource_dir "compose/sql" "$COMPOSER_SQL_DIR"
-mkdir -p "$COMPOSER_SQL_DIR/data/"
+install_resource_dir "compose/sql" "$DEPLOY_SQL_DIR"
+mkdir -p "$DEPLOY_SQL_DIR/data/"
 
 # Run all the updates via system_update.sh
 log_info " => Running 'system_update.sh'"
