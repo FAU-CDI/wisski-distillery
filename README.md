@@ -1,8 +1,8 @@
 # WissKI-Distillery
 
-WissKI-Distillery is a Docker-based server for multiple [WissKI](https://wiss-ki.eu/) Instances. 
+WissKI-Distillery is a Docker-based server provisioning and managing for multiple [WissKI](https://wiss-ki.eu/) instances. 
 
-** This project is still a work in progress and nothing in this repository is ready for production use ** 
+**This project is still a work in progress and nothing in this repository is ready for production use** 
 
 ## Overview
 
@@ -45,17 +45,17 @@ vagrant ssh -- -L 7200:127.0.0.1:7200 -L 8080:127.0.0.1:8080
 
 ## Preparing the Server -- 'system_install.sh'
 
-*TLDR: `sudo bash /dustillery/system_install.sh /path/to/graphdb.zip`*
+*TLDR: `sudo bash /distillery/system_install.sh /path/to/graphdb.zip`*
 
 To prepare the server for becoming a WissKI factory, several core Docker Instances must be installed. 
 These are:
 
-- [nginx-proxy](https://github.com/nginx-proxy/nginx-proxy) -an automated nginx reverse proxy
+- [nginx-proxy](https://github.com/nginx-proxy/nginx-proxy) - an automated nginx reverse proxy
     - This will delegate individual hostnames to appropriate docker containers, see [this blog post](http://jasonwilder.com/blog/2014/03/25/automated-nginx-reverse-proxy-for-docker/) for an overview. 
     - Optionally makes use of [docker-letsencrypt-nginx-proxy-companion](https://github.com/nginx-proxy/docker-letsencrypt-nginx-proxy-companion) to automatically provision and renew HTTPS certificates. 
     - See [distillery/resources/compose/web](distillery/resources/compose/web) for implementation details. 
 
-- [MariaDB](https://mariadb.org/) - a SQL server
+- [MariaDB](https://mariadb.org/) - an SQL server
     - It is configured to run inside a docker container
     - A passwordless `root` account is created, which can only be used from inside the container. 
     - A `bookkeeping` database and table is created by default, to store known WissKI instance metadata in. 
@@ -63,7 +63,7 @@ These are:
     - A [phpmyadmin](https://www.phpmyadmin.net/) is started on `127.0.0.1:8080`. 
     - See [distillery/resources/compose/sql](distillery/resources/compose/sql) for implementation details. 
 
-- [GraphDB](http://graphdb.ontotext.com/) - an SPARQL backend for WissKI
+- [GraphDB](http://graphdb.ontotext.com/) - a SPARQL backend for WissKI
     - It is configured to run inside a docker container. 
     - The Workbench API is started on `127.0.0.1:7200`. 
     - Security is not enabled at the moment. 
@@ -104,7 +104,7 @@ A new WissKI instance consists of several components:
 
 Each WissKI instance is identified by a ``slug''. 
 This is a preferably short name that is used to form a domain name for the WissKI instance. 
-This factory assumes that each instance is a subdomain of a given domain. 
+The WissKI distillery assumes that each instance is a subdomain of a given domain. 
 For example, if the given domain is 'wisskis.example.com' and the slug of a particular instance is 'blue', the subdomain used by this instance would be 'blue.wisskis.example.com'. 
 The given domain can be configured within the '.env' file. 
 
