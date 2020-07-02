@@ -218,3 +218,4 @@ This also applies if you only run a backend service based on this software.
 - Investigate managing graphdb
 - Investigate delegating shell access
 - Investigate delegating ftp access
+- document CNAME structure
