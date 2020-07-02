@@ -4,3 +4,4 @@
 # allow the following files:
 !conf/*
 !scripts/*
+!patch/*

@@ -51,6 +51,9 @@ ENV PATH "/usr/local/bin:/var/www/data/project/vendor/bin:$PATH"
 # remove default configuration
 RUN rm /etc/apache2/sites-available/*.conf && \
     rm /etc/apache2/sites-enabled/*.conf
+
+ADD patch/easyrdf.patch /patch/easyrdf.patch
+
 # Add wisski configuration
 ADD conf/ports.conf /etc/apache2/ports.conf
 ADD conf/wisski.conf /etc/apache2/sites-available/wisski.conf

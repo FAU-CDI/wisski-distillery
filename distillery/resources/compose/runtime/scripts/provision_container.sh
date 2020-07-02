@@ -107,6 +107,11 @@ log_info " => Enable Wisski modules"
 drush pm-enable --yes wisski_core wisski_linkblock wisski_pathbuilder wisski_adapter_sparql11_pb wisski_salz
 drupal_sites_permission_workaround
 
+# Because of a regresssion in EasyRDF and Tomcat, we need to manually patch EasyRDF
+EASYRDF_RESPONSE="$COMPOSER_DIR/vendor/easyrdf/easyrdf/lib/EasyRdf/Http/Response.php"
+log_info " => Patching '$EASYRDF_RESPONSE'"
+patch "$EASYRDF_RESPONSE" < "/patch/easyrdf.patch"
+
 log_info " => Provisioning is now complete. "
 log_ok "Your installation details are as follows:"
 function printdetails() {
