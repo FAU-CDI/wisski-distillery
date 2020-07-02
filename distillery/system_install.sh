@@ -48,6 +48,7 @@ pip3 install --upgrade docker-compose
 log_info "=> Creating docker-compose directories"
 mkdir -p "$DEPLOY_INSTANCES_DIR"
 mkdir -p "$DEPLOY_WEB_DIR"
+mkdir -p "$DEPLOY_SELF_DIR"
 mkdir -p "$DEPLOY_TRIPLESTORE_DIR"
 mkdir -p "$DEPLOY_SQL_DIR"
 
@@ -56,6 +57,27 @@ docker network create distillery || true
 
 log_info "=> Creating 'docker-compose' files for the 'web'. "
 install_resource_dir "compose/web" "$DEPLOY_WEB_DIR"
+
+log_info " => Writing 'web' configuration file"
+load_template "docker-env/web" \
+    "DEFAULT_HOST" "${DEFAULT_DOMAIN}" \
+    > "$DEPLOY_WEB_DIR/.env"
+
+log_info "=> Creating 'docker-compose' files for the 'self'. "
+install_resource_dir "compose/self" "$DEPLOY_SELF_DIR"
+
+# setup the lesencrypt host for the default domain
+if [ -n "$LETSENCRYPT_HOST" ]; then
+    LETSENCRYPT_HOST="$DEFAULT_DOMAIN"
+fi;
+
+log_info " => Writing 'self' configuration file"
+load_template "docker-env/self" \
+    "VIRTUAL_HOST" "${DEFAULT_DOMAIN}" \
+    "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \
+    "LETSENCRYPT_EMAIL" "${LETSENCRYPT_EMAIL}" \
+    > "$DEPLOY_SELF_DIR/.env"
+
 
 # copy over the directory
 log_info "=> Creating 'docker-compose' files for the 'triplestore'. "

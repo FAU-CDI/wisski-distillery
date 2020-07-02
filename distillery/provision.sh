@@ -80,7 +80,7 @@ sql_bookkeep_insert \
     "\"${SLUG}\",\"${INSTANCE_BASE_DIR}\",\"${MYSQL_DATABASE}\",\"${MYSQL_USER}\",\"${MYSQL_PASSWORD}\",\"${GRAPHDB_REPO}\",\"${GRAPHDB_USER}\",\"${GRAPHDB_PASSWORD}\""
 
 log_info " => Writing configuration file"
-load_template "runtime-config/environment" \
+load_template "docker-env/runtime" \
     "REAL_PATH" "${INSTANCE_DATA_DIR}" \
     "VIRTUAL_HOST" "${INSTANCE_DOMAIN}" \
     "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \

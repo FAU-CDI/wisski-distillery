@@ -152,6 +152,7 @@ fi
 
 # paths to composer things
 DEPLOY_WEB_DIR="$DEPLOY_ROOT/core/web"
+DEPLOY_SELF_DIR="$DEPLOY_ROOT/core/self"
 DEPLOY_TRIPLESTORE_DIR="$DEPLOY_ROOT/core/triplestore"
 DEPLOY_SQL_DIR="$DEPLOY_ROOT/core/sql"
 DEPLOY_INSTANCES_DIR="$DEPLOY_ROOT/instances"

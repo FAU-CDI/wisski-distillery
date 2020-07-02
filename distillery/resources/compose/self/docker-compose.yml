@@ -1,0 +1,22 @@
+version: "3.7"
+
+services:
+  tr:
+    image: tkw01536/tr
+    restart: always
+    environment:
+      # port and hostname for this image to use
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      VIRTUAL_PORT: 8080
+      
+      # optional letsencrypt email
+      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+
+      # where to redirect to
+      TARGET: ${TARGET}
+
+networks:
+  default:
+    external:
+      name: distillery
