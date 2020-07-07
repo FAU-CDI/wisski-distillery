@@ -20,12 +20,14 @@ function require_slug_argument() {
     fi
 
     log_info " => Deriving configuration for '$SLUG'. "
-    echo "Domain Name:          $INSTANCE_DOMAIN"
-    echo "Base Directory:       $INSTANCE_BASE_DIR"
-    echo "MySQL User:           $MYSQL_USER"
-    echo "MySQL Database:       $MYSQL_DATABASE"
-    echo "GraphDB User:         $GRAPHDB_USER"
-    echo "GraphDB Repository:   $GRAPHDB_REPO"
+    if [ ! -n "DISABLE_LOG" ]; then
+        echo "Domain Name:          $INSTANCE_DOMAIN"
+        echo "Base Directory:       $INSTANCE_BASE_DIR"
+        echo "MySQL User:           $MYSQL_USER"
+        echo "MySQL Database:       $MYSQL_DATABASE"
+        echo "GraphDB User:         $GRAPHDB_USER"
+        echo "GraphDB Repository:   $GRAPHDB_REPO"
+    fi
 }
 
 # Read the slug argument. 

@@ -30,32 +30,29 @@ shopt -s expand_aliases
 
 # Setup some basic input/output functions
 function log_info() {
+   if [ -n "$DISABLE_LOG" ]; then
+      return;
+   fi
    echo -e "\033[1m$1\033[0m"
 }
 
 function log_ok() {
+   if [ -n "$DISABLE_LOG" ]; then
+      return;
+   fi
    echo -e "\033[0;32m$1\033[0m"
 }
 
 function log_warn() {
+   if [ -n "$DISABLE_LOG" ]; then
+      return;
+   fi
    echo -e "\033[1;33m$1\033[0m"
 }
 
 function log_error() {
+   if [ -n "$DISABLE_LOG" ]; then
+      return;
+   fi
    echo -e "\033[0;31m$1\033[0m"
 }
-
-if [ -n "$DISABLE_LOG" ]; then
-   function log_info() {
-      true
-   }
-   function log_ok() {
-      true
-   }
-   function log_warn() {
-      true
-   }
-   function log_error() {
-      true
-   }
-fi

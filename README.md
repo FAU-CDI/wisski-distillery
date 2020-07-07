@@ -165,7 +165,16 @@ To use it, run:
 sudo bash /factory/purge.sh SLUG
 ```
 
-To ensure 
+## Open a shell -- 'shell.sh'
+
+Sometimes manual changes to a given WissKI instance are required. 
+For this purpose, you can use:
+
+```bash
+sudo bash /factory/shell.sh SLUG
+```
+
+This will open a shell in the provided WissKI instance. 
 
 ## License
 
