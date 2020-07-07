@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
         default-mysql-client \
         imagemagick \
         git \
+        vim \
     && \
     docker-php-source extract && \
     docker-php-ext-install \
