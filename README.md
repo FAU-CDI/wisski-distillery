@@ -176,6 +176,14 @@ sudo bash /distillery/shell.sh SLUG
 
 This will open a shell in the provided WissKI instance. 
 
+## List all instances -- 'ls.sh'
+
+To list all instances, the following command can be used:
+
+```bash
+sudo bash /distillery/ls.sh
+```
+
 ## License
 
 This project and associated files in this repository are licensed as follows:
