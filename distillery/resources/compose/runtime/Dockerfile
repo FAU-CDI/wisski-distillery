@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
         sudo \
         zip unzip \
         default-mysql-client \
+        imagemagick \
     && \
     docker-php-source extract && \
     docker-php-ext-install \
