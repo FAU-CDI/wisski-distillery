@@ -1,9 +1,4 @@
-# To install a new system:
-
-# This script will provision a new Drupal instance and make it available to apache. 
-# Usage: sudo ./provision.sh $SLUG
-# In case the installation fails, it will bail out and leave you with an incomplete installation. 
-# To delete an incomplete installation, use the ./purge.sh script, or try fixing the error manually. 
+#!/bin/bash
 set -e
 
 # read the lib/shared.sh and read the slug argument. 

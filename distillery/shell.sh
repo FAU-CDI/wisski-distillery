@@ -1,4 +1,4 @@
-# To install a new system:
+#!/bin/bash
 set -e
 
 # read the lib/shared.sh and read the slug argument. 
