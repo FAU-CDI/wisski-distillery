@@ -6,14 +6,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "$DIR"
 source "$DIR/lib/lib.sh"
 
-# update_stack fully updates a docker-compose stack in the given location. 
-function update_stack() {
-    cd "$1"
-    docker-compose pull
-    docker-compose build --pull
-    docker-compose up -d
-}
-
 log_info "=> Rebuilding and restarting 'web' stack"
 update_stack "$DEPLOY_WEB_DIR"
 

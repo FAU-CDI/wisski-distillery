@@ -153,6 +153,26 @@ To do so, use:
 sudo bash /distillery/provision.sh SLUG
 ```
 
+## Rebuild an instance -- 'rebuild.sh'
+
+Sometimes it becomes necessary (because of changes to this project) to rebuild the docker image running a certain docker instance. 
+To do so, use:
+
+
+```bash
+sudo bash /distillery/rebuild.sh SLUG
+```
+
+Note that rebuilding an instance does restart the docker container resulting in a small (typical < 1 second) interruption to the website in question. 
+Furthermore, while the container recreated, the old image stays on the host. 
+To delete all instances, run:
+
+```bash
+sudo docker image prune --all
+```
+
+
+
 ## Purge an existing WissKI instance -- 'purge.sh'
 
 

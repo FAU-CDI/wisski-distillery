@@ -14,3 +14,11 @@ export DEBIAN_FRONTEND=noninteractive
 # This file just sets a few utility functions to be used by the code. 
 # randompw generates a random password as per the configuration file. 
 alias randompw="cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PASSWORD_LENGTH | head -n 1"
+
+# update_stack fully updates a docker-compose stack in the given location. 
+function update_stack() {
+    cd "$1"
+    docker-compose pull
+    docker-compose build --pull
+    docker-compose up -d
+}

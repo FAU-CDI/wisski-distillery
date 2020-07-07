@@ -41,7 +41,7 @@ function install_resource_dir() {
     for filename in "$from"/*; do
         dest="$to/`basename "${filename}"`"
         echo "Writing \"$dest\""
-        cp -r "$filename"  "$dest"
+        cp -rTv "$filename"  "$dest"
     done
 }
 
