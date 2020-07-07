@@ -150,7 +150,7 @@ These steps can be performed automatically.
 To do so, use:
 
 ```bash
-sudo bash /factory/provision.sh SLUG
+sudo bash /distillery/provision.sh SLUG
 ```
 
 ## Purge an existing WissKI instance -- 'purge.sh'
@@ -162,7 +162,7 @@ In particular all parts belonging to it should be removed.
 To use it, run:
 
 ```bash
-sudo bash /factory/purge.sh SLUG
+sudo bash /distillery/purge.sh SLUG
 ```
 
 ## Open a shell -- 'shell.sh'
@@ -171,7 +171,7 @@ Sometimes manual changes to a given WissKI instance are required.
 For this purpose, you can use:
 
 ```bash
-sudo bash /factory/shell.sh SLUG
+sudo bash /distillery/shell.sh SLUG
 ```
 
 This will open a shell in the provided WissKI instance. 
