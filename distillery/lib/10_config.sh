@@ -159,6 +159,13 @@ if ! is_valid_number "$PASSWORD_LENGTH"; then
    exit 1;
 fi
 
+# The 'MAX_BACKUP_AGE' variable must be a valid number. 
+if ! is_valid_number "$MAX_BACKUP_AGE"; then
+   log_error "Variable 'MAX_BACKUP_AGE' is missing or not a valid number. ";
+   log_info "Please verify that it is set correctly in '.env'. ";
+   exit 1;
+fi
+
 # The 'CERTBOT_EMAIL' variable should either be empty or a valid email
 if [ -n "$SELF_REDIRECT" ]; then
    if ! is_valid_https_url "$SELF_REDIRECT"; then
@@ -177,6 +184,10 @@ DEPLOY_SELF_DIR="$DEPLOY_ROOT/core/self"
 DEPLOY_TRIPLESTORE_DIR="$DEPLOY_ROOT/core/triplestore"
 DEPLOY_SQL_DIR="$DEPLOY_ROOT/core/sql"
 DEPLOY_INSTANCES_DIR="$DEPLOY_ROOT/instances"
+
+DEPLOY_BACKUP_DIR="$DEPLOY_ROOT/backups"
+DEPLOY_BACKUP_INPROGRESS_DIR="$DEPLOY_BACKUP_DIR/inprogress"
+DEPLOY_BACKUP_FINAL_DIR="$DEPLOY_BACKUP_DIR/final"
 
 
 log_ok "Read and validated configuration file. "

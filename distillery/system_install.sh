@@ -51,6 +51,8 @@ mkdir -p "$DEPLOY_WEB_DIR"
 mkdir -p "$DEPLOY_SELF_DIR"
 mkdir -p "$DEPLOY_TRIPLESTORE_DIR"
 mkdir -p "$DEPLOY_SQL_DIR"
+mkdir -p "$DEPLOY_BACKUP_INPROGRESS_DIR"
+mkdir -p "$DEPLOY_BACKUP_FINAL_DIR"
 
 log_info "=> Creating 'distillery' network"
 docker network create distillery || true

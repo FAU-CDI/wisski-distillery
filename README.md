@@ -204,6 +204,33 @@ To list all instances, the following command can be used:
 sudo bash /distillery/ls.sh
 ```
 
+## Backups -- 'backup.sh'
+
+This project comes with a backup script. 
+To make a backup, run:
+
+```bash
+sudo bash /distillery/backup.sh
+```
+
+Backups are stored in the `backups/final` directory.
+They contain:
+- a filesystem backup of all instances
+- a complete backup of the SQL database
+- nquads of all the GraphDB repositories
+- a backup of the config file
+
+Files are `.tar.gz`ipped. 
+By default, backups are kept for up to thirty days, after which they are removed. 
+
+This script does not automatically provision a cronjob. 
+An example job to e.g. run a backup every saturday at 9:00 am is:
+
+```
+MAILTO="some-admin-email@example.com"
+0 9 * * 6 /bin/bash /distillery/backup.sh
+```
+
 ## License
 
 This project and associated files in this repository are licensed as follows:

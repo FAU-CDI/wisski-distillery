@@ -41,10 +41,19 @@ function dockerized_mysql() {
     return $retval
 }
 
-# 'dockerized_mysql' runs an sql command in the sql docker container interactively
+# 'dockerized_mysql_interactive' runs an sql command in the sql docker container interactively
 function dockerized_mysql_interactive() {
     pushd "$DEPLOY_SQL_DIR" > /dev/null
     docker exec -ti `docker-compose ps -q sql` mysql "$@"
+    retval=$?
+    popd > /dev/null
+    return $retval
+}
+
+# 'dockerized_mysqldump' runs a mysqldump command
+function dockerized_mysqldump() {
+    pushd "$DEPLOY_SQL_DIR" > /dev/null
+    docker exec -i `docker-compose ps -q sql` mysqldump "$@"
     retval=$?
     popd > /dev/null
     return $retval
