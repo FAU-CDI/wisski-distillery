@@ -76,6 +76,15 @@ function is_valid_email() {
    fi
 }
 
+# 'is_valid_https_url' checks if a value is a valid url that starts with https
+function is_valid_https_url() {
+   if [[ "$1" =~ ^https:// ]]; then
+      return 0;
+   else
+      return 1;
+   fi
+}
+
 # The 'DEPLOY_ROOT' variable must be an absolute path. 
 if ! is_valid_abspath "$DEPLOY_ROOT"; then
    log_error "Variable 'DEPLOY_ROOT' is missing or not a valid path. ";
@@ -148,6 +157,18 @@ if ! is_valid_number "$PASSWORD_LENGTH"; then
    log_error "Variable 'PASSWORD_LENGTH' is missing or not a valid number. ";
    log_info "Please verify that it is set correctly in '.env'. ";
    exit 1;
+fi
+
+# The 'CERTBOT_EMAIL' variable should either be empty or a valid email
+if [ -n "$SELF_REDIRECT" ]; then
+   if ! is_valid_https_url "$SELF_REDIRECT"; then
+         log_error "Variable 'SELF_REDIRECT' is not a valid url. ";
+         log_info "It should start with https://"
+         log_info "Please verify that it is set correctly in '.env' or remove it completly. ";
+         exit 1;
+   fi;
+else
+   SELF_REDIRECT="https://gitlab.cs.fau.de/AGFD/wisski-distillery"
 fi
 
 # paths to composer things

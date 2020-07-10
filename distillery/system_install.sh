@@ -76,6 +76,7 @@ load_template "docker-env/self" \
     "VIRTUAL_HOST" "${DEFAULT_DOMAIN}" \
     "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \
     "LETSENCRYPT_EMAIL" "${LETSENCRYPT_EMAIL}" \
+    "TARGET" "${SELF_REDIRECT}" \
     > "$DEPLOY_SELF_DIR/.env"
 
 
