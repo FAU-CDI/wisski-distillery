@@ -36,12 +36,12 @@ dockerized_mysqldump --all-databases > "$BACKUP_SQL_FILE"
 # Backup the triplestore system
 log_info " => Backing up Triplestore System"
 mkdir -p "$BACKUP_TRIPLESTORE_DIR"
-curl -X GET -H "Accept:application/n-quads" "http://localhost:7200/repositories/SYSTEM/statements?infer=false" > "$BACKUP_TRIPLESTORE_SYSTEM"
+curl -X GET -H "Accept:application/n-quads" "http://127.0.0.1:7200/repositories/SYSTEM/statements?infer=false" > "$BACKUP_TRIPLESTORE_SYSTEM"
 
 # backup individual repos
 for REPO in `grep -oP '(?<=#repositoryID> ")[^"]+' $BACKUP_TRIPLESTORE_SYSTEM`; do
     log_info " => Backing up Triplestore Repository '$REPO'"
-	curl -X GET -H "Accept:application/n-quads" "http://localhost:7200/repositories/$REPO/statements?infer=false" > "$BACKUP_TRIPLESTORE_DIR/repo_$REPO.nq"
+	curl -X GET -H "Accept:application/n-quads" "http://127.0.0.1:7200/repositories/$REPO/statements?infer=false" > "$BACKUP_TRIPLESTORE_DIR/repo_$REPO.nq"
 done
 
 # backup the filesystem
