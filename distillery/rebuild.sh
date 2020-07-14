@@ -19,7 +19,7 @@ fi;
 read -r INSTANCE_BASE_DIR MYSQL_DATABASE MYSQL_USER GRAPHDB_REPO GRAPHDB_USER <<< "$(sql_bookkeep_load "${SLUG}" "filesystem_base,sql_database,sql_user,graphdb_repository,graphdb_user" | tail -n +2)"
 
 log_info " => Updating compose files"
-install_resource_dir "compose/runtime" "$INSTANCE_BASE_DIR"
+install_resource_dir "compose/barrel" "$INSTANCE_BASE_DIR"
 
 log_info "=> Rebuilding and restarting '$INSTANCE_BASE_DIR'"
 update_stack "$INSTANCE_BASE_DIR"
