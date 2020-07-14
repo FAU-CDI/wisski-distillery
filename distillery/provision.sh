@@ -78,6 +78,7 @@ log_info " => Writing configuration file"
 load_template "docker-env/barrel" \
     "REAL_PATH" "${INSTANCE_DATA_DIR}" \
     "VIRTUAL_HOST" "${INSTANCE_DOMAIN}" \
+    "SLUG" "${SLUG}" \
     "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \
     "LETSENCRYPT_EMAIL" "${LETSENCRYPT_EMAIL}" \
     > "$INSTANCE_BASE_DIR/.env"

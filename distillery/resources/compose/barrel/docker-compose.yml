@@ -13,6 +13,10 @@ services:
       LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
     
+    # label it with the current slug
+    labels:
+      eu.wiss-ki.barrel.slug: ${SLUG}
+    
     # the volumes to 
     volumes:
       - ${REAL_PATH}/.composer:/var/www/.composer
