@@ -24,4 +24,4 @@ read -r INSTANCE_BASE_DIR MYSQL_DATABASE MYSQL_USER GRAPHDB_REPO GRAPHDB_USER <<
 cd "$INSTANCE_BASE_DIR"
 
 # and open a www-data shell
-docker-compose exec runtime /bin/bash -c "cd /var/www/data/project; sudo -u www-data /bin/bash"
+docker-compose exec barrel /bin/bash -c "cd /var/www/data/project; sudo -u www-data /bin/bash"

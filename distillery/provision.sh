@@ -66,7 +66,7 @@ DRUPAL_PASS="$(randompw)"
 
 # TODO: copy over docker-compose into the right directory
 log_info " => Creating instance directory"
-install_resource_dir "compose/runtime" "$INSTANCE_BASE_DIR"
+install_resource_dir "compose/barrel" "$INSTANCE_BASE_DIR"
 
 # Log all the details into the bookeeping database
 log_info "=> Storing configuration in bookkeeping table"
@@ -75,7 +75,7 @@ sql_bookkeep_insert \
     "\"${SLUG}\",\"${INSTANCE_BASE_DIR}\",\"${MYSQL_DATABASE}\",\"${MYSQL_USER}\",\"${MYSQL_PASSWORD}\",\"${GRAPHDB_REPO}\",\"${GRAPHDB_USER}\",\"${GRAPHDB_PASSWORD}\""
 
 log_info " => Writing configuration file"
-load_template "docker-env/runtime" \
+load_template "docker-env/barrel" \
     "REAL_PATH" "${INSTANCE_DATA_DIR}" \
     "VIRTUAL_HOST" "${INSTANCE_DOMAIN}" \
     "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \
@@ -89,7 +89,7 @@ docker-compose build --pull
 docker-compose pull
 
 log_info " => Running provision script"
-docker-compose run --rm runtime /bin/bash -c "sudo PATH=\$PATH -u www-data /bin/bash /provision_container.sh \
+docker-compose run --rm barrel /bin/bash -c "sudo PATH=\$PATH -u www-data /bin/bash /provision_container.sh \
     \"${INSTANCE_DOMAIN}\" \
     \"${MYSQL_DATABASE}\" \"${MYSQL_USER}\" \"${MYSQL_PASSWORD}\" \
     \"${GRAPHDB_REPO}\" \"${GRAPHDB_USER}\" \"${GRAPHDB_PASSWORD}\" \

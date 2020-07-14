@@ -97,7 +97,7 @@ sudo bash /distillery/system_update.sh
 
 A new WissKI instance consists of several components:
 
-- A Drupal instance inside a lightweight php runtime container
+- A Drupal instance inside a lightweight php runtime container (a `barrel` in which to store WissKI)
 - An entry in the SQL bookkeeping table that stores instance meta-data
 - An SQL database and user for Drupal
 - A GraphDB repository and user as SPARQL endpoint
@@ -114,7 +114,7 @@ __1. Create a new docker-compose.yml file__
 
 In this step we first create a directory on the real system to hold all files relating to this instance. 
 By default, this takes place inside `/var/www/deploy/instances/$DOMAIN`, but this can be configured. 
-We then create a docker-compose file in this directory that is ready for running the runtime container. 
+We then create a docker-compose file in this directory that is ready for running the `barrel` container. 
 
 __2. Create an appropriate SQL database and user__
 
