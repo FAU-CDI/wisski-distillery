@@ -77,5 +77,8 @@ CMD ["apache2-foreground"]
 # Add the provision script
 ADD scripts/provision_container.sh /provision_container.sh
 
+# Add the user_shell.sh
+ADD scripts/user_shell.sh /user_shell.sh
+
 # expose port 8080
 EXPOSE 8080

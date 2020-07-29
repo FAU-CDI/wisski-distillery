@@ -49,6 +49,7 @@ log_info "=> Creating docker-compose directories"
 mkdir -p "$DEPLOY_INSTANCES_DIR"
 mkdir -p "$DEPLOY_WEB_DIR"
 mkdir -p "$DEPLOY_SELF_DIR"
+mkdir -p "$DEPLOY_SSH_DIR"
 mkdir -p "$DEPLOY_TRIPLESTORE_DIR"
 mkdir -p "$DEPLOY_SQL_DIR"
 mkdir -p "$DEPLOY_BACKUP_INPROGRESS_DIR"
@@ -67,6 +68,9 @@ load_template "docker-env/web" \
 
 log_info "=> Creating 'docker-compose' files for the 'self'. "
 install_resource_dir "compose/self" "$DEPLOY_SELF_DIR"
+
+log_info "=> Creating 'docker-compose' files for the 'ssh'. "
+install_resource_dir "compose/ssh" "$DEPLOY_SSH_DIR"
 
 # setup the lesencrypt host for the default domain
 if [ -n "$LETSENCRYPT_HOST" ]; then

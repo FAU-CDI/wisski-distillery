@@ -52,11 +52,12 @@ curl -X POST \
     --header "X-GraphDB-Password: $GRAPHDB_PASSWORD" \
     -d @-
 
-log_info " => Creating local directory '$INSTANCE_BASE_DIR'"
+log_info " => Creating local directory structure at '$INSTANCE_BASE_DIR'"
 mkdir -p "$INSTANCE_BASE_DIR"
 mkdir -p "$INSTANCE_DATA_DIR"
 mkdir -p "$INSTANCE_DATA_DIR/.composer"
 mkdir -p "$INSTANCE_DATA_DIR/data"
+touch "$INSTANCE_DATA_DIR/authorized_keys"
 
 # Generate some more random credentials, this time for drupal. 
 # We again make use of the randompw alias. 
@@ -77,6 +78,7 @@ sql_bookkeep_insert \
 log_info " => Writing configuration file"
 load_template "docker-env/barrel" \
     "REAL_PATH" "${INSTANCE_DATA_DIR}" \
+    "GLOBAL_AUTHORIZED_KEYS_FILE" "${GLOBAL_AUTHORIZED_KEYS_FILE}" \
     "VIRTUAL_HOST" "${INSTANCE_DOMAIN}" \
     "SLUG" "${SLUG}" \
     "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \

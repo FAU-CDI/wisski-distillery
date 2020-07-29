@@ -5,10 +5,11 @@ Vagrant.configure("2") do |config|
   # use an iamge of debian, in this case buster 64
   config.vm.box = "debian/buster64"
 
-  # forward ports 80 and 443 to the host system
+  # forward ports 80, 443 and 2222 to the host system
   # this will allow accessing the webserver from the real system. 
-  config.vm.network "forwarded_port", guest: 80, host: 80
-  config.vm.network "forwarded_port", guest: 443, host: 443
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.network "forwarded_port", guest: 443, host: 4443
+  config.vm.network "forwarded_port", guest: 2222, host: 2223
 
   # share the factory folder in /factory/
   config.vm.synced_folder "distillery/", "/distillery/"

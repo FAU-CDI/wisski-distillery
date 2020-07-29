@@ -69,6 +69,11 @@ These are:
     - Security is not enabled at the moment. 
     - See [distillery/resources/compose/triplestore](distillery/resources/compose/triplestore) for implementation details. 
 
+- [proxyssh](https://github.com/tkw1536/proxyssh) - an ssh server that delegates client connections to different WissKIs
+    - It is configured to run inside a docker container
+    - Uses a global configurable authorized_keys file. 
+    - Also allows users to write their own authorized_keys files. 
+
 To manage multiple docker containers, this script makes heavy use of [docker-compose](https://docs.docker.com/compose/). 
 
 Setting up these steps is fully automatic.
@@ -230,6 +235,10 @@ An example job to e.g. run a backup every saturday at 9:00 am is:
 MAILTO="some-admin-email@example.com"
 0 9 * * 6 /bin/bash /distillery/backup.sh
 ```
+
+## SSH Access
+
+- to be documented
 
 ## License
 

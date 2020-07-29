@@ -85,6 +85,15 @@ function is_valid_https_url() {
    fi
 }
 
+# 'is_valid_file' checks that the value passed is an existing file
+function is_valid_file() {
+   if [[ -f "$1" ]]; then
+      return 0;
+   else
+      return 1;
+   fi
+}
+
 # The 'DEPLOY_ROOT' variable must be an absolute path. 
 if ! is_valid_abspath "$DEPLOY_ROOT"; then
    log_error "Variable 'DEPLOY_ROOT' is missing or not a valid path. ";
@@ -178,11 +187,21 @@ else
    SELF_REDIRECT="https://gitlab.cs.fau.de/AGFD/wisski-distillery"
 fi
 
+# The 'GLOBAL_AUTHORIZED_KEYS_FILE' should point to a real file
+if ! is_valid_file "$GLOBAL_AUTHORIZED_KEYS_FILE"; then
+      log_error "Variable 'GLOBAL_AUTHORIZED_KEYS_FILE' is not a valid file. ";
+      log_info "The variable is currently set to '$GLOBAL_AUTHORIZED_KEYS_FILE'. "
+      log_info "You might want to create this file to get rid of the error message. "
+      log_info "Please verify that it is set correctly in '.env'";
+      exit 1;
+fi;
+
 # paths to composer things
 DEPLOY_WEB_DIR="$DEPLOY_ROOT/core/web"
 DEPLOY_SELF_DIR="$DEPLOY_ROOT/core/self"
 DEPLOY_TRIPLESTORE_DIR="$DEPLOY_ROOT/core/triplestore"
 DEPLOY_SQL_DIR="$DEPLOY_ROOT/core/sql"
+DEPLOY_SSH_DIR="$DEPLOY_ROOT/core/ssh"
 DEPLOY_INSTANCES_DIR="$DEPLOY_ROOT/instances"
 
 DEPLOY_BACKUP_DIR="$DEPLOY_ROOT/backups"

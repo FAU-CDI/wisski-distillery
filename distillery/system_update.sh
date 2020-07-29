@@ -12,6 +12,10 @@ update_stack "$DEPLOY_WEB_DIR"
 log_info "=> Rebuilding and restarting 'self' stack"
 update_stack "$DEPLOY_SELF_DIR"
 
+# build and start the ssh server
+log_info "=> Rebuilding and restarting 'ssh' stack"
+update_stack "$DEPLOY_SSH_DIR"
+
 # build and start the triplestore
 log_info "=> Rebuilding and restarting 'triplestore' stack"
 update_stack "$DEPLOY_TRIPLESTORE_DIR"
