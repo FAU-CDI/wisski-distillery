@@ -141,7 +141,7 @@ The database password is randomly generated and only made available directly to 
 
 __3. Create a GraphDB repository and user__
 
-Next, we create a dedidcated GraphDB repository for the WissKI instance. 
+Next, we create a dedicated GraphDB repository for the WissKI instance. 
 We also create a new GraphDB user with access to this repository. 
 
 __4. Provision the instance inside the container__
@@ -298,9 +298,16 @@ This also applies if you only run a backend service based on this software.
 - Enable authentication for GraphDB
 - Investigate support for GraphDB Auth in WissKI Salz
     - Eventually enable security if needed
-    - Switch to a different TripleStore alltogether?
+    - Switch to a different TripleStore altogether?
 - Investigate managing phpmyadmin
 - Investigate managing graphdb
 - Investigate delegating shell access
 - Investigate delegating ftp access
 - document CNAME structure
+
+<!--  LocalWords:  Vagrantfile vargant phpmyadmin nginx-proxy nginx docker-compose.yml
+ -->
+<!--  LocalWords:  docker-letsencrypt-nginx-proxy-companion drupal drush Affero graphdb
+ -->
+<!--  LocalWords:  commerical
+ -->
