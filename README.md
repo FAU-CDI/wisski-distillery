@@ -1,6 +1,18 @@
 # WissKI-Distillery
 
-WissKI-Distillery is a Docker-based server provisioning and managing for multiple [WissKI](https://wiss-ki.eu/) instances. 
+WissKI-Distillery is a Docker-based server provisioning and managing for multiple
+[WissKI](https://wiss-ki.eu/) instances.
+
+The  WissKI Distillery is a set of scripts, tools, and applications that allows to operate
+a WissKI cloud of distinct but jointly managed WissKI instances, hosted on a dedicated
+hardware pool. Like the WissKI system, the WissKI Distillery is open source and free to
+use.
+
+This README contains the technical documentation,
+[user-level documentation is on the project wiki](https://gitlab.cs.fau.de/AGFD/wisski-distillery/-/wikis/Documentation).
+FAU Erlangen-Nürnberg operates a WissKI cloud at https://wisski.agfd.fau.de (see details
+there). That serves as the reference deployment and drives the development for the WissKI
+Distillery.
 
 **This project is still a work in progress and nothing in this repository is ready for production use** 
 
