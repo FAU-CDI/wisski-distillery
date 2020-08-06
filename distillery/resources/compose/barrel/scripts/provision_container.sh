@@ -32,6 +32,8 @@ GRAPHDB_PASSWORD="$3"
 echo "GRAPHDB_PASSWORD=$GRAPHDB_PASSWORD"
 shift 3
 
+GRAPHDB_HEADER="$(echo "$GRAPHDB_USER:$GRAPHDB_PASSWORD" | base64)"
+
 DRUPAL_USER="$1"
 echo "DRUPAL_USER=$DRUPAL_USER"
 DRUPAL_PASS="$2"
@@ -123,6 +125,7 @@ function printdetails() {
     echo "Write URL:            http://triplestore:7200/repositories/$GRAPHDB_REPO/statements"
     echo "Username:             $GRAPHDB_USER"
     echo "Password:             $GRAPHDB_PASSWORD"
+    echo "Authorization Header: $GRAPHDB_HEADER"
     echo "Writable:             yes"
     echo "Default Graph URI:    http://$INSTANCE_DOMAIN/#"
     echo "Ontology Paths:       (empty)"
