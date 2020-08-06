@@ -66,8 +66,8 @@ RUN a2ensite wisski
 VOLUME /var/www/.composer
 VOLUME /var/www/data
 
-# increase the php memory limit to 2g
-RUN echo 'memory_limit=2G' > /usr/local/etc/php/conf.d/memory-limit.ini
+# increase the php memory limit to 4g
+RUN echo 'memory_limit=4G' > /usr/local/etc/php/conf.d/memory-limit.ini
 
 # Add and configure the entrypoint
 ADD scripts/entrypoint.sh /entrypoint.sh
