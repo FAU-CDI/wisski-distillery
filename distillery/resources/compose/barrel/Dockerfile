@@ -60,14 +60,12 @@ ADD patch/easyrdf.patch /patch/easyrdf.patch
 # Add wisski configuration
 ADD conf/ports.conf /etc/apache2/ports.conf
 ADD conf/wisski.conf /etc/apache2/sites-available/wisski.conf
+ADD conf/wisski.ini /usr/local/etc/php/conf.d/wisski.ini
 RUN a2ensite wisski
 
 # volumes for composer
 VOLUME /var/www/.composer
 VOLUME /var/www/data
-
-# increase the php memory limit to 4g
-RUN echo 'memory_limit=4G' > /usr/local/etc/php/conf.d/memory-limit.ini
 
 # Add and configure the entrypoint
 ADD scripts/entrypoint.sh /entrypoint.sh

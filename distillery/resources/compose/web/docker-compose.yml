@@ -10,6 +10,7 @@ services:
       - "443:443"
     volumes:
       - "vhost:/etc/nginx/vhost.d"
+      - "./global.conf:/etc/nginx/conf.d/global.conf:ro"
       - "htpasswd:/etc/nginx/htpasswd"
       - "html:/usr/share/nginx/html"
       - "/var/run/docker.sock:/tmp/docker.sock:ro"
