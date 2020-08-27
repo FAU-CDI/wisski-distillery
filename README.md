@@ -170,7 +170,7 @@ To do so, use:
 sudo bash /distillery/provision.sh SLUG
 ```
 
-## Rebuild an instance -- 'rebuild.sh'
+## Rebuild an instance -- 'rebuild.sh' and 'rebuild-all.sh'
 
 Sometimes it becomes necessary (because of changes to this project) to rebuild the docker image running a certain docker instance. 
 To do so, use:
@@ -188,7 +188,11 @@ To delete all instances, run:
 sudo docker image prune --all
 ```
 
+To automatically rebuild all instances, use:
 
+```bash
+sudo bash /distillery/rebuild-all.sh
+```
 
 ## Purge an existing WissKI instance -- 'purge.sh'
 
