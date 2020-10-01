@@ -1,0 +1,26 @@
+version: "3.7"
+
+services:
+  static:
+    image: tkw01536/gostatic
+    restart: always
+    environment:
+      # port and hostname for this image to use
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      VIRTUAL_PORT: 8043
+      
+      # optional letsencrypt email
+      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    
+    ports:
+      - 8043
+    
+    # volumes that are mounted
+    volumes:
+      - ./index.html:/srv/http/index.html:ro
+
+networks:
+  default:
+    external:
+      name: distillery

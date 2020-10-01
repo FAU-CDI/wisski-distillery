@@ -194,6 +194,20 @@ To automatically rebuild all instances, use:
 sudo bash /distillery/rebuild-all.sh
 ```
 
+## Reserving an instance -- 'reserve.sh'
+
+Sometimes it is useful to reserve a particular instance name. 
+This is done by hosting a placeholder website at the domain. 
+To do so, use:
+
+
+```bash
+sudo bash /distillery/reserve.sh SLUG
+```
+
+To un-reserve a website, manually stop the docker stack and remove the folder. 
+
+
 ## Purge an existing WissKI instance -- 'purge.sh'
 
 
