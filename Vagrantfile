@@ -20,9 +20,6 @@ Vagrant.configure("2") do |config|
     vb.cpus = 2
   end
 
-  # reboot the vm after vbguest installation
-  config.vbguest.auto_reboot=true
-
   # tell the user where things are. 
   config.vm.post_up_message = "Ready to distil and make WissKIs. Scripts can be found in /distillery/. "
 end

@@ -46,6 +46,10 @@ For local testing, it is recommended to use [Vagrant](https://www.vagrantup.com/
 After installing vagrant, run:
 
 ```bash
+# once, to install the plugin to automatically build the guest iso
+# at the time of writing version 0.25.0 is broken. 
+vagrant plugin install --plugin-version 0.24.0 vagrant-vbguest
+
 # start the vargant box
 vagrant up
 
