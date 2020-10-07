@@ -2,3 +2,4 @@ authorized_keys
 .vagrant
 .env
 *.zip
+*.nq
