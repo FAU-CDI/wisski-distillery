@@ -83,6 +83,7 @@ load_template "docker-env/barrel" \
     "SLUG" "${SLUG}" \
     "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \
     "LETSENCRYPT_EMAIL" "${LETSENCRYPT_EMAIL}" \
+    "DISTILLERY_DIR" "${DIR}" \
     > "$INSTANCE_BASE_DIR/.env"
 
 

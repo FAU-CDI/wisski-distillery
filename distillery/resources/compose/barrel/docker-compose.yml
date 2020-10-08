@@ -25,6 +25,7 @@ services:
       - ${REAL_PATH}/.composer:/var/www/.composer
       - ${REAL_PATH}/data:/var/www/data
       - ${REAL_PATH}/authorized_keys:/var/www/.ssh/authorized_keys
+      - ${DISTILLERY_DIR}/utils:/utils:ro
 
 networks:
   default:
