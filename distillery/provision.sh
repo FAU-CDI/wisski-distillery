@@ -33,7 +33,7 @@ dockerized_mysql -e "FLUSH PRIVILEGES;"
 # Use the template for this.
 log_info " => Generating new GraphDB repository '$GRAPHDB_REPO'"
 load_template "repository/graphdb-repo.ttl" "GRAPHDB_REPO" "${GRAPHDB_REPO}" "INSTANCE_DOMAIN" "${INSTANCE_DOMAIN}" | \
-curl -X POST \
+curl -X POST $GRAPHDB_AUTH_FLAGS \
     http://127.0.0.1:7200/rest/repositories \
     --header 'Content-Type: multipart/form-data' \
     -F "config=@-"
@@ -45,7 +45,7 @@ GRAPHDB_PASSWORD="$(randompw)"
 # Create the user and grant them access to the creatd database. 
 log_info " => Creating GraphDB user '$GRAPHDB_USER'"
 load_template "repository/graphdb-user.json" "GRAPHDB_USER" "${GRAPHDB_USER}" "GRAPHDB_REPO" "${GRAPHDB_REPO}" | \
-curl -X POST \
+curl -X POST $GRAPHDB_AUTH_FLAGS \
     "http://127.0.0.1:7200/rest/security/user/${GRAPHDB_USER}" \
     --header 'Content-Type: application/json' \
     --header 'Accept: text/plain' \

@@ -196,6 +196,17 @@ if ! is_valid_file "$GLOBAL_AUTHORIZED_KEYS_FILE"; then
       exit 1;
 fi;
 
+# GRAPHDB_ADMIN_PASSWORD should be the graphdb admin
+if [ -z "$GRAPHDB_ADMIN_PASSWORD" ]; then
+      log_error "Variable 'GRAPHDB_ADMIN_PASSWORD' is not set. ";
+      log_info "You might want to create this file to get rid of the error message. "
+      log_info "Please verify that it is set correctly in '.env'";
+      exit 1;
+fi;
+
+# flags for graphdb authorization
+GRAPHDB_AUTH_FLAGS="--user $(printf "admin:%s" "$GRAPHDB_ADMIN_PASSWORD")"
+
 # paths to composer things
 DEPLOY_WEB_DIR="$DEPLOY_ROOT/core/web"
 DEPLOY_SELF_DIR="$DEPLOY_ROOT/core/self"
