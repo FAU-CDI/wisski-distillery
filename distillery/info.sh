@@ -20,7 +20,7 @@ fi;
 # Read everything from the database
 read -r INSTANCE_BASE_DIR MYSQL_DATABASE MYSQL_USER GRAPHDB_REPO GRAPHDB_USER GRAPHDB_PASSWORD <<< "$(sql_bookkeep_load "${SLUG}" "filesystem_base,sql_database,sql_user,graphdb_repository,graphdb_user,graphdb_password" | tail -n +2)"
 
-GRAPHDB_HEADER="$(echo "$GRAPHDB_USER:$GRAPHDB_PASSWORD" | base64)"
+GRAPHDB_HEADER="$(echo "$GRAPHDB_USER:$GRAPHDB_PASSWORD" | base64 -w 0)"
 
 
 echo "=================================================================================="
