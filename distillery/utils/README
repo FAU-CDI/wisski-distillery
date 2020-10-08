@@ -1,0 +1,2 @@
+Files in this folder are utility scripts to be used from within individual WissKI instances. 
+They are mounted under /utils/ and should be used with care. 
