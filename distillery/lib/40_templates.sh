@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+shopt -s dotglob
 
 # This is a library file. 
 # It should be 'source'd only, if it is not we bail out here. 
