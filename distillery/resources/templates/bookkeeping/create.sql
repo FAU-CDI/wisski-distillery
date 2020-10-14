@@ -13,6 +13,12 @@ CREATE TABLE IF NOT EXISTS `${TABLE}`(
     -- slug of the website
     slug TEXT NOT NULL UNIQUE,
 
+    -- email address of owner, NULL if abndoned
+    owner_email VARCHAR(320),
+
+    -- automatically call blind_update.sh for this repo
+    auto_blind_update_enabled BIT NOT NULL DEFAULT 1,
+
     -- local file path
     filesystem_base TEXT NOT NULL,
     
