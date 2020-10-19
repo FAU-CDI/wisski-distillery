@@ -93,3 +93,8 @@ function sql_bookkeep_load() {
 function sql_bookkeep_list() {
     dockerized_mysql -D "$DISTILLERY_BOOKKEEPING_DATABASE" -e "SELECT slug FROM \`$DISTILLERY_BOOKKEEPING_TABLE\`; " | tail -n +2
 }
+
+# 'sql_bookkeep_list' lists all slugs from the bookkeeping table which should be automatically updated
+function sql_bookkeep_list_updateable() {
+    dockerized_mysql -D "$DISTILLERY_BOOKKEEPING_DATABASE" -e "SELECT slug FROM \`$DISTILLERY_BOOKKEEPING_TABLE\` WHERE auto_blind_update_enabled=1; " | tail -n +2
+}
