@@ -3,19 +3,33 @@ WORKDIR /var/www
 
 # install and enable the various required php extension
 RUN apt-get update && apt-get install -y \
-        libcurl4-openssl-dev curl \
-        libpng-dev \
-        libicu-dev \
-        libxml2-dev \
-        libssh2-1-dev \
-        sudo \
-        zip unzip \
+        curl \
         default-mysql-client \
-        imagemagick \
         git \
+        imagemagick \
+        libcurl4-openssl-dev \
+        libfreetype6-dev \
+        libicu-dev \
+        libjpeg62-turbo-dev \
+        libpng-dev \
+        libssh2-1-dev \
+        libwebp-dev \
+        libxml2-dev \
+        libxpm-dev \
+        sudo \
+        unzip \
         vim \
+        zip \
     && \
     docker-php-source extract && \
+    docker-php-ext-configure gd \
+        --enable-gd \
+        --with-webp \
+        --with-jpeg \
+        --with-xpm \
+        --with-freetype \
+        --enable-gd-jis-conv \
+    && \
     docker-php-ext-install \
         curl \
         gd \
