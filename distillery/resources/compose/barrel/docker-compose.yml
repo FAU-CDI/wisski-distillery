@@ -4,7 +4,7 @@ services:
   barrel:
     build: .
     restart: always
-    hostname: ${VIRTUAL_HOST}
+    hostname: ${VIRTUAL_HOST}.wisski
     environment:
       # port and hostname for this image to use
       VIRTUAL_HOST: ${VIRTUAL_HOST}
