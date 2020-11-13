@@ -100,7 +100,9 @@ composer install
 
 # Patch EasyRDF (for now)
 EASYRDF_RESPONSE="./vendor/easyrdf/easyrdf/lib/EasyRdf/Http/Response.php"
-patch -N "$EASYRDF_RESPONSE" < "/patch/easyrdf.patch"
+if [ -f "$EASYRDF_RESPONSE" ]; then
+    patch -N "$EASYRDF_RESPONSE" < "/patch/easyrdf.patch"
+fi
 popd
 
 drupal_sites_permission_workaround
