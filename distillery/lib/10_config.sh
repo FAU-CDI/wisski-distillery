@@ -204,6 +204,15 @@ if [ -z "$GRAPHDB_ADMIN_PASSWORD" ]; then
       exit 1;
 fi;
 
+# The 'SELF_OVERRIDES_FILE' should point to a real json file
+if ! is_valid_file "$SELF_OVERRIDES_FILE"; then
+      log_error "Variable 'SELF_OVERRIDES_FILE' is not a valid file. ";
+      log_info "The variable is currently set to '$SELF_OVERRIDES_FILE'. "
+      log_info "You might want to create this file (with contents '{}') to get rid of the error message. "
+      log_info "Please verify that it is set correctly in '.env'";
+      exit 1;
+fi;
+
 # flags for graphdb authorization
 GRAPHDB_AUTH_FLAGS="--user $(printf "admin:%s" "$GRAPHDB_ADMIN_PASSWORD")"
 

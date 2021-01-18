@@ -4,6 +4,8 @@ services:
   tr:
     image: tkw01536/tr
     restart: always
+    volumes:
+      - "${OVERRIDES_FILE}:/overrides.json:ro"
     environment:
       # port and hostname for this image to use
       VIRTUAL_HOST: ${VIRTUAL_HOST}
@@ -12,6 +14,9 @@ services:
       # optional letsencrypt email
       LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+
+      # the overrides file
+      OVERRIDES: /overrides.json
 
       # where to redirect to
       TARGET: ${TARGET}

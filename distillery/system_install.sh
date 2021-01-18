@@ -83,6 +83,7 @@ load_template "docker-env/self" \
     "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \
     "LETSENCRYPT_EMAIL" "${LETSENCRYPT_EMAIL}" \
     "TARGET" "${SELF_REDIRECT}" \
+    "OVERRIDES_FILE" "${SELF_OVERRIDES_FILE}" \
     > "$DEPLOY_SELF_DIR/.env"
 
 
