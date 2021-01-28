@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   tr:
-    image: tkw01536/tr
+    image: ghcr.io/tkw1536/tr:latest
     restart: always
     volumes:
       - "${OVERRIDES_FILE}:/overrides.json:ro"

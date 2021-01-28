@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
     ssh:
-        image: tkw01536/proxyssh
+        image: ghcr.io/tkw1536/dockersshd:latest
         command: -hostkey /keys/hostkey -shell /user_shell.sh -keylabel eu.wiss-ki.barrel.authfile -userlabel eu.wiss-ki.barrel.slug -L triplestore:7200
         ports:
             - "2222:2222"
