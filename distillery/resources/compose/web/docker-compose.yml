@@ -30,6 +30,7 @@ services:
       - "html:/usr/share/nginx/html"
       - "/var/run/docker.sock:/tmp/docker.sock:ro"
       - "certs:/etc/nginx/certs"
+      - "acme:/etc/acme.sh"
     restart: always
     networks:
       - default
@@ -37,6 +38,7 @@ services:
       - nginx-proxy
 
 volumes:
+  acme:
   vhost:
   html:
   certs:
