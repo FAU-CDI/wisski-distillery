@@ -3,7 +3,7 @@ version: "3.7"
 services:
     ssh:
         image: ghcr.io/tkw1536/dockersshd:latest
-        command: -hostkey /keys/hostkey -shell /user_shell.sh -keylabel eu.wiss-ki.barrel.authfile -userlabel eu.wiss-ki.barrel.slug -L triplestore:7200 -L phpmyadmin:80 -L sql:1433
+        command: -hostkey /keys/hostkey -shell /user_shell.sh -keylabel eu.wiss-ki.barrel.authfile -userlabel eu.wiss-ki.barrel.slug -L triplestore:7200 -L phpmyadmin:80 -L sql:3306
         ports:
             - "2222:2222"
         volumes:
