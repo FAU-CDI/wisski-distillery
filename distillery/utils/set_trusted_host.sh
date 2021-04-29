@@ -5,7 +5,9 @@
 
 INSTANCE_DOMAIN="$(hostname -f)"
 INSTANCE_DOMAIN="${INSTANCE_DOMAIN%.wisski}"
-chmod u+w web/sites/default/settings.php
-echo "" >> web/sites/default/settings.php
-echo "\$settings['trusted_host_patterns'] = ['${INSTANCE_DOMAIN//\./\\\.}'];" >> web/sites/default/settings.php
-chmod u-w web/sites/default/settings.php
+
+TRUSTED_HOST_PATTERN="${INSTANCE_DOMAIN//\./\\\\.}"
+TRUSTED_HOST_PATTERNS='["'$TRUSTED_HOST_PATTERN'"]'
+
+echo "Setting 'trusted_host_patterns' to $TRUSTED_HOST_PATTERNS"
+bash /utils/settings_php_set.sh 'trusted_host_patterns' "$TRUSTED_HOST_PATTERNS"
