@@ -22,6 +22,9 @@ read -r INSTANCE_BASE_DIR MYSQL_DATABASE MYSQL_USER GRAPHDB_REPO GRAPHDB_USER GR
 
 GRAPHDB_HEADER="$(printf "%s:%s" "$GRAPHDB_USER" "$GRAPHDB_PASSWORD" | base64 -w 0)"
 
+# read sql configuration
+cd "$INSTANCE_BASE_DIR"
+docker-compose exec barrel drush sql:conf --format=tsv --show-passwords | read -r  SQL_DATABASE SQL_USER SQL_PASS
 
 echo "=================================================================================="
 echo "URL:                  http://$INSTANCE_DOMAIN"
@@ -36,3 +39,7 @@ echo "Writable:             yes"
 echo "Default Graph URI:    http://$INSTANCE_DOMAIN/#"
 echo "Ontology Paths:       (empty)"
 echo "SameAs property:      http://www.w3.org/2002/07/owl#sameAs"
+log_info " => Your SQL detsils are: "
+echo "SQL Database:         $SQL_DATABASE"
+echo "SQL Username:         $SQL_USER"
+echo "SQL Password:         $SQL_PASS"
