@@ -24,7 +24,7 @@ GRAPHDB_HEADER="$(printf "%s:%s" "$GRAPHDB_USER" "$GRAPHDB_PASSWORD" | base64 -w
 
 # read sql configuration
 cd "$INSTANCE_BASE_DIR"
-docker-compose exec barrel drush sql:conf --format=tsv --show-passwords | read -r  SQL_DATABASE SQL_USER SQL_PASS
+read -r  SQL_DATABASE SQL_USER SQL_PASS SQL_OTHER <<< "$(docker-compose exec barrel drush sql:conf --format=tsv --show-passwords)"
 
 echo "=================================================================================="
 echo "URL:                  http://$INSTANCE_DOMAIN"
