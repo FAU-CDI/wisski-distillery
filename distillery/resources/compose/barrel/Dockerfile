@@ -70,6 +70,7 @@ RUN rm /etc/apache2/sites-available/*.conf && \
     rm /etc/apache2/sites-enabled/*.conf
 
 ADD patch/easyrdf.patch /patch/easyrdf.patch
+ADD patch/triples.patch /patch/triples.patch
 
 # Add wisski configuration
 ADD conf/ports.conf /etc/apache2/ports.conf

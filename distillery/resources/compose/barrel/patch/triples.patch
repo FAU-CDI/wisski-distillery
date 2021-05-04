@@ -1,0 +1,8 @@
+100c100
+<             if($result->o instanceof \EasyRdf_Resource) {
+---
+> 	    if($result->o instanceof \EasyRdf\Resource) {
+118c118
+<               $object_text = $result->o->getValue();
+---
+>               $object_text = $result->o->dumpValue('string');
