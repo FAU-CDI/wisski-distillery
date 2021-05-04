@@ -58,6 +58,7 @@ mkdir -p "$INSTANCE_DATA_DIR"
 mkdir -p "$INSTANCE_DATA_DIR/.composer"
 mkdir -p "$INSTANCE_DATA_DIR/data"
 touch "$INSTANCE_DATA_DIR/authorized_keys"
+chmod a+rw "$INSTANCE_DATA_DIR/authorized_keys"
 
 # Generate some more random credentials, this time for drupal. 
 # We again make use of the randompw alias. 

@@ -20,6 +20,7 @@ read -r INSTANCE_BASE_DIR MYSQL_DATABASE MYSQL_USER GRAPHDB_REPO GRAPHDB_USER <<
 
 log_info " => Touching authorized_keys file"
 touch "$INSTANCE_BASE_DIR/data/authorized_keys"
+chmod a+rw "$INSTANCE_BASE_DIR/data/authorized_keys"
 
 log_info " => Updating compose files"
 install_resource_dir "compose/barrel" "$INSTANCE_BASE_DIR"
