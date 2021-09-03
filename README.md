@@ -9,7 +9,7 @@ hardware pool. Like the WissKI system, the WissKI Distillery is open source and 
 use.
 
 This README contains the technical documentation,
-[user-level documentation is on the project wiki](https://gitlab.cs.fau.de/AGFD/wisski-distillery/-/wikis/Documentation).
+[user-level documentation is on the project wiki](https://github.com/FAU-CDI/wisski-distillery/-/wikis/Documentation).
 FAU Erlangen-Nürnberg operates a WissKI cloud at https://wisski.agfd.fau.de (see details
 there). That serves as the reference deployment and drives the development for the WissKI
 Distillery.

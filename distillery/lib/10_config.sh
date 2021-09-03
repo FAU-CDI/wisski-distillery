@@ -184,7 +184,7 @@ if [ -n "$SELF_REDIRECT" ]; then
          exit 1;
    fi;
 else
-   SELF_REDIRECT="https://gitlab.cs.fau.de/AGFD/wisski-distillery"
+   SELF_REDIRECT="https://github.com/FAU-CDI/wisski-distillery"
 fi
 
 # The 'GLOBAL_AUTHORIZED_KEYS_FILE' should point to a real file
