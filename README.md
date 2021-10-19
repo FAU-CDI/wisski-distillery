@@ -8,11 +8,9 @@ a WissKI cloud of distinct but jointly managed WissKI instances, hosted on a ded
 hardware pool. Like the WissKI system, the WissKI Distillery is open source and free to
 use.
 
-This README contains the technical documentation,
-[user-level documentation is on the project wiki](https://github.com/FAU-CDI/wisski-distillery/-/wikis/Documentation).
-FAU Erlangen-Nürnberg operates a WissKI cloud at https://wisski.agfd.fau.de (see details
-there). That serves as the reference deployment and drives the development for the WissKI
-Distillery.
+This README contains only technical documentation.
+For members of [FAU Erlangen-Nürnberg](https://www.fau.de/) a cloud offering based on this service known as FAUWissKICloud.
+Please see https://wisski.agfd.fau.de/ for related documentation. 
 
 **This project is still a work in progress and nothing in this repository is ready for production use**
 
