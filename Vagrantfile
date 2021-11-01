@@ -18,6 +18,8 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 4096
     vb.cpus = 2
+    # temporary fix for Monetary - see https://github.com/hashicorp/vagrant/issues/10314
+    vb.gui = true
   end
 
   # tell the user where things are. 
