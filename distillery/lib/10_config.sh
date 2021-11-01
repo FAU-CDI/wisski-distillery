@@ -58,6 +58,20 @@ function is_valid_domain() {
    fi;
 }
 
+# 'is_valid_domains' is like is_valid_domain, but comma seperated.
+function is_valid_domains() {
+   if [ -z "$1" ]; then
+      return 1;
+   fi
+   IFS=',' read -ra domains <<< "$1"
+   for domain in $domains; do
+      if ! is_valid_domain "$domain"; then
+         return 0;
+      fi
+   done
+   return 1;
+}
+
 # 'is_valid_number' checks if a value is a valid number. 
 function is_valid_number() {
    if [[ "$1" =~ ^[1-9][0-9]*$ ]]; then
@@ -152,6 +166,20 @@ if ! is_valid_domain "$DEFAULT_DOMAIN"; then
    exit 1;
 fi
 
+# The 'SELF_EXTRA_DOMAINS' variable must be a valid domain. 
+if ! is_valid_domain "$SELF_EXTRA_DOMAINS"; then
+   log_error "Variable 'SELF_EXTRA_DOMAINS' does not contain comma-separated domains. ";
+   log_info "Please verify that it is set correctly in '.env'. ";
+   exit 1;
+fi
+
+# set SELF_DOMAIN_SPEC to full list of domains
+SELF_DOMAIN_SPEC="$DEFAULT_DOMAIN"
+if [ -n "$SELF_EXTRA_DOMAINS" ]; then
+   SELF_DOMAIN_SPEC="$DEFAULT_DOMAIN,$SELF_EXTRA_DOMAINS"
+fi
+
+
 # The 'CERTBOT_EMAIL' variable should either be empty or a valid email
 if [ -n "$CERTBOT_EMAIL" ]; then
    if ! is_valid_email "$CERTBOT_EMAIL"; then
@@ -175,7 +203,7 @@ if ! is_valid_number "$MAX_BACKUP_AGE"; then
    exit 1;
 fi
 
-# The 'CERTBOT_EMAIL' variable should either be empty or a valid email
+# The 'SELF_REDIRECT' variable should either be empty or a valid redirect uri
 if [ -n "$SELF_REDIRECT" ]; then
    if ! is_valid_https_url "$SELF_REDIRECT"; then
          log_error "Variable 'SELF_REDIRECT' is not a valid url. ";

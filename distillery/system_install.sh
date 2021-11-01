@@ -79,7 +79,7 @@ fi;
 
 log_info " => Writing 'self' configuration file"
 load_template "docker-env/self" \
-    "VIRTUAL_HOST" "${DEFAULT_DOMAIN}" \
+    "VIRTUAL_HOST" "${SELF_DOMAIN_SPEC}" \
     "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \
     "LETSENCRYPT_EMAIL" "${LETSENCRYPT_EMAIL}" \
     "TARGET" "${SELF_REDIRECT}" \
