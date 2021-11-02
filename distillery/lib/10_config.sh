@@ -60,16 +60,16 @@ function is_valid_domain() {
 
 # 'is_valid_domains' is like is_valid_domain, but comma seperated.
 function is_valid_domains() {
-   if [ -z "$1" ]; then
-      return 1;
+   if [[ ! -z "$1" ]]; then
+      return 0;
    fi
    IFS=',' read -ra domains <<< "$1"
    for domain in $domains; do
       if ! is_valid_domain "$domain"; then
-         return 0;
+         return 1;
       fi
    done
-   return 1;
+   return 0;
 }
 
 # 'is_valid_number' checks if a value is a valid number. 
@@ -167,7 +167,7 @@ if ! is_valid_domain "$DEFAULT_DOMAIN"; then
 fi
 
 # The 'SELF_EXTRA_DOMAINS' variable must be a valid domain. 
-if ! is_valid_domain "$SELF_EXTRA_DOMAINS"; then
+if ! is_valid_domains "$SELF_EXTRA_DOMAINS"; then
    log_error "Variable 'SELF_EXTRA_DOMAINS' does not contain comma-separated domains. ";
    log_info "Please verify that it is set correctly in '.env'. ";
    exit 1;
