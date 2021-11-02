@@ -39,7 +39,7 @@ curl -fsSL https://get.docker.com -o - | /bin/sh
 # install docker-compose dependencies. 
 log_info "=> Install docker-compose installer dependencies"
 apt-get update
-apt-get install -y python3-pip
+apt-get install -y python3-pip libffi-dev
 
 # install docker-compose. 
 log_info "=> Installing docker-compose"
