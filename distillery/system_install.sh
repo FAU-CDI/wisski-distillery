@@ -74,7 +74,7 @@ install_resource_dir "compose/ssh" "$DEPLOY_SSH_DIR"
 
 # setup the lesencrypt host for the default domain
 if [ -n "$LETSENCRYPT_HOST" ]; then
-    LETSENCRYPT_HOST="$DEFAULT_DOMAIN"
+    LETSENCRYPT_HOST="$SELF_DOMAIN_SPEC"
 fi;
 
 log_info " => Writing 'self' configuration file"
