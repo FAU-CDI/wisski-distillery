@@ -1,4 +1,4 @@
-FROM php:7-apache-buster
+FROM docker.io/library/php:7.4-apache-bullseye
 WORKDIR /var/www
 
 # install and enable the various required php extension
