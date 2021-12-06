@@ -99,7 +99,7 @@ docker-compose run --rm barrel /bin/bash -c "sudo PATH=\$PATH -u www-data /bin/b
     \"${MYSQL_DATABASE}\" \"${MYSQL_USER}\" \"${MYSQL_PASSWORD}\" \
     \"${GRAPHDB_REPO}\" \"${GRAPHDB_USER}\" \"${GRAPHDB_PASSWORD}\" \
     \"${DRUPAL_USER}\" \"${DRUPAL_PASS}\" \
-    \"${USE_DRUPAL_9}\""
+    \"${USE_DRUPAL_8}\""
 
 
 log_info " => Starting container"

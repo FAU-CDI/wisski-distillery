@@ -40,8 +40,8 @@ DRUPAL_PASS="$2"
 echo "DRUPAL_PASS=$DRUPAL_PASS"
 shift 2
 
-USE_DRUPAL_9="$1"
-echo "USE_DRUPAL_9=$USE_DRUPAL_9"
+USE_DRUPAL_8="$1"
+echo "USE_DRUPAL_8=$USE_DRUPAL_8"
 shift 1
 
 log_info " => Preparing installation environment"
@@ -60,10 +60,10 @@ function drupal_sites_permission_workaround() {
 
 # Create a new composer project. 
 log_info " => Creating composer project"
-if [ -z "${USE_DRUPAL_9}" ]; then
-    composer create-project 'drupal/recommended-project:^8.9.0' .
-else
+if [ -z "${USE_DRUPAL_8}" ]; then
     composer create-project 'drupal/recommended-project:^9.0.0' .
+else
+    composer create-project 'drupal/recommended-project:^8.9.0' .
 fi
 
 # Install drush so that we can automate a lot of things
@@ -87,7 +87,7 @@ log_info " => Installing Wisski packages"
 cd "$COMPOSER_DIR"
 
 # install the development version when requested
-if [ -z "${USE_DRUPAL_9}" ]; then
+if [ -z "${USE_DRUPAL_8}" ]; then
     composer require 'drupal/wisski'
 else
     composer require 'drupal/wisski:2.x-dev'
