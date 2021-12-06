@@ -42,7 +42,9 @@ RUN apt-get update && apt-get install -y \
         xmlrpc \
     && \
     pecl install ssh2-1.2 && \
+    pecl install apcu && \
     docker-php-ext-enable \
+        apcu \
         curl \
         gd \
         intl \
