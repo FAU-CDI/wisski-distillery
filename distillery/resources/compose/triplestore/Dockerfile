@@ -42,6 +42,10 @@ COPY --from=sources /opt/graphdb /opt/graphdb
 ENV GRAPHDB_HOME=/opt/graphdb
 ENV PATH=$GRAPHDB_HOME/bin:$PATH
 
+# Workaround for CVE-2021-44228 
+# (not sure if we are vulnerable, but just because)
+ENV LOG4J_FORMAT_MSG_NO_LOOKUPS=true
+
 # expose a port
 EXPOSE 7200
 
