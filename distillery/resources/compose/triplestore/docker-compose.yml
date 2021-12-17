@@ -9,6 +9,10 @@ services:
             - './data/data:/opt/graphdb/data'
             - './data/work:/opt/graphdb/work'
             - './data/logs:/opt/graphdb/logs'
+        # Use 1GB of heap space
+        environment:
+            GDB_HEAP_SIZE: 1gb
+
         restart: always
 
 networks:
