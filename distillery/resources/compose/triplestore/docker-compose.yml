@@ -11,7 +11,8 @@ services:
             - './data/logs:/opt/graphdb/logs'
         # Use 1GB of heap space
         environment:
-            GDB_HEAP_SIZE: 1G
+            GDB_MAX_MEM: 4G
+            GDB_MIN_MEM: 1G
 
         restart: always
 
