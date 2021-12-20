@@ -36,26 +36,28 @@ RUN apt-get update && apt-get install -y \
         curl \
         gd \
         intl \
-        soap \
         mysqli \
         opcache \
         pdo_mysql \
+        soap \
         xml \
     && \
     pecl install xmlrpc-1.0.0RC3 && \
     pecl install ssh2-1.3.1 && \
     pecl install apcu-5.1.21 && \
+    pecl install uploadprogress-2.0.2 && \
     docker-php-ext-enable \
         apcu \
         curl \
         gd \
         intl \
         mysqli \
+        mysqli \
         opcache \
         pdo_mysql \
         soap \
         ssh2 \
-        mysqli \
+        uploadprogress \
         xml \
         xmlrpc \
     && \
