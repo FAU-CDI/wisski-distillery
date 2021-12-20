@@ -1,4 +1,4 @@
-FROM docker.io/library/php:8-apache-bullseye
+FROM docker.io/library/php:8.0-apache-bullseye
 WORKDIR /var/www
 
 # install and enable the various required php extension
