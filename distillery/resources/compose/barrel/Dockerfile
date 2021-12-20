@@ -22,6 +22,8 @@ RUN apt-get update && apt-get install -y \
         zip \
     && \
     docker-php-source extract && \
+    mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
+    pear config-set php_ini "$PHP_INI_DIR/php.ini" && \
     docker-php-ext-configure gd \
         --enable-gd \
         --with-webp \
@@ -39,10 +41,10 @@ RUN apt-get update && apt-get install -y \
         opcache \
         pdo_mysql \
         xml \
-        xmlrpc \
     && \
-    pecl install ssh2-1.2 && \
-    pecl install apcu && \
+    pecl install xmlrpc-1.0.0RC3 && \
+    pecl install ssh2-1.3.1 && \
+    pecl install apcu-5.1.21 && \
     docker-php-ext-enable \
         apcu \
         curl \
