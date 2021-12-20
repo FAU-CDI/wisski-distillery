@@ -3,7 +3,7 @@ set -e
 
 # read user
 USER=$1
-if [ -z "$var" ]; then
+if [ -z "$USER" ]; then
     echo "Usage: create_admin.sh USERNAME"
     exit 1
 fi
@@ -22,4 +22,4 @@ fi;
 # create the user and add the admin role
 cd /var/www/data/project/
 drush user:create "$USER" --password="$PASS"
-drush user:add-role administrator "$USER"
+drush user-add-role administrator "$USER"
