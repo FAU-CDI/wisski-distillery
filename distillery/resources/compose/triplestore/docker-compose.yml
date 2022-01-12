@@ -9,7 +9,7 @@ services:
             - './data/data:/opt/graphdb/data'
             - './data/work:/opt/graphdb/work'
             - './data/logs:/opt/graphdb/logs'
-        command: "\"-Dgraphdb.home=/opt/graphdb -Ddefault.min.distinct.threshold=1G\""
+        command: "\"-Dgraphdb.home=/opt/graphdb -Ddefault.min.distinct.threshold=250M\""
         # Use 1GB of heap space
         environment:
             GDB_HEAP_SIZE: 4G
