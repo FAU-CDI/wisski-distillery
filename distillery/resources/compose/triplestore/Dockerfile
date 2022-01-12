@@ -60,5 +60,5 @@ VOLUME /opt/graphdb/work
 VOLUME /opt/graphdb/logs
 
 # setup command and entrypoint
-CMD ["-Dgraphdb.home=/opt/graphdb"]
+CMD ["-Dgraphdb.home=/opt/graphdb -Ddefault.min.distinct.threshold=1G"]
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
