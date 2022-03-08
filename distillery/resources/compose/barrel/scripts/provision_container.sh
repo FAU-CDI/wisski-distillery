@@ -62,16 +62,17 @@ function drupal_sites_permission_workaround() {
     chmod -R u+w "$WEB_DIR/sites/" || true
 }
 
-# setup allow-plugins 
-composer config allow-plugins true || true
 
 # Create a new composer project. 
 log_info " => Creating composer project"
 if [ -z "${DRUPAL_VERSION}" ]; then
-    composer create-project 'drupal/recommended-project:^9.0.0' .
+    composer --no-interaction create-project 'drupal/recommended-project:^9.0.0' .
 else
-    composer create-project "drupal/recommended-project:$DRUPAL_VERSION" .
+    composer --no-interaction create-project "drupal/recommended-project:$DRUPAL_VERSION" .
 fi
+
+# needed for composer > 2.2
+composer --no-interaction config allow-plugins true
 
 # Install drush so that we can automate a lot of things
 log_info " => Installing 'drush'"
