@@ -51,11 +51,12 @@ dockerized_mysql -e "DROP USER IF EXISTS \`${MYSQL_USER}\`@\`%\`;"
 dockerized_mysql -e "FLUSH PRIVILEGES;"
 
 # Clear the GraphDB repository. 
+log_info " => Deleting GraphDB repository '$GRAPHDB_REPO'"
+curl $GRAPHDB_AUTH_FLAGS -X DELETE http://127.0.0.1:7200/rest/repositories/$GRAPHDB_REPO/
+
 log_info " => Deleting GraphDB user '$GRAPHDB_USER'"
 curl $GRAPHDB_AUTH_FLAGS -X DELETE http://127.0.0.1:7200/rest/security/user/$GRAPHDB_USER/
 
-log_info " => Deleting GraphDB repository '$GRAPHDB_REPO'"
-curl $GRAPHDB_AUTH_FLAGS -X DELETE http://127.0.0.1:7200/rest/repositories/$GRAPHDB_REPO/
 
 # Delete the directory
 log_info " => Deleting '$INSTANCE_BASE_DIR'"
