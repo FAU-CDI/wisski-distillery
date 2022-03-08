@@ -62,6 +62,9 @@ function drupal_sites_permission_workaround() {
     chmod -R u+w "$WEB_DIR/sites/" || true
 }
 
+# setup allow-plugins 
+composer config allow-plugins true || true
+
 # Create a new composer project. 
 log_info " => Creating composer project"
 if [ -z "${DRUPAL_VERSION}" ]; then
