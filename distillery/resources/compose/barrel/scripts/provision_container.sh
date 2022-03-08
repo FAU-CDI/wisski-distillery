@@ -114,7 +114,7 @@ fi
 popd
 
 drupal_sites_permission_workaround
-composer require drupal/inline_entity_form
+composer require 'drupal/inline_entity_form:^1.0@RC'
 
 drupal_sites_permission_workaround
 composer require drupal/imagemagick
