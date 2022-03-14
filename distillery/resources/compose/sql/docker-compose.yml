@@ -17,6 +17,7 @@ services:
         environment:
             - "PMA_HOST=sql"
             - "HIDE_PHP_VERSION=true"
+            - "UPLOAD_LIMIT=100M"
         # phpmyadmin running on localhost:8080 so that we can easily access the system graphically. 
         # By default no admin account is created, so initial shell access to make one is needed. 
         ports:
