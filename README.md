@@ -238,19 +238,22 @@ To list all instances, the following command can be used:
 sudo bash /distillery/ls.sh
 ```
 
-## Backups -- 'backup.sh'
+## Backups -- 'backup_all.sh' and 'backup_instance.sh'
 
 This project comes with a backup script.
-To make a backup, run:
+To make a backup of *all instances*, run:
 
 ```bash
-sudo bash /distillery/backup.sh
+sudo bash /distillery/backup_all.sh
 ```
+
+Backups may temporarily shutdown individual instances to ensure data consistency.
+Typical backup times are a minute or less.
 
 Backups are stored in the `backups/final` directory.
 They contain:
 
-- a filesystem backup of all instances
+- a backup of every single instance (see below)
 - a complete backup of the SQL database
 - nquads of all the GraphDB repositories
 - a backup of the config file
@@ -263,7 +266,36 @@ An example job to e.g. run a backup every saturday at 9:00 am is:
 
 ```
 MAILTO="some-admin-email@example.com"
-0 9 * * 6 /bin/bash /distillery/backup.sh
+0 9 * * 6 /bin/bash /distillery/backup_all.sh
+```
+
+### Backup a single instance
+
+To backup a single instance, you can use the `/distillery/backup_instance.sh` script.
+It takes either 1 or 2 arguments:
+
+```bash
+# backup a single instance and pick a new file in /backups/final
+bash /distillery/backup_instance.sh slug
+
+# backup a single instance into a specific file
+bash /distillery/backup_instance.sh /path/to/backup.tar.gz
+```
+
+The backup proceeeds as follows:
+1. make a copy of the instance configuration
+2. shutdown the running instance
+3. make a dump of the triplestore and mysql databases
+4. make a copy of the file system
+5. start the instance again
+6. package the data into the final `.tar.gz` file
+
+When uptime is critical, it is possible to skip sets 2 and 5 and leave the instance running.
+This might result in inconsistent backup data.
+To do so, run the script with the `KEEPALIVE` flag:
+
+```bash
+KEEPALIVE=1 bash /distillery/backup_instance.sh slug
 ```
 
 ## SSH Access

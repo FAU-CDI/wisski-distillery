@@ -17,7 +17,7 @@ fi;
 
 # Backup
 log_info " => Running backup, this will take a long time"
-bash backup.sh
+bash backup_all.sh
 
 # system install
 log_info " => Reinstalling system"
