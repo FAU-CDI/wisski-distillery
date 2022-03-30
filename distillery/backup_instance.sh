@@ -80,7 +80,7 @@ function do_the_backup() {
 }
 
 # do the actual backup, writing it to a file
-do_the_backup 2>&1 | tee "$BACKUP_LOG_FILE.log"
+do_the_backup 2>&1 | tee "$BACKUP_LOG_FILE"
 
 # list before packaging
 log_info " => All backup files have been collected"

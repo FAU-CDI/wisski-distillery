@@ -26,27 +26,36 @@ log_info " => Making '$BACKUP_INSTANCE_DIR'"
 mkdir -p "$BACKUP_INSTANCE_DIR"
 mkdir -p "$DEPLOY_BACKUP_FINAL_DIR"
 
-# backup the configuration
-cp "$CONFIG_FILE" "$BACKUP_INSTANCE_DIR/.env"
+function backup_everything() {
+    # backup the configuration
+    log_info " => Backing up configuration"
+    cp "$CONFIG_FILE" "$BACKUP_INSTANCE_DIR/.env" || true
 
-# Backup the sql backup
-log_info " => Backing up the SQL database"
-dockerized_mysqldump --all-databases > "$BACKUP_SQL_FILE"
+    # Backup sql (complete)
+    log_info " => Backing up the SQL database"
+    dockerized_mysqldump --all-databases > "$BACKUP_SQL_FILE" || true
 
-# Backup the triplestore system
-log_info " => Backing up Triplestore System"
-mkdir -p "$BACKUP_TRIPLESTORE_DIR"
-curl -X GET -H "Accept:application/n-quads" $GRAPHDB_AUTH_FLAGS "http://127.0.0.1:7200/repositories/SYSTEM/statements?infer=false" > "$BACKUP_TRIPLESTORE_SYSTEM"
+    # Backup triplestore (complete)
+    log_info " => Backing up Triplestore System"
+    mkdir -p "$BACKUP_TRIPLESTORE_DIR"
+    curl -X GET -H "Accept:application/n-quads" $GRAPHDB_AUTH_FLAGS "http://127.0.0.1:7200/repositories/SYSTEM/statements?infer=false" > "$BACKUP_TRIPLESTORE_SYSTEM" || true
 
-# backup individual repos
-for REPO in `grep -oP '(?<=#repositoryID> ")[^"]+' $BACKUP_TRIPLESTORE_SYSTEM`; do
-    log_info " => Backing up Triplestore Repository '$REPO'"
-	curl -X GET -H "Accept:application/n-quads" $GRAPHDB_AUTH_FLAGS "http://127.0.0.1:7200/repositories/$REPO/statements?infer=false" > "$BACKUP_TRIPLESTORE_DIR/repo_$REPO.nq"
-done
+    # backup triplestore (individual)
+    for REPO in `grep -oP '(?<=#repositoryID> ")[^"]+' $BACKUP_TRIPLESTORE_SYSTEM`; do
+        log_info " => Backing up Triplestore Repository '$REPO'"
+        curl -X GET -H "Accept:application/n-quads" $GRAPHDB_AUTH_FLAGS "http://127.0.0.1:7200/repositories/$REPO/statements?infer=false" > "$BACKUP_TRIPLESTORE_DIR/repo_$REPO.nq" || true
+    done
 
-# backup the filesystem
-log_info " => Backing up instance filesystem"
-cp -rpT "$DEPLOY_INSTANCES_DIR" "$BACKUP_FILESYSTEM_DIR"
+    # backup all the instances
+    log_info "=> Backing up instances"
+    for slug in $(sql_bookkeep_list); do
+        log_info "=> /bin/bash '$DIR/backup_instance.sh' '$slug' '$BACKUP_INSTANCE_DIR/${slug}.tar.gz'"
+        /bin/bash "$DIR/backup_instance.sh" "$slug" "$BACKUP_INSTANCE_DIR/${slug}.tar.gz" 2>&1 | tee "$BACKUP_INSTANCE_DIR/${slug}.log" || true
+    done
+}
+
+# do the entire backup
+backup_everything 2>&1 | tee "$BACKUP_LOG_FILE.log"
 
 # Package the backup into a .tar.gz
 log_info " => Packaging '$BACKUP_FINAL_FILE'"
