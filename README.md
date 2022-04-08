@@ -10,7 +10,7 @@ use.
 
 This README contains only technical documentation.
 For members of [FAU Erlangen-Nürnberg](https://www.fau.de/) a cloud offering based on this service known as FAUWissKICloud.
-Please see https://wisski.agfd.fau.de/ for related documentation. 
+Please see https://wisski.data.fau.de/ for related documentation. 
 
 **This project is still a work in progress and nothing in this repository is ready for production use**
 
