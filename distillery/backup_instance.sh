@@ -74,7 +74,7 @@ function do_the_backup() {
 
     # restart
     if [ -z "$KEEPALIVE" ]; then
-      log_info " => Starting up sytem"
+      log_info " => Starting up system"
       docker-compose up -d
     fi
 }
