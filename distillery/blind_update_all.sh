@@ -10,7 +10,7 @@ DISABLE_LOG=0
 
 # update all the instances
 for slug in $(sql_bookkeep_list_updateable); do
-    log_info "=> /bin/bash $DIR/blind-update.sh '$slug'"
-    /bin/bash "$DIR/blind-update.sh" "$slug";
+    log_info "=> /bin/bash $DIR/blind_update.sh '$slug'"
+    /bin/bash "$DIR/blind_update.sh" "$slug";
 done
 

@@ -193,7 +193,7 @@ sudo docker image prune --all
 To automatically rebuild all instances, use:
 
 ```bash
-sudo bash /distillery/rebuild-all.sh
+sudo bash /distillery/rebuild_all.sh
 ```
 
 ## Reserving an instance -- 'reserve.sh'

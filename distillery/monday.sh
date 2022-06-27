@@ -25,10 +25,10 @@ bash system_install.sh "$GRAPHDB_ZIP"
 
 # rebuild all the systems
 log_info " => Rebuilding all instances"
-bash rebuild-all.sh
+bash rebuild_all.sh
 
 # perform all the blind updates
 log_info " => Performing updates"
-bash blind-update-all.sh
+bash blind_update_all.sh
 
 log_info " => Done, have a great week"
