@@ -1,4 +1,5 @@
 FROM docker.io/library/php:8.0-apache-bullseye
+ARG COMPOSER_VERSION=2.3.8
 WORKDIR /var/www
 
 # install and enable the various required php extension
@@ -67,7 +68,7 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # install composer and add it to path
-RUN curl -sS https://getcomposer.org/installer | php && \
+RUN curl -sS https://getcomposer.org/installer | php -- --version=$COMPOSER_VERSION && \
     mv composer.phar /usr/local/bin/composer
 ENV PATH "/usr/local/bin:/var/www/data/project/vendor/bin:$PATH"
 
