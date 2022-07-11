@@ -129,21 +129,14 @@ log_info " => Enable Wisski modules"
 drush pm-enable --yes wisski_core wisski_linkblock wisski_pathbuilder wisski_adapter_sparql11_pb wisski_salz
 drupal_sites_permission_workaround
 
+log_info " => Setting up WissKI Salz Adapter"
+drush php:script /create_adapter.php "$INSTANCE_DOMAIN" "$GRAPHDB_REPO" "$GRAPHDB_HEADER"
+
 log_info " => Provisioning is now complete. "
 log_ok "Your installation details are as follows:"
 function printdetails() {
     echo "URL:                  http://$INSTANCE_DOMAIN"
     echo "Username:             $DRUPAL_USER"
     echo "Password:             $DRUPAL_PASS"
-    log_info " => Your GraphDB details (for WissKI Salz) are: "
-    echo "Read URL:             http://triplestore:7200/repositories/$GRAPHDB_REPO"
-    echo "Write URL:            http://triplestore:7200/repositories/$GRAPHDB_REPO/statements"
-    echo "Username:             $GRAPHDB_USER"
-    echo "Password:             $GRAPHDB_PASSWORD"
-    echo "Authorization Header: $GRAPHDB_HEADER"
-    echo "Writable:             yes"
-    echo "Default Graph URI:    http://$INSTANCE_DOMAIN/#"
-    echo "Ontology Paths:       (empty)"
-    echo "SameAs property:      http://www.w3.org/2002/07/owl#sameAs"
 }
 printdetails
