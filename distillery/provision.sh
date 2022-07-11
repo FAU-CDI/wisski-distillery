@@ -44,12 +44,11 @@ GRAPHDB_PASSWORD="$(randompw)"
 
 # Create the user and grant them access to the creatd database. 
 log_info " => Creating GraphDB user '$GRAPHDB_USER'"
-load_template "repository/graphdb-user.json" "GRAPHDB_USER" "${GRAPHDB_USER}" "GRAPHDB_REPO" "${GRAPHDB_REPO}" | \
+load_template "repository/graphdb-user.json" "GRAPHDB_USER" "${GRAPHDB_USER}" "GRAPHDB_REPO" "${GRAPHDB_REPO}" "GRAPHDB_PASSWORD" "${GRAPHDB_PASSWORD}" | \
 curl -X POST $GRAPHDB_AUTH_FLAGS \
-    "http://127.0.0.1:7200/rest/security/user/${GRAPHDB_USER}" \
+    "http://127.0.0.1:7200/rest/security/users/${GRAPHDB_USER}" \
     --header 'Content-Type: application/json' \
     --header 'Accept: text/plain' \
-    --header "X-GraphDB-Password: $GRAPHDB_PASSWORD" \
     -d @-
 
 log_info " => Creating local directory structure at '$INSTANCE_BASE_DIR'"

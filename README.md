@@ -78,7 +78,7 @@ These are:
   - A [phpmyadmin](https://www.phpmyadmin.net/) is started on `127.0.0.1:8080`.
   - See [distillery/resources/compose/sql](distillery/resources/compose/sql) for implementation details.
 
-- [GraphDB](http://graphdb.ontotext.com/) - a SPARQL backend for WissKI
+- [GraphDB](http://graphdb.ontotext.com/) - a SPARQL backend for WissKI (Version 10.0 or later)
 
   - It is configured to run inside a docker container.
   - The Workbench API is started on `127.0.0.1:7200`.

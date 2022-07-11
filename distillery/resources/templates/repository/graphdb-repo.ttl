@@ -12,13 +12,13 @@
     rep:repositoryID "${GRAPHDB_REPO}" ;
     rdfs:label "${INSTANCE_DOMAIN}" ;
     rep:repositoryImpl [
-        rep:repositoryType "graphdb:FreeSailRepository" ;
+        rep:repositoryType "graphdb:SailRepository" ;
         sr:sailImpl [
-            sail:sailType "graphdb:FreeSail" ;
+            sail:sailType "graphdb:Sail" ;
 
             owlim:owlim-license "" ;
 
-            owlim:base-URL "http://${INSTANCE_DOMAIN}/#" ;
+            owlim:base-URL "http://${INSTANCE_DOMAIN}/" ;
             owlim:defaultNS "" ;
             owlim:entity-index-size "10000000" ;
             owlim:entity-id-size  "32" ;
