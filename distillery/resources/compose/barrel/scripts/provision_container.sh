@@ -136,6 +136,9 @@ log_info " => Updating TRUSTED_HOST_PATTERNS in settings.php"
 
 /bin/bash /wisskiutils/set_trusted_host.sh
 
+log_info " => Running initial cron"
+drush core-cron
+
 log_info " => Provisioning is now complete. "
 log_ok "Your installation details are as follows:"
 function printdetails() {
