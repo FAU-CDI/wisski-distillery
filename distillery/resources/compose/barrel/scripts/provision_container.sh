@@ -129,6 +129,22 @@ log_info " => Enable Wisski modules"
 drush pm-enable --yes wisski_core wisski_linkblock wisski_pathbuilder wisski_adapter_sparql11_pb wisski_salz
 drupal_sites_permission_workaround
 
+log_info " => Installing and enabling additional modules"
+
+while IFS= read -r line; do
+    echo "$line" | (
+        read composer drush;
+        drupal_sites_permission_workaround
+        composer require "$composer"
+        drush pm-enable --yes "$drush"
+    )
+done << EOF
+drupal/devel:^4.1 devel
+drupal/geofield:^1.40 geofield
+drupal/geofield_map:^2.85 geofield_map
+drupal/imce:^2.4 imce
+EOF
+
 log_info " => Setting up WissKI Salz Adapter"
 drush php:script /wisskiutils/create_adapter.php "$INSTANCE_DOMAIN" "$GRAPHDB_REPO" "$GRAPHDB_HEADER"
 
