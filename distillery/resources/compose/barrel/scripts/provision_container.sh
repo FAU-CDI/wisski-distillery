@@ -130,7 +130,11 @@ drush pm-enable --yes wisski_core wisski_linkblock wisski_pathbuilder wisski_ada
 drupal_sites_permission_workaround
 
 log_info " => Setting up WissKI Salz Adapter"
-drush php:script /create_adapter.php "$INSTANCE_DOMAIN" "$GRAPHDB_REPO" "$GRAPHDB_HEADER"
+drush php:script /wisskiutils/create_adapter.php "$INSTANCE_DOMAIN" "$GRAPHDB_REPO" "$GRAPHDB_HEADER"
+
+log_info " => Updating TRUSTED_HOST_PATTERNS in settings.php"
+
+/bin/bash /wisskiutils/set_trusted_host.sh
 
 log_info " => Provisioning is now complete. "
 log_ok "Your installation details are as follows:"

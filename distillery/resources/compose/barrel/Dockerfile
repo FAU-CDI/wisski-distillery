@@ -91,12 +91,13 @@ VOLUME /var/www/data
 
 # Add and configure the entrypoint
 ADD scripts/entrypoint.sh /entrypoint.sh
-ADD scripts/create_adapter.php /create_adapter.php
+
 ENTRYPOINT [ "/entrypoint.sh" ]
 CMD ["apache2-foreground"]
 
-# Add the provision script
+# Add the provision script and WissKI utils
 ADD scripts/provision_container.sh /provision_container.sh
+ADD wisskiutils/ /wisskiutils
 
 # Add the user_shell.sh
 ADD scripts/user_shell.sh /user_shell.sh
