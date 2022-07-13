@@ -58,8 +58,29 @@ log_info " => Creating '$COMPOSER_DIR'"
 mkdir -p "$COMPOSER_DIR"
 cd "$COMPOSER_DIR"
 
+# workaround for making the drupal sites directory writable
 function drupal_sites_permission_workaround() {
     chmod -R u+w "$WEB_DIR/sites/" || true
+}
+
+# install a module with composer and enable it with drush
+# Example:
+#
+# composer_install_and_enable << EOF
+# drupal/some_module:1.23 some_module
+# drupal/other_module:2.34
+# EOF
+# 
+# Will install both modules, but only enable the first one.
+function composer_install_and_enable() {
+    while IFS= read -r line; do
+        echo "$line" | (
+            read composer drush;
+            drupal_sites_permission_workaround
+            composer require "$composer"
+            [ -n "$drush" ] && drush pm-enable --yes "$drush"
+        )
+    done
 }
 
 
@@ -113,37 +134,21 @@ if [ -f "$EASYRDF_RESPONSE" ]; then
 fi
 popd
 
-drupal_sites_permission_workaround
-composer require 'drupal/inline_entity_form:^1.0@RC'
-
-drupal_sites_permission_workaround
-composer require drupal/imagemagick
-
-drupal_sites_permission_workaround
-composer require drupal/image_effects
-
-drupal_sites_permission_workaround
-composer require drupal/colorbox
-
-log_info " => Enable Wisski modules"
-drush pm-enable --yes wisski_core wisski_linkblock wisski_pathbuilder wisski_adapter_sparql11_pb wisski_salz
-drupal_sites_permission_workaround
-
 log_info " => Installing and enabling additional modules"
-
-while IFS= read -r line; do
-    echo "$line" | (
-        read composer drush;
-        drupal_sites_permission_workaround
-        composer require "$composer"
-        drush pm-enable --yes "$drush"
-    )
-done << EOF
+composer_install_and_enable << EOF
+drupal/inline_entity_form:^1.0@RC
+drupal/imagemagick
+drupal/image_effects
+drupal/colorbox
 drupal/devel:^4.1 devel
 drupal/geofield:^1.40 geofield
 drupal/geofield_map:^2.85 geofield_map
 drupal/imce:^2.4 imce
 EOF
+
+log_info " => Enable Wisski modules"
+drush pm-enable --yes wisski_core wisski_linkblock wisski_pathbuilder wisski_adapter_sparql11_pb wisski_salz
+drupal_sites_permission_workaround
 
 log_info " => Setting up WissKI Salz Adapter"
 drush php:script /wisskiutils/create_adapter.php "$INSTANCE_DOMAIN" "$GRAPHDB_REPO" "$GRAPHDB_HEADER"
