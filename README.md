@@ -337,6 +337,16 @@ ssh -p 2222 -L localhost:7200:triplestore:7200 -L localhost:8080:phpmyadmin:8080
 
 This will make GraphDB and PhpMyAdmin available at `localhost:7200` and `localhost:8080` for the duration of the connection. 
 
+### Resolver
+
+In order to resolve WissKI URIs globally, we make use of [wdresolve](https://github.com/FAU-CDI/wdresolve).
+This can be queried with a single URI, and will be redirected to the page of the corresponding WissKI Entity.
+This is deployed under `/go/` path of the top-level domain.
+
+For example, if the domain name of the distillery instance is `wisski.example.com`, then the resolver would respond to queries like `https://wisski.example.com/go/?uri=https://first.wisski.example.com/content/123`.
+The resolver configuration is automatically updated by the `update_prefix_config.sh` script.
+It should not be neccessary to reload this configuration manually, as it is automatically called during `system_update.sh`.
+
 ## License
 
 This project and associated files in this repository are licensed as follows:

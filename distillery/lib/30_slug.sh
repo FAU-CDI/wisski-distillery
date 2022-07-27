@@ -36,8 +36,12 @@ SLUG="$1"
 
 # Compute the domain name for this instance.
 # Also lowercase the domain name for consistency. 
-INSTANCE_DOMAIN="$SLUG.$DEFAULT_DOMAIN"
-INSTANCE_DOMAIN="$(echo "$INSTANCE_DOMAIN" | tr '[:upper:]' '[:lower:]')"
+function compute_instance_domain() {
+    INSTANCE_DOMAIN="$1.$DEFAULT_DOMAIN"
+    INSTANCE_DOMAIN="$(echo "$INSTANCE_DOMAIN" | tr '[:upper:]' '[:lower:]')"
+    echo "$INSTANCE_DOMAIN"
+}
+INSTANCE_DOMAIN="$(compute_instance_domain "$SLUG")"
 
 # Next we need a username base. 
 # This will be used as a username across the system (linux), MySQL and GraphDB. 

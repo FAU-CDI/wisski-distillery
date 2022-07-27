@@ -45,10 +45,11 @@ apt-get install -y python3-pip libffi-dev
 log_info "=> Installing docker-compose"
 pip3 install --upgrade docker-compose
 
-log_info "=> Creating docker-compose directories"
+log_info "=> Creating docker-compose directories and files"
 mkdir -p "$DEPLOY_INSTANCES_DIR"
 mkdir -p "$DEPLOY_WEB_DIR"
 mkdir -p "$DEPLOY_SELF_DIR"
+mkdir -p "$DEPLOY_RESOLVER_DIR"
 mkdir -p "$DEPLOY_SSH_DIR"
 mkdir -p "$DEPLOY_TRIPLESTORE_DIR"
 mkdir -p "$DEPLOY_SQL_DIR"
@@ -69,6 +70,10 @@ load_template "docker-env/web" \
 log_info "=> Creating 'docker-compose' files for the 'self'. "
 install_resource_dir "compose/self" "$DEPLOY_SELF_DIR"
 
+log_info "=> Creating 'docker-compose' files for the 'resolver'. "
+install_resource_dir "compose/resolver" "$DEPLOY_RESOLVER_DIR"
+touch "$DEPLOY_PREFIX_CONFIG"
+
 log_info "=> Creating 'docker-compose' files for the 'ssh'. "
 install_resource_dir "compose/ssh" "$DEPLOY_SSH_DIR"
 
@@ -86,6 +91,15 @@ load_template "docker-env/self" \
     "OVERRIDES_FILE" "${SELF_OVERRIDES_FILE}" \
     > "$DEPLOY_SELF_DIR/.env"
 
+log_info " => Writing 'resolver' configuration file"
+load_template "docker-env/resolver" \
+    "VIRTUAL_HOST" "${SELF_DOMAIN_SPEC}" \
+    "LETSENCRYPT_HOST" "${LETSENCRYPT_HOST}" \
+    "LETSENCRYPT_EMAIL" "${LETSENCRYPT_EMAIL}" \
+    "PREFIX_FILE" "${DEPLOY_PREFIX_CONFIG}" \
+    "DEFAULT_DOMAIN" "${DEFAULT_DOMAIN}" \
+    "LEGACY_DOMAIN" "${SELF_EXTRA_DOMAINS}" \
+    > "$DEPLOY_RESOLVER_DIR/.env"
 
 # copy over the directory
 log_info "=> Creating 'docker-compose' files for the 'triplestore'. "

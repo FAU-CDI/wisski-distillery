@@ -12,6 +12,9 @@ update_stack "$DEPLOY_WEB_DIR"
 log_info "=> Rebuilding and restarting 'self' stack"
 update_stack "$DEPLOY_SELF_DIR"
 
+log_info "=> Rebuilding and restarting 'resolver' stack"
+update_stack "$DEPLOY_RESOLVER_DIR"
+
 # build and start the ssh server
 log_info "=> Rebuilding and restarting 'ssh' stack"
 update_stack "$DEPLOY_SSH_DIR"
@@ -24,7 +27,7 @@ update_stack "$DEPLOY_TRIPLESTORE_DIR"
 log_info "=> Rebuilding and restarting 'sql' stack"
 update_stack "$DEPLOY_SQL_DIR"
 
-# TODO: Iterate over all the instance
-# and a  pull_and_update
+log_info " => Updating Prefix Config"
+bash update_prefix_config.sh
 
 log_info "=> System up-to-date. "
