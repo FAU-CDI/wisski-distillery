@@ -347,6 +347,9 @@ For example, if the domain name of the distillery instance is `wisski.example.co
 The resolver configuration is automatically updated by the `update_prefix_config.sh` script.
 It should not be neccessary to reload this configuration manually, as it is automatically called during `system_update.sh`.
 
+It is also possible to manually add a URI prefix to an instance.
+For this purpose, add a file named `prefixes` to the base directory of the instance, with one prefix per line.
+
 ## License
 
 This project and associated files in this repository are licensed as follows:
