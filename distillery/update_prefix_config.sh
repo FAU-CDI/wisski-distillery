@@ -15,7 +15,7 @@ date | tee -a "$DEPLOY_PREFIX_CONFIG"
 
 # update all the instances
 for slug in $(sql_bookkeep_list); do
-    INSTANCE_DOMAIN="http://$(compute_instance_domain "$slug")"
+    INSTANCE_DOMAIN="$(compute_instance_url "$slug")"
     echo "$INSTANCE_DOMAIN:" | tee -a "$DEPLOY_PREFIX_CONFIG"
     
     read -r INSTANCE_BASE_DIR MYSQL_DATABASE MYSQL_USER GRAPHDB_REPO GRAPHDB_USER GRAPHDB_PASSWORD <<< "$(sql_bookkeep_load "${slug}" "filesystem_base,sql_database,sql_user,graphdb_repository,graphdb_user,graphdb_password" | tail -n +2)"

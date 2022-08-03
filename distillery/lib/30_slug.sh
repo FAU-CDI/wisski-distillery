@@ -43,6 +43,16 @@ function compute_instance_domain() {
 }
 INSTANCE_DOMAIN="$(compute_instance_domain "$SLUG")"
 
+# compute the url pointing to an instance
+function compute_instance_url() {
+    if [ -n "$CERTBOT_EMAIL" ]; then
+        echo -n "https://"
+    else
+        echo "http://"
+    fi
+    compute_instance_domain "$@"
+}
+
 # Next we need a username base. 
 # This will be used as a username across the system (linux), MySQL and GraphDB. 
 # For this we can only allow [0-9a-zA-Z-], hence we have to escape. 
