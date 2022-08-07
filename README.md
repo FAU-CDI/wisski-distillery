@@ -350,6 +350,11 @@ It should not be neccessary to reload this configuration manually, as it is auto
 It is also possible to manually add a URI prefix to an instance.
 For this purpose, add a file named `prefixes` to the base directory of the instance, with one prefix per line.
 
+Furthermore, you can also exclude a specific instance from URL prefix resolving.
+This should be the case for cloned or backup instances.
+For this purpose, add a file named `prefixes.skip` to the base directory of the instance.
+This will casuse the instance to be skipped entirely.
+
 ## License
 
 This project and associated files in this repository are licensed as follows:

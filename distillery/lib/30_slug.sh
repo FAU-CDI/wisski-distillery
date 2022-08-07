@@ -84,6 +84,14 @@ function compute_instance_prefixfile() {
 }
 INSTANCE_PREFIX_FILE="$(compute_instance_prefixfile "$INSTANCE_BASE_DIR" )"
 
+# compute the prefix file
+function compute_instance_noprefixfile() {
+    INSTANCE_BASE_DIR="$1"
+    INSTANCE_PREFIX_FILE="$INSTANCE_BASE_DIR/prefixes.skip"
+    echo "$INSTANCE_PREFIX_FILE"
+}
+INSTANCE_NOPREFIX_FILE="$(compute_instance_noprefixfile "$INSTANCE_BASE_DIR" )"
+
 if [ -n "$CERTBOT_EMAIL" ]; then
     LETSENCRYPT_HOST="$INSTANCE_DOMAIN"
     LETSENCRYPT_EMAIL="$CERTBOT_EMAIL"

@@ -16,18 +16,24 @@ date | tee -a "$DEPLOY_PREFIX_CONFIG"
 # update all the instances
 for slug in $(sql_bookkeep_list); do
     INSTANCE_DOMAIN="$(compute_instance_url "$slug")"
-    echo "$INSTANCE_DOMAIN:" | tee -a "$DEPLOY_PREFIX_CONFIG"
     
     read -r INSTANCE_BASE_DIR MYSQL_DATABASE MYSQL_USER GRAPHDB_REPO GRAPHDB_USER GRAPHDB_PASSWORD <<< "$(sql_bookkeep_load "${slug}" "filesystem_base,sql_database,sql_user,graphdb_repository,graphdb_user,graphdb_password" | tail -n +2)"
 
+    INSTANCE_NOPREFIX_FILE="$(compute_instance_noprefixfile "$INSTANCE_BASE_DIR" )"
+    INSTANCE_PREFIX_FILE="$(compute_instance_prefixfile "$INSTANCE_BASE_DIR" )"
+    if [ -f "$INSTANCE_NOPREFIX_FILE" ]; then
+        continue
+    fi
+
     pushd "$INSTANCE_BASE_DIR" > /dev/null
 
-    INSTANCE_PREFIX_FILE="$(compute_instance_prefixfile "$INSTANCE_BASE_DIR" )"
+    echo "$INSTANCE_DOMAIN:" | tee -a "$DEPLOY_PREFIX_CONFIG"
+    docker-compose exec barrel /user_shell.sh -c "drush php:script /wisskiutils/list_uri_prefixes.php" | tee -a "$DEPLOY_PREFIX_CONFIG"
+
     if [ -f "$INSTANCE_PREFIX_FILE" ]; then
         cat "$INSTANCE_PREFIX_FILE" | tee -a "$DEPLOY_PREFIX_CONFIG"
     fi
     
-    docker-compose exec barrel /user_shell.sh -c "drush php:script /wisskiutils/list_uri_prefixes.php" | tee -a "$DEPLOY_PREFIX_CONFIG"
     popd > /dev/null
 done
 
