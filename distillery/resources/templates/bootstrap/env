@@ -1,0 +1,63 @@
+# Several docker-compose files are created to manage global services and the system itself. 
+# On top of this all real-system space will be created under this directory.  
+DEPLOY_ROOT=${DEPLOY_ROOT}
+
+# Each created Drupal Instance corresponds to a single domain name. 
+# These domain names should either be a complete domain name or a sub-domain of a default domain. 
+# This setting configures the default domain-name to create subdomains of. 
+DEFAULT_DOMAIN=${DEFAULT_DOMAIN}
+
+# By default, the default domain redirects to the distillery repository. 
+# If you want to change this, set an alternate domain name here. 
+SELF_REDIRECT=
+
+# By default, only the 'self' domain above is caught.
+# To catch additional domains, add them here (comma seperated)
+SELF_EXTRA_DOMAINS=
+
+# You can override individual URLS in the homepage. 
+# Do this by adding URLs (without trailing '/'s) into a JSON file
+SELF_OVERRIDES_FILE=${SELF_OVERRIDES_FILE}
+
+# The system can support setting up certificate(s) automatically. 
+# It can be enabled by setting an email for certbot certificates. 
+# This email address can be configured here. 
+CERTBOT_EMAIL=
+
+# The maximum age (in days) for backups to be kept. 
+# Backups older than this will be removed when a new backup is made.
+MAX_BACKUP_AGE=30
+
+
+# Each Drupal instance requires a corresponding system user, database users and databases. 
+# These are also set by the appropriate domain name. 
+# To differentiate them from other users of the system, these names can be prefixed. 
+# The prefix to use can be configured here. 
+# When changing these please consider that no system user may exist that has the same name as a mysql user. 
+# This is a MariaDB restriction. 
+MYSQL_USER_PREFIX=mysql-factory-
+MYSQL_DATABASE_PREFIX=mysql-factory-
+GRAPHDB_USER_PREFIX=graphdb-factory-
+GRAPHDB_REPO_PREFIX=graphdb-factory-
+
+# In addition to the filesystem the WissKI distillery requires a single SQL table. 
+# It uses this database to store a list of installed things
+DISTILLERY_BOOKKEEPING_DATABASE=distillery
+DISTILLERY_BOOKKEEPING_TABLE=distillery
+
+
+# Various components use password-based-authentication. 
+# These passwords are generated automatically. 
+# This variable can be used to determine their length. 
+PASSWORD_LENGTH=64
+
+# A file to be used for global authorized_keys for the ssh server.
+GLOBAL_AUTHORIZED_KEYS_FILE=${AUTHORIZED_KEYS_FILE}
+
+# The admin user and password of the GraphDB interface, to be used for queries
+GRAPHDB_ADMIN_USER=${GRAPHDB_ADMIN_USER}
+GRAPHDB_ADMIN_PASSWORD=${GRAPHDB_ADMIN_PASSWORD}
+
+# The admin password to use for access to mysql
+MYSQL_ADMIN_USER=${MYSQL_ADMIN_USER}
+MYSQL_ADMIN_PASSWORD=${MYSQL_ADMIN_PASSWORD}

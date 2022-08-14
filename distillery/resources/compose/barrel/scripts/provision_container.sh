@@ -170,3 +170,5 @@ function printdetails() {
     echo "Password:             $DRUPAL_PASS"
 }
 printdetails
+
+exit 0
