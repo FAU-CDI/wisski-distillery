@@ -5,6 +5,8 @@ services:
         image: mariadb
         volumes:
             - "./data/:/var/lib/mysql"
+        ports:
+            - 127.0.0.1:3306:3306
         environment:
             # This combination of environment variables will configure a passwordless root user
             # that can only connect to the container from 'localhost'.
