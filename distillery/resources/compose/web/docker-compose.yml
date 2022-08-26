@@ -47,5 +47,5 @@ volumes:
 
 networks:
   default:
-    external:
-      name: distillery
+    name: distillery
+    external: true
