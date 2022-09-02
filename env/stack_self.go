@@ -8,11 +8,7 @@ func (dis *Distillery) SelfStack() stack.Installable {
 		TARGET = dis.Config.SelfRedirect.String()
 	}
 
-	return dis.asCoreStack(stack.Installable{
-		Stack: stack.Stack{
-			Name: "self",
-		},
-
+	return dis.asCoreStack("self", stack.Installable{
 		EnvFileContext: map[string]string{
 			"VIRTUAL_HOST":      dis.DefaultVirtualHost(),
 			"LETSENCRYPT_HOST":  dis.DefaultLetsencryptHost(),

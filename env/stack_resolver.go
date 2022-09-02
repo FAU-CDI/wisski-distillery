@@ -10,11 +10,7 @@ import (
 const ResolverPrefixFile = "prefix.cfg"
 
 func (dis *Distillery) ResolverStack() stack.Installable {
-	stack := dis.asCoreStack(stack.Installable{
-		Stack: stack.Stack{
-			Name: "resolver",
-		},
-
+	stack := dis.asCoreStack("resolver", stack.Installable{
 		EnvFileContext: map[string]string{
 			"VIRTUAL_HOST":      dis.DefaultVirtualHost(),
 			"LETSENCRYPT_HOST":  dis.DefaultLetsencryptHost(),

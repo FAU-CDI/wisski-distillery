@@ -14,8 +14,7 @@ import (
 // This executable must be capable of the 'docker compose' command.
 // In the future the idea is to replace this with a native docker compose client.
 type Stack struct {
-	Name string // Name of this stack, TODO: Do we need this?
-	Dir  string // Directory of this stack
+	Dir string // Directory this Stack is located in
 }
 
 var errStackUpdatePull = errors.New("Stack.Update: Pull returned non-zero exit code")
@@ -26,11 +25,24 @@ var errStackUpdateBuild = errors.New("Stack.Update: Build returned non-zero exit
 //
 // See also Up.
 func (ds Stack) Update(io stream.IOStream, start bool) error {
-	if ds.compose(io, "pull") != 0 {
-		return errStackUpdatePull
+	{
+		code, err := ds.compose(io, "pull")
+		if err != nil {
+			return err
+		}
+		if code != 0 {
+			return errStackUpdatePull
+		}
 	}
-	if ds.compose(io, "build", "--pull") != 0 {
-		return errStackUpdateBuild
+
+	{
+		code, err := ds.compose(io, "build", "--pull")
+		if err != nil {
+			return err
+		}
+		if code != 0 {
+			return errStackUpdateBuild
+		}
 	}
 	if start {
 		return ds.Up(io)
@@ -43,7 +55,11 @@ var errStackUp = errors.New("Stack.Up: Up returned non-zero exit code")
 // Up creates and starts the containers in this Stack.
 // It is equivalent to 'docker compose up -d' on the shell.
 func (ds Stack) Up(io stream.IOStream) error {
-	if ds.compose(io, "up", "-d") != 0 {
+	code, err := ds.compose(io, "up", "-d")
+	if err != nil {
+		return err
+	}
+	if code != 0 {
 		return errStackUp
 	}
 	return nil
@@ -53,7 +69,7 @@ func (ds Stack) Up(io stream.IOStream) error {
 // It is equivalent to 'docker compose exec $service $executable $args...'.
 //
 // It returns the exit code of the process.
-func (ds Stack) Exec(io stream.IOStream, service, executable string, args ...string) int {
+func (ds Stack) Exec(io stream.IOStream, service, executable string, args ...string) (int, error) {
 	compose := []string{"exec"}
 	if io.StdinIsATerminal() {
 		compose = append(compose, "-ti")
@@ -67,7 +83,7 @@ func (ds Stack) Exec(io stream.IOStream, service, executable string, args ...str
 // It is equivalent to 'docker compose run [--rm] $service $executable $args...'.
 //
 // It returns the exit code of the process.
-func (ds Stack) Run(io stream.IOStream, autoRemove bool, service, command string, args ...string) int {
+func (ds Stack) Run(io stream.IOStream, autoRemove bool, service, command string, args ...string) (int, error) {
 	compose := []string{"run"}
 	if autoRemove {
 		compose = append(compose, "--rm")
@@ -77,7 +93,12 @@ func (ds Stack) Run(io stream.IOStream, autoRemove bool, service, command string
 	}
 	compose = append(compose, command)
 	compose = append(compose, args...)
-	return ds.compose(io, compose...)
+
+	code, err := ds.compose(io, compose...)
+	if err != nil {
+		return execx.ExecCommandError, nil
+	}
+	return code, nil
 }
 
 var errStackRestart = errors.New("Stack.Restart: Restart returned non-zero exit code")
@@ -85,7 +106,11 @@ var errStackRestart = errors.New("Stack.Restart: Restart returned non-zero exit 
 // Restart restarts all containers in this Stack.
 // It is equivalent to 'docker compose restart' on the shell.
 func (ds Stack) Restart(io stream.IOStream) error {
-	if ds.compose(io, "restart") != 0 {
+	code, err := ds.compose(io, "restart")
+	if err != nil {
+		return err
+	}
+	if code != 0 {
 		return errStackRestart
 	}
 	return nil
@@ -96,7 +121,11 @@ var errStackDown = errors.New("Stack.Down: Down returned non-zero exit code")
 // Down stops and removes all containers in this Stack.
 // It is equivalent to 'docker compose down -v' on the shell.
 func (ds Stack) Down(io stream.IOStream) error {
-	if ds.compose(io, "down", "-v") != 0 {
+	code, err := ds.compose(io, "down", "-v")
+	if err != nil {
+		return err
+	}
+	if code != 0 {
 		return errStackDown
 	}
 	return nil
@@ -104,7 +133,7 @@ func (ds Stack) Down(io stream.IOStream) error {
 
 // Compose executes a 'docker compose' command on this stack.
 // TODO: This should be removed and replaced by an internal call directly to libcompose.
-func (ds Stack) compose(io stream.IOStream, args ...string) int {
+func (ds Stack) compose(io stream.IOStream, args ...string) (int, error) {
 	// TODO: can we migrate to a built-in version of this?
-	return execx.Compose(io, ds.Dir, args...)
+	return execx.Compose(io, ds.Dir, args...), nil
 }

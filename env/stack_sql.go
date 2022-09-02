@@ -20,11 +20,7 @@ import (
 
 // SQLStack returns the docker stack that handles the sql database.
 func (dis *Distillery) SQLStack() stack.Installable {
-	return dis.asCoreStack(stack.Installable{
-		Stack: stack.Stack{
-			Name: "sql",
-		},
-
+	return dis.asCoreStack("sql", stack.Installable{
 		MakeDirsPerm: fs.ModeDir | fs.ModePerm,
 		MakeDirs: []string{
 			"data",
@@ -87,7 +83,7 @@ func (dis *Distillery) sqlBkTable(silent bool) (*gorm.DB, error) {
 }
 
 // SQLShell executes a mysql shell inside the SQLStack.
-func (dis *Distillery) SQLShell(io stream.IOStream, argv ...string) int {
+func (dis *Distillery) SQLShell(io stream.IOStream, argv ...string) (int, error) {
 	return dis.SQLStack().Exec(io, "sql", "mysql", argv...)
 }
 
@@ -102,7 +98,8 @@ const waitSQLInterval = 1 * time.Second
 func (dis *Distillery) SQLWaitForShell() error {
 	n := stream.FromNil()
 	return wait.Wait(func() bool {
-		return dis.SQLShell(n, "-e", "show databases;") == 0
+		code, err := dis.SQLShell(n, "-e", "show databases;")
+		return err == nil && code == 0
 	}, waitSQLInterval, dis.Context())
 }
 
@@ -118,7 +115,8 @@ var errInvalidDatabaseName = errors.New("SQLProvision: Invalid database name")
 
 func (dis *Distillery) sqlRaw(query string, args ...interface{}) bool {
 	sql := sqle.Format(query, args...)
-	return dis.SQLShell(stream.FromNil(), "-e", sql) == 0
+	code, err := dis.SQLShell(stream.FromNil(), "-e", sql)
+	return err == nil && code == 0
 }
 
 // SQLProvision provisions a new sql database and user

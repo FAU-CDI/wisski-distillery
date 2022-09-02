@@ -20,11 +20,11 @@ func (dis *Distillery) Stacks() []stack.Installable {
 }
 
 // asCoreStack treats the provided stack as a core component of this distillery.
-func (dis *Distillery) asCoreStack(stack stack.Installable) stack.Installable {
-	stack.Dir = filepath.Join(dis.Config.DeployRoot, "core", stack.Name)
+func (dis *Distillery) asCoreStack(name string, stack stack.Installable) stack.Installable {
+	stack.Dir = filepath.Join(dis.Config.DeployRoot, "core", name)
 
-	stack.ContextResource = filepath.Join("resources", "compose", stack.Name)
-	stack.EnvFileResource = filepath.Join("resources", "templates", "docker-env", stack.Name)
+	stack.ContextResource = filepath.Join("resources", "compose", name)
+	stack.EnvFileResource = filepath.Join("resources", "templates", "docker-env", name)
 
 	return stack
 }

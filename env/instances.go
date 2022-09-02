@@ -179,7 +179,7 @@ func (instance *Instance) Delete() error {
 }
 
 // Shell executes a shell command inside the
-func (instance Instance) Shell(io stream.IOStream, argv ...string) int {
+func (instance Instance) Shell(io stream.IOStream, argv ...string) (int, error) {
 	return instance.Stack().Exec(io, "barrel", "/user_shell.sh", argv...)
 }
 
@@ -219,8 +219,7 @@ func (instance Instance) URL() *url.URL {
 func (instance Instance) Stack() stack.Installable {
 	return stack.Installable{
 		Stack: stack.Stack{
-			Name: "barrel",
-			Dir:  instance.FilesystemBase,
+			Dir: instance.FilesystemBase,
 		},
 		ContextResource: filepath.Join("resources", "compose", "barrel"),
 
@@ -252,8 +251,7 @@ func (instance Instance) Stack() stack.Installable {
 func (instance Instance) ReserveStack() stack.Installable {
 	return stack.Installable{
 		Stack: stack.Stack{
-			Name: "reserve",
-			Dir:  instance.FilesystemBase,
+			Dir: instance.FilesystemBase,
 		},
 		ContextResource: filepath.Join("resources", "compose", "reserve"),
 
@@ -308,7 +306,11 @@ func (instance Instance) Provision(io stream.IOStream) error {
 	// TODO: Move the provision script into the control plane!
 	provisionScript := "sudo PATH=$PATH -u www-data /bin/bash /provision_container.sh " + strings.Join(provisionParams, " ")
 
-	if st.Run(io, true, "barrel", "/bin/bash", "-c", provisionScript) != 0 {
+	code, err := st.Run(io, true, "barrel", "/bin/bash", "-c", provisionScript)
+	if err != nil {
+		return err
+	}
+	if code != 0 {
 		return errors.New("Unable to run provision script")
 	}
 
@@ -336,7 +338,8 @@ func (instance *Instance) PrefixConfig() (config string, err error) {
 
 	// default prefixes
 	wu := stream.NewIOStream(&builder, nil, nil, 0)
-	if instance.Stack().Exec(wu, "barrel", "/bin/bash", "/user_shell.sh", "-c", "drush php:script /wisskiutils/list_uri_prefixes.php") != 0 {
+	code, err := instance.Stack().Exec(wu, "barrel", "/bin/bash", "/user_shell.sh", "-c", "drush php:script /wisskiutils/list_uri_prefixes.php")
+	if err != nil || code != 0 {
 		return "", errPrefixExecFailed
 	}
 

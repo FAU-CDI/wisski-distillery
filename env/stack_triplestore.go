@@ -20,11 +20,7 @@ import (
 )
 
 func (dis *Distillery) TriplestoreStack() stack.Installable {
-	return dis.asCoreStack(stack.Installable{
-		Stack: stack.Stack{
-			Name: "triplestore",
-		},
-
+	return dis.asCoreStack("triplestore", stack.Installable{
 		CopyContextFiles: []string{"graphdb.zip"},
 
 		MakeDirsPerm: fs.ModeDir | fs.ModePerm,

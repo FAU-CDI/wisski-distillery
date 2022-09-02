@@ -40,7 +40,10 @@ func (cr cron) Run(context wisski_distillery.Context) error {
 	// iterate over the instances and store the last value of error
 	for _, instance := range instances {
 		logging.LogOperation(func() error {
-			code := instance.Shell(context.IOStream, "/utils/cron.sh")
+			code, err := instance.Shell(context.IOStream, "/utils/cron.sh")
+			if err != nil {
+				context.EPrintln(err)
+			}
 			if code != 0 {
 				// keep going, because we want to run as many crons as possible
 				err = errBlindUpdateFailed.WithMessageF(instance.Slug, code)

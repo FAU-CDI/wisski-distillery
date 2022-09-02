@@ -114,13 +114,13 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		for _, stack := range dis.Stacks() {
 			if err := logging.LogOperation(func() error {
 				return stack.Install(context.IOStream, ctx)
-			}, context.IOStream, "Installing docker stack %q", stack.Name); err != nil {
+			}, context.IOStream, "Installing docker stack %q", stack.Dir); err != nil {
 				return err
 			}
 
 			if err := logging.LogOperation(func() error {
 				return stack.Update(context.IOStream, true)
-			}, context.IOStream, "Updating docker stack %q", stack.Name); err != nil {
+			}, context.IOStream, "Updating docker stack %q", stack.Dir); err != nil {
 				return err
 			}
 		}

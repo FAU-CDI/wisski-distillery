@@ -3,6 +3,7 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/env"
+	"github.com/FAU-CDI/wisski-distillery/internal/execx"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -44,7 +45,10 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) error {
 		}
 		context.EPrintf("Updating instance %s\n", instance.Slug)
 
-		code := instance.Shell(context.IOStream, "/utils/blind_update.sh")
+		code, err := instance.Shell(context.IOStream, "/utils/blind_update.sh")
+		if err != nil {
+			return errBlindUpdateFailed.WithMessageF(instance.Slug, execx.ExecCommandError)
+		}
 		if code != 0 {
 			return errBlindUpdateFailed.WithMessageF(instance.Slug, code)
 		}
