@@ -3,6 +3,7 @@ package env
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/fs"
 	"mime/multipart"
@@ -47,11 +48,6 @@ type TriplestoreUserAppSettings struct {
 	DefaultSameas         bool `json:"DEFAULT_SAMEAS"`
 	IgnoreSharedQueries   bool `json:"IGNORE_SHARED_QUERIES"`
 	ExecuteCount          bool `json:"EXECUTE_COUNT"`
-}
-
-var errTriplestoreBootstrap = exit.Error{
-	Message:  "Unable to bootstrap Triplestore: %s",
-	ExitCode: exit.ExitGeneric,
 }
 
 const triplestoreBaseURL = "http://127.0.0.1:7200"
@@ -204,6 +200,8 @@ func (dis *Distillery) TriplestorePurgeRepo(repo string) error {
 	return nil
 }
 
+var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
+
 func (dis *Distillery) TriplestoreBootstrap(io stream.IOStream) error {
 	logging.LogMessage(io, "Waiting for Triplestore")
 	if err := dis.TriplestoreWaitForConnection(); err != nil {
@@ -224,7 +222,7 @@ func (dis *Distillery) TriplestoreBootstrap(io stream.IOStream) error {
 			GrantedAuthorities: []string{"ROLE_ADMIN"},
 		}, "", "")
 		if err != nil {
-			return errTriplestoreBootstrap.WithMessageF(err)
+			return fmt.Errorf("failed to create triplestore user: %s", err)
 		}
 		defer res.Body.Close()
 
@@ -238,7 +236,7 @@ func (dis *Distillery) TriplestoreBootstrap(io stream.IOStream) error {
 			logging.LogMessage(io, "Security is already enabled")
 			return nil
 		default:
-			return errTriplestoreBootstrap.WithMessageF("Unable to set administrative password")
+			return fmt.Errorf("failed to create triplestore user: %s", err)
 		}
 	}
 
@@ -246,12 +244,12 @@ func (dis *Distillery) TriplestoreBootstrap(io stream.IOStream) error {
 	{
 		res, err := dis.triplestoreRequest("POST", "/rest/security", true, "", "")
 		if err != nil {
-			return errTriplestoreBootstrap.WithMessageF(err)
+			return fmt.Errorf("failed to enable triplestore security: %s", err)
 		}
 		defer res.Body.Close()
 
 		if res.StatusCode != http.StatusOK {
-			return errTriplestoreBootstrap.WithMessageF("Unable to enable security")
+			return errTriplestoreFailedSecurity
 		}
 
 		return nil

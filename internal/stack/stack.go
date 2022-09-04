@@ -15,6 +15,8 @@ import (
 // In the future the idea is to replace this with a native docker compose client.
 type Stack struct {
 	Dir string // Directory this Stack is located in
+
+	DockerExecutable string // Path to the native docker executable to use
 }
 
 var errStackUpdatePull = errors.New("Stack.Update: Pull returned non-zero exit code")
@@ -131,9 +133,17 @@ func (ds Stack) Down(io stream.IOStream) error {
 	return nil
 }
 
-// Compose executes a 'docker compose' command on this stack.
-// TODO: This should be removed and replaced by an internal call directly to libcompose.
+// compose executes a 'docker compose' command on this stack.
+//
+// NOTE(twiesing): Check if this can be replaced by an internal call to libcompose.
+// But probably not.
 func (ds Stack) compose(io stream.IOStream, args ...string) (int, error) {
-	// TODO: can we migrate to a built-in version of this?
-	return execx.Compose(io, ds.Dir, args...), nil
+	if ds.DockerExecutable == "" {
+		var err error
+		ds.DockerExecutable, err = execx.LookPathAbs("docker")
+		if err != nil {
+			return execx.ExecCommandError, err
+		}
+	}
+	return execx.Exec(io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...), nil
 }

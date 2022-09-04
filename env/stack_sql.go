@@ -11,7 +11,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 	"github.com/FAU-CDI/wisski-distillery/internal/wait"
 	"github.com/pkg/errors"
-	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -54,11 +53,6 @@ func (env Distillery) sqlOpen(database string, config *gorm.Config) (*gorm.DB, e
 	return db, nil
 }
 
-var errSQL = exit.Error{
-	Message:  "error querying sql database: %s",
-	ExitCode: exit.ExitGeneric,
-}
-
 // sqlBkTable returns a gorm connection to the bookkeeping database.
 func (dis *Distillery) sqlBkTable(silent bool) (*gorm.DB, error) {
 
@@ -70,13 +64,13 @@ func (dis *Distillery) sqlBkTable(silent bool) (*gorm.DB, error) {
 	// open the database
 	db, err := dis.sqlOpen(dis.Config.DistilleryBookkeepingDatabase, config)
 	if err != nil {
-		return nil, errSQL.WithMessageF(err)
+		return nil, err
 	}
 
 	// load the table
 	table := db.Table(dis.Config.DistilleryBookkeepingTable)
 	if table.Error != nil {
-		return nil, errSQL.WithMessageF(err)
+		return nil, err
 	}
 
 	return table, nil
@@ -85,11 +79,6 @@ func (dis *Distillery) sqlBkTable(silent bool) (*gorm.DB, error) {
 // SQLShell executes a mysql shell inside the SQLStack.
 func (dis *Distillery) SQLShell(io stream.IOStream, argv ...string) (int, error) {
 	return dis.SQLStack().Exec(io, "sql", "mysql", argv...)
-}
-
-var errSQLBootstrap = exit.Error{
-	Message:  "Unable to boostrap SQL: %s",
-	ExitCode: exit.ExitGeneric,
 }
 
 const waitSQLInterval = 1 * time.Second
@@ -140,10 +129,7 @@ func (dis *Distillery) SQLProvision(name, user, password string) error {
 	return nil
 }
 
-var errSQLPurgeUser = exit.Error{
-	Message:  "Unable to delete user",
-	ExitCode: exit.ExitGeneric,
-}
+var errSQLPurgeUser = errors.New("unable to delete user")
 
 // SQLPurgeUser deletes the specified user from the database
 func (dis *Distillery) SQLPurgeUser(user string) error {
@@ -154,10 +140,7 @@ func (dis *Distillery) SQLPurgeUser(user string) error {
 	return nil
 }
 
-var errSQLPurgeDB = exit.Error{
-	Message:  "Unable to delete database",
-	ExitCode: exit.ExitGeneric,
-}
+var errSQLPurgeDB = errors.New("unable to drop database")
 
 // SQLPurgeDatabase deletes the specified db from the database
 func (dis *Distillery) SQLPurgeDatabase(db string) error {
@@ -170,10 +153,14 @@ func (dis *Distillery) SQLPurgeDatabase(db string) error {
 	return nil
 }
 
+var errSQLUnableToCreateUser = errors.New("unable to create administrative user")
+var errSQLUnsafeDatabaseName = errors.New("Bookkeeping database has an unsafe name")
+var errSQLUnableToCreate = errors.New("unable to create bookkeeping database")
+
 // SQLBootstrap bootstraps the SQL database, and makes sure that the bookkeeping table is up-to-date
 func (dis *Distillery) SQLBootstrap(io stream.IOStream) error {
 	if err := dis.SQLWaitForShell(); err != nil {
-		return errSQLBootstrap.WithMessageF(err)
+		return err
 	}
 
 	// create the admin user
@@ -182,7 +169,7 @@ func (dis *Distillery) SQLBootstrap(io stream.IOStream) error {
 		username := dis.Config.MysqlAdminUser
 		password := dis.Config.MysqlAdminPassword
 		if !dis.sqlRaw("CREATE USER IF NOT EXISTS ?@'%' IDENTIFIED BY ?; GRANT ALL PRIVILEGES ON *.* TO ?@`%` WITH GRANT OPTION; FLUSH PRIVILEGES;", username, password, username) {
-			return errSQLBootstrap.WithMessageF("Unable to create administrative user")
+			return errSQLUnableToCreateUser
 		}
 	}
 
@@ -190,11 +177,11 @@ func (dis *Distillery) SQLBootstrap(io stream.IOStream) error {
 	logging.LogMessage(io, "Creating sql database")
 	{
 		if !sqle.IsSafeDatabaseName(dis.Config.DistilleryBookkeepingDatabase) {
-			return errSQLBootstrap.WithMessageF("Unsafe database name")
+			return errSQLUnsafeDatabaseName
 		}
 		createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`;", dis.Config.DistilleryBookkeepingDatabase)
 		if !dis.sqlRaw(createDBSQL) {
-			return errSQLBootstrap.WithMessageF(createDBSQL)
+			return errSQLUnableToCreate
 		}
 	}
 
@@ -207,11 +194,11 @@ func (dis *Distillery) SQLBootstrap(io stream.IOStream) error {
 	{
 		db, err := dis.sqlBkTable(false)
 		if err != nil {
-			return errSQLBootstrap.WithMessageF(err)
+			return fmt.Errorf("unable to access bookkeeping table: %s", err)
 		}
 
 		if err := db.AutoMigrate(&bookkeeping.Instance{}); err != nil {
-			return errSQLBootstrap.WithMessageF(err)
+			return fmt.Errorf("unable to migrate bookkeeping table: %s", err)
 		}
 	}
 

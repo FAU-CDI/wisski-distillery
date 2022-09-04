@@ -7,7 +7,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// BlindUpdate is the 'blind-update' command
+// BlindUpdate is the 'blind_update' command
 var BlindUpdate wisski_distillery.Command = blindUpdate{}
 
 type blindUpdate struct {

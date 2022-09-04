@@ -53,13 +53,23 @@ func (s systemupdate) AfterParse() error {
 	return nil
 }
 
-var errFailedToCreateDirectory = exit.Error{
+var errBoostrapFailedToCreateDirectory = exit.Error{
 	Message:  "failed to create directory %s: %s",
 	ExitCode: exit.ExitGeneric,
 }
 
-var errFailedRuntime = exit.Error{
+var errBootstrapFailedRuntime = exit.Error{
 	Message:  "failed to update runtime: %s",
+	ExitCode: exit.ExitGeneric,
+}
+
+var errBootstrapTriplestore = exit.Error{
+	Message:  "Unable to bootstrap Triplestore: %s",
+	ExitCode: exit.ExitGeneric,
+}
+
+var errBootstrapSQL = exit.Error{
+	Message:  "Unable to bootstrap SQL: %s",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -76,7 +86,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	} {
 		context.Println(d)
 		if err := os.MkdirAll(d, os.ModeDir); err != nil {
-			return errFailedToCreateDirectory.WithMessageF(d, err)
+			return errBoostrapFailedToCreateDirectory.WithMessageF(d, err)
 		}
 	}
 
@@ -95,6 +105,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		if err := si.mustExec(context, "", "apt-get", "install", "curl"); err != nil {
 			return err
 		}
+		// TODO: Download directly
 		if err := si.mustExec(context, "", "/bin/sh", "-c", "curl -fsSL https://get.docker.com -o - | /bin/sh"); err != nil {
 			return err
 		}
@@ -130,32 +141,23 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		if err := distillery.InstallResource(dis.RuntimeDir(), filepath.Join("resources", "runtime"), func(dst, src string) {
+		return distillery.InstallResource(dis.RuntimeDir(), filepath.Join("resources", "runtime"), func(dst, src string) {
 			context.Printf("[copy]  %s\n", dst)
-		}); err != nil {
-			return errFailedRuntime.WithMessageF(err)
-		}
-		return nil
+		})
 	}, context.IOStream, "Unpacking Runtime Components"); err != nil {
-		return err
+		return errBootstrapFailedRuntime.WithMessageF(err)
 	}
 
 	if err := logging.LogOperation(func() error {
-		if err := dis.SQLBootstrap(context.IOStream); err != nil {
-			return err
-		}
-		return nil
+		return dis.SQLBootstrap(context.IOStream)
 	}, context.IOStream, "Bootstraping SQL database"); err != nil {
-		return err
+		return errBootstrapSQL.WithMessageF(err)
 	}
 
 	if err := logging.LogOperation(func() error {
-		if err := dis.TriplestoreBootstrap(context.IOStream); err != nil {
-			return err
-		}
-		return nil
+		return dis.TriplestoreBootstrap(context.IOStream)
 	}, context.IOStream, "Bootstraping Triplestore"); err != nil {
-		return err
+		return errBootstrapTriplestore.WithMessageF(err)
 	}
 
 	logging.LogMessage(context.IOStream, "System has been updated")
