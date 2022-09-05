@@ -18,7 +18,6 @@ Work in progress.
 ## Future Work
 
 - Move `provision_entrypoint.sh` into go
-- Clean up the distillery code, by moving to seperate structs per component
 - Rename backups to 'snapshots' and make them restorable
     - Snapshot the docker images being used also!
 - Avoid running `docker compose` executable and shift it to a library

@@ -7,29 +7,47 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
-const ResolverPrefixFile = "prefix.cfg"
+// ResolverComponent represents the 'resolver' layer belonging to a distillery
+type ResolverComponent struct {
+	ConfigName string // Filename of the configuration file
 
-func (dis *Distillery) ResolverStack() stack.Installable {
-	stack := dis.asCoreStack("resolver", stack.Installable{
+	dis *Distillery
+}
+
+// Resolver returns the ResolverComponent belonging to this distillery
+func (dis *Distillery) Resolver() ResolverComponent {
+	return ResolverComponent{
+		ConfigName: "prefix.cfg",
+
+		dis: dis,
+	}
+}
+
+func (ResolverComponent) Name() string {
+	return "resolver"
+}
+
+func (resolver ResolverComponent) Stack() stack.Installable {
+	stack := resolver.dis.makeComponentStack(resolver, stack.Installable{
 		EnvFileContext: map[string]string{
-			"VIRTUAL_HOST":      dis.DefaultVirtualHost(),
-			"LETSENCRYPT_HOST":  dis.DefaultLetsencryptHost(),
-			"LETSENCRYPT_EMAIL": dis.Config.CertbotEmail,
+			"VIRTUAL_HOST":      resolver.dis.DefaultVirtualHost(),
+			"LETSENCRYPT_HOST":  resolver.dis.DefaultLetsencryptHost(),
+			"LETSENCRYPT_EMAIL": resolver.dis.Config.CertbotEmail,
 			"PREFIX_FILE":       "", // set below!
-			"DEFAULT_DOMAIN":    dis.Config.DefaultDomain,
-			"LEGACY_DOMAIN":     strings.Join(dis.Config.SelfExtraDomains, ","),
+			"DEFAULT_DOMAIN":    resolver.dis.Config.DefaultDomain,
+			"LEGACY_DOMAIN":     strings.Join(resolver.dis.Config.SelfExtraDomains, ","),
 		},
 
-		TouchFiles: []string{ResolverPrefixFile},
+		TouchFiles: []string{resolver.ConfigName},
 	})
-	stack.EnvFileContext["PREFIX_FILE"] = filepath.Join(stack.Dir, ResolverPrefixFile)
+	stack.EnvFileContext["PREFIX_FILE"] = filepath.Join(stack.Dir, resolver.ConfigName)
 	return stack
 }
 
-func (dis *Distillery) ResolverStackPath() string {
-	return dis.ResolverStack().Dir
+func (resolver ResolverComponent) Path() string {
+	return resolver.Stack().Dir
 }
 
-func (dis Distillery) ResolverPrefixConfig() string {
-	return filepath.Join(dis.ResolverStackPath(), ResolverPrefixFile)
+func (resolver ResolverComponent) ConfigPath() string {
+	return filepath.Join(resolver.Path(), resolver.ConfigName)
 }

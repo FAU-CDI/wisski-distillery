@@ -156,7 +156,7 @@ func (bi backupInstance) makeSnapshot(context wisski_distillery.Context, path st
 		defer nquads.Close()
 
 		// TODO: Add a progress bar?
-		_, err = dis.TriplestoreBackup(nquads, instance.GraphDBRepository)
+		_, err = dis.Triplestore().Backup(nquads, instance.GraphDBRepository)
 		return err
 	}, context.IOStream, "Backing up Triplestore"); err != nil {
 		return errBackupFailed.Wrap(err)
@@ -175,7 +175,7 @@ func (bi backupInstance) makeSnapshot(context wisski_distillery.Context, path st
 		defer sql.Close()
 
 		// TODO: Add a progress bar?
-		return dis.SQLBackup(context.IOStream, sql, instance.SqlDatabase)
+		return dis.SQL().Backup(context.IOStream, sql, instance.SqlDatabase)
 	}, context.IOStream, "Backing up Triplestore"); err != nil {
 		return errBackupFailed.Wrap(err)
 	}

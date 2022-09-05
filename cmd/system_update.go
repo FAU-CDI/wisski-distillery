@@ -122,16 +122,17 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		for _, stack := range dis.Stacks() {
+		for _, component := range dis.Components() {
+			stack := component.Stack()
 			if err := logging.LogOperation(func() error {
 				return stack.Install(context.IOStream, ctx)
-			}, context.IOStream, "Installing docker stack %q", stack.Dir); err != nil {
+			}, context.IOStream, "Installing docker stack %q", component.Name()); err != nil {
 				return err
 			}
 
 			if err := logging.LogOperation(func() error {
 				return stack.Update(context.IOStream, true)
-			}, context.IOStream, "Updating docker stack %q", stack.Dir); err != nil {
+			}, context.IOStream, "Updating docker stack %q", component.Name()); err != nil {
 				return err
 			}
 		}
@@ -149,13 +150,13 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		return dis.SQLBootstrap(context.IOStream)
+		return dis.SQL().Bootstrap(context.IOStream)
 	}, context.IOStream, "Bootstraping SQL database"); err != nil {
 		return errBootstrapSQL.WithMessageF(err)
 	}
 
 	if err := logging.LogOperation(func() error {
-		return dis.TriplestoreBootstrap(context.IOStream)
+		return dis.Triplestore().Bootstrap(context.IOStream)
 	}, context.IOStream, "Bootstraping Triplestore"); err != nil {
 		return errBootstrapTriplestore.WithMessageF(err)
 	}

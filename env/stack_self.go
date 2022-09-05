@@ -2,23 +2,37 @@ package env
 
 import "github.com/FAU-CDI/wisski-distillery/internal/stack"
 
-func (dis *Distillery) SelfStack() stack.Installable {
+// SelfComponent represents the 'self' layer belonging to a distillery
+type SelfComponent struct {
+	dis *Distillery
+}
+
+// Self returns the SelfComponent belonging to this distillery
+func (dis *Distillery) Self() SelfComponent {
+	return SelfComponent{dis: dis}
+}
+
+func (SelfComponent) Name() string {
+	return "self"
+}
+
+func (sc SelfComponent) Stack() stack.Installable {
 	TARGET := "https://github.com/FAU-CDI/wisski-distillery"
-	if dis.Config.SelfRedirect != nil {
-		TARGET = dis.Config.SelfRedirect.String()
+	if sc.dis.Config.SelfRedirect != nil {
+		TARGET = sc.dis.Config.SelfRedirect.String()
 	}
 
-	return dis.asCoreStack("self", stack.Installable{
+	return sc.dis.makeComponentStack(sc, stack.Installable{
 		EnvFileContext: map[string]string{
-			"VIRTUAL_HOST":      dis.DefaultVirtualHost(),
-			"LETSENCRYPT_HOST":  dis.DefaultLetsencryptHost(),
-			"LETSENCRYPT_EMAIL": dis.Config.CertbotEmail,
+			"VIRTUAL_HOST":      sc.dis.DefaultVirtualHost(),
+			"LETSENCRYPT_HOST":  sc.dis.DefaultLetsencryptHost(),
+			"LETSENCRYPT_EMAIL": sc.dis.Config.CertbotEmail,
 			"TARGET":            TARGET,
-			"OVERRIDES_FILE":    dis.Config.SelfOverridesFile,
+			"OVERRIDES_FILE":    sc.dis.Config.SelfOverridesFile,
 		},
 	})
 }
 
-func (dis *Distillery) SelfStackPath() string {
-	return dis.SelfStack().Dir
+func (sc SelfComponent) Path() string {
+	return sc.Stack().Dir
 }

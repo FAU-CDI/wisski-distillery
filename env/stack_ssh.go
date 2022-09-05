@@ -2,11 +2,24 @@ package env
 
 import "github.com/FAU-CDI/wisski-distillery/internal/stack"
 
-func (dis *Distillery) SSHStack() stack.Installable {
-	// TODO: Ensure that .env is copied if needed
-	return dis.asCoreStack("ssh", stack.Installable{})
+// SSHComponent represents the 'ssh' layer belonging to a distillery
+type SSHComponent struct {
+	dis *Distillery
 }
 
-func (dis *Distillery) SSHStackPath() string {
-	return dis.SSHStack().Dir
+// SSH returns the SSHComponent belonging to this distillery
+func (dis *Distillery) SSH() SSHComponent {
+	return SSHComponent{dis: dis}
+}
+
+func (SSHComponent) Name() string {
+	return "ssh"
+}
+
+func (ssh SSHComponent) Stack() stack.Installable {
+	return ssh.dis.makeComponentStack(ssh, stack.Installable{})
+}
+
+func (ssh SSHComponent) Path() string {
+	return ssh.Stack().Dir
 }

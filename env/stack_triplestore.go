@@ -20,8 +20,31 @@ import (
 	"github.com/tkw1536/goprogram/stream"
 )
 
-func (dis *Distillery) TriplestoreStack() stack.Installable {
-	return dis.asCoreStack("triplestore", stack.Installable{
+// TriplestoreComponent represents the triplestore belonging to a distillery
+type TriplestoreComponent struct {
+	BaseURL      string        // the base url of the api
+	PollInterval time.Duration // duration to wait during wait!
+
+	dis *Distillery
+}
+
+// Triplestore returns the TriplestoreComponent belonging to this distillery
+func (dis *Distillery) Triplestore() TriplestoreComponent {
+	return TriplestoreComponent{
+		BaseURL:      "http://127.0.0.1:7200",
+		PollInterval: time.Second,
+
+		dis: dis,
+	}
+}
+
+func (TriplestoreComponent) Name() string {
+	return "triplestore"
+}
+
+// Stack returns the installable Triplestore stack
+func (ts TriplestoreComponent) Stack() stack.Installable {
+	return ts.dis.makeComponentStack(ts, stack.Installable{
 		CopyContextFiles: []string{"graphdb.zip"},
 
 		MakeDirsPerm: fs.ModeDir | fs.ModePerm,
@@ -33,8 +56,8 @@ func (dis *Distillery) TriplestoreStack() stack.Installable {
 	})
 }
 
-func (dis *Distillery) TriplestoreStackPath() string {
-	return dis.TriplestoreStack().Dir
+func (ts TriplestoreComponent) Path() string {
+	return ts.Stack().Dir
 }
 
 type TriplestoreUserPayload struct {
@@ -50,14 +73,11 @@ type TriplestoreUserAppSettings struct {
 	ExecuteCount          bool `json:"EXECUTE_COUNT"`
 }
 
-const triplestoreBaseURL = "http://127.0.0.1:7200"
-const waitTSInterval = 1 * time.Second
-
-// triplestoreCall makes a request to the triplestore.
+// OpenRaw makes an http request to the triplestore api.
 //
 // When bodyName is non-empty, expect body to be a byte slice representing a multipart/form-data upload with the given name.
 // When bodyName is empty, simply marshal body as application/json
-func (dis *Distillery) triplestoreRequest(method, url string, body interface{}, bodyName string, accept string) (*http.Response, error) {
+func (ts TriplestoreComponent) OpenRaw(method, url string, body interface{}, bodyName string, accept string) (*http.Response, error) {
 	var reader io.Reader
 
 	var contentType string
@@ -87,7 +107,7 @@ func (dis *Distillery) triplestoreRequest(method, url string, body interface{}, 
 	}
 
 	// create the request object
-	req, err := http.NewRequest(method, triplestoreBaseURL+url, reader)
+	req, err := http.NewRequest(method, ts.BaseURL+url, reader)
 	if err != nil {
 		return nil, err
 	}
@@ -99,21 +119,23 @@ func (dis *Distillery) triplestoreRequest(method, url string, body interface{}, 
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}
-	req.SetBasicAuth(dis.Config.TriplestoreAdminUser, dis.Config.TriplestoreAdminPassword)
+	req.SetBasicAuth(ts.dis.Config.TriplestoreAdminUser, ts.dis.Config.TriplestoreAdminPassword)
 
 	// and send it
 	return http.DefaultClient.Do(req)
 }
 
-func (dis *Distillery) TriplestoreWaitForConnection() error {
+// Wait waits for the connection to the Triplestore to succeed.
+// This is achieved using a polling strategy.
+func (ts TriplestoreComponent) Wait() error {
 	return wait.Wait(func() bool {
-		res, err := dis.triplestoreRequest("GET", "/rest/repositories", nil, "", "")
+		res, err := ts.OpenRaw("GET", "/rest/repositories", nil, "", "")
 		if err != nil {
 			return false
 		}
 		defer res.Body.Close()
 		return true
-	}, waitTSInterval, dis.Context())
+	}, ts.PollInterval, ts.dis.Context())
 }
 
 var errTripleStoreFailedRepository = exit.Error{
@@ -121,8 +143,8 @@ var errTripleStoreFailedRepository = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (dis *Distillery) TriplestoreProvision(name, domain, user, password string) error {
-	if err := dis.TriplestoreWaitForConnection(); err != nil {
+func (ts TriplestoreComponent) Provision(name, domain, user, password string) error {
+	if err := ts.Wait(); err != nil {
 		return err
 	}
 
@@ -137,7 +159,7 @@ func (dis *Distillery) TriplestoreProvision(name, domain, user, password string)
 
 	// do the create!
 	{
-		res, err := dis.triplestoreRequest("POST", "/rest/repositories", createRepo, "config", "")
+		res, err := ts.OpenRaw("POST", "/rest/repositories", createRepo, "config", "")
 		if err != nil {
 			return errTripleStoreFailedRepository.WithMessageF(err)
 		}
@@ -149,7 +171,7 @@ func (dis *Distillery) TriplestoreProvision(name, domain, user, password string)
 
 	// create the user and grant them access
 	{
-		res, err := dis.triplestoreRequest("POST", "/rest/security/users/"+user, TriplestoreUserPayload{
+		res, err := ts.OpenRaw("POST", "/rest/security/users/"+user, TriplestoreUserPayload{
 			Password: password,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
@@ -177,8 +199,8 @@ func (dis *Distillery) TriplestoreProvision(name, domain, user, password string)
 }
 
 // TriplestorePurgeUser deletes the specified user from the triplestore
-func (dis *Distillery) TriplestorePurgeUser(user string) error {
-	res, err := dis.triplestoreRequest("DELETE", "/rest/security/users/"+user, nil, "", "")
+func (ts TriplestoreComponent) PurgeUser(user string) error {
+	res, err := ts.OpenRaw("DELETE", "/rest/security/users/"+user, nil, "", "")
 	if err != nil {
 		return err
 	}
@@ -189,8 +211,8 @@ func (dis *Distillery) TriplestorePurgeUser(user string) error {
 }
 
 // TriplestorePurgeRepo deletes the specified repo from the triplestore
-func (dis *Distillery) TriplestorePurgeRepo(repo string) error {
-	res, err := dis.triplestoreRequest("DELETE", "/rest/repositories/"+repo, nil, "", "")
+func (ts TriplestoreComponent) PurgeRepo(repo string) error {
+	res, err := ts.OpenRaw("DELETE", "/rest/repositories/"+repo, nil, "", "")
 	if err != nil {
 		return err
 	}
@@ -203,8 +225,8 @@ func (dis *Distillery) TriplestorePurgeRepo(repo string) error {
 var errTSBackupWrongStatusCode = errors.New("Distillery.Backup: Wrong status code")
 
 // TriplestoreBackup backs up the repository named repo into the writer dst.
-func (dis *Distillery) TriplestoreBackup(dst io.Writer, repo string) (int64, error) {
-	res, err := dis.triplestoreRequest("GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads")
+func (ts TriplestoreComponent) Backup(dst io.Writer, repo string) (int64, error) {
+	res, err := ts.OpenRaw("GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads")
 	if err != nil {
 		return 0, err
 	}
@@ -217,16 +239,16 @@ func (dis *Distillery) TriplestoreBackup(dst io.Writer, repo string) (int64, err
 
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
 
-func (dis *Distillery) TriplestoreBootstrap(io stream.IOStream) error {
+func (ts TriplestoreComponent) Bootstrap(io stream.IOStream) error {
 	logging.LogMessage(io, "Waiting for Triplestore")
-	if err := dis.TriplestoreWaitForConnection(); err != nil {
+	if err := ts.Wait(); err != nil {
 		return err
 	}
 
 	logging.LogMessage(io, "Resetting admin user password")
 	{
-		res, err := dis.triplestoreRequest("PUT", "/rest/security/users/"+dis.Config.TriplestoreAdminUser, TriplestoreUserPayload{
-			Password: dis.Config.TriplestoreAdminPassword,
+		res, err := ts.OpenRaw("PUT", "/rest/security/users/"+ts.dis.Config.TriplestoreAdminUser, TriplestoreUserPayload{
+			Password: ts.dis.Config.TriplestoreAdminPassword,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
 				DefaultVisGraphSchema: true,
@@ -257,7 +279,7 @@ func (dis *Distillery) TriplestoreBootstrap(io stream.IOStream) error {
 
 	logging.LogMessage(io, "Enabling Triplestore security")
 	{
-		res, err := dis.triplestoreRequest("POST", "/rest/security", true, "", "")
+		res, err := ts.OpenRaw("POST", "/rest/security", true, "", "")
 		if err != nil {
 			return fmt.Errorf("failed to enable triplestore security: %s", err)
 		}

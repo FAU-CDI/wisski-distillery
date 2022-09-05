@@ -77,14 +77,15 @@ func (p purge) Run(context wisski_distillery.Context) error {
 	}
 
 	// remove the triplestore
+	ts := dis.Triplestore()
 	logging.LogOperation(func() error {
 		logging.LogMessage(context.IOStream, "Removing user %s", instance.GraphDBUser)
-		if err := dis.TriplestorePurgeUser(instance.GraphDBUser); err != nil {
+		if err := ts.PurgeUser(instance.GraphDBUser); err != nil {
 			context.EPrintln(err)
 		}
 
 		logging.LogMessage(context.IOStream, "Removing repository %s", instance.GraphDBRepository)
-		if err := dis.TriplestorePurgeRepo(instance.GraphDBRepository); err != nil {
+		if err := ts.PurgeRepo(instance.GraphDBRepository); err != nil {
 			context.EPrintln(err)
 		}
 
@@ -93,13 +94,15 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// remove the sql
 	logging.LogOperation(func() error {
+		sql := dis.SQL()
+
 		logging.LogMessage(context.IOStream, "Removing user %s", instance.SqlUser)
-		if err := dis.SQLPurgeUser(instance.SqlUser); err != nil {
+		if err := sql.PurgeUser(instance.SqlUser); err != nil {
 			context.EPrintln(err)
 		}
 
 		logging.LogMessage(context.IOStream, "Removing database %s", instance.SqlDatabase)
-		if err := dis.SQLPurgeDatabase(instance.SqlDatabase); err != nil {
+		if err := sql.PurgeUser(instance.SqlDatabase); err != nil {
 			context.EPrintln(err)
 		}
 

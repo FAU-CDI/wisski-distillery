@@ -37,11 +37,12 @@ var errSQL = exit.Error{
 
 // Instance returns the instance of the WissKI Distillery with the provided slug
 func (dis *Distillery) Instance(slug string) (i Instance, err error) {
-	if err := dis.SQLWaitForConnection(); err != nil {
+	sql := dis.SQL()
+	if err := sql.Wait(); err != nil {
 		return i, err
 	}
 
-	table, err := dis.sqlBkTable(false)
+	table, err := sql.OpenBookkeeping(false)
 	if err != nil {
 		return i, err
 	}
@@ -61,11 +62,12 @@ func (dis *Distillery) Instance(slug string) (i Instance, err error) {
 
 // HasInstance checks if the provided instance exists in the bookeeping table
 func (dis *Distillery) HasInstance(slug string) (ok bool, err error) {
-	if err := dis.SQLWaitForConnection(); err != nil {
+	sql := dis.SQL()
+	if err := sql.Wait(); err != nil {
 		return false, err
 	}
 
-	table, err := dis.sqlBkTable(false)
+	table, err := sql.OpenBookkeeping(false)
 	if err != nil {
 		return false, err
 	}
@@ -104,12 +106,13 @@ func (dis *Distillery) InstancesWith(slugs ...string) ([]Instance, error) {
 
 // findInstances finds instance objects based on a query in the bookkeeping table
 func (dis *Distillery) findInstances(order bool, query func(table *gorm.DB) *gorm.DB) (instances []Instance, err error) {
-	if err := dis.SQLWaitForConnection(); err != nil {
+	sql := dis.SQL()
+	if err := sql.Wait(); err != nil {
 		return nil, err
 	}
 
 	// open the bookkeeping table
-	table, err := dis.sqlBkTable(false)
+	table, err := sql.OpenBookkeeping(false)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +156,7 @@ type Instance struct {
 
 // Update updates the bookkeeping table with this instance.
 func (instance *Instance) Update() error {
-	db, err := instance.dis.sqlBkTable(false)
+	db, err := instance.dis.SQL().OpenBookkeeping(false)
 	if err != nil {
 		return err
 	}
@@ -169,7 +172,7 @@ func (instance *Instance) Update() error {
 
 // Delete deletes this instance from the bookkeeping table
 func (instance *Instance) Delete() error {
-	db, err := instance.dis.sqlBkTable(false)
+	db, err := instance.dis.SQL().OpenBookkeeping(false)
 	if err != nil {
 		return err
 	}

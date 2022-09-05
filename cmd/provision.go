@@ -74,7 +74,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// create the sql
 	if err := logging.LogOperation(func() error {
-		if err := dis.SQLProvision(instance.SqlDatabase, instance.SqlUser, instance.SqlPassword); err != nil {
+		if err := dis.SQL().Provision(instance.SqlDatabase, instance.SqlUser, instance.SqlPassword); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 
@@ -85,7 +85,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// create the triplestore
 	if err := logging.LogOperation(func() error {
-		if err := dis.TriplestoreProvision(instance.GraphDBRepository, instance.Domain(), instance.GraphDBUser, instance.GraphDBPassword); err != nil {
+		if err := dis.Triplestore().Provision(instance.GraphDBRepository, instance.Domain(), instance.GraphDBUser, instance.GraphDBPassword); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 
