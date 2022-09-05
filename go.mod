@@ -7,7 +7,7 @@ require (
 	github.com/alessio/shellescape v1.4.1
 	github.com/feiin/sqlstring v0.3.0
 	github.com/pkg/errors v0.9.1
-	github.com/tkw1536/goprogram v0.0.9
+	github.com/tkw1536/goprogram v0.0.10
 	golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/gorm v1.23.8

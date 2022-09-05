@@ -41,12 +41,12 @@ func init() {
 	// instance tasks
 	wdcli.Register(cmd.Shell)
 	wdcli.Register(cmd.BlindUpdate)
-	wdcli.Register(cmd.Cron)
 	wdcli.Register(cmd.UpdatePrefixConfig) // TODO: Move into post-instance configuration
 
 	// backup & cron
-	// wdcli.Register(cmd.BackupInstance)
+	wdcli.Register(cmd.BackupInstance)
 	// wdcli.Register(cmd.BackupAll)
+	wdcli.Register(cmd.Cron)
 }
 
 // an error when no arguments are provided.

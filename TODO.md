@@ -18,6 +18,9 @@ Work in progress.
 ## Future Work
 
 - Move `provision_entrypoint.sh` into go
+- Clean up the distillery code, by moving to seperate structs per component
+- Rename backups to 'snapshots' and make them restorable
+    - Snapshot the docker images being used also!
 - Avoid running `docker compose` executable and shift it to a library
 - Automatically bootstrap the docker container sql connection (use proper environment variables)
 - Make error handling consistent
@@ -28,7 +31,7 @@ Work in progress.
 
 ## Migrating Individual Commands
 - [ ] backup_all.sh
-- [ ] backup_instance.sh
+- [x] backup_instance.sh
 - [x] blind_update.sh
 - [x] blind_update_all.sh
 - [x] cron_all.sh

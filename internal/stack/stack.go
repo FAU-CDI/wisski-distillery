@@ -76,6 +76,7 @@ func (ds Stack) Exec(io stream.IOStream, service, executable string, args ...str
 	if io.StdinIsATerminal() {
 		compose = append(compose, "-ti")
 	}
+	compose = append(compose, service)
 	compose = append(compose, executable)
 	compose = append(compose, args...)
 	return ds.compose(io, compose...)

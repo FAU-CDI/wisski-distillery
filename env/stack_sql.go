@@ -2,6 +2,7 @@ package env
 
 import (
 	"fmt"
+	"io"
 	"io/fs"
 	"time"
 
@@ -74,6 +75,22 @@ func (dis *Distillery) sqlBkTable(silent bool) (*gorm.DB, error) {
 	}
 
 	return table, nil
+}
+
+var errSQLBackup = errors.New("SQLBackup: Mysqldump returned non-zero exit code")
+
+// SQLBackup makes a backup of the sql database into dest.
+func (dis *Distillery) SQLBackup(io stream.IOStream, dest io.Writer, database string) error {
+	io = stream.NewIOStream(dest, io.Stderr, nil, 0)
+
+	code, err := dis.SQLStack().Exec(io, "sql", "mysqldump", "--database", database)
+	if err != nil {
+		return err
+	}
+	if code != 0 {
+		return errSQLBackup
+	}
+	return nil
 }
 
 // SQLShell executes a mysql shell inside the SQLStack.

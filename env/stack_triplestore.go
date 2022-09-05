@@ -200,6 +200,21 @@ func (dis *Distillery) TriplestorePurgeRepo(repo string) error {
 	return nil
 }
 
+var errTSBackupWrongStatusCode = errors.New("Distillery.Backup: Wrong status code")
+
+// TriplestoreBackup backs up the repository named repo into the writer dst.
+func (dis *Distillery) TriplestoreBackup(dst io.Writer, repo string) (int64, error) {
+	res, err := dis.triplestoreRequest("GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads")
+	if err != nil {
+		return 0, err
+	}
+	if res.StatusCode != http.StatusOK {
+		return 0, errTSBackupWrongStatusCode
+	}
+	defer res.Body.Close()
+	return io.Copy(dst, res.Body)
+}
+
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
 
 func (dis *Distillery) TriplestoreBootstrap(io stream.IOStream) error {

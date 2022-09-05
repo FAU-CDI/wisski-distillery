@@ -6,6 +6,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
+// TODO: Move everything into specific subpackages
+
 // Stacks returns the Stacks of this distillery
 func (dis *Distillery) Stacks() []stack.Installable {
 	// TODO: Do we want to cache these stacks?

@@ -30,6 +30,11 @@ var ErrInstanceNotFound = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
+var errSQL = exit.Error{
+	Message:  "Unknown SQL Error %s",
+	ExitCode: exit.ExitGeneric,
+}
+
 // Instance returns the instance of the WissKI Distillery with the provided slug
 func (dis *Distillery) Instance(slug string) (i Instance, err error) {
 	if err := dis.SQLWaitForConnection(); err != nil {

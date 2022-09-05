@@ -160,6 +160,8 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		return errBootstrapTriplestore.WithMessageF(err)
 	}
 
+	// TODO: Register cronjob in /etc/cron.d!
+
 	logging.LogMessage(context.IOStream, "System has been updated")
 	return nil
 }
