@@ -60,8 +60,7 @@ func (bi backupInstance) Run(context wisski_distillery.Context) error {
 	}
 	defer func() {
 		logging.LogMessage(context.IOStream, "Removing temporary backup directory")
-		context.Println(path)
-		// os.RemoveAll(path) // TODO: Turn this on again
+		os.RemoveAll(path) // TODO: Turn this on again
 	}()
 
 	// make the snapshot!
