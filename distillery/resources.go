@@ -54,10 +54,8 @@ func installFile(dst string, fsys embed.FS, src string, onInstallFile func(dst, 
 
 	// determine if we need to create the destination file, or if it already exists
 	dstStat, dstErr := os.Stat(dst)
-	flag := os.O_WRONLY
 	switch {
 	case os.IsNotExist(dstErr):
-		flag |= os.O_CREATE
 	case dstErr != nil:
 		return errors.Wrapf(dstErr, "Error calling stat on destination %s", dst)
 	case dstStat.IsDir():
@@ -65,7 +63,7 @@ func installFile(dst string, fsys embed.FS, src string, onInstallFile func(dst, 
 	}
 
 	// Open the file
-	dstFile, err := os.OpenFile(dst, flag, srcStat.Mode())
+	dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, srcStat.Mode())
 	if err != nil {
 		return errors.Wrapf(err, "Error opening destination %s", dst)
 	}

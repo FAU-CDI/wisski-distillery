@@ -27,10 +27,8 @@ func InstallTemplate(dst, src string, context map[string]string) error {
 
 	// determine if we need to create the destination file, or if it already exists
 	dstStat, dstErr := os.Stat(dst)
-	flag := os.O_WRONLY
 	switch {
 	case os.IsNotExist(dstErr):
-		flag |= os.O_CREATE
 	case dstErr != nil:
 		return errors.Wrapf(dstErr, "Error calling stat on destination %s", dst)
 	case dstStat.IsDir():
@@ -38,7 +36,7 @@ func InstallTemplate(dst, src string, context map[string]string) error {
 	}
 
 	// open and write the destination file
-	dstFile, err := os.OpenFile(dst, flag, srcMode)
+	dstFile, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, srcMode)
 	if err != nil {
 		return errors.Wrapf(err, "Unable to open file %s", dst)
 	}
