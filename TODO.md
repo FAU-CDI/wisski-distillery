@@ -27,6 +27,7 @@ Work in progress.
 - Migrate the individual commands below
 - restructure resource files
 - Documentation
+- single malt
 
 ## Migrating Individual Commands
 - [ ] backup_all.sh

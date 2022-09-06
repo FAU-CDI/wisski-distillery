@@ -94,7 +94,7 @@ func (ds Stack) Run(io stream.IOStream, autoRemove bool, service, command string
 	if !io.StdinIsATerminal() {
 		compose = append(compose, "-T")
 	}
-	compose = append(compose, command)
+	compose = append(compose, service, command)
 	compose = append(compose, args...)
 
 	code, err := ds.compose(io, compose...)

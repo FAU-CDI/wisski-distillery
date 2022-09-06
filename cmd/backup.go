@@ -2,13 +2,11 @@ package cmd
 
 import (
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/env"
-	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
 	"github.com/FAU-CDI/wisski-distillery/internal/targz"
 	"github.com/tkw1536/goprogram/exit"
@@ -63,11 +61,28 @@ func (bi backupInstance) Run(context wisski_distillery.Context) error {
 		os.RemoveAll(path) // TODO: Turn this on again
 	}()
 
-	// make the snapshot!
-	// TODO: Ignore errors here, and write them into the snapshot instance
-	if err := bi.makeSnapshot(context, path, instance); err != nil {
-		return errBackupFailed.WithMessageF(err)
-	}
+	// make a snapshot and write out the report also!
+	logging.LogOperation(func() error {
+		sreport := instance.Snapshot(context.IOStream, bi.Keepalive, path)
+
+		logging.LogOperation(func() error {
+			reportPath := filepath.Join(path, "report.txt")
+			context.Println(reportPath)
+
+			// create the report file!
+			report, err := os.Create(reportPath)
+			if err != nil {
+				return err
+			}
+			defer report.Close()
+
+			// print the report into it!
+			_, err = fmt.Fprintf(report, "%#v\n", sreport)
+			return err
+		}, context.IOStream, "Writing snapshot report")
+
+		return nil
+	}, context.IOStream, "Creating snapshot")
 
 	// copy everything into the final file!
 	finalPath := bi.Positionals.Outfile
@@ -86,98 +101,6 @@ func (bi backupInstance) Run(context wisski_distillery.Context) error {
 		return errBackupFailed.Wrap(err)
 	}
 	context.Printf("Wrote %s\n", finalPath)
-
-	return nil
-}
-
-// makeSnapshot makes a snapshot of the directory into the given directory!
-//
-// TODO: Return a SnapshotReport object, and only check what was actually copied
-func (bi backupInstance) makeSnapshot(context wisski_distillery.Context, path string, instance env.Instance) error {
-	dis := context.Environment
-	stack := instance.Stack()
-
-	if !bi.Keepalive {
-		logging.LogMessage(context.IOStream, "Stopping instance")
-		if err := stack.Down(context.IOStream); err != nil {
-			return err
-		}
-		defer func() {
-			logging.LogMessage(context.IOStream, "Starting instance")
-			stack.Up(context.IOStream)
-		}()
-	}
-
-	// backup up bookkeeping info!
-	if err := logging.LogOperation(func() error {
-		bkPath := filepath.Join(path, "bookkeeping.txt")
-		context.IOStream.Println(bkPath)
-
-		// create the backup file!
-		info, err := os.Create(bkPath)
-		if err != nil {
-			return err
-		}
-		defer info.Close()
-
-		// print whatever is in the bookkeeping instance
-		_, err = fmt.Fprintf(info, "%#v\n", instance.Instance)
-		return err
-	}, context.IOStream, "Backing up Bookkeping Information"); err != nil {
-		return errBackupFailed.Wrap(err)
-	}
-
-	// backup the filesystem!
-	if err := logging.LogOperation(func() error {
-		// create a backup directory
-		fsPath := filepath.Join(path, filepath.Base(instance.FilesystemBase))
-		if err := os.Mkdir(fsPath, fs.ModeDir); err != nil {
-			return err
-		}
-
-		return fsx.CopyDirectory(fsPath, instance.FilesystemBase, func(dst, src string) {
-			context.IOStream.Println(src)
-		})
-	}, context.IOStream, "Backing up filesystem"); err != nil {
-		return errBackupFailed.Wrap(err)
-	}
-
-	// backup the the triplestore!
-	if err := logging.LogOperation(func() error {
-		tsPath := filepath.Join(path, instance.GraphDBRepository+".nq")
-		context.IOStream.Println(tsPath)
-
-		// create the backup file!
-		nquads, err := os.Create(tsPath)
-		if err != nil {
-			return err
-		}
-		defer nquads.Close()
-
-		// TODO: Add a progress bar?
-		_, err = dis.Triplestore().Backup(nquads, instance.GraphDBRepository)
-		return err
-	}, context.IOStream, "Backing up Triplestore"); err != nil {
-		return errBackupFailed.Wrap(err)
-	}
-
-	// backup the the sql database!
-	if err := logging.LogOperation(func() error {
-		sqlPath := filepath.Join(path, instance.SqlDatabase+".sql")
-		context.IOStream.Println(sqlPath)
-
-		// create the backup file!
-		sql, err := os.Create(sqlPath)
-		if err != nil {
-			return err
-		}
-		defer sql.Close()
-
-		// TODO: Add a progress bar?
-		return dis.SQL().Backup(context.IOStream, sql, instance.SqlDatabase)
-	}, context.IOStream, "Backing up Triplestore"); err != nil {
-		return errBackupFailed.Wrap(err)
-	}
 
 	return nil
 }
