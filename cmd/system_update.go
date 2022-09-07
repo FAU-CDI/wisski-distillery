@@ -81,8 +81,8 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	for _, d := range []string{
 		dis.Config.DeployRoot,
 		dis.InstancesDir(),
-		dis.InprogressBackupPath(),
-		dis.FinalBackupPath(),
+		dis.SnapshotsStagingPath(),
+		dis.SnapshotsArchivePath(),
 	} {
 		context.Println(d)
 		if err := os.MkdirAll(d, os.ModeDir); err != nil {
