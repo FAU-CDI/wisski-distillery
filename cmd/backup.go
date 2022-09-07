@@ -11,49 +11,41 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Snapshot creates a snapshot of an instance
-var Snapshot wisski_distillery.Command = snapshot{}
+// Backup is the 'backup' command
+var Backup wisski_distillery.Command = backup{}
 
-type snapshot struct {
-	Keepalive   bool `short:"k" long:"keepalive" description:"Keep instance running while taking a backup. Might lead to inconsistent state"`
-	StagingOnly bool `short:"s" long:"staging-only" description:"Do not package into a snapshot archive, but only create a staging directory"`
-
+type backup struct {
+	StagingOnly bool `short:"s" long:"staging-only" description:"Do not package into a backup archive, but only create a staging directory"`
 	Positionals struct {
-		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to take a snapshot of"`
-		Dest string `positional-arg-name:"DEST" description:"Destination path to write snapshot archive to. Defaults to the snapshots/archives/ directory"`
+		Dest string `positional-arg-name:"DEST" description:"Destination path to write backup archive to. Defaults to the snapshots/archives/ directory"`
 	} `positional-args:"true"`
 }
 
-func (snapshot) Description() wisski_distillery.Description {
+func (backup) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
 			NeedsConfig: true,
 		},
-		Command:     "snapshot",
-		Description: "Generates a snapshot archive for the provided archive",
+		Command:     "backup",
+		Description: "Makes a backup of the entire distillery",
 	}
 }
 
-var errSnapshotFailed = exit.Error{
-	Message:  "Failed to make a snapshot",
+var errBackupFailed = exit.Error{
+	Message:  "Failed to make a backup",
 	ExitCode: exit.ExitGeneric,
 }
 
-func (bi snapshot) Run(context wisski_distillery.Context) error {
+func (bk backup) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
-	instance, err := dis.Instance(bi.Positionals.Slug)
-	if err != nil {
-		return err
-	}
-
-	logging.LogMessage(context.IOStream, "Creating snapshot of instance %s", bi.Positionals.Slug)
+	var err error
 
 	// determine the target path for the archive
 	var sPath string
-	if !bi.StagingOnly {
+	if !bk.StagingOnly {
 		// regular mode: create a temporary staging directory
 		logging.LogMessage(context.IOStream, "Creating new snapshot staging directory")
-		sPath, err = dis.NewSnapshotStagingDir(instance.Slug)
+		sPath, err = dis.NewSnapshotStagingDir("")
 		if err != nil {
 			return errSnapshotFailed.Wrap(err)
 		}
@@ -63,9 +55,9 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 		}()
 	} else {
 		// staging mode: use dest as a destination
-		sPath = bi.Positionals.Dest
+		sPath = bk.Positionals.Dest
 		if sPath == "" {
-			sPath, err = dis.NewSnapshotStagingDir(instance.Slug)
+			sPath, err = dis.NewSnapshotStagingDir("")
 			if err != nil {
 				return errSnapshotFailed.Wrap(err)
 			}
@@ -81,31 +73,28 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 	}
 	context.Println(sPath)
 
-	// TODO: Allow skipping backups of individual parts and make them concurrent!
-
-	// take a snapshot into the staging area!
 	logging.LogOperation(func() error {
-		sreport := instance.Snapshot(context.IOStream, env.SnapshotDescription{
-			Dest:      sPath,
-			Keepalive: bi.Keepalive,
+		// take a snapshot into the staging area!
+		backup := dis.Backup(context.IOStream, env.BackupDescription{
+			Dest: sPath,
 		})
 
 		// write out the report, ignoring any errors!
-		sreport.WriteReport(context.IOStream)
+		backup.WriteReport(context.IOStream)
 
 		return nil
-	}, context.IOStream, "Generating Snapshot")
+	}, context.IOStream, "Generating Backup")
 
 	// if we requested to only have a staging area, then we are done
-	if bi.StagingOnly {
+	if bk.StagingOnly {
 		context.Printf("Wrote %s\n", sPath)
 		return nil
 	}
 
 	// create the archive path
-	archivePath := bi.Positionals.Dest
+	archivePath := bk.Positionals.Dest
 	if archivePath == "" {
-		archivePath = dis.NewSnapshotArchivePath(instance.Slug)
+		archivePath = dis.NewSnapshotArchivePath("")
 	}
 
 	// and write everything into it!
@@ -118,9 +107,10 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 			context.Println(dst)
 		})
 		return err
-	}, context.IOStream, "Writing snapshot archive"); err != nil {
+	}, context.IOStream, "Writing backup archive"); err != nil {
 		return errSnapshotFailed.Wrap(err)
 	}
 	context.Printf("Wrote %d byte(s) to %s\n", count, archivePath)
+
 	return nil
 }

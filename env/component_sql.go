@@ -103,7 +103,21 @@ var errSQLBackup = errors.New("SQLBackup: Mysqldump returned non-zero exit code"
 func (sql SQLComponent) Backup(io stream.IOStream, dest io.Writer, database string) error {
 	io = stream.NewIOStream(dest, io.Stderr, nil, 0)
 
-	code, err := sql.Stack().Exec(io, "sql", "mysqldump", "--database", database)
+	code, err := sql.Stack().Exec(io, "sql", "mysqldump", "--databases", database)
+	if err != nil {
+		return err
+	}
+	if code != 0 {
+		return errSQLBackup
+	}
+	return nil
+}
+
+// BackupAll makes a backup of all sql databases
+func (sql SQLComponent) BackupAll(io stream.IOStream, dest io.Writer) error {
+	io = stream.NewIOStream(dest, io.Stderr, nil, 0)
+
+	code, err := sql.Stack().Exec(io, "sql", "mysqldump", "--all-databases")
 	if err != nil {
 		return err
 	}

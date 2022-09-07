@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
 	"github.com/FAU-CDI/wisski-distillery/internal/password"
@@ -46,6 +47,11 @@ func (dis Distillery) NewSnapshotArchivePath(prefix string) (path string) {
 // The name is guaranteed to be unique within this process.
 func (Distillery) newSnapshotName(prefix string) string {
 	suffix, _ := password.Password(64) // silently ignore any errors!
+	if prefix == "" {
+		prefix = "backup"
+	} else {
+		prefix = "snapshot-" + prefix
+	}
 	return fmt.Sprintf("%s-%d-%s", prefix, time.Now().Unix(), suffix)
 }
 
@@ -62,36 +68,56 @@ func (dis Distillery) NewSnapshotStagingDir(prefix string) (path string, err err
 	return
 }
 
-type SnapshotReport struct {
-	Keepalive bool        // was the instance alive while running the snapshot?
-	Panic     interface{} // was there a panic?
+// SnapshotDescription is a description for a snapshot
+type SnapshotDescription struct {
+	Dest      string // destination path
+	Keepalive bool   // should we keep the instance alive while making the snapshot?
+}
 
-	// errors for the various components of the Snapshot
-	StopErr        error
-	StartErr       error
-	BookkeepingErr error
-	FilesystemErr  error
-	TriplestoreErr error
-	SQLErr         error
+// Snapshot represents the result of generating a snapshot
+type Snapshot struct {
+	Description SnapshotDescription
+	Instance    bookkeeping.Instance
+
+	// various error states, which are ignored when creating the snapshot
+	ErrPanic interface{} // panic, if any
+
+	ErrStart error
+	ErrStop  error
+
+	ErrBookkeep    error
+	ErrFilesystem  error
+	ErrTriplestore error
+	ErrSSQL        error
 }
 
 // Snapshot creates a new snapshot of this instance into dest
-func (instance Instance) Snapshot(io stream.IOStream, keepalive bool, dest string) (report SnapshotReport) {
+func (instance Instance) Snapshot(io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
+	// setup the snapshot
+	snapshot.Description = desc
+	snapshot.Instance = instance.Instance
+
 	// catch anything critical that happened during the snapshot
 	defer func() {
-		report.Panic = recover()
+		snapshot.ErrPanic = recover()
 	}()
 
+	// and do the create!
+	snapshot.create(io, instance)
+
+	return
+}
+
+func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
 	stack := instance.Stack()
 
 	// stop the instance (unless it was explicitly asked to not do so!)
-	report.Keepalive = keepalive
-	if !keepalive {
+	if !snapshot.Description.Keepalive {
 		logging.LogMessage(io, "Stopping instance")
-		report.StopErr = stack.Down(io)
+		snapshot.ErrStop = stack.Down(io)
 		defer func() {
 			logging.LogMessage(io, "Starting instance")
-			report.StartErr = stack.Up(io)
+			snapshot.ErrStart = stack.Up(io)
 		}()
 	}
 
@@ -104,19 +130,19 @@ func (instance Instance) Snapshot(io stream.IOStream, keepalive bool, dest strin
 	go func() {
 		defer wg.Done()
 
-		bkPath := filepath.Join(dest, "bookkeeping.txt")
+		bkPath := filepath.Join(snapshot.Description.Dest, "bookkeeping.txt")
 		messages <- bkPath
 
 		info, err := os.Create(bkPath)
 		if err != nil {
-			report.BookkeepingErr = err
+			snapshot.ErrBookkeep = err
 			return
 		}
 		defer info.Close()
 
 		// print whatever is in the database
 		// TODO: This should be sql code, maybe gorm can do that?
-		_, report.BookkeepingErr = fmt.Fprintf(info, "%#v\n", instance.Instance)
+		_, snapshot.ErrBookkeep = fmt.Fprintf(info, "%#v\n", instance.Instance)
 	}()
 
 	// backup the filesystem
@@ -124,14 +150,14 @@ func (instance Instance) Snapshot(io stream.IOStream, keepalive bool, dest strin
 	go func() {
 		defer wg.Done()
 
-		fsPath := filepath.Join(dest, filepath.Base(instance.FilesystemBase))
+		fsPath := filepath.Join(snapshot.Description.Dest, filepath.Base(instance.FilesystemBase))
 		if err := os.Mkdir(fsPath, fs.ModeDir); err != nil {
-			report.FilesystemErr = err
+			snapshot.ErrFilesystem = err
 			return
 		}
 
 		// copy over whatever is in the base directory
-		report.FilesystemErr = fsx.CopyDirectory(fsPath, instance.FilesystemBase, func(dst, src string) {
+		snapshot.ErrFilesystem = fsx.CopyDirectory(fsPath, instance.FilesystemBase, func(dst, src string) {
 			messages <- dst
 		})
 	}()
@@ -141,17 +167,17 @@ func (instance Instance) Snapshot(io stream.IOStream, keepalive bool, dest strin
 	go func() {
 		defer wg.Done()
 
-		tsPath := filepath.Join(dest, instance.GraphDBRepository+".nq")
+		tsPath := filepath.Join(snapshot.Description.Dest, instance.GraphDBRepository+".nq")
 		messages <- tsPath
 
 		nquads, err := os.Create(tsPath)
 		if err != nil {
-			report.TriplestoreErr = err
+			snapshot.ErrTriplestore = err
 		}
 		defer nquads.Close()
 
 		// directly store the result
-		_, report.TriplestoreErr = instance.dis.Triplestore().Backup(nquads, instance.GraphDBRepository)
+		_, snapshot.ErrTriplestore = instance.dis.Triplestore().Backup(nquads, instance.GraphDBRepository)
 	}()
 
 	// backup the sql database
@@ -159,18 +185,18 @@ func (instance Instance) Snapshot(io stream.IOStream, keepalive bool, dest strin
 	go func() {
 		defer wg.Done()
 
-		sqlPath := filepath.Join(dest, instance.SqlDatabase+".sql")
+		sqlPath := filepath.Join(snapshot.Description.Dest, snapshot.Instance.SqlDatabase+".sql")
 		messages <- sqlPath
 
 		sql, err := os.Create(sqlPath)
 		if err != nil {
-			report.SQLErr = err
+			snapshot.ErrSSQL = err
 			return
 		}
 		defer sql.Close()
 
 		// directly store the result
-		report.SQLErr = instance.dis.SQL().Backup(io, sql, instance.SqlDatabase)
+		snapshot.ErrSSQL = instance.dis.SQL().Backup(io, sql, instance.SqlDatabase)
 	}()
 
 	// TODO: Backup the docker image
@@ -185,6 +211,24 @@ func (instance Instance) Snapshot(io stream.IOStream, keepalive bool, dest strin
 	for message := range messages {
 		io.Println(message)
 	}
+}
 
-	return
+// WriteReport writes out the report belonging to this snapshot.
+// It is a separate function, to allow writing it indepenently of the rest.
+func (snapshot Snapshot) WriteReport(io stream.IOStream) error {
+	return logging.LogOperation(func() error {
+		reportPath := filepath.Join(snapshot.Description.Dest, "report.txt")
+		io.Println(reportPath)
+
+		// create the report file!
+		report, err := os.Create(reportPath)
+		if err != nil {
+			return err
+		}
+		defer report.Close()
+
+		// print the report into it!
+		_, err = fmt.Fprintf(report, "%#v\n", snapshot)
+		return err
+	}, io, "Writing snapshot report")
 }

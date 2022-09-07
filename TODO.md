@@ -28,28 +28,12 @@ Work in progress.
 - restructure resource files
 - Documentation
 - single malt
+- snapshots: export xml from pathbuilder
 
 ## Migrating Individual Commands
-- [ ] backup_all.sh
-- [x] backup_instance.sh
-- [x] blind_update.sh
-- [x] blind_update_all.sh
-- [x] cron_all.sh
-- [x] info.sh
-- [x] ls.sh
-- [x] make_mysql_account.sh
+
 - [ ] monday_full.sh
 - [ ] monday_short.sh
-- [x] mysql.sh
-- [x] provision.sh
-- [x] purge.sh
-- [x] rebuild.sh
-- [x] rebuild_all.sh
-- [x] reserve.sh
-- [x] shell.sh
-- [x] system_install.sh
-- [x] system_update.sh
-- [x] update_prefix_config.sh
 
 ## TO BE REMOVED
 - [ ] call_update_php_hack.sh

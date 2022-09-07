@@ -8,6 +8,7 @@ import (
 	"io/fs"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -235,6 +236,62 @@ func (ts TriplestoreComponent) Backup(dst io.Writer, repo string) (int64, error)
 	}
 	defer res.Body.Close()
 	return io.Copy(dst, res.Body)
+}
+
+type Repository struct {
+	ID         string `json:"id"`
+	Title      string `json:"title"`
+	URI        string `json:"uri"`
+	Type       string `json:"type"`
+	SesameType string `json:"sesameType"`
+	Location   string `json:"location"`
+	Readable   bool   `json:"readable"`
+	Writable   bool   `json:"writable"`
+	Local      bool   `json:"local"`
+}
+
+func (ts TriplestoreComponent) listRepositories() (repos []Repository, err error) {
+	res, err := ts.OpenRaw("GET", "/rest/repositories", nil, "", "application/json")
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	err = json.NewDecoder(res.Body).Decode(&repos)
+	return
+}
+
+// TriplestoreBackup backs up every graphdb instance into dst
+func (ts TriplestoreComponent) BackupAll(dst string) error {
+	// list all the repositories
+	repos, err := ts.listRepositories()
+	if err != nil {
+		return err
+	}
+
+	// create the base directory
+	if err := os.Mkdir(dst, fs.ModeDir); err != nil {
+		return err
+	}
+
+	// iterate over all the repositories
+	for _, repo := range repos {
+		if rErr := (func(repo Repository) error {
+			name := filepath.Join(dst, repo.ID+".nq")
+
+			dest, err := os.Create(name)
+			if err != nil {
+				return err
+			}
+			defer dest.Close()
+
+			_, err = ts.Backup(dest, repo.ID)
+			return err
+		}(repo)); err == nil && rErr != nil {
+			err = rErr
+		}
+	}
+	return err
 }
 
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
