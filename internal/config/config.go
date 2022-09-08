@@ -39,7 +39,7 @@ type Config struct {
 	// This email address can be configured here.
 	CertbotEmail string `env:"CERTBOT_EMAIL" default:"" validator:"is_valid_email"`
 
-	// Maximum age for backup
+	// Maximum age for backup in days
 	MaxBackupAge int `env:"MAX_BACKUP_AGE" default:"" validator:"is_valid_number"`
 
 	// Each Drupal instance requires a corresponding system user, database users and databases.

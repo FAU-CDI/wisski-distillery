@@ -15,6 +15,7 @@ import (
 var Backup wisski_distillery.Command = backup{}
 
 type backup struct {
+	NoPrune     bool `short:"no" long:"no-prune" description:"Do not prune older backup archives"`
 	StagingOnly bool `short:"s" long:"staging-only" description:"Do not package into a backup archive, but only create a staging directory"`
 	Positionals struct {
 		Dest string `positional-arg-name:"DEST" description:"Destination path to write backup archive to. Defaults to the snapshots/archives/ directory"`
@@ -39,6 +40,12 @@ var errBackupFailed = exit.Error{
 func (bk backup) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 	var err error
+
+	if !bk.NoPrune {
+		defer logging.LogOperation(func() error {
+			return dis.PruneBackups(context.IOStream)
+		}, context.IOStream, "Pruning old backups")
+	}
 
 	// determine the target path for the archive
 	var sPath string
