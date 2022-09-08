@@ -12,30 +12,42 @@ This README contains only technical documentation.
 For members of [FAU Erlangen-Nürnberg](https://www.fau.de/) a cloud offering based on this service known as FAUWissKICloud.
 Please see https://wisski.data.fau.de/ for related documentation. 
 
-**This project is still a work in progress and nothing in this repository is ready for production use**
-
 ## Overview
 
 This project consists of the following:
 
 - this README
-- bash scripts for setting up and managing the distillery server
-- bash scripts for backing up the server
+- a [Go](https://go.dev/) command `wdcli` 
 - a `Vagrantfile` for local testing
 
-The bash scripts are dependency-free and only assume that a basic debian system is available.
-The scripts have been tested only under Debian 10, but may also work under older or newer versions.
-All scripts expect to be run as root, and will fail when this is not the case.
-Each script is well-commented and all commands are explained.
+The go command is almost dependency free. 
+It expects that a basic debian system (in particular the `apt-get` command) is available.
+The command has been tested only under Debian 10, but may also work under older or newer versions.
+The command expects to be run as root, and will fail when this is not the case.
+Each subcommand comes with documentation, which can be found in this readme, as well as via the command line when passing a `--help` flag.
 
-Configuration of the bash scripts can be done in the file `distillery/.env`.
-A sample configuration file (with documented defaults) is available in `distillery/.env.sample`.
-To get started, it is sufficient to run:
+To bootstrap a new distillery instance, the `wdcli bootstrap` command can be used.
+First copy the executable onto the server, using a command similar as:
 
 ```bash
-cd distillery/
-cp .env.sample .env
-your-favorite-editor .env # open and customize, usually only the domain needs adjusting
+GOOS=linux GOARCH=amd64 go build -o wdcli ./cmd/wdcli && scp ./wdcli distillery.example.com:
+```
+
+Next, access the server and run the `bootstrap` command:
+
+```
+$ ssh distillery.example.com
+user@distillery.example.com$ sudo ./wdcli bootstrap
+```
+
+This will create a deployment directory (`/var/www/deploy` by default).
+Next, edit the configuration file `/var/www/deploy/.env` and customize it to your liking.
+Usually it only requires adjustment in very few places.
+
+Next, download a [GraphDB](https://graphdb.ontotext.com/) zip file, and bring the distillery online using:
+
+```bash
+/var/www/deploy/wdcli system_update /path/to/graphdb.zip
 ```
 
 ## Vagrantfile
@@ -56,11 +68,11 @@ vagrant up
 vagrant ssh -- -L 7200:127.0.0.1:7200 -L 8080:127.0.0.1:8080
 ```
 
-## Preparing the Server -- 'system_install.sh'
+## System Updates
 
-_TLDR: `sudo bash /distillery/system_install.sh /path/to/graphdb.zip`_
+_TLDR: `sudo /var/www/deploy/wdcli system_update /path/to/graphdb.zip`_
 
-To prepare the server for becoming a WissKI factory, several core Docker Instances must be installed.
+To run a WissKI Distillery, several core Docker Instances must be installed.
 These are:
 
 - [nginx-proxy](https://github.com/nginx-proxy/nginx-proxy) - an automated nginx reverse proxy
@@ -73,48 +85,45 @@ These are:
 
   - It is configured to run inside a docker container
   - A passwordless `root` account is created, which can only be used from inside the container.
+  - A secondary management account is also created. This is configured via the distillery configuration file, and can be access from anywhere.
   - A `bookkeeping` database and table is created by default, to store known WissKI instance metadata in.
-  - A database shell can be opened using `sudo /distillery/mysql.sh`.
+  - It is accsssible using `127.0.0.1:3306`
+  - A database shell can be opened using `sudo /var/www/deploy/wdcli mysql`.
   - A [phpmyadmin](https://www.phpmyadmin.net/) is started on `127.0.0.1:8080`.
   - See [distillery/resources/compose/sql](distillery/resources/compose/sql) for implementation details.
 
 - [GraphDB](http://graphdb.ontotext.com/) - a SPARQL backend for WissKI (Version 10.0 or later)
-
   - It is configured to run inside a docker container.
   - The Workbench API is started on `127.0.0.1:7200`.
   - Security is not enabled at the moment.
   - See [distillery/resources/compose/triplestore](distillery/resources/compose/triplestore) for implementation details.
 
 - [proxyssh](https://github.com/tkw1536/proxyssh) - an ssh server that delegates client connections to different WissKIs
-  - It is configured to run inside a docker container
+  - It is configured to run inside a docker container.
   - Uses a global configurable authorized_keys file.
   - Also allows users to write their own authorized_keys files.
+  - See [distillery/resources/compose/ssh](distillery/resources/compose/ssh) for implementation details.
 
-To manage multiple docker containers, this script makes heavy use of [docker-compose](https://docs.docker.com/compose/).
+- [wdresolve](https://github.com/FAU-CDI/wdresolve) - a global WissKI Distillery Resolver
+  - It is configured to run inside a docker container
+  - Uses configuration which is updated with `sudo /var/www/deploy/wdcli update_prefix_config` 
+  - Running in the browser under the `/go/` path of the main domain.
+  - See [distillery/resources/compose/resolver](distillery/resources/compose/resolver) for implementation details.
+
+To manage multiple docker containers, this script makes heavy use of [docker compose](https://docs.docker.com/compose/).
 
 Setting up these steps is fully automatic.
-In particular, after obtaining a license and the installation zip file for 'GraphDB', one can run the 'distillery/system_install.sh' script as follows to setup all components:
+In particular, after obtaining a license and the installation zip file for 'GraphDB' one can just run:
 
 ```bash
-sudo bash /distillery/system_install.sh /path/to/graphdb.zip
+sudo /var/www/deploy/wdcli system_update /path/to/graphdb.zip
 ```
 
 In principle this script is idempotent, meaning it can be run multiple times achieving the same effect.
 
-## Updating the Docker Containers -- 'system_update.sh'
+## Provisioning a new WissKI instance -- 'wdcli provision'
 
-For security purposes, the core containers should be regularly updated.
-To achieve this, the docker container images should be rebuilt and restarted.
-
-This can be done using:
-
-```bash
-sudo bash /distillery/system_update.sh
-```
-
-## Provisioning a new WissKI instance -- 'provision.sh'
-
-_TLDR: `sudo /distillery/provision.sh slug-of-new-website`_
+_TLDR: `sudo /var/www/deploy/wdcli provision name-of-website`_
 
 A new WissKI instance consists of several components:
 
@@ -158,9 +167,7 @@ This does the following:
 - Installs `drush` into this project.
 - Runs the `drush site-install` command to configure the Drupal instance. Generates a random password to use.
 - Adds and enables WissKI-specific modules for this instance.
-
-Currently the WissKI Salz instance is not enabled programatically.
-Instead all credentials (along with instructions on how to configure it) are printed to the command line.
+- Sets up a WissKI Salz Adapter to use the GraphDB Repository.
 
 **6. Start the Docker Container**
 
@@ -170,16 +177,16 @@ These steps can be performed automatically.
 To do so, use:
 
 ```bash
-sudo bash /distillery/provision.sh SLUG
+sudo /var/www/deploy/wdcli provision SLUG
 ```
 
-## Rebuild an instance -- 'rebuild.sh' and 'rebuild-all.sh'
+## Rebuild an instance -- 'wdcli rebuild'
 
 Sometimes it becomes necessary (because of changes to this project) to rebuild the docker image running a certain docker instance.
 To do so, use:
 
 ```bash
-sudo bash /distillery/rebuild.sh SLUG
+sudo /var/www/deploy/wdcli rebuild SLUG 
 ```
 
 Note that rebuilding an instance does restart the docker container resulting in a small (typical < 1 second) interruption to the website in question.
@@ -190,25 +197,25 @@ To delete all instances, run:
 sudo docker image prune --all
 ```
 
-To automatically rebuild all instances, use:
+To automatically rebuild all instances, use the rebuild command without any arguments:
 
 ```bash
-sudo bash /distillery/rebuild_all.sh
+sudo /var/www/deploy/wdcli rebuild 
 ```
 
-## Reserving an instance -- 'reserve.sh'
+## Reserving an instance -- 'wdcli reserve'
 
 Sometimes it is useful to reserve a particular instance name.
 This is done by hosting a placeholder website at the domain.
 To do so, use:
 
 ```bash
-sudo bash /distillery/reserve.sh SLUG
+sudo /var/www/deploy/wdcli reserve SLUG
 ```
 
 To un-reserve a website, manually stop the docker stack and remove the folder.
 
-## Purge an existing WissKI instance -- 'purge.sh'
+## Purge an existing WissKI instance -- 'wdcli purge'
 
 Sometimes it is required to remove a given WissKI instance.
 In particular all parts belonging to it should be removed.
@@ -216,70 +223,69 @@ In particular all parts belonging to it should be removed.
 To use it, run:
 
 ```bash
-sudo bash /distillery/purge.sh SLUG
+sudo /var/www/deploy/wdcli purge SLUG
 ```
 
-## Open a shell -- 'shell.sh'
+This cannot be undone (expect for manually re-installing a backup or snapshot).
+Therefore it typically requires explicit confirmation.
+
+## Open a shell -- 'wdcli shell'
 
 Sometimes manual changes to a given WissKI instance are required.
 For this purpose, you can use:
 
 ```bash
-sudo bash /distillery/shell.sh SLUG
+sudo /var/www/deploy/wdcli shell SLUG
 ```
 
 This will open a shell in the provided WissKI instance.
 
-## List all instances -- 'ls.sh'
+## List all instances -- 'wdcli ls'
 
 To list all instances, the following command can be used:
 
 ```bash
-sudo bash /distillery/ls.sh
+sudo /var/www/deploy/wdcli ls
 ```
 
-## Backups -- 'backup_all.sh' and 'backup_instance.sh'
+## Backups & Snapshots -- 'wdcli backup' and 'wdcli snapshot'
+
+### Backup the entire Distillery
 
 This project comes with a backup script.
 To make a backup of *all instances*, run:
 
 ```bash
-sudo bash /distillery/backup_all.sh
+sudo /var/www/deploy/wdcli backup
 ```
 
 Backups may temporarily shutdown individual instances to ensure data consistency.
 Typical backup times are a minute or less.
 
-Backups are stored in the `backups/final` directory.
+Backups are stored in the `/var/www/deploy/snapshots/archives` directory.
 They contain:
 
-- a backup of every single instance (see below)
+- a snapshot of every single instance (see below)
 - a complete backup of the SQL database
 - nquads of all the GraphDB repositories
-- a backup of the config file
+- a backup of the configuration + data file(s)
 
 Files are `.tar.gz`ipped.
+
 By default, backups are kept for up to thirty days, after which they are removed.
+This can be configured in the WissKI Distillery Configuration File.
 
-This script does not automatically provision a cronjob.
-An example job to e.g. run a backup every saturday at 9:00 am is:
+### Snapshot a single instance
 
-```
-MAILTO="some-admin-email@example.com"
-0 9 * * 6 /bin/bash /distillery/backup_all.sh
-```
-
-### Backup a single instance
-
-To backup a single instance, you can use the `/distillery/backup_instance.sh` script.
+To snapshot a single instance, you can `sudo /var/www/deploy/wdcli snapshot SLUG`.
 It takes either 1 or 2 arguments:
 
 ```bash
-# backup a single instance and pick a new file in /backups/final
-bash /distillery/backup_instance.sh slug
+# snapshot a single instance and pick a new file in /snapshots/archives
+sudo /var/www/deploy/wdcli snapshot SLUG
 
 # backup a single instance into a specific file
-bash /distillery/backup_instance.sh /path/to/backup.tar.gz
+sudo /var/www/deploy/wdcli snapshot SLUG /path/to/snapshot.tar.gz
 ```
 
 The backup proceeeds as follows:
@@ -292,10 +298,10 @@ The backup proceeeds as follows:
 
 When uptime is critical, it is possible to skip sets 2 and 5 and leave the instance running.
 This might result in inconsistent backup data.
-To do so, run the script with the `KEEPALIVE` flag:
+To do so, run the script with the `--keepalive` flag:
 
 ```bash
-KEEPALIVE=1 bash /distillery/backup_instance.sh slug
+sudo /var/www/deploy/wdcli snapshot SLUG --keepalive
 ```
 
 ## SSH Access
@@ -360,7 +366,7 @@ This will casuse the instance to be skipped entirely.
 This project and associated files in this repository are licensed as follows:
 
     WissKI-Distillery - A docker-based WissKI instance server
-    Copyright (C) 2020 AGFD <https://www.agfd.fau.de/>
+    Copyright (C) 2020-22 CDI <https://www.cdi.fau.de/>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
@@ -389,23 +395,3 @@ if you follow the following conditions:
 - You license any derivative works under the same license.
 
 This also applies if you only run a backend service based on this software.
-
-## TODO
-
-- User-level documentation
-  - What is a factory?
-  - Why a factory?
-  - First steps after provisioning
-- Automatically setup SALZ adapter (if this is possible)
-- Investigate managing phpmyadmin
-- Investigate managing graphdb
-- Investigate delegating shell access
-- Investigate delegating ftp access
-- document CNAME structure
-
-<!--  LocalWords:  Vagrantfile vargant phpmyadmin nginx-proxy nginx docker-compose.yml
- -->
-<!--  LocalWords:  docker-letsencrypt-nginx-proxy-companion drupal drush Affero graphdb
- -->
-<!--  LocalWords:  commerical
- -->
