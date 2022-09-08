@@ -47,6 +47,7 @@ func init() {
 	wdcli.Register(cmd.Snapshot)
 	wdcli.Register(cmd.Backup)
 	wdcli.Register(cmd.Cron)
+	wdcli.Register(cmd.Monday)
 }
 
 // an error when no arguments are provided.
