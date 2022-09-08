@@ -78,7 +78,9 @@ function composer_install_and_enable() {
             read composer drush;
             drupal_sites_permission_workaround
             composer require "$composer"
-            [ -n "$drush" ] && drush pm-enable --yes "$drush"
+            if [ -n "$drush" ]; then
+                drush pm-enable --yes "$drush"
+            fi
         )
     done
 }
