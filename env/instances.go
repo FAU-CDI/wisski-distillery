@@ -245,14 +245,12 @@ func (instance Instance) Stack() stack.Installable {
 			"GLOBAL_AUTHORIZED_KEYS_FILE": instance.dis.Config.GlobalAuthorizedKeysFile,
 		},
 
-		CopyContextFiles: nil,
-
-		TouchFiles: []string{
-			"authorized_keys",
-		},
-
 		MakeDirsPerm: fs.ModeDir | fs.ModePerm,
 		MakeDirs:     []string{"data", ".composer"},
+
+		TouchFiles: []string{
+			filepath.Join("data", "authorized_keys"),
+		},
 	}
 }
 

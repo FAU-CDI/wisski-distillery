@@ -23,10 +23,10 @@ type Installable struct {
 
 	CopyContextFiles []string // Files to copy from the installation context
 
-	TouchFiles []string // Files to 'touch', i.e. ensure that exist
-
 	MakeDirsPerm fs.FileMode // permission for diretories, defaults to fs.ModeDir
 	MakeDirs     []string    // directories to ensure that exist
+
+	TouchFiles []string // Files to 'touch', i.e. ensure that exist; guaranteed to be run after MakeDirs
 }
 
 // InstallationContext is a context to install data in
@@ -61,7 +61,7 @@ func (is Installable) Install(io stream.IOStream, context InstallationContext) e
 		}
 	}
 
-	// make sure that certain files exist
+	// make sure that certain dirs exist
 	for _, name := range is.MakeDirs {
 		// find the destination!
 		dst := filepath.Join(is.Dir, name)
