@@ -1,9 +1,0 @@
-{
-    "username": "${GRAPHDB_USER}",
-    "grantedAuthorities": [
-        "ROLE_USER",
-        "READ_REPO_${GRAPHDB_REPO}",
-        "WRITE_REPO_${GRAPHDB_REPO}"
-    ],
-    "password": "${GRAPHDB_PASSWORD}"
-}
