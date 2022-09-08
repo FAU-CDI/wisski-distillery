@@ -233,7 +233,7 @@ func (instance Instance) Stack() stack.Installable {
 
 		EnvFileResource: filepath.Join("resources", "templates", "docker-env", "barrel"),
 		EnvFileContext: map[string]string{
-			"REAL_PATH": instance.FilesystemBase,
+			"DATA_PATH": filepath.Join(instance.FilesystemBase, "data"),
 
 			"SLUG":         instance.Slug,
 			"VIRTUAL_HOST": instance.Domain(),
