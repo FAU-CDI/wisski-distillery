@@ -17,7 +17,7 @@ type info struct {
 func (info) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: true,
+			NeedsDistillery: true,
 		},
 		Command:     "info",
 		Description: "Provide information about a single repository",

@@ -16,7 +16,7 @@ type license struct{}
 func (license) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: false,
+			NeedsDistillery: false,
 		},
 		Command:     "license",
 		Description: "Print licensing information about wdcli and exit. ",

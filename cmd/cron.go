@@ -19,7 +19,7 @@ type cron struct {
 func (cron) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: true,
+			NeedsDistillery: true,
 		},
 		Command:     "cron",
 		Description: "Runs the cron script for several instances",

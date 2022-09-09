@@ -12,7 +12,7 @@ import (
 )
 
 // Installable represents a Stack that can be automatically installed from a set of resources
-// See the Install() method.
+// See the [Install] method.
 type Installable struct {
 	Stack
 

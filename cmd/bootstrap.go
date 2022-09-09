@@ -27,7 +27,7 @@ type bootstrap struct {
 func (bootstrap) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: false,
+			NeedsDistillery: false,
 		},
 		Command:     "bootstrap",
 		Description: "Bootstraps the installation of a Distillery System",
@@ -92,8 +92,8 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	// TODO: Read these from the command line?
-	wdcliPath := filepath.Join(root, "wdcli")
-	envPath := filepath.Join(root, ".env")
+	wdcliPath := filepath.Join(root, env.Executable)
+	envPath := filepath.Join(root, env.ConfigFile)
 	domain := bs.Hostname
 	if domain == "" {
 		domain = hostname.FQDN()

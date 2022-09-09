@@ -12,7 +12,7 @@ var ErrCopySameFile = errors.New("src and dst must be different files")
 // CopyFile copies a file from src to dst.
 // When dst and src are the same file, returns ErrCopySameFile.
 func CopyFile(dst, src string) error {
-	if src == dst {
+	if SameFile(src, dst) {
 		return ErrCopySameFile
 	}
 
@@ -51,7 +51,7 @@ func CopyDirectory(dst, src string, onCopy func(dst, src string)) error {
 	// TODO: Allow copying in parallel? Maybe with a mutex?
 
 	// sanity checks
-	if src == dst {
+	if SameFile(src, dst) {
 		return ErrCopySameFile
 	}
 	if !IsDirectory(dst) {

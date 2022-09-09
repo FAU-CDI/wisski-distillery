@@ -21,7 +21,7 @@ type reserve struct {
 func (reserve) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: true,
+			NeedsDistillery: true,
 		},
 		Command:     "reserve",
 		Description: "Reserves a new WissKI Instance",

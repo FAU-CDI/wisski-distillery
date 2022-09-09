@@ -6,7 +6,8 @@ import (
 )
 
 type Requirements struct {
-	NeedsConfig bool
+	// Do we need an installed distillery?
+	NeedsDistillery bool
 }
 
 // AllowsFlag checks if the provided flag may be passed to fullfill this requirement

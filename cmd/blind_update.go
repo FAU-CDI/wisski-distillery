@@ -20,7 +20,7 @@ type blindUpdate struct {
 func (blindUpdate) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: true,
+			NeedsDistillery: true,
 		},
 		Command:     "blind_update",
 		Description: "Runs the blind update in the provided instances",

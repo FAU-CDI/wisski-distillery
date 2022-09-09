@@ -14,7 +14,7 @@ type config struct {
 func (s config) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: true,
+			NeedsDistillery: true,
 		},
 		Command:     "config",
 		Description: "Prints information about configuration",

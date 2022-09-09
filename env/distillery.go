@@ -54,7 +54,7 @@ func NewDistillery(params Params, req Requirements) (env *Distillery, err error)
 	env = &Distillery{}
 
 	// if we don't need to load the config, there is nothing to do
-	if !req.NeedsConfig {
+	if !req.NeedsDistillery {
 		return
 	}
 

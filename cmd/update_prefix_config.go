@@ -18,7 +18,7 @@ type updateprefixconfig struct{}
 func (updateprefixconfig) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: true,
+			NeedsDistillery: true,
 		},
 		Command:     "update_prefix_config",
 		Description: "Updates the prefix configuration",

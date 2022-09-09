@@ -5,7 +5,11 @@ import (
 	"time"
 )
 
-// Touch touches a file
+// Touch touches a file.
+// It is similar to the unix 'touch' command.
+//
+// If the file does not exist exists, it is created using [os.Create].
+// If the file does exist, it's access and modification times are updated to the current time.
 func Touch(path string) error {
 	_, err := os.Stat(path)
 	switch {

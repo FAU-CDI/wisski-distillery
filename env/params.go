@@ -20,7 +20,7 @@ func (params Params) ConfigFilePath() string {
 	if params.BaseDirectory == "" {
 		return ""
 	}
-	return filepath.Join(params.BaseDirectory, ".env")
+	return filepath.Join(params.BaseDirectory, ConfigFile)
 }
 
 var errUnableToLoadParams = exit.Error{

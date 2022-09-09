@@ -25,7 +25,7 @@ type backup struct {
 func (backup) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: true,
+			NeedsDistillery: true,
 		},
 		Command:     "backup",
 		Description: "Makes a backup of the entire distillery",

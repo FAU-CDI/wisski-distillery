@@ -18,7 +18,7 @@ type makeMysqlAccount struct{}
 func (makeMysqlAccount) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: true,
+			NeedsDistillery: true,
 		},
 		ParserConfig: parser.Config{
 			IncludeUnknown: true,

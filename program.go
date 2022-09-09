@@ -27,13 +27,25 @@ var errUserIsNotRoot = exit.Error{
 	Message:  "This command has to be executed as root. The current user is not root.",
 }
 
+var warnNoDeployWdcli = "Warning: Not using %q executable at %q. This might leave the distillery in an inconsistent state. \n"
+
 func NewProgram() Program {
 	return Program{
 		BeforeCommand: func(context Context, command Command) error {
+			// make sure that we are root!
 			usr, err := user.Current()
-			if err != nil || usr.Uid != "0" || usr.Gid != "0" { // make sure that we are root!
+			if err != nil || usr.Uid != "0" || usr.Gid != "0" {
 				return errUserIsNotRoot
 			}
+
+			// warn when not using the distillery excutable
+			if context.Description.Requirements.NeedsDistillery {
+				dis := context.Environment
+				if !dis.UsingDistilleryExecutable() {
+					context.EPrintf(warnNoDeployWdcli, env.Executable, dis.ExecutablePath())
+				}
+			}
+
 			return nil
 		},
 

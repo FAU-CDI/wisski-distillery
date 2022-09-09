@@ -17,7 +17,7 @@ type ls struct {
 func (ls) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: env.Requirements{
-			NeedsConfig: true,
+			NeedsDistillery: true,
 		},
 		Command:     "ls",
 		Description: "Lists WissKI instances",
