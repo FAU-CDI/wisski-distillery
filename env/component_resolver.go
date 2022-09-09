@@ -44,6 +44,10 @@ func (resolver ResolverComponent) Stack() stack.Installable {
 	return stack
 }
 
+func (ResolverComponent) Context(parent stack.InstallationContext) stack.InstallationContext {
+	return parent
+}
+
 func (resolver ResolverComponent) Path() string {
 	return resolver.Stack().Dir
 }

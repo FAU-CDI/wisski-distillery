@@ -5,6 +5,7 @@ import (
 	"os"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/env"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
 	"github.com/FAU-CDI/wisski-distillery/internal/targz"
@@ -24,7 +25,7 @@ type backup struct {
 
 func (backup) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: env.Requirements{
+		Requirements: core.Requirements{
 			NeedsDistillery: true,
 		},
 		Command:     "backup",

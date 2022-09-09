@@ -2,7 +2,7 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/env"
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/internal/legal"
 )
 
@@ -15,7 +15,7 @@ type license struct{}
 
 func (license) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: env.Requirements{
+		Requirements: core.Requirements{
 			NeedsDistillery: false,
 		},
 		Command:     "license",

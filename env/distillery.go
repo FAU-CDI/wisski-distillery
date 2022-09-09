@@ -5,13 +5,21 @@ import (
 	"os"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/tkw1536/goprogram/exit"
 )
 
 // Distillery represents a running instance for the distillery
 type Distillery struct {
-	Config *config.Config
+	Config   *config.Config
+	Upstream Upstream
+}
+
+// Upstream are the upstream urls connecting to the various external components.
+type Upstream struct {
+	SQL         string
+	Triplestore string
 }
 
 func (dis Distillery) HTTPSEnabled() bool {
@@ -50,28 +58,44 @@ var errOpenConfig = exit.Error{
 }
 
 // NewDistillery creates a new distillery object from a set of parameters and requirements
-func NewDistillery(params Params, req Requirements) (env *Distillery, err error) {
-	env = &Distillery{}
+func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) (env *Distillery, err error) {
+	env = &Distillery{
+		Upstream: Upstream{
+			SQL:         "127.0.0.1:3306",
+			Triplestore: "127.0.0.1:7200",
+		},
+	}
+
+	if flags.InternalInDocker {
+		env.Upstream.SQL = "sql:3306"
+		env.Upstream.Triplestore = "triplestore:7200"
+	}
 
 	// if we don't need to load the config, there is nothing to do
 	if !req.NeedsDistillery {
 		return
 	}
 
-	// if there is no no config file, return
-	cfg := params.ConfigFilePath()
+	// try to find the configuration file
+	cfg := flags.ConfigPath // command line flags first
+	if cfg == "" {
+		cfg = params.ConfigPath // then globally provided files
+	}
 	if cfg == "" {
 		return nil, errNoConfigFile
 	}
 
-	f, err := os.Open(params.ConfigFilePath())
+	// open the config file!
+	f, err := os.Open(params.ConfigPath)
 	if err != nil {
 		return nil, errOpenConfig.WithMessageF(err)
 	}
 	defer f.Close()
 
 	// unmarshal the config
-	env.Config = &config.Config{}
+	env.Config = &config.Config{
+		ConfigPath: cfg,
+	}
 	err = env.Config.Unmarshal(f)
 	return
 }

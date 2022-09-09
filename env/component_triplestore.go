@@ -32,7 +32,7 @@ type TriplestoreComponent struct {
 // Triplestore returns the TriplestoreComponent belonging to this distillery
 func (dis *Distillery) Triplestore() TriplestoreComponent {
 	return TriplestoreComponent{
-		BaseURL:      "http://127.0.0.1:7200",
+		BaseURL:      "http://" + dis.Upstream.Triplestore,
 		PollInterval: time.Second,
 
 		dis: dis,
@@ -41,6 +41,10 @@ func (dis *Distillery) Triplestore() TriplestoreComponent {
 
 func (TriplestoreComponent) Name() string {
 	return "triplestore"
+}
+
+func (TriplestoreComponent) Context(parent stack.InstallationContext) stack.InstallationContext {
+	return parent
 }
 
 // Stack returns the installable Triplestore stack

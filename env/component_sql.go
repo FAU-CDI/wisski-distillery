@@ -20,6 +20,8 @@ import (
 
 // SQLComponent represents the 'sql' layer belonging to a distillery
 type SQLComponent struct {
+	ServerURL string
+
 	PollInterval time.Duration // Duration to wait for during wait
 
 	dis *Distillery
@@ -28,6 +30,7 @@ type SQLComponent struct {
 // SSH returns the SSHComponent belonging to this distillery
 func (dis *Distillery) SQL() SQLComponent {
 	return SQLComponent{
+		ServerURL:    dis.Upstream.SQL,
 		PollInterval: time.Second,
 
 		dis: dis,
@@ -36,6 +39,10 @@ func (dis *Distillery) SQL() SQLComponent {
 
 func (SQLComponent) Name() string {
 	return "sql"
+}
+
+func (SQLComponent) Context(parent stack.InstallationContext) stack.InstallationContext {
+	return parent
 }
 
 // Stack returns the docker stack that handles the sql database.
@@ -56,7 +63,7 @@ func (sql SQLComponent) Path() string {
 // sqlOpen opens a new sql connection to the provided database using the administrative credentials
 func (sql SQLComponent) openDatabase(database string, config *gorm.Config) (*gorm.DB, error) {
 	cfg := mysql.Config{
-		DSN:               fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", sql.dis.Config.MysqlAdminUser, sql.dis.Config.MysqlAdminPassword, "127.0.0.1:3306", database),
+		DSN:               fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", sql.dis.Config.MysqlAdminUser, sql.dis.Config.MysqlAdminPassword, sql.ServerURL, database),
 		DefaultStringSize: 256,
 	}
 

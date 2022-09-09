@@ -16,6 +16,10 @@ func (SelfComponent) Name() string {
 	return "self"
 }
 
+func (SelfComponent) Context(parent stack.InstallationContext) stack.InstallationContext {
+	return parent
+}
+
 func (sc SelfComponent) Stack() stack.Installable {
 	TARGET := "https://github.com/FAU-CDI/wisski-distillery"
 	if sc.dis.Config.SelfRedirect != nil {

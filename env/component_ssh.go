@@ -20,6 +20,10 @@ func (ssh SSHComponent) Stack() stack.Installable {
 	return ssh.dis.makeComponentStack(ssh, stack.Installable{})
 }
 
+func (SSHComponent) Context(parent stack.InstallationContext) stack.InstallationContext {
+	return parent
+}
+
 func (ssh SSHComponent) Path() string {
 	return ssh.Stack().Dir
 }

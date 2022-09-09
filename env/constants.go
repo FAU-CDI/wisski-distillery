@@ -4,16 +4,13 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 )
 
-// Executable is the name of the 'wdcli' executable.
-// It should be located inside the deployment directory.
-const Executable = "wdcli"
-
 // ExecutablePath returns the path to the executable of this distillery.
 func (dis *Distillery) ExecutablePath() string {
-	return filepath.Join(dis.Config.DeployRoot, Executable)
+	return filepath.Join(dis.Config.DeployRoot, core.Executable)
 }
 
 // UsingDistilleryExecutable checks if the current process
@@ -25,12 +22,12 @@ func (dis *Distillery) UsingDistilleryExecutable() bool {
 	return fsx.SameFile(exe, dis.ExecutablePath())
 }
 
-// Config file is the name of the config file.
-// It should be located inside the deployment directory.
-const ConfigFile = ".env"
-
-// ConfigFilePath returns the path to the configuration file of this distillery.
-// TODO: This should be moved to the Config struct.
-func (dis *Distillery) ConfigFilePath() string {
-	return filepath.Join(dis.Config.DeployRoot, ConfigFile)
+// CurrentExecutable returns the path to the current executable being used.
+// When it does not exist, falls back to the default executable.
+func (dis *Distillery) CurrentExecutable() string {
+	exe, err := os.Executable()
+	if err != nil || !fsx.IsFile(exe) {
+		return dis.ExecutablePath()
+	}
+	return exe
 }

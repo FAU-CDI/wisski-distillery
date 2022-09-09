@@ -2,7 +2,7 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/env"
+	"github.com/FAU-CDI/wisski-distillery/core"
 )
 
 // Info is then 'info' command
@@ -16,7 +16,7 @@ type info struct {
 
 func (info) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: env.Requirements{
+		Requirements: core.Requirements{
 			NeedsDistillery: true,
 		},
 		Command:     "info",

@@ -24,6 +24,10 @@ func (web WebComponent) Stack() stack.Installable {
 	})
 }
 
+func (WebComponent) Context(parent stack.InstallationContext) stack.InstallationContext {
+	return parent
+}
+
 func (web WebComponent) Path() string {
 	return web.Stack().Dir
 }

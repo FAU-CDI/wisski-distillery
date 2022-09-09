@@ -10,11 +10,12 @@ import (
 
 // Stacks returns the Stacks of this distillery
 func (dis *Distillery) Components() []Component {
-	// TODO: Do we want to cache these stacks?
+	// TODO: Do we want to cache these components?
 	return []Component{
 		dis.Web(),
 		dis.Self(),
 		dis.Resolver(),
+		dis.Dis(),
 		dis.SSH(),
 		dis.Triplestore(),
 		dis.SQL(),
@@ -25,7 +26,8 @@ func (dis *Distillery) Components() []Component {
 type Component interface {
 	Name() string // Name is the name of this component
 
-	Stack() stack.Installable // Stack returns the installable stack representing this component
+	Stack() stack.Installable                                           // Stack returns the installable stack representing this component
+	Context(parent stack.InstallationContext) stack.InstallationContext // context for installation
 
 	Path() string // Path returns the path to this component
 }

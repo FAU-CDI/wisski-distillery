@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/distillery"
-	"github.com/FAU-CDI/wisski-distillery/env"
 	cfg "github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/hostname"
@@ -26,7 +26,7 @@ type bootstrap struct {
 
 func (bootstrap) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: env.Requirements{
+		Requirements: core.Requirements{
 			NeedsDistillery: false,
 		},
 		Command:     "bootstrap",
@@ -74,7 +74,7 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 
 	// check that we didn't get a different base directory
 	{
-		got, err := env.ReadBaseDirectory()
+		got, err := core.ReadBaseDirectory()
 		if err == nil && got != "" && got != root {
 			return errBootstrapDifferent.WithMessageF(got)
 		}
@@ -85,15 +85,15 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 		if err := os.MkdirAll(root, fs.ModeDir); err != nil {
 			return errBootstrapFailedToCreateDirectory.WithMessageF(root)
 		}
-		if err := env.WriteBaseDirectory(root); err != nil {
+		if err := core.WriteBaseDirectory(root); err != nil {
 			return errBootstrapFailedToSaveDirectory.WithMessageF(root)
 		}
 		context.Println(root)
 	}
 
-	// TODO: Read these from the command line?
-	wdcliPath := filepath.Join(root, env.Executable)
-	envPath := filepath.Join(root, env.ConfigFile)
+	// TODO: Should we read an existing configuration file?
+	wdcliPath := filepath.Join(root, core.Executable)
+	envPath := filepath.Join(root, core.ConfigFile)
 	domain := bs.Hostname
 	if domain == "" {
 		domain = hostname.FQDN()

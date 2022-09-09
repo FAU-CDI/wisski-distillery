@@ -8,7 +8,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/cmd"
-	"github.com/FAU-CDI/wisski-distillery/env"
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -48,6 +48,9 @@ func init() {
 	wdcli.Register(cmd.Backup)
 	wdcli.Register(cmd.Cron)
 	wdcli.Register(cmd.Monday)
+
+	// servers
+	wdcli.Register(cmd.DisServer)
 }
 
 // an error when no arguments are provided.
@@ -83,7 +86,7 @@ func main() {
 	// creat a new set of parameters
 	// and then use them to execute the main command
 	err := func() error {
-		params, err := env.ParamsFromEnv()
+		params, err := core.ParamsFromEnv()
 		if err != nil {
 			return streams.Die(err)
 		}

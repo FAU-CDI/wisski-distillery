@@ -2,7 +2,7 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/env"
+	"github.com/FAU-CDI/wisski-distillery/core"
 )
 
 // Config is the configuration command
@@ -13,7 +13,7 @@ type config struct {
 
 func (s config) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: env.Requirements{
+		Requirements: core.Requirements{
 			NeedsDistillery: true,
 		},
 		Command:     "config",

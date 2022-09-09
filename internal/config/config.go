@@ -73,6 +73,9 @@ type Config struct {
 	// admin credentials for the Mysql database
 	MysqlAdminUser     string `env:"MYSQL_ADMIN_USER" default:"admin" validator:"is_nonempty"`
 	MysqlAdminPassword string `env:"MYSQL_ADMIN_PASSWORD" default:"admin" validator:"is_nonempty"`
+
+	// ConfigPath is the path this configuration was loaded from (if any)
+	ConfigPath string
 }
 
 func (config Config) String() string {
@@ -87,7 +90,12 @@ func (config Config) String() string {
 		tField := tConfig.Field(i)
 		vField := vConfig.FieldByName(tField.Name)
 
-		fmt.Fprintf(values, "%s=%v\n", tField.Tag.Get("env"), vField.Interface())
+		env := tField.Tag.Get("env")
+		if env == "" {
+			continue
+		}
+
+		fmt.Fprintf(values, "%s=%v\n", env, vField.Interface())
 	}
 
 	return values.String()
@@ -112,6 +120,11 @@ func (config *Config) Unmarshal(src io.Reader) error {
 		env := tField.Tag.Get("env")
 		dflt := tField.Tag.Get("default")
 		validator := tField.Tag.Get("validator")
+
+		// skip it if it isn't loaded!
+		if env == "" {
+			continue
+		}
 
 		// read the value with a default
 		value, ok := values[env]

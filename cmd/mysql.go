@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/env"
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
 )
@@ -20,7 +20,7 @@ type mysql struct {
 
 func (mysql) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: env.Requirements{
+		Requirements: core.Requirements{
 			NeedsDistillery: true,
 		},
 		ParserConfig: parser.Config{

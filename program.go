@@ -3,6 +3,7 @@ package wisski_distillery
 import (
 	"os/user"
 
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/env"
 	"github.com/tkw1536/goprogram"
 	"github.com/tkw1536/goprogram/exit"
@@ -11,9 +12,9 @@ import (
 // these define the ggman-specific program types
 // none of these are strictly needed, they're just around for convenience
 type wdcliEnv = *env.Distillery
-type wdcliParameters = env.Params
-type wdcliRequirements = env.Requirements
-type wdCliFlags = struct{}
+type wdcliParameters = core.Params
+type wdcliRequirements = core.Requirements
+type wdCliFlags = core.Flags
 
 type Program = goprogram.Program[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
 type Command = goprogram.Command[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
@@ -42,7 +43,7 @@ func NewProgram() Program {
 			if context.Description.Requirements.NeedsDistillery {
 				dis := context.Environment
 				if !dis.UsingDistilleryExecutable() {
-					context.EPrintf(warnNoDeployWdcli, env.Executable, dis.ExecutablePath())
+					context.EPrintf(warnNoDeployWdcli, core.Executable, dis.ExecutablePath())
 				}
 			}
 
@@ -50,7 +51,7 @@ func NewProgram() Program {
 		},
 
 		NewEnvironment: func(params wdcliParameters, context Context) (e wdcliEnv, err error) {
-			return env.NewDistillery(params, context.Description.Requirements)
+			return env.NewDistillery(params, context.Args.Flags, context.Description.Requirements)
 		},
 	}
 }

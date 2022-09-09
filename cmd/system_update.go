@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/distillery"
-	"github.com/FAU-CDI/wisski-distillery/env"
 	"github.com/FAU-CDI/wisski-distillery/internal/execx"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
@@ -26,7 +26,7 @@ type systemupdate struct {
 
 func (systemupdate) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: env.Requirements{
+		Requirements: core.Requirements{
 			NeedsDistillery: true,
 		},
 		ParserConfig: parser.Config{
@@ -124,6 +124,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	if err := logging.LogOperation(func() error {
 		for _, component := range dis.Components() {
 			stack := component.Stack()
+			ctx := component.Context(ctx)
 			if err := logging.LogOperation(func() error {
 				return stack.Install(context.IOStream, ctx)
 			}, context.IOStream, "Installing docker stack %q", component.Name()); err != nil {
