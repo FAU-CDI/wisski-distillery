@@ -288,15 +288,16 @@ sudo /var/www/deploy/wdcli snapshot SLUG
 sudo /var/www/deploy/wdcli snapshot SLUG /path/to/snapshot.tar.gz
 ```
 
-The backup proceeeds as follows:
+The snapshot proceeeds as follows:
 1. make a copy of the instance configuration
 2. shutdown the running instance
 3. make a dump of the triplestore and mysql databases
 4. make a copy of the file system
-5. start the instance again
-6. package the data into the final `.tar.gz` file
+5. export all pathbuilders
+6. start the instance again
+7. package the data into the final `.tar.gz` file
 
-When uptime is critical, it is possible to skip sets 2 and 5 and leave the instance running.
+When uptime is critical, it is possible to skip shutting down a running instance.
 This might result in inconsistent backup data.
 To do so, run the script with the `--keepalive` flag:
 

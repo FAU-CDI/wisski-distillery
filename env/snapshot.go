@@ -86,6 +86,7 @@ type Snapshot struct {
 	ErrStop  error
 
 	ErrBookkeep    error
+	ErrPathbuilder error
 	ErrFilesystem  error
 	ErrTriplestore error
 	ErrSSQL        error
@@ -143,6 +144,24 @@ func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
 		// print whatever is in the database
 		// TODO: This should be sql code, maybe gorm can do that?
 		_, snapshot.ErrBookkeep = fmt.Fprintf(info, "%#v\n", instance.Instance)
+	}()
+
+	// write pathbuilders
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		pbPath := filepath.Join(snapshot.Description.Dest, "pathbuilders")
+		messages <- pbPath
+
+		// create the directory!
+		if err := os.Mkdir(pbPath, fs.ModeDir); err != nil {
+			snapshot.ErrPathbuilder = err
+			return
+		}
+
+		// put in all the pathbuilders
+		snapshot.ErrPathbuilder = instance.ExportPathbuilders(pbPath)
 	}()
 
 	// backup the filesystem

@@ -9,8 +9,6 @@
 - Move `provision_entrypoint.sh` into go
 - Enhance Snapshots
     - Export the Docker Images
-    - Export the XML from the Pathbuilder
-    - Snapshot the docker images being used also!
 - Avoid running `docker compose` executable and shift it to a library
 - Cleanup code: Have consistent error handling
 - Add a metadata / statistics server
