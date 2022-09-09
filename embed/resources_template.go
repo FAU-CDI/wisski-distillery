@@ -1,4 +1,4 @@
-package distillery
+package embed
 
 import (
 	"io"

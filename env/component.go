@@ -34,12 +34,15 @@ type Component interface {
 
 // asCoreStack treats the provided stack as a core component of this distillery.
 func (dis *Distillery) makeComponentStack(component Component, stack stack.Installable) stack.Installable {
+	stack.Dir = dis.getComponentPath(component)
+
 	name := component.Name()
-
-	stack.Dir = filepath.Join(dis.Config.DeployRoot, "core", name)
-
 	stack.ContextResource = filepath.Join("resources", "compose", name)
 	stack.EnvFileResource = filepath.Join("resources", "templates", "docker-env", name)
 
 	return stack
+}
+
+func (dis *Distillery) getComponentPath(component Component) string {
+	return filepath.Join(dis.Config.DeployRoot, "core", component.Name())
 }

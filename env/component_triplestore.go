@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/distillery"
+	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 	"github.com/FAU-CDI/wisski-distillery/internal/wait"
@@ -154,7 +154,7 @@ func (ts TriplestoreComponent) Provision(name, domain, user, password string) er
 	}
 
 	// prepare the create repo request
-	createRepo, err := distillery.ReadTemplate(filepath.Join("resources", "templates", "repository", "graphdb-repo.ttl"), map[string]string{
+	createRepo, err := embed.ReadTemplate(filepath.Join("resources", "templates", "repository", "graphdb-repo.ttl"), map[string]string{
 		"GRAPHDB_REPO":    name,
 		"INSTANCE_DOMAIN": domain,
 	})

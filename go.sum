@@ -1,3 +1,5 @@
+github.com/FAU-CDI/wdresolve v0.0.0-20220909150742-34bde844301d h1:boaE5bElltxs75SrC/sCjmsPmMnk0kcSuMYCjeo6pfE=
+github.com/FAU-CDI/wdresolve v0.0.0-20220909150742-34bde844301d/go.mod h1:9L2AZlOgDtg1WZ9Z1P1nBjqOY/b0mVrVE7UvO20pO2Q=
 github.com/Showmax/go-fqdn v1.0.0 h1:0rG5IbmVliNT5O19Mfuvna9LL7zlHyRfsSvBPZmF9tM=
 github.com/Showmax/go-fqdn v1.0.0/go.mod h1:SfrFBzmDCtCGrnHhoDjuvFnKsWjEQX/Q9ARZvOrJAko=
 github.com/alessio/shellescape v1.4.1 h1:V7yhSDDn8LP4lc4jS8pFkt0zCnzVJlG5JXy9BVKJUX0=

@@ -1,10 +1,16 @@
 package env
 
 import (
+	"fmt"
+	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
 
+	"github.com/FAU-CDI/wdresolve"
+	"github.com/FAU-CDI/wdresolve/resolvers"
+	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
+	"github.com/tkw1536/goprogram/stream"
 )
 
 // ResolverComponent represents the 'resolver' layer belonging to a distillery
@@ -28,28 +34,76 @@ func (ResolverComponent) Name() string {
 }
 
 func (resolver ResolverComponent) Stack() stack.Installable {
-	stack := resolver.dis.makeComponentStack(resolver, stack.Installable{
+	return resolver.dis.makeComponentStack(resolver, stack.Installable{
 		EnvFileContext: map[string]string{
 			"VIRTUAL_HOST":      resolver.dis.DefaultVirtualHost(),
 			"LETSENCRYPT_HOST":  resolver.dis.DefaultLetsencryptHost(),
 			"LETSENCRYPT_EMAIL": resolver.dis.Config.CertbotEmail,
-			"PREFIX_FILE":       "", // set below!
-			"DEFAULT_DOMAIN":    resolver.dis.Config.DefaultDomain,
-			"LEGACY_DOMAIN":     strings.Join(resolver.dis.Config.SelfExtraDomains, ","),
-		},
 
-		TouchFiles: []string{resolver.ConfigName},
+			"CONFIG_PATH": resolver.dis.Config.ConfigPath,
+			"DEPLOY_ROOT": resolver.dis.Config.DeployRoot,
+
+			"GLOBAL_AUTHORIZED_KEYS_FILE": resolver.dis.Config.GlobalAuthorizedKeysFile,
+			"SELF_OVERRIDES_FILE":         resolver.dis.Config.SelfOverridesFile,
+			"RESOLVER_CONFIG":             resolver.ConfigPath(),
+		},
+		CopyContextFiles: []string{core.Executable},
 	})
-	stack.EnvFileContext["PREFIX_FILE"] = filepath.Join(stack.Dir, resolver.ConfigName)
-	return stack
 }
 
-func (ResolverComponent) Context(parent stack.InstallationContext) stack.InstallationContext {
-	return parent
+func (resolver ResolverComponent) Context(parent stack.InstallationContext) stack.InstallationContext {
+	return stack.InstallationContext{
+		core.Executable: resolver.dis.CurrentExecutable(),
+	}
+}
+
+func (resolver ResolverComponent) Server(io stream.IOStream) (p wdresolve.ResolveHandler, err error) {
+	p.TrustXForwardedProto = true
+
+	fallback := &resolvers.Regexp{
+		Data: map[string]string{},
+	}
+
+	// handle the default domain name!
+	domainName := resolver.dis.Config.DefaultDomain
+	if domainName != "" {
+		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domainName))] = fmt.Sprintf("https://$1.%s", domainName)
+		io.Printf("registering default domain %s\n", domainName)
+	}
+
+	// handle the extra domains!
+	for _, domain := range resolver.dis.Config.SelfExtraDomains {
+		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
+		io.Printf("registering legacy domain %s\n", domain)
+	}
+
+	// open the prefix file
+	prefixFile := resolver.ConfigPath()
+	fs, err := os.Open(prefixFile)
+	io.Println("loading prefixes from ", prefixFile)
+	if err != nil {
+		return p, err
+	}
+	defer fs.Close()
+
+	// read the prefixes
+	// TODO: Do we want to load these without a file?
+	prefixes, err := resolvers.ReadPrefixes(fs)
+	if err != nil {
+		return p, err
+	}
+
+	// and use that as the resolver!
+	p.Resolver = resolvers.InOrder{
+		prefixes,
+		fallback,
+	}
+
+	return p, nil
 }
 
 func (resolver ResolverComponent) Path() string {
-	return resolver.Stack().Dir
+	return resolver.dis.getComponentPath(resolver)
 }
 
 func (resolver ResolverComponent) ConfigPath() string {

@@ -1,5 +1,5 @@
-// TODO: Rename this to resources oncen finished
-package distillery
+// Package embed contains embedded resources
+package embed
 
 import (
 	"embed"

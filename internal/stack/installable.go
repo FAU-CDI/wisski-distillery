@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/distillery"
+	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
@@ -38,7 +38,7 @@ type InstallationContext map[string]string
 // InstallationContext
 func (is Installable) Install(io stream.IOStream, context InstallationContext) error {
 	// setup the base files
-	if err := distillery.InstallResource(
+	if err := embed.InstallResource(
 		is.Dir,
 		is.ContextResource,
 		func(dst, src string) {
@@ -52,7 +52,7 @@ func (is Installable) Install(io stream.IOStream, context InstallationContext) e
 	envDest := filepath.Join(is.Dir, ".env")
 	if is.EnvFileResource != "" && is.EnvFileContext != nil {
 		io.Printf("[config]  %s\n", envDest)
-		if err := distillery.InstallTemplate(
+		if err := embed.InstallTemplate(
 			envDest,
 			is.EnvFileResource,
 			is.EnvFileContext,

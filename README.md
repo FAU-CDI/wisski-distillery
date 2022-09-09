@@ -79,7 +79,7 @@ These are:
 
   - This will delegate individual hostnames to appropriate docker containers, see [this blog post](http://jasonwilder.com/blog/2014/03/25/automated-nginx-reverse-proxy-for-docker/) for an overview.
   - Optionally makes use of [docker-letsencrypt-nginx-proxy-companion](https://github.com/nginx-proxy/docker-letsencrypt-nginx-proxy-companion) to automatically provision and renew HTTPS certificates.
-  - See [distillery/resources/compose/web](distillery/resources/compose/web) for implementation details.
+  - See [distillery/resources/compose/web](embed/resources/compose/web) for implementation details.
 
 - [MariaDB](https://mariadb.org/) - an SQL server
 
@@ -90,25 +90,30 @@ These are:
   - It is accsssible using `127.0.0.1:3306`
   - A database shell can be opened using `sudo /var/www/deploy/wdcli mysql`.
   - A [phpmyadmin](https://www.phpmyadmin.net/) is started on `127.0.0.1:8080`.
-  - See [distillery/resources/compose/sql](distillery/resources/compose/sql) for implementation details.
+  - See [distillery/resources/compose/sql](embed/resources/compose/sql) for implementation details.
 
 - [GraphDB](http://graphdb.ontotext.com/) - a SPARQL backend for WissKI (Version 10.0 or later)
   - It is configured to run inside a docker container.
   - The Workbench API is started on `127.0.0.1:7200`.
   - Security is not enabled at the moment.
-  - See [distillery/resources/compose/triplestore](distillery/resources/compose/triplestore) for implementation details.
+  - See [distillery/resources/compose/triplestore](embed/resources/compose/triplestore) for implementation details.
 
 - [proxyssh](https://github.com/tkw1536/proxyssh) - an ssh server that delegates client connections to different WissKIs
   - It is configured to run inside a docker container.
   - Uses a global configurable authorized_keys file.
   - Also allows users to write their own authorized_keys files.
-  - See [distillery/resources/compose/ssh](distillery/resources/compose/ssh) for implementation details.
+  - See [distillery/resources/compose/ssh](embed/resources/compose/ssh) for implementation details.
 
 - [wdresolve](https://github.com/FAU-CDI/wdresolve) - a global WissKI Distillery Resolver
   - It is configured to run inside a docker container
   - Uses configuration which is updated with `sudo /var/www/deploy/wdcli update_prefix_config` 
   - Running in the browser under the `/go/` path of the main domain.
-  - See [distillery/resources/compose/resolver](distillery/resources/compose/resolver) for implementation details.
+  - See [distillery/resources/compose/resolver](embed/resources/compose/resolver) for implementation details.
+
+- `dis` - a WissKI Distillery Information Server
+  - It is configured to run inside a docker container
+  - Running in the browser under the `/dis/` path of the main domain.
+  - See [distillery/resources/compose/resolver](embed/resources/compose/dis) for implementation details.
 
 To manage multiple docker containers, this script makes heavy use of [docker compose](https://docs.docker.com/compose/).
 

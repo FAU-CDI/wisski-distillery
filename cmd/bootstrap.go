@@ -7,7 +7,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/core"
-	"github.com/FAU-CDI/wisski-distillery/distillery"
+	"github.com/FAU-CDI/wisski-distillery/embed"
 	cfg "github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/hostname"
@@ -123,7 +123,7 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 					return errBootstrapWriteConfig.WithMessageF(err)
 				}
 
-				if err := distillery.InstallTemplate(envPath, filepath.Join("resources", "templates", "bootstrap", "env"), map[string]string{
+				if err := embed.InstallTemplate(envPath, filepath.Join("resources", "templates", "bootstrap", "env"), map[string]string{
 					"DEPLOY_ROOT":          root,
 					"DEFAULT_DOMAIN":       domain,
 					"SELF_OVERRIDES_FILE":  overridesPath,
@@ -146,12 +146,12 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 			if err := logging.LogOperation(func() error {
 
 				context.Println(overridesPath)
-				if err := distillery.InstallTemplate(overridesPath, filepath.Join("resources", "templates", "bootstrap", "overrides.json"), map[string]string{}); err != nil {
+				if err := embed.InstallTemplate(overridesPath, filepath.Join("resources", "templates", "bootstrap", "overrides.json"), map[string]string{}); err != nil {
 					return errBootstrapCreateFile.WithMessageF(err)
 				}
 
 				context.Println(authorizedKeysFile)
-				if err := distillery.InstallTemplate(authorizedKeysFile, filepath.Join("resources", "templates", "bootstrap", "global_authorized_keys"), map[string]string{}); err != nil {
+				if err := embed.InstallTemplate(authorizedKeysFile, filepath.Join("resources", "templates", "bootstrap", "global_authorized_keys"), map[string]string{}); err != nil {
 					return errBootstrapCreateFile.WithMessageF(err)
 				}
 
