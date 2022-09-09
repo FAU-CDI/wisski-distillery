@@ -3,6 +3,7 @@ module github.com/FAU-CDI/wisski-distillery
 go 1.18
 
 require (
+	github.com/FAU-CDI/wdresolve v0.0.0-20220909150742-34bde844301d
 	github.com/Showmax/go-fqdn v1.0.0
 	github.com/alessio/shellescape v1.4.1
 	github.com/feiin/sqlstring v0.3.0
@@ -14,7 +15,6 @@ require (
 )
 
 require (
-	github.com/FAU-CDI/wdresolve v0.0.0-20220909150742-34bde844301d // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
