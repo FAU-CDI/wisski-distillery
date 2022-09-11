@@ -11,7 +11,6 @@ import (
 	"github.com/FAU-CDI/wdresolve/resolvers"
 	"github.com/FAU-CDI/wisski-distillery/component"
 	"github.com/FAU-CDI/wisski-distillery/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -35,8 +34,8 @@ func (resolver Resolver) ConfigPath() string {
 //go:embed all:stack resolver.env
 var resources embed.FS
 
-func (resolver Resolver) Stack() stack.Installable {
-	return resolver.ComponentBase.MakeStack(stack.Installable{
+func (resolver Resolver) Stack() component.Installable {
+	return resolver.ComponentBase.MakeStack(component.Installable{
 		Resources:   resources,
 		ContextPath: "stack",
 		EnvPath:     "resolver.env",
@@ -58,8 +57,8 @@ func (resolver Resolver) Stack() stack.Installable {
 	})
 }
 
-func (resolver Resolver) Context(parent stack.InstallationContext) stack.InstallationContext {
-	return stack.InstallationContext{
+func (resolver Resolver) Context(parent component.InstallationContext) component.InstallationContext {
+	return component.InstallationContext{
 		core.Executable: resolver.Executable,
 	}
 }

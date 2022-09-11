@@ -11,10 +11,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/component"
 	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 	"github.com/alessio/shellescape"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/exit"
@@ -229,9 +229,9 @@ func (instance Instance) URL() *url.URL {
 }
 
 // Stack represents a stack representing this instance
-func (instance Instance) Stack() stack.Installable {
-	return stack.Installable{
-		Stack: stack.Stack{
+func (instance Instance) Stack() component.Installable {
+	return component.Installable{
+		Stack: component.Stack{
 			Dir: instance.FilesystemBase,
 		},
 		Resources:   embed.ResourceEmbed, // TODO: Move this over
@@ -260,9 +260,9 @@ func (instance Instance) Stack() stack.Installable {
 	}
 }
 
-func (instance Instance) ReserveStack() stack.Installable {
-	return stack.Installable{
-		Stack: stack.Stack{
+func (instance Instance) ReserveStack() component.Installable {
+	return component.Installable{
+		Stack: component.Stack{
 			Dir: instance.FilesystemBase,
 		},
 		ContextPath: filepath.Join("resources", "compose", "reserve"),
@@ -282,7 +282,7 @@ func (instance Instance) Provision(io stream.IOStream) error {
 
 	// create the basic st!
 	st := instance.Stack()
-	if err := st.Install(io, stack.InstallationContext{}); err != nil {
+	if err := st.Install(io, component.InstallationContext{}); err != nil {
 		return err
 	}
 

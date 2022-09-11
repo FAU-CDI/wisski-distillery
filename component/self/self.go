@@ -4,7 +4,6 @@ import (
 	"embed"
 
 	"github.com/FAU-CDI/wisski-distillery/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
 type Self struct {
@@ -19,14 +18,14 @@ func (Self) Name() string {
 //go:embed self.env
 var resources embed.FS
 
-func (self Self) Stack() stack.Installable {
+func (self Self) Stack() component.Installable {
 	// TODO: Move me into config!
 	TARGET := "https://github.com/FAU-CDI/wisski-distillery"
 	if self.Config.SelfRedirect != nil { // TODO: move to config!
 		TARGET = self.Config.SelfRedirect.String()
 	}
 
-	return self.ComponentBase.MakeStack(stack.Installable{
+	return self.ComponentBase.MakeStack(component.Installable{
 		Resources: resources,
 
 		ContextPath: "stack",

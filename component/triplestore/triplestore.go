@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
 type Triplestore struct {
@@ -27,8 +26,8 @@ func (Triplestore) Name() string {
 //go:embed all:stack
 var resources embed.FS
 
-func (ts Triplestore) Stack() stack.Installable {
-	return ts.ComponentBase.MakeStack(stack.Installable{
+func (ts Triplestore) Stack() component.Installable {
+	return ts.ComponentBase.MakeStack(component.Installable{
 		Resources:   resources,
 		ContextPath: "stack",
 

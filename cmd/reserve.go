@@ -2,10 +2,10 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/component"
 	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -66,7 +66,7 @@ func (r reserve) Run(context wisski_distillery.Context) error {
 	s := instance.ReserveStack()
 	{
 		if err := logging.LogOperation(func() error {
-			return s.Install(context.IOStream, stack.InstallationContext{})
+			return s.Install(context.IOStream, component.InstallationContext{})
 		}, context.IOStream, "Installing docker stack"); err != nil {
 			return err
 		}

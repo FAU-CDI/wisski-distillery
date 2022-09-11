@@ -5,11 +5,11 @@ import (
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/component"
 	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/execx"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 	"github.com/FAU-CDI/wisski-distillery/internal/unpack"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
@@ -118,7 +118,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	si.mustExec(context, "", "docker", "network", "create", "distillery")
 
 	// install and update the various stacks!
-	ctx := stack.InstallationContext{
+	ctx := component.InstallationContext{
 		"graphdb.zip": si.Positionals.GraphdbZip,
 	}
 

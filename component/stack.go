@@ -1,5 +1,5 @@
 // Package stack implements a docker compose stack
-package stack
+package component
 
 import (
 	"errors"

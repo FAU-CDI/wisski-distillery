@@ -3,7 +3,6 @@ package component
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
 // Component represents a logical subsystem of the distillery.
@@ -30,11 +29,11 @@ type Component interface {
 	// Stack can be used to gain access to the "docker compose" stack.
 	//
 	// This should internally call
-	Stack() stack.Installable
+	Stack() Installable
 
 	// Context returns a new InstallationContext to be used during installation from the command line.
 	// Typically this should just pass through the parent, but might perform other tasks.
-	Context(parent stack.InstallationContext) stack.InstallationContext
+	Context(parent InstallationContext) InstallationContext
 }
 
 // ComponentBase implements base functionality for a component
@@ -50,12 +49,12 @@ func (cb ComponentBase) Path() string {
 }
 
 // Context passes through the parent context
-func (ComponentBase) Context(parent stack.InstallationContext) stack.InstallationContext {
+func (ComponentBase) Context(parent InstallationContext) InstallationContext {
 	return parent
 }
 
 // MakeStack registers the Installable as a stack
-func (cb ComponentBase) MakeStack(stack stack.Installable) stack.Installable {
+func (cb ComponentBase) MakeStack(stack Installable) Installable {
 	stack.Dir = cb.Dir
 	return stack
 }

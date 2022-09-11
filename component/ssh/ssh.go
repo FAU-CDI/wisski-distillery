@@ -4,7 +4,6 @@ import (
 	"embed"
 
 	"github.com/FAU-CDI/wisski-distillery/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
 type SSH struct {
@@ -18,8 +17,8 @@ func (SSH) Name() string {
 //go:embed all:stack
 var resources embed.FS
 
-func (ssh SSH) Stack() stack.Installable {
-	return ssh.ComponentBase.MakeStack(stack.Installable{
+func (ssh SSH) Stack() component.Installable {
+	return ssh.ComponentBase.MakeStack(component.Installable{
 		Resources:   resources,
 		ContextPath: "stack",
 	})

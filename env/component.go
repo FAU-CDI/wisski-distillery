@@ -12,8 +12,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/component/web"
-	"github.com/FAU-CDI/wisski-distillery/embed"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
 // TODO: Remove me when migration is complete
@@ -92,28 +90,6 @@ func (dis *Distillery) Triplestore() (ts triplestore.Triplestore) {
 
 // makeComponent updates the baseComponent belonging to component
 func (dis *Distillery) makeComponent(component component.Component, base *component.ComponentBase) {
-	base.Dir = dis.getComponentPath(component)
 	base.Config = dis.Config
-}
-
-// asCoreStack treats the provided stack as a core component of this distillery.
-// TODO: this should no longer be used
-func (dis *Distillery) makeComponentStack(component Component, stack stack.Installable) stack.Installable {
-	stack.Dir = dis.getComponentPath(component)
-
-	name := component.Name()
-
-	// TODO: This writes out resources.
-	// Should migrate this directly!
-	if stack.Resources == nil {
-		stack.Resources = embed.ResourceEmbed
-		stack.ContextPath = filepath.Join("resources", "compose", name)
-		stack.EnvPath = filepath.Join("resources", "templates", "docker-env", name)
-	}
-
-	return stack
-}
-
-func (dis *Distillery) getComponentPath(component Component) string {
-	return filepath.Join(dis.Config.DeployRoot, "core", component.Name())
+	base.Dir = filepath.Join(dis.Config.DeployRoot, "core", component.Name())
 }

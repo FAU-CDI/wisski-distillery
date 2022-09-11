@@ -12,7 +12,7 @@ import (
 // Distillery represents a running instance for the distillery
 type Distillery struct {
 	Config   *config.Config
-	Upstream Upstream
+	Upstream Upstream // TODO: not sure this belongs here
 }
 
 // Upstream are the upstream urls connecting to the various external components.

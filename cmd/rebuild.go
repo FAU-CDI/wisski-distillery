@@ -2,9 +2,9 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/component"
 	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -44,7 +44,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) error {
 		logging.LogOperation(func() error {
 			s := instance.Stack()
 			if err := logging.LogOperation(func() error {
-				return s.Install(context.IOStream, stack.InstallationContext{})
+				return s.Install(context.IOStream, component.InstallationContext{})
 			}, context.IOStream, "Installing docker stack"); err != nil {
 				globalErr = err
 				return err

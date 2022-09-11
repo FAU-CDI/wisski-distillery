@@ -1,4 +1,4 @@
-package stack
+package component
 
 import (
 	"io/fs"

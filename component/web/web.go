@@ -4,7 +4,6 @@ import (
 	"embed"
 
 	"github.com/FAU-CDI/wisski-distillery/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
 // Web implements the web component
@@ -20,13 +19,13 @@ func (Web) Name() string {
 //go:embed web.env
 var resources embed.FS
 
-func (web Web) Stack() stack.Installable {
+func (web Web) Stack() component.Installable {
 	HTTPS_METHOD := "nohttp"
 	if web.Config.HTTPSEnabled() {
 		HTTPS_METHOD = "redirect"
 	}
 
-	return web.MakeStack(stack.Installable{
+	return web.MakeStack(component.Installable{
 		Resources:   resources,
 		ContextPath: "stack",
 		EnvPath:     "web.env",

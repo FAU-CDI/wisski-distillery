@@ -5,7 +5,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/component"
 	"github.com/FAU-CDI/wisski-distillery/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
 type Dis struct {
@@ -23,8 +22,8 @@ func (dis Dis) Name() string {
 //go:embed all:stack dis.env
 var resources embed.FS
 
-func (dis Dis) Stack() stack.Installable {
-	return dis.ComponentBase.MakeStack(stack.Installable{
+func (dis Dis) Stack() component.Installable {
+	return dis.ComponentBase.MakeStack(component.Installable{
 		Resources:   resources,
 		ContextPath: "stack",
 		EnvPath:     "dis.env",
@@ -44,8 +43,8 @@ func (dis Dis) Stack() stack.Installable {
 	})
 }
 
-func (dis Dis) Context(parent stack.InstallationContext) stack.InstallationContext {
-	return stack.InstallationContext{
+func (dis Dis) Context(parent component.InstallationContext) component.InstallationContext {
+	return component.InstallationContext{
 		core.Executable: dis.Executable,
 	}
 }

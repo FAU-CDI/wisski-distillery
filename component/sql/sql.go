@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
 type SQL struct {
@@ -26,8 +25,8 @@ func (SQL) Name() string {
 //go:embed all:stack
 var resources embed.FS
 
-func (ssh SQL) Stack() stack.Installable {
-	return ssh.ComponentBase.MakeStack(stack.Installable{
+func (ssh SQL) Stack() component.Installable {
+	return ssh.ComponentBase.MakeStack(component.Installable{
 		Resources:   resources,
 		ContextPath: "stack",
 
