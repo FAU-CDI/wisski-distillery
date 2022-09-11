@@ -55,9 +55,9 @@ func (ds Stack) Update(io stream.IOStream, start bool) error {
 var errStackUp = errors.New("Stack.Up: Up returned non-zero exit code")
 
 // Up creates and starts the containers in this Stack.
-// It is equivalent to 'docker compose up -d' on the shell.
+// It is equivalent to 'docker compose up --remove-orphans --detach' on the shell.
 func (ds Stack) Up(io stream.IOStream) error {
-	code, err := ds.compose(io, "up", "-d")
+	code, err := ds.compose(io, "up", "--remove-orphans", "--detach")
 	if err != nil {
 		return err
 	}

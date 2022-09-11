@@ -5,6 +5,7 @@ services:
     image: ghcr.io/nginx-proxy/nginx-proxy:alpine
     environment:
       - DEFAULT_HOST=${DEFAULT_HOST}
+      - HTTPS_METHOD=${HTTPS_METHOD}
     ports:
       - "80:80"
       - "443:443"

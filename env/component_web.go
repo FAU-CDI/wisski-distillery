@@ -17,9 +17,15 @@ func (WebComponent) Name() string {
 }
 
 func (web WebComponent) Stack() stack.Installable {
+	HTTPS_METHOD := "nohttp"
+	if web.dis.HTTPSEnabled() {
+		HTTPS_METHOD = "redirect"
+	}
+
 	return web.dis.makeComponentStack(web, stack.Installable{
 		EnvContext: map[string]string{
 			"DEFAULT_HOST": web.dis.Config.DefaultDomain,
+			"HTTPS_METHOD": HTTPS_METHOD,
 		},
 	})
 }
