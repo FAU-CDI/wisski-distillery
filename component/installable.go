@@ -45,7 +45,7 @@ type InstallationContext map[string]string
 func (is Installable) Install(io stream.IOStream, context InstallationContext) error {
 	if is.ContextPath != "" {
 		// setup the base files
-		if err := unpack.InstallResource(
+		if err := unpack.InstallDir(
 			is.Dir,
 			is.ContextPath,
 			is.Resources,

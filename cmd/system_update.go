@@ -142,7 +142,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		return unpack.InstallResource(dis.RuntimeDir(), "runtime", core.Runtime, func(dst, src string) {
+		return unpack.InstallDir(dis.RuntimeDir(), "runtime", core.Runtime, func(dst, src string) {
 			context.Printf("[copy]  %s\n", dst)
 		})
 	}, context.IOStream, "Unpacking Runtime Components"); err != nil {

@@ -1,12 +1,16 @@
 package unpack
 
 import (
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
 
 	"github.com/pkg/errors"
 )
+
+var errExpectedFileButGotDirectory = errors.New("expected a file, but got a directory")
+var errExpectedDirectoryButGotFile = errors.New("expected a directory, but got a file")
 
 // InstallDir installs the directory at src within fsys to dst.
 //
@@ -42,6 +46,38 @@ func InstallDir(dst string, src string, fsys fs.FS, onInstallFile func(dst, src 
 	return installDir(dst, srcInfo, srcFile.(fs.ReadDirFile), src, fsys, onInstallFile)
 }
 
+// installResource installs the resource at src within fsys to dst.
+//
+// OnInstallFile is called for each source and destination file.
+// OnInstallFile may be nil.
+func installResource(dst string, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
+	// open the srcFile
+	srcFile, err := fsys.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	// stat it!
+	srcInfo, err := srcFile.Stat()
+	if err != nil {
+		return err
+	}
+
+	// call the hook (if any)
+	if onInstallFile != nil {
+		onInstallFile(dst, src)
+	}
+
+	// this is a directory, so the cast is safe!
+	if srcInfo.IsDir() {
+		return installDir(dst, srcInfo, srcFile.(fs.ReadDirFile), src, fsys, onInstallFile)
+	}
+
+	// this is a regular file!
+	return installFile(dst, srcInfo, srcFile)
+}
+
 func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
 	// create the destination
 	dstStat, dstErr := os.Stat(dst)
@@ -68,7 +104,7 @@ func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src str
 
 	// iterate over all the children
 	for _, entry := range entries {
-		if err := InstallResource(
+		if err := installResource(
 			filepath.Join(dst, entry.Name()),
 			filepath.Join(src, entry.Name()),
 			fsys,
@@ -79,4 +115,17 @@ func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src str
 	}
 
 	return nil
+}
+
+func installFile(dst string, srcInfo fs.FileInfo, src fs.File) error {
+	// create the file using the right mode!
+	file, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, srcInfo.Mode())
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// copy over the content!
+	_, err = io.Copy(file, src)
+	return errors.Wrapf(err, "Error writing to destination %s", dst)
 }

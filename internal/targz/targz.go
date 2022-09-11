@@ -1,3 +1,4 @@
+// Package targz provides facilities for packaging tar.gz files
 package targz
 
 import (
@@ -9,7 +10,9 @@ import (
 	"path/filepath"
 )
 
-// Package packages the directory src into dst.
+// Package packages the source directory into a 'tar.gz' file into destination.
+// If the destination already exists, it is truncated.
+//
 // onCopy, when not nil, is called for each file being copied into the archive.
 func Package(dst, src string, onCopy func(rel string, src string)) (count int64, err error) {
 	// create the target archive
