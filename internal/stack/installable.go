@@ -7,6 +7,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
+	"github.com/FAU-CDI/wisski-distillery/internal/unpack"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -16,10 +17,14 @@ import (
 type Installable struct {
 	Stack
 
-	ContextResource string // Path to the resource containing 'docker compose' context
-
-	EnvFileResource string            // Path to the resource containing dynamically generated env file
-	EnvFileContext  map[string]string // Context of variables to replace in the env file
+	// Installable enabled installing several resources from a (potentially embedded) filesystem.
+	//
+	// The Resources holds these, with appropriate resources specified below.
+	// These all refer to paths within the Resource filesystem.
+	Resources   fs.FS
+	ContextPath string            // the 'docker compose' stack context, containing e.g. 'docker-compose.yml'.
+	EnvPath     string            // the '.env' template, will be installed using [unpack.InstallTemplate].
+	EnvContext  map[string]string // context when instantiating the '.env' template
 
 	CopyContextFiles []string // Files to copy from the installation context
 
@@ -40,7 +45,7 @@ func (is Installable) Install(io stream.IOStream, context InstallationContext) e
 	// setup the base files
 	if err := embed.InstallResource(
 		is.Dir,
-		is.ContextResource,
+		is.ContextPath,
 		func(dst, src string) {
 			io.Printf("[install] %s\n", dst)
 		},
@@ -50,12 +55,13 @@ func (is Installable) Install(io stream.IOStream, context InstallationContext) e
 
 	// configure .env
 	envDest := filepath.Join(is.Dir, ".env")
-	if is.EnvFileResource != "" && is.EnvFileContext != nil {
+	if is.EnvPath != "" && is.EnvContext != nil {
 		io.Printf("[config]  %s\n", envDest)
-		if err := embed.InstallTemplate(
+		if err := unpack.InstallTemplate(
 			envDest,
-			is.EnvFileResource,
-			is.EnvFileContext,
+			is.EnvContext,
+			is.EnvPath,
+			is.Resources,
 		); err != nil {
 			return err
 		}

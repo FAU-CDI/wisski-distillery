@@ -3,6 +3,7 @@ package env
 import (
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 )
 
@@ -37,8 +38,14 @@ func (dis *Distillery) makeComponentStack(component Component, stack stack.Insta
 	stack.Dir = dis.getComponentPath(component)
 
 	name := component.Name()
-	stack.ContextResource = filepath.Join("resources", "compose", name)
-	stack.EnvFileResource = filepath.Join("resources", "templates", "docker-env", name)
+
+	// TODO: This writes out resources.
+	// Should migrate this directly!
+	if stack.Resources == nil {
+		stack.Resources = embed.ResourceEmbed
+		stack.ContextPath = filepath.Join("resources", "compose", name)
+		stack.EnvPath = filepath.Join("resources", "templates", "docker-env", name)
+	}
 
 	return stack
 }

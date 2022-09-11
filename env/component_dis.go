@@ -21,7 +21,7 @@ func (DisComponent) Name() string {
 
 func (dis DisComponent) Stack() stack.Installable {
 	return dis.dis.makeComponentStack(dis, stack.Installable{
-		EnvFileContext: map[string]string{
+		EnvContext: map[string]string{
 			"VIRTUAL_HOST":      dis.dis.DefaultVirtualHost(),
 			"LETSENCRYPT_HOST":  dis.dis.DefaultLetsencryptHost(),
 			"LETSENCRYPT_EMAIL": dis.dis.Config.CertbotEmail,

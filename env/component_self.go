@@ -27,7 +27,7 @@ func (sc SelfComponent) Stack() stack.Installable {
 	}
 
 	return sc.dis.makeComponentStack(sc, stack.Installable{
-		EnvFileContext: map[string]string{
+		EnvContext: map[string]string{
 			"VIRTUAL_HOST":      sc.dis.DefaultVirtualHost(),
 			"LETSENCRYPT_HOST":  sc.dis.DefaultLetsencryptHost(),
 			"LETSENCRYPT_EMAIL": sc.dis.Config.CertbotEmail,

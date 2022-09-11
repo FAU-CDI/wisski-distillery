@@ -13,8 +13,10 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/embed"
+	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
+	"github.com/FAU-CDI/wisski-distillery/internal/unpack"
 	"github.com/FAU-CDI/wisski-distillery/internal/wait"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/exit"
@@ -154,10 +156,14 @@ func (ts TriplestoreComponent) Provision(name, domain, user, password string) er
 	}
 
 	// prepare the create repo request
-	createRepo, err := embed.ReadTemplate(filepath.Join("resources", "templates", "repository", "graphdb-repo.ttl"), map[string]string{
-		"GRAPHDB_REPO":    name,
-		"INSTANCE_DOMAIN": domain,
-	})
+	// TODO: Move this into a seperate file
+	createRepo, _, err := unpack.UnpackTemplate(
+		map[string]string{
+			"GRAPHDB_REPO":    name,
+			"INSTANCE_DOMAIN": domain,
+		},
+		fsx.OpenFS(filepath.Join("resources", "templates", "repository", "graphdb-repo.ttl"), embed.ResourceEmbed),
+	)
 	if err != nil {
 		return err
 	}

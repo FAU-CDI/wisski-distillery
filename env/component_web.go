@@ -18,7 +18,7 @@ func (WebComponent) Name() string {
 
 func (web WebComponent) Stack() stack.Installable {
 	return web.dis.makeComponentStack(web, stack.Installable{
-		EnvFileContext: map[string]string{
+		EnvContext: map[string]string{
 			"DEFAULT_HOST": web.dis.Config.DefaultDomain,
 		},
 	})

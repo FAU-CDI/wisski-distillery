@@ -3,119 +3,140 @@ package unpack
 
 import (
 	"bufio"
-	"bytes"
+	"fmt"
 	"io"
-	"io/fs"
 	"strings"
 
-	"github.com/pkg/errors"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
 
-var errExpectedFileButGotDirectory = errors.New("Expected a file, but got a directory")
-
-// UnpackTemplate unpacks the given file template and template
-func UnpackTemplate(context map[string]string, src fs.File) ([]byte, fs.FileMode, error) {
-	// stat the source file to install
-	srcStat, srcErr := src.Stat()
-	if srcErr != nil {
-		return nil, 0, errors.Wrapf(srcErr, "Error calling stat on source")
-	}
-
-	// should not be a directory
-	if srcStat.IsDir() {
-		return nil, 0, errors.Wrapf(errExpectedFileButGotDirectory, "Error calling stat on source %s", srcStat.Name())
-	}
-
-	// read all the bytes into a buffer
-	var buffer bytes.Buffer
-	WriteTemplate(&buffer, context, src)
-	return buffer.Bytes(), srcStat.Mode(), nil
-}
-
-type templateMode int
+// ts represents state of the template parser
+type ts int
 
 const (
-	templateModeNormal templateMode = iota // normal mode
-	templateModeDollar                     // saw '$'
-	templateModeOpen                       // saw '${'
+	tsGobble    ts = iota // gobble into dst
+	tsSawDollar           // saw a '$'
+	tsGobbleVar           // gobble into var
 )
+
+// MissingTemplateKeyError indicates [WriteTemplate] found missing keys in the context
+type MissingTemplateKeyError struct {
+	Keys []string
+}
+
+func (mtke MissingTemplateKeyError) Error() string {
+	return fmt.Sprintf("missing template keys from context: %v", mtke.Keys)
+}
+
+// UnusuedTemplateKeyError indicates [WriteTemplate] found unusued keys in the context
+type UnusuedTemplateKeyError struct {
+	Keys []string
+}
+
+func (utke UnusuedTemplateKeyError) Error() string {
+	return fmt.Sprintf("unused template keys from context: %v", utke.Keys)
+}
 
 // WriteTemplate writes the template defined by src with the given context into reader.
 //
 // To run the template, variables of the form ${NAME} are replaced with their corresponding value from the context.
 //
-// Extra or missing variables from the context are an error.
+// If an underlying read or write fails, it is returned as is.
+// Missing template keys return a [MissingTemplateKeyError], but are replaced with the empty string.
+// Unused template keys return a [UnusuedTemplateKeyError], but are replaced with the empty string.
+//
+// Reader / Writer errors are always returned first; next missing template keys, and finally unused template keys.
 func WriteTemplate(dst io.Writer, context map[string]string, src io.Reader) error {
-	// keep track of context keys that have not been used
-	unuusedContext := make(map[string]struct{}, len(context))
+
+	// We keep track of contect keys that have not been used.
+	//
+	// We first fill the map with all the keys from the context.
+	// Then when we use a key, we delete it from the map.
+	// If there are any keys left at the end of the replacement, that is an error.
+	unusedKeys := make(map[string]struct{}, len(context))
 	for key := range context {
-		unuusedContext[key] = struct{}{}
+		unusedKeys[key] = struct{}{}
 	}
 
-	reader := bufio.NewReader(src) // a new reader
-	var missingKeyErr error        // error for missing keys
-	var builder strings.Builder    // holding variable names
-	mode := templateModeNormal     // the current mode of the reader
+	// When we encounter a missing key, put it into this map.
+	// This is so that we can build an error message below.
+	missingKeys := make(map[string]struct{}, 0)
+
+	// We use a new bufio reader to read data from the input.
+	// This is a cheap trick to get a ReadRune() method.
+	reader := bufio.NewReader(src)
+
+	//
+	// MAIN PARSING LOOP
+	//
+
+	// start out in gobble mode!
+	mode := tsGobble
+
+	// keep track of variable names
+	var varB strings.Builder
+
 parseloop:
 	for {
 		r, _, err := reader.ReadRune()
 		switch {
 		case err == io.EOF:
-			/* finished the source, see below */
+			// finished parsing the source
 			break parseloop
 		case err != nil:
-			/* something went wrong */
+			// the reader broke
 			return err
 
-		case mode == templateModeNormal && r == '$':
-			// saw a '$' in normal mode
-			// => switch to the dollar mode
-			mode = templateModeDollar
-		case mode == templateModeNormal:
-			// saw anything else
-			// => just pass it through
+		case mode == tsGobble && r == '$':
+			// saw a '$' in gobble mode
+			mode = tsSawDollar
+		case mode == tsGobble:
+			// normal gobbleing
+			// => pass it through
 			if _, err := dst.Write([]byte{byte(r)}); err != nil {
 				return err
 			}
 
-		case mode == templateModeDollar && r == '{':
+		case mode == tsSawDollar && r == '{':
 			// saw '{', following the '$'
 			// => read everything else into the buffer
-			mode = templateModeOpen
-		case mode == templateModeDollar && r == '$':
+			mode = tsGobbleVar
+		case mode == tsSawDollar && r == '$':
 			// saw a '$' following the '$'
 			// => write the first '$', and handle the case $${stuff}
 			if _, err := dst.Write([]byte("$")); err != nil {
 				return err
 			}
-		case mode == templateModeDollar:
+		case mode == tsSawDollar:
 			// saw anything else following the '$'
-			// => write both back and switch back to normal mode
+			// => write both back and switch back to gobble mode
 			if _, err := dst.Write([]byte{byte('$'), byte(r)}); err != nil {
 				return err
 			}
-			mode = templateModeNormal
+			mode = tsGobble
 
-		case mode == templateModeOpen && r != '}':
+		case mode == tsGobbleVar && r != '}':
 			// saw anything except for closing bracket
 			// => keep it in the buffer
-			if _, err := builder.WriteRune(r); err != nil {
+			if _, err := varB.WriteRune(r); err != nil {
 				return err
 			}
 
-		case mode == templateModeOpen:
-			// saw a closing '}' inside the open mode
+		case mode == tsGobbleVar:
+			// saw a closing '}' inside tsGobbleVar mode
 			// => use the variable
 
-			name := builder.String()
-			delete(unuusedContext, name) // mark the variable as used
+			name := varB.String()
 
 			// get the variable from the context
 			value, ok := context[name]
-			if missingKeyErr != nil && !ok {
-				missingKeyErr = errors.Errorf("key %s missing in context", name)
+
+			delete(unusedKeys, name) // mark the variable as used!
+			if !ok {
+				// store unusued variables
+				missingKeys[name] = struct{}{}
+				value = ""
 			}
 
 			// write the replacement into the string
@@ -124,48 +145,51 @@ parseloop:
 			}
 
 			// reset the builder and go back into normal mode
-			builder.Reset()
-			mode = templateModeNormal
-
-		default:
-			panic("never reached")
+			varB.Reset()
+			mode = tsGobble
 		}
 	}
 
-	// cleanup at end of input
+	//
+	// CLEANUP UNUSUED INPUT
+	//
 
 	switch mode {
-	case templateModeNormal:
-		// => everything is fine
-	case templateModeDollar:
+	case tsSawDollar:
 		// we had a '$', but no '{'
 		// => write the trailing '$' into dest
 		if _, err := dst.Write([]byte("$")); err != nil {
 			return err
 		}
-	case templateModeOpen:
+	case tsGobbleVar:
 		// we had a "${", followed by somthing unclosed
 		// => write everything back into the dst
 		if _, err := dst.Write([]byte("${")); err != nil {
 			return err
 		}
-		if _, err := io.WriteString(dst, builder.String()); err != nil {
+		if _, err := io.WriteString(dst, varB.String()); err != nil {
 			return err
 		}
-	default:
-		panic("never reached")
 	}
 
-	// check if there was a missing key!
-	if missingKeyErr != nil {
-		return missingKeyErr
-	}
-
-	// check if there was an unused key!
-	if len(unuusedContext) != 0 {
-		keys := maps.Keys(unuusedContext)
+	// Check if there were missing template keys.
+	// If so, we sort them and return an appropriate error.
+	if len(missingKeys) != 0 {
+		keys := maps.Keys(unusedKeys)
 		slices.Sort(keys)
-		return errors.Errorf("additional keys %s in context", strings.Join(keys, ","))
+		return MissingTemplateKeyError{
+			Keys: keys,
+		}
+	}
+
+	// Check if there were unused template keys.
+	// If so, we sort them and return an appropriate error.
+	if len(unusedKeys) != 0 {
+		keys := maps.Keys(unusedKeys)
+		slices.Sort(keys)
+		return UnusuedTemplateKeyError{
+			Keys: keys,
+		}
 	}
 
 	return nil

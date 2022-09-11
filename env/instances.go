@@ -233,10 +233,10 @@ func (instance Instance) Stack() stack.Installable {
 		Stack: stack.Stack{
 			Dir: instance.FilesystemBase,
 		},
-		ContextResource: filepath.Join("resources", "compose", "barrel"),
+		ContextPath: filepath.Join("resources", "compose", "barrel"),
 
-		EnvFileResource: filepath.Join("resources", "templates", "docker-env", "barrel"),
-		EnvFileContext: map[string]string{
+		EnvPath: filepath.Join("resources", "templates", "docker-env", "barrel"),
+		EnvContext: map[string]string{
 			"DATA_PATH": filepath.Join(instance.FilesystemBase, "data"),
 
 			"SLUG":         instance.Slug,
@@ -263,10 +263,10 @@ func (instance Instance) ReserveStack() stack.Installable {
 		Stack: stack.Stack{
 			Dir: instance.FilesystemBase,
 		},
-		ContextResource: filepath.Join("resources", "compose", "reserve"),
+		ContextPath: filepath.Join("resources", "compose", "reserve"),
 
-		EnvFileResource: filepath.Join("resources", "templates", "docker-env", "reserve"),
-		EnvFileContext: map[string]string{
+		EnvPath: filepath.Join("resources", "templates", "docker-env", "reserve"),
+		EnvContext: map[string]string{
 			"VIRTUAL_HOST": instance.Domain(),
 
 			"LETSENCRYPT_HOST":  instance.dis.IfHttps(instance.Domain()),

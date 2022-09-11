@@ -35,7 +35,7 @@ func (ResolverComponent) Name() string {
 
 func (resolver ResolverComponent) Stack() stack.Installable {
 	return resolver.dis.makeComponentStack(resolver, stack.Installable{
-		EnvFileContext: map[string]string{
+		EnvContext: map[string]string{
 			"VIRTUAL_HOST":      resolver.dis.DefaultVirtualHost(),
 			"LETSENCRYPT_HOST":  resolver.dis.DefaultLetsencryptHost(),
 			"LETSENCRYPT_EMAIL": resolver.dis.Config.CertbotEmail,
@@ -47,6 +47,7 @@ func (resolver ResolverComponent) Stack() stack.Installable {
 			"SELF_OVERRIDES_FILE":         resolver.dis.Config.SelfOverridesFile,
 			"RESOLVER_CONFIG":             resolver.ConfigPath(),
 		},
+		TouchFiles:       []string{resolver.ConfigName},
 		CopyContextFiles: []string{core.Executable},
 	})
 }

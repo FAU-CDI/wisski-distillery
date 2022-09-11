@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/hostname"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
 	"github.com/FAU-CDI/wisski-distillery/internal/password"
+	"github.com/FAU-CDI/wisski-distillery/internal/unpack"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -123,18 +124,23 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 					return errBootstrapWriteConfig.WithMessageF(err)
 				}
 
-				if err := embed.InstallTemplate(envPath, filepath.Join("resources", "templates", "bootstrap", "env"), map[string]string{
-					"DEPLOY_ROOT":          root,
-					"DEFAULT_DOMAIN":       domain,
-					"SELF_OVERRIDES_FILE":  overridesPath,
-					"AUTHORIZED_KEYS_FILE": authorizedKeysFile,
+				if err := unpack.InstallTemplate(
+					envPath,
+					map[string]string{
+						"DEPLOY_ROOT":          root,
+						"DEFAULT_DOMAIN":       domain,
+						"SELF_OVERRIDES_FILE":  overridesPath,
+						"AUTHORIZED_KEYS_FILE": authorizedKeysFile,
 
-					"GRAPHDB_ADMIN_USER":     "admin",
-					"GRAPHDB_ADMIN_PASSWORD": password[:64],
+						"GRAPHDB_ADMIN_USER":     "admin",
+						"GRAPHDB_ADMIN_PASSWORD": password[:64],
 
-					"MYSQL_ADMIN_USER":     "admin",
-					"MYSQL_ADMIN_PASSWORD": password[64:],
-				}); err != nil {
+						"MYSQL_ADMIN_USER":     "admin",
+						"MYSQL_ADMIN_PASSWORD": password[64:],
+					},
+					filepath.Join("resources", "templates", "bootstrap", "env"),
+					embed.ResourceEmbed,
+				); err != nil {
 					return errBootstrapWriteConfig.WithMessageF(err)
 				}
 
@@ -146,12 +152,18 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 			if err := logging.LogOperation(func() error {
 
 				context.Println(overridesPath)
-				if err := embed.InstallTemplate(overridesPath, filepath.Join("resources", "templates", "bootstrap", "overrides.json"), map[string]string{}); err != nil {
+				if err := unpack.InstallFile(
+					overridesPath,
+					fsx.OpenFS(filepath.Join("resources", "templates", "bootstrap", "overrides.json"), embed.ResourceEmbed),
+				); err != nil {
 					return errBootstrapCreateFile.WithMessageF(err)
 				}
 
 				context.Println(authorizedKeysFile)
-				if err := embed.InstallTemplate(authorizedKeysFile, filepath.Join("resources", "templates", "bootstrap", "global_authorized_keys"), map[string]string{}); err != nil {
+				if err := unpack.InstallFile(
+					authorizedKeysFile,
+					fsx.OpenFS(filepath.Join("resources", "templates", "bootstrap", "global_authorized_keys"), embed.ResourceEmbed),
+				); err != nil {
 					return errBootstrapCreateFile.WithMessageF(err)
 				}
 

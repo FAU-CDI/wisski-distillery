@@ -11,9 +11,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-// resourceEmbed contains all the resources required by the WissKI-Distillery package.
+// ResourceEmbed contains all the resources required by the WissKI-Distillery package.
 //go:embed all:resources
-var resourceEmbed embed.FS
+var ResourceEmbed embed.FS
 
 // InstallResource install a resource src into dest.
 // When it encounters a directory, recursively installs the directory is called.
@@ -22,7 +22,7 @@ var resourceEmbed embed.FS
 // If src points to a file, dst must either be an existing file, or not exist.
 // If src points to a directory, dst must either be an existing directory, or not exist.
 func InstallResource(dst, src string, onInstallFile func(dst, src string)) error {
-	return installFile(dst, resourceEmbed, src, onInstallFile)
+	return installFile(dst, ResourceEmbed, src, onInstallFile)
 }
 
 var errExpectedFileButGotDirectory = errors.New("Expected a file, but got a directory")
