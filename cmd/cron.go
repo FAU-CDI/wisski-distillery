@@ -40,7 +40,7 @@ func (cr cron) Run(context wisski_distillery.Context) error {
 	// iterate over the instances and store the last value of error
 	for _, instance := range instances {
 		logging.LogOperation(func() error {
-			code, err := instance.Shell(context.IOStream, "/utils/cron.sh")
+			code, err := instance.Shell(context.IOStream, "/runtime/cron.sh")
 			if err != nil {
 				context.EPrintln(err)
 			}

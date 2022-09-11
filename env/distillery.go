@@ -3,10 +3,11 @@ package env
 import (
 	"context"
 	"os"
+	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/tkw1536/goprogram/exit"
+	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 )
 
 // Distillery represents a running instance for the distillery
@@ -26,55 +27,26 @@ func (dis Distillery) Context() context.Context {
 	return context.Background()
 }
 
-var errNoConfigFile = exit.Error{
-	ExitCode: exit.ExitGeneralArguments,
-	Message:  "Configuration File does not exist",
+// ExecutablePath returns the path to the executable of this distillery.
+func (dis *Distillery) ExecutablePath() string {
+	return filepath.Join(dis.Config.DeployRoot, core.Executable)
 }
 
-var errOpenConfig = exit.Error{
-	ExitCode: exit.ExitGeneralArguments,
-	Message:  "error loading configuration file: %s",
-}
-
-// NewDistillery creates a new distillery object from a set of parameters and requirements
-func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) (env *Distillery, err error) {
-	env = &Distillery{
-		Upstream: Upstream{
-			SQL:         "127.0.0.1:3306",
-			Triplestore: "127.0.0.1:7200",
-		},
-	}
-
-	if flags.InternalInDocker {
-		env.Upstream.SQL = "sql:3306"
-		env.Upstream.Triplestore = "triplestore:7200"
-	}
-
-	// if we don't need to load the config, there is nothing to do
-	if !req.NeedsDistillery {
-		return
-	}
-
-	// try to find the configuration file
-	cfg := flags.ConfigPath // command line flags first
-	if cfg == "" {
-		cfg = params.ConfigPath // then globally provided files
-	}
-	if cfg == "" {
-		return nil, errNoConfigFile
-	}
-
-	// open the config file!
-	f, err := os.Open(params.ConfigPath)
+// UsingDistilleryExecutable checks if the current process
+func (dis *Distillery) UsingDistilleryExecutable() bool {
+	exe, err := os.Executable()
 	if err != nil {
-		return nil, errOpenConfig.WithMessageF(err)
+		return false
 	}
-	defer f.Close()
+	return fsx.SameFile(exe, dis.ExecutablePath())
+}
 
-	// unmarshal the config
-	env.Config = &config.Config{
-		ConfigPath: cfg,
+// CurrentExecutable returns the path to the current executable being used.
+// When it does not exist, falls back to the default executable.
+func (dis *Distillery) CurrentExecutable() string {
+	exe, err := os.Executable()
+	if err != nil || !fsx.IsFile(exe) {
+		return dis.ExecutablePath()
 	}
-	err = env.Config.Unmarshal(f)
-	return
+	return exe
 }

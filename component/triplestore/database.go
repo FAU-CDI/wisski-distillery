@@ -11,13 +11,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/embed"
-	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
-	"github.com/FAU-CDI/wisski-distillery/internal/unpack"
 	"github.com/FAU-CDI/wisski-distillery/internal/wait"
 	"github.com/pkg/errors"
-	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -97,70 +93,6 @@ func (ts Triplestore) Wait() error {
 		defer res.Body.Close()
 		return true
 	}, ts.PollInterval, ts.PollContext)
-}
-
-var errTripleStoreFailedRepository = exit.Error{
-	Message:  "Failed to create repository: %s",
-	ExitCode: exit.ExitGeneric,
-}
-
-func (ts Triplestore) Provision(name, domain, user, password string) error {
-	if err := ts.Wait(); err != nil {
-		return err
-	}
-
-	// prepare the create repo request
-	// TODO: Move this into a seperate file
-	createRepo, _, err := unpack.UnpackTemplate(
-		map[string]string{
-			"GRAPHDB_REPO":    name,
-			"INSTANCE_DOMAIN": domain,
-		},
-		fsx.OpenFS(filepath.Join("resources", "templates", "repository", "graphdb-repo.ttl"), embed.ResourceEmbed),
-	)
-	if err != nil {
-		return err
-	}
-
-	// do the create!
-	{
-		res, err := ts.OpenRaw("POST", "/rest/repositories", createRepo, "config", "")
-		if err != nil {
-			return errTripleStoreFailedRepository.WithMessageF(err)
-		}
-		defer res.Body.Close()
-		if res.StatusCode != http.StatusCreated {
-			return errTripleStoreFailedRepository.WithMessageF("Repo create did not return status code 201")
-		}
-	}
-
-	// create the user and grant them access
-	{
-		res, err := ts.OpenRaw("POST", "/rest/security/users/"+user, TriplestoreUserPayload{
-			Password: password,
-			AppSettings: TriplestoreUserAppSettings{
-				DefaultInference:      true,
-				DefaultVisGraphSchema: true,
-				DefaultSameas:         true,
-				IgnoreSharedQueries:   false,
-				ExecuteCount:          true,
-			},
-			GrantedAuthorities: []string{
-				"ROLE_USER",
-				"READ_REPO_" + name,
-				"WRITE_REPO_" + name,
-			},
-		}, "", "")
-		if err != nil {
-			return errTripleStoreFailedRepository.WithMessageF(err)
-		}
-		defer res.Body.Close()
-		if res.StatusCode != http.StatusCreated {
-			return errTripleStoreFailedRepository.WithMessageF("User create did not return status code 201")
-		}
-	}
-
-	return nil
 }
 
 // TriplestorePurgeUser deletes the specified user from the triplestore

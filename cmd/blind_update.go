@@ -45,7 +45,7 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) error {
 		}
 		context.EPrintf("Updating instance %s\n", instance.Slug)
 
-		code, err := instance.Shell(context.IOStream, "/utils/blind_update.sh")
+		code, err := instance.Shell(context.IOStream, "/runtime/blind_update.sh")
 		if err != nil {
 			return errBlindUpdateFailed.WithMessageF(instance.Slug, execx.ExecCommandError)
 		}

@@ -2,6 +2,7 @@ package env
 
 import (
 	"bytes"
+	"embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -12,7 +13,6 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/component"
-	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/alessio/shellescape"
@@ -228,16 +228,20 @@ func (instance Instance) URL() *url.URL {
 	return url
 }
 
+//go:embed all:instances/barrel instances/barrel.env
+var barrelResources embed.FS
+
 // Stack represents a stack representing this instance
 func (instance Instance) Stack() component.Installable {
 	return component.Installable{
 		Stack: component.Stack{
 			Dir: instance.FilesystemBase,
 		},
-		Resources:   embed.ResourceEmbed, // TODO: Move this over
-		ContextPath: filepath.Join("resources", "compose", "barrel"),
 
-		EnvPath: filepath.Join("resources", "templates", "docker-env", "barrel"),
+		Resources:   barrelResources,
+		ContextPath: filepath.Join("instances", "barrel"),
+		EnvPath:     filepath.Join("instances", "barrel.env"),
+
 		EnvContext: map[string]string{
 			"DATA_PATH": filepath.Join(instance.FilesystemBase, "data"),
 
@@ -247,7 +251,7 @@ func (instance Instance) Stack() component.Installable {
 			"LETSENCRYPT_HOST":  instance.dis.IfHttps(instance.Domain()),
 			"LETSENCRYPT_EMAIL": instance.dis.IfHttps(instance.dis.Config.CertbotEmail),
 
-			"UTILS_DIR":                   instance.dis.RuntimeUtilsDir(),
+			"RUNTIME_DIR":                 instance.dis.RuntimeDir(),
 			"GLOBAL_AUTHORIZED_KEYS_FILE": instance.dis.Config.GlobalAuthorizedKeysFile,
 		},
 
@@ -260,14 +264,19 @@ func (instance Instance) Stack() component.Installable {
 	}
 }
 
+//go:embed all:instances/reserve instances/reserve.env
+var reserveResources embed.FS
+
 func (instance Instance) ReserveStack() component.Installable {
 	return component.Installable{
 		Stack: component.Stack{
 			Dir: instance.FilesystemBase,
 		},
-		ContextPath: filepath.Join("resources", "compose", "reserve"),
 
-		EnvPath: filepath.Join("resources", "templates", "docker-env", "reserve"),
+		Resources:   reserveResources,
+		ContextPath: filepath.Join("instances", "reserve"),
+		EnvPath:     filepath.Join("instances", "reserve.env"),
+
 		EnvContext: map[string]string{
 			"VIRTUAL_HOST": instance.Domain(),
 

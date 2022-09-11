@@ -1,0 +1,2 @@
+# This file contains authorized_keys files valid for every repository in the distillery
+# The syntax of this file is easy, one key per line, empty lines or those starting with '#' are ignored

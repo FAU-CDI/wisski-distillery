@@ -1,13 +1,13 @@
 package cmd
 
 import (
+	"bytes"
 	"io/fs"
 	"os"
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/core"
-	"github.com/FAU-CDI/wisski-distillery/embed"
 	cfg "github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/hostname"
@@ -124,8 +124,12 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 					return errBootstrapWriteConfig.WithMessageF(err)
 				}
 
-				if err := unpack.InstallTemplate(
-					envPath,
+				env, err := os.Create(envPath)
+				if err != nil {
+					return errBootstrapWriteConfig.WithMessageF(err)
+				}
+				if err := unpack.WriteTemplate(
+					env,
 					map[string]string{
 						"DEPLOY_ROOT":          root,
 						"DEFAULT_DOMAIN":       domain,
@@ -138,8 +142,7 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 						"MYSQL_ADMIN_USER":     "admin",
 						"MYSQL_ADMIN_PASSWORD": password[64:],
 					},
-					filepath.Join("resources", "templates", "bootstrap", "env"),
-					embed.ResourceEmbed,
+					bytes.NewReader(core.ConfigFileTemplate),
 				); err != nil {
 					return errBootstrapWriteConfig.WithMessageF(err)
 				}
@@ -152,17 +155,19 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 			if err := logging.LogOperation(func() error {
 
 				context.Println(overridesPath)
-				if err := unpack.InstallFile(
+				if err := os.WriteFile(
 					overridesPath,
-					fsx.OpenFS(filepath.Join("resources", "templates", "bootstrap", "overrides.json"), embed.ResourceEmbed),
+					core.DefaultOverridesJSON,
+					fs.ModePerm,
 				); err != nil {
 					return errBootstrapCreateFile.WithMessageF(err)
 				}
 
 				context.Println(authorizedKeysFile)
-				if err := unpack.InstallFile(
+				if err := os.WriteFile(
 					authorizedKeysFile,
-					fsx.OpenFS(filepath.Join("resources", "templates", "bootstrap", "global_authorized_keys"), embed.ResourceEmbed),
+					core.DefaultAuthorizedKeys,
+					fs.ModePerm,
 				); err != nil {
 					return errBootstrapCreateFile.WithMessageF(err)
 				}
