@@ -13,5 +13,4 @@
 - Move resolver code into this
 - Cleanup code: Have consistent error handling
 - Add a proper metadata / statistics server
-- Restructure code files
 - Single Malt Mode: Support having a single instance only!
