@@ -5,12 +5,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/unpack"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
 )
+
+// TODO: Move this package into components
 
 // Installable represents a Stack that can be automatically installed from a set of resources
 // See the [Install] method.
@@ -42,15 +43,18 @@ type InstallationContext map[string]string
 // Installation is non-interactive, but will provide debugging output onto io.
 // InstallationContext
 func (is Installable) Install(io stream.IOStream, context InstallationContext) error {
-	// setup the base files
-	if err := embed.InstallResource(
-		is.Dir,
-		is.ContextPath,
-		func(dst, src string) {
-			io.Printf("[install] %s\n", dst)
-		},
-	); err != nil {
-		return err
+	if is.ContextPath != "" {
+		// setup the base files
+		if err := unpack.InstallResource(
+			is.Dir,
+			is.ContextPath,
+			is.Resources,
+			func(dst, src string) {
+				io.Printf("[install] %s\n", dst)
+			},
+		); err != nil {
+			return err
+		}
 	}
 
 	// configure .env

@@ -5,6 +5,8 @@ import (
 	"net/http"
 )
 
+// TODO: Move this into dis!
+
 // Server represents a server for this distillery
 type Server struct {
 	dis *Distillery

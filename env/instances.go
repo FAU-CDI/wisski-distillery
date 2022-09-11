@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
@@ -201,9 +202,9 @@ func (instance Instance) Domain() string {
 }
 
 // IfHttps returns value if the distillery has https enabled, the empty string otherwise
-// TODO: Fix this to be in a proper place
+// TODO: Fix this into config!
 func (dis *Distillery) IfHttps(value string) string {
-	if !dis.HTTPSEnabled() {
+	if !dis.Config.HTTPSEnabled() {
 		return ""
 	}
 	return value
@@ -218,7 +219,7 @@ func (instance Instance) URL() *url.URL {
 	}
 
 	// use http or https scheme depending on if the distillery has it enabled
-	if instance.dis.HTTPSEnabled() {
+	if instance.dis.Config.HTTPSEnabled() {
 		url.Scheme = "https"
 	} else {
 		url.Scheme = "http"
@@ -233,6 +234,7 @@ func (instance Instance) Stack() stack.Installable {
 		Stack: stack.Stack{
 			Dir: instance.FilesystemBase,
 		},
+		Resources:   embed.ResourceEmbed, // TODO: Move this over
 		ContextPath: filepath.Join("resources", "compose", "barrel"),
 
 		EnvPath: filepath.Join("resources", "templates", "docker-env", "barrel"),

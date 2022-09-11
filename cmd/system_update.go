@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/execx"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
 	"github.com/FAU-CDI/wisski-distillery/internal/stack"
+	"github.com/FAU-CDI/wisski-distillery/internal/unpack"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
 )
@@ -143,7 +144,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		return embed.InstallResource(dis.RuntimeDir(), filepath.Join("resources", "runtime"), func(dst, src string) {
+		return unpack.InstallResource(dis.RuntimeDir(), filepath.Join("resources", "runtime"), embed.ResourceEmbed, func(dst, src string) {
 			context.Printf("[copy]  %s\n", dst)
 		})
 	}, context.IOStream, "Unpacking Runtime Components"); err != nil {

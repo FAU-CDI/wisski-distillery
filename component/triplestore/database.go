@@ -1,4 +1,4 @@
-package env
+package triplestore
 
 import (
 	"bytes"
@@ -10,62 +10,16 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/embed"
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 	"github.com/FAU-CDI/wisski-distillery/internal/logging"
-	"github.com/FAU-CDI/wisski-distillery/internal/stack"
 	"github.com/FAU-CDI/wisski-distillery/internal/unpack"
 	"github.com/FAU-CDI/wisski-distillery/internal/wait"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
-
-// TriplestoreComponent represents the triplestore belonging to a distillery
-type TriplestoreComponent struct {
-	BaseURL      string        // the base url of the api
-	PollInterval time.Duration // duration to wait during wait!
-
-	dis *Distillery
-}
-
-// Triplestore returns the TriplestoreComponent belonging to this distillery
-func (dis *Distillery) Triplestore() TriplestoreComponent {
-	return TriplestoreComponent{
-		BaseURL:      "http://" + dis.Upstream.Triplestore,
-		PollInterval: time.Second,
-
-		dis: dis,
-	}
-}
-
-func (TriplestoreComponent) Name() string {
-	return "triplestore"
-}
-
-func (TriplestoreComponent) Context(parent stack.InstallationContext) stack.InstallationContext {
-	return parent
-}
-
-// Stack returns the installable Triplestore stack
-func (ts TriplestoreComponent) Stack() stack.Installable {
-	return ts.dis.makeComponentStack(ts, stack.Installable{
-		CopyContextFiles: []string{"graphdb.zip"},
-
-		MakeDirsPerm: fs.ModeDir | fs.ModePerm,
-		MakeDirs: []string{
-			filepath.Join("data", "data"),
-			filepath.Join("data", "work"),
-			filepath.Join("data", "logs"),
-		},
-	})
-}
-
-func (ts TriplestoreComponent) Path() string {
-	return ts.Stack().Dir
-}
 
 type TriplestoreUserPayload struct {
 	Password           string                     `json:"password"`
@@ -84,7 +38,7 @@ type TriplestoreUserAppSettings struct {
 //
 // When bodyName is non-empty, expect body to be a byte slice representing a multipart/form-data upload with the given name.
 // When bodyName is empty, simply marshal body as application/json
-func (ts TriplestoreComponent) OpenRaw(method, url string, body interface{}, bodyName string, accept string) (*http.Response, error) {
+func (ts Triplestore) OpenRaw(method, url string, body interface{}, bodyName string, accept string) (*http.Response, error) {
 	var reader io.Reader
 
 	var contentType string
@@ -126,7 +80,7 @@ func (ts TriplestoreComponent) OpenRaw(method, url string, body interface{}, bod
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}
-	req.SetBasicAuth(ts.dis.Config.TriplestoreAdminUser, ts.dis.Config.TriplestoreAdminPassword)
+	req.SetBasicAuth(ts.Config.TriplestoreAdminUser, ts.Config.TriplestoreAdminPassword)
 
 	// and send it
 	return http.DefaultClient.Do(req)
@@ -134,7 +88,7 @@ func (ts TriplestoreComponent) OpenRaw(method, url string, body interface{}, bod
 
 // Wait waits for the connection to the Triplestore to succeed.
 // This is achieved using a polling strategy.
-func (ts TriplestoreComponent) Wait() error {
+func (ts Triplestore) Wait() error {
 	return wait.Wait(func() bool {
 		res, err := ts.OpenRaw("GET", "/rest/repositories", nil, "", "")
 		if err != nil {
@@ -142,7 +96,7 @@ func (ts TriplestoreComponent) Wait() error {
 		}
 		defer res.Body.Close()
 		return true
-	}, ts.PollInterval, ts.dis.Context())
+	}, ts.PollInterval, ts.PollContext)
 }
 
 var errTripleStoreFailedRepository = exit.Error{
@@ -150,7 +104,7 @@ var errTripleStoreFailedRepository = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (ts TriplestoreComponent) Provision(name, domain, user, password string) error {
+func (ts Triplestore) Provision(name, domain, user, password string) error {
 	if err := ts.Wait(); err != nil {
 		return err
 	}
@@ -210,7 +164,7 @@ func (ts TriplestoreComponent) Provision(name, domain, user, password string) er
 }
 
 // TriplestorePurgeUser deletes the specified user from the triplestore
-func (ts TriplestoreComponent) PurgeUser(user string) error {
+func (ts Triplestore) PurgeUser(user string) error {
 	res, err := ts.OpenRaw("DELETE", "/rest/security/users/"+user, nil, "", "")
 	if err != nil {
 		return err
@@ -222,7 +176,7 @@ func (ts TriplestoreComponent) PurgeUser(user string) error {
 }
 
 // TriplestorePurgeRepo deletes the specified repo from the triplestore
-func (ts TriplestoreComponent) PurgeRepo(repo string) error {
+func (ts Triplestore) PurgeRepo(repo string) error {
 	res, err := ts.OpenRaw("DELETE", "/rest/repositories/"+repo, nil, "", "")
 	if err != nil {
 		return err
@@ -236,7 +190,7 @@ func (ts TriplestoreComponent) PurgeRepo(repo string) error {
 var errTSBackupWrongStatusCode = errors.New("Distillery.Backup: Wrong status code")
 
 // TriplestoreBackup backs up the repository named repo into the writer dst.
-func (ts TriplestoreComponent) Backup(dst io.Writer, repo string) (int64, error) {
+func (ts Triplestore) Backup(dst io.Writer, repo string) (int64, error) {
 	res, err := ts.OpenRaw("GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads")
 	if err != nil {
 		return 0, err
@@ -260,7 +214,7 @@ type Repository struct {
 	Local      bool   `json:"local"`
 }
 
-func (ts TriplestoreComponent) listRepositories() (repos []Repository, err error) {
+func (ts Triplestore) listRepositories() (repos []Repository, err error) {
 	res, err := ts.OpenRaw("GET", "/rest/repositories", nil, "", "application/json")
 	if err != nil {
 		return nil, err
@@ -272,7 +226,7 @@ func (ts TriplestoreComponent) listRepositories() (repos []Repository, err error
 }
 
 // TriplestoreBackup backs up every graphdb instance into dst
-func (ts TriplestoreComponent) BackupAll(dst string) error {
+func (ts Triplestore) BackupAll(dst string) error {
 	// list all the repositories
 	repos, err := ts.listRepositories()
 	if err != nil {
@@ -306,7 +260,7 @@ func (ts TriplestoreComponent) BackupAll(dst string) error {
 
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
 
-func (ts TriplestoreComponent) Bootstrap(io stream.IOStream) error {
+func (ts Triplestore) Bootstrap(io stream.IOStream) error {
 	logging.LogMessage(io, "Waiting for Triplestore")
 	if err := ts.Wait(); err != nil {
 		return err
@@ -314,8 +268,8 @@ func (ts TriplestoreComponent) Bootstrap(io stream.IOStream) error {
 
 	logging.LogMessage(io, "Resetting admin user password")
 	{
-		res, err := ts.OpenRaw("PUT", "/rest/security/users/"+ts.dis.Config.TriplestoreAdminUser, TriplestoreUserPayload{
-			Password: ts.dis.Config.TriplestoreAdminPassword,
+		res, err := ts.OpenRaw("PUT", "/rest/security/users/"+ts.Config.TriplestoreAdminUser, TriplestoreUserPayload{
+			Password: ts.Config.TriplestoreAdminPassword,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
 				DefaultVisGraphSchema: true,

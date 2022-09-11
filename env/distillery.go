@@ -3,7 +3,6 @@ package env
 import (
 	"context"
 	"os"
-	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/core"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
@@ -20,26 +19,6 @@ type Distillery struct {
 type Upstream struct {
 	SQL         string
 	Triplestore string
-}
-
-func (dis Distillery) HTTPSEnabled() bool {
-	return dis.Config.CertbotEmail != ""
-}
-
-// Returns the default virtual host
-func (dis Distillery) DefaultVirtualHost() string {
-	VIRTUAL_HOST := dis.Config.DefaultDomain
-	if len(dis.Config.SelfExtraDomains) > 0 {
-		VIRTUAL_HOST += "," + strings.Join(dis.Config.SelfExtraDomains, ",")
-	}
-	return VIRTUAL_HOST
-}
-
-func (dis Distillery) DefaultLetsencryptHost() string {
-	if !dis.HTTPSEnabled() {
-		return ""
-	}
-	return dis.DefaultVirtualHost()
 }
 
 // Context returns a new Context belonging to this distillery
