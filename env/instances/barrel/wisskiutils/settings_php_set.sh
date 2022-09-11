@@ -31,7 +31,7 @@ chmod u+w web/sites/default/settings.php
 
     // decode json values
     $value = @json_decode($jvalue);
-    if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
+    if ($value === null && json_last_error() !== JSON_ERROR_NONE) {
         echo "Invalid JSON, cannot update settings.php. \n";
         return 1;
     }
