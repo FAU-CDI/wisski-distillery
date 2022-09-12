@@ -10,8 +10,6 @@ import (
 type Dis struct {
 	component.ComponentBase
 
-	// TODO: SQL Component
-
 	Executable string // path to the current executable
 }
 
@@ -29,8 +27,8 @@ func (dis Dis) Stack() component.Installable {
 		EnvPath:     "dis.env",
 
 		EnvContext: map[string]string{
-			"VIRTUAL_HOST":      dis.Config.DefaultVirtualHost(),
-			"LETSENCRYPT_HOST":  dis.Config.DefaultLetsencryptHost(),
+			"VIRTUAL_HOST":      dis.Config.DefaultHost(),
+			"LETSENCRYPT_HOST":  dis.Config.DefaultSSLHost(),
 			"LETSENCRYPT_EMAIL": dis.Config.CertbotEmail,
 
 			"CONFIG_PATH": dis.Config.ConfigPath,

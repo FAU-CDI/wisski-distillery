@@ -5,7 +5,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/FAU-CDI/wisski-distillery/internal/password"
 	"github.com/pkg/errors"
 )
 
@@ -29,11 +28,6 @@ func (dis *Distillery) InstanceGraphDB(slug string) (repo, user string) {
 	return
 }
 
-// Password returns a new password
-func (dis *Distillery) NewPassword() (value string, err error) {
-	return password.Password(dis.Config.PasswordLength)
-}
-
 var errInvalidSlug = errors.New("Not a valid slug")
 
 // NewInstance fills the struct for a new distillery instance.
@@ -48,21 +42,21 @@ func (dis *Distillery) NewInstance(slug string) (i Instance, err error) {
 	}
 
 	// generate sql data
-	sqlPassword, err := dis.NewPassword()
+	sqlPassword, err := dis.Config.NewPassword()
 	if err != nil {
 		return i, err
 	}
 	sqlDB, sqlUser := dis.InstanceSQL(slug)
 
 	// generate ts data
-	tsPassword, err := dis.NewPassword()
+	tsPassword, err := dis.Config.NewPassword()
 	if err != nil {
 		return i, err
 	}
 	tsRepo, tsUser := dis.InstanceGraphDB(slug)
 
 	// generate drupal data
-	drPassword, err := dis.NewPassword()
+	drPassword, err := dis.Config.NewPassword()
 	if err != nil {
 		return i, err
 	}

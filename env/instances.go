@@ -201,15 +201,6 @@ func (instance Instance) Domain() string {
 	return fmt.Sprintf("%s.%s", instance.Slug, instance.dis.Config.DefaultDomain)
 }
 
-// IfHttps returns value if the distillery has https enabled, the empty string otherwise
-// TODO: Fix this into config!
-func (dis *Distillery) IfHttps(value string) string {
-	if !dis.Config.HTTPSEnabled() {
-		return ""
-	}
-	return value
-}
-
 // URL returns the public URL of this instance
 func (instance Instance) URL() *url.URL {
 	// setup domain and path
@@ -248,8 +239,8 @@ func (instance Instance) Stack() component.Installable {
 			"SLUG":         instance.Slug,
 			"VIRTUAL_HOST": instance.Domain(),
 
-			"LETSENCRYPT_HOST":  instance.dis.IfHttps(instance.Domain()),
-			"LETSENCRYPT_EMAIL": instance.dis.IfHttps(instance.dis.Config.CertbotEmail),
+			"LETSENCRYPT_HOST":  instance.dis.Config.IfHttps(instance.Domain()),
+			"LETSENCRYPT_EMAIL": instance.dis.Config.IfHttps(instance.dis.Config.CertbotEmail),
 
 			"RUNTIME_DIR":                 instance.dis.RuntimeDir(),
 			"GLOBAL_AUTHORIZED_KEYS_FILE": instance.dis.Config.GlobalAuthorizedKeysFile,
@@ -280,8 +271,8 @@ func (instance Instance) ReserveStack() component.Installable {
 		EnvContext: map[string]string{
 			"VIRTUAL_HOST": instance.Domain(),
 
-			"LETSENCRYPT_HOST":  instance.dis.IfHttps(instance.Domain()),
-			"LETSENCRYPT_EMAIL": instance.dis.IfHttps(instance.dis.Config.CertbotEmail),
+			"LETSENCRYPT_HOST":  instance.dis.Config.IfHttps(instance.Domain()),
+			"LETSENCRYPT_EMAIL": instance.dis.Config.IfHttps(instance.dis.Config.CertbotEmail),
 		},
 	}
 }

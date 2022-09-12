@@ -32,8 +32,8 @@ func (self Self) Stack() component.Installable {
 		EnvPath:     "self.env",
 
 		EnvContext: map[string]string{
-			"VIRTUAL_HOST":      self.Config.DefaultVirtualHost(),
-			"LETSENCRYPT_HOST":  self.Config.DefaultLetsencryptHost(),
+			"VIRTUAL_HOST":      self.Config.DefaultHost(),
+			"LETSENCRYPT_HOST":  self.Config.DefaultSSLHost(),
 			"LETSENCRYPT_EMAIL": self.Config.CertbotEmail,
 			"TARGET":            TARGET,
 			"OVERRIDES_FILE":    self.Config.SelfOverridesFile,

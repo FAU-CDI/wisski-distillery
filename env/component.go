@@ -14,15 +14,10 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/component/web"
 )
 
-// TODO: Remove me when migration is complete
-type Component = component.Component
-
-// TODO: Move everything into specific subpackages
-
 // Stacks returns the Stacks of this distillery
 func (dis *Distillery) Components() []component.Component {
 	// TODO: Do we want to cache these components?
-	return []Component{
+	return []component.Component{
 		dis.Web(),
 		dis.Self(),
 		dis.Resolver(),

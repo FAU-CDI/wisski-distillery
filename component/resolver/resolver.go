@@ -41,8 +41,8 @@ func (resolver Resolver) Stack() component.Installable {
 		EnvPath:     "resolver.env",
 
 		EnvContext: map[string]string{
-			"VIRTUAL_HOST":      resolver.Config.DefaultVirtualHost(),
-			"LETSENCRYPT_HOST":  resolver.Config.DefaultLetsencryptHost(),
+			"VIRTUAL_HOST":      resolver.Config.DefaultHost(),
+			"LETSENCRYPT_HOST":  resolver.Config.DefaultSSLHost(),
 			"LETSENCRYPT_EMAIL": resolver.Config.CertbotEmail,
 
 			"CONFIG_PATH": resolver.Config.ConfigPath,

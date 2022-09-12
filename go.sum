@@ -1,5 +1,7 @@
 github.com/FAU-CDI/wdresolve v0.0.0-20220909150742-34bde844301d h1:boaE5bElltxs75SrC/sCjmsPmMnk0kcSuMYCjeo6pfE=
 github.com/FAU-CDI/wdresolve v0.0.0-20220909150742-34bde844301d/go.mod h1:9L2AZlOgDtg1WZ9Z1P1nBjqOY/b0mVrVE7UvO20pO2Q=
+github.com/FAU-CDI/wdresolve v0.0.0-20220911200729-e66b93ed2b69 h1:wjiRzjx8G7Vm/rqHuAv9qMeLNHV3RmO9SNkh8VrvsBQ=
+github.com/FAU-CDI/wdresolve v0.0.0-20220911200729-e66b93ed2b69/go.mod h1:9L2AZlOgDtg1WZ9Z1P1nBjqOY/b0mVrVE7UvO20pO2Q=
 github.com/Showmax/go-fqdn v1.0.0 h1:0rG5IbmVliNT5O19Mfuvna9LL7zlHyRfsSvBPZmF9tM=
 github.com/Showmax/go-fqdn v1.0.0/go.mod h1:SfrFBzmDCtCGrnHhoDjuvFnKsWjEQX/Q9ARZvOrJAko=
 github.com/alessio/shellescape v1.4.1 h1:V7yhSDDn8LP4lc4jS8pFkt0zCnzVJlG5JXy9BVKJUX0=
@@ -21,9 +23,13 @@ github.com/tkw1536/goprogram v0.0.11 h1:RDcPvpObL6mViB2knUj+v0AyP+XL6vvMEA0auB2A
 github.com/tkw1536/goprogram v0.0.11/go.mod h1:rX9MKOpJ9qAu4jHV2+n64SKmm3c2D3Hh1V8zC1H3jB4=
 golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e h1:+WEEuIdZHnUeJJmEUjyYC2gfUMj69yZXw17EnHg/otA=
 golang.org/x/exp v0.0.0-20220722155223-a9213eeb770e/go.mod h1:Kr81I6Kryrl9sr8s2FK3vxD90NdsKWRuOIl2O4CvYbA=
+golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561 h1:MDc5xs78ZrZr3HMQugiXOAkSZtfTpbJLDr/lwfgO53E=
+golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561/go.mod h1:cyybsKvd6eL0RnXn6p/Grxp8F5bW7iYuBgsNCOHpMYE=
 golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20220817070843-5a390386f1f2 h1:fqTvyMIIj+HRzMmnzr9NtpHP6uVpvB5fkHcgPDC4nu8=
 golang.org/x/sys v0.0.0-20220817070843-5a390386f1f2/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
+golang.org/x/sys v0.0.0-20220909162455-aba9fc2a8ff2 h1:wM1k/lXfpc5HdkJJyW9GELpd8ERGdnh8sMGL6Gzq3Ho=
+golang.org/x/sys v0.0.0-20220909162455-aba9fc2a8ff2/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/term v0.0.0-20220722155259-a9ba230a4035 h1:Q5284mrmYTpACcm+eAKjKJH48BBwSyfJqmmGDTtT8Vc=
 golang.org/x/term v0.0.0-20220722155259-a9ba230a4035/go.mod h1:jbD1KX2456YbFQfuXm/mYQcufACuNUgVhRMnK/tPxf8=
 gorm.io/driver/mysql v1.3.6 h1:BhX1Y/RyALb+T9bZ3t07wLnPZBukt+IRkMn8UZSNbGM=
