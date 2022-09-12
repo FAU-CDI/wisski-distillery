@@ -1,4 +1,4 @@
-// Package hostname provides hostname
+// Package hostname provides the hostname.
 package hostname
 
 import (

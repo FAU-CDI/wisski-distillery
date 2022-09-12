@@ -10,10 +10,21 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
 )
 
-// Distillery represents a running instance for the distillery
+// Distillery represents an interface to the running distillery.
 type Distillery struct {
-	Config   *config.Config
-	Upstream Upstream // TODO: not sure this belongs here
+	// Config holds the configuration of the distillery.
+	// It is read directly from a configuration file.
+	Config *config.Config
+
+	// Upstream holds information to connect to the various running
+	// distillery components.
+	//
+	// NOTE(twiesing): This is intended to eventually allow full remote management of the distillery.
+	// But for now this will just hold upstream configuration.
+	Upstream Upstream
+
+	// components hold references to the various components of the distillery.
+	components
 }
 
 // Upstream are the upstream urls connecting to the various external components.
@@ -23,7 +34,7 @@ type Upstream struct {
 }
 
 // Context returns a new Context belonging to this distillery
-func (dis Distillery) Context() context.Context {
+func (dis *Distillery) Context() context.Context {
 	return context.Background()
 }
 

@@ -48,8 +48,6 @@ var ErrCopyNoDirectory = errors.New("dst is not a directory")
 //
 // onCopy, when not nil, is called for each file or directory being copied.
 func CopyDirectory(dst, src string, onCopy func(dst, src string)) error {
-	// TODO: Allow copying in parallel? Maybe with a mutex?
-
 	// sanity checks
 	if SameFile(src, dst) {
 		return ErrCopySameFile

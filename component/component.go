@@ -34,6 +34,10 @@ type Component interface {
 	// Context returns a new InstallationContext to be used during installation from the command line.
 	// Typically this should just pass through the parent, but might perform other tasks.
 	Context(parent InstallationContext) InstallationContext
+
+	// Base() returns a reference to a base component
+	// This is implemented by an embedding on ComponentBase
+	Base() *ComponentBase
 }
 
 // ComponentBase implements base functionality for a component
@@ -41,6 +45,11 @@ type ComponentBase struct {
 	Dir string // Dir is the directory this component lives in
 
 	Config *config.Config // Config is the configuration of the underlying distillery
+}
+
+// Base returns a reference to the ComponentBase
+func (cb *ComponentBase) Base() *ComponentBase {
+	return cb
 }
 
 // Path returns the path to this component
