@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/pkg/errors"
 )
 

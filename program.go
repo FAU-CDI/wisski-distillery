@@ -3,8 +3,8 @@ package wisski_distillery
 import (
 	"os/user"
 
-	"github.com/FAU-CDI/wisski-distillery/core"
-	"github.com/FAU-CDI/wisski-distillery/env"
+	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/env"
 	"github.com/tkw1536/goprogram"
 	"github.com/tkw1536/goprogram/exit"
 )

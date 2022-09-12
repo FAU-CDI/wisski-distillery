@@ -7,13 +7,13 @@ import (
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/core"
 	cfg "github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/FAU-CDI/wisski-distillery/internal/fsx"
-	"github.com/FAU-CDI/wisski-distillery/internal/hostname"
-	"github.com/FAU-CDI/wisski-distillery/internal/logging"
-	"github.com/FAU-CDI/wisski-distillery/internal/password"
-	"github.com/FAU-CDI/wisski-distillery/internal/unpack"
+	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/hostname"
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/FAU-CDI/wisski-distillery/pkg/password"
+	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
 )
 

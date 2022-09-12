@@ -8,7 +8,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/cmd"
-	"github.com/FAU-CDI/wisski-distillery/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
