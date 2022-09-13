@@ -272,7 +272,6 @@ func (snapshot *Snapshot) makeWhitebox(io stream.IOStream, instance Instance) {
 	og := opgroup.NewOpGroup[string](1)
 
 	// write pathbuilders
-	// TODO: Move this outside of the up/down stuff!
 	og.GoErr(func(files chan<- string) error {
 
 		pbPath := filepath.Join(snapshot.Description.Dest, "pathbuilders")
