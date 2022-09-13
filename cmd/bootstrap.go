@@ -99,8 +99,8 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 	if domain == "" {
 		domain = hostname.FQDN()
 	}
-	overridesPath := filepath.Join(root, "overrides.json")
-	authorizedKeysFile := filepath.Join(root, "authorized_keys")
+	overridesPath := filepath.Join(root, core.OverridesJSON)
+	authorizedKeysFile := filepath.Join(root, core.AuthorizedKeys)
 
 	{
 		logging.LogMessage(context.IOStream, "Copying over wdcli executable")

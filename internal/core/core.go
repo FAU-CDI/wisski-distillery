@@ -2,6 +2,8 @@
 // It does not depend on any other packages.
 package core
 
+import _ "embed"
+
 // BaseDirectoryDefault is the default deploy directory to load the distillery from.
 const BaseDirectoryDefault = "/var/www/deploy"
 
@@ -9,6 +11,25 @@ const BaseDirectoryDefault = "/var/www/deploy"
 // It should be located inside the deployment directory.
 const Executable = "wdcli"
 
-// Config file is the name of the config file.
+// ConfigFile is the name of the config file.
 // It should be located inside the deployment directory.
 const ConfigFile = ".env"
+
+// ConfigFileTemplate contains a template for a new configuration file
+//go:embed bootstrap/env
+var ConfigFileTemplate []byte
+
+// OverridesJSON is the name of the json overrides file.
+// It should be located inside the deployment directory.
+const OverridesJSON = "overrides.json"
+
+// DefaultOverridesJSON contains a template for a new 'overrides.json' file
+//go:embed bootstrap/overrides.json
+var DefaultOverridesJSON []byte
+
+// AuthorizedKeys contains the default name for the 'global_authorized_keys' file
+const AuthorizedKeys = "authorized_keys"
+
+// DefaultAuthorizedKeys contains a template for a new 'global_authorized_keys' file
+//go:embed bootstrap/global_authorized_keys
+var DefaultAuthorizedKeys []byte

@@ -64,7 +64,7 @@ type Config struct {
 	PasswordLength int `env:"PASSWORD_LENGTH" default:"64" validator:"is_valid_number"`
 
 	// A file to be used for global authorized_keys for the ssh server.
-	GlobalAuthorizedKeysFile string `env:"GLOBAL_AUTHORIZED_KEYS_FILE" default:"/distillery/authorized_keys" validator:"is_valid_file"`
+	GlobalAuthorizedKeysFile string `env:"GLOBAL_AUTHORIZED_KEYS_FILE" default:"/var/www/deploy/authorized_keys" validator:"is_valid_file"`
 
 	// admin credentials for graphdb
 	TriplestoreAdminUser     string `env:"GRAPHDB_ADMIN_USER" default:"admin" validator:"is_nonempty"`
