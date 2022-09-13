@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/pkg/errors"
@@ -58,45 +59,48 @@ func (backup Backup) String() string {
 }
 
 // Report writes a report from backup into w
-func (backup Backup) Report(w io.Writer) {
-	// TODO: Errors
-	encoder := json.NewEncoder(w)
+func (backup Backup) Report(w io.Writer) (int, error) {
+	cw := countwriter.NewCountWriter(w)
+
+	encoder := json.NewEncoder(cw)
 	encoder.SetIndent("", "  ")
 
-	io.WriteString(w, "======= Backup =======\n")
+	io.WriteString(cw, "======= Backup =======\n")
 
-	fmt.Fprintf(w, "Start: %s\n", backup.StartTime)
-	fmt.Fprintf(w, "End:   %s\n", backup.EndTime)
-	io.WriteString(w, "\n")
+	fmt.Fprintf(cw, "Start: %s\n", backup.StartTime)
+	fmt.Fprintf(cw, "End:   %s\n", backup.EndTime)
+	io.WriteString(cw, "\n")
 
-	io.WriteString(w, "======= Description =======\n")
+	io.WriteString(cw, "======= Description =======\n")
 	encoder.Encode(backup.Description)
-	io.WriteString(w, "\n")
+	io.WriteString(cw, "\n")
 
-	io.WriteString(w, "======= Errors =======\n")
-	fmt.Fprintf(w, "Panic:           %v\n", backup.ErrPanic)
-	fmt.Fprintf(w, "SQLErr:          %s\n", backup.SQLErr)
-	fmt.Fprintf(w, "TSErr:           %s\n", backup.TSErr)
-	fmt.Fprintf(w, "ConfigFileErr:   %s\n", backup.ConfigFileErr)
-	fmt.Fprintf(w, "InstanceListErr: %s\n", backup.InstanceListErr)
+	io.WriteString(cw, "======= Errors =======\n")
+	fmt.Fprintf(cw, "Panic:           %v\n", backup.ErrPanic)
+	fmt.Fprintf(cw, "SQLErr:          %s\n", backup.SQLErr)
+	fmt.Fprintf(cw, "TSErr:           %s\n", backup.TSErr)
+	fmt.Fprintf(cw, "ConfigFileErr:   %s\n", backup.ConfigFileErr)
+	fmt.Fprintf(cw, "InstanceListErr: %s\n", backup.InstanceListErr)
 
-	io.WriteString(w, "\n")
+	io.WriteString(cw, "\n")
 
-	io.WriteString(w, "======= Config Files =======\n")
+	io.WriteString(cw, "======= Config Files =======\n")
 	encoder.Encode(backup.ConfigFilesManifest) // TODO: Proper manifest
 
-	io.WriteString(w, "======= Snapshots =======\n")
+	io.WriteString(cw, "======= Snapshots =======\n")
 	for _, s := range backup.InstanceSnapshots {
-		io.WriteString(w, s.String())
-		io.WriteString(w, "\n")
+		io.WriteString(cw, s.String())
+		io.WriteString(cw, "\n")
 	}
 
-	io.WriteString(w, "======= Manifest =======\n")
+	io.WriteString(cw, "======= Manifest =======\n")
 	for _, file := range backup.Manifest {
-		io.WriteString(w, file+"\n")
+		io.WriteString(cw, file+"\n")
 	}
 
-	io.WriteString(w, "\n")
+	io.WriteString(cw, "\n")
+
+	return cw.Sum()
 }
 
 func (dis *Distillery) Backup(io stream.IOStream, description BackupDescription) (backup Backup) {

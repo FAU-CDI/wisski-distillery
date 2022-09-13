@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/bookkeeping"
+	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
@@ -112,47 +113,51 @@ func (snapshot Snapshot) String() string {
 }
 
 // Report writes a report from snapshot into w
-func (snapshot Snapshot) Report(w io.Writer) {
+func (snapshot Snapshot) Report(w io.Writer) (int, error) {
+	ww := countwriter.NewCountWriter(w)
+
 	// TODO: Errors of the writer!
-	encoder := json.NewEncoder(w)
+	encoder := json.NewEncoder(ww)
 	encoder.SetIndent("", "  ")
 
-	io.WriteString(w, "======= Begin Snapshot Report "+snapshot.Instance.Slug+" =======\n")
+	io.WriteString(ww, "======= Begin Snapshot Report "+snapshot.Instance.Slug+" =======\n")
 
-	fmt.Fprintf(w, "Slug:  %s\n", snapshot.Instance.Slug)
-	fmt.Fprintf(w, "Dest:  %s\n", snapshot.Description.Dest)
+	fmt.Fprintf(ww, "Slug:  %s\n", snapshot.Instance.Slug)
+	fmt.Fprintf(ww, "Dest:  %s\n", snapshot.Description.Dest)
 
-	fmt.Fprintf(w, "Start: %s\n", snapshot.StartTime)
-	fmt.Fprintf(w, "End:   %s\n", snapshot.EndTime)
-	io.WriteString(w, "\n")
+	fmt.Fprintf(ww, "Start: %s\n", snapshot.StartTime)
+	fmt.Fprintf(ww, "End:   %s\n", snapshot.EndTime)
+	io.WriteString(ww, "\n")
 
-	io.WriteString(w, "======= Description =======\n")
+	io.WriteString(ww, "======= Description =======\n")
 	encoder.Encode(snapshot.Description)
-	io.WriteString(w, "\n")
+	io.WriteString(ww, "\n")
 
-	io.WriteString(w, "======= Instance =======\n")
+	io.WriteString(ww, "======= Instance =======\n")
 	encoder.Encode(snapshot.Instance)
-	io.WriteString(w, "\n")
+	io.WriteString(ww, "\n")
 
-	io.WriteString(w, "======= Errors =======\n")
-	fmt.Fprintf(w, "Panic:       %v\n", snapshot.ErrPanic)
-	fmt.Fprintf(w, "Start:       %s\n", snapshot.ErrStart)
-	fmt.Fprintf(w, "Stop:        %s\n", snapshot.ErrStop)
-	fmt.Fprintf(w, "Bookkeep:    %s\n", snapshot.ErrBookkeep)
-	fmt.Fprintf(w, "Pathbuilder: %s\n", snapshot.ErrPathbuilder)
-	fmt.Fprintf(w, "Filesystem:  %s\n", snapshot.ErrFilesystem)
-	fmt.Fprintf(w, "Triplestore: %s\n", snapshot.ErrTriplestore)
-	fmt.Fprintf(w, "SQL:         %s\n", snapshot.ErrSQL)
-	io.WriteString(w, "\n")
+	io.WriteString(ww, "======= Errors =======\n")
+	fmt.Fprintf(ww, "Panic:       %v\n", snapshot.ErrPanic)
+	fmt.Fprintf(ww, "Start:       %s\n", snapshot.ErrStart)
+	fmt.Fprintf(ww, "Stop:        %s\n", snapshot.ErrStop)
+	fmt.Fprintf(ww, "Bookkeep:    %s\n", snapshot.ErrBookkeep)
+	fmt.Fprintf(ww, "Pathbuilder: %s\n", snapshot.ErrPathbuilder)
+	fmt.Fprintf(ww, "Filesystem:  %s\n", snapshot.ErrFilesystem)
+	fmt.Fprintf(ww, "Triplestore: %s\n", snapshot.ErrTriplestore)
+	fmt.Fprintf(ww, "SQL:         %s\n", snapshot.ErrSQL)
+	io.WriteString(ww, "\n")
 
-	io.WriteString(w, "======= Manifest =======\n")
+	io.WriteString(ww, "======= Manifest =======\n")
 	for _, file := range snapshot.Manifest {
-		io.WriteString(w, file+"\n")
+		io.WriteString(ww, file+"\n")
 	}
 
-	io.WriteString(w, "\n")
+	io.WriteString(ww, "\n")
 
-	io.WriteString(w, "======= End Snapshot Report "+snapshot.Instance.Slug+" =======\n")
+	io.WriteString(ww, "======= End Snapshot Report "+snapshot.Instance.Slug+"=======\n")
+
+	return ww.Sum()
 }
 
 // Snapshot creates a new snapshot of this instance into dest
@@ -169,7 +174,7 @@ func (instance Instance) Snapshot(io stream.IOStream, desc SnapshotDescription) 
 	// do the create keeping track of time!
 	logging.LogOperation(func() error {
 		snapshot.StartTime = time.Now()
-		snapshot.create(io, instance)
+		snapshot.makeBlackbox(io, instance)
 		snapshot.EndTime = time.Now()
 
 		return nil
@@ -178,7 +183,9 @@ func (instance Instance) Snapshot(io stream.IOStream, desc SnapshotDescription) 
 	return
 }
 
-func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
+// mainBlackbox runs the blackbox backup of the system.
+// It pauses the Instance, if a consistent state is required.
+func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, instance Instance) {
 	stack := instance.Stack()
 
 	// stop the instance (unless it was explicitly asked to not do so!)
