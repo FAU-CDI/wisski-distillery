@@ -39,12 +39,10 @@ func NewProgram() Program {
 				return errUserIsNotRoot
 			}
 
-			// warn when not using the distillery excutable
-			if context.Description.Requirements.NeedsDistillery {
-				dis := context.Environment
-				if !dis.UsingDistilleryExecutable() {
-					context.EPrintf(warnNoDeployWdcli, core.Executable, dis.ExecutablePath())
-				}
+			// when not running inside docker and we need a distillery
+			// then we should warn if we are not using the distillery executable.
+			if dis := context.Environment; !context.Args.Flags.InternalInDocker && context.Description.Requirements.NeedsDistillery && !dis.UsingDistilleryExecutable() {
+				context.EPrintf(warnNoDeployWdcli, core.Executable, dis.ExecutablePath())
 			}
 
 			return nil
