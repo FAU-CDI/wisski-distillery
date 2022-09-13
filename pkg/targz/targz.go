@@ -54,6 +54,8 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 			return err
 		}
 
+		// FIXME: How do we handle
+
 		// create a file info header!
 		tInfo, err := tar.FileInfoHeader(info, relpath)
 		if err != nil {
@@ -66,8 +68,8 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 			return err
 		}
 
-		// a directory => no more writing required
-		if entry.IsDir() {
+		// if it's not a regular file, we are done
+		if !entry.Type().IsRegular() {
 			return nil
 		}
 
