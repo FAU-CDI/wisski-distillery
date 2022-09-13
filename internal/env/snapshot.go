@@ -1,10 +1,13 @@
 package env
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -13,6 +16,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
 	"github.com/tkw1536/goprogram/stream"
+	"golang.org/x/exp/slices"
 )
 
 // SnapshotsDir returns the path that contains all snapshot related data.
@@ -79,17 +83,76 @@ type Snapshot struct {
 	Description SnapshotDescription
 	Instance    bookkeeping.Instance
 
-	// various error states, which are ignored when creating the snapshot
-	ErrPanic interface{} // panic, if any
+	// Start and End Time of the snapshot
+	StartTime time.Time
+	EndTime   time.Time
 
+	// Generic Panic that may have occured
+	ErrPanic interface{}
+
+	// Errors during starting and stopping the system
 	ErrStart error
 	ErrStop  error
 
+	// List of files included
+	Manifest []string
+
+	// Errors during other parts
 	ErrBookkeep    error
 	ErrPathbuilder error
 	ErrFilesystem  error
 	ErrTriplestore error
-	ErrSSQL        error
+	ErrSQL         error
+}
+
+func (snapshot Snapshot) String() string {
+	var builder strings.Builder
+	snapshot.Report(&builder)
+	return builder.String()
+}
+
+// Report writes a report from snapshot into w
+func (snapshot Snapshot) Report(w io.Writer) {
+	// TODO: Errors of the writer!
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "  ")
+
+	io.WriteString(w, "======= Begin Snapshot Report "+snapshot.Instance.Slug+" =======\n")
+
+	fmt.Fprintf(w, "Slug:  %s\n", snapshot.Instance.Slug)
+	fmt.Fprintf(w, "Dest:  %s\n", snapshot.Description.Dest)
+
+	fmt.Fprintf(w, "Start: %s\n", snapshot.StartTime)
+	fmt.Fprintf(w, "End:   %s\n", snapshot.EndTime)
+	io.WriteString(w, "\n")
+
+	io.WriteString(w, "======= Description =======\n")
+	encoder.Encode(snapshot.Description)
+	io.WriteString(w, "\n")
+
+	io.WriteString(w, "======= Instance =======\n")
+	encoder.Encode(snapshot.Instance)
+	io.WriteString(w, "\n")
+
+	io.WriteString(w, "======= Errors =======\n")
+	fmt.Fprintf(w, "Panic:       %v\n", snapshot.ErrPanic)
+	fmt.Fprintf(w, "Start:       %s\n", snapshot.ErrStart)
+	fmt.Fprintf(w, "Stop:        %s\n", snapshot.ErrStop)
+	fmt.Fprintf(w, "Bookkeep:    %s\n", snapshot.ErrBookkeep)
+	fmt.Fprintf(w, "Pathbuilder: %s\n", snapshot.ErrPathbuilder)
+	fmt.Fprintf(w, "Filesystem:  %s\n", snapshot.ErrFilesystem)
+	fmt.Fprintf(w, "Triplestore: %s\n", snapshot.ErrTriplestore)
+	fmt.Fprintf(w, "SQL:         %s\n", snapshot.ErrSQL)
+	io.WriteString(w, "\n")
+
+	io.WriteString(w, "======= Manifest =======\n")
+	for _, file := range snapshot.Manifest {
+		io.WriteString(w, file+"\n")
+	}
+
+	io.WriteString(w, "\n")
+
+	io.WriteString(w, "======= End Snapshot Report "+snapshot.Instance.Slug+" =======\n")
 }
 
 // Snapshot creates a new snapshot of this instance into dest
@@ -98,13 +161,19 @@ func (instance Instance) Snapshot(io stream.IOStream, desc SnapshotDescription) 
 	snapshot.Description = desc
 	snapshot.Instance = instance.Instance
 
-	// catch anything critical that happened during the snapshot
+	// capture anything critical, and write the end time
 	defer func() {
 		snapshot.ErrPanic = recover()
 	}()
 
-	// and do the create!
-	snapshot.create(io, instance)
+	// do the create keeping track of time!
+	logging.LogOperation(func() error {
+		snapshot.StartTime = time.Now()
+		snapshot.create(io, instance)
+		snapshot.EndTime = time.Now()
+
+		return nil
+	}, io, "Writing snapshot files")
 
 	return
 }
@@ -124,7 +193,7 @@ func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
 
 	// create a wait group, and message channel
 	wg := &sync.WaitGroup{}
-	messages := make(chan string, 4)
+	files := make(chan string, 4)
 
 	// write bookkeeping information
 	wg.Add(1)
@@ -132,7 +201,7 @@ func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
 		defer wg.Done()
 
 		bkPath := filepath.Join(snapshot.Description.Dest, "bookkeeping.txt")
-		messages <- bkPath
+		files <- bkPath
 
 		info, err := os.Create(bkPath)
 		if err != nil {
@@ -147,12 +216,13 @@ func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
 	}()
 
 	// write pathbuilders
+	// TODO: Move this outside of the up/down stuff!
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 
 		pbPath := filepath.Join(snapshot.Description.Dest, "pathbuilders")
-		messages <- pbPath
+		files <- pbPath
 
 		// create the directory!
 		if err := os.Mkdir(pbPath, fs.ModeDir); err != nil {
@@ -170,14 +240,10 @@ func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
 		defer wg.Done()
 
 		fsPath := filepath.Join(snapshot.Description.Dest, filepath.Base(instance.FilesystemBase))
-		if err := os.Mkdir(fsPath, fs.ModeDir); err != nil {
-			snapshot.ErrFilesystem = err
-			return
-		}
 
 		// copy over whatever is in the base directory
 		snapshot.ErrFilesystem = fsx.CopyDirectory(fsPath, instance.FilesystemBase, func(dst, src string) {
-			messages <- dst
+			files <- dst
 		})
 	}()
 
@@ -187,11 +253,12 @@ func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
 		defer wg.Done()
 
 		tsPath := filepath.Join(snapshot.Description.Dest, instance.GraphDBRepository+".nq")
-		messages <- tsPath
+		files <- tsPath
 
 		nquads, err := os.Create(tsPath)
 		if err != nil {
 			snapshot.ErrTriplestore = err
+			return
 		}
 		defer nquads.Close()
 
@@ -205,17 +272,17 @@ func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
 		defer wg.Done()
 
 		sqlPath := filepath.Join(snapshot.Description.Dest, snapshot.Instance.SqlDatabase+".sql")
-		messages <- sqlPath
+		files <- sqlPath
 
 		sql, err := os.Create(sqlPath)
 		if err != nil {
-			snapshot.ErrSSQL = err
+			snapshot.ErrSQL = err
 			return
 		}
 		defer sql.Close()
 
 		// directly store the result
-		snapshot.ErrSSQL = instance.dis.SQL().Backup(io, sql, instance.SqlDatabase)
+		snapshot.ErrSQL = instance.dis.SQL().Backup(io, sql, instance.SqlDatabase)
 	}()
 
 	// TODO: Backup the docker image
@@ -223,13 +290,26 @@ func (snapshot *Snapshot) create(io stream.IOStream, instance Instance) {
 	// wait for the group, then close the message channel.
 	go func() {
 		wg.Wait()
-		close(messages)
+		close(files)
 	}()
 
-	// print out all the messages
-	for message := range messages {
-		io.Println(message)
+	for file := range files {
+		// get the relative path to the root of the manifest.
+		// nothing *should* go wrong, but in case it does, use the original path.
+		path, err := filepath.Rel(snapshot.Description.Dest, file)
+		if err != nil {
+			path = file
+		}
+
+		// write it to the command line
+		// and also add it to the manifest
+		io.Printf("\033[2K\r%s", path)
+		snapshot.Manifest = append(snapshot.Manifest, path)
 	}
+	io.Println("")
+
+	// make sure the manifest is sorted!
+	slices.Sort(snapshot.Manifest)
 }
 
 // WriteReport writes out the report belonging to this snapshot.
@@ -247,7 +327,7 @@ func (snapshot Snapshot) WriteReport(io stream.IOStream) error {
 		defer report.Close()
 
 		// print the report into it!
-		_, err = fmt.Fprintf(report, "%#v\n", snapshot)
+		_, err = report.WriteString(snapshot.String())
 		return err
 	}, io, "Writing snapshot report")
 }

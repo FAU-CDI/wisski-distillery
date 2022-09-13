@@ -112,8 +112,9 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 		context.IOStream.Println(archivePath)
 
 		count, err = targz.Package(archivePath, sPath, func(dst, src string) {
-			context.Println(dst)
+			context.Printf("\033[2K\r%s", dst)
 		})
+		context.Println("")
 		return err
 	}, context.IOStream, "Writing backup archive"); err != nil {
 		return errSnapshotFailed.Wrap(err)

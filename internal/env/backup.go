@@ -1,17 +1,22 @@
 package env
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
+	"golang.org/x/exp/slices"
 )
 
 // backupDescription is a description for a backup
@@ -23,17 +28,75 @@ type BackupDescription struct {
 type Backup struct {
 	Description BackupDescription
 
+	// Start and End Time of the backup
+	StartTime time.Time
+	EndTime   time.Time
+
 	// various error states, which are ignored when creating the snapshot
 	ErrPanic interface{}
 
+	// SQL and triplestore errors
 	SQLErr error
 	TSErr  error
 
+	// TODO: Make this proper
 	ConfigFileErr       error
 	ConfigFilesManifest map[string]error
 
+	// Snapshots containing instances
 	InstanceListErr   error
-	InstancesManifest []Snapshot
+	InstanceSnapshots []Snapshot
+
+	// List of files included
+	Manifest []string
+}
+
+func (backup Backup) String() string {
+	var builder strings.Builder
+	backup.Report(&builder)
+	return builder.String()
+}
+
+// Report writes a report from backup into w
+func (backup Backup) Report(w io.Writer) {
+	// TODO: Errors
+	encoder := json.NewEncoder(w)
+	encoder.SetIndent("", "  ")
+
+	io.WriteString(w, "======= Backup =======\n")
+
+	fmt.Fprintf(w, "Start: %s\n", backup.StartTime)
+	fmt.Fprintf(w, "End:   %s\n", backup.EndTime)
+	io.WriteString(w, "\n")
+
+	io.WriteString(w, "======= Description =======\n")
+	encoder.Encode(backup.Description)
+	io.WriteString(w, "\n")
+
+	io.WriteString(w, "======= Errors =======\n")
+	fmt.Fprintf(w, "Panic:           %v\n", backup.ErrPanic)
+	fmt.Fprintf(w, "SQLErr:          %s\n", backup.SQLErr)
+	fmt.Fprintf(w, "TSErr:           %s\n", backup.TSErr)
+	fmt.Fprintf(w, "ConfigFileErr:   %s\n", backup.ConfigFileErr)
+	fmt.Fprintf(w, "InstanceListErr: %s\n", backup.InstanceListErr)
+
+	io.WriteString(w, "\n")
+
+	io.WriteString(w, "======= Config Files =======\n")
+	encoder.Encode(backup.ConfigFilesManifest) // TODO: Proper manifest
+
+	io.WriteString(w, "======= Snapshots =======\n")
+	for _, s := range backup.InstanceSnapshots {
+		io.WriteString(w, s.String())
+		io.WriteString(w, "\n")
+	}
+
+	io.WriteString(w, "======= Manifest =======\n")
+	for _, file := range backup.Manifest {
+		io.WriteString(w, file+"\n")
+	}
+
+	io.WriteString(w, "\n")
 }
 
 func (dis *Distillery) Backup(io stream.IOStream, description BackupDescription) (backup Backup) {
@@ -44,7 +107,15 @@ func (dis *Distillery) Backup(io stream.IOStream, description BackupDescription)
 		backup.ErrPanic = recover()
 	}()
 
-	backup.run(io, dis)
+	// do the create keeping track of time!
+	logging.LogOperation(func() error {
+		backup.StartTime = time.Now()
+		backup.run(io, dis)
+		backup.EndTime = time.Now()
+
+		return nil
+	}, io, "Writing backup files")
+
 	return
 }
 
@@ -53,7 +124,7 @@ var errBackupSkipFile = errors.New("<file not found>")
 func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 	// create a wait group, and message channel
 	wg := &sync.WaitGroup{}
-	messages := make(chan string, 4)
+	files := make(chan string, 4)
 
 	// backup the sql
 	wg.Add(1)
@@ -61,7 +132,7 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 		defer wg.Done()
 
 		sqlPath := filepath.Join(backup.Description.Dest, "sql.sql")
-		messages <- sqlPath
+		files <- sqlPath
 
 		sql, err := os.Create(sqlPath)
 		if err != nil {
@@ -80,7 +151,7 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 		defer wg.Done()
 
 		tsPath := filepath.Join(backup.Description.Dest, "triplestore")
-		messages <- tsPath
+		files <- tsPath
 
 		// directly store the result
 		backup.TSErr = dis.Triplestore().BackupAll(tsPath)
@@ -97,15 +168,15 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 			return
 		}
 
-		files := []string{
-			filepath.Join(dis.Config.DeployRoot, ".env"),  // TODO: put the name of the configuration file somewhere
-			filepath.Join(dis.Config.DeployRoot, "wdcli"), // TODO: constant the name of the executable
+		configs := []string{
+			dis.Config.ConfigPath,
+			filepath.Join(dis.Config.DeployRoot, core.Executable), // TODO: constant the name of the executable
 			dis.Config.SelfOverridesFile,
 			dis.Config.GlobalAuthorizedKeysFile,
 		}
 
-		backup.ConfigFilesManifest = make(map[string]error, len(files))
-		for _, src := range files {
+		backup.ConfigFilesManifest = make(map[string]error, len(configs))
+		for _, src := range configs {
 			if !fsx.IsFile(src) {
 				backup.ConfigFilesManifest[src] = errBackupSkipFile
 				continue
@@ -113,7 +184,7 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 			dest := filepath.Join(cfgBackupDir, filepath.Base(src))
 
 			// copy the config file and store the error message
-			messages <- src
+			files <- src
 			backup.ConfigFilesManifest[src] = fsx.CopyFile(dest, src)
 		}
 	}()
@@ -138,9 +209,9 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 
 		iochild := stream.NewIOStream(io.Stderr, io.Stderr, nil, 0)
 
-		backup.InstancesManifest = make([]Snapshot, len(instances))
+		backup.InstanceSnapshots = make([]Snapshot, len(instances))
 		for i, instance := range instances {
-			backup.InstancesManifest[i] = func() Snapshot {
+			backup.InstanceSnapshots[i] = func() Snapshot {
 				dir := filepath.Join(instancesBackupDir, instance.Slug)
 				if err := os.Mkdir(dir, fs.ModeDir); err != nil {
 					return Snapshot{
@@ -148,7 +219,7 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 					}
 				}
 
-				messages <- dir
+				files <- dir
 				return instance.Snapshot(iochild, SnapshotDescription{
 					Dest: dir,
 				})
@@ -160,13 +231,29 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 	// wait for the group, then close the message channel.
 	go func() {
 		wg.Wait()
-		close(messages)
+		close(files)
 	}()
 
-	// print out all the messages
-	for message := range messages {
-		io.Println(message)
+	for file := range files {
+		// get the relative path to the root of the manifest.
+		// nothing *should* go wrong, but in case it does, use the original path.
+		path, err := filepath.Rel(backup.Description.Dest, file)
+		if err != nil {
+			path = file
+		}
+
+		// write it to the command line
+		// and also add it to the manifest
+		io.Printf("\033[2K\r%s", path)
+		backup.Manifest = append(backup.Manifest, path)
 	}
+	slices.Sort(backup.Manifest) // backup the manifest
+	io.Println("")
+
+	// sort the instances manifest
+	slices.SortFunc(backup.InstanceSnapshots, func(a, b Snapshot) bool {
+		return a.Instance.Slug < b.Instance.Slug
+	})
 }
 
 // WriteReport writes out the report belonging to this backup.
@@ -184,7 +271,7 @@ func (backup Backup) WriteReport(io stream.IOStream) error {
 		defer report.Close()
 
 		// print the report into it!
-		_, err = fmt.Fprintf(report, "%#v\n", backup)
+		_, err = report.WriteString(backup.String())
 		return err
 	}, io, "Writing backup report")
 }

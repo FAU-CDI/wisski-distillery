@@ -7,7 +7,7 @@ import (
 
 // Exists checks if the given path exists
 func Exists(path string) bool {
-	_, err := os.Stat(path)
+	_, err := os.Lstat(path)
 	return err == nil
 }
 
@@ -21,4 +21,10 @@ func IsDirectory(path string) bool {
 func IsFile(path string) bool {
 	info, err := os.Stat(path)
 	return err == nil && info.Mode().IsRegular()
+}
+
+// IsLink checks if the provided path exists and is a symlink
+func IsLink(path string) bool {
+	info, err := os.Lstat(path)
+	return err == nil && info.Mode()&os.ModeSymlink != 0
 }

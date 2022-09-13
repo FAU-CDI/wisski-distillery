@@ -31,7 +31,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 	defer tarHandle.Close()
 
 	// and walk through it!
-	err = filepath.Walk(src, func(path string, info fs.FileInfo, err error) error {
+	err = filepath.WalkDir(src, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -43,8 +43,15 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 			return err
 		}
 
+		// call the oncopy!
 		if onCopy != nil {
 			onCopy(relpath, path)
+		}
+
+		// read mode etc
+		info, err := entry.Info()
+		if err != nil {
+			return err
 		}
 
 		// create a file info header!
@@ -60,7 +67,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		}
 
 		// a directory => no more writing required
-		if info.IsDir() {
+		if entry.IsDir() {
 			return nil
 		}
 
