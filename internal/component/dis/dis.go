@@ -9,8 +9,6 @@ import (
 
 type Dis struct {
 	component.ComponentBase
-
-	Executable string // path to the current executable
 }
 
 func (dis Dis) Name() string {
@@ -37,12 +35,12 @@ func (dis Dis) Stack() component.Installable {
 			"GLOBAL_AUTHORIZED_KEYS_FILE": dis.Config.GlobalAuthorizedKeysFile,
 			"SELF_OVERRIDES_FILE":         dis.Config.SelfOverridesFile,
 		},
-		CopyContextFiles: []string{core.Executable},
+		CopyContextFiles: []string{dis.Config.CurrentExecutable()},
 	})
 }
 
 func (dis Dis) Context(parent component.InstallationContext) component.InstallationContext {
 	return component.InstallationContext{
-		core.Executable: dis.Executable,
+		core.Executable: dis.Config.CurrentExecutable(),
 	}
 }

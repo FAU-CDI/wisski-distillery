@@ -6,7 +6,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/env"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
 	"github.com/tkw1536/goprogram/exit"
@@ -83,7 +83,7 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 
 	logging.LogOperation(func() error {
 		// take a snapshot into the staging area!
-		backup := dis.Backup(context.IOStream, env.BackupDescription{
+		backup := dis.Backup(context.IOStream, wisski.BackupDescription{
 			Dest: sPath,
 		})
 

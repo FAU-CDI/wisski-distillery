@@ -1,4 +1,4 @@
-package env
+package wisski
 
 import "path/filepath"
 

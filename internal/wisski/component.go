@@ -1,4 +1,4 @@
-package env
+package wisski
 
 import (
 	"path/filepath"
@@ -14,6 +14,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/web"
+	"github.com/FAU-CDI/wisski-distillery/internal/core"
 )
 
 // components holds the various components of the distillery
@@ -94,15 +95,12 @@ func (dis *Distillery) Self() *self.Self {
 
 func (dis *Distillery) Resolver() *resolver.Resolver {
 	return makeComponent(dis, &dis.components.resolver, func(resolver *resolver.Resolver) {
-		resolver.ConfigName = "prefix.cfg" // TODO: Move into core?
-		resolver.Executable = dis.CurrentExecutable()
+		resolver.ConfigName = core.PrefixConfig
 	})
 }
 
 func (d *Distillery) Dis() *dis.Dis {
-	return makeComponent(d, &d.components.dis, func(ddis *dis.Dis) {
-		ddis.Executable = d.CurrentExecutable()
-	})
+	return makeComponent(d, &d.components.dis, nil)
 }
 
 func (dis *Distillery) SSH() *ssh.SSH {

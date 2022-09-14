@@ -1,10 +1,10 @@
-package env
+package wisski
 
 import (
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/pkg/bookkeeping"
+	"github.com/FAU-CDI/wisski-distillery/pkg/stringparser"
 	"github.com/pkg/errors"
 )
 
@@ -37,7 +37,7 @@ var errInvalidSlug = errors.New("Not a valid slug")
 func (dis *Distillery) NewInstance(slug string) (i Instance, err error) {
 
 	// make sure that the slug is valid!
-	if _, err := config.IsValidSlug(slug); err != nil {
+	if _, err := stringparser.ParseSlug(slug); err != nil {
 		return i, errInvalidSlug
 	}
 

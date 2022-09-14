@@ -5,7 +5,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/env"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -57,7 +57,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 	// load the instance (first via bookkeeping, then via defaults)
 	logging.LogMessage(context.IOStream, "Checking bookkeeping table")
 	instance, err := dis.Instance(slug)
-	if err == env.ErrInstanceNotFound {
+	if err == wisski.ErrInstanceNotFound {
 		context.Println("Not found in bookkeeping table, assuming defaults")
 		instance, err = dis.NewInstance(slug)
 	}

@@ -1,4 +1,4 @@
-package env
+package wisski
 
 import (
 	"os"
@@ -18,9 +18,9 @@ var errOpenConfig = exit.Error{
 	Message:  "error loading configuration file: %s",
 }
 
-// NewDistillery creates a new distillery object from a set of parameters and requirements
-func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) (env *Distillery, err error) {
-	env = &Distillery{
+// NewDistillery creates a new distillery from the provided flags
+func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) (dis *Distillery, err error) {
+	dis = &Distillery{
 		Upstream: Upstream{
 			SQL:         "127.0.0.1:3306",
 			Triplestore: "127.0.0.1:7200",
@@ -28,8 +28,8 @@ func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) 
 	}
 
 	if flags.InternalInDocker {
-		env.Upstream.SQL = "sql:3306"
-		env.Upstream.Triplestore = "triplestore:7200"
+		dis.Upstream.SQL = "sql:3306"
+		dis.Upstream.Triplestore = "triplestore:7200"
 	}
 
 	// if we don't need to load the config, there is nothing to do
@@ -54,9 +54,9 @@ func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) 
 	defer f.Close()
 
 	// unmarshal the config
-	env.Config = &config.Config{
+	dis.Config = &config.Config{
 		ConfigPath: cfg,
 	}
-	err = env.Config.Unmarshal(f)
+	err = dis.Config.Unmarshal(f)
 	return
 }

@@ -6,7 +6,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/env"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
 	"github.com/tkw1536/goprogram/exit"
@@ -86,7 +86,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 
 	// take a snapshot into the staging area!
 	logging.LogOperation(func() error {
-		sreport := instance.Snapshot(context.IOStream, env.SnapshotDescription{
+		sreport := instance.Snapshot(context.IOStream, wisski.SnapshotDescription{
 			Dest:      sPath,
 			Keepalive: bi.Keepalive,
 		})

@@ -4,14 +4,14 @@ import (
 	"os/user"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/env"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram"
 	"github.com/tkw1536/goprogram/exit"
 )
 
 // these define the ggman-specific program types
 // none of these are strictly needed, they're just around for convenience
-type wdcliEnv = *env.Distillery
+type wdcliEnv = *wisski.Distillery
 type wdcliParameters = core.Params
 type wdcliRequirements = core.Requirements
 type wdCliFlags = core.Flags
@@ -41,15 +41,15 @@ func NewProgram() Program {
 
 			// when not running inside docker and we need a distillery
 			// then we should warn if we are not using the distillery executable.
-			if dis := context.Environment; !context.Args.Flags.InternalInDocker && context.Description.Requirements.NeedsDistillery && !dis.UsingDistilleryExecutable() {
-				context.EPrintf(warnNoDeployWdcli, core.Executable, dis.ExecutablePath())
+			if dis := context.Environment; !context.Args.Flags.InternalInDocker && context.Description.Requirements.NeedsDistillery && !dis.Config.UsingDistilleryExecutable() {
+				context.EPrintf(warnNoDeployWdcli, core.Executable, dis.Config.ExecutablePath())
 			}
 
 			return nil
 		},
 
 		NewEnvironment: func(params wdcliParameters, context Context) (e wdcliEnv, err error) {
-			return env.NewDistillery(params, context.Args.Flags, context.Description.Requirements)
+			return wisski.NewDistillery(params, context.Args.Flags, context.Description.Requirements)
 		},
 	}
 }
