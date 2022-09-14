@@ -193,7 +193,7 @@ func (instance *Instance) Delete() error {
 
 // Shell executes a shell command inside the
 func (instance Instance) Shell(io stream.IOStream, argv ...string) (int, error) {
-	return instance.Stack().Exec(io, "barrel", "/user_shell.sh", argv...)
+	return instance.Stack().Exec(io, "barrel", "/bin/sh", append([]string{"/user_shell.sh"}, argv...)...)
 }
 
 // Domain returns the full domain name of this instance
