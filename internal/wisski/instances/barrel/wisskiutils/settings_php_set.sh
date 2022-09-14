@@ -21,7 +21,11 @@ cd /var/www/data/project
 chmod u+w web/sites/default/settings.php
 
 (echo "$NAME"; echo "$VALUE" ) | drush php:eval '
-    include_once DRUPAL_ROOT . "/internal/core/includes/install.inc";
+    if(is_file(DRUPAL_ROOT . "/internal/")) {
+        include_once DRUPAL_ROOT . "/internal/core/includes/install.inc";
+    } else {
+        include_once DRUPAL_ROOT . "/core/includes/install.inc";
+    }
 
     // read NAME and VALUE from STDIN
     $content=file_get_contents("php://stdin");  
