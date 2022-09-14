@@ -3,7 +3,6 @@ package wisski
 import (
 	"path/filepath"
 	"reflect"
-	"sync"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
@@ -20,9 +19,9 @@ import (
 
 // components holds the various components of the distillery
 // It is inlined into the [Distillery] struct, and initialized using [makeComponent].
+//
+// The caller is responsible for syncronizing access across multiple goroutines.
 type components struct {
-	// m protects the fields below
-	m sync.Mutex
 
 	// installable components
 	web      *web.Web
@@ -47,8 +46,6 @@ type components struct {
 //
 // makeComponent returns the new or existing component instance
 func makeComponent[C component.Component](dis *Distillery, field *C, init func(C)) C {
-	dis.components.m.Lock()
-	defer dis.components.m.Unlock()
 
 	// get the typeof C and make sure that it is a pointer type!
 	typC := reflect.TypeOf((*C)(nil)).Elem()
