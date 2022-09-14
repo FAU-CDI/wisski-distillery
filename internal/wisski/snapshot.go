@@ -10,7 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/bookkeeping"
+	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -161,7 +162,7 @@ func (snapshot Snapshot) Report(w io.Writer) (int, error) {
 }
 
 // Snapshot creates a new snapshot of this instance into dest
-func (instance Instance) Snapshot(io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
+func (dis *Distillery) Snapshot(instance instances.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
 	// setup the snapshot
 	snapshot.Description = desc
 	snapshot.Instance = instance.Instance
@@ -175,8 +176,8 @@ func (instance Instance) Snapshot(io stream.IOStream, desc SnapshotDescription) 
 	logging.LogOperation(func() error {
 		snapshot.StartTime = time.Now()
 
-		snapshot.makeBlackbox(io, instance)
-		snapshot.makeWhitebox(io, instance)
+		snapshot.makeBlackbox(io, dis, instance)
+		snapshot.makeWhitebox(io, dis, instance)
 
 		snapshot.EndTime = time.Now()
 		return nil
@@ -188,7 +189,7 @@ func (instance Instance) Snapshot(io stream.IOStream, desc SnapshotDescription) 
 
 // makeBlackbox runs the blackbox backup of the system.
 // It pauses the Instance, if a consistent state is required.
-func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, instance Instance) {
+func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, instance instances.WissKI) {
 	stack := instance.Stack()
 
 	og := opgroup.NewOpGroup[string](4)
@@ -243,7 +244,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, instance Instance) {
 		defer nquads.Close()
 
 		// directly store the result
-		_, err = instance.dis.Triplestore().Backup(nquads, instance.GraphDBRepository)
+		_, err = dis.Triplestore().Backup(nquads, instance.GraphDBRepository)
 		return err
 	}, &snapshot.ErrTriplestore)
 
@@ -259,7 +260,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, instance Instance) {
 		defer sql.Close()
 
 		// directly store the result
-		return instance.dis.SQL().Backup(io, sql, instance.SqlDatabase)
+		return dis.SQL().Backup(io, sql, instance.SqlDatabase)
 	}, &snapshot.ErrSQL)
 
 	// wait for the group!
@@ -268,7 +269,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, instance Instance) {
 
 // makeWhitebox runs the whitebox backup of the system.
 // The instance should be running during this step.
-func (snapshot *Snapshot) makeWhitebox(io stream.IOStream, instance Instance) {
+func (snapshot *Snapshot) makeWhitebox(io stream.IOStream, dis *Distillery, instance instances.WissKI) {
 	og := opgroup.NewOpGroup[string](1)
 
 	// write pathbuilders

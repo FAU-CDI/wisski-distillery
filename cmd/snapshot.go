@@ -42,7 +42,7 @@ var errSnapshotFailed = exit.Error{
 
 func (bi snapshot) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
-	instance, err := dis.Instance(bi.Positionals.Slug)
+	instance, err := dis.Instances().WissKI(bi.Positionals.Slug)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 
 	// take a snapshot into the staging area!
 	logging.LogOperation(func() error {
-		sreport := instance.Snapshot(context.IOStream, wisski.SnapshotDescription{
+		sreport := dis.Snapshot(instance, context.IOStream, wisski.SnapshotDescription{
 			Dest:      sPath,
 			Keepalive: bi.Keepalive,
 		})

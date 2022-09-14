@@ -33,7 +33,7 @@ var errRebuildFailed = exit.Error{
 }
 
 func (rb rebuild) Run(context wisski_distillery.Context) error {
-	instances, err := context.Environment.Instances(rb.Positionals.Slug...)
+	instances, err := context.Environment.Instances().Load(rb.Positionals.Slug...)
 	if err != nil {
 		return err
 	}

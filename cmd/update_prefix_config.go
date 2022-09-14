@@ -33,7 +33,7 @@ var errPrefixUpdateFailed = exit.Error{
 func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
-	instances, err := dis.AllInstances()
+	instances, err := dis.Instances().All()
 	if err != nil {
 		return errPrefixUpdateFailed.WithMessageF(err)
 	}

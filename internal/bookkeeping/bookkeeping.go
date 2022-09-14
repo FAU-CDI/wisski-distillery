@@ -33,12 +33,12 @@ type Instance struct {
 
 	// SQL Database credentials for the system
 	SqlDatabase string `gorm:"column:sql_database;not null"`
-	SqlUser     string `gorm:"column:sql_user;not null"`
+	SqlUsername string `gorm:"column:sql_user;not null"`
 	SqlPassword string `gorm:"column:sql_password;not null"`
 
 	// GraphDB Repository
 	GraphDBRepository string `gorm:"column:graphdb_repository;not null"`
-	GraphDBUser       string `gorm:"column:graphdb_user;not null"`
+	GraphDBUsername   string `gorm:"column:graphdb_user;not null"`
 	GraphDBPassword   string `gorm:"column:graphdb_password;not null"`
 }
 

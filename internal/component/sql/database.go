@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/bookkeeping"
+	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/sqle"
 	"github.com/FAU-CDI/wisski-distillery/pkg/wait"
@@ -165,7 +165,7 @@ func (sql SQL) PurgeDatabase(db string) error {
 }
 
 var errSQLUnableToCreateUser = errors.New("unable to create administrative user")
-var errSQLUnsafeDatabaseName = errors.New("Bookkeeping database has an unsafe name")
+var errSQLUnsafeDatabaseName = errors.New("bookkeeping database has an unsafe name")
 var errSQLUnableToCreate = errors.New("unable to create bookkeeping database")
 
 // Bootstrap bootstraps the SQL database, and makes sure that the bookkeeping table is up-to-date

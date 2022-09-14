@@ -45,12 +45,12 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// check that it doesn't already exist
 	logging.LogMessage(context.IOStream, "Provisioning new WissKI instance %s", slug)
-	if exists, err := dis.HasInstance(slug); err != nil || exists {
+	if exists, err := dis.Instances().Has(slug); err != nil || exists {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
 
 	// make it in-memory
-	instance, err := dis.NewInstance(slug)
+	instance, err := dis.Instances().Create(slug)
 	if err != nil {
 		return errProvisionGeneric.WithMessageF(slug, err)
 	}
@@ -63,7 +63,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// Store in bookkeeping
 	if err := logging.LogOperation(func() error {
-		if err := instance.Update(); err != nil {
+		if err := instance.Save(); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 
@@ -74,7 +74,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// create the sql
 	if err := logging.LogOperation(func() error {
-		if err := dis.SQL().Provision(instance.SqlDatabase, instance.SqlUser, instance.SqlPassword); err != nil {
+		if err := dis.SQL().Provision(instance.SqlDatabase, instance.SqlUsername, instance.SqlPassword); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 
@@ -85,7 +85,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// create the triplestore
 	if err := logging.LogOperation(func() error {
-		if err := dis.Triplestore().Provision(instance.GraphDBRepository, instance.Domain(), instance.GraphDBUser, instance.GraphDBPassword); err != nil {
+		if err := dis.Triplestore().Provision(instance.GraphDBRepository, instance.Domain(), instance.GraphDBUsername, instance.GraphDBPassword); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 

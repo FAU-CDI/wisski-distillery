@@ -26,29 +26,28 @@ type Component interface {
 	// By convention it is /var/www/deploy/internal/core/${Name()}
 	Path() string
 
-	// Context returns a new InstallationContext to be used during installation from the command line.
-	// Typically this should just pass through the parent, but might perform other tasks.
-	Context(parent InstallationContext) InstallationContext
-
 	// Base() returns a reference to a base component
 	// This is implemented by an embedding on ComponentBase
 	Base() *ComponentBase
 }
 
-// ComponentWithStack implements a component with a Stack method.
-type ComponentWithStack interface {
+// InstallableComponent implements an installable component
+type InstallableComponent interface {
 	Component
 
 	// Stack can be used to gain access to the "docker compose" stack.
 	//
 	// This should internally call
 	Stack() Installable
+
+	// Context returns a new InstallationContext to be used during installation from the command line.
+	// Typically this should just pass through the parent, but might perform other tasks.
+	Context(parent InstallationContext) InstallationContext
 }
 
 // ComponentBase implements base functionality for a component
 type ComponentBase struct {
-	Dir string // Dir is the directory this component lives in
-
+	Dir    string         // Dir is the directory this component lives in
 	Config *config.Config // Config is the configuration of the underlying distillery
 }
 

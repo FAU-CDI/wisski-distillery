@@ -205,7 +205,7 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 		}
 
 		// list all instances
-		instances, err := dis.AllInstances()
+		instances, err := dis.Instances().All()
 		if err != nil {
 			backup.InstanceListErr = err
 			return
@@ -224,7 +224,7 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 				}
 
 				files <- dir
-				return instance.Snapshot(iochild, SnapshotDescription{
+				return dis.Snapshot(instance, iochild, SnapshotDescription{
 					Dest: dir,
 				})
 			}()

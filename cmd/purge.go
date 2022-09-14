@@ -4,8 +4,8 @@ import (
 	"os"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -56,10 +56,10 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// load the instance (first via bookkeeping, then via defaults)
 	logging.LogMessage(context.IOStream, "Checking bookkeeping table")
-	instance, err := dis.Instance(slug)
-	if err == wisski.ErrInstanceNotFound {
+	instance, err := dis.Instances().WissKI(slug)
+	if err == instances.ErrWissKINotFound {
 		context.Println("Not found in bookkeeping table, assuming defaults")
-		instance, err = dis.NewInstance(slug)
+		instance, err = dis.Instances().Create(slug)
 	}
 	if err != nil {
 		return errPurgeNoDetails.WithMessageF(err)
@@ -80,8 +80,8 @@ func (p purge) Run(context wisski_distillery.Context) error {
 	// remove the triplestore
 	ts := dis.Triplestore()
 	logging.LogOperation(func() error {
-		logging.LogMessage(context.IOStream, "Removing user %s", instance.GraphDBUser)
-		if err := ts.PurgeUser(instance.GraphDBUser); err != nil {
+		logging.LogMessage(context.IOStream, "Removing user %s", instance.GraphDBUsername)
+		if err := ts.PurgeUser(instance.GraphDBUsername); err != nil {
 			context.EPrintln(err)
 		}
 
@@ -97,8 +97,8 @@ func (p purge) Run(context wisski_distillery.Context) error {
 	logging.LogOperation(func() error {
 		sql := dis.SQL()
 
-		logging.LogMessage(context.IOStream, "Removing user %s", instance.SqlUser)
-		if err := sql.PurgeUser(instance.SqlUser); err != nil {
+		logging.LogMessage(context.IOStream, "Removing user %s", instance.SqlUsername)
+		if err := sql.PurgeUser(instance.SqlUsername); err != nil {
 			context.EPrintln(err)
 		}
 

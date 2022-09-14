@@ -32,7 +32,7 @@ var errCronFailed = exit.Error{
 }
 
 func (cr cron) Run(context wisski_distillery.Context) error {
-	instances, err := context.Environment.Instances(cr.Positionals.Slug...)
+	instances, err := context.Environment.Instances().Load(cr.Positionals.Slug...)
 	if err != nil {
 		return err
 	}

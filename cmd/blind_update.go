@@ -33,7 +33,7 @@ var errBlindUpdateFailed = exit.Error{
 }
 
 func (bu blindUpdate) Run(context wisski_distillery.Context) error {
-	instances, err := context.Environment.Instances(bu.Positionals.Slug...)
+	instances, err := context.Environment.Instances().Load(bu.Positionals.Slug...)
 	if err != nil {
 		return err
 	}

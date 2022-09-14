@@ -80,7 +80,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	logging.LogMessage(context.IOStream, "Ensuring distillery installation directories exist")
 	for _, d := range []string{
 		dis.Config.DeployRoot,
-		dis.InstancesDir(),
+		dis.Instances().Path(),
 		dis.SnapshotsStagingPath(),
 		dis.SnapshotsArchivePath(),
 	} {

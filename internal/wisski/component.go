@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/dis"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/self"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
@@ -23,7 +24,7 @@ type components struct {
 	// m protects the fields below
 	m sync.Mutex
 
-	// each component is only initialized once
+	// installable components
 	web      *web.Web
 	self     *self.Self
 	resolver *resolver.Resolver
@@ -31,6 +32,9 @@ type components struct {
 	ssh      *ssh.SSH
 	ts       *triplestore.Triplestore
 	sql      *sql.SQL
+
+	// other components
+	instances *instances.Instances
 }
 
 // makeComponent makes or returns a component inside the [component] struct of the distillery
@@ -73,8 +77,8 @@ func makeComponent[C component.Component](dis *Distillery, field *C, init func(C
 }
 
 // Components returns all components that have a stack function
-func (dis *Distillery) Components() []component.ComponentWithStack {
-	return []component.ComponentWithStack{
+func (dis *Distillery) Components() []component.InstallableComponent {
+	return []component.InstallableComponent{
 		dis.Web(),
 		dis.Self(),
 		dis.Resolver(),
@@ -120,5 +124,12 @@ func (dis *Distillery) Triplestore() *triplestore.Triplestore {
 		ts.BaseURL = "http://" + dis.Upstream.Triplestore
 		ts.PollContext = dis.Context()
 		ts.PollInterval = time.Second
+	})
+}
+
+func (dis *Distillery) Instances() *instances.Instances {
+	return makeComponent(dis, &dis.components.instances, func(instances *instances.Instances) {
+		instances.SQL = dis.SQL()
+		instances.TS = dis.Triplestore()
 	})
 }

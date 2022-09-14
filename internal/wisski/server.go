@@ -19,7 +19,7 @@ func (dis *Distillery) Server() *Server {
 }
 
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	instances, err := s.dis.AllInstances()
+	instances, err := s.dis.Instances().All()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		io.WriteString(w, "Something went wrong")

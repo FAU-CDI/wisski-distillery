@@ -25,7 +25,7 @@ func (info) Description() wisski_distillery.Description {
 }
 
 func (i info) Run(context wisski_distillery.Context) error {
-	instance, err := context.Environment.Instance(i.Positionals.Slug)
+	instance, err := context.Environment.Instances().WissKI(i.Positionals.Slug)
 	if err != nil {
 		return err
 	}
@@ -34,11 +34,11 @@ func (i info) Run(context wisski_distillery.Context) error {
 	context.Printf("Base directory:       %s\n", instance.FilesystemBase)
 
 	context.Printf("SQL Database:         %s\n", instance.SqlDatabase)
-	context.Printf("SQL Username:         %s\n", instance.SqlUser)
+	context.Printf("SQL Username:         %s\n", instance.SqlUsername)
 	context.Printf("SQL Password:         %s\n", instance.SqlPassword)
 
 	context.Printf("GraphDB Repository:   %s\n", instance.GraphDBRepository)
-	context.Printf("GraphDB Username:     %s\n", instance.GraphDBUser)
+	context.Printf("GraphDB Username:     %s\n", instance.GraphDBUsername)
 	context.Printf("GraphDB Password:     %s\n", instance.GraphDBPassword)
 
 	return nil

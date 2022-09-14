@@ -46,12 +46,12 @@ func (r reserve) Run(context wisski_distillery.Context) error {
 
 	// check that it doesn't already exist
 	logging.LogMessage(context.IOStream, "Reserving new WissKI instance %s", slug)
-	if exists, err := dis.HasInstance(slug); err != nil || exists {
+	if exists, err := dis.Instances().Has(slug); err != nil || exists {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
 
 	// make it in-memory
-	instance, err := dis.NewInstance(slug)
+	instance, err := dis.Instances().Create(slug)
 	if err != nil {
 		return errProvisionGeneric.WithMessageF(slug, err)
 	}
