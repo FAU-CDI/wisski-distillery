@@ -242,7 +242,7 @@ func (instance Instance) Stack() component.Installable {
 			"LETSENCRYPT_HOST":  instance.dis.Config.IfHttps(instance.Domain()),
 			"LETSENCRYPT_EMAIL": instance.dis.Config.IfHttps(instance.dis.Config.CertbotEmail),
 
-			"RUNTIME_DIR":                 instance.dis.RuntimeDir(),
+			"RUNTIME_DIR":                 instance.dis.Config.RuntimeDir(),
 			"GLOBAL_AUTHORIZED_KEYS_FILE": instance.dis.Config.GlobalAuthorizedKeysFile,
 		},
 

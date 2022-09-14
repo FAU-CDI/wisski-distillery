@@ -72,9 +72,9 @@ func makeComponent[C component.Component](dis *Distillery, field *C, init func(C
 	return *field
 }
 
-// Components returns all components of the distillery
-func (dis *Distillery) Components() []component.Component {
-	return []component.Component{
+// Components returns all components that have a stack function
+func (dis *Distillery) Components() []component.ComponentWithStack {
+	return []component.ComponentWithStack{
 		dis.Web(),
 		dis.Self(),
 		dis.Resolver(),

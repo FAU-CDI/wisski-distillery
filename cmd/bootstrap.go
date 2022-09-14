@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	cfg "github.com/FAU-CDI/wisski-distillery/internal/config"
+	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/hostname"
@@ -188,11 +188,11 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 	}
 	defer f.Close()
 
-	var config cfg.Config
-	if err := config.Unmarshal(f); err != nil {
+	var cfg config.Config
+	if err := cfg.Unmarshal(f); err != nil {
 		return errBootstrapOpenConfig.WithMessageF(err)
 	}
-	context.Println(config)
+	context.Println(cfg)
 
 	// Tell the user how to proceed
 	logging.LogMessage(context.IOStream, "Bootstrap is complete")

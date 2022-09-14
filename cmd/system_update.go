@@ -5,6 +5,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -142,7 +143,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		return unpack.InstallDir(dis.RuntimeDir(), "runtime", core.Runtime, func(dst, src string) {
+		return unpack.InstallDir(dis.Config.RuntimeDir(), "runtime", config.Runtime, func(dst, src string) {
 			context.Printf("[copy]  %s\n", dst)
 		})
 	}, context.IOStream, "Unpacking Runtime Components"); err != nil {
