@@ -8,8 +8,9 @@ require (
 	github.com/alessio/shellescape v1.4.1
 	github.com/feiin/sqlstring v0.3.0
 	github.com/pkg/errors v0.9.1
-	github.com/tkw1536/goprogram v0.0.11
+	github.com/tkw1536/goprogram v0.0.12
 	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561
+	golang.org/x/sync v0.0.0-20220907140024-f12130a52804
 	gorm.io/driver/mysql v1.3.6
 	gorm.io/gorm v1.23.8
 )

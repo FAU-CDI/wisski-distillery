@@ -4,3 +4,5 @@ authorized_keys
 .env
 *.zip
 *.nq
+go.work
+go.work.sum
