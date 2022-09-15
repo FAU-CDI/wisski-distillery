@@ -90,7 +90,7 @@ func (is Installable) Install(io stream.IOStream, context InstallationContext) e
 		// find the source!
 		src, ok := context[name]
 		if !ok {
-			return errors.Errorf("Missing file from context: %s", src)
+			return errors.Errorf("Missing file from context: %q", src)
 		}
 
 		// find the destination!

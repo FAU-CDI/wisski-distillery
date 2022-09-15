@@ -39,3 +39,19 @@ func (cfg Config) DefaultHost() string {
 func (cfg Config) DefaultSSLHost() string {
 	return cfg.IfHttps(cfg.DefaultHost())
 }
+
+// SlugFromHost returns the slug belonging to the appropriate host.
+func (cfg Config) SlugFromHost(host string) (slug string) {
+	// extract an ':port' that happens to be in the host.
+	domain, _, _ := strings.Cut(host, ":")
+
+	// check all the possible domain endings
+	for _, suffix := range append([]string{cfg.DefaultDomain}, cfg.SelfExtraDomains...) {
+		if strings.HasSuffix(domain, "."+suffix) {
+			return domain[:len(domain)-len(suffix)-1]
+		}
+	}
+
+	// no domain found!
+	return ""
+}

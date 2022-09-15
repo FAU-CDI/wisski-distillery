@@ -8,7 +8,6 @@ services:
       # port and hostname for this image to use
       VIRTUAL_HOST: ${VIRTUAL_HOST}
       VIRTUAL_PORT: 8888
-      VIRTUAL_PATH: /dis/
 
       CONFIG_PATH: ${CONFIG_PATH}
       

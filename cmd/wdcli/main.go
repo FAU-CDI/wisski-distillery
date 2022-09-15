@@ -50,8 +50,7 @@ func init() {
 	wdcli.Register(cmd.Monday)
 
 	// servers
-	wdcli.Register(cmd.DisServer)
-	wdcli.Register(cmd.ResolverServer)
+	wdcli.Register(cmd.Server)
 }
 
 // an error when no arguments are provided.

@@ -47,20 +47,20 @@ func ParseNonEmpty(s string) (string, error) {
 
 var regexpDomain = regexp.MustCompile(`^([a-zA-Z0-9][-a-zA-Z0-9]*\.)*[a-zA-Z0-9][-a-zA-Z0-9]*$`) // TODO: Make this regexp nicer!
 
-// ParseValidDomain checks that s is a valid domain and returns it as-is
+// ParseValidDomain checks that s is a valid domain and returns it in lowercase
 func ParseValidDomain(s string) (string, error) {
 	if !regexpDomain.MatchString(s) {
 		return "", errors.Errorf("%q is not a valid domain", s)
 	}
-	return s, nil
+	return strings.ToLower(s), nil
 }
 
-// ParseValidDomains checks that s is a comma-seperated list of valid domains and returns them as-is
+// ParseValidDomains checks that s is a comma-seperated list of valid domains and returns them in lower case
 func ParseValidDomains(s string) ([]string, error) {
 	if len(s) == 0 {
 		return []string{}, nil
 	}
-	domains := strings.Split(s, ",")
+	domains := strings.Split(strings.ToLower(s), ",")
 	for _, d := range domains {
 		if !regexpDomain.MatchString(d) {
 			return nil, errors.Errorf("%q is not a valid domain", d)

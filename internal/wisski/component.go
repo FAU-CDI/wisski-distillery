@@ -8,13 +8,12 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/self"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/web"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
 // components holds the various components of the distillery
@@ -24,16 +23,14 @@ import (
 type components struct {
 
 	// installable components
-	web      *web.Web
-	self     *self.Self
-	resolver *resolver.Resolver
-	dis      *dis.Dis
-	ssh      *ssh.SSH
-	ts       *triplestore.Triplestore
-	sql      *sql.SQL
+	web lazy.Lazy[*web.Web]
+	dis lazy.Lazy[*dis.Dis]
+	ssh lazy.Lazy[*ssh.SSH]
+	ts  lazy.Lazy[*triplestore.Triplestore]
+	sql lazy.Lazy[*sql.SQL]
 
 	// other components
-	instances *instances.Instances
+	instances lazy.Lazy[*instances.Instances]
 }
 
 // makeComponent makes or returns a component inside the [component] struct of the distillery
@@ -45,7 +42,7 @@ type components struct {
 // init is called with a new non-nil component to initialize it. It may be nil, to indicate no initialization is required.
 //
 // makeComponent returns the new or existing component instance
-func makeComponent[C component.Component](dis *Distillery, field *C, init func(C)) C {
+func makeComponent[C component.Component](dis *Distillery, field *lazy.Lazy[C], init func(C)) C {
 
 	// get the typeof C and make sure that it is a pointer type!
 	typC := reflect.TypeOf((*C)(nil)).Elem()
@@ -53,32 +50,27 @@ func makeComponent[C component.Component](dis *Distillery, field *C, init func(C
 		panic("makeComponent: C must be backed by a pointer")
 	}
 
-	// if the component is non-nil, then it has already been initialized
-	if !reflect.ValueOf(*field).IsNil() {
-		return *field
-	}
+	// return the field
+	return field.Get(func() (c C) {
+		c = reflect.New(typC.Elem()).Interface().(C)
+		if init != nil {
+			init(c)
+		}
 
-	// create a new element, and call the initializer (if requested)
-	*field = reflect.New(typC.Elem()).Interface().(C)
-	if init != nil {
-		init(*field)
-	}
+		base := c.Base()
+		base.Config = dis.Config
+		if base.Dir == "" {
+			base.Dir = filepath.Join(dis.Config.DeployRoot, "core", c.Name())
+		}
 
-	// apply the base configuration
-	base := (*field).Base()
-	base.Config = dis.Config
-	base.Dir = filepath.Join(dis.Config.DeployRoot, "core", (*field).Name())
-
-	// and eventually return it
-	return *field
+		return
+	})
 }
 
 // Components returns all components that have a stack function
 func (dis *Distillery) Components() []component.InstallableComponent {
 	return []component.InstallableComponent{
 		dis.Web(),
-		dis.Self(),
-		dis.Resolver(),
 		dis.Dis(),
 		dis.SSH(),
 		dis.Triplestore(),
@@ -90,18 +82,11 @@ func (dis *Distillery) Web() *web.Web {
 	return makeComponent(dis, &dis.components.web, nil)
 }
 
-func (dis *Distillery) Self() *self.Self {
-	return makeComponent(dis, &dis.components.self, nil)
-}
-
-func (dis *Distillery) Resolver() *resolver.Resolver {
-	return makeComponent(dis, &dis.components.resolver, func(resolver *resolver.Resolver) {
-		resolver.ConfigName = core.PrefixConfig
-	})
-}
-
 func (d *Distillery) Dis() *dis.Dis {
-	return makeComponent(d, &d.components.dis, nil)
+	return makeComponent(d, &d.components.dis, func(ddis *dis.Dis) {
+		ddis.ResolverFile = core.PrefixConfig
+		ddis.Instances = d.Instances()
+	})
 }
 
 func (dis *Distillery) SSH() *ssh.SSH {
@@ -126,6 +111,7 @@ func (dis *Distillery) Triplestore() *triplestore.Triplestore {
 
 func (dis *Distillery) Instances() *instances.Instances {
 	return makeComponent(dis, &dis.components.instances, func(instances *instances.Instances) {
+		instances.Dir = filepath.Join(dis.Config.DeployRoot, "instances")
 		instances.SQL = dis.SQL()
 		instances.TS = dis.Triplestore()
 	})

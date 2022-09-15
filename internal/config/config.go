@@ -26,7 +26,7 @@ type Config struct {
 
 	// By default, the default domain redirects to the distillery repository.
 	// If you want to change this, set an alternate domain name here.
-	SelfRedirect *url.URL `env:"SELF_REDIRECT" default:"" parser:"https_url"`
+	SelfRedirect *url.URL `env:"SELF_REDIRECT" default:"https://github.com/FAU-CDI/wisski-distillery" parser:"https_url"`
 
 	// By default, only the 'self' domain above is caught.
 	// To catch additional domains, add them here (comma seperated)

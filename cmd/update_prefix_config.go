@@ -38,8 +38,8 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 		return errPrefixUpdateFailed.WithMessageF(err)
 	}
 
-	resolver := dis.Resolver()
-	target := resolver.ConfigPath()
+	ddis := dis.Dis()
+	target := ddis.ResolverConfigPath()
 
 	// print the configuration
 	config, err := os.OpenFile(target, os.O_WRONLY, fs.ModePerm)
@@ -70,7 +70,7 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 
 	// and restart the resolver to apply the config!
 	logging.LogMessage(context.IOStream, "restarting resolver stack")
-	if err := resolver.Stack().Restart(context.IOStream); err != nil {
+	if err := ddis.Stack().Restart(context.IOStream); err != nil {
 		return errPrefixUpdateFailed.WithMessageF(err)
 	}
 

@@ -4,11 +4,16 @@ import (
 	"embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 )
 
 type Dis struct {
 	component.ComponentBase
+
+	Instances *instances.Instances
+
+	ResolverFile string
 }
 
 func (dis Dis) Name() string {
@@ -35,7 +40,9 @@ func (dis Dis) Stack() component.Installable {
 			"GLOBAL_AUTHORIZED_KEYS_FILE": dis.Config.GlobalAuthorizedKeysFile,
 			"SELF_OVERRIDES_FILE":         dis.Config.SelfOverridesFile,
 		},
-		CopyContextFiles: []string{dis.Config.CurrentExecutable()},
+
+		TouchFiles:       []string{dis.ResolverFile},
+		CopyContextFiles: []string{core.Executable},
 	})
 }
 

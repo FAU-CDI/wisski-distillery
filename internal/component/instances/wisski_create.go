@@ -18,14 +18,16 @@ var errInvalidSlug = errors.New("not a valid slug")
 //
 // It does not perform any checks if the instance already exists, or does the creation in the database.
 func (instances *Instances) Create(slug string) (wisski WissKI, err error) {
+	wisski.instances = instances
 
 	// make sure that the slug is valid!
-	if _, err := stringparser.ParseSlug(slug); err != nil {
+	slug, err = stringparser.ParseSlug(slug)
+	if err != nil {
 		return wisski, errInvalidSlug
 	}
 
 	wisski.Instance.Slug = slug
-	wisski.Instance.FilesystemBase = filepath.Join(instances.Dir, slug)
+	wisski.Instance.FilesystemBase = filepath.Join(instances.Dir, wisski.Domain())
 
 	wisski.Instance.OwnerEmail = ""
 	wisski.Instance.AutoBlindUpdateEnabled = true
@@ -60,7 +62,6 @@ func (instances *Instances) Create(slug string) (wisski WissKI, err error) {
 	}
 
 	// store the instance in the object and return it!
-	wisski.instances = instances
 	return wisski, nil
 }
 
