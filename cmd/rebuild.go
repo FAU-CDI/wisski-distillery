@@ -42,7 +42,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) error {
 	var globalErr error
 	for _, instance := range instances {
 		logging.LogOperation(func() error {
-			s := instance.Stack()
+			s := instance.Barrel()
 			if err := logging.LogOperation(func() error {
 				return s.Install(context.IOStream, component.InstallationContext{})
 			}, context.IOStream, "Installing docker stack"); err != nil {

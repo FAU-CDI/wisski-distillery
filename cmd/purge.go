@@ -67,7 +67,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// remove docker stack
 	logging.LogMessage(context.IOStream, "Stopping and removing docker container")
-	if err := instance.Stack().Down(context.IOStream); err != nil {
+	if err := instance.Barrel().Down(context.IOStream); err != nil {
 		context.EPrintln(err)
 	}
 

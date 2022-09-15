@@ -190,7 +190,7 @@ func (dis *Distillery) Snapshot(instance instances.WissKI, io stream.IOStream, d
 // makeBlackbox runs the blackbox backup of the system.
 // It pauses the Instance, if a consistent state is required.
 func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, instance instances.WissKI) {
-	stack := instance.Stack()
+	stack := instance.Barrel()
 
 	og := opgroup.NewOpGroup[string](4)
 

@@ -3,8 +3,12 @@ package instances
 import (
 	"errors"
 	"path/filepath"
+	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/stringparser"
+	"github.com/alessio/shellescape"
+	"github.com/tkw1536/goprogram/stream"
 )
 
 var errInvalidSlug = errors.New("not a valid slug")
@@ -58,4 +62,56 @@ func (instances *Instances) Create(slug string) (wisski WissKI, err error) {
 	// store the instance in the object and return it!
 	wisski.instances = instances
 	return wisski, nil
+}
+
+// Provision provisions an instance, assuming that the required databases already exist.
+func (wisski WissKI) Provision(io stream.IOStream) error {
+
+	// create the basic st!
+	st := wisski.Barrel()
+	if err := st.Install(io, component.InstallationContext{}); err != nil {
+		return err
+	}
+
+	// Pull and build the stack!
+	if err := st.Update(io, false); err != nil {
+		return err
+	}
+
+	provisionParams := []string{
+		wisski.Domain(),
+
+		wisski.SqlDatabase,
+		wisski.SqlUsername,
+		wisski.SqlPassword,
+
+		wisski.GraphDBRepository,
+		wisski.GraphDBUsername,
+		wisski.GraphDBPassword,
+
+		wisski.DrupalUsername,
+		wisski.DrupalPassword,
+
+		"", // TODO: DrupalVersion
+		"", // TODO: WissKIVersion
+	}
+
+	// escape the parameter
+	for i, param := range provisionParams {
+		provisionParams[i] = shellescape.Quote(param)
+	}
+
+	// figure out the provision script
+	// TODO: Move the provision script into the control plane!
+	provisionScript := "sudo PATH=$PATH -u www-data /bin/bash /provision_container.sh " + strings.Join(provisionParams, " ")
+
+	code, err := st.Run(io, true, "barrel", "/bin/bash", "-c", provisionScript)
+	if err != nil {
+		return err
+	}
+	if code != 0 {
+		return errors.New("unable to run provision script")
+	}
+
+	return nil
 }

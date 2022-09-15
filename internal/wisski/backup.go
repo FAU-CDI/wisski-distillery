@@ -211,8 +211,6 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 			return
 		}
 
-		iochild := stream.NewIOStream(io.Stderr, io.Stderr, nil, 0)
-
 		backup.InstanceSnapshots = make([]Snapshot, len(instances))
 		for i, instance := range instances {
 			backup.InstanceSnapshots[i] = func() Snapshot {
@@ -224,7 +222,7 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 				}
 
 				files <- dir
-				return dis.Snapshot(instance, iochild, SnapshotDescription{
+				return dis.Snapshot(instance, io.NonInteractive(), SnapshotDescription{
 					Dest: dir,
 				})
 			}()

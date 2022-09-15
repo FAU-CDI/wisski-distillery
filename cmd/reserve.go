@@ -63,7 +63,7 @@ func (r reserve) Run(context wisski_distillery.Context) error {
 	}
 
 	// setup docker stack
-	s := instance.ReserveStack()
+	s := instance.Reserve()
 	{
 		if err := logging.LogOperation(func() error {
 			return s.Install(context.IOStream, component.InstallationContext{})

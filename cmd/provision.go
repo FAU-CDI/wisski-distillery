@@ -107,7 +107,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// start the container!
 	logging.LogMessage(context.IOStream, "Starting Container")
-	if err := instance.Stack().Up(context.IOStream); err != nil {
+	if err := instance.Barrel().Up(context.IOStream); err != nil {
 		return err
 	}
 
