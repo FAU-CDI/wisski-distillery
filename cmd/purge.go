@@ -103,7 +103,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 		}
 
 		logging.LogMessage(context.IOStream, "Removing database %s", instance.SqlDatabase)
-		if err := sql.PurgeUser(instance.SqlDatabase); err != nil {
+		if err := sql.PurgeDatabase(instance.SqlDatabase); err != nil {
 			context.EPrintln(err)
 		}
 
