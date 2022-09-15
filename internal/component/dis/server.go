@@ -30,7 +30,7 @@ func (dis Dis) Server(io stream.IOStream) (http.Handler, error) {
 	mux.Handle("/", self)
 
 	mux.Handle("/go/", resolver)
-	mux.Handle("/wisski/navigate", resolver)
+	mux.Handle("/wisski/get/", resolver)
 
 	// TODO: Fix me!
 	mux.Handle("/dis/", info)
