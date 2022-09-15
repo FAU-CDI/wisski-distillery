@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bytes"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -10,10 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/hostname"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/FAU-CDI/wisski-distillery/pkg/password"
-	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -95,12 +91,16 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 	// TODO: Should we read an existing configuration file?
 	wdcliPath := filepath.Join(root, core.Executable)
 	envPath := filepath.Join(root, core.ConfigFile)
-	domain := bs.Hostname
-	if domain == "" {
-		domain = hostname.FQDN()
+
+	// setup a new template for the configuration file!
+	var tpl config.Template
+	tpl.DeployRoot = bs.Directory
+	tpl.DefaultDomain = bs.Hostname
+
+	// and use thge defaults
+	if err := tpl.SetDefaults(); err != nil {
+		return errBootstrapWriteConfig.WithMessageF(err)
 	}
-	overridesPath := filepath.Join(root, core.OverridesJSON)
-	authorizedKeysFile := filepath.Join(root, core.AuthorizedKeys)
 
 	{
 		logging.LogMessage(context.IOStream, "Copying over wdcli executable")
@@ -119,53 +119,31 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 	{
 		if !fsx.IsFile(envPath) {
 			if err := logging.LogOperation(func() error {
-				password, err := password.Password(128)
-				if err != nil {
-					return errBootstrapWriteConfig.WithMessageF(err)
-				}
-
 				env, err := os.Create(envPath)
 				if err != nil {
-					return errBootstrapWriteConfig.WithMessageF(err)
+					return err
 				}
-				if err := unpack.WriteTemplate(
-					env,
-					map[string]string{
-						"DEPLOY_ROOT":          root,
-						"DEFAULT_DOMAIN":       domain,
-						"SELF_OVERRIDES_FILE":  overridesPath,
-						"AUTHORIZED_KEYS_FILE": authorizedKeysFile,
+				defer env.Close()
 
-						"GRAPHDB_ADMIN_USER":     "admin",
-						"GRAPHDB_ADMIN_PASSWORD": password[:64],
-
-						"MYSQL_ADMIN_USER":     "admin",
-						"MYSQL_ADMIN_PASSWORD": password[64:],
-					},
-					bytes.NewReader(core.ConfigFileTemplate),
-				); err != nil {
-					return errBootstrapWriteConfig.WithMessageF(err)
-				}
-
-				return nil
+				return tpl.MarshalTo(env)
 			}, context.IOStream, "Installing configuration file"); err != nil {
-				return err
+				return errBootstrapWriteConfig.WithMessageF(err)
 			}
 
 			if err := logging.LogOperation(func() error {
 
-				context.Println(overridesPath)
+				context.Println(tpl.SelfOverridesFile)
 				if err := os.WriteFile(
-					overridesPath,
+					tpl.SelfOverridesFile,
 					core.DefaultOverridesJSON,
 					fs.ModePerm,
 				); err != nil {
 					return errBootstrapCreateFile.WithMessageF(err)
 				}
 
-				context.Println(authorizedKeysFile)
+				context.Println(tpl.AuthorizedKeys)
 				if err := os.WriteFile(
-					authorizedKeysFile,
+					tpl.AuthorizedKeys,
 					core.DefaultAuthorizedKeys,
 					fs.ModePerm,
 				); err != nil {

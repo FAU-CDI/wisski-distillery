@@ -15,10 +15,6 @@ const Executable = "wdcli"
 // It should be located inside the deployment directory.
 const ConfigFile = ".env"
 
-// ConfigFileTemplate contains a template for a new configuration file
-//go:embed bootstrap/env
-var ConfigFileTemplate []byte
-
 // OverridesJSON is the name of the json overrides file.
 // It should be located inside the deployment directory.
 const OverridesJSON = "overrides.json"
