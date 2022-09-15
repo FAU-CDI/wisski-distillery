@@ -28,7 +28,7 @@ func (dis Dis) self(io stream.IOStream) (redirect Redirect, err error) {
 	if redirect.Overrides == nil {
 		redirect.Overrides = make(map[string]string)
 	}
-	redirect.Overrides["/"] = dis.Config.SelfRedirect.String()
+	redirect.Overrides[""] = dis.Config.SelfRedirect.String()
 
 	// create a redirect server
 	redirect.Fallback, err = dis.selfFallback()
@@ -36,7 +36,6 @@ func (dis Dis) self(io stream.IOStream) (redirect Redirect, err error) {
 		return redirect, err
 	}
 	redirect.Absolute = false
-	redirect.Overrides = nil
 	redirect.Permanent = false
 
 	// and return!
