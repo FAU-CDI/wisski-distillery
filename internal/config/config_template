@@ -58,6 +58,10 @@ GLOBAL_AUTHORIZED_KEYS_FILE=${AUTHORIZED_KEYS_FILE}
 GRAPHDB_ADMIN_USER=${GRAPHDB_ADMIN_USER}
 GRAPHDB_ADMIN_PASSWORD=${GRAPHDB_ADMIN_PASSWORD}
 
-# The admin password to use for access to mysql
+# The admin user and password of the MySQL interface, to be used for provisioning
 MYSQL_ADMIN_USER=${MYSQL_ADMIN_USER}
 MYSQL_ADMIN_PASSWORD=${MYSQL_ADMIN_PASSWORD}
+
+# The admin user and password required to access the /dis/ server and api
+DIS_ADMIN_USER=${DIS_ADMIN_USER}
+DIS_ADMIN_PASSWORD=${DIS_ADMIN_PASSWORD}

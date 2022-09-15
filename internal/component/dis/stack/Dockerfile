@@ -1,4 +1,4 @@
-FROM docker.io/library/alpine
+FROM docker.io/library/docker:20.10-cli
 
 COPY wdcli /wdcli
 EXPOSE 8888

@@ -2,6 +2,8 @@
 package component
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
@@ -117,6 +119,38 @@ func (ds Stack) Restart(io stream.IOStream) error {
 		return errStackRestart
 	}
 	return nil
+}
+
+var errStackPs = errors.New("Stack.Ps: Down returned non-zero exit code")
+
+// Ps returns the ids of the containers currently running
+func (ds Stack) Ps(io stream.IOStream) ([]string, error) {
+	// create a buffer
+	var buffer bytes.Buffer
+
+	// read the ids from the command!
+	code, err := ds.compose(io.Streams(&buffer, nil, nil, 0), "ps", "-q")
+	if err != nil {
+		return nil, err
+	}
+	if code != 0 {
+		return nil, errStackPs
+	}
+
+	// scan each of the lines
+	var results []string
+	scanner := bufio.NewScanner(&buffer)
+	for scanner.Scan() {
+		if text := scanner.Text(); text != "" {
+			results = append(results, text)
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	// return them!
+	return results, nil
 }
 
 var errStackDown = errors.New("Stack.Down: Down returned non-zero exit code")

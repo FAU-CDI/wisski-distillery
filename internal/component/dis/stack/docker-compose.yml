@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  wdresolve:
+  dis:
     build: .
     restart: always
     environment:
@@ -16,6 +16,8 @@ services:
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
 
     volumes:
+      # TODO: Mount docker socket properly!
+      - "/var/run/docker.sock:/var/run/docker.sock"
       - "${CONFIG_PATH}:${CONFIG_PATH}:ro"
       - "${DEPLOY_ROOT}:${DEPLOY_ROOT}:ro"
       - "${GLOBAL_AUTHORIZED_KEYS_FILE}:${GLOBAL_AUTHORIZED_KEYS_FILE}:ro"

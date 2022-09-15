@@ -14,7 +14,7 @@ import (
 	_ "embed"
 )
 
-// Template is a template for the cofiguration file
+// Template is a template for the configuration file
 type Template struct {
 	DeployRoot               string `env:"DEPLOY_ROOT"`
 	DefaultDomain            string `env:"DEFAULT_DOMAIN"`
@@ -24,6 +24,8 @@ type Template struct {
 	TriplestoreAdminPassword string `env:"GRAPHDB_ADMIN_PASSWORD"`
 	MysqlAdminUsername       string `env:"MYSQL_ADMIN_USER"`
 	MysqlAdminPassword       string `env:"MYSQL_ADMIN_PASSWORD"`
+	DisAdminUsername         string `env:"DIS_ADMIN_USER"`
+	DisAdminPassword         string `env:"DIS_ADMIN_PASSWORD"`
 }
 
 // SetDefaults sets defaults on the template
@@ -61,6 +63,17 @@ func (tpl *Template) SetDefaults() (err error) {
 
 	if tpl.MysqlAdminPassword == "" {
 		tpl.MysqlAdminPassword, err = password.Password(64)
+		if err != nil {
+			return err
+		}
+	}
+
+	if tpl.DisAdminUsername == "" {
+		tpl.DisAdminUsername = "admin"
+	}
+
+	if tpl.DisAdminPassword == "" {
+		tpl.DisAdminPassword, err = password.Password(64)
 		if err != nil {
 			return err
 		}
