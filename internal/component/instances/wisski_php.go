@@ -13,11 +13,12 @@ var ErrExecInvalidCode = errors.New("invalid code to execute")
 var ErrExecNonZero = errors.New("script returned non-zero code")
 
 // ExecPHPScript executes the PHP code as a script within the wisski instance.
-// The script should define a function "main", and may define additional functions.
+// The script should define a function called entrypoint, and may define additional functions.
 //
 // Code must start with "<?php" and may not contain a closing tag.
 // Code is expected not to mess with PHPs output buffer.
 // Code should not contain user input.
+// Code breaking these conventions may or may not result in an error.
 //
 // It's arguments are encoded as json using [json.Marshal] and decoded within php.
 //
@@ -25,10 +26,10 @@ var ErrExecNonZero = errors.New("script returned non-zero code")
 //
 // Standard input and output streams should not be used.
 // Standard error is redirected to io.
-func (wisski *WissKI) ExecPHPScript(io stream.IOStream, code string, args ...any) (any, error) {
+func (wisski *WissKI) ExecPHPScript(io stream.IOStream, result any, code string, entrypoint string, args ...any) error {
 	// make sure the beginning is right
 	if !strings.HasPrefix(code, "<?php") {
-		return nil, ErrExecInvalidCode
+		return ErrExecInvalidCode
 	}
 
 	// make sure that args is not nil, but an array of length 0!
@@ -36,15 +37,20 @@ func (wisski *WissKI) ExecPHPScript(io stream.IOStream, code string, args ...any
 		args = []any{}
 	}
 
-	// encode code and args!
+	// encode code, args and entrypoint!
 	codeEscape, err := marshalPHP("?>" + code)
 	if err != nil {
-		return nil, err
+		return err
+	}
+
+	entrypointEscape, err := marshalPHP(entrypoint)
+	if err != nil {
+		return err
 	}
 
 	argsEscape, err := marshalPHP(args)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	// assemble the script
@@ -55,7 +61,7 @@ func (wisski *WissKI) ExecPHPScript(io stream.IOStream, code string, args ...any
 
 	call_user_func(function(){
 		ob_start(null, 0, PHP_OUTPUT_HANDLER_CLEANABLE);
-		$result = call_user_func_array("main", ` + argsEscape + `);
+		$result = call_user_func_array(` + entrypointEscape + `, ` + argsEscape + `);
 		ob_end_clean();
 		echo json_encode($result);
 	});
@@ -65,22 +71,19 @@ func (wisski *WissKI) ExecPHPScript(io stream.IOStream, code string, args ...any
 	var output bytes.Buffer
 	res, err := wisski.Shell(io.Streams(&output, nil, strings.NewReader(script), 0), "-c", "drush php:script -")
 	if res != 0 {
-		return nil, ErrExecNonZero
+		return ErrExecNonZero
 	}
 	if err != nil {
-		return nil, err
+		return err
+	}
+
+	// did not request to receive a result
+	if result == nil {
+		return nil
 	}
 
 	// decode the output
-	var result any
-	err = json.NewDecoder(&output).Decode(&result)
-	return result, err
-}
-
-// EvalPHP is similar to ExecPHPScript, except that it evaluates a single line of php.
-// A single parameter may be passed, which can be accessed using the name $arg inside the expression.
-func (wisski *WissKI) EvalPHP(expr string, arg any) (any, error) {
-	return wisski.ExecPHPScript(stream.FromEnv(), "function main($arg){return "+expr+";}", arg)
+	return json.NewDecoder(&output).Decode(result)
 }
 
 const marshalRune = 'F' // press to pay respect

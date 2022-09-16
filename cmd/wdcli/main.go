@@ -42,6 +42,7 @@ func init() {
 	wdcli.Register(cmd.Shell)
 	wdcli.Register(cmd.BlindUpdate)
 	wdcli.Register(cmd.UpdatePrefixConfig) // TODO: Move into post-instance configuration
+	wdcli.Register(cmd.Pathbuilders)
 
 	// backup & cron
 	wdcli.Register(cmd.Snapshot)

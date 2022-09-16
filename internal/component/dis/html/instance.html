@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="/dis/static/dis.css">
+
+<title>Distillery Status Page - {{ .Info.Slug }}</title>
+<h1 id="top">Distillery Status Page - {{ .Info.Slug }}</h1>
+<p>
+    <a href="/dis/index">Back to index</a>
+</p>
+
+<pre>{{ . }}</pre>
+
+<footer>
+    Generated at <code>{{ .Time }}</code>
+</footer>
+
+<script src="/dis/static/autolink.js"></script>

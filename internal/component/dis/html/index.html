@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="/dis/static/dis.css">
+<link rel="stylesheet" href="/dis/static/autolink.css">
+
+<title>Distillery Status Page</title>
+<h1 id="top">Distillery Status Page</h1>
+
+<h2 id="overview">Overview</h2>
+
+<p>
+    <b>Domain:</b> <code>{{.Config.DefaultDomain}}</code> <br />
+    <b>Legacy Domain(s):</b> <code>{{.Config.SelfExtraDomains}}</code><br />
+    <b>HTTPS Email:</b> <code>{{.Config.CertbotEmail}}</code><br />
+    <hr />
+    <b>Homepage Redirect:</b><a href="{{.Config.SelfRedirect}}" target="_blank" rel="noopener noreferrer">{{.Config.SelfRedirect}}</a><br />
+    <hr />
+    <b>Backup Age:</b> <code>{{.Config.MaxBackupAge}}</code> Day(s)<br />
+    <hr />
+    <b>Base Directory:</b> <code>{{.Config.DeployRoot}}</code><br />
+    <b>Configuration File:</b> <code>{{.Config.ConfigPath}}</code><br />
+    <b>Authorized_Keys File:</b> <code>{{.Config.GlobalAuthorizedKeysFile}}</code><br />
+    <hr />
+    <b>MySQL User Prefix:</b> <code>{{.Config.MysqlUserPrefix}}</code><br />
+    <b>MySQL Database Prefix:</b> <code>{{.Config.MysqlDatabasePrefix}}</code><br />
+    <b>GraphDB User Prefix:</b> <code>{{.Config.GraphDBUserPrefix}}</code><br />
+    <b>GraphDB Database Prefix:</b> <code>{{.Config.GraphDBRepoPrefix}}</code><br />
+    <hr />
+    <b>Bookkeeping Database:</b> <code>{{.Config.DistilleryBookkeepingDatabase}}</code><br />
+    <b>Bookkeeping Table:</b> <code>{{.Config.DistilleryBookkeepingTable}}</code><br />
+</p>
+
+<h2 id="instances">Instances</h2>
+
+<p>
+    <code>{{ .TotalCount }}</code> instance(s) = <code>{{ .RunningCount }}</code> running + <code>{{ .StoppedCount }}</code> stopped<br />
+</p>
+
+{{range .Instances}}
+<div class="wisski {{ if .Running }}running{{ else }}stopped{{ end }}">
+    <h3 id="instance-{{.Slug}}">{{.Slug}}{{ if not .Running }}&nbsp;<small>not running</small>{{ end }}</h3>
+    <p>
+        <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br />
+
+        <small>
+            <a href="/dis/instance/{{.Slug}}">More Details</a>
+        </small>
+    </p>
+</div>
+{{end}}
+
+<footer>
+    Generated at <code>{{ .Time }}</code>
+</footer>
+
+<script src="/dis/static/autolink.js"></script>

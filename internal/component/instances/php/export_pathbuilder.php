@@ -1,17 +1,33 @@
 <?php
 
-/**
- * This script will list all the URIs that this system is aware of.
- * This works by listing all the default graph uris of all the adapters.
- */
-
 use Drupal\wisski_pathbuilder\Entity\WisskiPathEntity;
 
-// load all the pathbuilders
-$pbs = \Drupal::entityTypeManager()->getStorage('wisski_pathbuilder')->loadMultiple();
+/** all_xml lists all pathbuilders, and returns the corresponding xml */
+function all_xml(): object {
+    $all = \Drupal::entityTypeManager()->getStorage('wisski_pathbuilder')->loadMultiple();
+    return (object)array_map("entity_to_xml", $all);
+}
 
-// map over the pathbuilders
-$xmls = array_map(function($pb) {
+
+/** all_list lists the ids of all pathbuilders */
+function all_list(): Array {
+    return array_keys(\Drupal::entityQuery('wisski_pathbuilder')->execute());
+}
+
+/** one_xml serializes a single pathbuilder as xml */
+function one_xml(string $id): string {
+    $pb = \Drupal::entityTypeManager()->getStorage('wisski_pathbuilder')->load($id);
+    if ($pb === NULL) {
+        return "";
+    }
+    return entity_to_xml($pb);
+}
+
+// =================================================================================
+// =================================================================================
+
+
+function entity_to_xml($pb) {
     $xml = new \SimpleXMLElement("<pathbuilderinterface></pathbuilderinterface>");
 
     $paths = $pb->getAllPaths();
@@ -58,6 +74,4 @@ $xmls = array_map(function($pb) {
     $dom = dom_import_simplexml($xml)->ownerDocument;
     $dom->formatOutput = TRUE;
     return $dom->saveXML();
-}, $pbs);
-
-echo json_encode($xmls);
+}
