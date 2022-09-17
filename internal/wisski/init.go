@@ -27,9 +27,14 @@ func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) 
 		},
 	}
 
+	// we are within the docker
+	//
+	// so setup the ports to connect everything to peroperly.
+	// also override some of the parameters for the environment.
 	if flags.InternalInDocker {
 		dis.Upstream.SQL = "sql:3306"
 		dis.Upstream.Triplestore = "triplestore:7200"
+		params.ConfigPath = os.Getenv("CONFIG_PATH")
 	}
 
 	// if we don't need to load the config, there is nothing to do
