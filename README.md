@@ -79,7 +79,7 @@ These are:
 
   - This will delegate individual hostnames to appropriate docker containers, see [this blog post](http://jasonwilder.com/blog/2014/03/25/automated-nginx-reverse-proxy-for-docker/) for an overview.
   - Optionally makes use of [docker-letsencrypt-nginx-proxy-companion](https://github.com/nginx-proxy/docker-letsencrypt-nginx-proxy-companion) to automatically provision and renew HTTPS certificates.
-  - See [distillery/resources/compose/web](embed/resources/compose/web) for implementation details.
+  - See [internal/component/web](internal/component/web) for implementation details.
 
 - [MariaDB](https://mariadb.org/) - an SQL server
 

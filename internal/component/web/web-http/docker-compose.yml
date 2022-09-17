@@ -1,0 +1,30 @@
+version: "3.7"
+
+services:
+  nginx-proxy:
+    image: ghcr.io/nginx-proxy/nginx-proxy:alpine
+    environment:
+      - DEFAULT_HOST=${DEFAULT_HOST}
+      - HTTPS_METHOD=${HTTPS_METHOD}
+    ports:
+      - "80:80"
+    volumes:
+      - "vhost:/etc/nginx/vhost.d"
+      - "./global.conf:/etc/nginx/conf.d/global.conf:ro"
+      - "./proxy.conf:/etc/nginx/proxy.conf:ro"
+      - "htpasswd:/etc/nginx/htpasswd"
+      - "html:/usr/share/nginx/html"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    restart: always
+    networks:
+      - default
+
+volumes:
+  vhost:
+  html:
+  htpasswd:
+
+networks:
+  default:
+    name: distillery
+    external: true
