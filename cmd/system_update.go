@@ -122,7 +122,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		for _, component := range dis.Components() {
+		for _, component := range dis.Installables() {
 			stack := component.Stack()
 			ctx := component.Context(ctx)
 			if err := logging.LogOperation(func() error {

@@ -17,8 +17,8 @@ func (SSH) Name() string {
 //go:embed all:stack
 var resources embed.FS
 
-func (ssh SSH) Stack() component.Installable {
-	return ssh.ComponentBase.MakeStack(component.Installable{
+func (ssh SSH) Stack() component.StackWithResources {
+	return ssh.ComponentBase.MakeStack(component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "stack",
 	})

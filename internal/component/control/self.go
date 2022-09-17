@@ -1,4 +1,4 @@
-package dis
+package control
 
 import (
 	"encoding/json"
@@ -11,10 +11,10 @@ import (
 )
 
 // self returns the handler for the self overrides
-func (dis Dis) self(io stream.IOStream) (redirect Redirect, err error) {
+func (control Control) self(io stream.IOStream) (redirect Redirect, err error) {
 	// open the overrides file
-	overrides, err := os.Open(dis.Config.SelfOverridesFile)
-	io.Printf("loading overrides from %q\n", dis.Config.SelfOverridesFile)
+	overrides, err := os.Open(control.Config.SelfOverridesFile)
+	io.Printf("loading overrides from %q\n", control.Config.SelfOverridesFile)
 	if err != nil {
 		return redirect, err
 	}
@@ -28,10 +28,10 @@ func (dis Dis) self(io stream.IOStream) (redirect Redirect, err error) {
 	if redirect.Overrides == nil {
 		redirect.Overrides = make(map[string]string)
 	}
-	redirect.Overrides[""] = dis.Config.SelfRedirect.String()
+	redirect.Overrides[""] = control.Config.SelfRedirect.String()
 
 	// create a redirect server
-	redirect.Fallback, err = dis.selfFallback()
+	redirect.Fallback, err = control.selfFallback()
 	if err != nil {
 		return redirect, err
 	}
@@ -42,24 +42,22 @@ func (dis Dis) self(io stream.IOStream) (redirect Redirect, err error) {
 	return redirect, nil
 }
 
-func (dis *Dis) selfFallback() (http.Handler, error) {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		dis.serveFallback(w, r)
-	}), nil
+func (control *Control) selfFallback() (http.Handler, error) {
+	return http.HandlerFunc(control.serveFallback), nil
 }
 
 var notFoundText = []byte("not found")
 
-func (dis *Dis) serveFallback(w http.ResponseWriter, r *http.Request) {
+func (control *Control) serveFallback(w http.ResponseWriter, r *http.Request) {
 
-	slug := dis.Config.SlugFromHost(r.Host)
+	slug := control.Config.SlugFromHost(r.Host)
 	if slug == "" {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write(notFoundText)
 		return
 	}
 
-	if ok, _ := dis.Instances.Has(slug); !ok {
+	if ok, _ := control.Instances.Has(slug); !ok {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "WissKI %q not found\n", slug)
 		return

@@ -1,4 +1,4 @@
-package dis
+package control
 
 import (
 	"fmt"
@@ -11,11 +11,11 @@ import (
 	"github.com/tkw1536/goprogram/stream"
 )
 
-func (dis Dis) ResolverConfigPath() string {
-	return filepath.Join(dis.Dir, dis.ResolverFile)
+func (control Control) ResolverConfigPath() string {
+	return filepath.Join(control.Dir, control.ResolverFile)
 }
 
-func (dis Dis) resolver(io stream.IOStream) (p wdresolve.ResolveHandler, err error) {
+func (control Control) resolver(io stream.IOStream) (p wdresolve.ResolveHandler, err error) {
 	p.TrustXForwardedProto = true
 
 	fallback := &resolvers.Regexp{
@@ -23,20 +23,20 @@ func (dis Dis) resolver(io stream.IOStream) (p wdresolve.ResolveHandler, err err
 	}
 
 	// handle the default domain name!
-	domainName := dis.Config.DefaultDomain
+	domainName := control.Config.DefaultDomain
 	if domainName != "" {
 		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domainName))] = fmt.Sprintf("https://$1.%s", domainName)
 		io.Printf("registering default domain %s\n", domainName)
 	}
 
 	// handle the extra domains!
-	for _, domain := range dis.Config.SelfExtraDomains {
+	for _, domain := range control.Config.SelfExtraDomains {
 		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
 		io.Printf("registering legacy domain %s\n", domain)
 	}
 
 	// open the prefix file
-	prefixFile := dis.ResolverConfigPath()
+	prefixFile := control.ResolverConfigPath()
 	fs, err := os.Open(prefixFile)
 	io.Println("loading prefixes from ", prefixFile)
 	if err != nil {

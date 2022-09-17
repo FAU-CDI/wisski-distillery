@@ -17,7 +17,7 @@ func (Web) Name() string {
 	return "web"
 }
 
-func (web Web) Stack() component.Installable {
+func (web Web) Stack() component.StackWithResources {
 	if web.Config.HTTPSEnabled() {
 		return web.stackHTTPS()
 	} else {
@@ -29,8 +29,8 @@ func (web Web) Stack() component.Installable {
 //go:embed web-https.env
 var httpsResources embed.FS
 
-func (web Web) stackHTTPS() component.Installable {
-	return web.MakeStack(component.Installable{
+func (web Web) stackHTTPS() component.StackWithResources {
+	return web.MakeStack(component.StackWithResources{
 		Resources:   httpsResources,
 		ContextPath: "web-https",
 		EnvPath:     "web-https.env",
@@ -45,8 +45,8 @@ func (web Web) stackHTTPS() component.Installable {
 //go:embed web-http.env
 var httpResources embed.FS
 
-func (web Web) stackHTTP() component.Installable {
-	return web.MakeStack(component.Installable{
+func (web Web) stackHTTP() component.StackWithResources {
+	return web.MakeStack(component.StackWithResources{
 		Resources:   httpResources,
 		ContextPath: "web-http",
 		EnvPath:     "web-http.env",

@@ -26,8 +26,8 @@ func (Triplestore) Name() string {
 //go:embed all:stack
 var resources embed.FS
 
-func (ts Triplestore) Stack() component.Installable {
-	return ts.ComponentBase.MakeStack(component.Installable{
+func (ts Triplestore) Stack() component.StackWithResources {
+	return ts.ComponentBase.MakeStack(component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "stack",
 

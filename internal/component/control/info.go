@@ -1,4 +1,4 @@
-package dis
+package control
 
 import (
 	"embed"
@@ -14,11 +14,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/sync/errgroup"
-
-	_ "embed"
 )
 
-func (dis *Dis) info(io stream.IOStream) (http.Handler, error) {
+func (control *Control) info(io stream.IOStream) (http.Handler, error) {
 	mux := http.NewServeMux()
 
 	// handle everything under /dis/!
@@ -31,7 +29,7 @@ func (dis *Dis) info(io stream.IOStream) (http.Handler, error) {
 	})
 
 	// static stuff
-	static, err := dis.disStatic()
+	static, err := control.disStatic()
 	if err != nil {
 		return nil, err
 	}
@@ -39,22 +37,22 @@ func (dis *Dis) info(io stream.IOStream) (http.Handler, error) {
 
 	// render everything
 	mux.Handle("/dis/index", httpx.HTMLHandler[disIndex]{
-		Handler:  dis.disIndex,
+		Handler:  control.disIndex,
 		Template: indexTemplate,
 	})
 
 	mux.Handle("/dis/instance/", httpx.HTMLHandler[disInstance]{
-		Handler:  dis.disInstance,
+		Handler:  control.disInstance,
 		Template: instanceTemplate,
 	})
 
 	// api -- for future usage
-	mux.Handle("/dis/api/v1/instance/get/", httpx.JSON(dis.getinstance))
-	mux.Handle("/dis/api/v1/instance/all", httpx.JSON(dis.allinstances))
+	mux.Handle("/dis/api/v1/instance/get/", httpx.JSON(control.getinstance))
+	mux.Handle("/dis/api/v1/instance/all", httpx.JSON(control.allinstances))
 
 	// ensure that everyone is logged in!
 	return httpx.BasicAuth(mux, "WissKI Distillery Admin", func(user, pass string) bool {
-		return user == dis.Config.DisAdminUser && pass == dis.Config.DisAdminPassword
+		return user == control.Config.DisAdminUser && pass == control.Config.DisAdminPassword
 	}), nil
 }
 
@@ -70,7 +68,7 @@ type disIndex struct {
 	StoppedCount int
 }
 
-func (dis *Dis) disIndex(r *http.Request) (idx disIndex, err error) {
+func (dis *Control) disIndex(r *http.Request) (idx disIndex, err error) {
 	// load instances
 	idx.Instances, err = dis.allinstances(r)
 	if err != nil {
@@ -104,7 +102,7 @@ type disInstance struct {
 	Info     instances.Info
 }
 
-func (dis *Dis) disInstance(r *http.Request) (is disInstance, err error) {
+func (dis *Control) disInstance(r *http.Request) (is disInstance, err error) {
 	// find the slug as the last component of path!
 	slug := strings.TrimSuffix(r.URL.Path, "/")
 	slug = slug[strings.LastIndex(slug, "/")+1:]
@@ -134,7 +132,7 @@ func (dis *Dis) disInstance(r *http.Request) (is disInstance, err error) {
 //go:embed html/static
 var htmlStaticFS embed.FS
 
-func (*Dis) disStatic() (http.Handler, error) {
+func (*Control) disStatic() (http.Handler, error) {
 	fs, err := fs.Sub(htmlStaticFS, "html/static")
 	if err != nil {
 		return nil, err
@@ -151,7 +149,7 @@ var indexTemplate = template.Must(template.New("index.html").Parse(indexTemplate
 var instanceTemplateString string
 var instanceTemplate = template.Must(template.New("instance.html").Parse(instanceTemplateString))
 
-func (dis *Dis) getinstance(r *http.Request) (info instances.Info, err error) {
+func (dis *Control) getinstance(r *http.Request) (info instances.Info, err error) {
 	// find the slug as the last component of path!
 	slug := strings.TrimSuffix(r.URL.Path, "/")
 	slug = slug[strings.LastIndex(slug, "/")+1:]
@@ -169,7 +167,7 @@ func (dis *Dis) getinstance(r *http.Request) (info instances.Info, err error) {
 	return wisski.Info(false)
 }
 
-func (dis *Dis) allinstances(*http.Request) (infos []instances.Info, err error) {
+func (dis *Control) allinstances(*http.Request) (infos []instances.Info, err error) {
 	var errgroup errgroup.Group
 
 	// list all the instances

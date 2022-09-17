@@ -1,4 +1,4 @@
-package dis
+package control
 
 import (
 	"net/http"
@@ -7,19 +7,19 @@ import (
 )
 
 // Server returns an http.Mux that implements the main server instance
-func (dis Dis) Server(io stream.IOStream) (http.Handler, error) {
+func (control Control) Server(io stream.IOStream) (http.Handler, error) {
 	// self server
-	self, err := dis.self(io)
+	self, err := control.self(io)
 	if err != nil {
 		return nil, err
 	}
 
-	resolver, err := dis.resolver(io)
+	resolver, err := control.resolver(io)
 	if err != nil {
 		return nil, err
 	}
 
-	info, err := dis.info(io)
+	info, err := control.info(io)
 	if err != nil {
 		return nil, err
 	}

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/dis"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
@@ -23,11 +23,11 @@ import (
 type components struct {
 
 	// installable components
-	web lazy.Lazy[*web.Web]
-	dis lazy.Lazy[*dis.Dis]
-	ssh lazy.Lazy[*ssh.SSH]
-	ts  lazy.Lazy[*triplestore.Triplestore]
-	sql lazy.Lazy[*sql.SQL]
+	web     lazy.Lazy[*web.Web]
+	control lazy.Lazy[*control.Control]
+	ssh     lazy.Lazy[*ssh.SSH]
+	ts      lazy.Lazy[*triplestore.Triplestore]
+	sql     lazy.Lazy[*sql.SQL]
 
 	// other components
 	instances lazy.Lazy[*instances.Instances]
@@ -67,23 +67,48 @@ func makeComponent[C component.Component](dis *Distillery, field *lazy.Lazy[C], 
 	})
 }
 
-// Components returns all components that have a stack function
-func (dis *Distillery) Components() []component.InstallableComponent {
-	return []component.InstallableComponent{
+func (dis *Distillery) ComponentsX() []component.Component {
+	return []component.Component{
 		dis.Web(),
 		dis.Dis(),
 		dis.SSH(),
 		dis.Triplestore(),
 		dis.SQL(),
+		dis.Instances(),
 	}
+}
+
+// Backupable returns all the components that can be backuped up.
+func (dis *Distillery) Backupable() []component.Backupable {
+	return getComponents[component.Backupable](dis)
+}
+
+// Installables returns all components that can be installed
+func (dis *Distillery) Installables() []component.Installable {
+	return getComponents[component.Installable](dis)
+}
+
+func getComponents[C component.Component](dis *Distillery) (result []C) {
+	all := dis.ComponentsX()
+
+	result = make([]C, 0, len(all))
+	for _, c := range all {
+		sc, ok := c.(C)
+		if !ok {
+			continue
+		}
+		result = append(result, sc)
+	}
+
+	return
 }
 
 func (dis *Distillery) Web() *web.Web {
 	return makeComponent(dis, &dis.components.web, nil)
 }
 
-func (d *Distillery) Dis() *dis.Dis {
-	return makeComponent(d, &d.components.dis, func(ddis *dis.Dis) {
+func (d *Distillery) Dis() *control.Control {
+	return makeComponent(d, &d.components.control, func(ddis *control.Control) {
 		ddis.ResolverFile = core.PrefixConfig
 		ddis.Instances = d.Instances()
 	})

@@ -22,13 +22,13 @@ func (SQL) Name() string {
 	return "sql"
 }
 
-//go:embed all:stack
+//go:embed all:sql
 var resources embed.FS
 
-func (ssh SQL) Stack() component.Installable {
-	return ssh.ComponentBase.MakeStack(component.Installable{
+func (ssh SQL) Stack() component.StackWithResources {
+	return ssh.ComponentBase.MakeStack(component.StackWithResources{
 		Resources:   resources,
-		ContextPath: "stack",
+		ContextPath: "sql",
 
 		MakeDirsPerm: fs.ModeDir | fs.ModePerm,
 		MakeDirs: []string{

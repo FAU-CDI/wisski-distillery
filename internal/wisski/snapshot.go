@@ -244,7 +244,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 		defer nquads.Close()
 
 		// directly store the result
-		_, err = dis.Triplestore().Backup(nquads, instance.GraphDBRepository)
+		_, err = dis.Triplestore().Snapshot(nquads, instance.GraphDBRepository)
 		return err
 	}, &snapshot.ErrTriplestore)
 
@@ -260,7 +260,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 		defer sql.Close()
 
 		// directly store the result
-		return dis.SQL().Backup(io, sql, instance.SqlDatabase)
+		return dis.SQL().Snapshot(io, sql, instance.SqlDatabase)
 	}, &snapshot.ErrSQL)
 
 	// wait for the group!

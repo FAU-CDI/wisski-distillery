@@ -11,11 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/exp/slices"
 )
@@ -36,13 +34,14 @@ type Backup struct {
 	// various error states, which are ignored when creating the snapshot
 	ErrPanic interface{}
 
+	// errors for the various components
+	ComponentErrors map[string]error
+
 	// SQL and triplestore errors
-	SQLErr error
-	TSErr  error
+	TSErr error
 
 	// TODO: Make this proper
-	ConfigFileErr       error
-	ConfigFilesManifest map[string]error
+	ConfigFileErr error
 
 	// Snapshots containing instances
 	InstanceListErr   error
@@ -76,16 +75,12 @@ func (backup Backup) Report(w io.Writer) (int, error) {
 	io.WriteString(cw, "\n")
 
 	io.WriteString(cw, "======= Errors =======\n")
-	fmt.Fprintf(cw, "Panic:           %v\n", backup.ErrPanic)
-	fmt.Fprintf(cw, "SQLErr:          %s\n", backup.SQLErr)
-	fmt.Fprintf(cw, "TSErr:           %s\n", backup.TSErr)
-	fmt.Fprintf(cw, "ConfigFileErr:   %s\n", backup.ConfigFileErr)
-	fmt.Fprintf(cw, "InstanceListErr: %s\n", backup.InstanceListErr)
+	fmt.Fprintf(cw, "Panic:            %v\n", backup.ErrPanic)
+	fmt.Fprintf(cw, "Component Errors: %v\n", backup.ComponentErrors)
+	fmt.Fprintf(cw, "ConfigFileErr:    %s\n", backup.ConfigFileErr)
+	fmt.Fprintf(cw, "InstanceListErr:  %s\n", backup.InstanceListErr)
 
 	io.WriteString(cw, "\n")
-
-	io.WriteString(cw, "======= Config Files =======\n")
-	encoder.Encode(backup.ConfigFilesManifest) // TODO: Proper manifest
 
 	io.WriteString(cw, "======= Snapshots =======\n")
 	for _, s := range backup.InstanceSnapshots {
@@ -103,6 +98,8 @@ func (backup Backup) Report(w io.Writer) (int, error) {
 	return cw.Sum()
 }
 
+// Backup makes a makes of the entire distillery.
+// To make a backup, all [BackupComponents] will be invoked.
 func (dis *Distillery) Backup(io stream.IOStream, description BackupDescription) (backup Backup) {
 	backup.Description = description
 
@@ -123,75 +120,36 @@ func (dis *Distillery) Backup(io stream.IOStream, description BackupDescription)
 	return
 }
 
-var errBackupSkipFile = errors.New("<file not found>")
+type backupResult struct {
+	name string
+	err  error
+}
 
 func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
-	// create a wait group, and message channel
-	wg := &sync.WaitGroup{}
-	files := make(chan string, 4)
 
-	// backup the sql
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	backups := dis.Backupable()
 
-		sqlPath := filepath.Join(backup.Description.Dest, "sql.sql")
-		files <- sqlPath
+	files := make(chan string, len(backups))         // channel for files being added into the backups
+	results := make(chan backupResult, len(backups)) // channel for results to be stored into
+	backup.ComponentErrors = make(map[string]error, len(backups))
 
-		sql, err := os.Create(sqlPath)
-		if err != nil {
-			backup.SQLErr = err
-			return
-		}
-		defer sql.Close()
+	wg := &sync.WaitGroup{} // to wait for the results
+	wg.Add(len(backups))
+	for _, bc := range backups {
+		go func(bc component.Backupable) {
+			defer wg.Done()
 
-		// directly store the result
-		backup.SQLErr = dis.SQL().BackupAll(io, sql)
-	}()
+			// find the backup destination
+			dest := filepath.Join(backup.Description.Dest, bc.BackupName())
+			files <- dest
 
-	// backup the triplestore
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		tsPath := filepath.Join(backup.Description.Dest, "triplestore")
-		files <- tsPath
-
-		// directly store the result
-		backup.TSErr = dis.Triplestore().BackupAll(tsPath)
-	}()
-
-	// backup configuration files
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-
-		cfgBackupDir := filepath.Join(backup.Description.Dest, "config")
-		if err := os.Mkdir(cfgBackupDir, fs.ModeDir); err != nil {
-			backup.ConfigFileErr = err
-			return
-		}
-
-		configs := []string{
-			dis.Config.ConfigPath,
-			filepath.Join(dis.Config.DeployRoot, core.Executable), // TODO: constant the name of the executable
-			dis.Config.SelfOverridesFile,
-			dis.Config.GlobalAuthorizedKeysFile,
-		}
-
-		backup.ConfigFilesManifest = make(map[string]error, len(configs))
-		for _, src := range configs {
-			if !fsx.IsFile(src) {
-				backup.ConfigFilesManifest[src] = errBackupSkipFile
-				continue
+			// make the backup and send the result!
+			results <- backupResult{
+				name: bc.Name(),
+				err:  bc.Backup(io, dest),
 			}
-			dest := filepath.Join(cfgBackupDir, filepath.Base(src))
-
-			// copy the config file and store the error message
-			files <- src
-			backup.ConfigFilesManifest[src] = fsx.CopyFile(dest, src)
-		}
-	}()
+		}(bc)
+	}
 
 	// backup instances
 	wg.Add(1)
@@ -230,10 +188,18 @@ func (backup *Backup) run(io stream.IOStream, dis *Distillery) {
 
 	}()
 
-	// wait for the group, then close the message channel.
+	// finish processing all the results as soon as the group is done.
 	go func() {
+		defer close(results)
 		wg.Wait()
-		close(files)
+	}()
+
+	// finish the message processing once results are finished.
+	go func() {
+		defer close(files) // no more file processing!
+		for result := range results {
+			backup.ComponentErrors[result.name] = result.err
+		}
 	}()
 
 	for file := range files {

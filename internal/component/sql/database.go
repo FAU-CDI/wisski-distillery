@@ -59,27 +59,11 @@ func (sql SQL) OpenBookkeeping(silent bool) (*gorm.DB, error) {
 	return table, nil
 }
 
-var errSQLBackup = errors.New("SQLBackup: Mysqldump returned non-zero exit code")
-
-// Backup makes a backup of the sql database into dest.
-func (sql SQL) Backup(io stream.IOStream, dest io.Writer, database string) error {
+// Snapshot makes a backup of the sql database into dest.
+func (sql SQL) Snapshot(io stream.IOStream, dest io.Writer, database string) error {
 	io = io.Streams(dest, nil, nil, 0).NonInteractive()
 
 	code, err := sql.Stack().Exec(io, "sql", "mysqldump", "--databases", database)
-	if err != nil {
-		return err
-	}
-	if code != 0 {
-		return errSQLBackup
-	}
-	return nil
-}
-
-// BackupAll makes a backup of all sql databases
-func (sql SQL) BackupAll(io stream.IOStream, dest io.Writer) error {
-	io = stream.NewIOStream(dest, io.Stderr, nil, 0)
-
-	code, err := sql.Stack().Exec(io, "sql", "mysqldump", "--all-databases")
 	if err != nil {
 		return err
 	}

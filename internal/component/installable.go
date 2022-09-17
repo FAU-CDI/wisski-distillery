@@ -13,9 +13,9 @@ import (
 
 // TODO: Move this package into components
 
-// Installable represents a Stack that can be automatically installed from a set of resources
+// StackWithResources represents a Stack that can be automatically installed from a set of resources.
 // See the [Install] method.
-type Installable struct {
+type StackWithResources struct {
 	Stack
 
 	// Installable enabled installing several resources from a (potentially embedded) filesystem.
@@ -42,7 +42,7 @@ type InstallationContext map[string]string
 //
 // Installation is non-interactive, but will provide debugging output onto io.
 // InstallationContext
-func (is Installable) Install(io stream.IOStream, context InstallationContext) error {
+func (is StackWithResources) Install(io stream.IOStream, context InstallationContext) error {
 	if is.ContextPath != "" {
 		// setup the base files
 		if err := unpack.InstallDir(

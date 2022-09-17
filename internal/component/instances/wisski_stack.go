@@ -12,8 +12,8 @@ import (
 var barrelResources embed.FS
 
 // Barrel returns a stack representing the running WissKI Instance
-func (wisski WissKI) Barrel() component.Installable {
-	return component.Installable{
+func (wisski WissKI) Barrel() component.StackWithResources {
+	return component.StackWithResources{
 		Stack: component.Stack{
 			Dir: wisski.FilesystemBase,
 		},
@@ -48,8 +48,8 @@ func (wisski WissKI) Barrel() component.Installable {
 var reserveResources embed.FS
 
 // Reserve returns a stack representing the reserve instance
-func (wisski WissKI) Reserve() component.Installable {
-	return component.Installable{
+func (wisski WissKI) Reserve() component.StackWithResources {
+	return component.StackWithResources{
 		Stack: component.Stack{
 			Dir: wisski.FilesystemBase,
 		},

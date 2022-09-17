@@ -85,18 +85,19 @@ These are:
 
   - It is configured to run inside a docker container
   - A passwordless `root` account is created, which can only be used from inside the container.
+  - An additional admin account (as defined per config file) is created, which is used for administration.
   - A secondary management account is also created. This is configured via the distillery configuration file, and can be access from anywhere.
   - A `bookkeeping` database and table is created by default, to store known WissKI instance metadata in.
   - It is accsssible using `127.0.0.1:3306`
   - A database shell can be opened using `sudo /var/www/deploy/wdcli mysql`.
   - A [phpmyadmin](https://www.phpmyadmin.net/) is started on `127.0.0.1:8080`.
-  - See [distillery/resources/compose/sql](embed/resources/compose/sql) for implementation details.
+  - See [internal/component/sql](internal/component/sql) for implementation details.
 
 - [GraphDB](http://graphdb.ontotext.com/) - a SPARQL backend for WissKI (Version 10.0 or later)
   - It is configured to run inside a docker container.
   - The Workbench API is started on `127.0.0.1:7200`.
   - Security is not enabled at the moment.
-  - See [distillery/resources/compose/triplestore](embed/resources/compose/triplestore) for implementation details.
+  - See [internal/component/triplestore](internal/component/triplestore) for implementation details.
 
 - [proxyssh](https://github.com/tkw1536/proxyssh) - an ssh server that delegates client connections to different WissKIs
   - It is configured to run inside a docker container.
