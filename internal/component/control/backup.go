@@ -1,12 +1,9 @@
 package control
 
 import (
-	"io/fs"
-	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
 )
 
 func (*Control) BackupName() string {
@@ -14,27 +11,18 @@ func (*Control) BackupName() string {
 }
 
 // Backup backups all control plane configuration files into dest
-func (control *Control) Backup(io stream.IOStream, dest string) error {
-	// create the destination directory, TODO: outsource this
-	if err := os.Mkdir(dest, fs.ModeDir); err != nil {
-		return err
-	}
-
+func (control *Control) Backup(context component.BackupContext) error {
 	files := control.backupFiles()
-	for _, src := range files {
-		dst := filepath.Join(dest, filepath.Base(src)) // destination path
 
-		// if the src file does not exist, don't copy it!
-		if !fsx.IsFile(src) { // TODO: log this somewhere
-			continue
+	return context.AddDirectory("", func() error {
+		for _, src := range files {
+			name := filepath.Base(src)
+			if err := context.CopyFile(name, src); err != nil {
+				return err
+			}
 		}
-
-		if err := fsx.CopyFile(dst, src); err != nil {
-			return err
-		}
-	}
-
-	return nil
+		return nil
+	})
 }
 
 // backupfiles lists the files to be backed up.

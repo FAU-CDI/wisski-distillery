@@ -5,17 +5,17 @@ import (
 	"os"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/internal/backup"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
 	"github.com/tkw1536/goprogram/exit"
 )
 
 // Backup is the 'backup' command
-var Backup wisski_distillery.Command = backup{}
+var Backup wisski_distillery.Command = backupC{}
 
-type backup struct {
+type backupC struct {
 	NoPrune     bool `short:"n" long:"no-prune" description:"Do not prune older backup archives"`
 	StagingOnly bool `short:"s" long:"staging-only" description:"Do not package into a backup archive, but only create a staging directory"`
 	Positionals struct {
@@ -23,7 +23,7 @@ type backup struct {
 	} `positional-args:"true"`
 }
 
-func (backup) Description() wisski_distillery.Description {
+func (backupC) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: core.Requirements{
 			NeedsDistillery: true,
@@ -38,7 +38,7 @@ var errBackupFailed = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (bk backup) Run(context wisski_distillery.Context) error {
+func (bk backupC) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 	var err error
 
@@ -82,14 +82,11 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 	context.Println(sPath)
 
 	logging.LogOperation(func() error {
-		// take a snapshot into the staging area!
-		backup := dis.Backup(context.IOStream, wisski.BackupDescription{
+		backup := backup.New(context.IOStream, dis, backup.Description{
 			Dest: sPath,
+			Auto: bk.Positionals.Dest == "",
 		})
-
-		// write out the report, ignoring any errors!
 		backup.WriteReport(context.IOStream)
-
 		return nil
 	}, context.IOStream, "Generating Backup")
 

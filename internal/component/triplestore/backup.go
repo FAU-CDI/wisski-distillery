@@ -2,48 +2,34 @@ package triplestore
 
 import (
 	"encoding/json"
-	"io/fs"
-	"os"
-	"path/filepath"
+	"io"
 
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
 )
 
 func (ts *Triplestore) BackupName() string { return "triplestore" }
 
 // Backup makes a backup of all Triplestore repositories databases into the path dest.
-func (ts *Triplestore) Backup(io stream.IOStream, dest string) error {
+func (ts *Triplestore) Backup(context component.BackupContext) error {
 
-	// list all the repositories
+	// list all the directories
 	repos, err := ts.listRepositories()
 	if err != nil {
 		return err
 	}
 
-	// create the base directory, todo: outsource this
-	if err := os.Mkdir(dest, fs.ModeDir); err != nil {
-		return err
-	}
-
-	// iterate over all the repositories
-	for _, repo := range repos {
-		if rErr := (func(repo Repository) error {
-			name := filepath.Join(dest, repo.ID+".nq")
-
-			// todo: outsource this
-			dest, err := os.Create(name)
-			if err != nil {
+	// then backup each file separatly
+	return context.AddDirectory("", func() error {
+		for _, repo := range repos {
+			if err := context.AddFile(repo.ID+".nq", func(file io.Writer) error {
+				_, err := ts.Snapshot(file, repo.ID)
+				return err
+			}); err != nil {
 				return err
 			}
-			defer dest.Close()
-
-			_, err = ts.Snapshot(dest, repo.ID)
-			return err
-		}(repo)); err == nil && rErr != nil {
-			err = rErr
 		}
-	}
-	return err
+		return nil
+	})
 }
 
 func (ts Triplestore) listRepositories() (repos []Repository, err error) {

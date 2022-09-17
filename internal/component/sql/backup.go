@@ -2,9 +2,9 @@ package sql
 
 import (
 	"errors"
-	"os"
+	"io"
 
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
 )
 
 var errSQLBackup = errors.New("SQLBackup: Mysqldump returned non-zero exit code")
@@ -14,22 +14,17 @@ func (*SQL) BackupName() string {
 }
 
 // Backup makes a backup of all SQL databases into the path dest.
-func (sql *SQL) Backup(io stream.IOStream, dest string) error {
-	// open the file, TODO: Outsource this to context
-	writer, err := os.Create(dest)
-	if err != nil {
-		return err
-	}
-	defer writer.Close()
+func (sql *SQL) Backup(context component.BackupContext) error {
+	return context.AddFile("", func(file io.Writer) error {
+		io := context.IO().Streams(file, nil, nil, 0).NonInteractive()
+		code, err := sql.Stack().Exec(io, "sql", "mysqldump", "--all-databases")
+		if err != nil {
+			return err
+		}
+		if code != 0 {
+			return errSQLBackup
+		}
+		return nil
+	})
 
-	// run sqldump
-	io = io.Streams(writer, nil, nil, 0).NonInteractive()
-	code, err := sql.Stack().Exec(io, "sql", "mysqldump", "--all-databases")
-	if err != nil {
-		return err
-	}
-	if code != 0 {
-		return errSQLBackup
-	}
-	return nil
 }
