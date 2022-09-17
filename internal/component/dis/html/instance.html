@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <link rel="stylesheet" href="/dis/static/dis.css">
+<link rel="stylesheet" href="/dis/static/autolink.css">
 
 <title>Distillery Status Page - {{ .Info.Slug }}</title>
 <h1 id="top">Distillery Status Page - {{ .Info.Slug }}</h1>
@@ -7,7 +8,26 @@
     <a href="/dis/index">Back to index</a>
 </p>
 
-<pre>{{ . }}</pre>
+<p>
+    <b>Slug:</b> <code>{{ .Info.Slug }}</code> <br />
+    <b>URL:</b> <a href="{{ .Info.URL }}" target="_blank" rel="noopener noreferrer">{{ .Info.URL }}</a> <br />
+    <hr />
+    <b>Running:</b> <code>{{ .Info.Running }}</code> <br />
+    <hr />
+    <b>Created:</b> <code>{{ .Instance.Created }}</code> <br />
+    <b>OwnerEmail:</b> <code>{{ .Instance.OwnerEmail }}</code> <br />
+    <hr />
+    <b>FilesystemBase:</b> <code>{{ .Instance.FilesystemBase }}</code> <br />
+    <b>AutoBlindUpdateEnabled:</b> <code>{{ .Instance.AutoBlindUpdateEnabled }}</code> <br />
+    <hr />
+    <b>Pathbuilders:</b> <code>{{ .Info.Pathbuilders }}</code> <br />
+    <hr />
+	<b>SqlDatabase:</b> <code>{{ .Instance.SqlDatabase }}</code> <br />
+	<b>SqlUsername:</b> <code>{{ .Instance.SqlUsername }}</code> <br />
+    <hr />
+	<b>GraphDBRepository:</b> <code>{{ .Instance.GraphDBRepository }}</code> <br />
+	<b>GraphDBUsername:</b> <code>{{ .Instance.GraphDBUsername }}</code> <br />
+</p>
 
 <footer>
     Generated at <code>{{ .Time }}</code>
