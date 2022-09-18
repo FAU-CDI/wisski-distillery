@@ -1,13 +1,12 @@
 package cmd
 
 import (
-	"os"
-
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
@@ -43,12 +42,9 @@ var errNoGraphDBZip = exit.Error{
 }
 
 func (s systemupdate) AfterParse() error {
-	_, err := os.Stat(s.Positionals.GraphdbZip)
-	if os.IsNotExist(err) {
+	// TODO: Use a generic environment here!
+	if !fsx.IsFile(environment.Native{}, s.Positionals.GraphdbZip) {
 		return errNoGraphDBZip.WithMessageF(s.Positionals.GraphdbZip)
-	}
-	if err != nil {
-		return err
 	}
 	return nil
 }
@@ -85,7 +81,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		dis.SnapshotsArchivePath(),
 	} {
 		context.Println(d)
-		if err := os.MkdirAll(d, os.ModeDir); err != nil {
+		if err := dis.Core.Environment.MkdirAll(d, environment.DefaultDirPerm); err != nil {
 			return errBoostrapFailedToCreateDirectory.WithMessageF(d, err)
 		}
 	}
@@ -123,10 +119,10 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 
 	if err := logging.LogOperation(func() error {
 		for _, component := range dis.Installables() {
-			stack := component.Stack()
+			stack := component.Stack(dis.Core.Environment)
 			ctx := component.Context(ctx)
 			if err := logging.LogOperation(func() error {
-				return stack.Install(context.IOStream, ctx)
+				return stack.Install(dis.Core.Environment, context.IOStream, ctx)
 			}, context.IOStream, "Installing docker stack %q", component.Name()); err != nil {
 				return err
 			}
@@ -143,7 +139,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		return unpack.InstallDir(dis.Config.RuntimeDir(), "runtime", config.Runtime, func(dst, src string) {
+		return unpack.InstallDir(dis.Core.Environment, dis.Config.RuntimeDir(), "runtime", config.Runtime, func(dst, src string) {
 			context.Printf("[copy]  %s\n", dst)
 		})
 	}, context.IOStream, "Unpacking Runtime Components"); err != nil {
@@ -175,10 +171,11 @@ var errMustExecFailed = exit.Error{
 // mustExec indicates that the given executable process must complete successfully.
 // If it does not, returns errMustExecFailed
 func (si systemupdate) mustExec(context wisski_distillery.Context, workdir string, exe string, argv ...string) error {
+	dis := context.Environment
 	if workdir == "" {
 		workdir = context.Environment.Config.DeployRoot
 	}
-	code := execx.Exec(context.IOStream, workdir, exe, argv...)
+	code := dis.Core.Environment.Exec(context.IOStream, workdir, exe, argv...)
 	if code != 0 {
 		err := errMustExecFailed.WithMessageF(code)
 		err.ExitCode = exit.ExitCode(code)

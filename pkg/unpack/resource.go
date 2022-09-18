@@ -3,9 +3,9 @@ package unpack
 import (
 	"io"
 	"io/fs"
-	"os"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/pkg/errors"
 )
 
@@ -16,9 +16,9 @@ var errExpectedDirectoryButGotFile = errors.New("expected a directory, but got a
 //
 // onInstallFile is called for each file or directory being installed.
 //
-// If the destination path does not exist, it is created using [os.MakeDirs]
+// If the destination path does not exist, it is created using [environment.MakeDirs]
 // The directory is installed recursively.
-func InstallDir(dst string, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
+func InstallDir(env environment.Environment, dst string, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
 	// open the source file
 	srcFile, err := fsys.Open(src)
 	if err != nil {
@@ -43,14 +43,14 @@ func InstallDir(dst string, src string, fsys fs.FS, onInstallFile func(dst, src 
 
 	// do the installation of the directory.
 	// the type cast should be safe.
-	return installDir(dst, srcInfo, srcFile.(fs.ReadDirFile), src, fsys, onInstallFile)
+	return installDir(env, dst, srcInfo, srcFile.(fs.ReadDirFile), src, fsys, onInstallFile)
 }
 
 // installResource installs the resource at src within fsys to dst.
 //
 // OnInstallFile is called for each source and destination file.
 // OnInstallFile may be nil.
-func installResource(dst string, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
+func installResource(env environment.Environment, dst string, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
 	// open the srcFile
 	srcFile, err := fsys.Open(src)
 	if err != nil {
@@ -71,19 +71,19 @@ func installResource(dst string, src string, fsys fs.FS, onInstallFile func(dst,
 
 	// this is a directory, so the cast is safe!
 	if srcInfo.IsDir() {
-		return installDir(dst, srcInfo, srcFile.(fs.ReadDirFile), src, fsys, onInstallFile)
+		return installDir(env, dst, srcInfo, srcFile.(fs.ReadDirFile), src, fsys, onInstallFile)
 	}
 
 	// this is a regular file!
-	return installFile(dst, srcInfo, srcFile)
+	return installFile(env, dst, srcInfo, srcFile)
 }
 
-func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
+func installDir(env environment.Environment, dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
 	// create the destination
-	dstStat, dstErr := os.Stat(dst)
+	dstStat, dstErr := env.Stat(dst)
 	switch {
-	case os.IsNotExist(dstErr):
-		if err := os.MkdirAll(dst, srcInfo.Mode()); err != nil {
+	case environment.IsNotExist(dstErr):
+		if err := env.MkdirAll(dst, srcInfo.Mode()); err != nil {
 			return errors.Wrapf(err, "Error creating destination directory %s", dst)
 		}
 	case dstErr != nil:
@@ -105,6 +105,7 @@ func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src str
 	// iterate over all the children
 	for _, entry := range entries {
 		if err := installResource(
+			env,
 			filepath.Join(dst, entry.Name()),
 			filepath.Join(src, entry.Name()),
 			fsys,
@@ -117,9 +118,9 @@ func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src str
 	return nil
 }
 
-func installFile(dst string, srcInfo fs.FileInfo, src fs.File) error {
+func installFile(env environment.Environment, dst string, srcInfo fs.FileInfo, src fs.File) error {
 	// create the file using the right mode!
-	file, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, srcInfo.Mode())
+	file, err := env.Create(dst, srcInfo.Mode())
 	if err != nil {
 		return err
 	}

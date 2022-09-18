@@ -17,7 +17,7 @@ func (*SQL) BackupName() string {
 func (sql *SQL) Backup(context component.BackupContext) error {
 	return context.AddFile("", func(file io.Writer) error {
 		io := context.IO().Streams(file, nil, nil, 0).NonInteractive()
-		code, err := sql.Stack().Exec(io, "sql", "mysqldump", "--all-databases")
+		code, err := sql.Stack(sql.Environment).Exec(io, "sql", "mysqldump", "--all-databases")
 		if err != nil {
 			return err
 		}

@@ -3,16 +3,15 @@ package wisski
 import (
 	"context"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/config"
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
 )
 
 // Distillery represents a WissKI Distillery
 //
 // It is the main structure used to interact with different components.
 type Distillery struct {
-	// Config holds the configuration of the distillery.
-	// It is read directly from a configuration file.
-	Config *config.Config
+	// core holds the core of the distillery
+	component.Core
 
 	// Upstream holds information to connect to the various running
 	// distillery components.
@@ -25,7 +24,7 @@ type Distillery struct {
 	components
 }
 
-// Upstream are the upstream urls connecting to the various external components.
+// Upstream contains the configuration for accessing remote configuration.
 type Upstream struct {
 	SQL         string
 	Triplestore string

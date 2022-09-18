@@ -1,20 +1,21 @@
 package fsx
 
 import (
-	"os"
 	"time"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // Touch touches a file.
 // It is similar to the unix 'touch' command.
 //
-// If the file does not exist exists, it is created using [os.Create].
+// If the file does not exist exists, it is created using [env.Create].
 // If the file does exist, it's access and modification times are updated to the current time.
-func Touch(path string) error {
-	_, err := os.Stat(path)
+func Touch(env environment.Environment, path string) error {
+	_, err := env.Stat(path)
 	switch {
-	case os.IsNotExist(err):
-		f, err := os.Create(path)
+	case environment.IsNotExist(err):
+		f, err := env.Create(path, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
@@ -24,6 +25,6 @@ func Touch(path string) error {
 		return err
 	default:
 		now := time.Now().Local()
-		return os.Chtimes(path, now, now)
+		return env.Chtimes(path, now, now)
 	}
 }

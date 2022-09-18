@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"errors"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -18,6 +18,7 @@ import (
 type Stack struct {
 	Dir string // Directory this Stack is located in
 
+	Env              environment.Environment
 	DockerExecutable string // Path to the native docker executable to use
 }
 
@@ -101,7 +102,7 @@ func (ds Stack) Run(io stream.IOStream, autoRemove bool, service, command string
 
 	code, err := ds.compose(io, compose...)
 	if err != nil {
-		return execx.ExecCommandError, nil
+		return environment.ExecCommandError, nil
 	}
 	return code, nil
 }
@@ -175,10 +176,10 @@ func (ds Stack) Down(io stream.IOStream) error {
 func (ds Stack) compose(io stream.IOStream, args ...string) (int, error) {
 	if ds.DockerExecutable == "" {
 		var err error
-		ds.DockerExecutable, err = execx.LookPathAbs("docker")
+		ds.DockerExecutable, err = ds.Env.LookPathAbs("docker")
 		if err != nil {
-			return execx.ExecCommandError, err
+			return environment.ExecCommandError, err
 		}
 	}
-	return execx.Exec(io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...), nil
+	return ds.Env.Exec(io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...), nil
 }

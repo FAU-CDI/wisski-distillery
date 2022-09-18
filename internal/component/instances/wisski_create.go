@@ -21,7 +21,7 @@ func (instances *Instances) Create(slug string) (wisski WissKI, err error) {
 	wisski.instances = instances
 
 	// make sure that the slug is valid!
-	slug, err = stringparser.ParseSlug(slug)
+	slug, err = stringparser.ParseSlug(instances.Environment, slug)
 	if err != nil {
 		return wisski, errInvalidSlug
 	}
@@ -70,7 +70,7 @@ func (wisski WissKI) Provision(io stream.IOStream) error {
 
 	// create the basic st!
 	st := wisski.Barrel()
-	if err := st.Install(io, component.InstallationContext{}); err != nil {
+	if err := st.Install(wisski.instances.Core.Environment, io, component.InstallationContext{}); err != nil {
 		return err
 	}
 

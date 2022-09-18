@@ -1,8 +1,9 @@
 package core
 
 import (
-	"os"
 	"path/filepath"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // Params are used to initialize the excutable.
@@ -15,9 +16,9 @@ type Params struct {
 func ParamsFromEnv() (params Params, err error) {
 
 	// try to read the base directory!
-	value, err := ReadBaseDirectory()
+	value, err := ReadBaseDirectory(environment.Native{}) // TODO: Are we sure about the native environment here?
 	switch {
-	case os.IsNotExist(err):
+	case environment.IsNotExist(err):
 		params.ConfigPath = BaseDirectoryDefault
 	case err == nil:
 		params.ConfigPath = value

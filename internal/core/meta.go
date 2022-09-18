@@ -3,10 +3,11 @@ package core
 import (
 	"errors"
 	"io/fs"
-	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // MetaConfigFile is the path to a configuration file that contains the path to the last used wdcli executable.
@@ -33,7 +34,7 @@ var errReadBaseDirectoryEmpty = errors.New("ReadBaseDirectory: Directory is empt
 // Use [ParamsFromEnv] to initialize parameters completely.
 //
 // It does not perform any reading of files.
-func ReadBaseDirectory() (value string, err error) {
+func ReadBaseDirectory(env environment.Environment) (value string, err error) {
 	// get the path!
 	path, err := MetaConfigPath()
 	if err != nil {
@@ -41,7 +42,7 @@ func ReadBaseDirectory() (value string, err error) {
 	}
 
 	// read the meta config file!
-	contents, err := os.ReadFile(path)
+	contents, err := environment.ReadFile(env, path)
 	if err != nil {
 		return "", err
 	}
@@ -59,7 +60,7 @@ func ReadBaseDirectory() (value string, err error) {
 }
 
 // WriteBaseDirectory writes the base directory to the environment, or returns an error
-func WriteBaseDirectory(dir string) error {
+func WriteBaseDirectory(env environment.Environment, dir string) error {
 	// get the path!
 	path, err := MetaConfigPath()
 	if err != nil {
@@ -67,5 +68,5 @@ func WriteBaseDirectory(dir string) error {
 	}
 
 	// just put the directory inside it!
-	return os.WriteFile(path, []byte(dir), fs.ModePerm)
+	return environment.WriteFile(env, path, []byte(dir), fs.ModePerm)
 }

@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"os"
-
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 )
 
@@ -29,12 +29,9 @@ func (monday) Description() wisski_distillery.Description {
 }
 
 func (monday monday) AfterParse() error {
-	_, err := os.Stat(monday.Positionals.GraphdbZip)
-	if os.IsNotExist(err) {
+	// TODO: Use a generic environment here!
+	if !fsx.IsFile(environment.Native{}, monday.Positionals.GraphdbZip) {
 		return errNoGraphDBZip.WithMessageF(monday.Positionals.GraphdbZip)
-	}
-	if err != nil {
-		return err
 	}
 	return nil
 }

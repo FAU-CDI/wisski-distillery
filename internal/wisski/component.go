@@ -58,7 +58,7 @@ func makeComponent[C component.Component](dis *Distillery, field *lazy.Lazy[C], 
 		}
 
 		base := c.Base()
-		base.Config = dis.Config
+		base.Core = dis.Core
 		if base.Dir == "" {
 			base.Dir = filepath.Join(dis.Config.DeployRoot, "core", c.Name())
 		}

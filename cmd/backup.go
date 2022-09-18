@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"io/fs"
-	"os"
-
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/backup"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
 	"github.com/tkw1536/goprogram/exit"
@@ -59,7 +57,7 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 		}
 		defer func() {
 			logging.LogMessage(context.IOStream, "Removing snapshot staging directory")
-			os.RemoveAll(sPath)
+			dis.Environment.RemoveAll(sPath)
 		}()
 	} else {
 		// staging mode: use dest as a destination
@@ -73,8 +71,8 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 
 		// create the directory (if it doesn't already exist)
 		logging.LogMessage(context.IOStream, "Creating staging directory")
-		err = os.Mkdir(sPath, fs.ModePerm)
-		if !os.IsExist(err) && err != nil {
+		err = dis.Core.Environment.Mkdir(sPath, environment.DefaultDirPerm)
+		if !environment.IsExist(err) && err != nil {
 			return errSnapshotFailed.WithMessageF(err)
 		}
 		err = nil
@@ -86,7 +84,7 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 			Dest: sPath,
 			Auto: bk.Positionals.Dest == "",
 		})
-		backup.WriteReport(context.IOStream)
+		backup.WriteReport(dis.Core.Environment, context.IOStream)
 		return nil
 	}, context.IOStream, "Generating Backup")
 
@@ -108,7 +106,7 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 	if err := logging.LogOperation(func() error {
 		context.IOStream.Println(archivePath)
 
-		count, err = targz.Package(archivePath, sPath, func(dst, src string) {
+		count, err = targz.Package(dis.Core.Environment, archivePath, sPath, func(dst, src string) {
 			context.Printf("\033[2K\r%s", dst)
 		})
 		context.Println("")

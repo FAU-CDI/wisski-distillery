@@ -7,6 +7,7 @@ import (
 	"reflect"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/hostname"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
@@ -29,13 +30,13 @@ type Template struct {
 }
 
 // SetDefaults sets defaults on the template
-func (tpl *Template) SetDefaults() (err error) {
+func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	if tpl.DeployRoot == "" {
 		tpl.DeployRoot = core.BaseDirectoryDefault
 	}
 
 	if tpl.DefaultDomain == "" {
-		tpl.DefaultDomain = hostname.FQDN()
+		tpl.DefaultDomain = hostname.FQDN(env)
 	}
 
 	if tpl.SelfOverridesFile == "" {

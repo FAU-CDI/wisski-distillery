@@ -6,17 +6,18 @@ import (
 	"compress/gzip"
 	"io"
 	"io/fs"
-	"os"
 	"path/filepath"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // Package packages the source directory into a 'tar.gz' file into destination.
 // If the destination already exists, it is truncated.
 //
 // onCopy, when not nil, is called for each file being copied into the archive.
-func Package(dst, src string, onCopy func(rel string, src string)) (count int64, err error) {
+func Package(env environment.Environment, dst, src string, onCopy func(rel string, src string)) (count int64, err error) {
 	// create the target archive
-	archive, err := os.Create(dst)
+	archive, err := env.Create(dst, environment.DefaultFilePerm)
 	if err != nil {
 		return 0, err
 	}
@@ -31,7 +32,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 	defer tarHandle.Close()
 
 	// and walk through it!
-	err = filepath.WalkDir(src, func(path string, entry fs.DirEntry, err error) error {
+	err = env.WalkDir(src, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -74,7 +75,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		}
 
 		// open the file
-		handle, err := os.Open(path)
+		handle, err := env.Open(path)
 		if err != nil {
 			return err
 		}

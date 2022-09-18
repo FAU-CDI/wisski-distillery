@@ -2,7 +2,6 @@ package control
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"regexp"
 
@@ -37,7 +36,7 @@ func (control Control) resolver(io stream.IOStream) (p wdresolve.ResolveHandler,
 
 	// open the prefix file
 	prefixFile := control.ResolverConfigPath()
-	fs, err := os.Open(prefixFile)
+	fs, err := control.Environment.Open(prefixFile)
 	io.Println("loading prefixes from ", prefixFile)
 	if err != nil {
 		return p, err

@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -96,20 +96,20 @@ func (backup Backup) Report(w io.Writer) (int, error) {
 
 // WriteReport writes out the report belonging to this backup.
 // It is a separate function, to allow writing it indepenently of the rest.
-func (backup Backup) WriteReport(io stream.IOStream) error {
+func (backup Backup) WriteReport(env environment.Environment, stream stream.IOStream) error {
 	return logging.LogOperation(func() error {
 		reportPath := filepath.Join(backup.Description.Dest, "report.txt")
-		io.Println(reportPath)
+		stream.Println(reportPath)
 
 		// create the report file!
-		report, err := os.Create(reportPath)
+		report, err := env.Create(reportPath, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
 		defer report.Close()
 
 		// print the report into it!
-		_, err = report.WriteString(backup.String())
+		_, err = io.WriteString(report, backup.String())
 		return err
-	}, io, "Writing backup report")
+	}, stream, "Writing backup report")
 }

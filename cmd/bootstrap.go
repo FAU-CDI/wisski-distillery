@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"io/fs"
-	"os"
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
@@ -67,11 +67,15 @@ var errBootstrapCreateFile = exit.Error{
 }
 
 func (bs bootstrap) Run(context wisski_distillery.Context) error {
+	// installation environment is the native environment!
+	// TODO: Should this be configurable?
+	var env environment.Native
+
 	root := bs.Directory
 
 	// check that we didn't get a different base directory
 	{
-		got, err := core.ReadBaseDirectory()
+		got, err := core.ReadBaseDirectory(env)
 		if err == nil && got != "" && got != root {
 			return errBootstrapDifferent.WithMessageF(got)
 		}
@@ -79,10 +83,10 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 
 	{
 		logging.LogMessage(context.IOStream, "Creating root deployment directory")
-		if err := os.MkdirAll(root, fs.ModeDir); err != nil {
+		if err := env.MkdirAll(root, environment.DefaultDirPerm); err != nil {
 			return errBootstrapFailedToCreateDirectory.WithMessageF(root)
 		}
-		if err := core.WriteBaseDirectory(root); err != nil {
+		if err := core.WriteBaseDirectory(env, root); err != nil {
 			return errBootstrapFailedToSaveDirectory.WithMessageF(root)
 		}
 		context.Println(root)
@@ -98,18 +102,18 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 	tpl.DefaultDomain = bs.Hostname
 
 	// and use thge defaults
-	if err := tpl.SetDefaults(); err != nil {
+	if err := tpl.SetDefaults(env); err != nil {
 		return errBootstrapWriteConfig.WithMessageF(err)
 	}
 
 	{
 		logging.LogMessage(context.IOStream, "Copying over wdcli executable")
-		exe, err := os.Executable()
+		exe, err := env.Executable()
 		if err != nil {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
 
-		err = fsx.CopyFile(wdcliPath, exe)
+		err = fsx.CopyFile(env, wdcliPath, exe)
 		if err != nil && err != fsx.ErrCopySameFile {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
@@ -117,9 +121,9 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	{
-		if !fsx.IsFile(envPath) {
+		if !fsx.IsFile(env, envPath) {
 			if err := logging.LogOperation(func() error {
-				env, err := os.Create(envPath)
+				env, err := env.Create(envPath, environment.DefaultFilePerm)
 				if err != nil {
 					return err
 				}
@@ -133,7 +137,8 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 			if err := logging.LogOperation(func() error {
 
 				context.Println(tpl.SelfOverridesFile)
-				if err := os.WriteFile(
+				if err := environment.WriteFile(
+					env,
 					tpl.SelfOverridesFile,
 					core.DefaultOverridesJSON,
 					fs.ModePerm,
@@ -142,7 +147,8 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 				}
 
 				context.Println(tpl.AuthorizedKeys)
-				if err := os.WriteFile(
+				if err := environment.WriteFile(
+					env,
 					tpl.AuthorizedKeys,
 					core.DefaultAuthorizedKeys,
 					fs.ModePerm,
@@ -160,14 +166,14 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 
 	// re-read the configuration and print it!
 	logging.LogMessage(context.IOStream, "Configuration is now complete")
-	f, err := os.Open(envPath)
+	f, err := env.Open(envPath)
 	if err != nil {
 		return errBootstrapOpenConfig.WithMessageF(err)
 	}
 	defer f.Close()
 
 	var cfg config.Config
-	if err := cfg.Unmarshal(f); err != nil {
+	if err := cfg.Unmarshal(env, f); err != nil {
 		return errBootstrapOpenConfig.WithMessageF(err)
 	}
 	context.Println(cfg)

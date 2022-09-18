@@ -28,8 +28,8 @@ type BackupContext interface {
 	// It then allows op to fill the file.
 	AddDirectory(path string, op func() error) error
 
-	// CopyFile copies a file from source to dst.
-	CopyFile(dest, src string) error
+	// CopyFile copies a file from src to dst.
+	CopyFile(dst, src string) error
 
 	// AddFile creates a new file at the provided path inside the destination.
 	// Passing the empty path creates the destination as a file.

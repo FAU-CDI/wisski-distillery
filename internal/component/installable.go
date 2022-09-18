@@ -2,9 +2,9 @@ package component
 
 import (
 	"io/fs"
-	"os"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/pkg/errors"
@@ -29,7 +29,7 @@ type StackWithResources struct {
 
 	CopyContextFiles []string // Files to copy from the installation context
 
-	MakeDirsPerm fs.FileMode // permission for diretories, defaults to fs.ModeDir
+	MakeDirsPerm fs.FileMode // permission for diretories, defaults to [environment.DefaultDirCreate]
 	MakeDirs     []string    // directories to ensure that exist
 
 	TouchFiles []string // Files to 'touch', i.e. ensure that exist; guaranteed to be run after MakeDirs
@@ -42,10 +42,11 @@ type InstallationContext map[string]string
 //
 // Installation is non-interactive, but will provide debugging output onto io.
 // InstallationContext
-func (is StackWithResources) Install(io stream.IOStream, context InstallationContext) error {
+func (is StackWithResources) Install(env environment.Environment, io stream.IOStream, context InstallationContext) error {
 	if is.ContextPath != "" {
 		// setup the base files
 		if err := unpack.InstallDir(
+			env,
 			is.Dir,
 			is.ContextPath,
 			is.Resources,
@@ -62,6 +63,7 @@ func (is StackWithResources) Install(io stream.IOStream, context InstallationCon
 	if is.EnvPath != "" && is.EnvContext != nil {
 		io.Printf("[config]  %s\n", envDest)
 		if err := unpack.InstallTemplate(
+			env,
 			envDest,
 			is.EnvContext,
 			is.EnvPath,
@@ -78,9 +80,9 @@ func (is StackWithResources) Install(io stream.IOStream, context InstallationCon
 
 		io.Printf("[make]    %s\n", dst)
 		if is.MakeDirsPerm == fs.FileMode(0) {
-			is.MakeDirsPerm = fs.ModeDir
+			is.MakeDirsPerm = environment.DefaultDirPerm
 		}
-		if err := os.MkdirAll(dst, is.MakeDirsPerm); err != nil {
+		if err := env.MkdirAll(dst, is.MakeDirsPerm); err != nil {
 			return err
 		}
 	}
@@ -98,7 +100,7 @@ func (is StackWithResources) Install(io stream.IOStream, context InstallationCon
 
 		// copy over file from context
 		io.Printf("[copy]    %s (from %s)\n", dst, src)
-		if err := fsx.CopyFile(dst, src); err != nil {
+		if err := fsx.CopyFile(env, dst, src); err != nil {
 			return errors.Wrapf(err, "Unable to copy file %s", src)
 		}
 	}
@@ -109,7 +111,7 @@ func (is StackWithResources) Install(io stream.IOStream, context InstallationCon
 		dst := filepath.Join(is.Dir, name)
 
 		io.Printf("[touch]   %s\n", dst)
-		if err := fsx.Touch(dst); err != nil {
+		if err := fsx.Touch(env, dst); err != nil {
 			return err
 		}
 	}

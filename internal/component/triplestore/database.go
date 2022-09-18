@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -61,6 +62,14 @@ func (ts Triplestore) OpenRaw(method, url string, body interface{}, bodyName str
 	}
 
 	// create the request object
+	client := &http.Client{
+		Transport: &http.Transport{
+			Dial: ts.Environment.Dial,
+			DialTLS: func(network, addr string) (net.Conn, error) {
+				return nil, errors.New("not implemented")
+			},
+		},
+	}
 	req, err := http.NewRequest(method, ts.BaseURL+url, reader)
 	if err != nil {
 		return nil, err
@@ -76,7 +85,7 @@ func (ts Triplestore) OpenRaw(method, url string, body interface{}, bodyName str
 	req.SetBasicAuth(ts.Config.TriplestoreAdminUser, ts.Config.TriplestoreAdminPassword)
 
 	// and send it
-	return http.DefaultClient.Do(req)
+	return client.Do(req)
 }
 
 // Wait waits for the connection to the Triplestore to succeed.

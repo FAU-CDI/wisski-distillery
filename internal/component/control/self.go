@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/tkw1536/goprogram/stream"
@@ -13,7 +12,7 @@ import (
 // self returns the handler for the self overrides
 func (control Control) self(io stream.IOStream) (redirect Redirect, err error) {
 	// open the overrides file
-	overrides, err := os.Open(control.Config.SelfOverridesFile)
+	overrides, err := control.Environment.Open(control.Config.SelfOverridesFile)
 	io.Printf("loading overrides from %q\n", control.Config.SelfOverridesFile)
 	if err != nil {
 		return redirect, err

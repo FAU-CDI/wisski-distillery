@@ -1,10 +1,10 @@
 package wisski
 
 import (
-	"os"
-
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -21,6 +21,9 @@ var errOpenConfig = exit.Error{
 // NewDistillery creates a new distillery from the provided flags
 func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) (dis *Distillery, err error) {
 	dis = &Distillery{
+		Core: component.Core{
+			Environment: environment.Native{},
+		},
 		Upstream: Upstream{
 			SQL:         "127.0.0.1:3306",
 			Triplestore: "127.0.0.1:7200",
@@ -34,7 +37,7 @@ func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) 
 	if flags.InternalInDocker {
 		dis.Upstream.SQL = "sql:3306"
 		dis.Upstream.Triplestore = "triplestore:7200"
-		params.ConfigPath = os.Getenv("CONFIG_PATH")
+		params.ConfigPath = dis.Core.Environment.GetEnv("CONFIG_PATH")
 	}
 
 	// if we don't need to load the config, there is nothing to do
@@ -52,7 +55,7 @@ func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) 
 	}
 
 	// open the config file!
-	f, err := os.Open(params.ConfigPath)
+	f, err := dis.Core.Environment.Open(params.ConfigPath)
 	if err != nil {
 		return nil, errOpenConfig.WithMessageF(err)
 	}
@@ -62,6 +65,6 @@ func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) 
 	dis.Config = &config.Config{
 		ConfigPath: cfg,
 	}
-	err = dis.Config.Unmarshal(f)
+	err = dis.Config.Unmarshal(dis.Core.Environment, f)
 	return
 }

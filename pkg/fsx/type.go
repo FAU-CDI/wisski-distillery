@@ -2,29 +2,31 @@
 package fsx
 
 import (
-	"os"
+	"io/fs"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // Exists checks if the given path exists
-func Exists(path string) bool {
-	_, err := os.Lstat(path)
+func Exists(env environment.Environment, path string) bool {
+	_, err := env.Lstat(path)
 	return err == nil
 }
 
 // IsDirectory checks if the provided path exists and is a directory
-func IsDirectory(path string) bool {
-	info, err := os.Stat(path)
+func IsDirectory(env environment.Environment, path string) bool {
+	info, err := env.Stat(path)
 	return err == nil && info.Mode().IsDir()
 }
 
 // IsFile checks if the provided path exists and is a regular file
-func IsFile(path string) bool {
-	info, err := os.Stat(path)
+func IsFile(env environment.Environment, path string) bool {
+	info, err := env.Stat(path)
 	return err == nil && info.Mode().IsRegular()
 }
 
 // IsLink checks if the provided path exists and is a symlink
-func IsLink(path string) bool {
-	info, err := os.Lstat(path)
-	return err == nil && info.Mode()&os.ModeSymlink != 0
+func IsLink(env environment.Environment, path string) bool {
+	info, err := env.Lstat(path)
+	return err == nil && info.Mode()&fs.ModeSymlink != 0
 }

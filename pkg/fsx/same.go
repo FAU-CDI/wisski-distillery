@@ -1,17 +1,18 @@
 package fsx
 
 import (
-	"os"
 	"path/filepath"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // SameFile checks if path1 and path2 refer to the same file.
-// If both files exist, they are compared using [os.SameFile].
+// If both files exist, they are compared using [env.SameFile].
 // If both files do not exist, the paths are first compared syntactically and then via recursion on [filepath.Dir].
-func SameFile(path1, path2 string) bool {
+func SameFile(env environment.Environment, path1, path2 string) bool {
 
 	// initial attempt: check if directly
-	same, certain := couldBeSameFile(path1, path2)
+	same, certain := couldBeSameFile(env, path1, path2)
 	if certain {
 		return same
 	}
@@ -28,28 +29,28 @@ func SameFile(path1, path2 string) bool {
 
 	// compare the base names!
 	{
-		same, _ := couldBeSameFile(d1, d2)
+		same, _ := couldBeSameFile(env, d1, d2)
 		return same
 	}
 }
 
 // couldBeSameFile checks if path1 might be the same as path2.
 //
-// If both files exist, compares using [os.SameFile].
+// If both files exist, compares using [env.SameFile].
 // Otherwise compares absolute paths using string comparison.
 //
 // same indicates if they might be the same file.
 // authorative indiciates if the result is authorative.
-func couldBeSameFile(path1, path2 string) (same, authorative bool) {
+func couldBeSameFile(env environment.Environment, path1, path2 string) (same, authorative bool) {
 	{
 		// stat both files
-		info1, err1 := os.Stat(path1)
-		info2, err2 := os.Stat(path2)
+		info1, err1 := env.Stat(path1)
+		info2, err2 := env.Stat(path2)
 
-		// both files exist => check using os.SameFile
+		// both files exist => check using env.SameFile
 		// the result is always authorative
 		if err1 == nil && err2 == nil {
-			same = os.SameFile(info1, info2)
+			same = env.SameFile(info1, info2)
 			authorative = true
 			return
 		}
@@ -60,15 +61,15 @@ func couldBeSameFile(path1, path2 string) (same, authorative bool) {
 		}
 
 		// only 1 file does not exist => they could be different
-		if os.IsNotExist(err1) != os.IsNotExist(err2) {
+		if environment.IsNotExist(err1) != environment.IsNotExist(err2) {
 			return
 		}
 	}
 
 	{
 		// resolve paths absolutely
-		rpath1, err1 := filepath.Abs(path1)
-		rpath2, err2 := filepath.Abs(path2)
+		rpath1, err1 := env.Abs(path1)
+		rpath2, err2 := env.Abs(path2)
 
 		// if either path could not be resolved absolutely
 		// fallback to just using clean!

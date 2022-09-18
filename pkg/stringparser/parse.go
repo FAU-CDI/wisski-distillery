@@ -4,11 +4,12 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/pkg/errors"
 )
 
 // Parse parses the provided value with the parser.
-func Parse(name, value string, vField reflect.Value) error {
+func Parse(env environment.Environment, name, value string, vField reflect.Value) error {
 
 	// use the validator
 	parser, ok := knownParsers[strings.ToLower(name)]
@@ -17,7 +18,7 @@ func Parse(name, value string, vField reflect.Value) error {
 	}
 
 	// get the parsed value
-	checked, err := parser(value)
+	checked, err := parser(env, value)
 	if err != nil {
 		return errors.Wrapf(err, "parser %s returned error", name)
 	}
@@ -53,8 +54,8 @@ var knownParsers map[string]Parser[any] = map[string]Parser[any]{
 }
 
 func asGenericParser[T any](parser Parser[T]) Parser[any] {
-	return func(s string) (value any, err error) {
-		value, err = parser(s)
+	return func(env environment.Environment, s string) (value any, err error) {
+		value, err = parser(env, s)
 		return
 	}
 }

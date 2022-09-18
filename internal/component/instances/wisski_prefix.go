@@ -3,7 +3,6 @@ package instances
 import (
 	"errors"
 	"io"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -14,7 +13,7 @@ import (
 // NoPrefix checks if this WissKI instance is excluded from generating prefixes.
 // TODO: Move this to the database!
 func (wisski *WissKI) NoPrefix() bool {
-	return fsx.IsFile(filepath.Join(wisski.FilesystemBase, "prefixes.skip"))
+	return fsx.IsFile(wisski.instances.Environment, filepath.Join(wisski.FilesystemBase, "prefixes.skip"))
 }
 
 var errPrefixExecFailed = errors.New("PrefixConfig: Failed to call list_uri_prefixes")
@@ -41,8 +40,8 @@ func (wisski *WissKI) PrefixConfig() (config string, err error) {
 
 	// custom prefixes
 	prefixPath := filepath.Join(wisski.FilesystemBase, "prefixes")
-	if fsx.IsFile(prefixPath) {
-		prefix, err := os.Open(prefixPath)
+	if fsx.IsFile(wisski.instances.Environment, prefixPath) {
+		prefix, err := wisski.instances.Core.Environment.Open(prefixPath)
 		if err != nil {
 			return "", err
 		}

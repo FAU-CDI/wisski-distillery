@@ -57,7 +57,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// check that the base directory does not exist
 	logging.LogMessage(context.IOStream, "Checking that base directory %s does not exist", instance.FilesystemBase)
-	if fsx.IsDirectory(instance.FilesystemBase) {
+	if fsx.IsDirectory(dis.Environment, instance.FilesystemBase) {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
 

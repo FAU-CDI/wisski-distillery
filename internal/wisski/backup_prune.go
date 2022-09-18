@@ -1,7 +1,6 @@
 package wisski
 
 import (
-	"os"
 	"path/filepath"
 	"time"
 
@@ -18,7 +17,7 @@ func (dis *Distillery) PruneBackups(io stream.IOStream) error {
 	sPath := dis.SnapshotsArchivePath()
 
 	// list all the files
-	entries, err := os.ReadDir(sPath)
+	entries, err := dis.Core.Environment.ReadDir(sPath)
 	if err != nil {
 		return err
 	}
@@ -44,7 +43,7 @@ func (dis *Distillery) PruneBackups(io stream.IOStream) error {
 		path := filepath.Join(sPath, entry.Name())
 		io.Printf("Removing %s cause it is older than %d days", path, dis.Config.MaxBackupAge)
 
-		if err := os.Remove(path); err != nil {
+		if err := dis.Core.Environment.Remove(path); err != nil {
 			return err
 		}
 	}

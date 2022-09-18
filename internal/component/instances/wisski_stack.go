@@ -2,7 +2,6 @@ package instances
 
 import (
 	"embed"
-	"io/fs"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
@@ -16,6 +15,7 @@ func (wisski WissKI) Barrel() component.StackWithResources {
 	return component.StackWithResources{
 		Stack: component.Stack{
 			Dir: wisski.FilesystemBase,
+			Env: wisski.instances.Environment,
 		},
 
 		Resources:   barrelResources,
@@ -35,8 +35,7 @@ func (wisski WissKI) Barrel() component.StackWithResources {
 			"GLOBAL_AUTHORIZED_KEYS_FILE": wisski.instances.Config.GlobalAuthorizedKeysFile,
 		},
 
-		MakeDirsPerm: fs.ModeDir | fs.ModePerm,
-		MakeDirs:     []string{"data", ".composer"},
+		MakeDirs: []string{"data", ".composer"},
 
 		TouchFiles: []string{
 			filepath.Join("data", "authorized_keys"),
@@ -52,6 +51,7 @@ func (wisski WissKI) Reserve() component.StackWithResources {
 	return component.StackWithResources{
 		Stack: component.Stack{
 			Dir: wisski.FilesystemBase,
+			Env: wisski.instances.Environment,
 		},
 
 		Resources:   reserveResources,

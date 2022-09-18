@@ -4,12 +4,14 @@ package hostname
 import (
 	"os"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/Showmax/go-fqdn"
 )
 
 // FQDN attempts to return the fully qualified domain name of the host system.
 // If an error occurs, may fall back to the empty string.
-func FQDN() string {
+func FQDN(env environment.Environment) string {
+	// TODO: Pass this through!
 
 	// try the hostname function
 	{

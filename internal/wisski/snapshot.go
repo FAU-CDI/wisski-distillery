@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -13,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/opgroup"
@@ -42,7 +41,7 @@ func (dis *Distillery) SnapshotsArchivePath() string {
 // The path is guaranteed to not exist.
 func (dis *Distillery) NewSnapshotArchivePath(prefix string) (path string) {
 	// TODO: Consider moving these into a subdirectory with the provided prefix.
-	for path == "" || fsx.Exists(path) {
+	for path == "" || fsx.Exists(dis.Environment, path) {
 		name := dis.newSnapshotName(prefix) + ".tar.gz"
 		path = filepath.Join(dis.SnapshotsArchivePath(), name)
 	}
@@ -64,9 +63,9 @@ func (*Distillery) newSnapshotName(prefix string) string {
 // NewSnapshotStagingDir returns the path to a new snapshot directory.
 // The directory is guaranteed to have been freshly created.
 func (dis *Distillery) NewSnapshotStagingDir(prefix string) (path string, err error) {
-	for path == "" || os.IsExist(err) {
+	for path == "" || environment.IsExist(err) {
 		path = filepath.Join(dis.SnapshotsStagingPath(), dis.newSnapshotName(prefix))
-		err = os.Mkdir(path, os.ModeDir)
+		err = dis.Core.Environment.Mkdir(path, environment.DefaultFilePerm)
 	}
 	if err != nil {
 		path = ""
@@ -210,7 +209,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 		bkPath := filepath.Join(snapshot.Description.Dest, "bookkeeping.txt")
 		files <- bkPath
 
-		info, err := os.Create(bkPath)
+		info, err := dis.Core.Environment.Create(bkPath, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
@@ -227,7 +226,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 		fsPath := filepath.Join(snapshot.Description.Dest, filepath.Base(instance.FilesystemBase))
 
 		// copy over whatever is in the base directory
-		return fsx.CopyDirectory(fsPath, instance.FilesystemBase, func(dst, src string) {
+		return fsx.CopyDirectory(dis.Core.Environment, fsPath, instance.FilesystemBase, func(dst, src string) {
 			files <- dst
 		})
 	}, &snapshot.ErrFilesystem)
@@ -237,7 +236,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 		tsPath := filepath.Join(snapshot.Description.Dest, instance.GraphDBRepository+".nq")
 		files <- tsPath
 
-		nquads, err := os.Create(tsPath)
+		nquads, err := dis.Core.Environment.Create(tsPath, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
@@ -253,7 +252,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 		sqlPath := filepath.Join(snapshot.Description.Dest, snapshot.Instance.SqlDatabase+".sql")
 		files <- sqlPath
 
-		sql, err := os.Create(sqlPath)
+		sql, err := dis.Core.Environment.Create(sqlPath, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
@@ -279,7 +278,7 @@ func (snapshot *Snapshot) makeWhitebox(io stream.IOStream, dis *Distillery, inst
 		files <- pbPath
 
 		// create the directory!
-		if err := os.Mkdir(pbPath, fs.ModeDir); err != nil {
+		if err := dis.Core.Environment.Mkdir(pbPath, environment.DefaultDirPerm); err != nil {
 			return err
 		}
 
@@ -312,20 +311,20 @@ func (snapshot *Snapshot) waitGroup(io stream.IOStream, og *opgroup.OpGroup[stri
 
 // WriteReport writes out the report belonging to this snapshot.
 // It is a separate function, to allow writing it indepenently of the rest.
-func (snapshot Snapshot) WriteReport(io stream.IOStream) error {
+func (snapshot *Snapshot) WriteReport(env environment.Environment, stream stream.IOStream) error {
 	return logging.LogOperation(func() error {
 		reportPath := filepath.Join(snapshot.Description.Dest, "report.txt")
-		io.Println(reportPath)
+		stream.Println(reportPath)
 
 		// create the report file!
-		report, err := os.Create(reportPath)
+		report, err := env.Create(reportPath, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
 		defer report.Close()
 
 		// print the report into it!
-		_, err = report.WriteString(snapshot.String())
+		_, err = io.WriteString(report, snapshot.String())
 		return err
-	}, io, "Writing snapshot report")
+	}, stream, "Writing snapshot report")
 }

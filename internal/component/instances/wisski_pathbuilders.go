@@ -2,12 +2,11 @@ package instances
 
 import (
 	"fmt"
-	"io/fs"
-	"os"
 	"path/filepath"
 
 	_ "embed"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -51,7 +50,7 @@ func (wisski *WissKI) ExportPathbuilders(dest string) error {
 	for _, name := range names {
 		pbxml := []byte(pathbuilders[name])
 		name := filepath.Join(dest, fmt.Sprintf("%s.xml", name))
-		if err := os.WriteFile(name, pbxml, fs.ModePerm); err != nil {
+		if err := environment.WriteFile(wisski.instances.Core.Environment, name, pbxml, environment.DefaultFilePerm); err != nil {
 			return err
 		}
 	}

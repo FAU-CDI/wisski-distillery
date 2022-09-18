@@ -6,6 +6,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // Control represents the control server
@@ -24,8 +25,8 @@ func (control Control) Name() string {
 //go:embed all:control control.env
 var resources embed.FS
 
-func (control Control) Stack() component.StackWithResources {
-	return control.ComponentBase.MakeStack(component.StackWithResources{
+func (control Control) Stack(env environment.Environment) component.StackWithResources {
+	return control.ComponentBase.MakeStack(env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "control",
 		EnvPath:     "control.env",
@@ -49,6 +50,6 @@ func (control Control) Stack() component.StackWithResources {
 
 func (control Control) Context(parent component.InstallationContext) component.InstallationContext {
 	return component.InstallationContext{
-		core.Executable: control.Config.CurrentExecutable(),
+		core.Executable: control.Config.CurrentExecutable(control.Environment), // TODO: Does this make sense?
 	}
 }

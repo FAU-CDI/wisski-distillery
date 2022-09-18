@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/pkg/errors"
 )
@@ -17,19 +18,19 @@ import (
 // Parsers can be found in this package as functions called Parse*.
 // They are refered to by their name, e.g. ParseNonempty can be refered to by the name 'Nonempty'.
 // See [Parse].
-type Parser[T any] func(s string) (T, error)
+type Parser[T any] func(env environment.Environment, s string) (T, error)
 
 // ParseAbspath checks that s is an absolute path and returns it as-is
-func ParseAbspath(s string) (string, error) {
-	if !fsx.IsDirectory(s) {
+func ParseAbspath(env environment.Environment, s string) (string, error) {
+	if !fsx.IsDirectory(env, s) {
 		return "", errors.Errorf("%q does not exist or is not a directory", s)
 	}
 	return s, nil
 }
 
 // ParseFile checks that s is a valid file and returns it as-is
-func ParseFile(s string) (string, error) {
-	if !fsx.IsFile(s) {
+func ParseFile(env environment.Environment, s string) (string, error) {
+	if !fsx.IsFile(env, s) {
 		return "", errors.Errorf("%q does not exist or is not a regular file", s)
 	}
 	return s, nil
@@ -38,7 +39,7 @@ func ParseFile(s string) (string, error) {
 var errEmptyString = errors.New("value is empty")
 
 // ParseNonEmpty checks that s is a non-empty string and returns it as-is
-func ParseNonEmpty(s string) (string, error) {
+func ParseNonEmpty(env environment.Environment, s string) (string, error) {
 	if s == "" {
 		return "", errEmptyString
 	}
@@ -48,7 +49,7 @@ func ParseNonEmpty(s string) (string, error) {
 var regexpDomain = regexp.MustCompile(`^([a-zA-Z0-9][-a-zA-Z0-9]*\.)*[a-zA-Z0-9][-a-zA-Z0-9]*$`) // TODO: Make this regexp nicer!
 
 // ParseValidDomain checks that s is a valid domain and returns it in lowercase
-func ParseValidDomain(s string) (string, error) {
+func ParseValidDomain(env environment.Environment, s string) (string, error) {
 	if !regexpDomain.MatchString(s) {
 		return "", errors.Errorf("%q is not a valid domain", s)
 	}
@@ -56,7 +57,7 @@ func ParseValidDomain(s string) (string, error) {
 }
 
 // ParseValidDomains checks that s is a comma-seperated list of valid domains and returns them in lower case
-func ParseValidDomains(s string) ([]string, error) {
+func ParseValidDomains(env environment.Environment, s string) ([]string, error) {
 	if len(s) == 0 {
 		return []string{}, nil
 	}
@@ -70,13 +71,13 @@ func ParseValidDomains(s string) ([]string, error) {
 }
 
 // ParseNumber parses s as a decimal integer
-func ParseNumber(s string) (int, error) {
+func ParseNumber(env environment.Environment, s string) (int, error) {
 	value, err := strconv.ParseInt(s, 10, 64)
 	return int(value), err
 }
 
 // ParseHttpsURL parses a string into a url that starts with 'https://'
-func ParseHttpsURL(s string) (*url.URL, error) {
+func ParseHttpsURL(env environment.Environment, s string) (*url.URL, error) {
 	url, err := url.Parse(s)
 	if err != nil {
 		return nil, errors.Wrapf(err, "%q is not a valid URL", s)
@@ -90,7 +91,7 @@ func ParseHttpsURL(s string) (*url.URL, error) {
 var regexpEmail = regexp.MustCompile(`^([-a-zA-Z0-9]+)\@([a-zA-Z0-9][-a-zA-Z0-9]*\.)*[a-zA-Z0-9][-a-zA-Z0-9]*$`) // TODO: Make this regexp nicer!
 
 // ParseEmail checks that s represents an email, and then returns it as is.
-func ParseEmail(s string) (string, error) {
+func ParseEmail(env environment.Environment, s string) (string, error) {
 	if s == "" { // no email provided
 		return "", nil
 	}
@@ -103,7 +104,7 @@ func ParseEmail(s string) (string, error) {
 var regexpSlug = regexp.MustCompile(`^[a-zA-Z0-9][-a-zA-Z0-9]*$`) // TODO: Make this regexp nicer!
 
 // ParseSlug parses s as a slug and returns it as is.
-func ParseSlug(s string) (string, error) {
+func ParseSlug(env environment.Environment, s string) (string, error) {
 	if !regexpSlug.MatchString(s) {
 		return "", errors.Errorf("%q is not a valid slug", s)
 	}

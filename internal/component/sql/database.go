@@ -21,6 +21,7 @@ func (sql SQL) openDatabase(database string, config *gorm.Config) (*gorm.DB, err
 		DSN:               fmt.Sprintf("%s:%s@tcp(%s)/%s?charset=utf8&parseTime=True&loc=Local", sql.Config.MysqlAdminUser, sql.Config.MysqlAdminPassword, sql.ServerURL, database),
 		DefaultStringSize: 256,
 	}
+	// TODO: Use sql.Core.Environment.Dial
 
 	db, err := gorm.Open(mysql.New(cfg), config)
 	if err != nil {
@@ -63,7 +64,7 @@ func (sql SQL) OpenBookkeeping(silent bool) (*gorm.DB, error) {
 func (sql SQL) Snapshot(io stream.IOStream, dest io.Writer, database string) error {
 	io = io.Streams(dest, nil, nil, 0).NonInteractive()
 
-	code, err := sql.Stack().Exec(io, "sql", "mysqldump", "--databases", database)
+	code, err := sql.Stack(sql.Environment).Exec(io, "sql", "mysqldump", "--databases", database)
 	if err != nil {
 		return err
 	}
@@ -75,7 +76,7 @@ func (sql SQL) Snapshot(io stream.IOStream, dest io.Writer, database string) err
 
 // OpenShell executes a mysql shell command
 func (sql SQL) OpenShell(io stream.IOStream, argv ...string) (int, error) {
-	return sql.Stack().Exec(io, "sql", "mysql", argv...)
+	return sql.Stack(sql.Environment).Exec(io, "sql", "mysql", argv...)
 }
 
 // WaitShell waits for the sql database to be reachable via a docker-compose shell

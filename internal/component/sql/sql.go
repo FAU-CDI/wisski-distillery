@@ -3,10 +3,10 @@ package sql
 import (
 	"context"
 	"embed"
-	"io/fs"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 type SQL struct {
@@ -25,12 +25,12 @@ func (SQL) Name() string {
 //go:embed all:sql
 var resources embed.FS
 
-func (ssh SQL) Stack() component.StackWithResources {
-	return ssh.ComponentBase.MakeStack(component.StackWithResources{
+func (ssh SQL) Stack(env environment.Environment) component.StackWithResources {
+	return ssh.ComponentBase.MakeStack(env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "sql",
 
-		MakeDirsPerm: fs.ModeDir | fs.ModePerm,
+		MakeDirsPerm: environment.DefaultDirPerm,
 		MakeDirs: []string{
 			"data",
 		},

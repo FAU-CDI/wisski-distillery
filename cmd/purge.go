@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
@@ -73,7 +71,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// remove the filesystem
 	logging.LogMessage(context.IOStream, "Removing from filesystem %s", instance.FilesystemBase)
-	if err := os.RemoveAll(instance.FilesystemBase); err != nil {
+	if err := dis.Core.Environment.RemoveAll(instance.FilesystemBase); err != nil {
 		context.EPrintln(err)
 	}
 

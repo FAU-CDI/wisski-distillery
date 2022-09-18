@@ -3,11 +3,11 @@ package triplestore
 import (
 	"context"
 	"embed"
-	"io/fs"
 	"path/filepath"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 type Triplestore struct {
@@ -26,14 +26,13 @@ func (Triplestore) Name() string {
 //go:embed all:stack
 var resources embed.FS
 
-func (ts Triplestore) Stack() component.StackWithResources {
-	return ts.ComponentBase.MakeStack(component.StackWithResources{
+func (ts Triplestore) Stack(env environment.Environment) component.StackWithResources {
+	return ts.ComponentBase.MakeStack(env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "stack",
 
 		CopyContextFiles: []string{"graphdb.zip"}, // TODO: Move into constant?
 
-		MakeDirsPerm: fs.ModeDir | fs.ModePerm,
 		MakeDirs: []string{
 			filepath.Join("data", "data"),
 			filepath.Join("data", "work"),

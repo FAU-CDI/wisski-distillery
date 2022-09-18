@@ -33,7 +33,9 @@ var errRebuildFailed = exit.Error{
 }
 
 func (rb rebuild) Run(context wisski_distillery.Context) error {
-	instances, err := context.Environment.Instances().Load(rb.Positionals.Slug...)
+	dis := context.Environment
+
+	instances, err := dis.Instances().Load(rb.Positionals.Slug...)
 	if err != nil {
 		return err
 	}
@@ -44,7 +46,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) error {
 		logging.LogOperation(func() error {
 			s := instance.Barrel()
 			if err := logging.LogOperation(func() error {
-				return s.Install(context.IOStream, component.InstallationContext{})
+				return s.Install(dis.Core.Environment, context.IOStream, component.InstallationContext{})
 			}, context.IOStream, "Installing docker stack"); err != nil {
 				globalErr = err
 				return err

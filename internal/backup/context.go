@@ -3,16 +3,16 @@ package backup
 import (
 	"errors"
 	"io"
-	"io/fs"
-	"os"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/goprogram/stream"
 )
 
 // context implements [components.BackupContext]
 type context struct {
+	env   environment.Environment
 	io    stream.IOStream
 	dst   string      // destination directory
 	files chan string // files channel
@@ -54,7 +54,7 @@ func (bc *context) AddDirectory(path string, op func() error) error {
 	}
 
 	// run the make directory
-	if err := os.Mkdir(dst, fs.ModeDir); err != nil {
+	if err := bc.env.Mkdir(dst, environment.DefaultDirPerm); err != nil {
 		return err
 	}
 
@@ -72,7 +72,7 @@ func (bc *context) CopyFile(dst, src string) error {
 		return err
 	}
 	bc.sendPath(dst)
-	return fsx.CopyFile(dstPath, src)
+	return fsx.CopyFile(bc.env, dstPath, src)
 }
 
 func (bc *context) AddFile(path string, op func(file io.Writer) error) error {
@@ -83,7 +83,7 @@ func (bc *context) AddFile(path string, op func(file io.Writer) error) error {
 	}
 
 	// create the file
-	file, err := os.Create(dst)
+	file, err := bc.env.Create(dst, environment.DefaultFilePerm)
 	if err != nil {
 		return err
 	}

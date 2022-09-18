@@ -1,10 +1,10 @@
 package config
 
 import (
-	"os"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 )
 
@@ -14,19 +14,19 @@ func (cfg Config) ExecutablePath() string {
 }
 
 // UsingDistilleryExecutable checks if the current process is using the distillery executable
-func (cfg Config) UsingDistilleryExecutable() bool {
-	exe, err := os.Executable()
+func (cfg Config) UsingDistilleryExecutable(env environment.Environment) bool {
+	exe, err := env.Executable()
 	if err != nil {
 		return false
 	}
-	return fsx.SameFile(exe, cfg.ExecutablePath())
+	return fsx.SameFile(env, exe, cfg.ExecutablePath())
 }
 
 // CurrentExecutable returns the path to the current executable being used.
 // When it does not exist, falls back to the default executable.
-func (cfg Config) CurrentExecutable() string {
-	exe, err := os.Executable()
-	if err != nil || !fsx.IsFile(exe) {
+func (cfg Config) CurrentExecutable(env environment.Environment) string {
+	exe, err := env.Executable()
+	if err != nil || !fsx.IsFile(env, exe) {
 		return cfg.ExecutablePath()
 	}
 	return exe

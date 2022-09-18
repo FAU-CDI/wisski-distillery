@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"io/fs"
-	"os"
+	"io"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -42,7 +42,7 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 	target := ddis.ResolverConfigPath()
 
 	// print the configuration
-	config, err := os.OpenFile(target, os.O_WRONLY, fs.ModePerm)
+	config, err := dis.Core.Environment.Create(target, environment.DefaultFilePerm)
 	if err != nil {
 		return errPrefixUpdateFailed.WithMessageF(err)
 	}
@@ -58,7 +58,7 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 			context.IOStream.Printf("%s", data)
 
 			// and write it out!
-			if _, err := config.WriteString(data); err != nil {
+			if _, err := io.WriteString(config, data); err != nil {
 				return err
 			}
 
@@ -70,7 +70,7 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 
 	// and restart the resolver to apply the config!
 	logging.LogMessage(context.IOStream, "restarting resolver stack")
-	if err := ddis.Stack().Restart(context.IOStream); err != nil {
+	if err := ddis.Stack(ddis.Environment).Restart(context.IOStream); err != nil {
 		return errPrefixUpdateFailed.WithMessageF(err)
 	}
 

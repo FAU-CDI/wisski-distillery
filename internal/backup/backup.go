@@ -2,14 +2,13 @@
 package backup
 
 import (
-	"io/fs"
-	"os"
 	"path/filepath"
 	"sync"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/exp/slices"
@@ -61,6 +60,7 @@ func (backup *Backup) run(io stream.IOStream, dis *wisski.Distillery) {
 				err:  bc.Backup(context),
 			}
 		}(bc, &context{
+			env:   dis.Core.Environment,
 			io:    io,
 			dst:   filepath.Join(backup.Description.Dest, bc.BackupName()),
 			files: files,
@@ -73,7 +73,7 @@ func (backup *Backup) run(io stream.IOStream, dis *wisski.Distillery) {
 		defer wg.Done()
 
 		instancesBackupDir := filepath.Join(backup.Description.Dest, "instances")
-		if err := os.Mkdir(instancesBackupDir, fs.ModeDir); err != nil {
+		if err := dis.Core.Environment.Mkdir(instancesBackupDir, environment.DefaultDirPerm); err != nil {
 			backup.InstanceListErr = err
 			return
 		}
@@ -89,7 +89,7 @@ func (backup *Backup) run(io stream.IOStream, dis *wisski.Distillery) {
 		for i, instance := range instances {
 			backup.InstanceSnapshots[i] = func() wisski.Snapshot {
 				dir := filepath.Join(instancesBackupDir, instance.Slug)
-				if err := os.Mkdir(dir, fs.ModeDir); err != nil {
+				if err := dis.Core.Environment.Mkdir(dir, environment.DefaultDirPerm); err != nil {
 					return wisski.Snapshot{
 						ErrPanic: err,
 					}
