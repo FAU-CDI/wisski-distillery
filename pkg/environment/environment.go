@@ -1,6 +1,7 @@
 package environment
 
 import (
+	"context"
 	"io"
 	"io/fs"
 	"net"
@@ -41,7 +42,7 @@ type Environment interface {
 	Abs(path string) (string, error)
 
 	Listen(network, address string) (net.Listener, error)
-	Dial(network, address string) (net.Conn, error)
+	DialContext(context context.Context, network, address string) (net.Conn, error)
 
 	Executable() (string, error)
 	Exec(io stream.IOStream, workdir string, exe string, argv ...string) int

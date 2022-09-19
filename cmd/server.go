@@ -32,13 +32,22 @@ var errServerListen = exit.Error{
 }
 
 func (s server) Run(context wisski_distillery.Context) error {
-	handler, err := context.Environment.Dis().Server(context.IOStream)
+	dis := context.Environment
+	handler, err := dis.Control().Server(context.IOStream)
 	if err != nil {
 		return err
 	}
 
 	context.Printf("Listening on %s\n", s.Bind)
-	err = http.ListenAndServe(s.Bind, http.StripPrefix(s.Prefix, handler))
+
+	// make a new listener
+	listener, err := dis.Core.Environment.Listen("tcp", s.Bind)
+	if err != nil {
+		return errServerListen.Wrap(err)
+	}
+
+	// and serve that listener
+	err = http.Serve(listener, http.StripPrefix(s.Prefix, handler))
 	if err == nil {
 		return nil
 	}

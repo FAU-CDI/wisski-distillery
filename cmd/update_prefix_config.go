@@ -38,7 +38,7 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 		return errPrefixUpdateFailed.WithMessageF(err)
 	}
 
-	ddis := dis.Dis()
+	ddis := dis.Control()
 	target := ddis.ResolverConfigPath()
 
 	// print the configuration

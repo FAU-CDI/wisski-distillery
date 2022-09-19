@@ -5,7 +5,6 @@
   - Why a factory?
   - First steps after provisioning
 
-- Use `environment.Dial()` and `environment.Listen()`
 - Move `provision_entrypoint.sh` into go
 - Enhance Snapshots
     - Export the Docker Images

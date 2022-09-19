@@ -70,7 +70,7 @@ func makeComponent[C component.Component](dis *Distillery, field *lazy.Lazy[C], 
 func (dis *Distillery) ComponentsX() []component.Component {
 	return []component.Component{
 		dis.Web(),
-		dis.Dis(),
+		dis.Control(),
 		dis.SSH(),
 		dis.Triplestore(),
 		dis.SQL(),
@@ -107,7 +107,7 @@ func (dis *Distillery) Web() *web.Web {
 	return makeComponent(dis, &dis.components.web, nil)
 }
 
-func (d *Distillery) Dis() *control.Control {
+func (d *Distillery) Control() *control.Control {
 	return makeComponent(d, &d.components.control, func(ddis *control.Control) {
 		ddis.ResolverFile = core.PrefixConfig
 		ddis.Instances = d.Instances()

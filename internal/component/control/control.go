@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
-// Control represents the control server
+// Control represents the running control server.
 type Control struct {
 	component.ComponentBase
 

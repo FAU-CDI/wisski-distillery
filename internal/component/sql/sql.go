@@ -7,6 +7,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
 type SQL struct {
@@ -16,6 +17,8 @@ type SQL struct {
 
 	PollContext  context.Context // context to abort polling with
 	PollInterval time.Duration   // duration to wait for during wait
+
+	sqlNetwork lazy.Lazy[string]
 }
 
 func (SQL) Name() string {
@@ -25,7 +28,7 @@ func (SQL) Name() string {
 //go:embed all:sql
 var resources embed.FS
 
-func (ssh SQL) Stack(env environment.Environment) component.StackWithResources {
+func (ssh *SQL) Stack(env environment.Environment) component.StackWithResources {
 	return ssh.ComponentBase.MakeStack(env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "sql",
