@@ -18,7 +18,7 @@ type SQL struct {
 	PollContext  context.Context // context to abort polling with
 	PollInterval time.Duration   // duration to wait for during wait
 
-	sqlNetwork lazy.Lazy[string]
+	lazyNetwork lazy.Lazy[string]
 }
 
 func (SQL) Name() string {

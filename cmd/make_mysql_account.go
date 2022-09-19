@@ -55,7 +55,7 @@ func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
 	if err != nil {
 		return err
 	}
-	code, err := context.Environment.SQL().OpenShell(context.IOStream, "-e", query)
+	code, err := context.Environment.SQL().Shell(context.IOStream, "-e", query)
 	if err != nil {
 		return err
 	}

@@ -101,7 +101,6 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 	}
 
 	// and write everything into it!
-	// TODO: Should we move the open call to here?
 	var count int64
 	if err := logging.LogOperation(func() error {
 		context.IOStream.Println(archivePath)
