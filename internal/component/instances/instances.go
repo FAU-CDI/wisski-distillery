@@ -3,10 +3,10 @@ package instances
 import (
 	"errors"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/goprogram/exit"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -36,17 +36,17 @@ var errSQL = exit.Error{
 // It the WissKI does not exist, returns ErrWissKINotFound.
 func (instances *Instances) WissKI(slug string) (i WissKI, err error) {
 	sql := instances.SQL
-	if err := sql.Wait(); err != nil {
+	if err := sql.WaitQueryTable(); err != nil {
 		return i, err
 	}
 
-	table, err := sql.OpenBookkeeping(false)
+	table, err := sql.QueryTable(false, models.InstanceTable)
 	if err != nil {
 		return i, err
 	}
 
 	// find the instance by slug
-	query := table.Where(&bookkeeping.Instance{Slug: slug}).Find(&i.Instance)
+	query := table.Where(&models.Instance{Slug: slug}).Find(&i.Instance)
 	switch {
 	case query.Error != nil:
 		return i, errSQL.WithMessageF(query.Error)
@@ -62,11 +62,11 @@ func (instances *Instances) WissKI(slug string) (i WissKI, err error) {
 // It does not perform any checks on the WissKI itself.
 func (instances *Instances) Has(slug string) (ok bool, err error) {
 	sql := instances.SQL
-	if err := sql.Wait(); err != nil {
+	if err := sql.WaitQueryTable(); err != nil {
 		return false, err
 	}
 
-	table, err := sql.OpenBookkeeping(false)
+	table, err := sql.QueryTable(false, models.InstanceTable)
 	if err != nil {
 		return false, err
 	}
@@ -106,12 +106,12 @@ func (instances *Instances) Load(slugs ...string) ([]WissKI, error) {
 // find finds instances based on the provided query
 func (instances *Instances) find(order bool, query func(table *gorm.DB) *gorm.DB) (results []WissKI, err error) {
 	sql := instances.SQL
-	if err := sql.Wait(); err != nil {
+	if err := sql.WaitQueryTable(); err != nil {
 		return nil, err
 	}
 
 	// open the bookkeeping table
-	table, err := sql.OpenBookkeeping(false)
+	table, err := sql.QueryTable(false, models.InstanceTable)
 	if err != nil {
 		return nil, err
 	}
@@ -126,7 +126,7 @@ func (instances *Instances) find(order bool, query func(table *gorm.DB) *gorm.DB
 	}
 
 	// fetch bookkeeping instances
-	var bks []bookkeeping.Instance
+	var bks []models.Instance
 	find = find.Find(&bks)
 	if find.Error != nil {
 		return nil, errSQL.WithMessageF(find.Error)

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/sync/errgroup"
@@ -98,7 +98,7 @@ func (dis *Control) disIndex(r *http.Request) (idx disIndex, err error) {
 type disInstance struct {
 	Time time.Time
 
-	Instance bookkeeping.Instance
+	Instance models.Instance
 	Info     instances.Info
 }
 

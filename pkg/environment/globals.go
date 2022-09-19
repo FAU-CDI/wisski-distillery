@@ -17,7 +17,7 @@ const ExecCommandError = 127
 const DefaultFilePerm fs.FileMode = 0666
 
 // DefaultDirPerm is the default mode to use for directories
-const DefaultDirPerm fs.FileMode = os.ModeDir & fs.ModePerm
+const DefaultDirPerm fs.FileMode = fs.ModeDir | fs.ModePerm
 
 // IsExist checks if the provided error represents a 'does not exist' errror
 func IsExist(err error) bool {

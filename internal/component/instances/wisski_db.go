@@ -1,13 +1,11 @@
 package instances
 
-import (
-	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
-)
+import "github.com/FAU-CDI/wisski-distillery/internal/models"
 
 // WissKI represents a single WissKI Instance
 type WissKI struct {
 	// Whatever is stored inside the bookkeeping database
-	bookkeeping.Instance
+	models.Instance
 
 	// Credentials to Drupal
 	DrupalUsername string
@@ -19,7 +17,7 @@ type WissKI struct {
 
 // Save saves this instance in the bookkeeping table
 func (wisski *WissKI) Save() error {
-	db, err := wisski.instances.SQL.OpenBookkeeping(false)
+	db, err := wisski.instances.SQL.QueryTable(false, models.InstanceTable)
 	if err != nil {
 		return err
 	}
@@ -35,7 +33,7 @@ func (wisski *WissKI) Save() error {
 
 // Delete deletes this instance from the bookkeeping table
 func (wisski *WissKI) Delete() error {
-	db, err := wisski.instances.SQL.OpenBookkeeping(false)
+	db, err := wisski.instances.SQL.QueryTable(false, models.InstanceTable)
 	if err != nil {
 		return err
 	}

@@ -57,8 +57,7 @@ type Config struct {
 
 	// In addition to the filesystem the WissKI distillery requires a single SQL table.
 	// It uses this database to store a list of installed things.
-	DistilleryBookkeepingDatabase string `env:"DISTILLERY_BOOKKEEPING_DATABASE" default:"distillery" parser:"slug"`
-	DistilleryBookkeepingTable    string `env:"DISTILLERY_BOOKKEEPING_TABLE" default:"distillery" parser:"slug"`
+	DistilleryDatabase string `env:"DISTILLERY_BOOKKEEPING_DATABASE" default:"distillery" parser:"slug"`
 
 	// Various components use password-based-authentication.
 	// These passwords are generated automatically.

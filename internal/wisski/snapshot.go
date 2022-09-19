@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
@@ -82,7 +82,7 @@ type SnapshotDescription struct {
 // Snapshot represents the result of generating a snapshot
 type Snapshot struct {
 	Description SnapshotDescription
-	Instance    bookkeeping.Instance
+	Instance    models.Instance
 
 	// Start and End Time of the snapshot
 	StartTime time.Time

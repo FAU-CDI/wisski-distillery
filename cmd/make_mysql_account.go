@@ -1,11 +1,8 @@
 package cmd
 
 import (
-	"fmt"
-
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/pkg/sqle"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
 )
@@ -39,6 +36,8 @@ var errUnableToReadPassword = exit.Error{
 }
 
 func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
+	dis := context.Environment
+
 	context.Printf("Username>")
 	username, err := context.ReadLine()
 	if err != nil {
@@ -51,20 +50,9 @@ func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
 		return errUnableToReadPassword.WithMessageF(err)
 	}
 
-	query := sqle.Format("CREATE USER ?@'%' IDENTIFIED BY ?; GRANT ALL PRIVILEGES ON *.* TO ?@`%` WITH GRANT OPTION; FLUSH PRIVILEGES;", username, password, username)
-	if err != nil {
-		return err
-	}
-	code, err := context.Environment.SQL().Shell(context.IOStream, "-e", query)
-	if err != nil {
+	if err := dis.SQL().CreateSuperuser(username, password, false); err != nil {
 		return err
 	}
 
-	if code != 0 {
-		return exit.Error{
-			ExitCode: exit.ExitCode(uint8(code)),
-			Message:  fmt.Sprintf("Exit code %d", code),
-		}
-	}
 	return nil
 }

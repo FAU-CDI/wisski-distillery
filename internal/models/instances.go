@@ -1,5 +1,4 @@
-// Package bookkeeping implements reading and writing from the bookkeeping table
-package bookkeeping
+package models
 
 import (
 	"database/sql/driver"
@@ -7,11 +6,15 @@ import (
 	"time"
 )
 
-// Instance is a WissKI Instance inside the bookkeeping table.
+// InstanceTable is the name of the table the 'Instance' model is stored in.
+const InstanceTable = "distillery"
+
+// Instance is a WissKI Instance stored inside the sql database.
+//
 // It does not represent a running instance; it does not perform any validation.
 type Instance struct {
 	// NOTE: Modifying this struct requires a database migration.
-	// This should nnever be done unless you know what you're doing.
+	// This should never be done unless you know what you're doing.
 
 	// Primary key for the instance
 	Pk uint `gorm:"column:pk;primaryKey"`

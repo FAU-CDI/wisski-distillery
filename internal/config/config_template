@@ -40,11 +40,9 @@ MYSQL_DATABASE_PREFIX=mysql-factory-
 GRAPHDB_USER_PREFIX=graphdb-factory-
 GRAPHDB_REPO_PREFIX=graphdb-factory-
 
-# In addition to the filesystem the WissKI distillery requires a single SQL table. 
-# It uses this database to store a list of installed things
+# In addition to the filesystem the WissKI distillery requires a 'bookkeeping' database.
+# This is used to store several settings.
 DISTILLERY_BOOKKEEPING_DATABASE=distillery
-DISTILLERY_BOOKKEEPING_TABLE=distillery
-
 
 # Various components use password-based-authentication. 
 # These passwords are generated automatically. 
