@@ -88,6 +88,11 @@ func (dis *Distillery) Installables() []component.Installable {
 	return getComponents[component.Installable](dis)
 }
 
+// Installables returns all components that can be installed
+func (dis *Distillery) Updateable() []component.Updatable {
+	return getComponents[component.Updatable](dis)
+}
+
 func getComponents[C component.Component](dis *Distillery) (result []C) {
 	all := dis.ComponentsX()
 

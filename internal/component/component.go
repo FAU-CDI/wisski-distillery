@@ -32,20 +32,6 @@ type Component interface {
 	Base() *ComponentBase
 }
 
-// Installable implements an installable component.
-type Installable interface {
-	Component
-
-	// Stack can be used to gain access to the "docker compose" stack.
-	//
-	// This should internally call [ComponentBase.MakeStack]
-	Stack(env environment.Environment) StackWithResources
-
-	// Context returns a new InstallationContext to be used during installation from the command line.
-	// Typically this should just pass through the parent, but might perform other tasks.
-	Context(parent InstallationContext) InstallationContext
-}
-
 // ComponentBase implements base functionality for a component
 type ComponentBase struct {
 	Core        // the core of the associated distillery

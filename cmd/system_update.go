@@ -3,12 +3,10 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
 )
@@ -54,18 +52,8 @@ var errBoostrapFailedToCreateDirectory = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-var errBootstrapFailedRuntime = exit.Error{
-	Message:  "failed to update runtime: %s",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBootstrapTriplestore = exit.Error{
-	Message:  "Unable to bootstrap Triplestore: %s",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBootstrapSQL = exit.Error{
-	Message:  "Unable to bootstrap SQL: %s",
+var errBootstrapComponent = exit.Error{
+	Message:  "Unable to bootstrap %s: %s",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -119,45 +107,40 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 
 	if err := logging.LogOperation(func() error {
 		for _, component := range dis.Installables() {
+			name := component.Name()
 			stack := component.Stack(dis.Core.Environment)
 			ctx := component.Context(ctx)
+
 			if err := logging.LogOperation(func() error {
 				return stack.Install(dis.Core.Environment, context.IOStream, ctx)
-			}, context.IOStream, "Installing docker stack %q", component.Name()); err != nil {
+			}, context.IOStream, "Installing Docker Stack %q", name); err != nil {
 				return err
 			}
 
 			if err := logging.LogOperation(func() error {
 				return stack.Update(context.IOStream, true)
-			}, context.IOStream, "Updating docker stack %q", component.Name()); err != nil {
+			}, context.IOStream, "Updating Docker Stack: %q", name); err != nil {
 				return err
 			}
 		}
 		return nil
-	}, context.IOStream, "Updating Components"); err != nil {
+	}, context.IOStream, "Performing Stack Updates"); err != nil {
 		return err
 	}
 
 	if err := logging.LogOperation(func() error {
-		return unpack.InstallDir(dis.Core.Environment, dis.Config.RuntimeDir(), "runtime", config.Runtime, func(dst, src string) {
-			context.Printf("[copy]  %s\n", dst)
-		})
-	}, context.IOStream, "Unpacking Runtime Components"); err != nil {
-		return errBootstrapFailedRuntime.WithMessageF(err)
+		for _, component := range dis.Updateable() {
+			name := component.Name()
+			if err := logging.LogOperation(func() error {
+				return component.Update(context.IOStream)
+			}, context.IOStream, "Updating Component: %s", name); err != nil {
+				return errBootstrapComponent.WithMessageF(name, err)
+			}
+		}
+		return nil
+	}, context.IOStream, "Performing Component Updates"); err != nil {
+		return err
 	}
-
-	if err := logging.LogOperation(func() error {
-		return dis.SQL().Bootstrap(context.IOStream)
-	}, context.IOStream, "Bootstraping SQL database"); err != nil {
-		return errBootstrapSQL.WithMessageF(err)
-	}
-
-	if err := logging.LogOperation(func() error {
-		return dis.Triplestore().Bootstrap(context.IOStream)
-	}, context.IOStream, "Bootstraping Triplestore"); err != nil {
-		return errBootstrapTriplestore.WithMessageF(err)
-	}
-
 	// TODO: Register cronjob in /etc/cron.d!
 
 	logging.LogMessage(context.IOStream, "System has been updated")

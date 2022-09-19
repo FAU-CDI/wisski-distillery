@@ -14,8 +14,8 @@ var errSQLUnableToCreateUser = errors.New("unable to create administrative user"
 var errSQLUnsafeDatabaseName = errors.New("bookkeeping database has an unsafe name")
 var errSQLUnableToCreate = errors.New("unable to create bookkeeping database")
 
-// Bootstrap bootstraps the SQL database, and makes sure that the bookkeeping table is up-to-date
-func (sql *SQL) Bootstrap(io stream.IOStream) error {
+// Update initializes or updates the SQL database.
+func (sql *SQL) Update(io stream.IOStream) error {
 	if err := sql.WaitShell(); err != nil {
 		return err
 	}
