@@ -217,7 +217,8 @@ type InstallationContext map[string]string
 //
 // Installation is non-interactive, but will provide debugging output onto io.
 // InstallationContext
-func (is StackWithResources) Install(env environment.Environment, io stream.IOStream, context InstallationContext) error {
+func (is StackWithResources) Install(io stream.IOStream, context InstallationContext) error {
+	env := is.Stack.Env
 	if is.ContextPath != "" {
 		// setup the base files
 		if err := unpack.InstallDir(

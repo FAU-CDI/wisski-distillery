@@ -112,7 +112,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 			ctx := component.Context(ctx)
 
 			if err := logging.LogOperation(func() error {
-				return stack.Install(dis.Core.Environment, context.IOStream, ctx)
+				return stack.Install(context.IOStream, ctx)
 			}, context.IOStream, "Installing Docker Stack %q", name); err != nil {
 				return err
 			}

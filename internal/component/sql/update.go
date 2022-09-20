@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/sqle"
 	"github.com/FAU-CDI/wisski-distillery/pkg/wait"
+	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -36,6 +37,10 @@ func (sql *SQL) unsafeQueryShell(query string) bool {
 
 var errSQLUnableToCreateUser = errors.New("unable to create administrative user")
 var errSQLUnsafeDatabaseName = errors.New("distillery database has an unsafe name")
+var errSQLUnableToMigrate = exit.Error{
+	Message:  "unable to migrate %s table: %s",
+	ExitCode: exit.ExitGeneric,
+}
 
 // Update initializes or updates the SQL database.
 func (sql *SQL) Update(io stream.IOStream) error {
@@ -62,7 +67,7 @@ func (sql *SQL) Update(io stream.IOStream) error {
 			return errSQLUnsafeDatabaseName
 		}
 		createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`;", sql.Config.DistilleryDatabase)
-		if err := sql.Query(createDBSQL); err != nil {
+		if err := sql.Exec(createDBSQL); err != nil {
 			return err
 		}
 	}
@@ -71,18 +76,36 @@ func (sql *SQL) Update(io stream.IOStream) error {
 	logging.LogMessage(io, "Waiting for database update to be complete")
 	sql.WaitQueryTable()
 
-	// open the database
-	logging.LogMessage(io, "Migrating instances table")
-	{
-		db, err := sql.QueryTable(false, models.InstanceTable)
-		if err != nil {
-			return fmt.Errorf("unable to access bookkeeping table: %s", err)
-		}
-
-		if err := db.AutoMigrate(&models.Instance{}); err != nil {
-			return fmt.Errorf("unable to migrate bookkeeping table: %s", err)
-		}
+	tables := []struct {
+		name  string
+		model any
+		table string
+	}{
+		{
+			"instance",
+			&models.Instance{},
+			models.InstanceTable,
+		},
+		{
+			"metadata",
+			&models.Metadatum{},
+			models.MetadataTable,
+		},
 	}
 
-	return nil
+	// migrate all of the tables!
+	return logging.LogOperation(func() error {
+		for _, table := range tables {
+			logging.LogMessage(io, "migrating %q table", table.name)
+			db, err := sql.QueryTable(false, table.table)
+			if err != nil {
+				return errSQLUnableToMigrate.WithMessageF(table.name, "unable to access table")
+			}
+
+			if err := db.AutoMigrate(table.model); err != nil {
+				return errSQLUnableToMigrate.WithMessageF(table.name, err)
+			}
+		}
+		return nil
+	}, io, "migrating database tables")
 }

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
@@ -44,22 +43,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) error {
 	var globalErr error
 	for _, instance := range instances {
 		logging.LogOperation(func() error {
-			s := instance.Barrel()
-			if err := logging.LogOperation(func() error {
-				return s.Install(dis.Core.Environment, context.IOStream, component.InstallationContext{})
-			}, context.IOStream, "Installing docker stack"); err != nil {
-				globalErr = err
-				return err
-			}
-
-			if err := logging.LogOperation(func() error {
-				return s.Update(context.IOStream, true)
-			}, context.IOStream, "Updating docker stack"); err != nil {
-				globalErr = err
-				return err
-			}
-
-			return nil
+			return instance.Build(context.IOStream, true)
 		}, context.IOStream, "Rebuilding instance %s", instance.Slug)
 	}
 

@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/stringparser"
 	"github.com/alessio/shellescape"
 	"github.com/tkw1536/goprogram/stream"
@@ -66,16 +65,10 @@ func (instances *Instances) Create(slug string) (wisski WissKI, err error) {
 }
 
 // Provision provisions an instance, assuming that the required databases already exist.
-func (wisski WissKI) Provision(io stream.IOStream) error {
+func (wisski *WissKI) Provision(io stream.IOStream) error {
 
-	// create the basic st!
-	st := wisski.Barrel()
-	if err := st.Install(wisski.instances.Core.Environment, io, component.InstallationContext{}); err != nil {
-		return err
-	}
-
-	// Pull and build the stack!
-	if err := st.Update(io, false); err != nil {
+	// build the container
+	if err := wisski.Build(io, false); err != nil {
 		return err
 	}
 
@@ -106,7 +99,7 @@ func (wisski WissKI) Provision(io stream.IOStream) error {
 	// TODO: Move the provision script into the control plane!
 	provisionScript := "sudo PATH=$PATH -u www-data /bin/bash /provision_container.sh " + strings.Join(provisionParams, " ")
 
-	code, err := st.Run(io, true, "barrel", "/bin/bash", "-c", provisionScript)
+	code, err := wisski.Barrel().Run(io, true, "barrel", "/bin/bash", "-c", provisionScript)
 	if err != nil {
 		return err
 	}

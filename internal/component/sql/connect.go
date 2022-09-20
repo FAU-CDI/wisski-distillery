@@ -21,8 +21,8 @@ import (
 // ========== low-level connection ==========
 //
 
-// Query performs a database query, outside a database contect
-func (sql *SQL) Query(query string, args ...interface{}) error {
+// Exec executes a database-independent database query.
+func (sql *SQL) Exec(query string, args ...interface{}) error {
 	// connect to the server
 	conn, err := sql.connect("")
 	if err != nil {
@@ -39,10 +39,10 @@ func (sql *SQL) Query(query string, args ...interface{}) error {
 	}
 }
 
-// WaitQuery waits for the query interface to be able to connect to the database
-func (sql *SQL) WaitQuery() error {
+// WaitExec waits for the query interface to be able to connect to the database
+func (sql *SQL) WaitExec() error {
 	return wait.Wait(func() bool {
-		err := sql.Query("select 1;")
+		err := sql.Exec("select 1;")
 		// log.Printf("[WaitQuery] %s\n", err) // debug
 		return err == nil
 	}, sql.PollInterval, sql.PollContext)
@@ -52,8 +52,8 @@ func (sql *SQL) WaitQuery() error {
 // ========== connection via gorm ==========
 //
 
-// QueryTable returns a gorm.DB to connect to the provided gorm database table
-func (sql *SQL) QueryTable(silent bool, name string) (*gorm.DB, error) {
+// QueryTable returns a gorm.DB to connect to the provided distillery database table
+func (sql *SQL) QueryTable(silent bool, table string) (*gorm.DB, error) {
 	conn, err := sql.connect(sql.Config.DistilleryDatabase)
 	if err != nil {
 		return nil, err
@@ -79,7 +79,7 @@ func (sql *SQL) QueryTable(silent bool, name string) (*gorm.DB, error) {
 	}
 
 	// set the table
-	db = db.Table(name)
+	db = db.Table(table)
 
 	// check that nothing went wrong
 	if db.Error != nil {

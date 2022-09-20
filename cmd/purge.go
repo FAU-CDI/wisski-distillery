@@ -114,6 +114,11 @@ func (p purge) Run(context wisski_distillery.Context) error {
 		context.EPrintln(err)
 	}
 
+	logging.LogMessage(context.IOStream, "Purging instance metadata")
+	if err := instance.Metadata().Purge(); err != nil {
+		context.EPrintln(err)
+	}
+
 	logging.LogMessage(context.IOStream, "Instance %s has been purged", slug)
 	return nil
 }

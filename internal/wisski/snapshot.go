@@ -76,6 +76,7 @@ func (dis *Distillery) NewSnapshotStagingDir(prefix string) (path string, err er
 // SnapshotDescription is a description for a snapshot
 type SnapshotDescription struct {
 	Dest      string // destination path
+	Log       bool   // should we log the creation of this snapshot?
 	Keepalive bool   // should we keep the instance alive while making the snapshot?
 }
 

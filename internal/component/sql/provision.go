@@ -9,7 +9,10 @@ import (
 var errProvisionInvalidDatabaseParams = errors.New("Provision: Invalid parameters")
 var errProvisionInvalidGrant = errors.New("Provision: Grant failed")
 
-// Provision provisions a new sql database and user
+// Provision creates a new database with the given name.
+// It then generates a new user, with the name 'user' and the password 'password', that is then granted access to this database.
+//
+// Provision internally waits for the database to become available.
 func (sql *SQL) Provision(name, user, password string) error {
 
 	// NOTE(twiesing): We shouldn't use string concat to build sql queries.
@@ -41,6 +44,10 @@ func (sql *SQL) Provision(name, user, password string) error {
 
 var errCreateSuperuserGrant = errors.New("CreateSuperUser: Grant failed")
 
+// CreateSuperuser createsa new user, with the name 'user' and the password 'password'.
+// It then grants this user superuser status in the database.
+//
+// CreateSuperuser internally waits for the database to become available.
 func (sql *SQL) CreateSuperuser(user, password string, allowExisting bool) error {
 	// NOTE(twiesing): This function unsafely uses the shell directly to create a superuser.
 	// This is for two reasons:
@@ -70,9 +77,21 @@ func (sql *SQL) CreateSuperuser(user, password string, allowExisting bool) error
 	return nil
 }
 
+var errPurgeUser = errors.New("PurgeUser: Failed to drop user")
+
 // SQLPurgeUser deletes the specified user from the database
 func (sql *SQL) PurgeUser(user string) error {
-	return sql.Query("DROP USER IF EXISTS ?@`%`; FLUSH PRIVILEGES; ", user)
+	if !sqle.IsSafeDatabaseSingleQuote(user) {
+		return errPurgeUser
+	}
+
+	query := "DROP USER IF EXISTS '" + user + "'@'%';" +
+		"FLUSH PRIVILEGES;"
+	if !sql.unsafeQueryShell(query) {
+		return errPurgeUser
+	}
+
+	return nil
 }
 
 var errSQLPurgeDB = errors.New("unable to drop database: unsafe database name")
@@ -82,5 +101,5 @@ func (sql *SQL) PurgeDatabase(db string) error {
 	if !sqle.IsSafeDatabaseLiteral(db) {
 		return errSQLPurgeDB
 	}
-	return sql.Query("DROP DATABASE IF EXISTS `" + db + "`")
+	return sql.Exec("DROP DATABASE IF EXISTS `" + db + "`")
 }

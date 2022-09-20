@@ -66,7 +66,7 @@ func (r reserve) Run(context wisski_distillery.Context) error {
 	s := instance.Reserve()
 	{
 		if err := logging.LogOperation(func() error {
-			return s.Install(dis.Core.Environment, context.IOStream, component.InstallationContext{})
+			return s.Install(context.IOStream, component.InstallationContext{})
 		}, context.IOStream, "Installing docker stack"); err != nil {
 			return err
 		}
