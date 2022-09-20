@@ -6,6 +6,7 @@ import (
 
 	_ "embed"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -18,7 +19,11 @@ var errTripleStoreFailedRepository = exit.Error{
 //go:embed create-repo.ttl
 var createRepoTTL []byte
 
-func (ts Triplestore) Provision(name, domain, user, password string) error {
+func (ts *Triplestore) Provision(instance models.Instance, domain string) error {
+	return ts.CreateRepository(instance.GraphDBRepository, domain, instance.GraphDBUsername, instance.GraphDBPassword)
+}
+
+func (ts *Triplestore) CreateRepository(name, domain, user, password string) error {
 	if err := ts.Wait(); err != nil {
 		return err
 	}

@@ -3,17 +3,23 @@ package sql
 import (
 	"errors"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/sqle"
 )
 
 var errProvisionInvalidDatabaseParams = errors.New("Provision: Invalid parameters")
 var errProvisionInvalidGrant = errors.New("Provision: Grant failed")
 
-// Provision creates a new database with the given name.
+// ProvisionInstance provisions sql-specific resource for the given instance
+func (sql *SQL) Provision(instance models.Instance, domain string) error {
+	return sql.CreateDatabase(instance.SqlDatabase, instance.SqlUsername, instance.SqlPassword)
+}
+
+// CreateDatabase creates a new database with the given name.
 // It then generates a new user, with the name 'user' and the password 'password', that is then granted access to this database.
 //
 // Provision internally waits for the database to become available.
-func (sql *SQL) Provision(name, user, password string) error {
+func (sql *SQL) CreateDatabase(name, user, password string) error {
 
 	// NOTE(twiesing): We shouldn't use string concat to build sql queries.
 	// But the driver doesn't support using query params for this particular query.

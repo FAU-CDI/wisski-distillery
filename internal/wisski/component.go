@@ -67,7 +67,7 @@ func makeComponent[C component.Component](dis *Distillery, field *lazy.Lazy[C], 
 	})
 }
 
-func (dis *Distillery) ComponentsX() []component.Component {
+func (dis *Distillery) Components() []component.Component {
 	return []component.Component{
 		dis.Web(),
 		dis.Control(),
@@ -93,8 +93,13 @@ func (dis *Distillery) Updateable() []component.Updatable {
 	return getComponents[component.Updatable](dis)
 }
 
+// Provisionable returns all components which can be provisioned
+func (dis *Distillery) Provisionable() []component.Provisionable {
+	return getComponents[component.Provisionable](dis)
+}
+
 func getComponents[C component.Component](dis *Distillery) (result []C) {
-	all := dis.ComponentsX()
+	all := dis.Components()
 
 	result = make([]C, 0, len(all))
 	for _, c := range all {

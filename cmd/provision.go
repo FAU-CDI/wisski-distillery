@@ -61,7 +61,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
 
-	// Store in bookkeeping
+	// Store in the instances table!
 	if err := logging.LogOperation(func() error {
 		if err := instance.Save(); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
@@ -72,26 +72,20 @@ func (p provision) Run(context wisski_distillery.Context) error {
 		return err
 	}
 
-	// create the sql
+	// create all the resources!
 	if err := logging.LogOperation(func() error {
-		if err := dis.SQL().Provision(instance.SqlDatabase, instance.SqlUsername, instance.SqlPassword); err != nil {
-			return errProvisionGeneric.WithMessageF(slug, err)
+		domain := instance.Domain()
+		for _, pc := range dis.Provisionable() {
+			logging.LogMessage(context.IOStream, "Provisioning %s resources", pc.Name())
+			err := pc.Provision(instance.Instance, domain)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
-	}, context.IOStream, "Provisioning SQL Database"); err != nil {
-		return err
-	}
-
-	// create the triplestore
-	if err := logging.LogOperation(func() error {
-		if err := dis.Triplestore().Provision(instance.GraphDBRepository, instance.Domain(), instance.GraphDBUsername, instance.GraphDBPassword); err != nil {
-			return errProvisionGeneric.WithMessageF(slug, err)
-		}
-
-		return nil
-	}, context.IOStream, "Provisioning Triplestore"); err != nil {
-		return err
+	}, context.IOStream, "Provisioning instance-specific resources"); err != nil {
+		return errProvisionGeneric.WithMessageF(slug, err)
 	}
 
 	// run the provision script
