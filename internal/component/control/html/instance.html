@@ -13,15 +13,16 @@
     <b>URL:</b> <a href="{{ .Info.URL }}" target="_blank" rel="noopener noreferrer">{{ .Info.URL }}</a> <br />
     <hr />
     <b>Running:</b> <code>{{ .Info.Running }}</code> <br />
-    <b>Last Rebuild:</b> <code>{{ .Info.LastRebuild }}</code> <br />
+    <!-- <b>OwnerEmail:</b> <code>{{ .Instance.OwnerEmail }}</code> <br /> -->
     <hr />
-    <b>Created:</b> <code>{{ .Instance.Created }}</code> <br />
-    <b>OwnerEmail:</b> <code>{{ .Instance.OwnerEmail }}</code> <br />
+    <b>Created:</b> <code class="date">{{ .Instance.Created.Format "2006-01-02T15:04:05Z07:00" }}</code> <br />
+    <b>Last Rebuild:</b> <code class="date">{{ .Info.LastRebuild.Format "2006-01-02T15:04:05Z07:00" }}</code> <br />
     <hr />
     <b>FilesystemBase:</b> <code>{{ .Instance.FilesystemBase }}</code> <br />
     <b>AutoBlindUpdateEnabled:</b> <code>{{ .Instance.AutoBlindUpdateEnabled }}</code> <br />
     <hr />
-    <b>Pathbuilders:</b> <code>{{ .Info.Pathbuilders }}</code> <br />
+    <b>Pathbuilders:</b> <code class="pathbuilders">{{ .Info.Pathbuilders }}</code><br />
+    <script>window.pathbuilders={{ .Info.Pathbuilders }};</script>
     <hr />
 	<b>SqlDatabase:</b> <code>{{ .Instance.SqlDatabase }}</code> <br />
 	<b>SqlUsername:</b> <code>{{ .Instance.SqlUsername }}</code> <br />
@@ -35,3 +36,4 @@
 </footer>
 
 <script src="/dis/static/autolink.js"></script>
+<script src="/dis/static/instance.js"></script>

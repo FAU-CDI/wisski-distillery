@@ -15,8 +15,8 @@ type Info struct {
 
 	LastRebuild time.Time
 
-	Running      bool     // is the instance running?
-	Pathbuilders []string // list of pathbuilders
+	Running      bool              // is the instance running?
+	Pathbuilders map[string]string // list of pathbuilders
 }
 
 // Info returns information about this WissKI instance.
@@ -39,7 +39,7 @@ func (wisski *WissKI) Info(quick bool) (info Info, err error) {
 	// these might execute php code or require additional database queries.
 	if !quick {
 		group.Go(func() error {
-			info.Pathbuilders, _ = wisski.Pathbuilders()
+			info.Pathbuilders, _ = wisski.AllPathbuilders()
 			return nil
 		})
 		group.Go(func() (err error) {
