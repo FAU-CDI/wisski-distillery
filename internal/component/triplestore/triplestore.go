@@ -23,13 +23,13 @@ func (Triplestore) Name() string {
 	return "triplestore"
 }
 
-//go:embed all:stack
+//go:embed all:triplestore
 var resources embed.FS
 
 func (ts Triplestore) Stack(env environment.Environment) component.StackWithResources {
 	return ts.ComponentBase.MakeStack(env, component.StackWithResources{
 		Resources:   resources,
-		ContextPath: "stack",
+		ContextPath: "triplestore",
 
 		CopyContextFiles: []string{"graphdb.zip"}, // TODO: Move into constant?
 

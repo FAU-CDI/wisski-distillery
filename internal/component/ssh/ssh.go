@@ -15,12 +15,12 @@ func (SSH) Name() string {
 	return "ssh"
 }
 
-//go:embed all:stack
+//go:embed all:ssh
 var resources embed.FS
 
 func (ssh SSH) Stack(env environment.Environment) component.StackWithResources {
 	return ssh.ComponentBase.MakeStack(env, component.StackWithResources{
 		Resources:   resources,
-		ContextPath: "stack",
+		ContextPath: "ssh",
 	})
 }
