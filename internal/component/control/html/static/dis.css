@@ -58,10 +58,10 @@ footer {
 }
 
 .wisski.running {
-    background-color: green;
+    background-color: #9ADA07;
 }
 
 .wisski.stopped {
-    background-color: red;
+    background-color: #ff7a7a;
 }
 
