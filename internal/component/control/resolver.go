@@ -11,7 +11,7 @@ import (
 )
 
 func (control Control) ResolverConfigPath() string {
-	return filepath.Join(control.Dir, control.ResolverFile)
+	return filepath.Join(control.Path(), control.ResolverFile)
 }
 
 func (control Control) resolver(io stream.IOStream) (p wdresolve.ResolveHandler, err error) {

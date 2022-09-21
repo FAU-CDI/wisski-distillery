@@ -9,6 +9,10 @@ import (
 type Installable interface {
 	Component
 
+	// Path returns the path this component is installed at.
+	// By convention it is /var/www/deploy/internal/core/${Name()}
+	Path() string
+
 	// Stack can be used to gain access to the "docker compose" stack.
 	//
 	// This should internally call [ComponentBase.MakeStack]
@@ -17,6 +21,13 @@ type Installable interface {
 	// Context returns a new InstallationContext to be used during installation from the command line.
 	// Typically this should just pass through the parent, but might perform other tasks.
 	Context(parent InstallationContext) InstallationContext
+}
+
+// MakeStack registers the Installable as a stack
+func MakeStack(component Installable, env environment.Environment, stack StackWithResources) StackWithResources {
+	stack.Env = env
+	stack.Dir = component.Path()
+	return stack
 }
 
 // Updatable represents a component with an Update method.

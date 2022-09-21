@@ -2,6 +2,8 @@ package web
 
 import (
 	"embed"
+	"fmt"
+	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
@@ -18,6 +20,16 @@ func (Web) Name() string {
 	return "web"
 }
 
+func (web Web) Path() string {
+	res := filepath.Join(web.Core.Config.DeployRoot, "core", web.Name())
+	fmt.Println("debug====" + res)
+	return res
+}
+
+func (Web) Context(parent component.InstallationContext) component.InstallationContext {
+	return parent
+}
+
 func (web Web) Stack(env environment.Environment) component.StackWithResources {
 	if web.Config.HTTPSEnabled() {
 		return web.stackHTTPS(env)
@@ -30,8 +42,8 @@ func (web Web) Stack(env environment.Environment) component.StackWithResources {
 //go:embed web-https.env
 var httpsResources embed.FS
 
-func (web Web) stackHTTPS(env environment.Environment) component.StackWithResources {
-	return web.MakeStack(env, component.StackWithResources{
+func (web *Web) stackHTTPS(env environment.Environment) component.StackWithResources {
+	return component.MakeStack(web, env, component.StackWithResources{
 		Resources:   httpsResources,
 		ContextPath: "web-https",
 		EnvPath:     "web-https.env",
@@ -46,8 +58,8 @@ func (web Web) stackHTTPS(env environment.Environment) component.StackWithResour
 //go:embed web-http.env
 var httpResources embed.FS
 
-func (web Web) stackHTTP(env environment.Environment) component.StackWithResources {
-	return web.MakeStack(env, component.StackWithResources{
+func (web *Web) stackHTTP(env environment.Environment) component.StackWithResources {
+	return component.MakeStack(web, env, component.StackWithResources{
 		Resources:   httpResources,
 		ContextPath: "web-http",
 		EnvPath:     "web-http.env",

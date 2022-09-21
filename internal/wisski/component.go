@@ -1,8 +1,6 @@
 package wisski
 
 import (
-	"path/filepath"
-	"reflect"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
@@ -31,40 +29,6 @@ type components struct {
 
 	// other components
 	instances lazy.Lazy[*instances.Instances]
-}
-
-// makeComponent makes or returns a component inside the [component] struct of the distillery
-//
-// C is the type of component to initialize. It must be backed by a pointer, or makeComponent will panic.
-//
-// dis is the distillery to initialize components for
-// field is a pointer to the appropriate struct field within the distillery components
-// init is called with a new non-nil component to initialize it. It may be nil, to indicate no initialization is required.
-//
-// makeComponent returns the new or existing component instance
-func makeComponent[C component.Component](dis *Distillery, field *lazy.Lazy[C], init func(C)) C {
-
-	// get the typeof C and make sure that it is a pointer type!
-	typC := reflect.TypeOf((*C)(nil)).Elem()
-	if typC.Kind() != reflect.Pointer {
-		panic("makeComponent: C must be backed by a pointer")
-	}
-
-	// return the field
-	return field.Get(func() (c C) {
-		c = reflect.New(typC.Elem()).Interface().(C)
-		if init != nil {
-			init(c)
-		}
-
-		base := c.Base()
-		base.Core = dis.Core
-		if base.Dir == "" {
-			base.Dir = filepath.Join(dis.Config.DeployRoot, "core", c.Name())
-		}
-
-		return
-	})
 }
 
 func (dis *Distillery) Components() []component.Component {
@@ -114,22 +78,22 @@ func getComponents[C component.Component](dis *Distillery) (result []C) {
 }
 
 func (dis *Distillery) Web() *web.Web {
-	return makeComponent(dis, &dis.components.web, nil)
+	return component.Initialize(dis.Core, &dis.components.web, nil)
 }
 
 func (d *Distillery) Control() *control.Control {
-	return makeComponent(d, &d.components.control, func(ddis *control.Control) {
+	return component.Initialize(d.Core, &d.components.control, func(ddis *control.Control) {
 		ddis.ResolverFile = core.PrefixConfig
 		ddis.Instances = d.Instances()
 	})
 }
 
 func (dis *Distillery) SSH() *ssh.SSH {
-	return makeComponent(dis, &dis.components.ssh, nil)
+	return component.Initialize(dis.Core, &dis.components.ssh, nil)
 }
 
 func (dis *Distillery) SQL() *sql.SQL {
-	return makeComponent(dis, &dis.components.sql, func(sql *sql.SQL) {
+	return component.Initialize(dis.Core, &dis.components.sql, func(sql *sql.SQL) {
 		sql.ServerURL = dis.Upstream.SQL
 		sql.PollContext = dis.Context()
 		sql.PollInterval = time.Second
@@ -137,7 +101,7 @@ func (dis *Distillery) SQL() *sql.SQL {
 }
 
 func (dis *Distillery) Triplestore() *triplestore.Triplestore {
-	return makeComponent(dis, &dis.components.ts, func(ts *triplestore.Triplestore) {
+	return component.Initialize(dis.Core, &dis.components.ts, func(ts *triplestore.Triplestore) {
 		ts.BaseURL = "http://" + dis.Upstream.Triplestore
 		ts.PollContext = dis.Context()
 		ts.PollInterval = time.Second
@@ -145,8 +109,7 @@ func (dis *Distillery) Triplestore() *triplestore.Triplestore {
 }
 
 func (dis *Distillery) Instances() *instances.Instances {
-	return makeComponent(dis, &dis.components.instances, func(instances *instances.Instances) {
-		instances.Dir = filepath.Join(dis.Config.DeployRoot, "instances")
+	return component.Initialize(dis.Core, &dis.components.instances, func(instances *instances.Instances) {
 		instances.SQL = dis.SQL()
 		instances.TS = dis.Triplestore()
 	})

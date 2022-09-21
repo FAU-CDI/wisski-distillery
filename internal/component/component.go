@@ -2,17 +2,17 @@
 package component
 
 import (
-	"github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"reflect"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
 // Component represents a logical subsystem of the distillery.
+// Every component must embed [ComponentBase] and should be initialized using [Initialize].
 //
 // By convention these are defined within their corresponding subpackage.
 // This subpackage also contains all required resources.
 // Furthermore, a component is typically instantiated using a call on the ["distillery.Distillery"] struct.
-//
-// Each Component should make use of [ComponentBase] for sane defaults.
 //
 // For example, the web.Web component lives in the web package and can be created like:
 //
@@ -23,45 +23,46 @@ type Component interface {
 	// It should correspond to the appropriate subpackage.
 	Name() string
 
-	// Path returns the path this component is installed at.
-	// By convention it is /var/www/deploy/internal/core/${Name()}
-	Path() string
-
-	// Base() returns a reference to a base component
-	// This is implemented by an embedding on ComponentBase
-	Base() *ComponentBase
+	// getBase returns the embedded ComponentBase struct.
+	getBase() *ComponentBase
 }
 
-// ComponentBase implements base functionality for a component
+// ComponentBase should be embedded into every component
 type ComponentBase struct {
-	Core        // the core of the associated distillery
-	Dir  string // Dir is the directory this component lives in
+	Core // the core of the associated distillery
 }
 
-// Core represents the core of a distillery
-type Core struct {
-	Environment environment.Environment // environment to use for reading / writing to and from the distillery
-	Config      *config.Config          // the configuration of the distillery
-}
-
-// Base returns a reference to the ComponentBase
-func (cb *ComponentBase) Base() *ComponentBase {
+func (cb *ComponentBase) getBase() *ComponentBase {
 	return cb
 }
 
-// Path returns the path to this component
-func (cb ComponentBase) Path() string {
-	return cb.Dir
-}
+// Initialize makes or returns a component based on a lazy.
+//
+// C is the type of component to initialize. It must be backed by a pointer, or Initialize will panic.
+//
+// dis is the distillery to initialize components for
+// field is a pointer to the appropriate struct field within the distillery components
+// init is called with a new non-nil component to initialize it. It may be nil, to indicate no initialization is required.
+//
+// makeComponent returns the new or existing component instance
+func Initialize[C Component](core Core, field *lazy.Lazy[C], init func(C)) C {
 
-// Context passes through the parent context
-func (ComponentBase) Context(parent InstallationContext) InstallationContext {
-	return parent
-}
+	// get the typeof C and make sure that it is a pointer type!
+	typC := reflect.TypeOf((*C)(nil)).Elem()
+	if typC.Kind() != reflect.Pointer {
+		panic("Initialize: C must be backed by a pointer")
+	}
 
-// MakeStack registers the Installable as a stack
-func (cb ComponentBase) MakeStack(env environment.Environment, stack StackWithResources) StackWithResources {
-	stack.Env = env
-	stack.Dir = cb.Dir
-	return stack
+	// return the field
+	return field.Get(func() (c C) {
+		c = reflect.New(typC.Elem()).Interface().(C)
+		if init != nil {
+			init(c)
+		}
+
+		base := c.getBase()
+		base.Core = core
+
+		return
+	})
 }

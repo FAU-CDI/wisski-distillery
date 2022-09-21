@@ -3,6 +3,7 @@ package sql
 import (
 	"context"
 	"embed"
+	"path/filepath"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
@@ -25,11 +26,19 @@ func (SQL) Name() string {
 	return "sql"
 }
 
+func (sql SQL) Path() string {
+	return filepath.Join(sql.Core.Config.DeployRoot, "core", sql.Name())
+}
+
+func (SQL) Context(parent component.InstallationContext) component.InstallationContext {
+	return parent
+}
+
 //go:embed all:sql
 var resources embed.FS
 
-func (ssh *SQL) Stack(env environment.Environment) component.StackWithResources {
-	return ssh.ComponentBase.MakeStack(env, component.StackWithResources{
+func (sql *SQL) Stack(env environment.Environment) component.StackWithResources {
+	return component.MakeStack(sql, env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "sql",
 

@@ -2,6 +2,7 @@ package instances
 
 import (
 	"errors"
+	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
@@ -22,6 +23,10 @@ type Instances struct {
 
 func (Instances) Name() string {
 	return "instances"
+}
+
+func (instances *Instances) Path() string {
+	return filepath.Join(instances.Core.Config.DeployRoot, instances.Name())
 }
 
 // ErrWissKINotFound is returned when a WissKI is not found

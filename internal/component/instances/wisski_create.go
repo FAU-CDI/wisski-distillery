@@ -26,7 +26,7 @@ func (instances *Instances) Create(slug string) (wisski WissKI, err error) {
 	}
 
 	wisski.Instance.Slug = slug
-	wisski.Instance.FilesystemBase = filepath.Join(instances.Dir, wisski.Domain())
+	wisski.Instance.FilesystemBase = filepath.Join(instances.Path(), wisski.Domain())
 
 	wisski.Instance.OwnerEmail = ""
 	wisski.Instance.AutoBlindUpdateEnabled = true

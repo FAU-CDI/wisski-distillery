@@ -23,11 +23,19 @@ func (Triplestore) Name() string {
 	return "triplestore"
 }
 
+func (ts Triplestore) Path() string {
+	return filepath.Join(ts.Core.Config.DeployRoot, "core", ts.Name())
+}
+
+func (Triplestore) Context(parent component.InstallationContext) component.InstallationContext {
+	return parent
+}
+
 //go:embed all:triplestore
 var resources embed.FS
 
-func (ts Triplestore) Stack(env environment.Environment) component.StackWithResources {
-	return ts.ComponentBase.MakeStack(env, component.StackWithResources{
+func (ts *Triplestore) Stack(env environment.Environment) component.StackWithResources {
+	return component.MakeStack(ts, env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "triplestore",
 

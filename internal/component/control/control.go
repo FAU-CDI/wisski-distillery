@@ -2,6 +2,7 @@ package control
 
 import (
 	"embed"
+	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
@@ -22,11 +23,15 @@ func (control Control) Name() string {
 	return "dis" // TODO: Rename this to control!
 }
 
+func (control Control) Path() string {
+	return filepath.Join(control.Core.Config.DeployRoot, "core", control.Name())
+}
+
 //go:embed all:control control.env
 var resources embed.FS
 
-func (control Control) Stack(env environment.Environment) component.StackWithResources {
-	return control.ComponentBase.MakeStack(env, component.StackWithResources{
+func (control *Control) Stack(env environment.Environment) component.StackWithResources {
+	return component.MakeStack(control, env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "control",
 		EnvPath:     "control.env",
