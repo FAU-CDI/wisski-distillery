@@ -32,6 +32,7 @@ type ComponentBase struct {
 	Core // the core of the associated distillery
 }
 
+//lint:ignore U1000 used to implement the private methods of [Component]
 func (cb *ComponentBase) getBase() *ComponentBase {
 	return cb
 }
@@ -42,7 +43,8 @@ func (cb *ComponentBase) getBase() *ComponentBase {
 //
 // dis is the distillery to initialize components for
 // field is a pointer to the appropriate struct field within the distillery components
-// init is called with a new non-nil component to initialize it. It may be nil, to indicate no initialization is required.
+// init is called with a new non-nil component to initialize it.
+// It may be nil, to indicate no additional initialization is required.
 //
 // makeComponent returns the new or existing component instance
 func Initialize[C Component](core Core, field *lazy.Lazy[C], init func(C)) C {

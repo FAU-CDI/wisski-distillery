@@ -31,60 +31,18 @@ type components struct {
 	instances lazy.Lazy[*instances.Instances]
 }
 
-func (dis *Distillery) Components() []component.Component {
-	return []component.Component{
-		dis.Web(),
-		dis.Control(),
-		dis.SSH(),
-		dis.Triplestore(),
-		dis.SQL(),
-		dis.Instances(),
-	}
-}
-
-// Backupable returns all the components that can be backuped up.
-func (dis *Distillery) Backupable() []component.Backupable {
-	return getComponents[component.Backupable](dis)
-}
-
-// Installables returns all components that can be installed
-func (dis *Distillery) Installables() []component.Installable {
-	return getComponents[component.Installable](dis)
-}
-
-// Installables returns all components that can be installed
-func (dis *Distillery) Updateable() []component.Updatable {
-	return getComponents[component.Updatable](dis)
-}
-
-// Provisionable returns all components which can be provisioned
-func (dis *Distillery) Provisionable() []component.Provisionable {
-	return getComponents[component.Provisionable](dis)
-}
-
-func getComponents[C component.Component](dis *Distillery) (result []C) {
-	all := dis.Components()
-
-	result = make([]C, 0, len(all))
-	for _, c := range all {
-		sc, ok := c.(C)
-		if !ok {
-			continue
-		}
-		result = append(result, sc)
-	}
-
-	return
-}
+//
+// Individual Components
+//
 
 func (dis *Distillery) Web() *web.Web {
 	return component.Initialize(dis.Core, &dis.components.web, nil)
 }
 
 func (d *Distillery) Control() *control.Control {
-	return component.Initialize(d.Core, &d.components.control, func(ddis *control.Control) {
-		ddis.ResolverFile = core.PrefixConfig
-		ddis.Instances = d.Instances()
+	return component.Initialize(d.Core, &d.components.control, func(control *control.Control) {
+		control.ResolverFile = core.PrefixConfig
+		control.Instances = d.Instances()
 	})
 }
 
@@ -113,4 +71,59 @@ func (dis *Distillery) Instances() *instances.Instances {
 		instances.SQL = dis.SQL()
 		instances.TS = dis.Triplestore()
 	})
+}
+
+//
+// ALL COMPONENTS
+//
+
+func (dis *Distillery) Components() []component.Component {
+	return []component.Component{
+		dis.Web(),
+		dis.Control(),
+		dis.SSH(),
+		dis.Triplestore(),
+		dis.SQL(),
+		dis.Instances(),
+	}
+}
+
+//
+// COMPONENT SUBTYPE GETTERS
+//
+
+// Backupable returns all the components that can be backuped up.
+func (dis *Distillery) Backupable() []component.Backupable {
+	return getComponentSubtype[component.Backupable](dis)
+}
+
+// Installables returns all components that can be installed
+func (dis *Distillery) Installables() []component.Installable {
+	return getComponentSubtype[component.Installable](dis)
+}
+
+// Installables returns all components that can be installed
+func (dis *Distillery) Updateable() []component.Updatable {
+	return getComponentSubtype[component.Updatable](dis)
+}
+
+// Provisionable returns all components which can be provisioned
+func (dis *Distillery) Provisionable() []component.Provisionable {
+	return getComponentSubtype[component.Provisionable](dis)
+}
+
+// getComponentSubtype gets all components of type T
+func getComponentSubtype[T component.Component](dis *Distillery) (components []T) {
+	all := dis.Components()
+
+	components = make([]T, 0, len(all))
+	for _, c := range all {
+		sc, ok := c.(T)
+		if !ok {
+			continue
+		}
+		components = append(components, sc)
+	}
+
+	return
 }
