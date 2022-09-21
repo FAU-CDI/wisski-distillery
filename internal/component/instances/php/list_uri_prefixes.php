@@ -23,6 +23,9 @@ function list_prefixes() {
 }
 
 function getTriplestorePrefixes($engine, &$prefixes) {
+    // some adapters don't support a query method!
+    if (!method_exists($engine, 'directQuery')) return NULL;
+
     $results = $engine->directQuery('
     select distinct ?base where {
         {
