@@ -20,6 +20,7 @@ type Template struct {
 	DeployRoot               string `env:"DEPLOY_ROOT"`
 	DefaultDomain            string `env:"DEFAULT_DOMAIN"`
 	SelfOverridesFile        string `env:"SELF_OVERRIDES_FILE"`
+	SelfResolverBlockFile    string `env:"SELF_RESOLVER_BLOCK_FILE"`
 	AuthorizedKeys           string `env:"AUTHORIZED_KEYS_FILE"`
 	TriplestoreAdminUser     string `env:"GRAPHDB_ADMIN_USER"`
 	TriplestoreAdminPassword string `env:"GRAPHDB_ADMIN_PASSWORD"`
@@ -41,6 +42,10 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 
 	if tpl.SelfOverridesFile == "" {
 		tpl.SelfOverridesFile = filepath.Join(tpl.DeployRoot, core.OverridesJSON)
+	}
+
+	if tpl.SelfResolverBlockFile == "" {
+		tpl.SelfResolverBlockFile = filepath.Join(tpl.DeployRoot, core.ResolverBlockedTXT)
 	}
 
 	if tpl.AuthorizedKeys == "" {

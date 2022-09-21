@@ -31,6 +31,7 @@ func (control *Control) backupFiles() []string {
 		control.Config.ConfigPath,
 		control.Config.ExecutablePath(),
 		control.Config.SelfOverridesFile,
+		control.Config.SelfResolverBlockFile,
 		control.Config.GlobalAuthorizedKeysFile,
 	}
 }

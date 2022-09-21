@@ -1,7 +1,7 @@
 package instances
 
 import (
-	"errors"
+	"bufio"
 	"io"
 	"path/filepath"
 	"strings"
@@ -25,7 +25,7 @@ var listURIPrefixesPHP string
 // Prefixes returns the prefixes
 func (wisski *WissKI) Prefixes() (prefixes []string, err error) {
 	// get all the ugly prefixes
-	err = wisski.ExecPHPScript(stream.FromEnv(), &prefixes, listURIPrefixesPHP, "list_prefixes")
+	err = wisski.ExecPHPScript(stream.FromNil(), &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {
 		return nil, err
 	}
@@ -35,28 +35,52 @@ func (wisski *WissKI) Prefixes() (prefixes []string, err error) {
 		return strings.HasPrefix(now, prev)
 	})
 
+	// load the list of blocked prefixes
+	blocks, err := wisski.instances.BlockedPrefixes()
+	if err != nil {
+		return nil, err
+	}
+
 	// filter out blocked prefixes
-	return slicesx.Filter(prefixes, func(uri string) bool { return !IsNonServedURI(uri) }), nil
+	return slicesx.Filter(prefixes, func(uri string) bool { return !hasAnyPrefix(uri, blocks) }), nil
 }
 
-// TODO: Eventually move this into a configuration file.
-// But for now this is fine
-var blockedURIs = []string{
-	"http://erlangen-crm.org/",
-	"http://www.w3.org/",
-	"xsd:",
+func (instances *Instances) BlockedPrefixes() ([]string, error) {
+	// open the resolver block file
+	file, err := instances.Environment.Open(instances.Config.SelfResolverBlockFile)
+	if err != nil {
+		return nil, err
+	}
+
+	var lines []string
+
+	// read all the lines that aren't a comment!
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line == "" || strings.HasPrefix(line, "//") || strings.HasPrefix(line, "#") {
+			continue
+		}
+		lines = append(lines, line)
+	}
+
+	// check if there was an error
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	// and done!
+	return lines, nil
 }
 
-func IsNonServedURI(candidate string) bool {
+func hasAnyPrefix(candidate string, prefixes []string) bool {
 	return slicesx.Any(
-		blockedURIs,
+		prefixes,
 		func(prefix string) bool {
 			return strings.HasPrefix(candidate, prefix)
 		},
 	)
 }
-
-var errPrefixExecFailed = errors.New("PrefixConfig: Failed to call list_uri_prefixes")
 
 // PrefixConfig returns the prefix config belonging to this instance.
 func (wisski *WissKI) PrefixConfig() (config string, err error) {

@@ -143,7 +143,7 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 					core.DefaultOverridesJSON,
 					fs.ModePerm,
 				); err != nil {
-					return errBootstrapCreateFile.WithMessageF(err)
+					return err
 				}
 
 				context.Println(tpl.AuthorizedKeys)
@@ -153,12 +153,22 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 					core.DefaultAuthorizedKeys,
 					fs.ModePerm,
 				); err != nil {
-					return errBootstrapCreateFile.WithMessageF(err)
+					return err
+				}
+
+				context.Println(tpl.SelfResolverBlockFile)
+				if err := environment.WriteFile(
+					env,
+					tpl.SelfResolverBlockFile,
+					core.DefaultResolverBlockedTXT,
+					fs.ModePerm,
+				); err != nil {
+					return err
 				}
 
 				return nil
 			}, context.IOStream, "Creating additional config files"); err != nil {
-				return err
+				return errBootstrapCreateFile.WithMessageF(err)
 			}
 		}
 

@@ -19,6 +19,10 @@ SELF_EXTRA_DOMAINS=
 # Do this by adding URLs (without trailing '/'s) into a JSON file
 SELF_OVERRIDES_FILE=${SELF_OVERRIDES_FILE}
 
+# You can block specific prefixes within Triplestore from showing up in the resolver configuration file.
+# Do this by adding one prefix per line in this file.
+SELF_RESOLVER_BLOCK_FILE=${SELF_RESOLVER_BLOCK_FILE}
+
 # The system can support setting up certificate(s) automatically. 
 # It can be enabled by setting an email for certbot certificates. 
 # This email address can be configured here. 
@@ -27,7 +31,6 @@ CERTBOT_EMAIL=
 # The maximum age (in days) for backups to be kept. 
 # Backups older than this will be removed when a new backup is made.
 MAX_BACKUP_AGE=30
-
 
 # Each Drupal instance requires a corresponding system user, database users and databases. 
 # These are also set by the appropriate domain name. 

@@ -53,7 +53,9 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 			// read the prefix config
 			data, err := instance.PrefixConfig()
 			if err != nil {
-				return err
+				data = "# error, skipped\n"
+				context.EPrintln(err)
+				err = nil
 			}
 			context.IOStream.Printf("%s", data)
 

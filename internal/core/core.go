@@ -23,6 +23,14 @@ const OverridesJSON = "overrides.json"
 //go:embed bootstrap/overrides.json
 var DefaultOverridesJSON []byte
 
+// ResolverBlockTXT is the name of the resolver blocked prefix file.
+// It should be located inside the deployment directory.
+const ResolverBlockedTXT = "resolver-blocked.txt"
+
+// ResolverBlockTXT contains a template for 'resolver-blocked' file
+//go:embed bootstrap/resolver-blocked.txt
+var DefaultResolverBlockedTXT []byte
+
 // AuthorizedKeys contains the default name for the 'global_authorized_keys' file
 const AuthorizedKeys = "authorized_keys"
 

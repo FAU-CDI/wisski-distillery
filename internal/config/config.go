@@ -36,6 +36,10 @@ type Config struct {
 	// Do this by adding URLs (without trailing '/'s) into a JSON file
 	SelfOverridesFile string `env:"SELF_OVERRIDES_FILE" default:"" parser:"file"`
 
+	// You can block specific prefixes from being picked up by the resolver.
+	// Do this by adding one prefix per file.
+	SelfResolverBlockFile string `env:"SELF_RESOLVER_BLOCK_FILE" default:"" parser:"file"`
+
 	// The system can support setting up certificate(s) automatically.
 	// It can be enabled by setting an email for certbot certificates.
 	// This email address can be configured here.

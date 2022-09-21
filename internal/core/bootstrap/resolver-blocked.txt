@@ -1,0 +1,16 @@
+# This file contains prefixes that should not be picked up by the global resolver.
+# They will not appear in the list of prefixes.
+# It should be one prefix per line, '#' and '//' as well as blank lines are treated as comments
+
+# definitely shouldn't be resolved to any WissKI
+http://www.w3.org/
+xsd:
+urn:
+
+# generic prefixes by some common adapters.
+# you may or may not want these.
+http://d-nb.info/gnd/
+http://erlangen-crm.org/
+http://id.gnm.de/ont/
+http://zotero.org/
+https://api.zotero.org/

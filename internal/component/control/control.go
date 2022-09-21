@@ -46,6 +46,7 @@ func (control *Control) Stack(env environment.Environment) component.StackWithRe
 
 			"GLOBAL_AUTHORIZED_KEYS_FILE": control.Config.GlobalAuthorizedKeysFile,
 			"SELF_OVERRIDES_FILE":         control.Config.SelfOverridesFile,
+			"SELF_RESOLVER_BLOCK_FILE":    control.Config.SelfResolverBlockFile,
 		},
 
 		TouchFiles:       []string{control.ResolverFile},
