@@ -12,5 +12,3 @@ urn:
 http://d-nb.info/gnd/
 http://erlangen-crm.org/
 http://id.gnm.de/ont/
-http://www.zotero.org/
-https://api.zotero.org/
