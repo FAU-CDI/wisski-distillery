@@ -7,13 +7,53 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/slicesx"
 	"github.com/tkw1536/goprogram/stream"
+
+	_ "embed"
 )
 
 // NoPrefix checks if this WissKI instance is excluded from generating prefixes.
 // TODO: Move this to the database!
 func (wisski *WissKI) NoPrefix() bool {
 	return fsx.IsFile(wisski.instances.Environment, filepath.Join(wisski.FilesystemBase, "prefixes.skip"))
+}
+
+//go:embed php/list_uri_prefixes.php
+var listURIPrefixesPHP string
+
+// Prefixes returns the prefixes
+func (wisski *WissKI) Prefixes() (prefixes []string, err error) {
+	// get all the ugly prefixes
+	err = wisski.ExecPHPScript(stream.FromEnv(), &prefixes, listURIPrefixesPHP, "list_prefixes")
+	if err != nil {
+		return nil, err
+	}
+
+	// filter out sequential prefixes
+	prefixes = slicesx.NonSequential(prefixes, func(prev, now string) bool {
+		return strings.HasPrefix(now, prev)
+	})
+
+	// filter out blocked prefixes
+	return slicesx.Filter(prefixes, func(uri string) bool { return !IsNonServedURI(uri) }), nil
+}
+
+// TODO: Eventually move this into a configuration file.
+// But for now this is fine
+var blockedURIs = []string{
+	"http://erlangen-crm.org/",
+	"http://www.w3.org/",
+	"xsd:",
+}
+
+func IsNonServedURI(candidate string) bool {
+	return slicesx.Any(
+		blockedURIs,
+		func(prefix string) bool {
+			return strings.HasPrefix(candidate, prefix)
+		},
+	)
 }
 
 var errPrefixExecFailed = errors.New("PrefixConfig: Failed to call list_uri_prefixes")
@@ -32,10 +72,15 @@ func (wisski *WissKI) PrefixConfig() (config string, err error) {
 	builder.WriteString("\n")
 
 	// default prefixes
-	wu := stream.NewIOStream(&builder, nil, nil, 0)
-	code, err := wisski.Barrel().Exec(wu, "barrel", "/bin/bash", "/user_shell.sh", "-c", "drush php:script /wisskiutils/list_uri_prefixes.php")
-	if err != nil || code != 0 {
-		return "", errPrefixExecFailed
+	prefixes, err := wisski.Prefixes()
+	if err != nil {
+		return "", err
+	}
+
+	// predefined prefixes
+	for _, prefix := range prefixes {
+		builder.WriteString(prefix)
+		builder.WriteRune('\n')
 	}
 
 	// custom prefixes

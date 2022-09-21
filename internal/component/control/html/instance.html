@@ -12,6 +12,13 @@
     <b>Slug:</b> <code>{{ .Info.Slug }}</code> <br />
     <b>URL:</b> <a href="{{ .Info.URL }}" target="_blank" rel="noopener noreferrer">{{ .Info.URL }}</a> <br />
     <hr />
+    <b>Resolver Prefixes:</b>
+    <ul>
+        {{ range .Info.Prefixes }}
+            <li><code>{{ . }}</code></li>
+        {{ end}}
+    </ul>
+    <hr />
     <b>Running:</b> <code>{{ .Info.Running }}</code> <br />
     <!-- <b>OwnerEmail:</b> <code>{{ .Instance.OwnerEmail }}</code> <br /> -->
     <hr />

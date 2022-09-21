@@ -17,6 +17,7 @@ type Info struct {
 
 	Running      bool              // is the instance running?
 	Pathbuilders map[string]string // list of pathbuilders
+	Prefixes     []string          // list of uri prefixes
 }
 
 // Info returns information about this WissKI instance.
@@ -44,6 +45,10 @@ func (wisski *WissKI) Info(quick bool) (info Info, err error) {
 		})
 		group.Go(func() (err error) {
 			info.LastRebuild, _ = wisski.LastRebuild()
+			return nil
+		})
+		group.Go(func() (err error) {
+			info.Prefixes, _ = wisski.Prefixes()
 			return nil
 		})
 	}
