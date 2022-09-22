@@ -7,6 +7,8 @@ import (
 	"strings"
 
 	"github.com/tkw1536/goprogram/stream"
+
+	_ "embed"
 )
 
 var ErrExecInvalidCode = errors.New("invalid code to execute")
@@ -122,4 +124,18 @@ func marshalPHP(data any) (string, error) {
 	// Step 3: Assemble the encoded string!
 	result := "call_user_func(function(){$x=<<<'" + delim + "'\n" + jstring + "\n" + delim + ";return json_decode(trim($x));})" // press to doubt
 	return result, nil
+}
+
+//
+
+//go:embed php/settings.php
+var settingsPHP string
+
+func (wisski *WissKI) GetSettingsPHP(key string) (value any, err error) {
+	err = wisski.ExecPHPScript(stream.FromDebug(), &value, settingsPHP, "get_setting", key)
+	return
+}
+
+func (wisski *WissKI) SetSettingsPHP(key string, value any) error {
+	return wisski.ExecPHPScript(stream.FromDebug(), nil, settingsPHP, "set_setting", key, value)
 }

@@ -25,7 +25,7 @@ var listURIPrefixesPHP string
 // Prefixes returns the prefixes
 func (wisski *WissKI) Prefixes() (prefixes []string, err error) {
 	// get all the ugly prefixes
-	err = wisski.ExecPHPScript(stream.FromNil(), &prefixes, listURIPrefixesPHP, "list_prefixes")
+	err = wisski.ExecPHPScript(stream.FromDebug(), &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {
 		return nil, err
 	}

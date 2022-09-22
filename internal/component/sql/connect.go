@@ -8,6 +8,7 @@ import (
 	"sync/atomic"
 
 	mysqldriver "github.com/go-sql-driver/mysql"
+	"github.com/tkw1536/goprogram/stream"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -43,7 +44,6 @@ func (sql *SQL) Exec(query string, args ...interface{}) error {
 func (sql *SQL) WaitExec() error {
 	return wait.Wait(func() bool {
 		err := sql.Exec("select 1;")
-		// log.Printf("[WaitQuery] %s\n", err) // debug
 		return err == nil
 	}, sql.PollInterval, sql.PollContext)
 }
@@ -90,8 +90,10 @@ func (sql *SQL) QueryTable(silent bool, table string) (*gorm.DB, error) {
 
 // WaitQueryTable waits for a connection to succeed via QueryTable
 func (sql *SQL) WaitQueryTable() error {
+	n := stream.FromDebug()
 	return wait.Wait(func() bool {
 		_, err := sql.QueryTable(true, models.InstanceTable)
+		n.EPrintf("[SQL.WaitQueryTable]: %s\n", err)
 		return err == nil
 	}, sql.PollInterval, sql.PollContext)
 }

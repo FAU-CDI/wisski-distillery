@@ -31,7 +31,7 @@ func (control Control) Path() string {
 var resources embed.FS
 
 func (control *Control) Stack(env environment.Environment) component.StackWithResources {
-	return component.MakeStack(control, env, component.StackWithResources{
+	stt := component.MakeStack(control, env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "control",
 		EnvPath:     "control.env",
@@ -52,6 +52,7 @@ func (control *Control) Stack(env environment.Environment) component.StackWithRe
 		TouchFiles:       []string{control.ResolverFile},
 		CopyContextFiles: []string{core.Executable},
 	})
+	return stt
 }
 
 func (control Control) Context(parent component.InstallationContext) component.InstallationContext {

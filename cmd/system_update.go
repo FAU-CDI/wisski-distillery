@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"fmt"
+	"io"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
@@ -8,7 +11,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/goprogram/lib/status"
 	"github.com/tkw1536/goprogram/parser"
+	"github.com/tkw1536/goprogram/stream"
 )
 
 // SystemUpdate is the 'system_update' command
@@ -106,24 +111,35 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		for _, component := range dis.Installables() {
-			name := component.Name()
-			stack := component.Stack(dis.Core.Environment)
-			ctx := component.Context(ctx)
+		group := &status.Group[component.Installable]{
+			Writer: context.Stdout,
+			PrefixString: func(item component.Installable, index int) string {
+				return fmt.Sprintf("[install %q]: ", item.Name())
+			},
+			PrefixAlign: true,
+			ErrString: func(item component.Installable, index int, err error) string {
+				if err == nil {
+					return "ok"
+				}
+				return "failed (" + err.Error() + ")"
+			},
+			Handler: func(item component.Installable, index int, writer io.Writer) error {
+				io := stream.NewIOStream(writer, writer, stream.Null, 0)
+				stack := item.Stack(context.Environment.Environment)
 
-			if err := logging.LogOperation(func() error {
-				return stack.Install(context.IOStream, ctx)
-			}, context.IOStream, "Installing Docker Stack %q", name); err != nil {
-				return err
-			}
+				if err := stack.Install(io, item.Context(ctx)); err != nil {
+					return err
+				}
 
-			if err := logging.LogOperation(func() error {
-				return stack.Update(context.IOStream, true)
-			}, context.IOStream, "Updating Docker Stack: %q", name); err != nil {
-				return err
-			}
+				if err := stack.Update(io, true); err != nil {
+					return err
+				}
+
+				return nil
+			},
 		}
-		return nil
+
+		return group.Run(dis.Installables())
 	}, context.IOStream, "Performing Stack Updates"); err != nil {
 		return err
 	}

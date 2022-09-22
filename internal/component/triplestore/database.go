@@ -9,6 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/wait"
 	"github.com/pkg/errors"
+	"github.com/tkw1536/goprogram/stream"
 )
 
 type TriplestoreUserPayload struct {
@@ -85,8 +86,10 @@ func (ts Triplestore) OpenRaw(method, url string, body interface{}, bodyName str
 // Wait waits for the connection to the Triplestore to succeed.
 // This is achieved using a polling strategy.
 func (ts Triplestore) Wait() error {
+	n := stream.FromDebug()
 	return wait.Wait(func() bool {
 		res, err := ts.OpenRaw("GET", "/rest/repositories", nil, "", "")
+		n.EPrintf("[Triplestore.Wait]: %s\n", err)
 		if err != nil {
 			return false
 		}

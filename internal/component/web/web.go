@@ -2,7 +2,6 @@ package web
 
 import (
 	"embed"
-	"fmt"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
@@ -22,7 +21,6 @@ func (Web) Name() string {
 
 func (web Web) Path() string {
 	res := filepath.Join(web.Core.Config.DeployRoot, "core", web.Name())
-	fmt.Println("debug====" + res)
 	return res
 }
 

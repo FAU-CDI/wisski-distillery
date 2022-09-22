@@ -89,7 +89,7 @@ func (ds Stack) Exec(io stream.IOStream, service, executable string, args ...str
 	return ds.compose(io, compose...)
 }
 
-// Run executes the provided service with the given executable.
+// Run runs a command in a running container with the given executable.
 // It is equivalent to 'docker compose run [--rm] $service $executable $args...'.
 //
 // It returns the exit code of the process.
