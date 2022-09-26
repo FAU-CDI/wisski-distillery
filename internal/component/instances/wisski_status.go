@@ -8,21 +8,29 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// Info represents some info about this WissKI
-type Info struct {
-	Slug string // The slug of the instance
-	URL  string // The public URL of this instance
+// WissKIInfo represents information about this WissKI Instance.
+type WissKIInfo struct {
+	Time time.Time // Time this info was built
 
+	// Generic Information
+	Slug string // slug
+	URL  string // complete URL, including http(s)
+
+	// Information about the running instance
+	Running     bool
 	LastRebuild time.Time
 
-	Running      bool              // is the instance running?
-	Pathbuilders map[string]string // list of pathbuilders
-	Prefixes     []string          // list of uri prefixes
+	// WissKI content information
+	Prefixes     []string          // list of prefixes
+	Pathbuilders map[string]string // all the pathbuilders
 }
 
-// Info returns information about this WissKI instance.
-func (wisski *WissKI) Info(quick bool) (info Info, err error) {
-	fmt.Println("call to info")
+// Info generate a
+func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
+	// TODO: Cache this, and run it with every cron!
+
+	info.Time = time.Now().UTC()
+
 	// static properties
 	info.Slug = wisski.Slug
 	info.URL = wisski.URL().String()
@@ -32,19 +40,19 @@ func (wisski *WissKI) Info(quick bool) (info Info, err error) {
 
 	// quick check if this wisski is running
 	group.Go(func() (err error) {
-		info.Running, err = wisski.Alive()
+		info.Running, err = wisski.Running()
 		return
 	})
 
 	// slower checks for extra properties.
 	// these might execute php code or require additional database queries.
 	if !quick {
-		group.Go(func() error {
-			info.Pathbuilders, _ = wisski.AllPathbuilders()
-			return nil
-		})
 		group.Go(func() (err error) {
 			info.LastRebuild, _ = wisski.LastRebuild()
+			return nil
+		})
+		group.Go(func() error {
+			info.Pathbuilders, _ = wisski.AllPathbuilders()
 			return nil
 		})
 		group.Go(func() (err error) {
@@ -58,8 +66,8 @@ func (wisski *WissKI) Info(quick bool) (info Info, err error) {
 	return
 }
 
-// Alive checks if this WissKI is currently running.
-func (wisski *WissKI) Alive() (bool, error) {
+// Running checks if this WissKI is currently running.
+func (wisski *WissKI) Running() (bool, error) {
 	ps, err := wisski.Barrel().Ps(stream.FromNil())
 	if err != nil {
 		return false, err

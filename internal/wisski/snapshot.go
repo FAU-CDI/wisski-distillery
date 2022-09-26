@@ -174,12 +174,12 @@ func (dis *Distillery) Snapshot(instance instances.WissKI, io stream.IOStream, d
 
 	// do the create keeping track of time!
 	logging.LogOperation(func() error {
-		snapshot.StartTime = time.Now()
+		snapshot.StartTime = time.Now().UTC()
 
 		snapshot.makeBlackbox(io, dis, instance)
 		snapshot.makeWhitebox(io, dis, instance)
 
-		snapshot.EndTime = time.Now()
+		snapshot.EndTime = time.Now().UTC()
 		return nil
 	}, io, "Writing snapshot files")
 

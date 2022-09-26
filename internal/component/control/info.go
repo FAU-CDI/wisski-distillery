@@ -62,7 +62,7 @@ type disIndex struct {
 
 	Config *config.Config
 
-	Instances    []instances.Info
+	Instances    []instances.WissKIInfo
 	TotalCount   int
 	RunningCount int
 	StoppedCount int
@@ -89,7 +89,7 @@ func (dis *Control) disIndex(r *http.Request) (idx disIndex, err error) {
 	idx.Config = dis.Config
 
 	// current time
-	idx.Time = time.Now()
+	idx.Time = time.Now().UTC()
 
 	return
 }
@@ -99,7 +99,7 @@ type disInstance struct {
 	Time time.Time
 
 	Instance models.Instance
-	Info     instances.Info
+	Info     instances.WissKIInfo
 }
 
 func (dis *Control) disInstance(r *http.Request) (is disInstance, err error) {
@@ -124,7 +124,7 @@ func (dis *Control) disInstance(r *http.Request) (is disInstance, err error) {
 	}
 
 	// current time
-	is.Time = time.Now()
+	is.Time = time.Now().UTC()
 
 	return
 }
@@ -149,7 +149,7 @@ var indexTemplate = template.Must(template.New("index.html").Parse(indexTemplate
 var instanceTemplateString string
 var instanceTemplate = template.Must(template.New("instance.html").Parse(instanceTemplateString))
 
-func (dis *Control) getinstance(r *http.Request) (info instances.Info, err error) {
+func (dis *Control) getinstance(r *http.Request) (info instances.WissKIInfo, err error) {
 	// find the slug as the last component of path!
 	slug := strings.TrimSuffix(r.URL.Path, "/")
 	slug = slug[strings.LastIndex(slug, "/")+1:]
@@ -167,7 +167,7 @@ func (dis *Control) getinstance(r *http.Request) (info instances.Info, err error
 	return wisski.Info(false)
 }
 
-func (dis *Control) allinstances(*http.Request) (infos []instances.Info, err error) {
+func (dis *Control) allinstances(*http.Request) (infos []instances.WissKIInfo, err error) {
 	var errgroup errgroup.Group
 
 	// list all the instances
@@ -177,7 +177,7 @@ func (dis *Control) allinstances(*http.Request) (infos []instances.Info, err err
 	}
 
 	// get all of their info!
-	infos = make([]instances.Info, len(all))
+	infos = make([]instances.WissKIInfo, len(all))
 	for i, instance := range all {
 		{
 			i := i

@@ -25,9 +25,9 @@ func New(io stream.IOStream, dis *wisski.Distillery, description Description) (b
 
 	// do the create keeping track of time!
 	logging.LogOperation(func() error {
-		backup.StartTime = time.Now()
+		backup.StartTime = time.Now().UTC()
 		backup.run(io, dis)
-		backup.EndTime = time.Now()
+		backup.EndTime = time.Now().UTC()
 
 		return nil
 	}, io, "Writing backup files")
