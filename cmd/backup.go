@@ -8,15 +8,17 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/goprogram/status"
 )
 
 // Backup is the 'backup' command
 var Backup wisski_distillery.Command = backupC{}
 
 type backupC struct {
-	NoPrune     bool `short:"n" long:"no-prune" description:"Do not prune older backup archives"`
-	StagingOnly bool `short:"s" long:"staging-only" description:"Do not package into a backup archive, but only create a staging directory"`
-	Positionals struct {
+	NoPrune             bool `short:"n" long:"no-prune" description:"Do not prune older backup archives"`
+	StagingOnly         bool `short:"s" long:"staging-only" description:"Do not package into a backup archive, but only create a staging directory"`
+	ConcurrentSnapshots int  `short:"c" long:"concurrent-snapshots" description:"Maximum number of concurrent snapshots" default:"2"`
+	Positionals         struct {
 		Dest string `positional-arg-name:"DEST" description:"Destination path to write backup archive to. Defaults to the snapshots/archives/ directory"`
 	} `positional-args:"true"`
 }
@@ -81,8 +83,9 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 
 	logging.LogOperation(func() error {
 		backup := backup.New(context.IOStream, dis, backup.Description{
-			Dest: sPath,
-			Auto: bk.Positionals.Dest == "",
+			Dest:                sPath,
+			Auto:                bk.Positionals.Dest == "",
+			ConcurrentSnapshots: bk.ConcurrentSnapshots,
 		})
 		backup.WriteReport(dis.Core.Environment, context.IOStream)
 		return nil
@@ -105,10 +108,13 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 	if err := logging.LogOperation(func() error {
 		context.IOStream.Println(archivePath)
 
+		st := status.NewWithCompat(context.Stdout, 1)
+		st.Start()
+		defer st.Stop()
+
 		count, err = targz.Package(dis.Core.Environment, archivePath, sPath, func(dst, src string) {
-			context.Printf("\033[2K\r%s", dst)
+			st.Set(0, dst)
 		})
-		context.Println("")
 		return err
 	}, context.IOStream, "Writing backup archive"); err != nil {
 		return errSnapshotFailed.Wrap(err)

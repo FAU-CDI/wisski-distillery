@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/goprogram/status"
 )
 
 // Snapshot creates a snapshot of an instance
@@ -115,10 +116,13 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 	if err := logging.LogOperation(func() error {
 		context.IOStream.Println(archivePath)
 
+		st := status.NewWithCompat(context.Stdout, 1)
+		st.Start()
+		defer st.Stop()
+
 		count, err = targz.Package(dis.Core.Environment, archivePath, sPath, func(dst, src string) {
-			context.Printf("\033[2K\r%s", dst)
+			st.Set(0, dst)
 		})
-		context.Println("")
 		return err
 	}, context.IOStream, "Writing snapshot archive"); err != nil {
 		return errSnapshotFailed.Wrap(err)

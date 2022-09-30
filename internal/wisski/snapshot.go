@@ -16,6 +16,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/opgroup"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
+	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/exp/slices"
 )
@@ -194,6 +195,10 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 
 	og := opgroup.NewOpGroup[string](4)
 
+	st := status.NewWithCompat(io.Stdout, 0)
+	st.Start()
+	defer st.Stop()
+
 	// stop the instance (unless it was explicitly asked to not do so!)
 	if !snapshot.Description.Keepalive {
 		logging.LogMessage(io, "Stopping instance")
@@ -207,7 +212,12 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 
 	// write bookkeeping information
 	og.GoErr(func(files chan<- string) error {
+		line := st.OpenLine("[snapshot bookkeeping]: ", "")
+		defer line.Close()
+		defer fmt.Fprintln(line, "done")
+
 		bkPath := filepath.Join(snapshot.Description.Dest, "bookkeeping.txt")
+		fmt.Fprintln(line, bkPath)
 		files <- bkPath
 
 		info, err := dis.Core.Environment.Create(bkPath, environment.DefaultFilePerm)
@@ -224,17 +234,29 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 
 	// backup the filesystem
 	og.GoErr(func(files chan<- string) error {
+		line := st.OpenLine("[snapshot filesystem]: ", "")
+		defer line.Close()
+		defer fmt.Fprintln(line, "done")
+
 		fsPath := filepath.Join(snapshot.Description.Dest, filepath.Base(instance.FilesystemBase))
 
 		// copy over whatever is in the base directory
+		defer fmt.Fprintln(line, "done")
 		return fsx.CopyDirectory(dis.Core.Environment, fsPath, instance.FilesystemBase, func(dst, src string) {
+			fmt.Fprintln(line, dst)
 			files <- dst
 		})
+
 	}, &snapshot.ErrFilesystem)
 
 	// backup the graph db repository
 	og.GoErr(func(files chan<- string) error {
+		line := st.OpenLine("[snapshot triplestore]: ", "")
+		defer line.Close()
+		defer fmt.Fprintln(line, "done")
+
 		tsPath := filepath.Join(snapshot.Description.Dest, instance.GraphDBRepository+".nq")
+		fmt.Fprintln(line, tsPath)
 		files <- tsPath
 
 		nquads, err := dis.Core.Environment.Create(tsPath, environment.DefaultFilePerm)
@@ -250,7 +272,12 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 
 	// backup the sql database
 	og.GoErr(func(files chan<- string) error {
+		line := st.OpenLine("[snapshot sql]: ", "")
+		defer line.Close()
+		defer fmt.Fprintln(line, "done")
+
 		sqlPath := filepath.Join(snapshot.Description.Dest, snapshot.Instance.SqlDatabase+".sql")
+		fmt.Fprintln(line, sqlPath)
 		files <- sqlPath
 
 		sql, err := dis.Core.Environment.Create(sqlPath, environment.DefaultFilePerm)
@@ -302,12 +329,9 @@ func (snapshot *Snapshot) waitGroup(io stream.IOStream, og *opgroup.OpGroup[stri
 			path = file
 		}
 
-		// write it to the command line
-		// and also add it to the manifest
-		io.Printf("\033[2K\r%s", path)
+		// add the manifest
 		snapshot.Manifest = append(snapshot.Manifest, path)
 	}
-	io.Println("")
 }
 
 // WriteReport writes out the report belonging to this snapshot.

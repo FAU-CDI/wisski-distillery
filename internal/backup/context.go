@@ -27,6 +27,7 @@ func (bc *context) sendPath(path string) {
 		return
 	}
 
+	bc.io.Println(dst)
 	bc.files <- dst
 }
 
@@ -93,6 +94,5 @@ func (bc *context) AddFile(path string, op func(file io.Writer) error) error {
 	bc.sendPath(path)
 
 	// and do whatever they wanted to do
-	// TODO: Add to the manifest of some sort
 	return op(file)
 }

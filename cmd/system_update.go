@@ -11,8 +11,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/lib/status"
 	"github.com/tkw1536/goprogram/parser"
+	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -111,18 +111,12 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		group := &status.Group[component.Installable]{
-			Writer: context.Stdout,
+		return status.RunErrorGroup(context.Stdout, status.Group[component.Installable, error]{
 			PrefixString: func(item component.Installable, index int) string {
 				return fmt.Sprintf("[install %q]: ", item.Name())
 			},
 			PrefixAlign: true,
-			ErrString: func(item component.Installable, index int, err error) string {
-				if err == nil {
-					return "ok"
-				}
-				return "failed (" + err.Error() + ")"
-			},
+
 			Handler: func(item component.Installable, index int, writer io.Writer) error {
 				io := stream.NewIOStream(writer, writer, stream.Null, 0)
 				stack := item.Stack(context.Environment.Environment)
@@ -137,9 +131,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 
 				return nil
 			},
-		}
-
-		return group.Run(dis.Installables())
+		}, dis.Installables())
 	}, context.IOStream, "Performing Stack Updates"); err != nil {
 		return err
 	}

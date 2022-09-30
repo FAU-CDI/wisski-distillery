@@ -4,7 +4,7 @@ package opgroup
 import "sync"
 
 // OpGroup represents an operation group that can send messages to the waiting goroutine.
-//The zero value is not ready for use, use [NewOpGroup] instead.
+// The zero value is not ready for use, use [NewOpGroup] instead.
 type OpGroup[M any] struct {
 	wg sync.WaitGroup
 	c  chan M
@@ -37,7 +37,7 @@ func (op *OpGroup[M]) GoErr(worker func(c chan<- M) error, dest *error) {
 	})
 }
 
-// Wait returns a receive-only reference to the message channel.//
+// Wait returns a receive-only reference to the message channel.
 // The message channel will be closed once all operations on this group have completed.
 //
 // The Wait function may only be called once.

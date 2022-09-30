@@ -2,14 +2,17 @@
 package backup
 
 import (
+	"fmt"
+	"io"
 	"path/filepath"
-	"sync"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/exp/slices"
 )
@@ -35,59 +38,95 @@ func New(io stream.IOStream, dis *wisski.Distillery, description Description) (b
 	return
 }
 
-type backupResult struct {
-	name string
-	err  error
-}
+func (backup *Backup) run(ios stream.IOStream, dis *wisski.Distillery) {
+	//
+	// MANIFEST
+	//
 
-func (backup *Backup) run(io stream.IOStream, dis *wisski.Distillery) {
+	manifest := make(chan string)       // receive all the entries in the manifest
+	manifestDone := make(chan struct{}) // to signal that everything is finished
 
+	go func() {
+		defer close(manifestDone)
+
+		for file := range manifest {
+			// get the relative path to the root of the manifest
+			// or fallback to the absolute path!
+			path, err := filepath.Rel(backup.Description.Dest, file)
+			if err != nil {
+				path = file
+			}
+
+			// add the file to the manifest array
+			backup.Manifest = append(backup.Manifest, path)
+		}
+
+		// sort the manifest
+		slices.Sort(backup.Manifest)
+	}()
+
+	//
+	// BACKUP COMPONENTS
+	//
+
+	// create a new status display
 	backups := dis.Backupable()
-
-	files := make(chan string, len(backups))         // channel for files being added into the backups
-	results := make(chan backupResult, len(backups)) // channel for results to be stored into
 	backup.ComponentErrors = make(map[string]error, len(backups))
 
-	wg := &sync.WaitGroup{} // to wait for the results
-	wg.Add(len(backups))    // tell the group about all the operations
-	for _, bc := range backups {
-		go func(bc component.Backupable, context component.BackupContext) {
-			defer wg.Done()
+	// Component backup tasks
+	logging.LogOperation(func() error {
+		st := status.NewWithCompat(ios.Stdout, 0)
+		st.Start()
+		defer st.Stop()
 
-			// make the backup and store the result
-			results <- backupResult{
-				name: bc.Name(),
-				err:  bc.Backup(context),
-			}
-		}(bc, &context{
-			env:   dis.Core.Environment,
-			io:    io,
-			dst:   filepath.Join(backup.Description.Dest, bc.BackupName()),
-			files: files,
-		})
-	}
+		return status.UseErrorGroup(st, status.Group[component.Backupable, error]{
+			PrefixString: func(item component.Backupable, index int) string {
+				return fmt.Sprintf("[backup %q]: ", item.Name())
+			},
+			PrefixAlign: true,
+
+			Handler: func(bc component.Backupable, index int, writer io.Writer) error {
+				// create a new context for the backup!
+				context := &context{
+					env:   dis.Core.Environment,
+					io:    stream.NewIOStream(writer, writer, nil, 0),
+					dst:   filepath.Join(backup.Description.Dest, bc.BackupName()),
+					files: manifest,
+				}
+
+				backup.ComponentErrors[bc.Name()] = bc.Backup(context)
+				return nil
+			},
+		}, backups)
+	}, ios, "Backing up core components")
 
 	// backup instances
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
+	logging.LogOperation(func() error {
+		st := status.NewWithCompat(ios.Stdout, 0)
+		st.Start()
+		defer st.Stop()
 
 		instancesBackupDir := filepath.Join(backup.Description.Dest, "instances")
 		if err := dis.Core.Environment.Mkdir(instancesBackupDir, environment.DefaultDirPerm); err != nil {
 			backup.InstanceListErr = err
-			return
+			return nil
 		}
 
 		// list all instances
-		instances, err := dis.Instances().All()
+		wissKIs, err := dis.Instances().All()
 		if err != nil {
 			backup.InstanceListErr = err
-			return
+			return nil
 		}
 
-		backup.InstanceSnapshots = make([]wisski.Snapshot, len(instances))
-		for i, instance := range instances {
-			backup.InstanceSnapshots[i] = func() wisski.Snapshot {
+		// re-use the backup of the snapshots
+		backup.InstanceSnapshots = status.Group[instances.WissKI, wisski.Snapshot]{
+			PrefixString: func(item instances.WissKI, index int) string {
+				return fmt.Sprintf("[snapshot %s]: ", item.Slug)
+			},
+			PrefixAlign: true,
+
+			Handler: func(instance instances.WissKI, index int, writer io.Writer) wisski.Snapshot {
 				dir := filepath.Join(instancesBackupDir, instance.Slug)
 				if err := dis.Core.Environment.Mkdir(dir, environment.DefaultDirPerm); err != nil {
 					return wisski.Snapshot{
@@ -95,44 +134,24 @@ func (backup *Backup) run(io stream.IOStream, dis *wisski.Distillery) {
 					}
 				}
 
-				files <- dir
-				return dis.Snapshot(instance, io.NonInteractive(), wisski.SnapshotDescription{
+				manifest <- dir
+
+				return dis.Snapshot(instance, stream.NewIOStream(writer, writer, nil, 0), wisski.SnapshotDescription{
 					Dest: dir,
 				})
-			}()
-		}
+			},
+			ResultString: func(res wisski.Snapshot, item instances.WissKI, index int) string {
+				return "done"
+			},
+			WaitString:   status.DefaultWaitString[instances.WissKI],
+			HandlerLimit: backup.Description.ConcurrentSnapshots,
+		}.Use(st, wissKIs)
+		return nil
+	}, ios, "creating instance snapshots")
 
-	}()
-
-	// finish processing all the results as soon as the group is done.
-	go func() {
-		defer close(results)
-		wg.Wait()
-	}()
-
-	// finish the message processing once results are finished.
-	go func() {
-		defer close(files) // no more file processing!
-		for result := range results {
-			backup.ComponentErrors[result.name] = result.err
-		}
-	}()
-
-	for file := range files {
-		// get the relative path to the root of the manifest.
-		// nothing *should* go wrong, but in case it does, use the original path.
-		path, err := filepath.Rel(backup.Description.Dest, file)
-		if err != nil {
-			path = file
-		}
-
-		// write it to the command line
-		// and also add it to the manifest
-		io.Printf("\033[2K\r%s", path)
-		backup.Manifest = append(backup.Manifest, path)
-	}
-	slices.Sort(backup.Manifest) // backup the manifest
-	io.Println("")
+	// close the manifest
+	close(manifest)
+	<-manifestDone
 
 	// sort the instances manifest
 	slices.SortFunc(backup.InstanceSnapshots, func(a, b wisski.Snapshot) bool {

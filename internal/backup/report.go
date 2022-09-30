@@ -19,6 +19,8 @@ import (
 type Description struct {
 	Dest string // Destination path
 	Auto bool   // Was the path created automatically?
+
+	ConcurrentSnapshots int // maximum number of concurrent snapshots
 }
 
 // Backup describes a backup
