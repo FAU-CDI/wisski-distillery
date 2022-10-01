@@ -5,6 +5,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/extras"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
@@ -31,6 +32,9 @@ type components struct {
 	// other components
 	instances lazy.Lazy[*instances.Instances]
 	snapshots lazy.Lazy[*snapshots.Manager]
+
+	// extras components
+	extrasConfig lazy.Lazy[*extras.Config]
 }
 
 //
@@ -83,6 +87,14 @@ func (dis *Distillery) SnapshotManager() *snapshots.Manager {
 }
 
 //
+// EXTRAS COMPONENTS
+//
+
+func (dis *Distillery) ExtrasConfig() *extras.Config {
+	return component.Initialize(dis.Core, &dis.components.extrasConfig, nil)
+}
+
+//
 // ALL COMPONENTS
 //
 
@@ -94,6 +106,10 @@ func (dis *Distillery) Components() []component.Component {
 		dis.Triplestore(),
 		dis.SQL(),
 		dis.Instances(),
+		dis.SnapshotManager(),
+
+		// extras components
+		dis.ExtrasConfig(),
 	}
 }
 
