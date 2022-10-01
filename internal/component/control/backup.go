@@ -11,7 +11,7 @@ func (*Control) BackupName() string {
 }
 
 // Backup backups all control plane configuration files into dest
-func (control *Control) Backup(context component.BackupContext) error {
+func (control *Control) Backup(context component.StagingContext) error {
 	files := control.backupFiles()
 
 	return context.AddDirectory("", func() error {

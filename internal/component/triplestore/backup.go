@@ -10,7 +10,7 @@ import (
 func (ts *Triplestore) BackupName() string { return "triplestore" }
 
 // Backup makes a backup of all Triplestore repositories databases into the path dest.
-func (ts *Triplestore) Backup(context component.BackupContext) error {
+func (ts *Triplestore) Backup(context component.StagingContext) error {
 
 	// list all the directories
 	repos, err := ts.listRepositories()
@@ -22,7 +22,7 @@ func (ts *Triplestore) Backup(context component.BackupContext) error {
 	return context.AddDirectory("", func() error {
 		for _, repo := range repos {
 			if err := context.AddFile(repo.ID+".nq", func(file io.Writer) error {
-				_, err := ts.Snapshot(file, repo.ID)
+				_, err := ts.SnapshotDB(file, repo.ID)
 				return err
 			}); err != nil {
 				return err

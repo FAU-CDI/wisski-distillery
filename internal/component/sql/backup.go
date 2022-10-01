@@ -14,7 +14,7 @@ func (*SQL) BackupName() string {
 }
 
 // Backup makes a backup of all SQL databases into the path dest.
-func (sql *SQL) Backup(context component.BackupContext) error {
+func (sql *SQL) Backup(context component.StagingContext) error {
 	return context.AddFile("", func(file io.Writer) error {
 		io := context.IO().Streams(file, nil, nil, 0).NonInteractive()
 		code, err := sql.Stack(sql.Environment).Exec(io, "sql", "mysqldump", "--all-databases")

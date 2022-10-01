@@ -3,6 +3,7 @@ package component
 import (
 	"io"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -14,11 +15,11 @@ type Backupable interface {
 	BackupName() string
 
 	// Backup backs up this component into the destination path path
-	Backup(context BackupContext) error
+	Backup(context StagingContext) error
 }
 
-// BackupContext is the context for backups
-type BackupContext interface {
+// StagingContext represents a context for [Backupable] and [Snapshotable]
+type StagingContext interface {
 	// IO returns the input output stream belonging to this backup file
 	IO() stream.IOStream
 
@@ -40,4 +41,18 @@ type BackupContext interface {
 	// The underlying file does not need to be closed.
 	// AddFile will not return before op has returned.
 	AddFile(path string, op func(file io.Writer) error) error
+}
+
+// Snapshotable represents a component with a Snapshot method.
+type Snapshotable interface {
+	Component
+
+	// SnapshotNeedsRunning returns if this Snapshotable requires a running instance.
+	SnapshotNeedsRunning() bool
+
+	// SnapshotName returns a new name to be used as an argument for path.
+	SnapshotName() string
+
+	// Snapshot snapshots a part of the instance
+	Snapshot(wisski models.Instance, context StagingContext) error
 }

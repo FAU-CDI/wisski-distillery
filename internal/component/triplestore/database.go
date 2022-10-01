@@ -124,8 +124,8 @@ func (ts Triplestore) PurgeRepo(repo string) error {
 
 var errTSBackupWrongStatusCode = errors.New("Distillery.Backup: Wrong status code")
 
-// Snapshot snapshots the provided repository into dst
-func (ts Triplestore) Snapshot(dst io.Writer, repo string) (int64, error) {
+// SnapshotDB snapshots the provided repository into dst
+func (ts Triplestore) SnapshotDB(dst io.Writer, repo string) (int64, error) {
 	res, err := ts.OpenRaw("GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads")
 	if err != nil {
 		return 0, err

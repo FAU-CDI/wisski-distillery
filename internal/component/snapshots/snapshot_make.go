@@ -212,7 +212,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, snapshots *Manager, i
 		defer nquads.Close()
 
 		// directly store the result
-		_, err = snapshots.TS.Snapshot(nquads, instance.GraphDBRepository)
+		_, err = snapshots.TS.SnapshotDB(nquads, instance.GraphDBRepository)
 		return err
 	}, &snapshot.ErrTriplestore)
 
@@ -233,7 +233,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, snapshots *Manager, i
 		defer sql.Close()
 
 		// directly store the result
-		return snapshots.SQL.Snapshot(io, sql, instance.SqlDatabase)
+		return snapshots.SQL.SnapshotDB(io, sql, instance.SqlDatabase)
 	}, &snapshot.ErrSQL)
 
 	// wait for the group!
