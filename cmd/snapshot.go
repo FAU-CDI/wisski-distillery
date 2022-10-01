@@ -4,8 +4,8 @@ import (
 	"io/fs"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
@@ -55,7 +55,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 	if !bi.StagingOnly {
 		// regular mode: create a temporary staging directory
 		logging.LogMessage(context.IOStream, "Creating new snapshot staging directory")
-		sPath, err = dis.Snapshots().NewStagingDir(instance.Slug)
+		sPath, err = dis.SnapshotManager().NewStagingDir(instance.Slug)
 		if err != nil {
 			return errSnapshotFailed.Wrap(err)
 		}
@@ -67,7 +67,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 		// staging mode: use dest as a destination
 		sPath = bi.Positionals.Dest
 		if sPath == "" {
-			sPath, err = dis.Snapshots().NewStagingDir(instance.Slug)
+			sPath, err = dis.SnapshotManager().NewStagingDir(instance.Slug)
 			if err != nil {
 				return errSnapshotFailed.Wrap(err)
 			}
@@ -87,7 +87,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 
 	// take a snapshot into the staging area!
 	logging.LogOperation(func() error {
-		sreport := dis.Snapshot(instance, context.IOStream, wisski.SnapshotDescription{
+		sreport := dis.SnapshotManager().NewSnapshot(instance, context.IOStream, snapshots.SnapshotDescription{
 			Dest:      sPath,
 			Keepalive: bi.Keepalive,
 		})
@@ -107,7 +107,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 	// create the archive path
 	archivePath := bi.Positionals.Dest
 	if archivePath == "" {
-		archivePath = dis.Snapshots().NewArchivePath(instance.Slug)
+		archivePath = dis.SnapshotManager().NewArchivePath(instance.Slug)
 	}
 
 	// and write everything into it!

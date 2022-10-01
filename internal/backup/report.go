@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -42,7 +42,7 @@ type Backup struct {
 
 	// Snapshots containing instances
 	InstanceListErr   error
-	InstanceSnapshots []wisski.Snapshot
+	InstanceSnapshots []snapshots.Snapshot
 
 	// List of files included
 	Manifest []string

@@ -1,4 +1,4 @@
-package wisski
+package dis
 
 import (
 	"path/filepath"
@@ -14,7 +14,7 @@ func (dis *Distillery) ShouldPrune(modtime time.Time) bool {
 
 // PruneBackups prunes all backups older than the maximum backup age
 func (dis *Distillery) PruneBackups(io stream.IOStream) error {
-	sPath := dis.Snapshots().ArchivePath()
+	sPath := dis.SnapshotManager().ArchivePath()
 
 	// list all the files
 	entries, err := dis.Core.Environment.ReadDir(sPath)

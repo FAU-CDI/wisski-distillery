@@ -9,7 +9,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/status"
@@ -18,7 +19,7 @@ import (
 )
 
 // New create a new Backup
-func New(io stream.IOStream, dis *wisski.Distillery, description Description) (backup Backup) {
+func New(io stream.IOStream, dis *dis.Distillery, description Description) (backup Backup) {
 	backup.Description = description
 
 	// catch anything critical that happened during the snapshot
@@ -38,7 +39,7 @@ func New(io stream.IOStream, dis *wisski.Distillery, description Description) (b
 	return
 }
 
-func (backup *Backup) run(ios stream.IOStream, dis *wisski.Distillery) {
+func (backup *Backup) run(ios stream.IOStream, dis *dis.Distillery) {
 	//
 	// MANIFEST
 	//
@@ -120,27 +121,27 @@ func (backup *Backup) run(ios stream.IOStream, dis *wisski.Distillery) {
 		}
 
 		// re-use the backup of the snapshots
-		backup.InstanceSnapshots = status.Group[instances.WissKI, wisski.Snapshot]{
+		backup.InstanceSnapshots = status.Group[instances.WissKI, snapshots.Snapshot]{
 			PrefixString: func(item instances.WissKI, index int) string {
 				return fmt.Sprintf("[snapshot %s]: ", item.Slug)
 			},
 			PrefixAlign: true,
 
-			Handler: func(instance instances.WissKI, index int, writer io.Writer) wisski.Snapshot {
+			Handler: func(instance instances.WissKI, index int, writer io.Writer) snapshots.Snapshot {
 				dir := filepath.Join(instancesBackupDir, instance.Slug)
 				if err := dis.Core.Environment.Mkdir(dir, environment.DefaultDirPerm); err != nil {
-					return wisski.Snapshot{
+					return snapshots.Snapshot{
 						ErrPanic: err,
 					}
 				}
 
 				manifest <- dir
 
-				return dis.Snapshot(instance, stream.NewIOStream(writer, writer, nil, 0), wisski.SnapshotDescription{
+				return dis.SnapshotManager().NewSnapshot(instance, stream.NewIOStream(writer, writer, nil, 0), snapshots.SnapshotDescription{
 					Dest: dir,
 				})
 			},
-			ResultString: func(res wisski.Snapshot, item instances.WissKI, index int) string {
+			ResultString: func(res snapshots.Snapshot, item instances.WissKI, index int) string {
 				return "done"
 			},
 			WaitString:   status.DefaultWaitString[instances.WissKI],
@@ -154,7 +155,7 @@ func (backup *Backup) run(ios stream.IOStream, dis *wisski.Distillery) {
 	<-manifestDone
 
 	// sort the instances manifest
-	slices.SortFunc(backup.InstanceSnapshots, func(a, b wisski.Snapshot) bool {
+	slices.SortFunc(backup.InstanceSnapshots, func(a, b snapshots.Snapshot) bool {
 		return a.Instance.Slug < b.Instance.Slug
 	})
 }

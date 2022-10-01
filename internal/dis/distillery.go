@@ -1,4 +1,4 @@
-package wisski
+package dis
 
 import (
 	"context"

@@ -6,38 +6,43 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
 )
 
-// Snapshots manages snapshots and backups
-type Snapshots struct {
+// Manager manages snapshots and backups
+type Manager struct {
 	component.ComponentBase
+
+	TS  *triplestore.Triplestore
+	SQL *sql.SQL
 }
 
-func (Snapshots) Name() string { return "snapshots" }
+func (Manager) Name() string { return "snapshots" }
 
 // Path returns the path that contains all snapshot related data.
-func (dis *Snapshots) Path() string {
+func (dis *Manager) Path() string {
 	return filepath.Join(dis.Config.DeployRoot, "snapshots")
 }
 
 // StagingPath returns the path to the directory containing a temporary staging area for snapshots.
 // Use NewSnapshotStagingDir to generate a new staging area.
-func (dis *Snapshots) StagingPath() string {
+func (dis *Manager) StagingPath() string {
 	return filepath.Join(dis.Path(), "staging")
 }
 
 // ArchivePath returns the path to the directory containing all exported archives.
 // Use NewSnapshotArchivePath to generate a path to a new archive in this directory.
-func (dis *Snapshots) ArchivePath() string {
+func (dis *Manager) ArchivePath() string {
 	return filepath.Join(dis.Path(), "archives")
 }
 
 // NewArchivePath returns the path to a new archive with the provided prefix.
 // The path is guaranteed to not exist.
-func (dis *Snapshots) NewArchivePath(prefix string) (path string) {
+func (dis *Manager) NewArchivePath(prefix string) (path string) {
 	// TODO: Consider moving these into a subdirectory with the provided prefix.
 	for path == "" || fsx.Exists(dis.Environment, path) {
 		name := dis.newSnapshotName(prefix) + ".tar.gz"
@@ -48,7 +53,7 @@ func (dis *Snapshots) NewArchivePath(prefix string) (path string) {
 
 // newSnapshot name returns a new basename for a snapshot with the provided prefix.
 // The name is guaranteed to be unique within this process.
-func (*Snapshots) newSnapshotName(prefix string) string {
+func (*Manager) newSnapshotName(prefix string) string {
 	suffix, _ := password.Password(64) // silently ignore any errors!
 	if prefix == "" {
 		prefix = "backup"
@@ -60,7 +65,7 @@ func (*Snapshots) newSnapshotName(prefix string) string {
 
 // NewStagingDir returns the path to a new snapshot directory.
 // The directory is guaranteed to have been freshly created.
-func (dis *Snapshots) NewStagingDir(prefix string) (path string, err error) {
+func (dis *Manager) NewStagingDir(prefix string) (path string, err error) {
 	for path == "" || environment.IsExist(err) {
 		path = filepath.Join(dis.StagingPath(), dis.newSnapshotName(prefix))
 		err = dis.Core.Environment.Mkdir(path, environment.DefaultFilePerm)

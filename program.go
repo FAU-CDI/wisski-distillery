@@ -4,14 +4,14 @@ import (
 	"os/user"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/tkw1536/goprogram"
 	"github.com/tkw1536/goprogram/exit"
 )
 
 // these define the ggman-specific program types
 // none of these are strictly needed, they're just around for convenience
-type wdcliEnv = *wisski.Distillery
+type wdcliEnv = *dis.Distillery
 type wdcliParameters = core.Params
 type wdcliRequirements = core.Requirements
 type wdCliFlags = core.Flags
@@ -49,7 +49,7 @@ func NewProgram() Program {
 		},
 
 		NewEnvironment: func(params wdcliParameters, context Context) (e wdcliEnv, err error) {
-			return wisski.NewDistillery(params, context.Args.Flags, context.Description.Requirements)
+			return dis.NewDistillery(params, context.Args.Flags, context.Description.Requirements)
 		},
 	}
 }

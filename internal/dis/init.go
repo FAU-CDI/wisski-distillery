@@ -1,4 +1,4 @@
-package wisski
+package dis
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"

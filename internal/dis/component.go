@@ -1,4 +1,4 @@
-package wisski
+package dis
 
 import (
 	"time"
@@ -30,7 +30,7 @@ type components struct {
 
 	// other components
 	instances lazy.Lazy[*instances.Instances]
-	snapshots lazy.Lazy[*snapshots.Snapshots]
+	snapshots lazy.Lazy[*snapshots.Manager]
 }
 
 //
@@ -75,9 +75,10 @@ func (dis *Distillery) Instances() *instances.Instances {
 	})
 }
 
-func (dis *Distillery) Snapshots() *snapshots.Snapshots {
-	return component.Initialize(dis.Core, &dis.components.snapshots, func(snapshots *snapshots.Snapshots) {
-
+func (dis *Distillery) SnapshotManager() *snapshots.Manager {
+	return component.Initialize(dis.Core, &dis.components.snapshots, func(snapshots *snapshots.Manager) {
+		snapshots.SQL = dis.SQL()
+		snapshots.TS = dis.Triplestore()
 	})
 }
 

@@ -1,4 +1,4 @@
-package wisski
+package snapshots
 
 import (
 	"encoding/json"
@@ -109,7 +109,7 @@ func (snapshot Snapshot) Report(w io.Writer) (int, error) {
 }
 
 // Snapshot creates a new snapshot of this instance into dest
-func (dis *Distillery) Snapshot(instance instances.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
+func (snapshots *Manager) NewSnapshot(instance instances.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
 	// setup the snapshot
 	snapshot.Description = desc
 	snapshot.Instance = instance.Instance
@@ -123,8 +123,8 @@ func (dis *Distillery) Snapshot(instance instances.WissKI, io stream.IOStream, d
 	logging.LogOperation(func() error {
 		snapshot.StartTime = time.Now().UTC()
 
-		snapshot.makeBlackbox(io, dis, instance)
-		snapshot.makeWhitebox(io, dis, instance)
+		snapshot.makeBlackbox(io, snapshots, instance)
+		snapshot.makeWhitebox(io, snapshots, instance)
 
 		snapshot.EndTime = time.Now().UTC()
 		return nil
@@ -136,7 +136,7 @@ func (dis *Distillery) Snapshot(instance instances.WissKI, io stream.IOStream, d
 
 // makeBlackbox runs the blackbox backup of the system.
 // It pauses the Instance, if a consistent state is required.
-func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, instance instances.WissKI) {
+func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, snapshots *Manager, instance instances.WissKI) {
 	stack := instance.Barrel()
 
 	og := opgroup.NewOpGroup[string](4)
@@ -166,7 +166,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 		fmt.Fprintln(line, bkPath)
 		files <- bkPath
 
-		info, err := dis.Core.Environment.Create(bkPath, environment.DefaultFilePerm)
+		info, err := snapshots.Core.Environment.Create(bkPath, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
@@ -188,7 +188,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 
 		// copy over whatever is in the base directory
 		defer fmt.Fprintln(line, "done")
-		return fsx.CopyDirectory(dis.Core.Environment, fsPath, instance.FilesystemBase, func(dst, src string) {
+		return fsx.CopyDirectory(snapshots.Core.Environment, fsPath, instance.FilesystemBase, func(dst, src string) {
 			fmt.Fprintln(line, dst)
 			files <- dst
 		})
@@ -205,14 +205,14 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 		fmt.Fprintln(line, tsPath)
 		files <- tsPath
 
-		nquads, err := dis.Core.Environment.Create(tsPath, environment.DefaultFilePerm)
+		nquads, err := snapshots.Core.Environment.Create(tsPath, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
 		defer nquads.Close()
 
 		// directly store the result
-		_, err = dis.Triplestore().Snapshot(nquads, instance.GraphDBRepository)
+		_, err = snapshots.TS.Snapshot(nquads, instance.GraphDBRepository)
 		return err
 	}, &snapshot.ErrTriplestore)
 
@@ -226,14 +226,14 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 		fmt.Fprintln(line, sqlPath)
 		files <- sqlPath
 
-		sql, err := dis.Core.Environment.Create(sqlPath, environment.DefaultFilePerm)
+		sql, err := snapshots.Core.Environment.Create(sqlPath, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
 		defer sql.Close()
 
 		// directly store the result
-		return dis.SQL().Snapshot(io, sql, instance.SqlDatabase)
+		return snapshots.SQL.Snapshot(io, sql, instance.SqlDatabase)
 	}, &snapshot.ErrSQL)
 
 	// wait for the group!
@@ -242,7 +242,7 @@ func (snapshot *Snapshot) makeBlackbox(io stream.IOStream, dis *Distillery, inst
 
 // makeWhitebox runs the whitebox backup of the system.
 // The instance should be running during this step.
-func (snapshot *Snapshot) makeWhitebox(io stream.IOStream, dis *Distillery, instance instances.WissKI) {
+func (snapshot *Snapshot) makeWhitebox(io stream.IOStream, snapshots *Manager, instance instances.WissKI) {
 	og := opgroup.NewOpGroup[string](1)
 
 	// write pathbuilders
@@ -252,7 +252,7 @@ func (snapshot *Snapshot) makeWhitebox(io stream.IOStream, dis *Distillery, inst
 		files <- pbPath
 
 		// create the directory!
-		if err := dis.Core.Environment.Mkdir(pbPath, environment.DefaultDirPerm); err != nil {
+		if err := snapshots.Core.Environment.Mkdir(pbPath, environment.DefaultDirPerm); err != nil {
 			return err
 		}
 
