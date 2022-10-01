@@ -53,7 +53,7 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 	if !bk.StagingOnly {
 		// regular mode: create a temporary staging directory
 		logging.LogMessage(context.IOStream, "Creating new snapshot staging directory")
-		sPath, err = dis.NewSnapshotStagingDir("")
+		sPath, err = dis.Snapshots().NewStagingDir("")
 		if err != nil {
 			return errSnapshotFailed.Wrap(err)
 		}
@@ -65,7 +65,7 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 		// staging mode: use dest as a destination
 		sPath = bk.Positionals.Dest
 		if sPath == "" {
-			sPath, err = dis.NewSnapshotStagingDir("")
+			sPath, err = dis.Snapshots().NewStagingDir("")
 			if err != nil {
 				return errSnapshotFailed.Wrap(err)
 			}
@@ -100,7 +100,7 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 	// create the archive path
 	archivePath := bk.Positionals.Dest
 	if archivePath == "" {
-		archivePath = dis.NewSnapshotArchivePath("")
+		archivePath = dis.Snapshots().NewArchivePath("")
 	}
 
 	// and write everything into it!

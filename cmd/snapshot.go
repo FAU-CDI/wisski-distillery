@@ -55,7 +55,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 	if !bi.StagingOnly {
 		// regular mode: create a temporary staging directory
 		logging.LogMessage(context.IOStream, "Creating new snapshot staging directory")
-		sPath, err = dis.NewSnapshotStagingDir(instance.Slug)
+		sPath, err = dis.Snapshots().NewStagingDir(instance.Slug)
 		if err != nil {
 			return errSnapshotFailed.Wrap(err)
 		}
@@ -67,7 +67,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 		// staging mode: use dest as a destination
 		sPath = bi.Positionals.Dest
 		if sPath == "" {
-			sPath, err = dis.NewSnapshotStagingDir(instance.Slug)
+			sPath, err = dis.Snapshots().NewStagingDir(instance.Slug)
 			if err != nil {
 				return errSnapshotFailed.Wrap(err)
 			}
@@ -107,7 +107,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 	// create the archive path
 	archivePath := bi.Positionals.Dest
 	if archivePath == "" {
-		archivePath = dis.NewSnapshotArchivePath(instance.Slug)
+		archivePath = dis.Snapshots().NewArchivePath(instance.Slug)
 	}
 
 	// and write everything into it!

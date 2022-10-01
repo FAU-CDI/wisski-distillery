@@ -14,7 +14,7 @@ func (dis *Distillery) ShouldPrune(modtime time.Time) bool {
 
 // PruneBackups prunes all backups older than the maximum backup age
 func (dis *Distillery) PruneBackups(io stream.IOStream) error {
-	sPath := dis.SnapshotsArchivePath()
+	sPath := dis.Snapshots().ArchivePath()
 
 	// list all the files
 	entries, err := dis.Core.Environment.ReadDir(sPath)

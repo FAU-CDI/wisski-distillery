@@ -70,8 +70,8 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	for _, d := range []string{
 		dis.Config.DeployRoot,
 		dis.Instances().Path(),
-		dis.SnapshotsStagingPath(),
-		dis.SnapshotsArchivePath(),
+		dis.Snapshots().StagingPath(),
+		dis.Snapshots().ArchivePath(),
 	} {
 		context.Println(d)
 		if err := dis.Core.Environment.MkdirAll(d, environment.DefaultDirPerm); err != nil {
