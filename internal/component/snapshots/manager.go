@@ -6,8 +6,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
@@ -16,9 +15,10 @@ import (
 // Manager manages snapshots and backups
 type Manager struct {
 	component.ComponentBase
+	Instances *instances.Instances
 
-	TS  *triplestore.Triplestore
-	SQL *sql.SQL
+	Snapshotable []component.Snapshotable
+	Backupable   []component.Backupable
 }
 
 func (Manager) Name() string { return "snapshots" }
@@ -68,6 +68,7 @@ func (*Manager) newSnapshotName(prefix string) string {
 func (dis *Manager) NewStagingDir(prefix string) (path string, err error) {
 	for path == "" || environment.IsExist(err) {
 		path = filepath.Join(dis.StagingPath(), dis.newSnapshotName(prefix))
+		fmt.Println("path =>", prefix, "err => ", err)
 		err = dis.Core.Environment.Mkdir(path, environment.DefaultFilePerm)
 	}
 	if err != nil {

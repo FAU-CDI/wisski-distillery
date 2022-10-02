@@ -131,13 +131,13 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 
 				return nil
 			},
-		}, dis.Installables())
+		}, dis.Installable())
 	}, context.IOStream, "Performing Stack Updates"); err != nil {
 		return err
 	}
 
 	if err := logging.LogOperation(func() error {
-		for _, component := range dis.Updateable() {
+		for _, component := range dis.Updatable() {
 			name := component.Name()
 			if err := logging.LogOperation(func() error {
 				return component.Update(context.IOStream)

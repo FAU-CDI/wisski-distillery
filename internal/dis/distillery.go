@@ -4,6 +4,12 @@ import (
 	"context"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 )
 
 // Distillery represents a WissKI Distillery
@@ -33,4 +39,34 @@ type Upstream struct {
 // Context returns a new Context belonging to this distillery
 func (dis *Distillery) Context() context.Context {
 	return context.Background()
+}
+
+//
+// PUBLIC COMPONENT GETTERS
+//
+
+func (dis *Distillery) Control() *control.Control {
+	return dis.cControl(dis.thread())
+}
+func (dis *Distillery) SSH() *ssh.SSH {
+	return dis.cSSH(dis.thread())
+}
+func (dis *Distillery) SQL() *sql.SQL {
+	return dis.cSQL(dis.thread())
+}
+func (dis *Distillery) Triplestore() *triplestore.Triplestore {
+	return dis.cTriplestore(dis.thread())
+}
+func (dis *Distillery) Instances() *instances.Instances {
+	return dis.cInstances(dis.thread())
+}
+func (dis *Distillery) SnapshotManager() *snapshots.Manager {
+	return dis.cSnapshotManager(dis.thread())
+}
+
+func (dis *Distillery) Installable() []component.Installable { return dis.cInstallables(dis.thread()) }
+func (dis *Distillery) Updatable() []component.Updatable     { return dis.cUpdateable(dis.thread()) }
+
+func (dis *Distillery) Provisionable() []component.Provisionable {
+	return dis.cProvisionable(dis.thread())
 }

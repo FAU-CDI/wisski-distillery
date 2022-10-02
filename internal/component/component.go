@@ -1,12 +1,6 @@
 // Package component holds the main abstraction for components.
 package component
 
-import (
-	"reflect"
-
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
-)
-
 // Component represents a logical subsystem of the distillery.
 // Every component must embed [ComponentBase] and should be initialized using [Initialize].
 //
@@ -35,36 +29,4 @@ type ComponentBase struct {
 //lint:ignore U1000 used to implement the private methods of [Component]
 func (cb *ComponentBase) getBase() *ComponentBase {
 	return cb
-}
-
-// Initialize makes or returns a component based on a lazy.
-//
-// C is the type of component to initialize. It must be backed by a pointer, or Initialize will panic.
-//
-// dis is the distillery to initialize components for
-// field is a pointer to the appropriate struct field within the distillery components
-// init is called with a new non-nil component to initialize it.
-// It may be nil, to indicate no additional initialization is required.
-//
-// makeComponent returns the new or existing component instance
-func Initialize[C Component](core Core, field *lazy.Lazy[C], init func(C)) C {
-
-	// get the typeof C and make sure that it is a pointer type!
-	typC := reflect.TypeOf((*C)(nil)).Elem()
-	if typC.Kind() != reflect.Pointer {
-		panic("Initialize: C must be backed by a pointer")
-	}
-
-	// return the field
-	return field.Get(func() (c C) {
-		c = reflect.New(typC.Elem()).Interface().(C)
-		if init != nil {
-			init(c)
-		}
-
-		base := c.getBase()
-		base.Core = core
-
-		return
-	})
 }

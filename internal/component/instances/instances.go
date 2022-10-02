@@ -37,6 +37,16 @@ var errSQL = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
+// Instance is a convenience function to return an instance based on a model slug.
+// When the instance does not exist, returns nil.
+func (instances *Instances) Instance(instance models.Instance) *WissKI {
+	i, err := instances.WissKI(instance.Slug)
+	if err != nil {
+		return nil
+	}
+	return &i
+}
+
 // WissKI returns the WissKI with the provided slug, if it exists.
 // It the WissKI does not exist, returns ErrWissKINotFound.
 func (instances *Instances) WissKI(slug string) (i WissKI, err error) {

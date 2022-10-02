@@ -2,7 +2,7 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/internal/backup"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -52,7 +52,7 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 	var sPath string
 	if !bk.StagingOnly {
 		// regular mode: create a temporary staging directory
-		logging.LogMessage(context.IOStream, "Creating new snapshot staging directory")
+		logging.LogMessage(context.IOStream, "Creating new backup staging directory")
 		sPath, err = dis.SnapshotManager().NewStagingDir("")
 		if err != nil {
 			return errSnapshotFailed.Wrap(err)
@@ -82,7 +82,7 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 	context.Println(sPath)
 
 	logging.LogOperation(func() error {
-		backup := backup.New(context.IOStream, dis, backup.Description{
+		backup := dis.SnapshotManager().NewBackup(context.IOStream, snapshots.BackupDescription{
 			Dest:                sPath,
 			Auto:                bk.Positionals.Dest == "",
 			ConcurrentSnapshots: bk.ConcurrentSnapshots,
