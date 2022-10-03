@@ -2,8 +2,19 @@ package slicesx
 
 import (
 	"golang.org/x/exp/constraints"
+	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
+
+// ForSorted iterates over the map in an ordered fashion
+func ForSorted[K constraints.Ordered, V any](mp map[K]V, callback func(k K, v V)) {
+	keys := maps.Keys(mp)
+	slices.Sort(keys)
+
+	for _, key := range keys {
+		callback(key, mp[key])
+	}
+}
 
 // Any returns true if test returns true for any of values.
 func Any[T any](values []T, test func(T) bool) bool {

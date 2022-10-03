@@ -1,7 +1,6 @@
 package instances
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -70,7 +69,6 @@ func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
 	}
 
 	err = group.Wait()
-	fmt.Println(err)
 	return
 }
 
