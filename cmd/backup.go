@@ -1,6 +1,9 @@
 package cmd
 
 import (
+	"io"
+	"path/filepath"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
@@ -41,102 +44,155 @@ var errBackupFailed = exit.Error{
 
 func (bk backupC) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
-	var err error
 
+	// prune old backups
 	if !bk.NoPrune {
 		defer logging.LogOperation(func() error {
 			return dis.SnapshotManager().PruneBackups(context.IOStream)
 		}, context.IOStream, "Pruning old backups")
 	}
 
-	// determine the target path for the archive
-	var sPath string
-	if !bk.StagingOnly {
-		// regular mode: create a temporary staging directory
-		logging.LogMessage(context.IOStream, "Creating new backup staging directory")
-		sPath, err = dis.SnapshotManager().NewStagingDir("")
-		if err != nil {
-			return errSnapshotFailed.Wrap(err)
-		}
-		defer func() {
-			logging.LogMessage(context.IOStream, "Removing snapshot staging directory")
-			dis.Environment.RemoveAll(sPath)
-		}()
+	// do the handling
+	err := handleSnapshotLike(context, SnapshotFlags{
+		Dest:        bk.Positionals.Dest,
+		Slug:        "",
+		Title:       "Backup",
+		StagingOnly: bk.StagingOnly,
+
+		Do: func(dest string) SnapshotLike {
+			backup := dis.SnapshotManager().NewBackup(context.IOStream, snapshots.BackupDescription{
+				Dest:                dest,
+				ConcurrentSnapshots: bk.ConcurrentSnapshots,
+			})
+			return &backup
+		},
+	})
+
+	if err != nil {
+		return errBackupFailed.Wrap(err)
+	}
+	return nil
+}
+
+type SnapshotFlags struct {
+	Dest        string
+	Slug        string
+	Title       string // "Backup" or "Snapshot"
+	StagingOnly bool
+
+	Do func(dest string) SnapshotLike
+}
+
+type SnapshotLike interface {
+	LogEntry() models.Snapshot
+	Report(w io.Writer) (int, error)
+}
+
+func handleSnapshotLike(context wisski_distillery.Context, flags SnapshotFlags) (err error) {
+	dis := context.Environment
+
+	// determine target paths
+	logging.LogMessage(context.IOStream, "Determining target paths")
+	var stagingDir, archivePath string
+	if flags.StagingOnly {
+		stagingDir = flags.Dest
 	} else {
-		// staging mode: use dest as a destination
-		sPath = bk.Positionals.Dest
-		if sPath == "" {
-			sPath, err = dis.SnapshotManager().NewStagingDir("")
-			if err != nil {
-				return errSnapshotFailed.Wrap(err)
-			}
-		}
-
-		// create the directory (if it doesn't already exist)
-		logging.LogMessage(context.IOStream, "Creating staging directory")
-		err = dis.Core.Environment.Mkdir(sPath, environment.DefaultDirPerm)
-		if !environment.IsExist(err) && err != nil {
-			return errSnapshotFailed.WithMessageF(err)
-		}
-		err = nil
+		archivePath = flags.Dest
 	}
-	context.Println(sPath)
+	if stagingDir == "" {
+		stagingDir, err = dis.SnapshotManager().NewStagingDir(flags.Slug)
+		if err != nil {
+			return err
+		}
+	}
+	if !flags.StagingOnly && archivePath == "" {
+		archivePath = dis.SnapshotManager().NewArchivePath(flags.Slug)
+	}
+	context.Printf("Staging Directory: %s\n", stagingDir)
+	context.Printf("Archive Path:      %s\n", archivePath)
 
-	var logEntry models.Snapshot
+	// create the staging directory
+	logging.LogMessage(context.IOStream, "Creating staging directory")
+	err = dis.Core.Environment.Mkdir(stagingDir, environment.DefaultDirPerm)
+	if !environment.IsExist(err) && err != nil {
+		return err
+	}
+
+	// if it was requested to not do staging only
+	// we need the staging directory to be deleted at the end
+	if !flags.StagingOnly {
+		defer func() {
+			logging.LogMessage(context.IOStream, "Removing staging directory")
+			dis.Environment.RemoveAll(stagingDir)
+		}()
+	}
+
+	// create the actual snapshot or backup
+	// write out the report
+	// and retain a log entry
+	var entry models.Snapshot
 	logging.LogOperation(func() error {
-		backup := dis.SnapshotManager().NewBackup(context.IOStream, snapshots.BackupDescription{
-			Dest:                sPath,
-			ConcurrentSnapshots: bk.ConcurrentSnapshots,
-		})
-		backup.WriteReport(dis.Core.Environment, context.IOStream)
-		logEntry = backup.LogEntry()
+		// do the snapshot!
+		sl := flags.Do(stagingDir)
+
+		// create a log entry
+		entry = sl.LogEntry()
+
+		// find the report path
+		reportPath := filepath.Join(stagingDir, "report.txt")
+		context.Println(reportPath)
+
+		// create the path
+		report, err := dis.Environment.Create(reportPath, environment.DefaultFilePerm)
+		if err != nil {
+			return err
+		}
+
+		// and write out the report
+		{
+			_, err := sl.Report(report)
+			return err
+		}
+	}, context.IOStream, "Generating %s", flags.Title)
+
+	// if we only requested staging
+	// all that is left is to write the log entry
+	if flags.StagingOnly {
+		logging.LogMessage(context.IOStream, "Writing Log Entry")
+
+		// write out the log entry
+		entry.Path = stagingDir
+		entry.Packed = false
+		dis.Instances().AddSnapshotLog(entry)
+
+		context.Printf("Wrote %s\n", stagingDir)
 		return nil
-	}, context.IOStream, "Generating Backup")
-
-	// create the archive path
-	archivePath := bk.Positionals.Dest
-	if archivePath == "" {
-		archivePath = dis.SnapshotManager().NewArchivePath("")
 	}
 
-	// do the logging
-	if bk.Positionals.Dest == "" {
-		defer logging.LogOperation(func() error {
-			if bk.StagingOnly {
-				logEntry.Path = sPath
-				logEntry.Packed = false
-			} else {
-				logEntry.Path = archivePath
-				logEntry.Packed = true
-			}
-
-			return dis.Instances().AddSnapshotLog(logEntry)
-		}, context.IOStream, "Writing Log Entry")
-	}
-
-	// if we requested to only have a staging area, then we are done
-	if bk.StagingOnly {
-		context.Printf("Wrote %s\n", sPath)
-		return nil
-	}
-
-	// and write everything into it!
-	var count int64
+	// package everything up as an archive!
 	if err := logging.LogOperation(func() error {
-		context.IOStream.Println(archivePath)
+		var count int64
+		defer func() { context.Printf("Wrote %d byte(s) to %s\n", count, archivePath) }()
 
 		st := status.NewWithCompat(context.Stdout, 1)
 		st.Start()
 		defer st.Stop()
 
-		count, err = targz.Package(dis.Core.Environment, archivePath, sPath, func(dst, src string) {
+		count, err = targz.Package(dis.Core.Environment, archivePath, stagingDir, func(dst, src string) {
 			st.Set(0, dst)
 		})
-		return err
-	}, context.IOStream, "Writing backup archive"); err != nil {
-		return errSnapshotFailed.Wrap(err)
-	}
-	context.Printf("Wrote %d byte(s) to %s\n", count, archivePath)
 
+		return err
+	}, context.IOStream, "Writing archive"); err != nil {
+		return err
+	}
+
+	// write out the log entry
+	logging.LogMessage(context.IOStream, "Writing Log Entry")
+	entry.Path = archivePath
+	entry.Packed = true
+	dis.Instances().AddSnapshotLog(entry)
+
+	// and we're done!
 	return nil
 }

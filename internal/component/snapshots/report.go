@@ -4,13 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"path/filepath"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 func (snapshot Snapshot) String() string {
@@ -65,26 +61,6 @@ func (snapshot Snapshot) Report(w io.Writer) (int, error) {
 	return ww.Sum()
 }
 
-// WriteReport writes out the report belonging to this snapshot.
-// It is a separate function, to allow writing it indepenently of the rest.
-func (snapshot *Snapshot) WriteReport(env environment.Environment, stream stream.IOStream) error {
-	return logging.LogOperation(func() error {
-		reportPath := filepath.Join(snapshot.Description.Dest, "report.txt")
-		stream.Println(reportPath)
-
-		// create the report file!
-		report, err := env.Create(reportPath, environment.DefaultFilePerm)
-		if err != nil {
-			return err
-		}
-		defer report.Close()
-
-		// print the report into it!
-		_, err = io.WriteString(report, snapshot.String())
-		return err
-	}, stream, "Writing snapshot report")
-}
-
 // Strings turns this backup into a string for the BackupReport.
 func (backup Backup) String() string {
 	var builder strings.Builder
@@ -131,24 +107,4 @@ func (backup Backup) Report(w io.Writer) (int, error) {
 	io.WriteString(cw, "\n")
 
 	return cw.Sum()
-}
-
-// WriteReport writes out the report belonging to this backup.
-// It is a separate function, to allow writing it indepenently of the rest.
-func (backup Backup) WriteReport(env environment.Environment, stream stream.IOStream) error {
-	return logging.LogOperation(func() error {
-		reportPath := filepath.Join(backup.Description.Dest, "report.txt")
-		stream.Println(reportPath)
-
-		// create the report file!
-		report, err := env.Create(reportPath, environment.DefaultFilePerm)
-		if err != nil {
-			return err
-		}
-		defer report.Close()
-
-		// print the report into it!
-		_, err = io.WriteString(report, backup.String())
-		return err
-	}, stream, "Writing backup report")
 }
