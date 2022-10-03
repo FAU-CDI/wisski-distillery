@@ -6,6 +6,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
@@ -42,6 +43,8 @@ var errSnapshotFailed = exit.Error{
 }
 
 func (bi snapshot) Run(context wisski_distillery.Context) error {
+	// TODO: Cleanup this code!
+
 	dis := context.Environment
 	instance, err := dis.Instances().WissKI(bi.Positionals.Slug)
 	if err != nil {
@@ -52,6 +55,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 
 	// determine the target path for the archive
 	var sPath string
+
 	if !bi.StagingOnly {
 		// regular mode: create a temporary staging directory
 		logging.LogMessage(context.IOStream, "Creating new snapshot staging directory")
@@ -86,6 +90,7 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 	// TODO: Allow skipping backups of individual parts and make them concurrent!
 
 	// take a snapshot into the staging area!
+	var logEntry models.Snapshot
 	logging.LogOperation(func() error {
 		sreport := dis.SnapshotManager().NewSnapshot(instance, context.IOStream, snapshots.SnapshotDescription{
 			Dest:      sPath,
@@ -95,19 +100,35 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 		// write out the report, ignoring any errors!
 		sreport.WriteReport(dis.Core.Environment, context.IOStream)
 
+		logEntry = sreport.LogEntry()
+
 		return nil
 	}, context.IOStream, "Generating Snapshot")
-
-	// if we requested to only have a staging area, then we are done
-	if bi.StagingOnly {
-		context.Printf("Wrote %s\n", sPath)
-		return nil
-	}
 
 	// create the archive path
 	archivePath := bi.Positionals.Dest
 	if archivePath == "" {
-		archivePath = dis.SnapshotManager().NewArchivePath(instance.Slug)
+		archivePath = dis.SnapshotManager().NewArchivePath("")
+	}
+
+	// do the logging
+	if bi.Positionals.Dest == "" {
+		defer logging.LogOperation(func() error {
+			if bi.StagingOnly {
+				logEntry.Path = sPath
+				logEntry.Packed = false
+			} else {
+				logEntry.Path = archivePath
+				logEntry.Packed = true
+			}
+
+			return dis.Instances().AddSnapshotLog(logEntry)
+		}, context.IOStream, "Writing Log Entry")
+	}
+	// if we requested to only have a staging area, then we are done
+	if bi.StagingOnly {
+		context.Printf("Wrote %s\n", sPath)
+		return nil
 	}
 
 	// and write everything into it!

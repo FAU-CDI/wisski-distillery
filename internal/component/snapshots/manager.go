@@ -7,6 +7,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
@@ -15,6 +16,8 @@ import (
 // Manager manages snapshots and backups
 type Manager struct {
 	component.ComponentBase
+
+	SQL       *sql.SQL
 	Instances *instances.Instances
 
 	Snapshotable []component.Snapshotable
@@ -54,7 +57,7 @@ func (dis *Manager) NewArchivePath(prefix string) (path string) {
 // newSnapshot name returns a new basename for a snapshot with the provided prefix.
 // The name is guaranteed to be unique within this process.
 func (*Manager) newSnapshotName(prefix string) string {
-	suffix, _ := password.Password(64) // silently ignore any errors!
+	suffix, _ := password.Password(10) // silently ignore any errors!
 	if prefix == "" {
 		prefix = "backup"
 	} else {
@@ -68,7 +71,6 @@ func (*Manager) newSnapshotName(prefix string) string {
 func (dis *Manager) NewStagingDir(prefix string) (path string, err error) {
 	for path == "" || environment.IsExist(err) {
 		path = filepath.Join(dis.StagingPath(), dis.newSnapshotName(prefix))
-		fmt.Println("path =>", prefix, "err => ", err)
 		err = dis.Core.Environment.Mkdir(path, environment.DefaultFilePerm)
 	}
 	if err != nil {

@@ -62,34 +62,52 @@ type disIndex struct {
 
 	Config *config.Config
 
-	Instances    []instances.WissKIInfo
+	Instances []instances.WissKIInfo
+
 	TotalCount   int
 	RunningCount int
 	StoppedCount int
+
+	Backups []models.Snapshot
 }
 
 func (dis *Control) disIndex(r *http.Request) (idx disIndex, err error) {
-	// load instances
-	idx.Instances, err = dis.allinstances(r)
-	if err != nil {
-		return
-	}
+	var group errgroup.Group
 
-	// count how many are running and how many are stopped
-	for _, i := range idx.Instances {
-		if i.Running {
-			idx.RunningCount++
-		} else {
-			idx.StoppedCount++
+	group.Go(func() error {
+		// load instances
+		idx.Instances, err = dis.allinstances(r)
+		if err != nil {
+			return err
 		}
-	}
-	idx.TotalCount = len(idx.Instances)
+
+		// count how many are running and how many are stopped
+		for _, i := range idx.Instances {
+			if i.Running {
+				idx.RunningCount++
+			} else {
+				idx.StoppedCount++
+			}
+		}
+		idx.TotalCount = len(idx.Instances)
+
+		return nil
+	})
+
+	// get the log entries
+	group.Go(func() (err error) {
+		idx.Backups, err = dis.Instances.SnapshotLogFor("")
+		return
+	})
 
 	// get the static properties
 	idx.Config = dis.Config
 
 	// current time
 	idx.Time = time.Now().UTC()
+
+	// wait for everything!
+	group.Wait()
 
 	return
 }

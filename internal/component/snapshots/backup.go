@@ -44,7 +44,6 @@ type Backup struct {
 // BackupDescription provides a description for a backup
 type BackupDescription struct {
 	Dest string // Destination path
-	Auto bool   // Was the path created automatically?
 
 	ConcurrentSnapshots int // maximum number of concurrent snapshots
 }

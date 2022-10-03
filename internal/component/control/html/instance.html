@@ -36,6 +36,33 @@
     <hr />
 	<b>GraphDBRepository:</b> <code>{{ .Instance.GraphDBRepository }}</code> <br />
 	<b>GraphDBUsername:</b> <code>{{ .Instance.GraphDBUsername }}</code> <br />
+    <hr />
+    <b>Snapshots:</b>
+    <table>
+        <thead>
+            <tr>
+                <th>Path</th>
+                <th>Created</th>
+                <th>Packed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .Info.Snapshots }}
+            <tr>
+                <td>
+                    <code class="path">{{ .Path }}</code>
+                </td>
+                <td>
+                    <code class="date">{{ .Created.Format "2006-01-02T15:04:05Z07:00" }}</code>
+                </td>
+                <td>
+                    {{ .Packed }}
+                </td>
+            </tr>
+        {{ end }}
+        </tbody>
+    </table>
+    <hr />
 </p>
 
 <footer>

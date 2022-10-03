@@ -26,6 +26,16 @@ func Filter[T any](values []T, filter func(T) bool) []T {
 	return results
 }
 
+// Partition partitions values in T by the given functions.
+func Partition[T any, P comparable](values []T, partition func(value T) P) map[P][]T {
+	result := make(map[P][]T)
+	for _, v := range values {
+		part := partition(v)
+		result[part] = append(result[part], v)
+	}
+	return result
+}
+
 // FilterClone is like [Filter], but creates a new slice
 func FilterClone[T any](values []T, filter func(T) bool) (results []T) {
 	for _, value := range values {

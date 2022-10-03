@@ -1,6 +1,10 @@
 const types = {
     "date": (element) => {
-        return (new Date(element.innerText)).toString()
+        return (new Date(element.innerText)).toISOString()
+    },
+    "path": (element) => {
+        const text = element.innerText.split("/");
+        return text[text.length - 1];
     },
     "pathbuilders": (element) => {
         const pathbuilders = window.pathbuilders; // read from context!

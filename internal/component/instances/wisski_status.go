@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/sync/errgroup"
 )
@@ -19,6 +20,9 @@ type WissKIInfo struct {
 	// Information about the running instance
 	Running     bool
 	LastRebuild time.Time
+
+	// List of backups made
+	Snapshots []models.Snapshot
 
 	// WissKI content information
 	Prefixes     []string          // list of prefixes
@@ -57,6 +61,10 @@ func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
 		})
 		group.Go(func() (err error) {
 			info.Prefixes, _ = wisski.Prefixes()
+			return nil
+		})
+		group.Go(func() error {
+			info.Snapshots, _ = wisski.Snapshots()
 			return nil
 		})
 	}

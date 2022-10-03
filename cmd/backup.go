@@ -4,6 +4,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
@@ -44,7 +45,7 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 
 	if !bk.NoPrune {
 		defer logging.LogOperation(func() error {
-			return dis.PruneBackups(context.IOStream)
+			return dis.SnapshotManager().PruneBackups(context.IOStream)
 		}, context.IOStream, "Pruning old backups")
 	}
 
@@ -81,26 +82,42 @@ func (bk backupC) Run(context wisski_distillery.Context) error {
 	}
 	context.Println(sPath)
 
+	var logEntry models.Snapshot
 	logging.LogOperation(func() error {
 		backup := dis.SnapshotManager().NewBackup(context.IOStream, snapshots.BackupDescription{
 			Dest:                sPath,
-			Auto:                bk.Positionals.Dest == "",
 			ConcurrentSnapshots: bk.ConcurrentSnapshots,
 		})
 		backup.WriteReport(dis.Core.Environment, context.IOStream)
+		logEntry = backup.LogEntry()
 		return nil
 	}, context.IOStream, "Generating Backup")
-
-	// if we requested to only have a staging area, then we are done
-	if bk.StagingOnly {
-		context.Printf("Wrote %s\n", sPath)
-		return nil
-	}
 
 	// create the archive path
 	archivePath := bk.Positionals.Dest
 	if archivePath == "" {
 		archivePath = dis.SnapshotManager().NewArchivePath("")
+	}
+
+	// do the logging
+	if bk.Positionals.Dest == "" {
+		defer logging.LogOperation(func() error {
+			if bk.StagingOnly {
+				logEntry.Path = sPath
+				logEntry.Packed = false
+			} else {
+				logEntry.Path = archivePath
+				logEntry.Packed = true
+			}
+
+			return dis.Instances().AddSnapshotLog(logEntry)
+		}, context.IOStream, "Writing Log Entry")
+	}
+
+	// if we requested to only have a staging area, then we are done
+	if bk.StagingOnly {
+		context.Printf("Wrote %s\n", sPath)
+		return nil
 	}
 
 	// and write everything into it!

@@ -26,6 +26,32 @@
     <b>GraphDB Database Prefix:</b> <code>{{.Config.GraphDBRepoPrefix}}</code><br />
     <hr />
     <b>Bookkeeping Database:</b> <code>{{.Config.DistilleryDatabase}}</code><br />
+    <hr />
+    <b>Backups:</b>
+    <table>
+        <thead>
+            <tr>
+                <th>Path</th>
+                <th>Created</th>
+                <th>Packed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .Info.Backups }}
+            <tr>
+                <td>
+                    <code class="path">{{ .Path }}</code>
+                </td>
+                <td>
+                    <code class="date">{{ .Created.Format "2006-01-02T15:04:05Z07:00" }}</code>
+                </td>
+                <td>
+                    {{ .Packed }}
+                </td>
+            </tr>
+        {{ end}}
+        </tbody>
+    </table>
 </p>
 
 <h2 id="instances">Instances</h2>

@@ -91,6 +91,11 @@ func (sql *SQL) Update(io stream.IOStream) error {
 			&models.Metadatum{},
 			models.MetadataTable,
 		},
+		{
+			"snapshot",
+			&models.Snapshot{},
+			models.SnapshotTable,
+		},
 	}
 
 	// migrate all of the tables!

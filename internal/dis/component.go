@@ -73,6 +73,7 @@ func (dis *Distillery) cInstances(thread int32) *instances.Instances {
 
 func (dis *Distillery) cSnapshotManager(thread int32) *snapshots.Manager {
 	return component.PutComponent(&dis.pool, thread, dis.Core, func(snapshots *snapshots.Manager, thread int32) {
+		snapshots.SQL = dis.cSQL(thread)
 		snapshots.Instances = dis.cInstances(thread)
 		snapshots.Snapshotable = dis.cSnapshotable(thread)
 		snapshots.Backupable = dis.cBackupable(thread)
