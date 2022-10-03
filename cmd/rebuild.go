@@ -1,16 +1,21 @@
 package cmd
 
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/FAU-CDI/wisski-distillery/pkg/smartp"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/goprogram/stream"
 )
 
 // Cron is the 'cron' command
 var Rebuild wisski_distillery.Command = rebuild{}
 
 type rebuild struct {
+	Parallel    int `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
 	Positionals struct {
 		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instance(s) to run rebuild"`
 	} `positional-args:"true"`
@@ -34,18 +39,16 @@ var errRebuildFailed = exit.Error{
 func (rb rebuild) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
-	instances, err := dis.Instances().Load(rb.Positionals.Slug...)
+	// find the instances
+	wissKIs, err := dis.Instances().Load(rb.Positionals.Slug...)
 	if err != nil {
 		return err
 	}
 
-	// iterate over the instances and store the last value of error
-	var globalErr error
-	for _, instance := range instances {
-		logging.LogOperation(func() error {
-			return instance.Build(context.IOStream, true)
-		}, context.IOStream, "Rebuilding instance %s", instance.Slug)
-	}
-
-	return globalErr
+	// and do the actual rebuild
+	return smartp.Run(context.IOStream, rb.Parallel, func(instance instances.WissKI, io stream.IOStream) error {
+		return instance.Build(io, true)
+	}, wissKIs, smartp.SmartMessage(func(item instances.WissKI) string {
+		return fmt.Sprintf("rebuild %q", item.Slug)
+	}))
 }

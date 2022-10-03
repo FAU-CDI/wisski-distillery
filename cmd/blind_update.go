@@ -17,7 +17,7 @@ import (
 var BlindUpdate wisski_distillery.Command = blindUpdate{}
 
 type blindUpdate struct {
-	Parallel    int  `short:"p" long:"parallel" description:"run on (at most) this many instances concurrently. 0 for no limit." default:"1"`
+	Parallel    int  `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
 	Force       bool `short:"f" long:"force" description:"force running blind-update even if AutoBlindUpdate is set to false"`
 	Positionals struct {
 		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instance(s) to run blind-update in"`
