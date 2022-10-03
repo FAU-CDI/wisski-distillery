@@ -2,15 +2,14 @@ package cmd
 
 import (
 	"fmt"
-	"io"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/slicesx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/smartp"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -41,6 +40,7 @@ var errBlindUpdateFailed = exit.Error{
 }
 
 func (bu blindUpdate) Run(context wisski_distillery.Context) error {
+	// find all the instances!
 	wissKIs, err := context.Environment.Instances().Load(bu.Positionals.Slug...)
 	if err != nil {
 		return err
@@ -51,47 +51,17 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) error {
 		})
 	}
 
-	if bu.Parallel == 1 {
-		return bu.runSequential(wissKIs, context)
-	}
-
-	return bu.runParallel(wissKIs, context)
-}
-
-func (bu blindUpdate) runParallel(wissKIs []instances.WissKI, context wisski_distillery.Context) error {
-	return status.RunErrorGroup(context.Stdout, status.Group[instances.WissKI, error]{
-		PrefixString: func(item instances.WissKI, index int) string {
-			return fmt.Sprintf("[instance %q]: ", item.Slug)
-		},
-		PrefixAlign: true,
-
-		Handler: func(instance instances.WissKI, index int, writer io.Writer) error {
-			io := stream.NewIOStream(writer, writer, nil, 0)
-
-			code, err := instance.Shell(io, "/runtime/blind_update.sh")
-			if err != nil {
-				return errBlindUpdateFailed.WithMessageF(instance.Slug, environment.ExecCommandError)
-			}
-			if code != 0 {
-				return errBlindUpdateFailed.WithMessageF(instance.Slug, code)
-			}
-			return nil
-		},
-		HandlerLimit: bu.Parallel,
-	}, wissKIs)
-}
-
-func (bu blindUpdate) runSequential(wissKIs []instances.WissKI, context wisski_distillery.Context) error {
-	for _, instance := range wissKIs {
-		context.EPrintf("Updating instance %s\n", instance.Slug)
-
-		code, err := instance.Shell(context.IOStream, "/runtime/blind_update.sh")
+	// and do the actual blind_update!
+	return smartp.Run(context.IOStream, bu.Parallel, func(instance instances.WissKI, io stream.IOStream) error {
+		code, err := instance.Shell(io, "/runtime/blind_update.sh")
 		if err != nil {
 			return errBlindUpdateFailed.WithMessageF(instance.Slug, environment.ExecCommandError)
 		}
 		if code != 0 {
 			return errBlindUpdateFailed.WithMessageF(instance.Slug, code)
 		}
-	}
-	return nil
+		return nil
+	}, wissKIs, smartp.SmartMessage(func(item instances.WissKI) string {
+		return fmt.Sprintf("blind_update %q", item.Slug)
+	}))
 }
