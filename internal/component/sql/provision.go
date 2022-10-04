@@ -4,15 +4,24 @@ import (
 	"errors"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errorx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/sqle"
 )
 
 var errProvisionInvalidDatabaseParams = errors.New("Provision: Invalid parameters")
 var errProvisionInvalidGrant = errors.New("Provision: Grant failed")
 
-// ProvisionInstance provisions sql-specific resource for the given instance
+// Provision provisions sql-specific resource for the given instance
 func (sql *SQL) Provision(instance models.Instance, domain string) error {
 	return sql.CreateDatabase(instance.SqlDatabase, instance.SqlUsername, instance.SqlPassword)
+}
+
+// Purge purges sql-specific resources for the given instance
+func (sql *SQL) Purge(instance models.Instance, domain string) error {
+	return errorx.First(
+		sql.PurgeDatabase(instance.SqlDatabase),
+		sql.PurgeUser(instance.SqlUsername),
+	)
 }
 
 // CreateDatabase creates a new database with the given name.

@@ -75,38 +75,21 @@ func (p purge) Run(context wisski_distillery.Context) error {
 		context.EPrintln(err)
 	}
 
-	// remove the triplestore
-	ts := dis.Triplestore()
-	logging.LogOperation(func() error {
-		logging.LogMessage(context.IOStream, "Removing user %s", instance.GraphDBUsername)
-		if err := ts.PurgeUser(instance.GraphDBUsername); err != nil {
-			context.EPrintln(err)
-		}
-
-		logging.LogMessage(context.IOStream, "Removing repository %s", instance.GraphDBRepository)
-		if err := ts.PurgeRepo(instance.GraphDBRepository); err != nil {
-			context.EPrintln(err)
-		}
-
-		return nil
-	}, context.IOStream, "Removing from Triplestore")
-
-	// remove the sql
-	logging.LogOperation(func() error {
-		sql := dis.SQL()
-
-		logging.LogMessage(context.IOStream, "Removing user %s", instance.SqlUsername)
-		if err := sql.PurgeUser(instance.SqlUsername); err != nil {
-			context.EPrintln(err)
-		}
-
-		logging.LogMessage(context.IOStream, "Removing database %s", instance.SqlDatabase)
-		if err := sql.PurgeDatabase(instance.SqlDatabase); err != nil {
-			context.EPrintln(err)
+	// purge all the instance specific resources
+	if err := logging.LogOperation(func() error {
+		domain := instance.Domain()
+		for _, pc := range dis.Provisionable() {
+			logging.LogMessage(context.IOStream, "Purging %s resources", pc.Name())
+			err := pc.Purge(instance.Instance, domain)
+			if err != nil {
+				return err
+			}
 		}
 
 		return nil
-	}, context.IOStream, "Removing from SQL")
+	}, context.IOStream, "Purging instance-specific resources"); err != nil {
+		return errProvisionGeneric.WithMessageF(slug, err)
+	}
 
 	// remove from bookkeeping
 	logging.LogMessage(context.IOStream, "Removing instance from bookkeeping")
