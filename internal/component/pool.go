@@ -31,16 +31,6 @@ func (p *Pool) init() {
 	})
 }
 
-// Find finds all components of the specific subtype
-func Find[C Component](components []Component) C {
-	for _, c := range components {
-		if cc, ok := c.(C); ok {
-			return cc
-		}
-	}
-	panic("FindComponent: Invalid arguments")
-}
-
 // InitComponent initializes a specific component and caches it within the given pool.
 //
 // Concurrent calls of InitComponent must use a distinct thread parameter.
@@ -54,7 +44,7 @@ func InitComponent[C Component](p *Pool, thread int32, core Core, init func(comp
 	defer p.rLock.Unlock()
 
 	// get a description of the type
-	cd := getComponent[C]()
+	cd := GetMeta[C]()
 
 	// find a field to put the component into
 	instance, created := func() (C, bool) {
@@ -111,25 +101,24 @@ func InitComponent[C Component](p *Pool, thread int32, core Core, init func(comp
 	return instance
 }
 
-// getComponent gets the component belonging to a component type
-func getComponent[C Component]() (desc component) {
+// GetMeta gets the component belonging to a component type
+func GetMeta[C Component]() (meta Meta) {
 	tp := reflectx.TypeOf[C]()
 	if tp.Kind() != reflect.Pointer {
-		panic("getComponent: C must be backed by a pointer")
-		// should never be reached!
+		panic("GetMeta: C must be backed by a pointer (" + tp.String() + ")")
 	}
-	desc.Elem = tp.Elem()
-	desc.Name = desc.Elem.PkgPath() + "." + desc.Elem.Name()
+	meta.Elem = tp.Elem()
+	meta.Name = meta.Elem.PkgPath() + "." + meta.Elem.Name()
 	return
 }
 
-// component represents a component
-type component struct {
+// Meta represents meta information about a component
+type Meta struct {
 	Elem reflect.Type // the element type of the component
 	Name string       // the name of the component
 }
 
 // New creates a new ComponentDescription
-func (cd component) New() any {
+func (cd Meta) New() any {
 	return reflect.New(cd.Elem).Interface()
 }

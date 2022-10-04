@@ -48,30 +48,33 @@ func (dis *Distillery) Context() context.Context {
 //
 
 func (dis *Distillery) Control() *control.Control {
-	return dis.cControl(dis.thread())
+	return e[*control.Control](dis)
 }
 func (dis *Distillery) Resolver() *resolver.Resolver {
-	return dis.cResolver(dis.thread())
+	return e[*resolver.Resolver](dis)
 }
 func (dis *Distillery) SSH() *ssh.SSH {
-	return dis.cSSH(dis.thread())
+	return e[*ssh.SSH](dis)
 }
 func (dis *Distillery) SQL() *sql.SQL {
-	return dis.cSQL(dis.thread())
+	return e[*sql.SQL](dis)
 }
 func (dis *Distillery) Triplestore() *triplestore.Triplestore {
-	return dis.cTriplestore(dis.thread())
+	return e[*triplestore.Triplestore](dis)
 }
 func (dis *Distillery) Instances() *instances.Instances {
-	return dis.cInstances(dis.thread())
+	return e[*instances.Instances](dis)
 }
 func (dis *Distillery) SnapshotManager() *snapshots.Manager {
-	return dis.cSnapshotManager(dis.thread())
+	return e[*snapshots.Manager](dis)
 }
 
-func (dis *Distillery) Installable() []component.Installable { return dis.cInstallables(dis.thread()) }
-func (dis *Distillery) Updatable() []component.Updatable     { return dis.cUpdateable(dis.thread()) }
-
+func (dis *Distillery) Installable() []component.Installable {
+	return ea[component.Installable](dis)
+}
+func (dis *Distillery) Updatable() []component.Updatable {
+	return ea[component.Updatable](dis)
+}
 func (dis *Distillery) Provisionable() []component.Provisionable {
-	return dis.cProvisionable(dis.thread())
+	return ea[component.Provisionable](dis)
 }

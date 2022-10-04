@@ -1,6 +1,7 @@
 package dis
 
 import (
+	"reflect"
 	"sync/atomic"
 	"time"
 
@@ -14,6 +15,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/web"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/pkg/slicesx"
+	"github.com/tkw1536/goprogram/lib/reflectx"
 )
 
 // components holds the various components of the distillery
@@ -25,150 +28,160 @@ type components struct {
 	pool component.Pool
 }
 
-// c initializes a component of the provided type
-func c[C component.Component](dis *Distillery, thread int32, init func(component C, thread int32)) C {
-	return component.InitComponent(&dis.pool, thread, dis.Core, init)
-}
-
-// cc is like c, but with init set to nil
-func cc[C component.Component](dis *Distillery, thread int32) C {
-	return c[C](dis, thread, nil)
-}
-
-//
-// Individual Components
-//
-
-func (c *components) thread() int32 {
-	return atomic.AddInt32(&c.t, 1)
-}
-
-func (dis *Distillery) cWeb(thread int32) *web.Web {
-	return component.InitComponent[*web.Web](&dis.pool, thread, dis.Core, nil)
-}
-
-func (dis *Distillery) cControl(thread int32) *control.Control {
-	return component.InitComponent(&dis.pool, thread, dis.Core, func(control *control.Control, thread int32) {
-		control.ResolverFile = core.PrefixConfig
-		control.Servables = dis.cServables(thread)
-	})
-}
-
-func (dis *Distillery) cSSH(thread int32) *ssh.SSH {
-	return component.InitComponent[*ssh.SSH](&dis.pool, thread, dis.Core, nil)
-}
-
-func (dis *Distillery) cSQL(thread int32) *sql.SQL {
-	return component.InitComponent(&dis.pool, thread, dis.Core, func(sql *sql.SQL, thread int32) {
-		sql.ServerURL = dis.Upstream.SQL
-		sql.PollContext = dis.Context()
-		sql.PollInterval = time.Second
-	})
-}
-
-func (dis *Distillery) cTriplestore(thread int32) *triplestore.Triplestore {
-	return component.InitComponent(&dis.pool, thread, dis.Core, func(ts *triplestore.Triplestore, thread int32) {
-		ts.BaseURL = "http://" + dis.Upstream.Triplestore
-		ts.PollContext = dis.Context()
-		ts.PollInterval = time.Second
-	})
-}
-
-func (dis *Distillery) cInstances(thread int32) *instances.Instances {
-	return component.InitComponent(&dis.pool, thread, dis.Core, func(instances *instances.Instances, thread int32) {
-		instances.SQL = dis.cSQL(thread)
-		instances.TS = dis.cTriplestore(thread)
-	})
-}
-
-func (dis *Distillery) cSnapshotManager(thread int32) *snapshots.Manager {
-	return component.InitComponent(&dis.pool, thread, dis.Core, func(snapshots *snapshots.Manager, thread int32) {
-		snapshots.SQL = dis.cSQL(thread)
-		snapshots.Instances = dis.cInstances(thread)
-		snapshots.Snapshotable = dis.cSnapshotable(thread)
-		snapshots.Backupable = dis.cBackupable(thread)
-	})
-}
-
-func (dis *Distillery) cResolver(thread int32) *resolver.Resolver {
-	return component.InitComponent(&dis.pool, thread, dis.Core, func(resolver *resolver.Resolver, thread int32) {
-		resolver.Control = dis.cControl(thread)
-		resolver.ResolverFile = core.PrefixConfig
-	})
-}
-
-//
-// ALL COMPONENTS
-//
-
-func (dis *Distillery) cComponents(thread int32) []component.Component {
+// register returns all components of the distillery
+func register(dis *Distillery, thread int32) []component.Component {
 	return []component.Component{
-		dis.cWeb(thread),
-		dis.cSSH(thread),
-		dis.cTriplestore(thread),
-		dis.cSQL(thread),
-		dis.cInstances(thread),
+		ra[*web.Web](dis, thread),
+
+		ra[*ssh.SSH](dis, thread),
+
+		r(dis, thread, func(ts *triplestore.Triplestore) {
+			ts.BaseURL = "http://" + dis.Upstream.Triplestore
+			ts.PollContext = dis.Context()
+			ts.PollInterval = time.Second
+		}),
+		r(dis, thread, func(sql *sql.SQL) {
+			sql.ServerURL = dis.Upstream.SQL
+			sql.PollContext = dis.Context()
+			sql.PollInterval = time.Second
+		}),
+
+		ra[*instances.Instances](dis, thread),
 
 		// Snapshots
-		dis.cSnapshotManager(thread),
-		cc[*snapshots.Config](dis, thread),
-		cc[*snapshots.Bookkeeping](dis, thread),
-		cc[*snapshots.Filesystem](dis, thread),
-		c(dis, thread, func(pbs *snapshots.Pathbuilders, thread int32) {
-			pbs.Instances = dis.cInstances(thread)
-		}),
+		ra[*snapshots.Manager](dis, thread),
+		ra[*snapshots.Config](dis, thread),
+		ra[*snapshots.Bookkeeping](dis, thread),
+		ra[*snapshots.Filesystem](dis, thread),
+		ra[*snapshots.Pathbuilders](dis, thread),
 
 		// Control server
-		dis.cControl(thread),
-		c(dis, thread, func(sh *control.SelfHandler, thread int32) {
-			sh.Instances = dis.cInstances(thread)
+		r(dis, thread, func(control *control.Control) {
+			control.ResolverFile = core.PrefixConfig
 		}),
-		dis.cResolver(thread),
-		c(dis, thread, func(info *control.Info, thread int32) {
-			info.Instances = dis.cInstances(thread)
+		ra[*control.SelfHandler](dis, thread),
+		r(dis, thread, func(resolver *resolver.Resolver) {
+			resolver.ResolverFile = core.PrefixConfig
 		}),
+		ra[*control.Info](dis, thread),
 	}
 }
 
-//
-// COMPONENT SUBTYPE GETTERS
-//
-
-func (dis *Distillery) cInstallables(thread int32) []component.Installable {
-	return getComponentSubtype[component.Installable](dis, thread)
+// r initializes a component from the provided distillery.
+func r[C component.Component](dis *Distillery, thread int32, init func(component C)) C {
+	return component.InitComponent(&dis.pool, thread, dis.Core, makeInitFunction(dis, init))
 }
 
-func (dis *Distillery) cUpdateable(thread int32) []component.Updatable {
-	return getComponentSubtype[component.Updatable](dis, thread)
+// ra is like r, but does not provided additional initialization
+func ra[C component.Component](dis *Distillery, thread int32) C {
+	return r[C](dis, thread, nil)
 }
 
-func (dis *Distillery) cBackupable(thread int32) []component.Backupable {
-	return getComponentSubtype[component.Backupable](dis, thread)
-}
+var componentType = reflectx.TypeOf[component.Component]()
 
-func (dis *Distillery) cProvisionable(thread int32) []component.Provisionable {
-	return getComponentSubtype[component.Provisionable](dis, thread)
-}
+// makeInitFunction generate an init function for a specific component.
+// The function should be called at most once.
+func makeInitFunction[C component.Component](dis *Distillery, rest func(instance C)) func(instance C, thread int32) {
+	return func(instance C, thread int32) {
+		meta := component.GetMeta[C]()
 
-func (dis *Distillery) cSnapshotable(thread int32) []component.Snapshotable {
-	return getComponentSubtype[component.Snapshotable](dis, thread)
-}
+		// this function automatically initializes component.Component-like fields of the instance.
+		// for this we first store two types of fields:
 
-func (dis *Distillery) cServables(thread int32) []component.Servable {
-	return getComponentSubtype[component.Servable](dis, thread)
-}
+		singles := make(map[string]reflect.Type) // fields of type C where C is a component.Type
+		multis := make(map[string]reflect.Type)  // fields of type []C where C is an interface that implements component.
 
-func getComponentSubtype[C component.Component](dis *Distillery, thread int32) (components []C) {
-	all := dis.cComponents(thread)
+		// fill the above variables, with a mapping of field name to struct
+		count := meta.Elem.NumField()
+		for i := 0; i < count; i++ {
+			field := meta.Elem.Field(i)
 
-	components = make([]C, 0, len(all))
-	for _, c := range all {
-		sc, ok := c.(C)
-		if !ok {
-			continue
+			name := field.Name
+			tp := field.Type
+
+			switch {
+			// field is a `Component``
+			case tp.Implements(componentType):
+				singles[name] = tp
+			// field is a `[]Component``
+			case tp.Kind() == reflect.Slice && tp.Elem().Kind() == reflect.Interface && tp.Elem().Implements(componentType):
+				multis[name] = tp.Elem()
+			}
 		}
-		components = append(components, sc)
-	}
 
-	return
+		// do the rest of the initialization
+		if rest != nil {
+			defer rest(instance)
+		}
+
+		if len(singles) == 0 && len(multis) == 0 {
+			// no fields to assign, bail out immediatly
+			return
+		}
+
+		registry := register(dis, thread)
+
+		instanceV := reflect.ValueOf(instance).Elem()
+
+		// assign the component fields
+		for field, eType := range singles {
+			c := slicesx.First(registry, func(c component.Component) bool {
+				return reflect.TypeOf(c).AssignableTo(eType)
+			})
+
+			field := instanceV.FieldByName(field)
+			field.Set(reflect.ValueOf(c))
+		}
+
+		// assign the multi subtypes
+		registryR := reflect.ValueOf(registry)
+		for field, eType := range multis {
+			cs := filterSubtype(registryR, eType)
+			field := instanceV.FieldByName(field)
+			field.Set(cs)
+		}
+	}
+}
+
+// filterSubtype filters the slice of type []S into a slice of type []iface.
+// S and I must be interface types.
+func filterSubtype(sliceS reflect.Value, iface reflect.Type) reflect.Value {
+	len := sliceS.Len()
+
+	// convert each element
+	result := reflect.MakeSlice(reflect.SliceOf(iface), 0, len)
+	for i := 0; i < len; i++ {
+		element := sliceS.Index(i)
+		if element.Type().Implements(iface) {
+			result = reflect.Append(result, element.Elem().Convert(iface))
+		}
+	}
+	return result
+}
+
+//
+// Export Components
+//
+
+// ea exports all components of the given subtype
+func ea[C component.Component](dis *Distillery) []C {
+	registry := register(dis, atomic.AddInt32(&dis.t, 1))
+
+	results := make([]C, 0, len(registry))
+	for _, comp := range registry {
+		if cc, ok := comp.(C); ok {
+			results = append(results, cc)
+		}
+	}
+	return results
+}
+
+// e exports a single component of the given subtype
+func e[C component.Component](dis *Distillery) C {
+	for _, comp := range register(dis, atomic.AddInt32(&dis.t, 1)) {
+		if cc, ok := comp.(C); ok {
+			return cc
+		}
+	}
+	panic("e: component is missing")
 }

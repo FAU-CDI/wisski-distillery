@@ -16,6 +16,18 @@ func ForSorted[K constraints.Ordered, V any](mp map[K]V, callback func(k K, v V)
 	}
 }
 
+// First returns the first value of type V
+// When no such value exists, returns the zero value
+func First[V any](values []V, test func(v V) bool) V {
+	for _, v := range values {
+		if test(v) {
+			return v
+		}
+	}
+	var v V
+	return v
+}
+
 // Any returns true if test returns true for any of values.
 func Any[T any](values []T, test func(T) bool) bool {
 	for _, v := range values {
