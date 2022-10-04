@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
@@ -14,9 +13,9 @@ import (
 type Control struct {
 	component.ComponentBase
 
-	Instances *instances.Instances
+	Servables []component.Servable
 
-	ResolverFile string
+	ResolverFile string // TODO: this shouldn't be needed!
 }
 
 func (control Control) Name() string {

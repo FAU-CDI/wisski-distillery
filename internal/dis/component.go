@@ -7,6 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
@@ -49,7 +50,7 @@ func (dis *Distillery) cWeb(thread int32) *web.Web {
 func (dis *Distillery) cControl(thread int32) *control.Control {
 	return component.InitComponent(&dis.pool, thread, dis.Core, func(control *control.Control, thread int32) {
 		control.ResolverFile = core.PrefixConfig
-		control.Instances = dis.cInstances(thread)
+		control.Servables = dis.cServables(thread)
 	})
 }
 
@@ -89,6 +90,13 @@ func (dis *Distillery) cSnapshotManager(thread int32) *snapshots.Manager {
 	})
 }
 
+func (dis *Distillery) cResolver(thread int32) *resolver.Resolver {
+	return component.InitComponent(&dis.pool, thread, dis.Core, func(resolver *resolver.Resolver, thread int32) {
+		resolver.Control = dis.cControl(thread)
+		resolver.ResolverFile = core.PrefixConfig
+	})
+}
+
 //
 // ALL COMPONENTS
 //
@@ -96,7 +104,6 @@ func (dis *Distillery) cSnapshotManager(thread int32) *snapshots.Manager {
 func (dis *Distillery) cComponents(thread int32) []component.Component {
 	return []component.Component{
 		dis.cWeb(thread),
-		dis.cControl(thread),
 		dis.cSSH(thread),
 		dis.cTriplestore(thread),
 		dis.cSQL(thread),
@@ -109,6 +116,16 @@ func (dis *Distillery) cComponents(thread int32) []component.Component {
 		cc[*snapshots.Filesystem](dis, thread),
 		c(dis, thread, func(pbs *snapshots.Pathbuilders, thread int32) {
 			pbs.Instances = dis.cInstances(thread)
+		}),
+
+		// Control server
+		dis.cControl(thread),
+		c(dis, thread, func(sh *control.SelfHandler, thread int32) {
+			sh.Instances = dis.cInstances(thread)
+		}),
+		dis.cResolver(thread),
+		c(dis, thread, func(info *control.Info, thread int32) {
+			info.Instances = dis.cInstances(thread)
 		}),
 	}
 }
@@ -135,6 +152,10 @@ func (dis *Distillery) cProvisionable(thread int32) []component.Provisionable {
 
 func (dis *Distillery) cSnapshotable(thread int32) []component.Snapshotable {
 	return getComponentSubtype[component.Snapshotable](dis, thread)
+}
+
+func (dis *Distillery) cServables(thread int32) []component.Servable {
+	return getComponentSubtype[component.Servable](dis, thread)
 }
 
 func getComponentSubtype[C component.Component](dis *Distillery, thread int32) (components []C) {

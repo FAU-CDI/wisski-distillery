@@ -39,7 +39,7 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 	}
 
 	ddis := dis.Control()
-	target := ddis.ResolverConfigPath()
+	target := dis.Resolver().ConfigPath()
 
 	// print the configuration
 	config, err := dis.Core.Environment.Create(target, environment.DefaultFilePerm)

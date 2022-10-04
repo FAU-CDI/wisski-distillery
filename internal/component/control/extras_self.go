@@ -6,14 +6,30 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/tkw1536/goprogram/stream"
 )
 
-// self returns the handler for the self overrides
-func (control Control) self(io stream.IOStream) (redirect Redirect, err error) {
+// SelfHandler implements serving the '/' route
+type SelfHandler struct {
+	component.ComponentBase
+
+	Instances *instances.Instances
+}
+
+func (SelfHandler) Name() string { return "control-self" }
+
+func (*SelfHandler) Routes() []string { return []string{"/"} }
+
+func (sh *SelfHandler) Handler(route string, io stream.IOStream) (http.Handler, error) {
+	// create a redirect
+	var redirect Redirect
+	var err error
+
 	// open the overrides file
-	overrides, err := control.Environment.Open(control.Config.SelfOverridesFile)
-	io.Printf("loading overrides from %q\n", control.Config.SelfOverridesFile)
+	overrides, err := sh.Environment.Open(sh.Config.SelfOverridesFile)
+	io.Printf("loading overrides from %q\n", sh.Config.SelfOverridesFile)
 	if err != nil {
 		return redirect, err
 	}
@@ -21,18 +37,18 @@ func (control Control) self(io stream.IOStream) (redirect Redirect, err error) {
 
 	// decode the overrides file
 	if err := json.NewDecoder(overrides).Decode(&redirect.Overrides); err != nil {
-		return redirect, err
+		return nil, err
 	}
 
 	if redirect.Overrides == nil {
 		redirect.Overrides = make(map[string]string)
 	}
-	redirect.Overrides[""] = control.Config.SelfRedirect.String()
+	redirect.Overrides[""] = sh.Config.SelfRedirect.String()
 
 	// create a redirect server
-	redirect.Fallback, err = control.selfFallback()
+	redirect.Fallback, err = sh.selfFallback()
 	if err != nil {
-		return redirect, err
+		return nil, err
 	}
 	redirect.Absolute = false
 	redirect.Permanent = false
@@ -41,22 +57,22 @@ func (control Control) self(io stream.IOStream) (redirect Redirect, err error) {
 	return redirect, nil
 }
 
-func (control *Control) selfFallback() (http.Handler, error) {
-	return http.HandlerFunc(control.serveFallback), nil
+func (sh *SelfHandler) selfFallback() (http.Handler, error) {
+	return http.HandlerFunc(sh.serveFallback), nil
 }
 
 var notFoundText = []byte("not found")
 
-func (control *Control) serveFallback(w http.ResponseWriter, r *http.Request) {
+func (sh *SelfHandler) serveFallback(w http.ResponseWriter, r *http.Request) {
 
-	slug := control.Config.SlugFromHost(r.Host)
+	slug := sh.Config.SlugFromHost(r.Host)
 	if slug == "" {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write(notFoundText)
 		return
 	}
 
-	if ok, _ := control.Instances.Has(slug); !ok {
+	if ok, _ := sh.Instances.Has(slug); !ok {
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "WissKI %q not found\n", slug)
 		return

@@ -1,4 +1,4 @@
-// Package config provides the distillery configuration
+// Package config contains distillery configuration
 package config
 
 import (

@@ -7,6 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
@@ -48,6 +49,9 @@ func (dis *Distillery) Context() context.Context {
 
 func (dis *Distillery) Control() *control.Control {
 	return dis.cControl(dis.thread())
+}
+func (dis *Distillery) Resolver() *resolver.Resolver {
+	return dis.cResolver(dis.thread())
 }
 func (dis *Distillery) SSH() *ssh.SSH {
 	return dis.cSSH(dis.thread())

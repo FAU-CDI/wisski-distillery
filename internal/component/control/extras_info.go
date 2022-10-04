@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -16,7 +17,17 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func (control *Control) info(io stream.IOStream) (http.Handler, error) {
+type Info struct {
+	component.ComponentBase
+
+	Instances *instances.Instances
+}
+
+func (Info) Name() string { return "control-info" }
+
+func (*Info) Routes() []string { return []string{"/dis/"} }
+
+func (info *Info) Handler(route string, io stream.IOStream) (http.Handler, error) {
 	mux := http.NewServeMux()
 
 	// handle everything under /dis/!
@@ -29,7 +40,7 @@ func (control *Control) info(io stream.IOStream) (http.Handler, error) {
 	})
 
 	// static stuff
-	static, err := control.disStatic()
+	static, err := info.disStatic()
 	if err != nil {
 		return nil, err
 	}
@@ -37,22 +48,22 @@ func (control *Control) info(io stream.IOStream) (http.Handler, error) {
 
 	// render everything
 	mux.Handle("/dis/index", httpx.HTMLHandler[disIndex]{
-		Handler:  control.disIndex,
+		Handler:  info.disIndex,
 		Template: indexTemplate,
 	})
 
 	mux.Handle("/dis/instance/", httpx.HTMLHandler[disInstance]{
-		Handler:  control.disInstance,
+		Handler:  info.disInstance,
 		Template: instanceTemplate,
 	})
 
 	// api -- for future usage
-	mux.Handle("/dis/api/v1/instance/get/", httpx.JSON(control.getinstance))
-	mux.Handle("/dis/api/v1/instance/all", httpx.JSON(control.allinstances))
+	mux.Handle("/dis/api/v1/instance/get/", httpx.JSON(info.getinstance))
+	mux.Handle("/dis/api/v1/instance/all", httpx.JSON(info.allinstances))
 
 	// ensure that everyone is logged in!
 	return httpx.BasicAuth(mux, "WissKI Distillery Admin", func(user, pass string) bool {
-		return user == control.Config.DisAdminUser && pass == control.Config.DisAdminPassword
+		return user == info.Config.DisAdminUser && pass == info.Config.DisAdminPassword
 	}), nil
 }
 
@@ -71,12 +82,12 @@ type disIndex struct {
 	Backups []models.Snapshot
 }
 
-func (dis *Control) disIndex(r *http.Request) (idx disIndex, err error) {
+func (info *Info) disIndex(r *http.Request) (idx disIndex, err error) {
 	var group errgroup.Group
 
 	group.Go(func() error {
 		// load instances
-		idx.Instances, err = dis.allinstances(r)
+		idx.Instances, err = info.allinstances(r)
 		if err != nil {
 			return err
 		}
@@ -96,12 +107,12 @@ func (dis *Control) disIndex(r *http.Request) (idx disIndex, err error) {
 
 	// get the log entries
 	group.Go(func() (err error) {
-		idx.Backups, err = dis.Instances.SnapshotLogFor("")
+		idx.Backups, err = info.Instances.SnapshotLogFor("")
 		return
 	})
 
 	// get the static properties
-	idx.Config = dis.Config
+	idx.Config = info.Config
 
 	// current time
 	idx.Time = time.Now().UTC()
@@ -120,13 +131,13 @@ type disInstance struct {
 	Info     instances.WissKIInfo
 }
 
-func (dis *Control) disInstance(r *http.Request) (is disInstance, err error) {
+func (info *Info) disInstance(r *http.Request) (is disInstance, err error) {
 	// find the slug as the last component of path!
 	slug := strings.TrimSuffix(r.URL.Path, "/")
 	slug = slug[strings.LastIndex(slug, "/")+1:]
 
 	// find the instance itself!
-	instance, err := dis.Instances.WissKI(slug)
+	instance, err := info.Instances.WissKI(slug)
 	if err == instances.ErrWissKINotFound {
 		return is, httpx.ErrNotFound
 	}
@@ -150,7 +161,7 @@ func (dis *Control) disInstance(r *http.Request) (is disInstance, err error) {
 //go:embed html/static
 var htmlStaticFS embed.FS
 
-func (*Control) disStatic() (http.Handler, error) {
+func (*Info) disStatic() (http.Handler, error) {
 	fs, err := fs.Sub(htmlStaticFS, "html/static")
 	if err != nil {
 		return nil, err
@@ -167,29 +178,29 @@ var indexTemplate = template.Must(template.New("index.html").Parse(indexTemplate
 var instanceTemplateString string
 var instanceTemplate = template.Must(template.New("instance.html").Parse(instanceTemplateString))
 
-func (dis *Control) getinstance(r *http.Request) (info instances.WissKIInfo, err error) {
+func (info *Info) getinstance(r *http.Request) (iinfo instances.WissKIInfo, err error) {
 	// find the slug as the last component of path!
 	slug := strings.TrimSuffix(r.URL.Path, "/")
 	slug = slug[strings.LastIndex(slug, "/")+1:]
 
 	// load the wisski instance!
-	wisski, err := dis.Instances.WissKI(strings.TrimSuffix(slug, "/"))
+	wisski, err := info.Instances.WissKI(strings.TrimSuffix(slug, "/"))
 	if err == instances.ErrWissKINotFound {
-		return info, httpx.ErrNotFound
+		return iinfo, httpx.ErrNotFound
 	}
 	if err != nil {
-		return info, err
+		return iinfo, err
 	}
 
 	// get info about it!
 	return wisski.Info(false)
 }
 
-func (dis *Control) allinstances(*http.Request) (infos []instances.WissKIInfo, err error) {
+func (info *Info) allinstances(*http.Request) (infos []instances.WissKIInfo, err error) {
 	var errgroup errgroup.Group
 
 	// list all the instances
-	all, err := dis.Instances.All()
+	all, err := info.Instances.All()
 	if err != nil {
 		return nil, err
 	}
