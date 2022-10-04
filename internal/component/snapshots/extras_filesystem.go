@@ -1,4 +1,4 @@
-package extras
+package snapshots
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"

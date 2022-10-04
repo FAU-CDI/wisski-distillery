@@ -1,3 +1,4 @@
+// Package dis provides the main distillery
 package dis
 
 import (

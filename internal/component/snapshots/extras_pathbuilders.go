@@ -1,4 +1,4 @@
-package extras
+package snapshots
 
 import (
 	"io"

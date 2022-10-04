@@ -31,29 +31,7 @@ func (p *Pool) init() {
 	})
 }
 
-// ComponentDescription describes a component
-type ComponentDescription struct {
-	Type reflect.Type
-	Elem reflect.Type
-	Name string
-}
-
-// New creates a new ComponentDescription
-func (cd ComponentDescription) New() any {
-	return reflect.New(cd.Elem).Interface()
-}
-
-// GetDescription gets the description of a component type
-func GetDescription[C Component]() (desc ComponentDescription) {
-	desc.Type = reflectx.TypeOf[C]()
-	if desc.Type.Kind() != reflect.Pointer {
-		panic("GetDescription: C must be backed by a pointer")
-	}
-	desc.Elem = desc.Type.Elem()
-	desc.Name = desc.Elem.PkgPath() + "." + desc.Elem.Name()
-	return
-}
-
+// Find finds all components of the specific subtype
 func Find[C Component](components []Component) C {
 	for _, c := range components {
 		if cc, ok := c.(C); ok {
@@ -63,17 +41,20 @@ func Find[C Component](components []Component) C {
 	panic("FindComponent: Invalid arguments")
 }
 
-// Put initializes a single component in the pool.
+// InitComponent initializes a specific component and caches it within the given pool.
+//
+// Concurrent calls of InitComponent must use a distinct thread parameter.
+// Nested calls of InitComponent should use the same thread parameter.
 //
 // Init may initialize components, but not call functions on them!
-func PutComponent[C Component](p *Pool, thread int32, core Core, init func(component C, thread int32)) C {
+func InitComponent[C Component](p *Pool, thread int32, core Core, init func(component C, thread int32)) C {
 	p.init()
 
 	p.rLock.Lock(int(thread))
 	defer p.rLock.Unlock()
 
 	// get a description of the type
-	cd := GetDescription[C]()
+	cd := getComponent[C]()
 
 	// find a field to put the component into
 	instance, created := func() (C, bool) {
@@ -128,4 +109,27 @@ func PutComponent[C Component](p *Pool, thread int32, core Core, init func(compo
 
 	// and return the instance
 	return instance
+}
+
+// getComponent gets the component belonging to a component type
+func getComponent[C Component]() (desc component) {
+	tp := reflectx.TypeOf[C]()
+	if tp.Kind() != reflect.Pointer {
+		panic("getComponent: C must be backed by a pointer")
+		// should never be reached!
+	}
+	desc.Elem = tp.Elem()
+	desc.Name = desc.Elem.PkgPath() + "." + desc.Elem.Name()
+	return
+}
+
+// component represents a component
+type component struct {
+	Elem reflect.Type // the element type of the component
+	Name string       // the name of the component
+}
+
+// New creates a new ComponentDescription
+func (cd component) New() any {
+	return reflect.New(cd.Elem).Interface()
 }
