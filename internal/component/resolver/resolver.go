@@ -79,6 +79,9 @@ func (resolver *Resolver) freshPrefixes() map[string]string {
 
 	gPrefixes := make(map[string]string)
 	for _, instance := range instances {
+		if instance.NoPrefix() {
+			continue
+		}
 		url := instance.URL().String()
 
 		// failed to fetch prefixes for this particular instance
@@ -89,7 +92,7 @@ func (resolver *Resolver) freshPrefixes() map[string]string {
 		}
 
 		for _, p := range prefixes {
-			gPrefixes[url] = p
+			gPrefixes[p] = url
 		}
 	}
 	return gPrefixes
