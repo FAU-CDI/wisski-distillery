@@ -60,6 +60,7 @@ func (i info) Run(context wisski_distillery.Context) error {
 	context.Printf("Running:              %v\n", info.Running)
 	context.Printf("Last Rebuild:         %v\n", info.LastRebuild.String())
 
+	context.Printf("Skip Prefixes:        %v\n", info.NoPrefixes)
 	context.Printf("Prefixes: (count %d)\n", len(info.Prefixes))
 	for _, prefix := range info.Prefixes {
 		context.Printf("- %s\n", prefix)

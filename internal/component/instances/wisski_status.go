@@ -24,6 +24,7 @@ type WissKIInfo struct {
 	Snapshots []models.Snapshot
 
 	// WissKI content information
+	NoPrefixes   bool
 	Prefixes     []string          // list of prefixes
 	Pathbuilders map[string]string // all the pathbuilders
 }
@@ -60,6 +61,7 @@ func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
 		})
 		group.Go(func() (err error) {
 			info.Prefixes, _ = wisski.Prefixes()
+			info.NoPrefixes = wisski.NoPrefix()
 			return nil
 		})
 		group.Go(func() error {
