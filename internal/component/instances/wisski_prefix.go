@@ -2,7 +2,6 @@ package instances
 
 import (
 	"bufio"
-	"io"
 	"path/filepath"
 	"strings"
 
@@ -22,8 +21,22 @@ func (wisski *WissKI) NoPrefix() bool {
 //go:embed php/list_uri_prefixes.php
 var listURIPrefixesPHP string
 
-// Prefixes returns the prefixes
-func (wisski *WissKI) Prefixes() (prefixes []string, err error) {
+// Prefixes returns the prefixes applying to this WissKI
+func (wisski *WissKI) Prefixes() ([]string, error) {
+	prefixes, err := wisski.dbPrefixes()
+	if err != nil {
+		return nil, err
+	}
+
+	prefixes2, err := wisski.filePrefixes()
+	if err != nil {
+		return nil, err
+	}
+
+	return append(prefixes, prefixes2...), nil
+}
+
+func (wisski *WissKI) dbPrefixes() (prefixes []string, err error) {
 	// get all the ugly prefixes
 	err = wisski.ExecPHPScript(stream.FromDebug(), &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {
@@ -36,7 +49,7 @@ func (wisski *WissKI) Prefixes() (prefixes []string, err error) {
 	})
 
 	// load the list of blocked prefixes
-	blocks, err := wisski.instances.BlockedPrefixes()
+	blocks, err := wisski.instances.blockedPrefixes()
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +58,7 @@ func (wisski *WissKI) Prefixes() (prefixes []string, err error) {
 	return slicesx.Filter(prefixes, func(uri string) bool { return !hasAnyPrefix(uri, blocks) }), nil
 }
 
-func (instances *Instances) BlockedPrefixes() ([]string, error) {
+func (instances *Instances) blockedPrefixes() ([]string, error) {
 	// open the resolver block file
 	file, err := instances.Environment.Open(instances.Config.SelfResolverBlockFile)
 	if err != nil {
@@ -82,9 +95,38 @@ func hasAnyPrefix(candidate string, prefixes []string) bool {
 	)
 }
 
+func (wisski *WissKI) filePrefixes() (prefixes []string, err error) {
+	path := filepath.Join(wisski.FilesystemBase, "prefixes")
+	if !fsx.IsFile(wisski.instances.Environment, path) {
+		return nil, nil
+	}
+
+	file, err := wisski.instances.Environment.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if len(line) == 0 || line[0] == '#' {
+			continue
+		}
+		prefixes = append(prefixes, line)
+	}
+
+	if scanner.Err() != nil {
+		return nil, scanner.Err()
+	}
+	return prefixes, nil
+}
+
+// CACHING
+
 var PrefixConfigKey MetaKey = "prefix"
 
-// Prefixes returns the prefixes for the instance
+// Prefixes returns the cached prefixes from the given instance
 func (wisski *WissKI) PrefixesCached() (results []string, err error) {
 	err = wisski.Metadata().GetAll(PrefixConfigKey, func(index, total int) any {
 		if results == nil {
@@ -103,47 +145,4 @@ func (wisski *WissKI) UpdatePrefixes() error {
 	}
 
 	return wisski.Metadata().SetAll(PrefixConfigKey, slicesx.AsAny(prefixes)...)
-}
-
-// PrefixConfig returns the prefix config belonging to this instance.
-func (wisski *WissKI) PrefixConfig() (config string, err error) {
-	// if the user requested to skip the prefix, then don't do anything with it!
-	if wisski.NoPrefix() {
-		return "", nil
-	}
-
-	var builder strings.Builder
-
-	// domain
-	builder.WriteString(wisski.URL().String() + ":")
-	builder.WriteString("\n")
-
-	// default prefixes
-	prefixes, err := wisski.Prefixes()
-	if err != nil {
-		return "", err
-	}
-
-	// predefined prefixes
-	for _, prefix := range prefixes {
-		builder.WriteString(prefix)
-		builder.WriteRune('\n')
-	}
-
-	// custom prefixes
-	prefixPath := filepath.Join(wisski.FilesystemBase, "prefixes")
-	if fsx.IsFile(wisski.instances.Environment, prefixPath) {
-		prefix, err := wisski.instances.Core.Environment.Open(prefixPath)
-		if err != nil {
-			return "", err
-		}
-		defer prefix.Close()
-		if _, err := io.Copy(&builder, prefix); err != nil {
-			return "", err
-		}
-		builder.WriteString("\n")
-	}
-
-	// and done!
-	return builder.String(), nil
 }
