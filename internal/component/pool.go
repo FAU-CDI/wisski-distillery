@@ -2,123 +2,146 @@ package component
 
 import (
 	"reflect"
-	"sync"
-	"sync/atomic"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/rlock"
-	"github.com/tkw1536/goprogram/lib/reflectx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
-// Pool represents a pool of components
+// Pool holds a pool of components and provides factilities to create and access them.
+// See [Pool.All], [ExportComponents] and [ExportComponent].
 type Pool struct {
-	rLock rlock.RLock
-
-	// the actual queue of initi functions!
-	nested uint64 // is the q active?
-	queue  []func(thread int32)
-
-	// global initalization!
-	initOnce sync.Once
-
-	// components and lock!
-	cLock      sync.Mutex
-	components map[string]Component
+	all lazy.Lazy[[]Component] // all components
 }
 
-func (p *Pool) init() {
-	p.initOnce.Do(func() {
-		p.components = make(map[string]Component)
+// All initializes or returns all components stored in this pool.
+//
+// The All function should return an array of calls to [Make] with the provided context.
+// Multiple calls to the this method return the same return value.
+func (p *Pool) All(All func(context *PoolContext) []Component) []Component {
+	return p.all.Get(func() []Component {
+		// create a new context
+		context := &PoolContext{
+			all:   All,
+			cache: make(map[string]Component),
+		}
+
+		// and process them all
+		all := context.all(context)
+		context.process(all)
+		return all
 	})
 }
 
-// InitComponent initializes a specific component and caches it within the given pool.
-//
-// Concurrent calls of InitComponent must use a distinct thread parameter.
-// Nested calls of InitComponent should use the same thread parameter.
-//
-// Init may initialize components, but not call functions on them!
-func InitComponent[C Component](p *Pool, thread int32, core Core, init func(component C, thread int32)) C {
-	p.init()
+// PoolContext is a context used during [Make].
+// It should not be initialized by a user.
+type PoolContext struct {
+	all func(context *PoolContext) []Component // function to return all components
 
-	p.rLock.Lock(int(thread))
-	defer p.rLock.Unlock()
+	cache map[string]Component // cached components
+	queue []delayedInit        // init queue
+}
 
-	// get a description of the type
-	cd := GetMeta[C]()
+type delayedInit struct {
+	meta  meta
+	value reflect.Value
+}
 
-	// find a field to put the component into
-	instance, created := func() (C, bool) {
-		p.cLock.Lock()
-		defer p.cLock.Unlock()
+func (di delayedInit) Do(all []Component) {
+	di.meta.InitComponent(di.value, all)
+}
 
-		// create the component
-		field, ok := p.components[cd.Name]
-		if ok {
-			return field.(C), false
-		}
-
-		// create a new component
-		p.components[cd.Name] = cd.New().(Component)
-		return p.components[cd.Name].(C), true
-	}()
-
-	// if we already created the instance, then there is nothing to do
-	// as someone else will init it!
-	if !created {
-		return instance
-	}
-
-	// setup the core initialization now!
-	instance.getBase().Core = core
-
-	if init == nil {
-		return instance
-	}
-
-	// if we are in nested mode, then delay the init!
-	if !atomic.CompareAndSwapUint64(&p.nested, 0, 1) {
-		func() {
-			p.queue = append(p.queue, func(thread int32) {
-				init(instance, thread)
-			})
-		}()
-		return instance
-	}
-	defer atomic.StoreUint64(&p.nested, 0)
-
-	// init ourselves first (everything below will be nested)
-	init(instance, thread)
-
-	// do all the delayed initializations
+// process processes the queue in this process
+func (p *PoolContext) process(all []Component) {
 	index := 0
 	for len(p.queue) > index {
-		p.queue[index](thread)
+		p.queue[index].Do(all)
 		index++
 	}
 	p.queue = nil
+}
 
-	// and return the instance
+// Make creates or returns a cached component of the given Context.
+//
+// Components are initialized by first calling the init function.
+// Then all component-like fields of fields are filled with their appropriate components.
+//
+// A component-like field has one of the following types:
+//
+// - A pointer to a struct type that implements component
+// - A slice type of an interface type that implements component
+//
+// These fields are initialized in an undefined order during initialization.
+// The init function may not rely on these existing.
+// Furthermore, the init function may not cause other components to be initialized.
+//
+// The init function may be nil, indicating that no additional initialization is required.
+func Make[C Component](context *PoolContext, core Core, init func(component C)) C {
+	// get a description of the type
+	cd := getMeta[C]()
+
+	// if an instance already exists, return it!
+	if instance, ok := context.cache[cd.Name]; ok {
+		return instance.(C)
+	}
+
+	// make sure that we have an array of components
+	if context.cache == nil {
+		context.cache = make(map[string]Component)
+	}
+
+	// create a fresh (empty) instance
+	context.cache[cd.Name] = cd.New()
+	instance := context.cache[cd.Name].(C)
+
+	// do the core and self-initialization
+	instance.getBase().Core = core
+
+	if init != nil {
+		init(instance)
+	}
+
+	if cd.NeedsInitComponent() {
+		context.queue = append(context.queue, delayedInit{
+			meta:  cd,
+			value: reflect.ValueOf(instance),
+		})
+	}
+
 	return instance
 }
 
-// GetMeta gets the component belonging to a component type
-func GetMeta[C Component]() (meta Meta) {
-	tp := reflectx.TypeOf[C]()
-	if tp.Kind() != reflect.Pointer {
-		panic("GetMeta: C must be backed by a pointer (" + tp.String() + ")")
+//
+// PUBLIC FUNCTIONS
+//
+
+// ExportComponents exports all components that are a C from the pool.
+//
+// All should be the function of the core that initializes all components.
+// All should only make calls to [InitComponent].
+func ExportComponents[C Component](p *Pool, All func(context *PoolContext) []Component) []C {
+	components := p.All(All)
+
+	results := make([]C, 0, len(components))
+	for _, comp := range components {
+		if cc, ok := comp.(C); ok {
+			results = append(results, cc)
+		}
 	}
-	meta.Elem = tp.Elem()
-	meta.Name = meta.Elem.PkgPath() + "." + meta.Elem.Name()
-	return
+	return results
 }
 
-// Meta represents meta information about a component
-type Meta struct {
-	Elem reflect.Type // the element type of the component
-	Name string       // the name of the component
-}
+// ExportComponent exports the first component that is a C from the pool.
+//
+// All should be the function of the core that initializes all components.
+// All should only make calls to [InitComponent].
+func ExportComponent[C Component](p *Pool, All func(context *PoolContext) []Component) C {
+	components := p.All(All)
 
-// New creates a new ComponentDescription
-func (cd Meta) New() any {
-	return reflect.New(cd.Elem).Interface()
+	for _, comp := range components {
+		if cc, ok := comp.(C); ok {
+			return cc
+		}
+	}
+
+	var c C
+	return c
 }

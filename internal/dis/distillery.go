@@ -28,8 +28,8 @@ type Distillery struct {
 	// But for now this will just hold upstream configuration.
 	Upstream Upstream
 
-	// components hold references to the various components of the distillery.
-	components
+	// Pool holds all the components in this pool
+	pool component.Pool
 }
 
 // Upstream contains the configuration for accessing remote configuration.
@@ -46,6 +46,21 @@ func (dis *Distillery) Context() context.Context {
 //
 // PUBLIC COMPONENT GETTERS
 //
+
+// e is a convenience function to export a single component
+func e[C component.Component](dis *Distillery) C {
+	return component.ExportComponent[C](
+		&dis.pool,
+		dis.register,
+	)
+}
+
+func ea[C component.Component](dis *Distillery) []C {
+	return component.ExportComponents[C](
+		&dis.pool,
+		dis.register,
+	)
+}
 
 func (dis *Distillery) Control() *control.Control {
 	return e[*control.Control](dis)
