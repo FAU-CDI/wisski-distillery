@@ -82,6 +82,29 @@ func hasAnyPrefix(candidate string, prefixes []string) bool {
 	)
 }
 
+var PrefixConfigKey MetaKey = "prefix"
+
+// Prefixes returns the prefixes for the instance
+func (wisski *WissKI) PrefixesCached() (results []string, err error) {
+	err = wisski.Metadata().GetAll(PrefixConfigKey, func(index, total int) any {
+		if results == nil {
+			results = make([]string, total)
+		}
+		return &results[index]
+	})
+	return
+}
+
+// UpdatePrefixes updates the cached prefixes of this instance
+func (wisski *WissKI) UpdatePrefixes() error {
+	prefixes, err := wisski.Prefixes()
+	if err != nil {
+		return err
+	}
+
+	return wisski.Metadata().SetAll(PrefixConfigKey, slicesx.AsAny(prefixes)...)
+}
+
 // PrefixConfig returns the prefix config belonging to this instance.
 func (wisski *WissKI) PrefixConfig() (config string, err error) {
 	// if the user requested to skip the prefix, then don't do anything with it!

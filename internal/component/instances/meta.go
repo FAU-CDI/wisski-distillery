@@ -35,9 +35,9 @@ type MetaStorage interface {
 	// Any other metadata with the same key is deleted.
 	Set(key MetaKey, value any) error
 
-	// Add serializes values and stores each as associated with the provided key.
-	// Already existing metadata is left intact.
-	Add(key MetaKey, values ...any) error
+	// Set serializes values and stores them with the provided key.
+	// Any other metadata with the same key is deleted.
+	SetAll(key MetaKey, values ...any) error
 
 	// Purge removes all metadata, regardless of key.
 	Purge() error
@@ -163,13 +163,19 @@ func (s *storage) Set(key MetaKey, value any) error {
 	})
 }
 
-func (s *storage) Add(key MetaKey, values ...any) error {
+func (s *storage) SetAll(key MetaKey, values ...any) error {
 	table, err := s.SQL.QueryTable(true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
 
 	return table.Transaction(func(tx *gorm.DB) error {
+		// delete the old values
+		status := tx.Where(&models.Metadatum{Slug: s.Slug, Key: string(key)}).Delete(&models.Metadatum{})
+		if err := status.Error; err != nil {
+			return err
+		}
+
 		for _, value := range values {
 			bytes, err := json.Marshal(value)
 			if err != nil {

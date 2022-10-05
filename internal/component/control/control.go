@@ -14,8 +14,6 @@ type Control struct {
 	component.ComponentBase
 
 	Servables []component.Servable
-
-	ResolverFile string // TODO: this shouldn't be needed!
 }
 
 func (control Control) Name() string {
@@ -48,7 +46,6 @@ func (control *Control) Stack(env environment.Environment) component.StackWithRe
 			"SELF_RESOLVER_BLOCK_FILE":    control.Config.SelfResolverBlockFile,
 		},
 
-		TouchFiles:       []string{control.ResolverFile},
 		CopyContextFiles: []string{core.Executable},
 	})
 	return stt

@@ -12,7 +12,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/web"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
 )
 
 // register returns all components of the distillery
@@ -43,13 +42,9 @@ func (dis *Distillery) register(context *component.PoolContext) []component.Comp
 		ra[*snapshots.Pathbuilders](dis, context),
 
 		// Control server
-		r(dis, context, func(control *control.Control) {
-			control.ResolverFile = core.PrefixConfig
-		}),
+		ra[*control.Control](dis, context),
 		ra[*control.SelfHandler](dis, context),
-		r(dis, context, func(resolver *resolver.Resolver) {
-			resolver.ResolverFile = core.PrefixConfig
-		}),
+		ra[*resolver.Resolver](dis, context),
 		ra[*control.Info](dis, context),
 	}
 }

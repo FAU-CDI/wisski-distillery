@@ -49,6 +49,15 @@ func Filter[T any](values []T, filter func(T) bool) []T {
 	return results
 }
 
+// AsAny returns the same slice as values, but as any
+func AsAny[T any](values []T) []any {
+	results := make([]any, len(values))
+	for i, v := range values {
+		results[i] = v
+	}
+	return results
+}
+
 // Partition partitions values in T by the given functions.
 func Partition[T any, P comparable](values []T, partition func(value T) P) map[P][]T {
 	result := make(map[P][]T)

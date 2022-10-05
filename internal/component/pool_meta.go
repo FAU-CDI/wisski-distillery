@@ -8,10 +8,6 @@ import (
 	"github.com/tkw1536/goprogram/lib/reflectx"
 )
 
-//
-// META
-//
-
 var metaCache sync.Map
 
 // getMeta gets the component belonging to a component type
@@ -118,7 +114,7 @@ func filterSubtype(sliceS reflect.Value, iface reflect.Type) reflect.Value {
 	result := reflect.MakeSlice(reflect.SliceOf(iface), 0, len)
 	for i := 0; i < len; i++ {
 		element := sliceS.Index(i)
-		if element.Type().Implements(iface) {
+		if element.Elem().Type().Implements(iface) {
 			result = reflect.Append(result, element.Elem().Convert(iface))
 		}
 	}

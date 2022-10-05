@@ -2,15 +2,14 @@ package resolver
 
 import (
 	"fmt"
-	"io/fs"
 	"net/http"
-	"path/filepath"
 	"regexp"
+	"time"
 
 	"github.com/FAU-CDI/wdresolve"
 	"github.com/FAU-CDI/wdresolve/resolvers"
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -18,13 +17,13 @@ import (
 type Resolver struct {
 	component.ComponentBase
 
-	Control      *control.Control
-	ResolverFile string
+	Instances *instances.Instances
 
-	handler lazy.Lazy[wdresolve.ResolveHandler]
+	prefixes lazy.Lazy[map[string]string]        // cached prefixes (from the server)
+	handler  lazy.Lazy[wdresolve.ResolveHandler] // handler
 }
 
-func (Resolver) Name() string { return "resolver" }
+func (*Resolver) Name() string { return "resolver" }
 
 func (resolver *Resolver) Routes() []string { return []string{"/go/", "/wisski/get/"} }
 
@@ -50,35 +49,48 @@ func (resolver *Resolver) Handler(route string, io stream.IOStream) (http.Handle
 			io.Printf("registering legacy domain %s\n", domain)
 		}
 
-		configPath := resolver.ConfigPath()
-		{
-			// load the prefix path!
-			var fs fs.File
-			fs, err = resolver.Environment.Open(configPath)
-			io.Println("loading prefixes from ", configPath)
-			if err != nil {
-				return
-			}
-			defer fs.Close()
-
-			// read the file
-			var prefixes resolvers.Prefix
-			prefixes, err = resolvers.ReadPrefixes(fs)
-			if err != nil {
-				return
-			}
-
-			// and use that as the resolver!
-			p.Resolver = resolvers.InOrder{
-				prefixes,
-				fallback,
-			}
-
-			return p
+		// resolve the prefixes
+		p.Resolver = resolvers.InOrder{
+			resolver,
+			fallback,
 		}
+		return p
 	}), err
 }
 
-func (resolver *Resolver) ConfigPath() string {
-	return filepath.Join(resolver.Control.Path(), resolver.ResolverFile)
+func (resolver *Resolver) Target(uri string) string {
+	return wdresolve.PrefixTarget(resolver, uri)
+}
+
+// allow reloading prefixes from the server every minute
+const prefixesRefresh = time.Minute
+
+func (resolver *Resolver) Prefixes() (prefixes map[string]string) {
+	// reset the prefixes after a specific time, but only if requested
+	resolver.prefixes.ResetAfter(prefixesRefresh)
+	return resolver.prefixes.Get(resolver.freshPrefixes)
+}
+
+func (resolver *Resolver) freshPrefixes() map[string]string {
+	instances, err := resolver.Instances.All()
+	if err != nil {
+		return nil
+	}
+
+	gPrefixes := make(map[string]string)
+	for _, instance := range instances {
+		url := instance.URL().String()
+
+		// failed to fetch prefixes for this particular instance
+		// => skip it!
+		prefixes, err := instance.PrefixesCached()
+		if err != nil {
+			continue
+		}
+
+		for _, p := range prefixes {
+			gPrefixes[url] = p
+		}
+	}
+	return gPrefixes
 }

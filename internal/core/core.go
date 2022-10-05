@@ -20,6 +20,7 @@ const ConfigFile = ".env"
 const OverridesJSON = "overrides.json"
 
 // DefaultOverridesJSON contains a template for a new 'overrides.json' file
+//
 //go:embed bootstrap/overrides.json
 var DefaultOverridesJSON []byte
 
@@ -28,6 +29,7 @@ var DefaultOverridesJSON []byte
 const ResolverBlockedTXT = "resolver-blocked.txt"
 
 // ResolverBlockTXT contains a template for 'resolver-blocked' file
+//
 //go:embed bootstrap/resolver-blocked.txt
 var DefaultResolverBlockedTXT []byte
 
@@ -35,9 +37,6 @@ var DefaultResolverBlockedTXT []byte
 const AuthorizedKeys = "authorized_keys"
 
 // DefaultAuthorizedKeys contains a template for a new 'global_authorized_keys' file
+//
 //go:embed bootstrap/global_authorized_keys
 var DefaultAuthorizedKeys []byte
-
-// PrefixConfig is the name for the global resolver prefix configuration.
-// It should be found within the prefix component directory.
-const PrefixConfig = "prefix.cfg"

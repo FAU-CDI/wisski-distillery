@@ -1,19 +1,22 @@
 package cmd
 
 import (
-	"io"
+	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/FAU-CDI/wisski-distillery/pkg/smartp"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/goprogram/stream"
 )
 
 // Cron is the 'cron' command
 var UpdatePrefixConfig wisski_distillery.Command = updateprefixconfig{}
 
-type updateprefixconfig struct{}
+type updateprefixconfig struct {
+	Parallel int `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
+}
 
 func (updateprefixconfig) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
@@ -26,55 +29,26 @@ func (updateprefixconfig) Description() wisski_distillery.Description {
 }
 
 var errPrefixUpdateFailed = exit.Error{
-	Message:  "Failed to update the prefix configuration: %s",
+	Message:  "Failed to update the prefix configuration",
 	ExitCode: exit.ExitGeneric,
 }
 
 func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
-	instances, err := dis.Instances().All()
+	wissKIs, err := dis.Instances().All()
 	if err != nil {
-		return errPrefixUpdateFailed.WithMessageF(err)
+		return errPrefixUpdateFailed.Wrap(err)
 	}
 
-	ddis := dis.Control()
-	target := dis.Resolver().ConfigPath()
-
-	// print the configuration
-	config, err := dis.Core.Environment.Create(target, environment.DefaultFilePerm)
-	if err != nil {
-		return errPrefixUpdateFailed.WithMessageF(err)
-	}
-
-	// iterate over the instances and store the last value of error
-	for _, instance := range instances {
-		if err := logging.LogOperation(func() error {
-			// read the prefix config
-			data, err := instance.PrefixConfig()
-			if err != nil {
-				data = "# error, skipped\n"
-				context.EPrintln(err)
-				err = nil
-			}
-			context.IOStream.Printf("%s", data)
-
-			// and write it out!
-			if _, err := io.WriteString(config, data); err != nil {
-				return err
-			}
-
-			return nil
-		}, context.IOStream, "reading prefix config %s", instance.Slug); err != nil {
-			return errPrefixUpdateFailed.WithMessageF(err)
+	return smartp.Run(context.IOStream, upc.Parallel, func(instance instances.WissKI, io stream.IOStream) error {
+		io.Println("reading prefixes")
+		err := instance.UpdatePrefixes()
+		if err != nil {
+			return errPrefixUpdateFailed.Wrap(err)
 		}
-	}
-
-	// and restart the resolver to apply the config!
-	logging.LogMessage(context.IOStream, "restarting resolver stack")
-	if err := ddis.Stack(ddis.Environment).Restart(context.IOStream); err != nil {
-		return errPrefixUpdateFailed.WithMessageF(err)
-	}
-
-	return err
+		return nil
+	}, wissKIs, smartp.SmartMessage(func(item instances.WissKI) string {
+		return fmt.Sprintf("update_prefix %q", item.Slug)
+	}))
 }
