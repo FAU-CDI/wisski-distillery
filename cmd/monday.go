@@ -55,6 +55,12 @@ func (monday monday) Run(context wisski_distillery.Context) error {
 		return err
 	}
 
+	if err := logging.LogOperation(func() error {
+		return context.Exec("update_prefix_config")
+	}, context.IOStream, "Running update_prefix_config"); err != nil {
+		return err
+	}
+
 	if monday.UpdateInstances {
 		if err := logging.LogOperation(func() error {
 			return context.Exec("blind_update")
