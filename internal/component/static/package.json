@@ -13,8 +13,8 @@
   "targets": {
     "default": {
       "source": [
-        "src/control/index.js",
-        "src/home/index.js"
+        "src/control/index.ts",
+        "src/home/index.ts"
       ]
     }
   }

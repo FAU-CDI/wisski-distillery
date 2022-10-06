@@ -1,7 +1,8 @@
-import '../global.js';
+import '../global.ts';
 import './index.css';
 
-const types = {
+
+const types: Record<string, (element: HTMLElement) => HTMLElement | string> = {
     "date": (element) => {
         return (new Date(element.innerText)).toISOString()
     },
@@ -9,7 +10,7 @@ const types = {
         const text = element.innerText.split("/");
         return text[text.length - 1];
     },
-    "pathbuilders": (element) => {
+    "pathbuilders": () => {
         const pathbuilders = window.pathbuilders; // read from context!
         const wrapper = document.createElement("span");
 
@@ -34,7 +35,7 @@ const types = {
     }
 }
 
-const make_download_link = (filename, title, content, type) => {
+const make_download_link = (filename: string, title: string, content: string, type: string) => {
     const blob = new Blob(
         [content],
         {
@@ -53,7 +54,7 @@ const make_download_link = (filename, title, content, type) => {
 
 Object.keys(types).forEach(key => {
     const f = types[key];
-    const elements = document.querySelectorAll("code." + key)
+    const elements = document.querySelectorAll("code." + key) as NodeListOf<HTMLElement>
     elements.forEach(element => {
         const newElement = f(element)
         if (typeof newElement === 'string') {
@@ -62,6 +63,6 @@ Object.keys(types).forEach(key => {
             return
         }
 
-        element.parentNode.replaceChild(newElement, element)
+        element.parentNode!.replaceChild(newElement, element)
     })
 })
