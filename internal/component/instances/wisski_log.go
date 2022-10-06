@@ -3,7 +3,7 @@ package instances
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
-	"github.com/FAU-CDI/wisski-distillery/pkg/slicesx"
+	"github.com/tkw1536/goprogram/lib/collection"
 )
 
 // SnapshotLogFor retrieves (and prunes) the SnapshotLog for the provided slug.
@@ -14,7 +14,7 @@ func (instances *Instances) SnapshotLogFor(slug string) (snapshots []models.Snap
 		return nil, err
 	}
 
-	return slicesx.Filter(snapshots, func(s models.Snapshot) bool {
+	return collection.Filter(snapshots, func(s models.Snapshot) bool {
 		return s.Slug == slug
 	}), nil
 }
@@ -35,7 +35,7 @@ func (instances *Instances) SnapshotLog() ([]models.Snapshot, error) {
 	}
 
 	// partition out the snapshots that have been deleted!
-	parts := slicesx.Partition(snapshots, func(s models.Snapshot) bool {
+	parts := collection.Partition(snapshots, func(s models.Snapshot) bool {
 		_, err := instances.Core.Environment.Stat(s.Path)
 		return !environment.IsNotExist(err)
 	})

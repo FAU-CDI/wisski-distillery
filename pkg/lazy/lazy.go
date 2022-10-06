@@ -35,6 +35,16 @@ func (lazy *Lazy[T]) Get(init func() T) T {
 	return lazy.value
 }
 
+// Set atomically sets the value of this lazy, preventing future calls to get from invoking init.
+// It may be called concurrently with calls to [Get] and [Reset].
+func (lazy *Lazy[T]) Set(value T) {
+	lazy.m.Lock()
+	defer lazy.m.Unlock()
+
+	lazy.value = value
+	lazy.once.Do(func() {})
+}
+
 // Reset resets this Lazy, deleting any previously associated value.
 //
 // May be called concurrently with [Get].

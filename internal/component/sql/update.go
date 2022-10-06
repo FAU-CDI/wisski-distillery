@@ -21,7 +21,7 @@ func (sql *SQL) Shell(io stream.IOStream, argv ...string) (int, error) {
 
 // unsafeWaitShell waits for a connection via the database shell to succeed
 func (sql *SQL) unsafeWaitShell() error {
-	n := stream.FromDebug()
+	n := stream.FromNil()
 	return wait.Wait(func() bool {
 		code, err := sql.Shell(n, "-e", "select 1;")
 		n.EPrintf("[SQL.unsafeWaitShell]: %d %s\n", code, err)

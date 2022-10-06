@@ -1,14 +1,17 @@
 package control
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/tkw1536/goprogram/stream"
 )
 
-// Server returns an http.Mux that implements the main server instance
+// Server returns an http.Mux that implements the main server instance.
+// The server may spawn background tasks, but these should be terminated once context closes.
+//
 // Logging messages are directed to io.
-func (control *Control) Server(io stream.IOStream) (*http.ServeMux, error) {
+func (control *Control) Server(context context.Context, io stream.IOStream) (*http.ServeMux, error) {
 	// create a new mux
 	mux := http.NewServeMux()
 
@@ -16,7 +19,7 @@ func (control *Control) Server(io stream.IOStream) (*http.ServeMux, error) {
 	for _, s := range control.Servables {
 		for _, route := range s.Routes() {
 			io.Printf("mounting %s\n", route)
-			handler, err := s.Handler(route, io)
+			handler, err := s.Handler(route, context, io)
 			if err != nil {
 				return nil, err
 			}

@@ -1,6 +1,7 @@
 package control
 
 import (
+	"context"
 	"embed"
 	"html/template"
 	"io/fs"
@@ -27,7 +28,7 @@ func (Info) Name() string { return "control-info" }
 
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
-func (info *Info) Handler(route string, io stream.IOStream) (http.Handler, error) {
+func (info *Info) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {
 	mux := http.NewServeMux()
 
 	// handle everything under /dis/!

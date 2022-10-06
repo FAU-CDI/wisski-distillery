@@ -8,9 +8,9 @@ import (
 	"github.com/tkw1536/goprogram/stream"
 )
 
-func (SQL) SnapshotNeedsRunning() bool { return false }
+func (*SQL) SnapshotNeedsRunning() bool { return false }
 
-func (SQL) SnapshotName() string { return "sql" }
+func (*SQL) SnapshotName() string { return "sql" }
 
 func (sql *SQL) Snapshot(wisski models.Instance, context component.StagingContext) error {
 	return context.AddDirectory(".", func() error {

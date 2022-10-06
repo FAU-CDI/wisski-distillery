@@ -1,6 +1,7 @@
 package resolver
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"regexp"
@@ -19,15 +20,17 @@ type Resolver struct {
 
 	Instances *instances.Instances
 
-	prefixes lazy.Lazy[map[string]string]        // cached prefixes (from the server)
-	handler  lazy.Lazy[wdresolve.ResolveHandler] // handler
+	prefixes        lazy.Lazy[map[string]string] // cached prefixes (from the server)
+	RefreshInterval time.Duration
+
+	handler lazy.Lazy[wdresolve.ResolveHandler] // handler
 }
 
 func (*Resolver) Name() string { return "resolver" }
 
 func (resolver *Resolver) Routes() []string { return []string{"/go/", "/wisski/get/"} }
 
-func (resolver *Resolver) Handler(route string, io stream.IOStream) (http.Handler, error) {
+func (resolver *Resolver) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {
 	var err error
 	return resolver.handler.Get(func() (p wdresolve.ResolveHandler) {
 		p.TrustXForwardedProto = true
@@ -49,6 +52,8 @@ func (resolver *Resolver) Handler(route string, io stream.IOStream) (http.Handle
 			io.Printf("registering legacy domain %s\n", domain)
 		}
 
+		go resolver.updatePrefixes(io, context)
+
 		// resolve the prefixes
 		p.Resolver = resolvers.InOrder{
 			resolver,
@@ -58,26 +63,44 @@ func (resolver *Resolver) Handler(route string, io stream.IOStream) (http.Handle
 	}), err
 }
 
+func (resolver *Resolver) updatePrefixes(io stream.IOStream, ctx context.Context) {
+	t := time.NewTicker(resolver.RefreshInterval)
+	defer t.Stop()
+
+	for {
+		select {
+		case <-t.C:
+			io.Println("resolver: Reloading prefixes from database")
+			prefixes, _ := resolver.AllPrefixes()
+			resolver.prefixes.Set(prefixes)
+		case <-ctx.Done():
+			return
+		}
+	}
+}
+
 func (resolver *Resolver) Target(uri string) string {
 	return wdresolve.PrefixTarget(resolver, uri)
 }
 
-// allow reloading prefixes from the server every minute
-const prefixesRefresh = time.Minute
-
+// Prefixes returns a cached list of prefixes
 func (resolver *Resolver) Prefixes() (prefixes map[string]string) {
-	// reset the prefixes after a specific time, but only if requested
-	resolver.prefixes.ResetAfter(prefixesRefresh)
-	return resolver.prefixes.Get(resolver.freshPrefixes)
+	return resolver.prefixes.Get(func() map[string]string {
+		prefixes, _ := resolver.AllPrefixes()
+		return prefixes
+	})
 }
 
-func (resolver *Resolver) freshPrefixes() map[string]string {
+// AllPrefixes returns a list of all prefixes from the server.
+// Prefixes may be cached on the server
+func (resolver *Resolver) AllPrefixes() (map[string]string, error) {
 	instances, err := resolver.Instances.All()
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	gPrefixes := make(map[string]string)
+	var lastErr error
 	for _, instance := range instances {
 		if instance.NoPrefix() {
 			continue
@@ -88,6 +111,7 @@ func (resolver *Resolver) freshPrefixes() map[string]string {
 		// => skip it!
 		prefixes, err := instance.PrefixesCached()
 		if err != nil {
+			lastErr = err
 			continue
 		}
 
@@ -95,5 +119,6 @@ func (resolver *Resolver) freshPrefixes() map[string]string {
 			gPrefixes[p] = url
 		}
 	}
-	return gPrefixes
+
+	return gPrefixes, lastErr
 }

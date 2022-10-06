@@ -5,7 +5,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/pkg/slicesx"
+	"github.com/tkw1536/goprogram/lib/collection"
 )
 
 // Info is then 'info' command
@@ -72,7 +72,7 @@ func (i info) Run(context wisski_distillery.Context) error {
 	}
 
 	context.Printf("Pathbuilders: (count %d)\n", len(info.Pathbuilders))
-	slicesx.ForSorted(info.Pathbuilders, func(name, data string) {
+	collection.IterateSorted(info.Pathbuilders, func(name, data string) {
 		context.Printf("- %s (%d bytes)\n", name, len(data))
 	})
 

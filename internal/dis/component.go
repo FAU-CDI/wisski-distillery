@@ -44,7 +44,9 @@ func (dis *Distillery) register(context *component.PoolContext) []component.Comp
 		// Control server
 		ra[*control.Control](dis, context),
 		ra[*control.SelfHandler](dis, context),
-		ra[*resolver.Resolver](dis, context),
+		r(dis, context, func(resolver *resolver.Resolver) {
+			resolver.RefreshInterval = time.Minute
+		}),
 		ra[*control.Info](dis, context),
 	}
 }

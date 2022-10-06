@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/slicesx"
+	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/lib/reflectx"
 )
 
@@ -88,7 +88,7 @@ func (m meta) InitComponent(instance reflect.Value, all []Component) {
 
 	// assign the component fields
 	for field, eType := range m.CFields {
-		c := slicesx.First(all, func(c Component) bool {
+		c := collection.First(all, func(c Component) bool {
 			return reflect.TypeOf(c).AssignableTo(eType)
 		})
 

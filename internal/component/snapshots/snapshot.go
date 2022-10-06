@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/FAU-CDI/wisski-distillery/pkg/slicesx"
+	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/exp/slices"
@@ -91,7 +91,7 @@ func (snapshot *Snapshot) makeParts(ios stream.IOStream, snapshots *Manager, ins
 	defer st.Stop()
 
 	// get all the components
-	comps := slicesx.FilterClone(snapshots.Snapshotable, func(sc component.Snapshotable) bool {
+	comps := collection.FilterClone(snapshots.Snapshotable, func(sc component.Snapshotable) bool {
 		return sc.SnapshotNeedsRunning() == needsRunning
 	})
 

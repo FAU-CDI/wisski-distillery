@@ -132,10 +132,10 @@ func marshalPHP(data any) (string, error) {
 var settingsPHP string
 
 func (wisski *WissKI) GetSettingsPHP(key string) (value any, err error) {
-	err = wisski.ExecPHPScript(stream.FromDebug(), &value, settingsPHP, "get_setting", key)
+	err = wisski.ExecPHPScript(stream.FromNil(), &value, settingsPHP, "get_setting", key)
 	return
 }
 
 func (wisski *WissKI) SetSettingsPHP(key string, value any) error {
-	return wisski.ExecPHPScript(stream.FromDebug(), nil, settingsPHP, "set_setting", key, value)
+	return wisski.ExecPHPScript(stream.FromNil(), nil, settingsPHP, "set_setting", key, value)
 }

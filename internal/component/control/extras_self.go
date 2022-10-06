@@ -1,6 +1,7 @@
 package control
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -22,7 +23,7 @@ func (SelfHandler) Name() string { return "control-self" }
 
 func (*SelfHandler) Routes() []string { return []string{"/"} }
 
-func (sh *SelfHandler) Handler(route string, io stream.IOStream) (http.Handler, error) {
+func (sh *SelfHandler) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {
 	// create a redirect
 	var redirect Redirect
 	var err error

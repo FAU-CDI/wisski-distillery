@@ -33,7 +33,7 @@ var errServerListen = exit.Error{
 
 func (s server) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
-	handler, err := dis.Control().Server(context.IOStream)
+	handler, err := dis.Control().Server(dis.Context(), context.IOStream)
 	if err != nil {
 		return err
 	}
@@ -45,6 +45,11 @@ func (s server) Run(context wisski_distillery.Context) error {
 	if err != nil {
 		return errServerListen.Wrap(err)
 	}
+
+	go func() {
+		<-dis.Context().Done()
+		listener.Close()
+	}()
 
 	// and serve that listener
 	err = http.Serve(listener, http.StripPrefix(s.Prefix, handler))

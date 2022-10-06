@@ -91,7 +91,7 @@ func (sql *SQL) QueryTable(silent bool, table string) (*gorm.DB, error) {
 // WaitQueryTable waits for a connection to succeed via QueryTable
 func (sql *SQL) WaitQueryTable() error {
 	// TODO: Establish a convention on when to wait for this!
-	n := stream.FromDebug()
+	n := stream.FromNil()
 	return wait.Wait(func() bool {
 		_, err := sql.QueryTable(true, models.InstanceTable)
 		n.EPrintf("[SQL.WaitQueryTable]: %s\n", err)

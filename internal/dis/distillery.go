@@ -21,6 +21,9 @@ type Distillery struct {
 	// core holds the core of the distillery
 	component.Core
 
+	// internal context for the distillery
+	context context.Context
+
 	// Upstream holds information to connect to the various running
 	// distillery components.
 	//
@@ -40,7 +43,7 @@ type Upstream struct {
 
 // Context returns a new Context belonging to this distillery
 func (dis *Distillery) Context() context.Context {
-	return context.Background()
+	return dis.context
 }
 
 //

@@ -21,6 +21,7 @@ var errOpenConfig = exit.Error{
 // NewDistillery creates a new distillery from the provided flags
 func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) (dis *Distillery, err error) {
 	dis = &Distillery{
+		context: params.Context,
 		Core: component.Core{
 			Environment: environment.Native{},
 		},

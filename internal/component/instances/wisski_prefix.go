@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/slicesx"
+	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/stream"
 
 	_ "embed"
@@ -38,13 +38,13 @@ func (wisski *WissKI) Prefixes() ([]string, error) {
 
 func (wisski *WissKI) dbPrefixes() (prefixes []string, err error) {
 	// get all the ugly prefixes
-	err = wisski.ExecPHPScript(stream.FromDebug(), &prefixes, listURIPrefixesPHP, "list_prefixes")
+	err = wisski.ExecPHPScript(stream.FromNil(), &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {
 		return nil, err
 	}
 
 	// filter out sequential prefixes
-	prefixes = slicesx.NonSequential(prefixes, func(prev, now string) bool {
+	prefixes = collection.NonSequential(prefixes, func(prev, now string) bool {
 		return strings.HasPrefix(now, prev)
 	})
 
@@ -55,7 +55,7 @@ func (wisski *WissKI) dbPrefixes() (prefixes []string, err error) {
 	}
 
 	// filter out blocked prefixes
-	return slicesx.Filter(prefixes, func(uri string) bool { return !hasAnyPrefix(uri, blocks) }), nil
+	return collection.Filter(prefixes, func(uri string) bool { return !hasAnyPrefix(uri, blocks) }), nil
 }
 
 func (instances *Instances) blockedPrefixes() ([]string, error) {
@@ -87,7 +87,7 @@ func (instances *Instances) blockedPrefixes() ([]string, error) {
 }
 
 func hasAnyPrefix(candidate string, prefixes []string) bool {
-	return slicesx.Any(
+	return collection.Any(
 		prefixes,
 		func(prefix string) bool {
 			return strings.HasPrefix(candidate, prefix)
@@ -144,5 +144,5 @@ func (wisski *WissKI) UpdatePrefixes() error {
 		return err
 	}
 
-	return wisski.Metadata().SetAll(PrefixConfigKey, slicesx.AsAny(prefixes)...)
+	return wisski.Metadata().SetAll(PrefixConfigKey, collection.AsAny(prefixes)...)
 }

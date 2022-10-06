@@ -6,8 +6,9 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/pkg/smartp"
+
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -41,14 +42,14 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 		return errPrefixUpdateFailed.Wrap(err)
 	}
 
-	return smartp.Run(context.IOStream, upc.Parallel, func(instance instances.WissKI, io stream.IOStream) error {
+	return status.StreamGroup(context.IOStream, upc.Parallel, func(instance instances.WissKI, io stream.IOStream) error {
 		io.Println("reading prefixes")
 		err := instance.UpdatePrefixes()
 		if err != nil {
 			return errPrefixUpdateFailed.Wrap(err)
 		}
 		return nil
-	}, wissKIs, smartp.SmartMessage(func(item instances.WissKI) string {
+	}, wissKIs, status.SmartMessage(func(item instances.WissKI) string {
 		return fmt.Sprintf("update_prefix %q", item.Slug)
 	}))
 }
