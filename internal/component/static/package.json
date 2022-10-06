@@ -13,13 +13,8 @@
   "targets": {
     "default": {
       "source": [
-        "src/control/control.js",
-        "src/control/control.css",
-
-        "src/home/home.js",
-        "src/home/home.css",
-
-        "src/autolink/autolink.js"
+        "src/control/index.js",
+        "src/home/index.js"
       ]
     }
   }

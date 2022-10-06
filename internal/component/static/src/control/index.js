@@ -1,3 +1,6 @@
+import '../global.js';
+import './index.css';
+
 const types = {
     "date": (element) => {
         return (new Date(element.innerText)).toISOString()
