@@ -8,7 +8,7 @@
     "parcel": "^2.7.0"
   },
   "scripts": {
-    "dist": "parcel build --dist-dir dist --target default"
+    "dist": "parcel build --dist-dir dist --target default --public-url /static/ --no-source-maps"
   },
   "targets": {
     "default": {
