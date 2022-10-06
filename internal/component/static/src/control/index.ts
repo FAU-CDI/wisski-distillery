@@ -11,7 +11,7 @@ const types: Record<string, (element: HTMLElement) => HTMLElement | string> = {
         return text[text.length - 1];
     },
     "pathbuilders": () => {
-        const pathbuilders = window.pathbuilders; // read from context!
+        const pathbuilders: {[name: string]: string} = (window as any).pathbuilders; // must be declared globally on page!
         const wrapper = document.createElement("span");
 
         let found_one = false
