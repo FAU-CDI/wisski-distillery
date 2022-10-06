@@ -1,0 +1,13 @@
+@import '../distillery.css';
+
+.wisski {
+    padding-left: 5px;
+}
+
+.wisski.running {
+    background-color: #9ADA07;
+}
+
+.wisski.stopped {
+    background-color: #ff7a7a;
+}

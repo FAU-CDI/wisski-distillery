@@ -1,0 +1,26 @@
+{
+  "name": "wisski-distillery-frontend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "parcel": "^2.7.0"
+  },
+  "scripts": {
+    "dist": "parcel build --dist-dir dist --target default"
+  },
+  "targets": {
+    "default": {
+      "source": [
+        "src/control/control.js",
+        "src/control/control.css",
+
+        "src/home/home.js",
+        "src/home/home.css",
+
+        "src/autolink/autolink.js"
+      ]
+    }
+  }
+}

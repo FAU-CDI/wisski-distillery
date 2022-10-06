@@ -20,7 +20,7 @@ func (*Static) Name() string { return "static" }
 func (*Static) Routes() []string { return []string{"/static/"} }
 
 func (static *Static) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {
-	fs, err := fs.Sub(htmlStaticFS, "out")
+	fs, err := fs.Sub(distStaticFS, "dist")
 	if err != nil {
 		return nil, err
 	}
@@ -28,5 +28,5 @@ func (static *Static) Handler(route string, context context.Context, io stream.I
 	return http.StripPrefix(route, http.FileServer(http.FS(fs))), nil
 }
 
-//go:embed out
-var htmlStaticFS embed.FS
+//go:embed dist
+var distStaticFS embed.FS

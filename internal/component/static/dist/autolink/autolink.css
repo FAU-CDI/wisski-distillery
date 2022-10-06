@@ -1,0 +1,2 @@
+.header-link{opacity:0;font-size:.8em;text-decoration:none;transition:opacity .2s ease-in-out .1s;position:relative;left:.5em}h2:hover .header-link,h3:hover .header-link,h4:hover .header-link,h5:hover .header-link,h6:hover .header-link{opacity:1}
+/*# sourceMappingURL=autolink.css.map */

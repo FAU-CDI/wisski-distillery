@@ -6,3 +6,7 @@ authorized_keys
 *.nq
 go.work
 go.work.sum
+
+node_modules
+.parcel-cache
+yarn-error.log

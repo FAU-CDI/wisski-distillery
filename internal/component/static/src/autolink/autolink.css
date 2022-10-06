@@ -4,6 +4,7 @@
     opacity: 0;
     font-size: 0.8em;
 
+    transition: opacity 0.2s ease-in-out 0.1s;
     -webkit-transition: opacity 0.2s ease-in-out 0.1s;
     -moz-transition: opacity 0.2s ease-in-out 0.1s;
     -ms-transition: opacity 0.2s ease-in-out 0.1s;
