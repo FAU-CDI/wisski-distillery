@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<title>WissKI Distillery</title>
+<h1>WissKI Distillery</h1>
+
+<p>
+    For more information, see <a href="{{ .SelfRedirect }}">{{ .SelfRedirect }}</a>.
+</p>
+
+<h2>WissKIs on this Distillery</h2>
+<div>
+    {{range .Instances}}
+        {{ if .Running }}
+            <h3>{{.Slug}}</h3>
+            <p>
+                <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br />
+            </p>
+        {{ end }}
+    {{ end }}
+</div>
+
+<hr />
+<footer>
+    Generated at <code>{{ .Time }}</code>
+</footer>

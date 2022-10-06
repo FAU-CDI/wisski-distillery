@@ -52,7 +52,8 @@ func (resolver *Resolver) Handler(route string, context context.Context, io stre
 			io.Printf("registering legacy domain %s\n", domain)
 		}
 
-		go resolver.updatePrefixes(io, context)
+		// start updating prefixes
+		resolver.updatePrefixes(io, context)
 
 		// resolve the prefixes
 		p.Resolver = resolvers.InOrder{
@@ -63,62 +64,11 @@ func (resolver *Resolver) Handler(route string, context context.Context, io stre
 	}), err
 }
 
-func (resolver *Resolver) updatePrefixes(io stream.IOStream, ctx context.Context) {
-	t := time.NewTicker(resolver.RefreshInterval)
-	defer t.Stop()
-
-	for {
-		select {
-		case <-t.C:
-			io.Println("resolver: Reloading prefixes from database")
-			prefixes, _ := resolver.AllPrefixes()
-			resolver.prefixes.Set(prefixes)
-		case <-ctx.Done():
-			return
-		}
-	}
-}
-
 func (resolver *Resolver) Target(uri string) string {
 	return wdresolve.PrefixTarget(resolver, uri)
 }
 
 // Prefixes returns a cached list of prefixes
 func (resolver *Resolver) Prefixes() (prefixes map[string]string) {
-	return resolver.prefixes.Get(func() map[string]string {
-		prefixes, _ := resolver.AllPrefixes()
-		return prefixes
-	})
-}
-
-// AllPrefixes returns a list of all prefixes from the server.
-// Prefixes may be cached on the server
-func (resolver *Resolver) AllPrefixes() (map[string]string, error) {
-	instances, err := resolver.Instances.All()
-	if err != nil {
-		return nil, err
-	}
-
-	gPrefixes := make(map[string]string)
-	var lastErr error
-	for _, instance := range instances {
-		if instance.NoPrefix() {
-			continue
-		}
-		url := instance.URL().String()
-
-		// failed to fetch prefixes for this particular instance
-		// => skip it!
-		prefixes, err := instance.PrefixesCached()
-		if err != nil {
-			lastErr = err
-			continue
-		}
-
-		for _, p := range prefixes {
-			gPrefixes[p] = url
-		}
-	}
-
-	return gPrefixes, lastErr
+	return resolver.prefixes.Get(nil) // by precondition there always is a cached value
 }

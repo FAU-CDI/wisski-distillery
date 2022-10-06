@@ -1,36 +1,35 @@
-package control
+package home
 
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/tkw1536/goprogram/stream"
 )
 
-// SelfHandler implements serving the '/' route
-type SelfHandler struct {
-	component.ComponentBase
-
-	Instances *instances.Instances
+func (home *Home) updateRedirect(ctx context.Context, io stream.IOStream) {
+	timex.SetInterval(ctx, home.RefreshInterval, func(t time.Time) {
+		io.Printf("[%s]: reloading overrides", t.String())
+		redirect, _ := home.loadRedirect()
+		home.redirect.Set(&redirect)
+	})
 }
 
-func (SelfHandler) Name() string { return "control-self" }
+func (home *Home) loadRedirect() (redirect Redirect, err error) {
+	if redirect.Overrides == nil {
+		redirect.Overrides = make(map[string]string)
+	}
+	redirect.Overrides[""] = home.Config.SelfRedirect.String()
 
-func (*SelfHandler) Routes() []string { return []string{"/"} }
+	redirect.Absolute = false
+	redirect.Permanent = false
 
-func (sh *SelfHandler) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {
-	// create a redirect
-	var redirect Redirect
-	var err error
-
-	// open the overrides file
-	overrides, err := sh.Environment.Open(sh.Config.SelfOverridesFile)
-	io.Printf("loading overrides from %q\n", sh.Config.SelfOverridesFile)
+	// load the overrides file
+	overrides, err := home.Environment.Open(home.Config.SelfOverridesFile)
 	if err != nil {
 		return redirect, err
 	}
@@ -38,50 +37,11 @@ func (sh *SelfHandler) Handler(route string, context context.Context, io stream.
 
 	// decode the overrides file
 	if err := json.NewDecoder(overrides).Decode(&redirect.Overrides); err != nil {
-		return nil, err
+		return redirect, err
 	}
-
-	if redirect.Overrides == nil {
-		redirect.Overrides = make(map[string]string)
-	}
-	redirect.Overrides[""] = sh.Config.SelfRedirect.String()
-
-	// create a redirect server
-	redirect.Fallback, err = sh.selfFallback()
-	if err != nil {
-		return nil, err
-	}
-	redirect.Absolute = false
-	redirect.Permanent = false
 
 	// and return!
 	return redirect, nil
-}
-
-func (sh *SelfHandler) selfFallback() (http.Handler, error) {
-	return http.HandlerFunc(sh.serveFallback), nil
-}
-
-var notFoundText = []byte("not found")
-
-func (sh *SelfHandler) serveFallback(w http.ResponseWriter, r *http.Request) {
-
-	slug := sh.Config.SlugFromHost(r.Host)
-	if slug == "" {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(notFoundText)
-		return
-	}
-
-	if ok, _ := sh.Instances.Has(slug); !ok {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "WissKI %q not found\n", slug)
-		return
-	}
-
-	w.WriteHeader(http.StatusBadGateway)
-	fmt.Fprintf(w, "WissKI %q is currently offline\n", slug)
-
 }
 
 // Redirect implements a redirect server that redirects all requests.

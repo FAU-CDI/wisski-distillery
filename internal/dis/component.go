@@ -5,6 +5,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
@@ -43,7 +44,9 @@ func (dis *Distillery) register(context *component.PoolContext) []component.Comp
 
 		// Control server
 		ra[*control.Control](dis, context),
-		ra[*control.SelfHandler](dis, context),
+		r(dis, context, func(home *home.Home) {
+			home.RefreshInterval = time.Minute
+		}),
 		r(dis, context, func(resolver *resolver.Resolver) {
 			resolver.RefreshInterval = time.Minute
 		}),
