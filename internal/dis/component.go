@@ -11,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/web"
 )
@@ -44,6 +45,7 @@ func (dis *Distillery) register(context *component.PoolContext) []component.Comp
 
 		// Control server
 		ra[*control.Control](dis, context),
+		ra[*static.Static](dis, context),
 		r(dis, context, func(home *home.Home) {
 			home.RefreshInterval = time.Minute
 		}),

@@ -2,12 +2,12 @@ package control
 
 import (
 	"context"
-	"embed"
 	"html/template"
-	"io/fs"
 	"net/http"
 	"strings"
 	"time"
+
+	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
@@ -39,13 +39,6 @@ func (info *Info) Handler(route string, context context.Context, io stream.IOStr
 		}
 		http.NotFound(w, r)
 	})
-
-	// static stuff
-	static, err := info.disStatic()
-	if err != nil {
-		return nil, err
-	}
-	mux.Handle("/dis/static/", static)
 
 	// render everything
 	mux.Handle("/dis/index", httpx.HTMLHandler[disIndex]{
@@ -157,18 +150,6 @@ func (info *Info) disInstance(r *http.Request) (is disInstance, err error) {
 	is.Time = time.Now().UTC()
 
 	return
-}
-
-//go:embed html/static
-var htmlStaticFS embed.FS
-
-func (*Info) disStatic() (http.Handler, error) {
-	fs, err := fs.Sub(htmlStaticFS, "html/static")
-	if err != nil {
-		return nil, err
-	}
-
-	return http.StripPrefix("/dis/static/", http.FileServer(http.FS(fs))), nil
 }
 
 //go:embed "html/index.html"
