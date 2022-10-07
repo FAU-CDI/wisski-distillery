@@ -45,13 +45,13 @@ func (bi snapshot) Run(context wisski_distillery.Context) error {
 	}
 
 	// do a snapshot of it!
-	err = handleSnapshotLike(context, SnapshotFlags{
+	err = dis.SnapshotManager().HandleSnapshotLike(context.IOStream, snapshots.SnapshotFlags{
 		Dest:        bi.Positionals.Dest,
 		Slug:        bi.Positionals.Slug,
 		Title:       "Snapshot",
 		StagingOnly: bi.StagingOnly,
 
-		Do: func(dest string) SnapshotLike {
+		Do: func(dest string) snapshots.SnapshotLike {
 			snapshot := dis.SnapshotManager().NewSnapshot(instance, context.IOStream, snapshots.SnapshotDescription{
 				Dest: dest,
 			})

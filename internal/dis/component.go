@@ -6,6 +6,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/home"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/info"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
@@ -52,7 +53,7 @@ func (dis *Distillery) register(context *component.PoolContext) []component.Comp
 		r(dis, context, func(resolver *resolver.Resolver) {
 			resolver.RefreshInterval = time.Minute
 		}),
-		ra[*control.Info](dis, context),
+		ra[*info.Info](dis, context),
 	}
 }
 

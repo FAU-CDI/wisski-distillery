@@ -22,8 +22,8 @@ func LogMessage(io stream.IOStream, format string, args ...interface{}) (int, er
 
 func logOperation(io stream.IOStream, indent int, format string, args ...interface{}) (int, error) {
 	message := "\033[1m" + strings.Repeat(" ", indent+1) + "=> " + format + "\033[0m\n"
-	if !io.StdinIsATerminal() {
-		message = " => " + format
+	if !io.StdoutIsATerminal() {
+		message = " => " + format + "\n"
 	}
 
 	return io.Printf(message, args...)

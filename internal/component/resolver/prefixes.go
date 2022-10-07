@@ -11,7 +11,7 @@ import (
 // updatePrefixes starts updating prefixes
 func (resolver *Resolver) updatePrefixes(io stream.IOStream, ctx context.Context) {
 	timex.SetInterval(ctx, resolver.RefreshInterval, func(t time.Time) {
-		io.Printf("[%s]: reloading prefixes", t.String())
+		io.Printf("[%s]: reloading prefixes\n", t.Format(time.Stamp))
 		prefixes, _ := resolver.AllPrefixes()
 		resolver.prefixes.Set(prefixes)
 	})

@@ -8,6 +8,8 @@ github.com/feiin/sqlstring v0.3.0 h1:iyPEFijI2BxpY2M+AuhIvdNManzXa2OwGzuPaEMLUgo
 github.com/feiin/sqlstring v0.3.0/go.mod h1:xpZTjVUw1nD3hMgF9SMRdPiooKSikLf4PS5j2NTn3RI=
 github.com/go-sql-driver/mysql v1.6.0 h1:BCTh4TKNUYmOmMUcQ3IipzF5prigylS7XXjEkfCHuOE=
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
+github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWmnc=
+github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/gosuri/uilive v0.0.4 h1:hUEBpQDj8D8jXgtCdBu7sWsy5sbW/5GhuO8KBwJ2jyY=
 github.com/gosuri/uilive v0.0.4/go.mod h1:V/epo5LjjlDE5RJUcqx8dbw+zc93y5Ya3yg8tfZ74VI=
 github.com/jessevdk/go-flags v1.5.0 h1:1jKYvbxEjfUl0fmqTCOfonvskHHXMjBySTLW4y9LFvc=
@@ -25,6 +27,8 @@ github.com/tkw1536/goprogram v0.0.17 h1:SAD/rHtxm7CTEdUV1a37LUyE6G0MdcKhLzO8fZ8c
 github.com/tkw1536/goprogram v0.0.17/go.mod h1:Jqs0sTMzhrAGCX3JQrlEwQ0WRWQACCvuQQkaBDp65pE=
 github.com/tkw1536/goprogram v0.1.0 h1:cP+Z7VKgRF93JApsau1azKxGrH/nTwcGLnSYfZP9XjE=
 github.com/tkw1536/goprogram v0.1.0/go.mod h1:Jqs0sTMzhrAGCX3JQrlEwQ0WRWQACCvuQQkaBDp65pE=
+github.com/tkw1536/goprogram v0.1.1 h1:gamK9OuRqoX2yQlA/nkgfVHHZWd/u2uUj6vJMYrYa70=
+github.com/tkw1536/goprogram v0.1.1/go.mod h1:Jqs0sTMzhrAGCX3JQrlEwQ0WRWQACCvuQQkaBDp65pE=
 golang.org/x/exp v0.0.0-20220929160808-de9c53c655b9 h1:lNtcVz/3bOstm7Vebox+5m3nLh/BYWnhmc3AhXOW6oI=
 golang.org/x/exp v0.0.0-20220929160808-de9c53c655b9/go.mod h1:cyybsKvd6eL0RnXn6p/Grxp8F5bW7iYuBgsNCOHpMYE=
 golang.org/x/exp v0.0.0-20221004215720-b9f4876ce741 h1:fGZugkZk2UgYBxtpKmvub51Yno1LJDeEsRp2xGD+0gY=

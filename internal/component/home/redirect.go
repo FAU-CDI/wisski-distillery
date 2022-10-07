@@ -13,7 +13,7 @@ import (
 
 func (home *Home) updateRedirect(ctx context.Context, io stream.IOStream) {
 	timex.SetInterval(ctx, home.RefreshInterval, func(t time.Time) {
-		io.Printf("[%s]: reloading overrides", t.String())
+		io.Printf("[%s]: reloading overrides\n", t.Format(time.Stamp))
 		redirect, _ := home.loadRedirect()
 		home.redirect.Set(&redirect)
 	})
@@ -95,6 +95,10 @@ func (redirect Redirect) Redirect(r *http.Request) string {
 func (redirect Redirect) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	dest := redirect.Redirect(r)
 	if dest == "" {
+		if redirect.Fallback == nil {
+			http.NotFound(w, r)
+			return
+		}
 		redirect.Fallback.ServeHTTP(w, r)
 		return
 	}

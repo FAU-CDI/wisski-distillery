@@ -65,6 +65,11 @@
     <hr />
 </p>
 
+<p>
+    <button class="remote-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-target="#snapshot" data-buffer="20">Take a snapshot</button>
+    <pre class="remote-action-out" id="snapshot"></pre>
+</p>
+
 <footer>
     Generated at <code>{{ .Time }}</code>
 </footer>
