@@ -35,28 +35,21 @@ var errSnapshotFailed = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (bi snapshot) Run(context wisski_distillery.Context) error {
+func (sn snapshot) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
 	// find the instance!
-	instance, err := dis.Instances().WissKI(bi.Positionals.Slug)
+	instance, err := dis.Instances().WissKI(sn.Positionals.Slug)
 	if err != nil {
 		return err
 	}
 
 	// do a snapshot of it!
-	err = dis.SnapshotManager().HandleSnapshotLike(context.IOStream, snapshots.SnapshotFlags{
-		Dest:        bi.Positionals.Dest,
-		Slug:        bi.Positionals.Slug,
-		Title:       "Snapshot",
-		StagingOnly: bi.StagingOnly,
+	err = dis.SnapshotManager().MakeExport(context.IOStream, snapshots.ExportTask{
+		Dest:        sn.Positionals.Dest,
+		StagingOnly: sn.StagingOnly,
 
-		Do: func(dest string) snapshots.SnapshotLike {
-			snapshot := dis.SnapshotManager().NewSnapshot(instance, context.IOStream, snapshots.SnapshotDescription{
-				Dest: dest,
-			})
-			return &snapshot
-		},
+		Instance: &instance,
 	})
 
 	if err != nil {

@@ -7,13 +7,14 @@ import (
 	"github.com/tkw1536/goprogram/stream"
 )
 
-// ShouldPrune determines if a file with the provided modtime
+// ShouldPrune determines if a file with the provided modification time should be
+// removed from the export log.
 func (manager *Manager) ShouldPrune(modtime time.Time) bool {
 	return time.Since(modtime) > time.Duration(manager.Config.MaxBackupAge)*24*time.Hour
 }
 
-// Prune prunes all backups and snapshots older than the maximum backup age
-func (manager *Manager) PruneBackups(io stream.IOStream) error {
+// Prune prunes all old exports
+func (manager *Manager) PruneExports(io stream.IOStream) error {
 	sPath := manager.ArchivePath()
 
 	// list all the files
@@ -49,6 +50,6 @@ func (manager *Manager) PruneBackups(io stream.IOStream) error {
 	}
 
 	// prune the snapshot log!
-	_, err = manager.Instances.SnapshotLog()
+	_, err = manager.Instances.ExportLog()
 	return err
 }

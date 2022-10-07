@@ -21,10 +21,10 @@ type WissKIInfo struct {
 	LastRebuild time.Time
 
 	// List of backups made
-	Snapshots []models.Snapshot
+	Snapshots []models.Export
 
 	// WissKI content information
-	NoPrefixes   bool
+	NoPrefixes   bool              // TODO: Move this into the database
 	Prefixes     []string          // list of prefixes
 	Pathbuilders map[string]string // all the pathbuilders
 }
@@ -39,7 +39,7 @@ func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
 	info.Slug = wisski.Slug
 	info.URL = wisski.URL().String()
 
-	// dynamic properties, TODO: Add more properties here!
+	// dynamic properties
 	var group errgroup.Group
 
 	// quick check if this wisski is running

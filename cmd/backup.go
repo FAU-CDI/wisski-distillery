@@ -9,9 +9,9 @@ import (
 )
 
 // Backup is the 'backup' command
-var Backup wisski_distillery.Command = backupC{}
+var Backup wisski_distillery.Command = backup{}
 
-type backupC struct {
+type backup struct {
 	NoPrune             bool `short:"n" long:"no-prune" description:"Do not prune older backup archives"`
 	StagingOnly         bool `short:"s" long:"staging-only" description:"Do not package into a backup archive, but only create a staging directory"`
 	ConcurrentSnapshots int  `short:"c" long:"concurrent-snapshots" description:"Maximum number of concurrent snapshots" default:"2"`
@@ -20,7 +20,7 @@ type backupC struct {
 	} `positional-args:"true"`
 }
 
-func (backupC) Description() wisski_distillery.Description {
+func (backup) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: core.Requirements{
 			NeedsDistillery: true,
@@ -35,29 +35,25 @@ var errBackupFailed = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (bk backupC) Run(context wisski_distillery.Context) error {
+func (bk backup) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
 	// prune old backups
 	if !bk.NoPrune {
 		defer logging.LogOperation(func() error {
-			return dis.SnapshotManager().PruneBackups(context.IOStream)
+			return dis.SnapshotManager().PruneExports(context.IOStream)
 		}, context.IOStream, "Pruning old backups")
 	}
 
 	// do the handling
-	err := dis.SnapshotManager().HandleSnapshotLike(context.IOStream, snapshots.SnapshotFlags{
+	err := dis.SnapshotManager().MakeExport(context.IOStream, snapshots.ExportTask{
 		Dest:        bk.Positionals.Dest,
-		Slug:        "",
-		Title:       "Backup",
 		StagingOnly: bk.StagingOnly,
 
-		Do: func(dest string) snapshots.SnapshotLike {
-			backup := dis.SnapshotManager().NewBackup(context.IOStream, snapshots.BackupDescription{
-				Dest:                dest,
-				ConcurrentSnapshots: bk.ConcurrentSnapshots,
-			})
-			return &backup
+		Instance: nil,
+
+		BackupDescription: snapshots.BackupDescription{
+			ConcurrentSnapshots: bk.ConcurrentSnapshots,
 		},
 	})
 

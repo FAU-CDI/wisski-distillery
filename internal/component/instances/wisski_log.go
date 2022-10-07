@@ -6,36 +6,37 @@ import (
 	"github.com/tkw1536/goprogram/lib/collection"
 )
 
-// SnapshotLogFor retrieves (and prunes) the SnapshotLog for the provided slug.
-// An empty slug returns the log of backups.
-func (instances *Instances) SnapshotLogFor(slug string) (snapshots []models.Snapshot, err error) {
-	snapshots, err = instances.SnapshotLog()
+// ExportLogFor retrieves (and prunes) the ExportLog.
+// Slug determines if entries for Backups (empty slug)
+// or a specific Instance (non-empty slug) are returned.
+func (instances *Instances) ExportLogFor(slug string) (exports []models.Export, err error) {
+	exports, err = instances.ExportLog()
 	if err != nil {
 		return nil, err
 	}
 
-	return collection.Filter(snapshots, func(s models.Snapshot) bool {
+	return collection.Filter(exports, func(s models.Export) bool {
 		return s.Slug == slug
 	}), nil
 }
 
-// SnapshotLog retrieves (and prunes) all entries in the snapshot log.
-func (instances *Instances) SnapshotLog() ([]models.Snapshot, error) {
+// ExportLog retrieves (and prunes) all entries in the snapshot log.
+func (instances *Instances) ExportLog() ([]models.Export, error) {
 	// query the table!
-	table, err := instances.SQL.QueryTable(false, models.SnapshotTable)
+	table, err := instances.SQL.QueryTable(false, models.ExportTable)
 	if err != nil {
 		return nil, err
 	}
 
-	// find all the snapshots
-	var snapshots []models.Snapshot
-	res := table.Find(&snapshots)
+	// find all the exports
+	var exports []models.Export
+	res := table.Find(&exports)
 	if res.Error != nil {
 		return nil, res.Error
 	}
 
-	// partition out the snapshots that have been deleted!
-	parts := collection.Partition(snapshots, func(s models.Snapshot) bool {
+	// partition out the exports that have been deleted!
+	parts := collection.Partition(exports, func(s models.Export) bool {
 		_, err := instances.Core.Environment.Stat(s.Path)
 		return !environment.IsNotExist(err)
 	})
@@ -52,20 +53,20 @@ func (instances *Instances) SnapshotLog() ([]models.Snapshot, error) {
 }
 
 // Snapshots returns the list of snapshots of this WissKI
-func (wisski *WissKI) Snapshots() (snapshots []models.Snapshot, err error) {
-	return wisski.instances.SnapshotLogFor(wisski.Slug)
+func (wisski *WissKI) Snapshots() (snapshots []models.Export, err error) {
+	return wisski.instances.ExportLogFor(wisski.Slug)
 }
 
-// AddSnapshotLog adds a log entry for the provided entry
-func (instances *Instances) AddSnapshotLog(snapshot models.Snapshot) error {
+// AddToExportLog adds the provided export to the log.
+func (instances *Instances) AddToExportLog(export models.Export) error {
 	// find the table
-	table, err := instances.SQL.QueryTable(false, models.SnapshotTable)
+	table, err := instances.SQL.QueryTable(false, models.ExportTable)
 	if err != nil {
 		return err
 	}
 
 	// and save it!
-	res := table.Create(&snapshot)
+	res := table.Create(&export)
 	if res.Error != nil {
 		return res.Error
 	}

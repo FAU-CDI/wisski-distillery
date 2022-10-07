@@ -44,23 +44,13 @@ func (info *Info) serverSocketSnapshot(slug string, writer *status.LineBuffer) {
 	}
 
 	{
-		err := info.SnapshotManager.HandleSnapshotLike(
+		err := info.SnapshotManager.MakeExport(
 			stream,
-			snapshots.SnapshotFlags{
-				Dest:        "",
-				Slug:        slug,
-				Title:       "Snapshot",
+			snapshots.ExportTask{
+				Dest:     "",
+				Instance: &wissKI,
+
 				StagingOnly: false,
-				Do: func(dest string) snapshots.SnapshotLike {
-					snapshot := info.SnapshotManager.NewSnapshot(
-						wissKI,
-						stream,
-						snapshots.SnapshotDescription{
-							Dest: dest,
-						},
-					)
-					return &snapshot
-				},
 			},
 		)
 		if err != nil {

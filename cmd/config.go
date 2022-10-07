@@ -8,10 +8,9 @@ import (
 // Config is the configuration command
 var Config wisski_distillery.Command = cfg{}
 
-type cfg struct {
-}
+type cfg struct{}
 
-func (s cfg) Description() wisski_distillery.Description {
+func (c cfg) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: core.Requirements{
 			NeedsDistillery: true,
@@ -21,7 +20,7 @@ func (s cfg) Description() wisski_distillery.Description {
 	}
 }
 
-func (s cfg) Run(context wisski_distillery.Context) error {
+func (cfg) Run(context wisski_distillery.Context) error {
 	context.Printf("%#v", context.Environment.Config)
 	return nil
 }

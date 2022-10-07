@@ -8,7 +8,7 @@ import (
 	"github.com/tkw1536/goprogram/lib/reflectx"
 )
 
-var metaCache sync.Map
+var metaCache sync.Map // Map[reflect.Type]meta
 
 // getMeta gets the component belonging to a component type
 func getMeta[C Component]() meta {

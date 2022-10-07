@@ -93,8 +93,8 @@ func (sql *SQL) Update(io stream.IOStream) error {
 		},
 		{
 			"snapshot",
-			&models.Snapshot{},
-			models.SnapshotTable,
+			&models.Export{},
+			models.ExportTable,
 		},
 	}
 

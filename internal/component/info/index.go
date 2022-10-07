@@ -28,7 +28,7 @@ type indexPageContext struct {
 	RunningCount int
 	StoppedCount int
 
-	Backups []models.Snapshot
+	Backups []models.Export
 }
 
 func (info *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error) {
@@ -61,7 +61,7 @@ func (info *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error
 
 	// get the log entries
 	group.Go(func() (err error) {
-		idx.Backups, err = info.Instances.SnapshotLogFor("")
+		idx.Backups, err = info.Instances.ExportLogFor("")
 		return
 	})
 
