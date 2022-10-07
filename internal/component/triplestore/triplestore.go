@@ -32,6 +32,7 @@ func (Triplestore) Context(parent component.InstallationContext) component.Insta
 }
 
 //go:embed all:triplestore
+//go:embed triplestore.env
 var resources embed.FS
 
 func (ts *Triplestore) Stack(env environment.Environment) component.StackWithResources {
@@ -40,6 +41,11 @@ func (ts *Triplestore) Stack(env environment.Environment) component.StackWithRes
 		ContextPath: "triplestore",
 
 		CopyContextFiles: []string{"graphdb.zip"}, // TODO: Move into constant?
+
+		EnvPath: "triplestore.env",
+		EnvContext: map[string]string{
+			"DOCKER_NETWORK_NAME": ts.Config.DockerNetworkName,
+		},
 
 		MakeDirs: []string{
 			filepath.Join("data", "data"),

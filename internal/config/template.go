@@ -28,6 +28,7 @@ type Template struct {
 	MysqlAdminPassword       string `env:"MYSQL_ADMIN_PASSWORD"`
 	DisAdminUsername         string `env:"DIS_ADMIN_USER"`
 	DisAdminPassword         string `env:"DIS_ADMIN_PASSWORD"`
+	DockerNetworkName        string `env:"DOCKER_NETWORK_NAME"`
 }
 
 // SetDefaults sets defaults on the template
@@ -83,6 +84,14 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 		if err != nil {
 			return err
 		}
+	}
+
+	if tpl.DockerNetworkName == "" {
+		tpl.DockerNetworkName, err = password.Password(10)
+		if err != nil {
+			return err
+		}
+		tpl.DockerNetworkName = `distillery-` + tpl.DockerNetworkName
 	}
 
 	return nil

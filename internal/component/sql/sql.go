@@ -35,12 +35,19 @@ func (*SQL) Context(parent component.InstallationContext) component.Installation
 }
 
 //go:embed all:sql
+//go:embed sql.env
 var resources embed.FS
 
 func (sql *SQL) Stack(env environment.Environment) component.StackWithResources {
 	return component.MakeStack(sql, env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "sql",
+
+		EnvPath: "sql.env",
+		EnvContext: map[string]string{
+			"DOCKER_NETWORK_NAME": sql.Config.DockerNetworkName,
+			"HTTPS_ENABLED":       sql.Config.HTTPSEnabledEnv(),
+		},
 
 		MakeDirsPerm: environment.DefaultDirPerm,
 		MakeDirs: []string{

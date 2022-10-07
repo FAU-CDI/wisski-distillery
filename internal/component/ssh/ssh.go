@@ -25,11 +25,17 @@ func (SSH) Context(parent component.InstallationContext) component.InstallationC
 }
 
 //go:embed all:ssh
+//go:embed ssh.env
 var resources embed.FS
 
 func (ssh *SSH) Stack(env environment.Environment) component.StackWithResources {
 	return component.MakeStack(ssh, env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "ssh",
+
+		EnvPath: "ssh.env",
+		EnvContext: map[string]string{
+			"DOCKER_NETWORK_NAME": ssh.Config.DockerNetworkName,
+		},
 	})
 }

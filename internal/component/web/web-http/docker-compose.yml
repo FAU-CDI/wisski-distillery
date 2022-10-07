@@ -1,30 +1,27 @@
 version: "3.7"
 
 services:
-  nginx-proxy:
-    image: ghcr.io/nginx-proxy/nginx-proxy:alpine
-    environment:
-      - DEFAULT_HOST=${DEFAULT_HOST}
-      - HTTPS_METHOD=${HTTPS_METHOD}
+  reverse-proxy:
+    image: docker.io/library/traefik:v2.9
+    command:
+      - "--providers.docker"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.network=${DOCKER_NETWORK_NAME}"
+      - "--providers.docker.constraints=Label(`eu.wiss-ki.barrel.distillery`,`${DOCKER_NETWORK_NAME}`)"
+      - "--entrypoints.web.address=:80"
+
+      ## for debugging purposes, the following can be enabled.
+      # - "--api.insecure=true"
     ports:
       - "80:80"
+      # - "127.0.0.1:8888:8080"
     volumes:
-      - "vhost:/etc/nginx/vhost.d"
-      - "./global.conf:/etc/nginx/conf.d/global.conf:ro"
-      - "./proxy.conf:/etc/nginx/proxy.conf:ro"
-      - "htpasswd:/etc/nginx/htpasswd"
-      - "html:/usr/share/nginx/html"
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
     restart: always
     networks:
       - default
 
-volumes:
-  vhost:
-  html:
-  htpasswd:
-
 networks:
   default:
-    name: distillery
+    name: ${DOCKER_NETWORK_NAME}
     external: true

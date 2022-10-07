@@ -13,10 +13,12 @@ services:
         # Use 1GB of heap space
         environment:
             GDB_HEAP_SIZE: 16G
+        labels:
+            - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
 
         restart: always
 
 networks:
     default:
-        name: distillery
+        name: ${DOCKER_NETWORK_NAME}
         external: true

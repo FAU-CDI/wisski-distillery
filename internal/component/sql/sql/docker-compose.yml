@@ -7,6 +7,8 @@ services:
             - "./data/:/var/lib/mysql"
         ports:
             - 127.0.0.1:3306:3306
+        labels:
+            - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
         environment:
             # This combination of environment variables will configure a passwordless root user
             # that can only connect to the container from 'localhost'.
@@ -24,6 +26,8 @@ services:
         # By default no admin account is created, so initial shell access to make one is needed. 
         ports:
             - 127.0.0.1:8080:80
+        labels:
+            - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
         depends_on:
             - sql
         restart: always
@@ -31,5 +35,5 @@ services:
 
 networks:
     default:
-        name: distillery
+        name: ${DOCKER_NETWORK_NAME}
         external: true

@@ -204,10 +204,11 @@ type StackWithResources struct {
 
 	CopyContextFiles []string // Files to copy from the installation context
 
-	MakeDirsPerm fs.FileMode // permission for diretories, defaults to [environment.DefaultDirCreate]
+	MakeDirsPerm fs.FileMode // permission for dirctories, defaults to [environment.DefaultDirCreate]
 	MakeDirs     []string    // directories to ensure that exist
 
-	TouchFiles []string // Files to 'touch', i.e. ensure that exist; guaranteed to be run after MakeDirs
+	TouchFilesPerm fs.FileMode // permission for new files to touch, defaults to [environment.DefaultFileCreate]
+	TouchFiles     []string    // Files to 'touch', i.e. ensure that exist; guaranteed to be run after MakeDirs
 }
 
 // InstallationContext is a context to install data in
@@ -287,7 +288,7 @@ func (is StackWithResources) Install(io stream.IOStream, context InstallationCon
 		dst := filepath.Join(is.Dir, name)
 
 		io.Printf("[touch]   %s\n", dst)
-		if err := fsx.Touch(env, dst); err != nil {
+		if err := fsx.Touch(env, dst, is.TouchFilesPerm); err != nil {
 			return err
 		}
 	}

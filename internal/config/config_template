@@ -2,6 +2,9 @@
 # On top of this all real-system space will be created under this directory.  
 DEPLOY_ROOT=${DEPLOY_ROOT}
 
+# The name of the (global) docker network to run the distillery services in.
+DOCKER_NETWORK_NAME=${DOCKER_NETWORK_NAME}
+
 # Each created Drupal Instance corresponds to a single domain name. 
 # These domain names should either be a complete domain name or a sub-domain of a default domain. 
 # This setting configures the default domain-name to create subdomains of. 

@@ -5,15 +5,20 @@ services:
     build: .
     restart: always
     environment:
-      # port and hostname for this image to use
-      VIRTUAL_HOST: ${VIRTUAL_HOST}
-      VIRTUAL_PORT: 8888
-
       CONFIG_PATH: ${CONFIG_PATH}
-      
-      # optional letsencrypt email
-      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
+    labels:
+
+      - "traefik.enable=True"
+      - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
+      - "traefik.http.routers.control.rule=${HOST_RULE}"
+
+      - "traefik.http.routers.fallback.rule=HostRegexp(`{catchall:.*}`)"
+      - "traefik.http.routers.fallback.priority=1"
+
+      - "traefik.http.routers.control.tls=${HTTPS_ENABLED}"
+      - "traefik.http.routers.control.tls.certresolver=distillery"
+      - "traefik.http.services.control.loadbalancer.server.port=8888"
+
 
     volumes:
       # TODO: Mount docker socket properly!
@@ -26,5 +31,5 @@ services:
 
 networks:
   default:
-    name: distillery
+    name: ${DOCKER_NETWORK_NAME}
     external: true

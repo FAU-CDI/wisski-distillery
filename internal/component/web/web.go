@@ -37,33 +37,37 @@ func (web Web) Stack(env environment.Environment) component.StackWithResources {
 }
 
 //go:embed all:web-https
-//go:embed web-https.env
+//go:embed web.env
 var httpsResources embed.FS
 
 func (web *Web) stackHTTPS(env environment.Environment) component.StackWithResources {
 	return component.MakeStack(web, env, component.StackWithResources{
 		Resources:   httpsResources,
 		ContextPath: "web-https",
-		EnvPath:     "web-https.env",
+		EnvPath:     "web.env",
 
 		EnvContext: map[string]string{
-			"DEFAULT_HOST": web.Config.DefaultDomain,
+			"DOCKER_NETWORK_NAME": web.Config.DockerNetworkName,
+			"CERT_EMAIL":          web.Config.CertbotEmail,
 		},
+		TouchFilesPerm: 0600,
+		TouchFiles:     []string{"acme.json"},
 	})
 }
 
 //go:embed all:web-http
-//go:embed web-http.env
+//go:embed web.env
 var httpResources embed.FS
 
 func (web *Web) stackHTTP(env environment.Environment) component.StackWithResources {
 	return component.MakeStack(web, env, component.StackWithResources{
 		Resources:   httpResources,
 		ContextPath: "web-http",
-		EnvPath:     "web-http.env",
+		EnvPath:     "web.env",
 
 		EnvContext: map[string]string{
-			"DEFAULT_HOST": web.Config.DefaultDomain,
+			"DOCKER_NETWORK_NAME": web.Config.DockerNetworkName,
+			"CERT_EMAIL":          web.Config.CertbotEmail,
 		},
 	})
 }

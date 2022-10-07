@@ -9,9 +9,12 @@ services:
         volumes:
             - './data/keys:/keys'
             - '/var/run/docker.sock:/var/run/docker.sock:ro'
+        labels:
+            - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
         restart: always
 
 networks:
     default:
-        name: distillery
+        name: ${DOCKER_NETWORK_NAME}
         external: true
+

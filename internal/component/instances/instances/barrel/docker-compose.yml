@@ -5,19 +5,19 @@ services:
     build: .
     restart: always
     hostname: ${VIRTUAL_HOST}.wisski
-    environment:
-      # port and hostname for this image to use
-      VIRTUAL_HOST: ${VIRTUAL_HOST}
-      VIRTUAL_PORT: 8080
-      
-      # optional letsencrypt email
-      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-    
+
     # label it with the current slug
     labels:
-      eu.wiss-ki.barrel.slug: ${SLUG}
-      eu.wiss-ki.barrel.authfile: /var/www/.ssh/authorized_keys,/var/www/.ssh/global_authorized_keys
+      - "eu.wiss-ki.barrel.slug=${SLUG}"
+      - "eu.wiss-ki.barrel.authfile:=/var/www/.ssh/authorized_keys,/var/www/.ssh/global_authorized_keys"
+
+      - "traefik.enable=True"
+      - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
+
+      - "traefik.http.routers.wisski_${SLUG}.rule=Host(`${VIRTUAL_HOST}`)"
+      - "traefik.http.routers.wisski_${SLUG}.tls=${HTTPS_ENABLED}"
+      - "traefik.http.routers.wisski_${SLUG}.tls.certresolver=distillery"
+      - "traefik.http.services.wisski_${SLUG}.loadbalancer.server.port=8080"
     
     # volumes that are mounted
     volumes:
@@ -29,5 +29,5 @@ services:
 
 networks:
   default:
-    name: distillery
+    name: ${DOCKER_NETWORK_NAME}
     external: true

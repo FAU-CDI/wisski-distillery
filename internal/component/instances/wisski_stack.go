@@ -25,14 +25,13 @@ func (wisski *WissKI) Barrel() component.StackWithResources {
 		EnvPath:     filepath.Join("instances", "barrel.env"),
 
 		EnvContext: map[string]string{
-			"DATA_PATH": filepath.Join(wisski.FilesystemBase, "data"),
+			"DOCKER_NETWORK_NAME": wisski.instances.Config.DockerNetworkName,
 
-			"SLUG":         wisski.Slug,
-			"VIRTUAL_HOST": wisski.Domain(),
+			"SLUG":          wisski.Slug,
+			"VIRTUAL_HOST":  wisski.Domain(),
+			"HTTPS_ENABLED": wisski.instances.Config.HTTPSEnabledEnv(),
 
-			"LETSENCRYPT_HOST":  wisski.instances.Config.IfHttps(wisski.Domain()),
-			"LETSENCRYPT_EMAIL": wisski.instances.Config.IfHttps(wisski.instances.Config.CertbotEmail),
-
+			"DATA_PATH":                   filepath.Join(wisski.FilesystemBase, "data"),
 			"RUNTIME_DIR":                 wisski.instances.Config.RuntimeDir(),
 			"GLOBAL_AUTHORIZED_KEYS_FILE": wisski.instances.Config.GlobalAuthorizedKeysFile,
 		},
@@ -109,10 +108,11 @@ func (wisski *WissKI) Reserve() component.StackWithResources {
 		EnvPath:     filepath.Join("instances", "reserve.env"),
 
 		EnvContext: map[string]string{
-			"VIRTUAL_HOST": wisski.Domain(),
+			"DOCKER_NETWORK_NAME": wisski.instances.Config.DockerNetworkName,
 
-			"LETSENCRYPT_HOST":  wisski.instances.Config.IfHttps(wisski.Domain()),
-			"LETSENCRYPT_EMAIL": wisski.instances.Config.IfHttps(wisski.instances.Config.CertbotEmail),
+			"SLUG":          wisski.Slug,
+			"VIRTUAL_HOST":  wisski.Domain(),
+			"HTTPS_ENABLED": wisski.instances.Config.HTTPSEnabledEnv(),
 		},
 	}
 }

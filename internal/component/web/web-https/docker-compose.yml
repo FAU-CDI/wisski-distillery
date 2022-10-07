@@ -1,52 +1,41 @@
 version: "3.7"
 
 services:
-  nginx-proxy:
-    image: ghcr.io/nginx-proxy/nginx-proxy:alpine
-    environment:
-      - DEFAULT_HOST=${DEFAULT_HOST}
-      - HTTPS_METHOD=${HTTPS_METHOD}
+  reverse-proxy:
+    image: docker.io/library/traefik:v2.9
+    command:
+      - "--providers.docker"
+
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.network=${DOCKER_NETWORK_NAME}"
+      - "--providers.docker.constraints=Label(`eu.wiss-ki.barrel.distillery`,`${DOCKER_NETWORK_NAME}`)"
+  
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.websecure.address=:443"
+      
+      - "--certificatesresolvers.distillery.acme.httpchallenge=true"
+      - "--certificatesresolvers.distillery.acme.email=${CERT_EMAIL}"
+      - "--certificatesresolvers.distillery.acme.storage=/acme.json"
+      - "--certificatesresolvers.distillery.acme.httpchallenge.entrypoint=web"
+
+      ## for debugging purposes, the following can be enabled.
+      # - "--api.insecure=true"
+      # - "--certificatesresolvers.distillery.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+
     ports:
       - "80:80"
       - "443:443"
+      # - "127.0.0.1:8888:8080"
     volumes:
-      - "vhost:/etc/nginx/vhost.d"
-      - "./global.conf:/etc/nginx/conf.d/global.conf:ro"
-      - "./proxy.conf:/etc/nginx/proxy.conf:ro"
-      - "htpasswd:/etc/nginx/htpasswd"
-      - "html:/usr/share/nginx/html"
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
-      - "certs:/etc/nginx/certs"
-    labels:
-      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: true
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./acme.json:/acme.json"
     restart: always
     networks:
       - default
-
-  letsencrypt-nginx-proxy-companion:
-    image: docker.io/nginxproxy/acme-companion:latest
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
-      - "htpasswd:/etc/nginx/htpasswd"
-      - "vhost:/etc/nginx/vhost.d"
-      - "html:/usr/share/nginx/html"
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
-      - "certs:/etc/nginx/certs"
-      - "acme:/etc/acme.sh"
-    restart: always
-    networks:
-      - default
-    depends_on:
-      - nginx-proxy
-
-volumes:
-  acme:
-  vhost:
-  html:
-  certs:
-  htpasswd:
 
 networks:
   default:
-    name: distillery
+    name: ${DOCKER_NETWORK_NAME}
     external: true

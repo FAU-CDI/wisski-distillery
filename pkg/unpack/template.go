@@ -177,7 +177,7 @@ parseloop:
 	// Check if there were missing template keys.
 	// If so, we sort them and return an appropriate error.
 	if len(missingKeys) != 0 {
-		keys := maps.Keys(unusedKeys)
+		keys := maps.Keys(missingKeys)
 		slices.Sort(keys)
 		return MissingTemplateKeyError{
 			Keys: keys,

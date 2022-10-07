@@ -4,17 +4,18 @@ services:
   static:
     image: tkw01536/gostatic
     restart: always
-    environment:
-      # port and hostname for this image to use
-      VIRTUAL_HOST: ${VIRTUAL_HOST}
-      VIRTUAL_PORT: 8043
-      
-      # optional letsencrypt email
-      LETSENCRYPT_HOST: ${LETSENCRYPT_HOST}
-      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL}
-    
     ports:
       - 8043
+    
+    labels:
+      - "traefik.enable=True"
+      - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
+
+      - "traefik.http.routers.reserve_${SLUG}.rule=Host(`${VIRTUAL_HOST}`)"
+      - "traefik.http.routers.reserve_${SLUG}.tls=${HTTPS_ENABLED}"
+      - "traefik.http.routers.reserve_${SLUG}.tls.certresolver=distillery"
+      - "traefik.http.services.reserve_${SLUG}.loadbalancer.server.port=8043"
+
     
     # volumes that are mounted
     volumes:
@@ -22,5 +23,5 @@ services:
 
 networks:
   default:
-    name: distillery
+    name: ${DOCKER_NETWORK_NAME}
     external: true

@@ -103,7 +103,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	// create the docker network
 	// TODO: Use docker API for this
 	logging.LogMessage(context.IOStream, "Updating Docker Configuration")
-	si.mustExec(context, "", "docker", "network", "create", "distillery")
+	si.mustExec(context, "", "docker", "network", "create", dis.Config.DockerNetworkName)
 
 	// install and update the various stacks!
 	ctx := component.InstallationContext{

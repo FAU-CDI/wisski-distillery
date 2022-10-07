@@ -83,6 +83,9 @@ type Config struct {
 	DisAdminUser     string `env:"DIS_ADMIN_USER" default:"admin" parser:"nonempty"`
 	DisAdminPassword string `env:"DIS_ADMIN_PASSWORD" default:"" parser:"nonempty"`
 
+	// name of docker network to use
+	DockerNetworkName string `env:"DOCKER_NETWORK_NAME" default:"distillery" parser:"nonempty"`
+
 	// ConfigPath is the path this configuration was loaded from (if any)
 	ConfigPath string
 }

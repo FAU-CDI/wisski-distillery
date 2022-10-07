@@ -34,9 +34,9 @@ func (control *Control) Stack(env environment.Environment) component.StackWithRe
 		EnvPath:     "control.env",
 
 		EnvContext: map[string]string{
-			"VIRTUAL_HOST":      control.Config.DefaultHost(),
-			"LETSENCRYPT_HOST":  control.Config.DefaultSSLHost(),
-			"LETSENCRYPT_EMAIL": control.Config.CertbotEmail,
+			"DOCKER_NETWORK_NAME": control.Config.DockerNetworkName,
+			"HOST_RULE":           control.Config.DefaultHostRule(),
+			"HTTPS_ENABLED":       control.Config.HTTPSEnabledEnv(),
 
 			"CONFIG_PATH": control.Config.ConfigPath,
 			"DEPLOY_ROOT": control.Config.DeployRoot,
