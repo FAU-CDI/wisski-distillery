@@ -30,25 +30,10 @@ func (cfg Config) HTTPSEnabledEnv() string {
 	return "false"
 }
 
-// IfHttps returns value when the distillery has https enabled, and the empty string otherwise.
-func (cfg Config) IfHttps(value string) string {
-	if !cfg.HTTPSEnabled() {
-		return ""
-	}
-	return value
-}
-
 // DefaultHostRule returns the default traefik hostname rule for this distillery.
 // This consists of the [DefaultDomain] as well as [ExtraDomains].
 func (cfg Config) DefaultHostRule() string {
 	return cfg.HostRule(append([]string{cfg.DefaultDomain}, cfg.SelfExtraDomains...)...)
-}
-
-// DefaultSSLHost returns the default hostname for the ssl version of the distillery.
-//
-// This is exactly [DefaultHost] when SSL is enabled, and the empty string otherwise.
-func (cfg Config) xDefaultSSLHost() string {
-	panic("not implemented")
 }
 
 // SlugFromHost returns the slug belonging to the appropriate host.'
