@@ -16,6 +16,8 @@ type WissKIInfo struct {
 	Slug string // slug
 	URL  string // complete URL, including http(s)
 
+	Locked bool // Is this instance currently locked?
+
 	// Information about the running instance
 	Running     bool
 	LastRebuild time.Time
@@ -46,6 +48,12 @@ func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
 	group.Go(func() (err error) {
 		info.Running, err = wisski.Running()
 		return
+	})
+
+	// quick check if this instance is locked
+	group.Go(func() (err error) {
+		info.Locked = wisski.IsLocked()
+		return nil
 	})
 
 	// slower checks for extra properties.

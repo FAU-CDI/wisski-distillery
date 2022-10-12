@@ -58,6 +58,7 @@ func (i info) Run(context wisski_distillery.Context) error {
 	context.Printf("GraphDB Password:     %v\n", instance.GraphDBPassword)
 
 	context.Printf("Running:              %v\n", info.Running)
+	context.Printf("Locked:               %v\n", info.Locked)
 	context.Printf("Last Rebuild:         %v\n", info.LastRebuild.String())
 
 	context.Printf("Skip Prefixes:        %v\n", info.NoPrefixes)

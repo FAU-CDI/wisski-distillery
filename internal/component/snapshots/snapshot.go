@@ -44,6 +44,21 @@ type Snapshot struct {
 
 // Snapshot creates a new snapshot of this instance into dest
 func (snapshots *Manager) NewSnapshot(instance instances.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
+
+	logging.LogMessage(io, "Locking instance")
+	if err := instance.TryLock(); err != nil {
+		io.EPrintln(err)
+		logging.LogMessage(io, "Aborting snapshot creation")
+
+		return Snapshot{
+			ErrPanic: err,
+		}
+	}
+	defer func() {
+		logging.LogMessage(io, "Unlocking instance")
+		instance.Unlock()
+	}()
+
 	// setup the snapshot
 	snapshot.Description = desc
 	snapshot.Instance = instance.Instance

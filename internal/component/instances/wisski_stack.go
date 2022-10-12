@@ -70,6 +70,11 @@ func (wisski *WissKI) setLastRebuild() error {
 //
 // It also logs the current time into the metadata belonging to this instance.
 func (wisski *WissKI) Build(stream stream.IOStream, start bool) error {
+	if err := wisski.TryLock(); err != nil {
+		return err
+	}
+	defer wisski.Unlock()
+
 	barrel := wisski.Barrel()
 
 	var context component.InstallationContext

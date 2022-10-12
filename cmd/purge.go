@@ -102,6 +102,12 @@ func (p purge) Run(context wisski_distillery.Context) error {
 		context.EPrintln(err)
 	}
 
+	// remove the filesystem
+	logging.LogMessage(context.IOStream, "Remove lock data", instance.FilesystemBase)
+	if !instance.Unlock() {
+		context.EPrintln("instance was not locked")
+	}
+
 	logging.LogMessage(context.IOStream, "Instance %s has been purged", slug)
 	return nil
 }

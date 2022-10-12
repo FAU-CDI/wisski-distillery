@@ -96,6 +96,11 @@ func (sql *SQL) Update(io stream.IOStream) error {
 			&models.Export{},
 			models.ExportTable,
 		},
+		{
+			"lock",
+			&models.Lock{},
+			models.LockTable,
+		},
 	}
 
 	// migrate all of the tables!
