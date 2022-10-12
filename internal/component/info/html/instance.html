@@ -4,10 +4,11 @@
 <title>Distillery Status Page - {{ .Info.Slug }}</title>
 <h1 id="top">Distillery Status Page - {{ .Info.Slug }}</h1>
 <p>
+    <a href=".">Reload</a>
     <a href="/dis/index">Back to index</a>
 </p>
 
-<p>
+<div>
     <b>Slug:</b> <code>{{ .Info.Slug }}</code> <br />
     <b>URL:</b> <a href="{{ .Info.URL }}" target="_blank" rel="noopener noreferrer">{{ .Info.URL }}</a> <br />
     <hr />
@@ -25,6 +26,11 @@
     <hr />
     <b>Created:</b> <code class="date">{{ .Instance.Created.Format "2006-01-02T15:04:05Z07:00" }}</code> <br />
     <b>Last Rebuild:</b> <code class="date">{{ .Info.LastRebuild.Format "2006-01-02T15:04:05Z07:00" }}</code> <br />
+    <hr>
+    <p>
+        <button class="remote-action" data-action="rebuild" data-param="{{ .Instance.Slug }}" data-target="#rebuild" data-buffer="20">Rebuild</button>
+        <pre class="remote-action-out" id="rebuild"></pre>
+    </p>
     <hr />
     <b>FilesystemBase:</b> <code>{{ .Instance.FilesystemBase }}</code> <br />
     <b>AutoBlindUpdateEnabled:</b> <code>{{ .Instance.AutoBlindUpdateEnabled }}</code> <br />
@@ -64,12 +70,13 @@
         </tbody>
     </table>
     <hr />
-</p>
+    <p>
+        <button class="remote-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-target="#snapshot" data-buffer="20">Take a snapshot</button>
+        <pre class="remote-action-out" id="snapshot"></pre>
+    </p>
+</div>
 
-<p>
-    <button class="remote-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-target="#snapshot" data-buffer="20">Take a snapshot</button>
-    <pre class="remote-action-out" id="snapshot"></pre>
-</p>
+
 
 <footer>
     Generated at <code>{{ .Time }}</code>

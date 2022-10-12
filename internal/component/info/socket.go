@@ -21,6 +21,12 @@ func (info *Info) serveSocket(conn httpx.WebSocketConnection) {
 			return
 		}
 		info.serverSocketSnapshot(string(slug.Bytes), info.socketWriter(conn))
+	case "rebuild":
+		slug, ok := <-conn.Read()
+		if !ok {
+			return
+		}
+		info.serverSocketRebuild(string(slug.Bytes), info.socketWriter(conn))
 	}
 }
 
@@ -53,6 +59,27 @@ func (info *Info) serverSocketSnapshot(slug string, writer *status.LineBuffer) {
 				StagingOnly: false,
 			},
 		)
+		if err != nil {
+			stream.EPrintln(err)
+			return
+		}
+	}
+	stream.Println("Done")
+
+}
+
+func (info *Info) serverSocketRebuild(slug string, writer *status.LineBuffer) {
+	stream := stream.NewIOStream(writer, writer, nil, 0)
+
+	// get the wisski
+	wissKI, err := info.Instances.WissKI(slug)
+	if err != nil {
+		stream.EPrintln(err)
+		return
+	}
+
+	{
+		err := wissKI.Build(stream, true)
 		if err != nil {
 			stream.EPrintln(err)
 			return
