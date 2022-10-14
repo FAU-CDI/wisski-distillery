@@ -1,3 +1,5 @@
+import "./index.css"
+
 /** Adapted from http://blog.parkermoore.de/2014/08/01/header-anchor-links-in-vanilla-javascript-for-github-pages-and-jekyll/ */
 const anchorForId = (id) => {
     const anchor = document.createElement("a")

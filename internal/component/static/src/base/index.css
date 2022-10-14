@@ -1,0 +1,34 @@
+body {
+    font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+header, main, footer {
+    margin: 2em;
+}
+
+.padding {
+    padding: 1em;
+}
+
+.overflow {
+    overflow-x:auto;
+}
+
+.overflow table {
+    width: 100%;
+}
+
+.overflow table td:not(:last-child), 
+.overflow table th:not(:last-child) {
+    width:1px;
+    text-align:left;
+    white-space: nowrap;
+}
+.overflow table td:last-child, 
+.overflow table th:last-child {
+    white-space: nowrap;
+}
+
+.hspace {
+    display: block;
+    height: 2em;
+}

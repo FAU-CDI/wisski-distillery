@@ -6,8 +6,10 @@ import (
 	"embed"
 	"io/fs"
 	"net/http"
+	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -25,6 +27,13 @@ func (static *Static) Handler(route string, context context.Context, io stream.I
 		return nil, err
 	}
 
+	// censor *.html in the filesystem
+	fs = fsx.Censor(fs, func(path string) bool {
+		suffix := "html"
+		return len(path) >= len(suffix) && strings.EqualFold(path[len(path)-len(suffix):], suffix)
+	})
+
+	// and serve it
 	return http.StripPrefix(route, http.FileServer(http.FS(fs))), nil
 }
 

@@ -1,13 +1,13 @@
 package info
 
 import (
-	"html/template"
 	"net/http"
 	"time"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"golang.org/x/sync/errgroup"
@@ -15,7 +15,7 @@ import (
 
 //go:embed "html/index.html"
 var indexTemplateStr string
-var indexTemplate = template.Must(template.New("index.html").Parse(indexTemplateStr))
+var indexTemplate = static.EntryControlIndex.MustParse(indexTemplateStr)
 
 type indexPageContext struct {
 	Time time.Time

@@ -2,19 +2,19 @@ package info
 
 import (
 	_ "embed"
-	"html/template"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
 //go:embed "html/instance.html"
 var instanceTemplateString string
-var instanceTemplate = template.Must(template.New("instance.html").Parse(instanceTemplateString))
+var instanceTemplate = static.EntryControlInstance.MustParse(instanceTemplateString)
 
 type instancePageContext struct {
 	Time time.Time

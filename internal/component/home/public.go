@@ -3,12 +3,12 @@ package home
 import (
 	"bytes"
 	"context"
-	"text/template"
 	"time"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/sync/errgroup"
@@ -47,7 +47,7 @@ func (home *Home) updateRender(ctx context.Context, io stream.IOStream) {
 
 //go:embed "home.html"
 var homeHTMLStr string
-var homeTemplate = template.Must(template.New("home.html").Parse(homeHTMLStr))
+var homeTemplate = static.EntryHome.MustParse(homeHTMLStr)
 
 func (home *Home) homeRender() ([]byte, error) {
 	var context HomeContext

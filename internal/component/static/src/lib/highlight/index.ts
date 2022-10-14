@@ -1,7 +1,7 @@
-
+import dayjs from "dayjs"
 const types: Record<string, (element: HTMLElement) => HTMLElement | string> = {
     "date": (element) => {
-        return (new Date(element.innerText)).toISOString()
+        return dayjs(element.innerText).format('YYYY-MM-DD HH:mm:ss ([UTC]Z)')
     },
     "path": (element) => {
         const text = element.innerText.split("/");

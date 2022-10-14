@@ -1,0 +1,42 @@
+.modal-terminal {
+    width: 66vw;
+    height: 66vh;
+
+    position: fixed;
+    left: 17vw;
+    top: 17vh;
+
+    background-color: white;
+
+    background-clip: padding-box;
+    -webkit-background-clip: padding-box;
+
+    border-left: 17vw solid rgba(0, 0, 0, 0.8);
+    border-right: 17vw solid rgba(0, 0, 0, 0.8);
+    margin-left: -17vw;
+    margin-right: -17vw;
+
+    border-top: 17vh solid rgba(0, 0, 0, 0.8);
+    border-bottom: 17vh solid rgba(0, 0, 0, 0.8);
+    margin-top: -17vh;
+    margin-bottom: -17vh;
+
+    overflow: auto;
+
+    z-index: 1000;
+}
+
+.modal-terminal button {
+    position: fixed;
+    top: 17vh;
+    right: 17vw;
+
+    z-index: 1001;
+}
+
+.modal-terminal pre,
+.modal-terminal button
+{
+    margin: 5px;
+}
+

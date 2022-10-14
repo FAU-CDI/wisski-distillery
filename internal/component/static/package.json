@@ -1,21 +1,13 @@
 {
   "name": "wisski-distillery-frontend",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
   "private": true,
   "dependencies": {
+    "dayjs": "^1.11.5",
     "parcel": "^2.7.0"
   },
   "scripts": {
-    "dist": "parcel build --dist-dir dist --target default --public-url /static/ --no-source-maps"
-  },
-  "targets": {
-    "default": {
-      "source": [
-        "src/control/index.ts",
-        "src/home/index.ts"
-      ]
-    }
+    "dist": "parcel build --dist-dir dist --public-url /static/ src/entry/*/*.html --no-source-maps"
   }
 }
