@@ -1,7 +1,10 @@
 body {
     font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
-header, main, footer {
+
+header,
+main,
+footer {
     margin: 2em;
 }
 
@@ -10,20 +13,21 @@ header, main, footer {
 }
 
 .overflow {
-    overflow-x:auto;
+    overflow-x: auto;
 }
 
 .overflow table {
     width: 100%;
 }
 
-.overflow table td:not(:last-child), 
+.overflow table td:not(:last-child),
 .overflow table th:not(:last-child) {
-    width:1px;
-    text-align:left;
+    width: 1px;
+    text-align: left;
     white-space: nowrap;
 }
-.overflow table td:last-child, 
+
+.overflow table td:last-child,
 .overflow table th:last-child {
     white-space: nowrap;
 }
@@ -31,4 +35,11 @@ header, main, footer {
 .hspace {
     display: block;
     height: 2em;
+}
+
+.pure-button-action {
+    background-color: rgb(66, 184, 221) !important;
+}
+.pure-button-success {
+    background-color: rgb(28, 184, 65) !important;
 }

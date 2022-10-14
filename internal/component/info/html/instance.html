@@ -9,9 +9,11 @@
 <body>
     <header>
         <h1 id="top">Distillery Control Page - {{ .Info.Slug }}</h1>
+        <small>Generated at <code class="date">{{ .Time.Format "2006-01-02T15:04:05Z07:00" }}</code></small>
         <p>
-            <a href="/dis/instance/{{ .Info.Slug }}">Reload</a>
-            <a href="/dis/index">Back to index</a>
+            <a class="pure-button" href="/dis/index">Control</a> &gt;
+            <a class="pure-button pure-button-primary" href="/dis/instance/{{ .Info.Slug }}">Instance</a>
+            
         </p>
     </header>
 
@@ -77,7 +79,7 @@
                                 <tr>
                                     <th colspan="2">
                                         Build
-                                        <button class="remote-action" data-action="rebuild" data-param="{{ .Instance.Slug }}" data-buffer="1000">Rebuild</button>
+                                        <button class="remote-action pure-button pure-button-action" data-action="rebuild" data-param="{{ .Instance.Slug }}" data-buffer="1000">Rebuild</button>
                                     </th>
                                 </tr>
                             </thead>
@@ -109,10 +111,6 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <p>
-                    <pre class="remote-action-out" id="rebuild"></pre>
-                    </p>
                 </div>
             </div>
 
@@ -256,6 +254,9 @@
 
             <div class="pure-u-1-1">
                 <h2 id="snapshots">Snapshots</h2>
+                <p>
+                    <button class="remote-action pure-button pure-button-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-buffer="1000">Take a snapshot</button>
+                </p>
             </div>
 
             <div class="pure-u-1">
@@ -284,17 +285,9 @@
                     </tbody>
                 </table>
             </div>
-
-            <p>
-                <button class="remote-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-buffer="1000">Take a snapshot</button>
-            </p>
         </div>
         </div>
     </main>
-
-    <footer>
-        Generated at <code>{{ .Time }}</code>
-    </footer>
 
     {{ JS }}
 </body>

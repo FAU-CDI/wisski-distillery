@@ -71,12 +71,15 @@ Array.from(elements).forEach((element) => {
         
         // create a button to eventually close everything
         const button = document.createElement("button")
-        button.className = "pure-button"
+        button.className = "pure-button pure-button-success"
         button.append("Close")
         button.addEventListener('click', function (event) {
             event.preventDefault();
             modal.parentNode?.removeChild(modal);
         })
+        
+        const onbeforeunload = window.onbeforeunload;
+        window.onbeforeunload = () => "A remote session is in progress. Are you sure you want to leave?";
 
         // when closing, add a button to the modal!
         let didClose = false
@@ -84,6 +87,7 @@ Array.from(elements).forEach((element) => {
             if (didClose) return
             didClose = true
 
+            window.onbeforeunload = onbeforeunload;
             modal.append(button)
             // DEBUG: print terminal stats!
             // const quota = (println.paintedFrames / (println.missedFrames + println.paintedFrames)) * 100

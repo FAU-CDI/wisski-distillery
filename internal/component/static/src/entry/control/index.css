@@ -1,5 +1,15 @@
 .wisski {
-    padding-left: 5px;
+    padding: 1em;
+}
+
+.wisski h3 {
+    padding: 0;
+}
+
+.wisski a.pure-button {
+    float: right;
+    position: relative;
+    bottom: 1em;
 }
 
 .wisski.running {

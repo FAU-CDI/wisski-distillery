@@ -1,7 +1,7 @@
 import "./index.css"
 
 /** Adapted from http://blog.parkermoore.de/2014/08/01/header-anchor-links-in-vanilla-javascript-for-github-pages-and-jekyll/ */
-const anchorForId = (id) => {
+const anchorForId = (id: string) => {
     const anchor = document.createElement("a")
     anchor.className = "header-link"
     anchor.href = "#" + id
@@ -9,7 +9,7 @@ const anchorForId = (id) => {
     return anchor
 }
 
-const linkifyAnchors = (level) => {
+const linkifyAnchors = (level: number) => {
     const headers = document.getElementsByTagName("h" + level);
     Array.from(headers).forEach((header) => {
         if (typeof header.id === "undefined" || header.id === "") return
