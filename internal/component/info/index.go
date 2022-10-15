@@ -15,7 +15,7 @@ import (
 
 //go:embed "html/index.html"
 var indexTemplateStr string
-var indexTemplate = static.EntryControlIndex.MustParse(indexTemplateStr)
+var indexTemplate = static.AssetsControlIndex.MustParse(indexTemplateStr)
 
 type indexPageContext struct {
 	Time time.Time

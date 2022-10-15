@@ -49,6 +49,7 @@ function makeTextBuffer(target: HTMLElement, scrollContainer: HTMLElement, size:
 const elements = document.getElementsByClassName('remote-action')
 Array.from(elements).forEach((element) => {
     const action = element.getAttribute('data-action') as string;
+    const reload = element.hasAttribute('data-force-reload');
     const param = element.getAttribute('data-param') as string | undefined;
     const bufferSize = (function () {
         const number = parseInt(element.getAttribute('data-buffer') ?? "", 10) ?? 0;
@@ -72,9 +73,17 @@ Array.from(elements).forEach((element) => {
         // create a button to eventually close everything
         const button = document.createElement("button")
         button.className = "pure-button pure-button-success"
-        button.append("Close")
+        button.append(reload ? "Close & Reload" : "Close")
         button.addEventListener('click', function (event) {
             event.preventDefault();
+
+            if (reload) {
+                button.setAttribute('disabled', 'disabled');
+                target.innerHTML = 'Reloading page ...'
+                location.reload()
+                return;
+            }
+
             modal.parentNode?.removeChild(modal);
         })
         

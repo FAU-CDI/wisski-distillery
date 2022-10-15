@@ -47,7 +47,7 @@ func (home *Home) updateRender(ctx context.Context, io stream.IOStream) {
 
 //go:embed "home.html"
 var homeHTMLStr string
-var homeTemplate = static.EntryHome.MustParse(homeHTMLStr)
+var homeTemplate = static.AssetsHomeHome.MustParse(homeHTMLStr)
 
 func (home *Home) homeRender() ([]byte, error) {
 	var context HomeContext

@@ -14,7 +14,7 @@ import (
 
 //go:embed "html/instance.html"
 var instanceTemplateString string
-var instanceTemplate = static.EntryControlInstance.MustParse(instanceTemplateString)
+var instanceTemplate = static.AssetsControlInstance.MustParse(instanceTemplateString)
 
 type instancePageContext struct {
 	Time time.Time

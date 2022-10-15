@@ -1,0 +1,1 @@
+.modal-terminal{width:66vw;height:66vh;background-color:#fff;background-clip:padding-box;-webkit-background-clip:padding-box;z-index:1000;border:17vh solid #000c;border-width:17vh 17vw;margin:-17vh -17vw;position:fixed;top:17vh;left:17vw;overflow:auto}.modal-terminal button{z-index:1001;position:fixed;top:17vh;right:17vw}.modal-terminal pre,.modal-terminal button{margin:5px}
