@@ -78,7 +78,6 @@
                                 <tr>
                                     <th colspan="2">
                                         Build
-                                        <button class="remote-action pure-button pure-button-action" data-action="rebuild" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Rebuild</button>
                                     </th>
                                 </tr>
                             </thead>
@@ -93,7 +92,8 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        Last Rebuild
+                                        Last Rebuild <br>
+                                        <button class="remote-action pure-button pure-button-action" data-action="rebuild" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Rebuild</button>
                                     </td>
                                     <td>
                                         <code class="date">{{ .Info.LastRebuild.Format "2006-01-02T15:04:05Z07:00" }}</code>
@@ -105,6 +105,15 @@
                                     </td>
                                     <td>
                                         <code>{{ .Instance.AutoBlindUpdateEnabled }}</code>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Last Update <br>
+                                        <button class="remote-action pure-button pure-button-action" data-action="update" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Update</button>
+                                    </td>
+                                    <td>
+                                        <code class="date">{{ .Info.LastUpdate.Format "2006-01-02T15:04:05Z07:00" }}</code>
                                     </td>
                                 </tr>
                             </tbody>

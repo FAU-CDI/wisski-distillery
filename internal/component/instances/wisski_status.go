@@ -21,6 +21,7 @@ type WissKIInfo struct {
 	// Information about the running instance
 	Running     bool
 	LastRebuild time.Time
+	LastUpdate  time.Time
 
 	// List of backups made
 	Snapshots []models.Export
@@ -61,6 +62,10 @@ func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
 	if !quick {
 		group.Go(func() (err error) {
 			info.LastRebuild, _ = wisski.LastRebuild()
+			return nil
+		})
+		group.Go(func() (err error) {
+			info.LastUpdate, _ = wisski.LastUpdate()
 			return nil
 		})
 		group.Go(func() error {

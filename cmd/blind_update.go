@@ -6,7 +6,6 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/status"
@@ -52,15 +51,8 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) error {
 	}
 
 	// and do the actual blind_update!
-	return status.StreamGroup(context.IOStream, bu.Parallel, func(instance instances.WissKI, io stream.IOStream) error {
-		code, err := instance.Shell(io, "/runtime/blind_update.sh")
-		if err != nil {
-			return errBlindUpdateFailed.WithMessageF(instance.Slug, environment.ExecCommandError)
-		}
-		if code != 0 {
-			return errBlindUpdateFailed.WithMessageF(instance.Slug, code)
-		}
-		return nil
+	return status.StreamGroup(context.IOStream, bu.Parallel, func(instance instances.WissKI, str stream.IOStream) error {
+		return instance.BlindUpdate(str)
 	}, wissKIs, status.SmartMessage(func(item instances.WissKI) string {
 		return fmt.Sprintf("blind_update %q", item.Slug)
 	}))

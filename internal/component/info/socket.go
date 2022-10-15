@@ -1,11 +1,34 @@
 package info
 
 import (
+	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 )
+
+type instanceActionFunc = func(info *Info, instance instances.WissKI, str stream.IOStream) error
+
+var socketInstanceActions = map[string]instanceActionFunc{
+	"snapshot": func(info *Info, instance instances.WissKI, str stream.IOStream) error {
+		return info.SnapshotManager.MakeExport(
+			str,
+			snapshots.ExportTask{
+				Dest:     "",
+				Instance: &instance,
+
+				StagingOnly: false,
+			},
+		)
+	},
+	"rebuild": func(_ *Info, instance instances.WissKI, str stream.IOStream) error {
+		return instance.Build(str, true)
+	},
+	"update": func(_ *Info, instance instances.WissKI, str stream.IOStream) error {
+		return instance.BlindUpdate(str)
+	},
+}
 
 func (info *Info) serveSocket(conn httpx.WebSocketConnection) {
 	// read the next message to act on
@@ -14,77 +37,47 @@ func (info *Info) serveSocket(conn httpx.WebSocketConnection) {
 		return
 	}
 
-	switch string(message.Bytes) {
-	case "snapshot":
-		slug, ok := <-conn.Read()
-		if !ok {
-			return
-		}
-		info.serverSocketSnapshot(string(slug.Bytes), info.socketWriter(conn))
-	case "rebuild":
-		slug, ok := <-conn.Read()
-		if !ok {
-			return
-		}
-		info.serverSocketRebuild(string(slug.Bytes), info.socketWriter(conn))
+	// perform an action if it exists!
+	if action, ok := socketInstanceActions[string(message.Bytes)]; ok {
+		info.handleInstanceAction(conn, action)
+		return
 	}
 }
 
-func (*Info) socketWriter(conn httpx.WebSocketConnection) *status.LineBuffer {
-	return &status.LineBuffer{
+func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action instanceActionFunc) {
+
+	// read the slug
+	slug, ok := <-conn.Read()
+	if !ok {
+		conn.WriteText("Error reading slug")
+		return
+	}
+
+	// resolve the instance
+	instance, err := info.Instances.WissKI(string(slug.Bytes))
+	if err != nil {
+		conn.WriteText("Instance not found")
+		return
+	}
+
+	// build a stream
+	writer := &status.LineBuffer{
 		Line: func(line string) {
 			<-conn.WriteText(line)
 		},
 		FlushLineOnClose: true,
 	}
-}
+	defer writer.Close()
 
-func (info *Info) serverSocketSnapshot(slug string, writer *status.LineBuffer) {
-	stream := stream.NewIOStream(writer, writer, nil, 0)
+	str := stream.NewIOStream(writer, writer, nil, 0)
 
-	// get the wisski
-	wissKI, err := info.Instances.WissKI(slug)
-	if err != nil {
-		stream.EPrintln(err)
-		return
-	}
-
+	// and perform the action
 	{
-		err := info.SnapshotManager.MakeExport(
-			stream,
-			snapshots.ExportTask{
-				Dest:     "",
-				Instance: &wissKI,
-
-				StagingOnly: false,
-			},
-		)
+		err := action(info, instance, str)
 		if err != nil {
-			stream.EPrintln(err)
+			str.EPrintln(err)
 			return
 		}
+		str.Println("done")
 	}
-	stream.Println("Done")
-
-}
-
-func (info *Info) serverSocketRebuild(slug string, writer *status.LineBuffer) {
-	stream := stream.NewIOStream(writer, writer, nil, 0)
-
-	// get the wisski
-	wissKI, err := info.Instances.WissKI(slug)
-	if err != nil {
-		stream.EPrintln(err)
-		return
-	}
-
-	{
-		err := wissKI.Build(stream, true)
-		if err != nil {
-			stream.EPrintln(err)
-			return
-		}
-	}
-	stream.Println("Done")
-
 }
