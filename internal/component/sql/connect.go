@@ -6,16 +6,16 @@ import (
 	"fmt"
 	"net"
 	"sync/atomic"
+	"time"
 
 	mysqldriver "github.com/go-sql-driver/mysql"
-	"github.com/tkw1536/goprogram/stream"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/wait"
+	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 )
 
 //
@@ -42,10 +42,10 @@ func (sql *SQL) Exec(query string, args ...interface{}) error {
 
 // WaitExec waits for the query interface to be able to connect to the database
 func (sql *SQL) WaitExec() error {
-	return wait.Wait(func() bool {
+	return timex.TickUntilFunc(func(time.Time) bool {
 		err := sql.Exec("select 1;")
 		return err == nil
-	}, sql.PollInterval, sql.PollContext)
+	}, sql.PollContext, sql.PollInterval)
 }
 
 //
@@ -91,12 +91,10 @@ func (sql *SQL) QueryTable(silent bool, table string) (*gorm.DB, error) {
 // WaitQueryTable waits for a connection to succeed via QueryTable
 func (sql *SQL) WaitQueryTable() error {
 	// TODO: Establish a convention on when to wait for this!
-	n := stream.FromNil()
-	return wait.Wait(func() bool {
+	return timex.TickUntilFunc(func(time.Time) bool {
 		_, err := sql.QueryTable(true, models.InstanceTable)
-		n.EPrintf("[SQL.WaitQueryTable]: %s\n", err)
 		return err == nil
-	}, sql.PollInterval, sql.PollContext)
+	}, sql.PollContext, sql.PollInterval)
 }
 
 //

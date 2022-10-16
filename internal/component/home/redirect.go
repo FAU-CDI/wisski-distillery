@@ -12,11 +12,14 @@ import (
 )
 
 func (home *Home) updateRedirect(ctx context.Context, io stream.IOStream) {
-	timex.SetInterval(ctx, home.RefreshInterval, func(t time.Time) {
-		io.Printf("[%s]: reloading overrides\n", t.Format(time.Stamp))
-		redirect, _ := home.loadRedirect()
-		home.redirect.Set(&redirect)
-	})
+	go func() {
+		for t := range timex.TickContext(ctx, home.RefreshInterval) {
+			io.Printf("[%s]: reloading overrides\n", t.Format(time.Stamp))
+
+			redirect, _ := home.loadRedirect()
+			home.redirect.Set(&redirect)
+		}
+	}()
 }
 
 func (home *Home) loadRedirect() (redirect Redirect, err error) {

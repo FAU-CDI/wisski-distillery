@@ -3,11 +3,12 @@ package sql
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/sqle"
-	"github.com/FAU-CDI/wisski-distillery/pkg/wait"
+	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -22,11 +23,10 @@ func (sql *SQL) Shell(io stream.IOStream, argv ...string) (int, error) {
 // unsafeWaitShell waits for a connection via the database shell to succeed
 func (sql *SQL) unsafeWaitShell() error {
 	n := stream.FromNil()
-	return wait.Wait(func() bool {
+	return timex.TickUntilFunc(func(time.Time) bool {
 		code, err := sql.Shell(n, "-e", "select 1;")
-		n.EPrintf("[SQL.unsafeWaitShell]: %d %s\n", code, err)
 		return err == nil && code == 0
-	}, sql.PollInterval, sql.PollContext)
+	}, sql.PollContext, sql.PollInterval)
 }
 
 // unsafeQuery shell executes a raw database query.

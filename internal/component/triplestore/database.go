@@ -6,8 +6,9 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/wait"
+	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -87,7 +88,7 @@ func (ts Triplestore) OpenRaw(method, url string, body interface{}, bodyName str
 // This is achieved using a polling strategy.
 func (ts Triplestore) Wait() error {
 	n := stream.FromNil()
-	return wait.Wait(func() bool {
+	return timex.TickUntilFunc(func(time.Time) bool {
 		res, err := ts.OpenRaw("GET", "/rest/repositories", nil, "", "")
 		n.EPrintf("[Triplestore.Wait]: %s\n", err)
 		if err != nil {
@@ -95,7 +96,7 @@ func (ts Triplestore) Wait() error {
 		}
 		defer res.Body.Close()
 		return true
-	}, ts.PollInterval, ts.PollContext)
+	}, ts.PollContext, ts.PollInterval)
 }
 
 // TriplestorePurgeUser deletes the specified user from the triplestore

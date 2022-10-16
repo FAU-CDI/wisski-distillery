@@ -10,11 +10,13 @@ import (
 
 // updatePrefixes starts updating prefixes
 func (resolver *Resolver) updatePrefixes(io stream.IOStream, ctx context.Context) {
-	timex.SetInterval(ctx, resolver.RefreshInterval, func(t time.Time) {
-		io.Printf("[%s]: reloading prefixes\n", t.Format(time.Stamp))
-		prefixes, _ := resolver.AllPrefixes()
-		resolver.prefixes.Set(prefixes)
-	})
+	go func() {
+		for t := range timex.TickContext(ctx, resolver.RefreshInterval) {
+			io.Printf("[%s]: reloading prefixes\n", t.Format(time.Stamp))
+			prefixes, _ := resolver.AllPrefixes()
+			resolver.prefixes.Set(prefixes)
+		}
+	}()
 }
 
 // AllPrefixes returns a list of all prefixes from the server.

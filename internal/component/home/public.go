@@ -15,12 +15,14 @@ import (
 )
 
 func (home *Home) updateInstances(ctx context.Context, io stream.IOStream) {
-	timex.SetInterval(ctx, home.RefreshInterval, func(t time.Time) {
-		io.Printf("[%s]: reloading instance list\n", t.Format(time.Stamp))
+	go func() {
+		for t := range timex.TickContext(ctx, home.RefreshInterval) {
+			io.Printf("[%s]: reloading instance list\n", t.Format(time.Stamp))
 
-		names, _ := home.instanceMap()
-		home.instanceNames.Set(names)
-	})
+			names, _ := home.instanceMap()
+			home.instanceNames.Set(names)
+		}
+	}()
 }
 
 func (home *Home) instanceMap() (map[string]struct{}, error) {
@@ -37,12 +39,14 @@ func (home *Home) instanceMap() (map[string]struct{}, error) {
 }
 
 func (home *Home) updateRender(ctx context.Context, io stream.IOStream) {
-	timex.SetInterval(ctx, home.RefreshInterval, func(t time.Time) {
-		io.Printf("[%s]: reloading home render\n", t.Format(time.Stamp))
+	go func() {
+		for t := range timex.TickContext(ctx, home.RefreshInterval) {
+			io.Printf("[%s]: reloading home render\n", t.Format(time.Stamp))
 
-		bytes, _ := home.homeRender()
-		home.homeBytes.Set(bytes)
-	})
+			bytes, _ := home.homeRender()
+			home.homeBytes.Set(bytes)
+		}
+	}()
 }
 
 //go:embed "home.html"
