@@ -7,7 +7,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/goprogram/lib/collection"
-	"github.com/tkw1536/goprogram/stream"
 
 	_ "embed"
 )
@@ -22,8 +21,11 @@ func (wisski *WissKI) NoPrefix() bool {
 var listURIPrefixesPHP string
 
 // Prefixes returns the prefixes applying to this WissKI
-func (wisski *WissKI) Prefixes() ([]string, error) {
-	prefixes, err := wisski.dbPrefixes()
+//
+// server is an optional server to fetch prefixes from.
+// server may be nil.
+func (wisski *WissKI) Prefixes(server *PHPServer) ([]string, error) {
+	prefixes, err := wisski.dbPrefixes(server)
 	if err != nil {
 		return nil, err
 	}
@@ -36,9 +38,9 @@ func (wisski *WissKI) Prefixes() ([]string, error) {
 	return append(prefixes, prefixes2...), nil
 }
 
-func (wisski *WissKI) dbPrefixes() (prefixes []string, err error) {
+func (wisski *WissKI) dbPrefixes(server *PHPServer) (prefixes []string, err error) {
 	// get all the ugly prefixes
-	err = wisski.ExecPHPScript(stream.FromNil(), &prefixes, listURIPrefixesPHP, "list_prefixes")
+	err = wisski.ExecPHPScript(server, &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +141,7 @@ func (wisski *WissKI) PrefixesCached() (results []string, err error) {
 
 // UpdatePrefixes updates the cached prefixes of this instance
 func (wisski *WissKI) UpdatePrefixes() error {
-	prefixes, err := wisski.Prefixes()
+	prefixes, err := wisski.Prefixes(nil)
 	if err != nil {
 		return err
 	}

@@ -3,7 +3,6 @@ package instances
 import (
 	_ "embed"
 
-	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/exp/slices"
 )
 
@@ -11,21 +10,27 @@ import (
 var exportPathbuilderPHP string
 
 // Pathbuilders returns the ids of all pathbuilders in consistent order.
-func (wisski *WissKI) Pathbuilders() (ids []string, err error) {
-	err = wisski.ExecPHPScript(stream.FromNil(), &ids, exportPathbuilderPHP, "all_list")
+//
+// server is the server to fetch the pathbuilders from, any may be nil.
+func (wisski *WissKI) Pathbuilders(server *PHPServer) (ids []string, err error) {
+	err = wisski.ExecPHPScript(server, &ids, exportPathbuilderPHP, "all_list")
 	slices.Sort(ids)
 	return
 }
 
 // Pathbuilder returns a single pathbuilder as xml.
 // If it does not exist, it returns the empty string and nil error.
-func (wisski *WissKI) Pathbuilder(id string) (xml string, err error) {
-	err = wisski.ExecPHPScript(stream.FromNil(), &xml, exportPathbuilderPHP, "one_xml", id)
+//
+// server is the server to fetch the pathbuilders from, any may be nil.
+func (wisski *WissKI) Pathbuilder(server *PHPServer, id string) (xml string, err error) {
+	err = wisski.ExecPHPScript(server, &xml, exportPathbuilderPHP, "one_xml", id)
 	return
 }
 
 // AllPathbuilders returns all pathbuilders serialized as xml
-func (wisski *WissKI) AllPathbuilders() (pathbuilders map[string]string, err error) {
-	err = wisski.ExecPHPScript(stream.FromNil(), &pathbuilders, exportPathbuilderPHP, "all_xml")
+//
+// server is the server to fetch the pathbuilders from, any may be nil.
+func (wisski *WissKI) AllPathbuilders(server *PHPServer) (pathbuilders map[string]string, err error) {
+	err = wisski.ExecPHPScript(server, &pathbuilders, exportPathbuilderPHP, "all_xml")
 	return
 }

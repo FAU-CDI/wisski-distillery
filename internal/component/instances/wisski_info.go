@@ -34,57 +34,72 @@ type WissKIInfo struct {
 
 // Info generate a
 func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
-	// TODO: Cache this, and run it with every cron!
+	var group errgroup.Group
+	wisski.infoQuick(&info, &group)
 
+	if !quick {
+		server, err := wisski.NewPHPServer()
+		if err == nil {
+			wisski.infoSlow(&info, server, &group)
+			defer server.Close()
+		}
+	}
+
+	err = group.Wait()
+	return
+}
+
+func (wisski *WissKI) infoQuick(info *WissKIInfo, group *errgroup.Group) {
 	info.Time = time.Now().UTC()
-
-	// static properties
 	info.Slug = wisski.Slug
 	info.URL = wisski.URL().String()
 
-	// dynamic properties
-	var group errgroup.Group
-
-	// quick check if this wisski is running
 	group.Go(func() (err error) {
 		info.Running, err = wisski.Running()
 		return
 	})
 
-	// quick check if this instance is locked
 	group.Go(func() (err error) {
 		info.Locked = wisski.IsLocked()
+		return
+	})
+
+	group.Go(func() (err error) {
+		info.LastRebuild, _ = wisski.LastRebuild()
+		return
+	})
+
+	group.Go(func() (err error) {
+		info.LastUpdate, _ = wisski.LastUpdate()
+		return
+	})
+
+	group.Go(func() (err error) {
+		info.LastRebuild, _ = wisski.LastRebuild()
+		return
+	})
+
+	group.Go(func() (err error) {
+		info.NoPrefixes = wisski.NoPrefix()
+		return
+	})
+}
+
+func (wisski *WissKI) infoSlow(info *WissKIInfo, server *PHPServer, group *errgroup.Group) {
+	group.Go(func() (err error) {
+		info.Prefixes, _ = wisski.Prefixes(server)
 		return nil
 	})
 
-	// slower checks for extra properties.
-	// these might execute php code or require additional database queries.
-	if !quick {
-		group.Go(func() (err error) {
-			info.LastRebuild, _ = wisski.LastRebuild()
-			return nil
-		})
-		group.Go(func() (err error) {
-			info.LastUpdate, _ = wisski.LastUpdate()
-			return nil
-		})
-		group.Go(func() error {
-			info.Pathbuilders, _ = wisski.AllPathbuilders()
-			return nil
-		})
-		group.Go(func() (err error) {
-			info.Prefixes, _ = wisski.Prefixes()
-			info.NoPrefixes = wisski.NoPrefix()
-			return nil
-		})
-		group.Go(func() error {
-			info.Snapshots, _ = wisski.Snapshots()
-			return nil
-		})
-	}
+	group.Go(func() error {
+		info.Snapshots, _ = wisski.Snapshots()
+		return nil
+	})
 
-	err = group.Wait()
-	return
+	group.Go(func() error {
+		info.Pathbuilders, _ = wisski.AllPathbuilders(server)
+		return nil
+	})
 }
 
 // Running checks if this WissKI is currently running.

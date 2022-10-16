@@ -36,7 +36,7 @@ func (p prefixes) Run(context wisski_distillery.Context) error {
 		return err
 	}
 
-	prefixes, err := instance.Prefixes()
+	prefixes, err := instance.Prefixes(nil)
 	if err != nil {
 		return errPrefixesGeneric.Wrap(err)
 	}
