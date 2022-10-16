@@ -174,9 +174,13 @@ func (server *PHPServer) MarshalCall(value any, function string, args ...any) er
 	if err != nil {
 		return PHPServerError{Message: errPHPMarshal, Err: err}
 	}
-	userFunctionArgs, err := marshalPHP(args)
-	if err != nil {
-		return PHPServerError{Message: errPHPMarshal, Err: err}
+
+	userFunctionArgs := "[]"
+	if len(args) > 0 {
+		userFunctionArgs, err = marshalPHP(args)
+		if err != nil {
+			return PHPServerError{Message: errPHPMarshal, Err: err}
+		}
 	}
 	code := "return call_user_func_array(" + userFunction + "," + userFunctionArgs + ");"
 
@@ -246,6 +250,7 @@ func (server *PHPServer) Close() error {
 
 // ExecPHPScript executes the PHP code as a script on the given server.
 // When server is nil, creates a new server and automatically closes it after execution.
+// Calling this function repeatedly with server = nil is inefficient.
 //
 // The script should define a function called entrypoint, and may define additional functions.
 //
@@ -257,8 +262,6 @@ func (server *PHPServer) Close() error {
 // It's arguments are encoded as json using [json.Marshal] and decoded within php.
 //
 // The return value of the function is again marshaled with json and returned to the caller.
-//
-// Calling this function is inefficient, and a [NewPHPServer] call should be prefered instead.
 func (wisski *WissKI) ExecPHPScript(server *PHPServer, value any, code string, entrypoint string, args ...any) (err error) {
 	if server == nil {
 		server, err = wisski.NewPHPServer()
@@ -268,11 +271,25 @@ func (wisski *WissKI) ExecPHPScript(server *PHPServer, value any, code string, e
 		defer server.Close()
 	}
 
-	if err := server.MarshalEval(nil, strings.TrimPrefix(code, "<?php")); err != nil {
-		return err
+	if code != "" {
+		if err := server.MarshalEval(nil, strings.TrimPrefix(code, "<?php")); err != nil {
+			return err
+		}
 	}
 
 	return server.MarshalCall(value, entrypoint, args...)
+}
+
+func (wisski *WissKI) EvalPHPCode(server *PHPServer, value any, code string) (err error) {
+	if server == nil {
+		server, err = wisski.NewPHPServer()
+		if err != nil {
+			return
+		}
+		defer server.Close()
+	}
+
+	return server.MarshalEval(value, code)
 }
 
 //go:embed php/server.php

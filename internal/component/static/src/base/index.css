@@ -20,6 +20,11 @@ footer {
     width: 100%;
 }
 
+.overflow table td,
+.overflow table th{
+    padding: .5em .5em;
+}
+
 .overflow table td:not(:last-child),
 .overflow table th:not(:last-child) {
     width: 1px;
@@ -34,7 +39,7 @@ footer {
 
 .hspace {
     display: block;
-    height: 2em;
+    height: 1em;
 }
 
 .pure-button-action {

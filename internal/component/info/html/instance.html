@@ -19,9 +19,9 @@
     <main>
         <div class="pure-g">
             <div class="pure-u-1-1">
-                <h2 id="overview">Instance Overview</h2>
+                <h2 id="overview">Info &amp; Status</h2>
             </div>
-            <div class="pure-u-1 pure-u-xl-1-3">
+            <div class="pure-u-1 pure-u-xl-2-5">
                 <div class="padding">
                     <div class="overflow">
                         <table class="pure-table pure-table-bordered">
@@ -70,14 +70,72 @@
                     </div>
                 </div>
             </div>
-            <div class="pure-u-1 pure-u-xl-1-3">
+            <div class="pure-u-1 pure-u-xl-2-5">
                 <div class="padding">
                     <div class="overflow">
                         <table class="pure-table pure-table-bordered">
                             <thead>
                                 <tr>
                                     <th colspan="2">
-                                        Build
+                                        Component Settings
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        Directory
+                                    </td>
+                                    <td>
+                                        <code style="overflow: auto;">{{ .Instance.FilesystemBase }}</code>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        SQL DB
+                                    </td>
+                                    <td>
+                                        <code>{{ .Instance.SqlDatabase }}</code>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        SQL User
+                                    </td>
+                                    <td>
+                                        <code>{{ .Instance.SqlUsername }}</code>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        TS Repo
+                                    </td>
+                                    <td>
+                                        <code>{{ .Instance.GraphDBRepository }}</code>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        TS User
+                                    </td>
+                                    <td>
+                                        <code>{{ .Instance.GraphDBUsername }}</code>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pure-u-1 pure-u-xl-2-5">
+                <div class="padding">
+                    <div class="overflow">
+                        <table class="pure-table pure-table-bordered">
+                            <thead>
+                                <tr>
+                                    <th colspan="2">
+                                        Build Status
                                     </th>
                                 </tr>
                             </thead>
@@ -85,7 +143,7 @@
                                 <tr>
                                     <td>
                                         Created
-                                    </td>
+                                     </td>
                                     <td>
                                         <code class="date">{{ .Instance.Created.Format "2006-01-02T15:04:05Z07:00" }}</code>
                                     </td>
@@ -101,10 +159,11 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        Automatic Updates
+                                        Last Cron<br>
+                                        <button class="remote-action pure-button pure-button-action" data-action="cron" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Cron</button>
                                     </td>
                                     <td>
-                                        <code>{{ .Instance.AutoBlindUpdateEnabled }}</code>
+                                        <code class="date">{{ .Info.LastRebuild.Format "2006-01-02T15:04:05Z07:00" }}</code>
                                     </td>
                                 </tr>
                                 <tr>
@@ -113,7 +172,8 @@
                                         <button class="remote-action pure-button pure-button-action" data-action="update" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Update</button>
                                     </td>
                                     <td>
-                                        <code class="date">{{ .Info.LastUpdate.Format "2006-01-02T15:04:05Z07:00" }}</code>
+                                        <code class="date">{{ .Info.LastUpdate.Format "2006-01-02T15:04:05Z07:00" }}</code><br>
+                                        (Automatic: <code>{{ .Instance.AutoBlindUpdateEnabled }}</code>)
                                     </td>
                                 </tr>
                             </tbody>
@@ -122,138 +182,89 @@
                 </div>
             </div>
 
-            <div class="pure-u-1 pure-u-xl-1-3">
+            <div class="pure-u-1 pure-u-xl-2-5">
+                <!--
                 <div class="padding">
                     <div class="overflow">
                         <table class="pure-table pure-table-bordered">
                             <thead>
                                 <tr>
                                     <th colspan="2">
-                                        Resolver
+                                        Composer Status
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td>
-                                        Excluded
+                                        ???
                                     </td>
                                     <td>
-                                        <code>{{ .Info.NoPrefixes }}</code>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        URI Prefixes
-                                    </td>
-                                    <td>
-                                        {{ range .Info.Prefixes }}
-                                        <code>{{ . }}</code><br />
-                                        {{ end}}
+                                        ???
                                     </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+                -->
             </div>
-            <div class="pure-u-1 pure-u-xl-1-3">
-                <div class="padding">
-                    <div class="overflow">
-                        <table class="pure-table pure-table-bordered">
-                            <thead>
-                                <tr>
-                                    <th colspan="2">
-                                        Database Settings
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        SQL Database
-                                    </td>
-                                    <td>
-                                        <code>{{ .Instance.SqlDatabase }}</code>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        SQL Username
-                                    </td>
-                                    <td>
-                                        <code>{{ .Instance.SqlUsername }}</code>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        GraphDB Repository
-                                    </td>
-                                    <td>
-                                        <code>{{ .Instance.GraphDBRepository }}</code>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        GraphDB Username
-                                    </td>
-                                    <td>
-                                        <code>{{ .Instance.GraphDBUsername }}</code>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="pure-u-1 pure-u-xl-1-3">
-                <div class="padding">
-                    <div class="overflow">
-                        <table class="pure-table pure-table-bordered">
-                            <thead>
-                                <tr>
-                                    <th colspan="2">
-                                        Whitebox Data
-                                    </th>
-                                </tr>
-                            </thead>
 
-                            <tbody>
+            <div class="pure-u-1-1">
+                <h2 id="wisski">WissKI Data</h2>
+            </div>
+
+            <div class="pure-u-1 pure-u-xl-1-2">
+                <div class="padding">
+                    <div class="overflow">
+                        <table class="pure-table pure-table-bordered">
+                            <thead>
                                 <tr>
-                                    <td>
+                                    <th colspan="2">
                                         Pathbuilders
-                                    </td>
-                                    <td>
-                                        <code class="pathbuilders">{{ .Info.Pathbuilders }}</code>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="pure-u-1 pure-u-xl-1-3">
-                <div class="padding">
-                    <div class="overflow">
-                        <table class="pure-table pure-table-bordered">
-                            <thead>
-                                <tr>
-                                    <th colspan="2">
-                                        Misc Settings
                                     </th>
                                 </tr>
                             </thead>
 
                             <tbody>
+                                {{ range $name, $xml := .Info.Pathbuilders }}
                                 <tr>
                                     <td>
-                                        Filesystem Base
+                                        <code>{{ $name }}</code>
                                     </td>
                                     <td>
-                                        <code>{{ .Instance.FilesystemBase }}</code>
-                                        <script>window.pathbuilders = {{ .Info.Pathbuilders }};</script>
+                                        <code class="pathbuilder" data-name="{{ $name }}">{{ $xml }}</code>
                                     </td>
                                 </tr>
+                                {{ end }}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="pure-u-1 pure-u-xl-1-2">
+                <div class="padding">
+                    <div class="overflow">
+                        <table class="pure-table pure-table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        URI Prefixes
+
+                                        {{ if .Info.NoPrefixes }}
+                                            (excluded from resolver)
+                                        {{ end }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ range $index, $prefix := .Info.Prefixes }}
+                                <tr>
+                                    <td>
+                                        <code>{{ $prefix }}</code>
+                                    </td>
+                                </tr>
+                                {{ end }}
                             </tbody>
                         </table>
                     </div>

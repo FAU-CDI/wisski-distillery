@@ -28,6 +28,9 @@ var socketInstanceActions = map[string]instanceActionFunc{
 	"update": func(_ *Info, instance instances.WissKI, str stream.IOStream) error {
 		return instance.BlindUpdate(str)
 	},
+	"cron": func(_ *Info, instance instances.WissKI, str stream.IOStream) error {
+		return instance.Cron(str)
+	},
 }
 
 func (info *Info) serveSocket(conn httpx.WebSocketConnection) {

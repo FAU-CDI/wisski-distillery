@@ -7,32 +7,19 @@ const types: Record<string, (element: HTMLElement) => HTMLElement | string> = {
         const text = element.innerText.split("/");
         return text[text.length - 1];
     },
-    "pathbuilders": () => {
-        const pathbuilders: {[name: string]: string} = (window as any).pathbuilders; // must be declared globally on page!
-        const wrapper = document.createElement("span");
+    "pathbuilder": (element) => {
+        // create a link and get the blob
+        const filename = (element.getAttribute('data-name') ?? 'pathbuilder') + ".xml"
+        const [link, blob] = make_download_link(filename, element.innerText, "application/xml")
 
-        let found_one = false
-        Object.keys(pathbuilders).forEach(name => {
-            found_one = true
-
-            const filename = name + ".xml"
-            const data = pathbuilders[name]
-            const mime = "application/xml"
-            wrapper.append(make_download_link(filename, name, data, mime))
-            wrapper.append(document.createTextNode(" "))
-        })
-
-        if (!found_one) return '(none)';
-
-        const small = document.createElement('small')
-        small.append(document.createTextNode("(click to download)"))
-        wrapper.append(small)
-        
-        return wrapper
+        link.className = "pure-button"
+        const title = filename + ' (' + blob.size + ' Bytes)';
+        link.append(title)
+        return link
     }
 }
 
-const make_download_link = (filename: string, title: string, content: string, type: string) => {
+const make_download_link = (filename: string, content: string, type: string): [HTMLAnchorElement, Blob] => {
     const blob = new Blob(
         [content],
         {
@@ -44,9 +31,8 @@ const make_download_link = (filename: string, title: string, content: string, ty
     link.target = "_blank"
     link.download = filename
     link.href = URL.createObjectURL(blob)
-    link.append(document.createTextNode(title))
 
-    return link
+    return [link, blob]
 }
 
 Object.keys(types).forEach(key => {

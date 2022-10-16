@@ -6,7 +6,6 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -32,11 +31,6 @@ func (cron) Description() wisski_distillery.Description {
 	}
 }
 
-var errCronFailed = exit.Error{
-	Message:  "Failed to run cron script for instance %q: exited with code %s",
-	ExitCode: exit.ExitGeneric,
-}
-
 func (cr cron) Run(context wisski_distillery.Context) error {
 	// find all the instances!
 	wissKIs, err := context.Environment.Instances().Load(cr.Positionals.Slug...)
@@ -46,17 +40,7 @@ func (cr cron) Run(context wisski_distillery.Context) error {
 
 	// and do the actual blind_update!
 	return status.StreamGroup(context.IOStream, cr.Parallel, func(instance instances.WissKI, io stream.IOStream) error {
-		code, err := instance.Shell(io, "/runtime/cron.sh")
-		if err != nil {
-			io.EPrintln(err)
-		}
-		if code != 0 {
-			// keep going, because we want to run as many crons as possible
-			err = errBlindUpdateFailed.WithMessageF(instance.Slug, code)
-			io.EPrintln(err)
-		}
-
-		return nil
+		return instance.Cron(io)
 	}, wissKIs, status.SmartMessage(func(item instances.WissKI) string {
 		return fmt.Sprintf("cron %q", item.Slug)
 	}))

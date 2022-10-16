@@ -1,6 +1,7 @@
 package static
 
 import (
+	"encoding/json"
 	"html/template"
 )
 
@@ -30,11 +31,17 @@ func (assets *Assets) MustParse(value string) *template.Template {
 	return template.Must(assets.RegisterFuncs(template.New("")).Parse(value))
 }
 
-// RegisterFuncs registers two new template functions called "JS" and "CSS".
-// Both take no arguments, and return a html-safe version of the Scripts and Style tags to be included.
+// RegisterFuncs registers three new template functions called "JS", "CSS" and "json".
+//
+// "JS" and "CSS" take no arguments, and return appropriate tags to be inserted into html.
+// json takes a single argument of any type, and returns it's encoding as a string to be inserted into the page.
 func (assets *Assets) RegisterFuncs(t *template.Template) *template.Template {
 	return t.Funcs(template.FuncMap{
 		"JS":  func() template.HTML { return template.HTML(assets.Scripts) },
 		"CSS": func() template.HTML { return template.HTML(assets.Styles) },
+		"json": func(data any) (string, error) {
+			bytes, err := json.Marshal(data)
+			return string(bytes), err
+		},
 	})
 }

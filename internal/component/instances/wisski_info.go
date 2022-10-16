@@ -1,6 +1,7 @@
 package instances
 
 import (
+	"log"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -22,6 +23,7 @@ type WissKIInfo struct {
 	Running     bool
 	LastRebuild time.Time
 	LastUpdate  time.Time
+	LastCron    time.Time
 
 	// List of backups made
 	Snapshots []models.Export
@@ -40,9 +42,9 @@ func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
 	if !quick {
 		server, err := wisski.NewPHPServer()
 		if err == nil {
-			wisski.infoSlow(&info, server, &group)
 			defer server.Close()
 		}
+		wisski.infoSlow(&info, server, &group)
 	}
 
 	err = group.Wait()
@@ -87,18 +89,27 @@ func (wisski *WissKI) infoQuick(info *WissKIInfo, group *errgroup.Group) {
 
 func (wisski *WissKI) infoSlow(info *WissKIInfo, server *PHPServer, group *errgroup.Group) {
 	group.Go(func() (err error) {
-		info.Prefixes, _ = wisski.Prefixes(server)
+		info.Prefixes, err = wisski.Prefixes(server)
+		log.Println("error prefixes: ", err)
 		return nil
 	})
 
-	group.Go(func() error {
-		info.Snapshots, _ = wisski.Snapshots()
+	group.Go(func() (err error) {
+		info.Snapshots, err = wisski.Snapshots()
+		log.Println("error snapshots: ", err)
 		return nil
 	})
 
-	group.Go(func() error {
-		info.Pathbuilders, _ = wisski.AllPathbuilders(server)
+	group.Go(func() (err error) {
+		info.Pathbuilders, err = wisski.AllPathbuilders(server)
+		log.Println("error pathbuilders: ", err)
 		return nil
+	})
+
+	group.Go(func() (err error) {
+		info.LastCron, err = wisski.LastCron(server)
+		log.Println("error cron: ", err)
+		return
 	})
 }
 
