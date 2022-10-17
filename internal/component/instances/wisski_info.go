@@ -1,7 +1,6 @@
 package instances
 
 import (
-	"log"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -34,7 +33,8 @@ type WissKIInfo struct {
 	Pathbuilders map[string]string // all the pathbuilders
 }
 
-// Info generate a
+// Info fetches information about this WissKI.
+// TODO: Rework this to be able to determine what kind of information is available.
 func (wisski *WissKI) Info(quick bool) (info WissKIInfo, err error) {
 	var group errgroup.Group
 	wisski.infoQuick(&info, &group)
@@ -89,26 +89,22 @@ func (wisski *WissKI) infoQuick(info *WissKIInfo, group *errgroup.Group) {
 
 func (wisski *WissKI) infoSlow(info *WissKIInfo, server *PHPServer, group *errgroup.Group) {
 	group.Go(func() (err error) {
-		info.Prefixes, err = wisski.Prefixes(server)
-		log.Println("error prefixes: ", err)
+		info.Prefixes, _ = wisski.Prefixes(server)
 		return nil
 	})
 
 	group.Go(func() (err error) {
-		info.Snapshots, err = wisski.Snapshots()
-		log.Println("error snapshots: ", err)
+		info.Snapshots, _ = wisski.Snapshots()
 		return nil
 	})
 
 	group.Go(func() (err error) {
-		info.Pathbuilders, err = wisski.AllPathbuilders(server)
-		log.Println("error pathbuilders: ", err)
+		info.Pathbuilders, _ = wisski.AllPathbuilders(server)
 		return nil
 	})
 
 	group.Go(func() (err error) {
-		info.LastCron, err = wisski.LastCron(server)
-		log.Println("error cron: ", err)
+		info.LastCron, _ = wisski.LastCron(server)
 		return
 	})
 }
