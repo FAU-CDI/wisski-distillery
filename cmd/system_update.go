@@ -5,8 +5,8 @@ import (
 	"io"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -28,7 +28,7 @@ type systemupdate struct {
 
 func (systemupdate) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: core.Requirements{
+		Requirements: cli.Requirements{
 			NeedsDistillery: true,
 		},
 		ParserConfig: parser.Config{

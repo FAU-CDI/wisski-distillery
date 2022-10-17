@@ -1,4 +1,4 @@
-package core
+package cli
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
@@ -23,7 +24,7 @@ func ParamsFromEnv() (params Params, err error) {
 	value, err := ReadBaseDirectory(environment.Native{}) // TODO: Are we sure about the native environment here?
 	switch {
 	case environment.IsNotExist(err):
-		params.ConfigPath = BaseDirectoryDefault
+		params.ConfigPath = bootstrap.BaseDirectoryDefault
 	case err == nil:
 		params.ConfigPath = value
 	default:
@@ -31,7 +32,7 @@ func ParamsFromEnv() (params Params, err error) {
 	}
 
 	// and add the configuration file name to it!
-	params.ConfigPath = filepath.Join(params.ConfigPath, ConfigFile)
+	params.ConfigPath = filepath.Join(params.ConfigPath, bootstrap.ConfigFile)
 
 	// generate a new context
 	ctx, cancel := context.WithCancel(context.Background())

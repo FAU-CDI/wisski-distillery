@@ -1,9 +1,9 @@
 package dis
 
 import (
+	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -19,7 +19,7 @@ var errOpenConfig = exit.Error{
 }
 
 // NewDistillery creates a new distillery from the provided flags
-func NewDistillery(params core.Params, flags core.Flags, req core.Requirements) (dis *Distillery, err error) {
+func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (dis *Distillery, err error) {
 	dis = &Distillery{
 		context: params.Context,
 		Core: component.Core{

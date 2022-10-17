@@ -2,8 +2,7 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
-	"github.com/FAU-CDI/wisski-distillery/internal/legal"
+	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 )
 
 // License is the 'wdcli license' command.
@@ -15,7 +14,7 @@ type license struct{}
 
 func (license) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: core.Requirements{
+		Requirements: cli.Requirements{
 			NeedsDistillery: false,
 		},
 		Command:     "license",
@@ -28,7 +27,7 @@ func (license) AfterParse() error {
 }
 
 func (license) Run(context wisski_distillery.Context) error {
-	context.Printf(stringLicenseInfo, wisski_distillery.License, legal.Notices)
+	context.Printf(stringLicenseInfo, wisski_distillery.License, cli.LegalNotices)
 	return nil
 }
 

@@ -4,8 +4,8 @@ import (
 	"embed"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
@@ -46,13 +46,13 @@ func (control *Control) Stack(env environment.Environment) component.StackWithRe
 			"SELF_RESOLVER_BLOCK_FILE":    control.Config.SelfResolverBlockFile,
 		},
 
-		CopyContextFiles: []string{core.Executable},
+		CopyContextFiles: []string{bootstrap.Executable},
 	})
 	return stt
 }
 
 func (control Control) Context(parent component.InstallationContext) component.InstallationContext {
 	return component.InstallationContext{
-		core.Executable: control.Config.CurrentExecutable(control.Environment), // TODO: Does this make sense?
+		bootstrap.Executable: control.Config.CurrentExecutable(control.Environment), // TODO: Does this make sense?
 	}
 }

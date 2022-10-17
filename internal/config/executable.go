@@ -3,14 +3,14 @@ package config
 import (
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 )
 
 // ExecutablePath returns the path to the executable of this distillery.
 func (cfg Config) ExecutablePath() string {
-	return filepath.Join(cfg.DeployRoot, core.Executable)
+	return filepath.Join(cfg.DeployRoot, bootstrap.Executable)
 }
 
 // UsingDistilleryExecutable checks if the current process is using the distillery executable

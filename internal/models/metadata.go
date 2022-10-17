@@ -3,7 +3,7 @@ package models
 // MetadataTable is the name of the table the 'Metadatum' model is stored in.
 const MetadataTable = "metadatum"
 
-// Metadatum represents
+// Metadatum represents a metadatum for a single model
 type Metadatum struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 

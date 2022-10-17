@@ -8,7 +8,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/cmd"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -91,7 +91,7 @@ func main() {
 	// creat a new set of parameters
 	// and then use them to execute the main command
 	err := func() error {
-		params, err := core.ParamsFromEnv()
+		params, err := cli.ParamsFromEnv()
 		if err != nil {
 			return streams.Die(err)
 		}

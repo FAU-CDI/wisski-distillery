@@ -1,4 +1,4 @@
-package core
+package cli
 
 // Flags are global flags for the wdcli executable
 type Flags struct {

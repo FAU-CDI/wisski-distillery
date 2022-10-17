@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"reflect"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/hostname"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
@@ -34,7 +34,7 @@ type Template struct {
 // SetDefaults sets defaults on the template
 func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	if tpl.DeployRoot == "" {
-		tpl.DeployRoot = core.BaseDirectoryDefault
+		tpl.DeployRoot = bootstrap.BaseDirectoryDefault
 	}
 
 	if tpl.DefaultDomain == "" {
@@ -42,15 +42,15 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	}
 
 	if tpl.SelfOverridesFile == "" {
-		tpl.SelfOverridesFile = filepath.Join(tpl.DeployRoot, core.OverridesJSON)
+		tpl.SelfOverridesFile = filepath.Join(tpl.DeployRoot, bootstrap.OverridesJSON)
 	}
 
 	if tpl.SelfResolverBlockFile == "" {
-		tpl.SelfResolverBlockFile = filepath.Join(tpl.DeployRoot, core.ResolverBlockedTXT)
+		tpl.SelfResolverBlockFile = filepath.Join(tpl.DeployRoot, bootstrap.ResolverBlockedTXT)
 	}
 
 	if tpl.AuthorizedKeys == "" {
-		tpl.AuthorizedKeys = filepath.Join(tpl.DeployRoot, core.AuthorizedKeys)
+		tpl.AuthorizedKeys = filepath.Join(tpl.DeployRoot, bootstrap.AuthorizedKeys)
 	}
 
 	if tpl.TriplestoreAdminUser == "" {

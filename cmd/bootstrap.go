@@ -5,8 +5,10 @@ import (
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
+	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
+
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -14,16 +16,16 @@ import (
 )
 
 // Bootstrap is the 'bootstrap' command
-var Bootstrap wisski_distillery.Command = bootstrap{}
+var Bootstrap wisski_distillery.Command = cBootstrap{}
 
-type bootstrap struct {
+type cBootstrap struct {
 	Directory string `short:"r" long:"root-directory" description:"path to the root deployment directory" default:"/var/www/deploy"`
 	Hostname  string `short:"h" long:"hostname" description:"default hostname of the distillery (default: system hostname)"`
 }
 
-func (bootstrap) Description() wisski_distillery.Description {
+func (cBootstrap) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: core.Requirements{
+		Requirements: cli.Requirements{
 			NeedsDistillery: false,
 		},
 		Command:     "bootstrap",
@@ -66,7 +68,7 @@ var errBootstrapCreateFile = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (bs bootstrap) Run(context wisski_distillery.Context) error {
+func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	// installation environment is the native environment!
 	// TODO: Should this be configurable?
 	var env environment.Native
@@ -75,7 +77,7 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 
 	// check that we didn't get a different base directory
 	{
-		got, err := core.ReadBaseDirectory(env)
+		got, err := cli.ReadBaseDirectory(env)
 		if err == nil && got != "" && got != root {
 			return errBootstrapDifferent.WithMessageF(got)
 		}
@@ -86,15 +88,15 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 		if err := env.MkdirAll(root, environment.DefaultDirPerm); err != nil {
 			return errBootstrapFailedToCreateDirectory.WithMessageF(root)
 		}
-		if err := core.WriteBaseDirectory(env, root); err != nil {
+		if err := cli.WriteBaseDirectory(env, root); err != nil {
 			return errBootstrapFailedToSaveDirectory.WithMessageF(root)
 		}
 		context.Println(root)
 	}
 
 	// TODO: Should we read an existing configuration file?
-	wdcliPath := filepath.Join(root, core.Executable)
-	envPath := filepath.Join(root, core.ConfigFile)
+	wdcliPath := filepath.Join(root, bootstrap.Executable)
+	envPath := filepath.Join(root, bootstrap.ConfigFile)
 
 	// setup a new template for the configuration file!
 	var tpl config.Template
@@ -140,7 +142,7 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 				if err := environment.WriteFile(
 					env,
 					tpl.SelfOverridesFile,
-					core.DefaultOverridesJSON,
+					bootstrap.DefaultOverridesJSON,
 					fs.ModePerm,
 				); err != nil {
 					return err
@@ -150,7 +152,7 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 				if err := environment.WriteFile(
 					env,
 					tpl.AuthorizedKeys,
-					core.DefaultAuthorizedKeys,
+					bootstrap.DefaultAuthorizedKeys,
 					fs.ModePerm,
 				); err != nil {
 					return err
@@ -160,7 +162,7 @@ func (bs bootstrap) Run(context wisski_distillery.Context) error {
 				if err := environment.WriteFile(
 					env,
 					tpl.SelfResolverBlockFile,
-					core.DefaultResolverBlockedTXT,
+					bootstrap.DefaultResolverBlockedTXT,
 					fs.ModePerm,
 				); err != nil {
 					return err

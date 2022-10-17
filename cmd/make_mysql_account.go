@@ -2,7 +2,7 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
 )
@@ -14,7 +14,7 @@ type makeMysqlAccount struct{}
 
 func (makeMysqlAccount) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: core.Requirements{
+		Requirements: cli.Requirements{
 			NeedsDistillery: true,
 		},
 		ParserConfig: parser.Config{

@@ -2,8 +2,8 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
+	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -22,7 +22,7 @@ type snapshot struct {
 
 func (snapshot) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: core.Requirements{
+		Requirements: cli.Requirements{
 			NeedsDistillery: true,
 		},
 		Command:     "snapshot",

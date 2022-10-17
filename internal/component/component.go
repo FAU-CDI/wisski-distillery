@@ -20,7 +20,7 @@ type Component interface {
 
 // ComponentBase should be embedded into every component
 type ComponentBase struct {
-	Core // the core of the associated distillery
+	Core // the underlying stillage of the distillery
 }
 
 //lint:ignore U1000 used to implement the private methods of [Component]

@@ -14,6 +14,7 @@ var errBootstrapFailedRuntime = exit.Error{
 }
 
 // Runtime contains runtime resources to be installed into any instance
+//
 //go:embed all:runtime
 var runtimeResources embed.FS
 

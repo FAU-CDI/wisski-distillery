@@ -1,4 +1,4 @@
-package core
+package cli
 
 import (
 	"errors"
@@ -7,16 +7,15 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
-// MetaConfigFile is the path to a configuration file that contains the path to the last used wdcli executable.
+// metaConfigFile is the path to a configuration file that contains the path to the last used wdcli executable.
 // It is expected to be in the current user's home directory.
 //
-// You probably want to use [MetaConfigPath] instead.
-//
 // It should contain the path to a deployment directory.
-const MetaConfigFile = "." + Executable
+const metaConfigFile = "." + bootstrap.Executable
 
 // MetaConfigPath returns the full path to the MetaConfigPath()
 func MetaConfigPath() (string, error) {
@@ -25,7 +24,7 @@ func MetaConfigPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(usr.HomeDir, MetaConfigFile), nil
+	return filepath.Join(usr.HomeDir, metaConfigFile), nil
 }
 
 var errReadBaseDirectoryEmpty = errors.New("ReadBaseDirectory: Directory is empty")

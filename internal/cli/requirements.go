@@ -1,4 +1,4 @@
-package core
+package cli
 
 import (
 	"github.com/tkw1536/goprogram"

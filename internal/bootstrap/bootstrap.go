@@ -1,8 +1,10 @@
-// Package core implements the core of the WissKI Distillery and the wdcli executable.
+// Package bootstrap implements the core of the WissKI Distillery and the wdcli executable.
 // It does not depend on any other packages.
-package core
+package bootstrap
 
 import _ "embed"
+
+// TODO: This package should be split up into a true bootstrap component, and something else.
 
 // BaseDirectoryDefault is the default deploy directory to load the distillery from.
 const BaseDirectoryDefault = "/var/www/deploy"
@@ -21,7 +23,7 @@ const OverridesJSON = "overrides.json"
 
 // DefaultOverridesJSON contains a template for a new 'overrides.json' file
 //
-//go:embed bootstrap/overrides.json
+//go:embed overrides.json
 var DefaultOverridesJSON []byte
 
 // ResolverBlockTXT is the name of the resolver blocked prefix file.
@@ -30,7 +32,7 @@ const ResolverBlockedTXT = "resolver-blocked.txt"
 
 // ResolverBlockTXT contains a template for 'resolver-blocked' file
 //
-//go:embed bootstrap/resolver-blocked.txt
+//go:embed resolver-blocked.txt
 var DefaultResolverBlockedTXT []byte
 
 // AuthorizedKeys contains the default name for the 'global_authorized_keys' file
@@ -38,5 +40,5 @@ const AuthorizedKeys = "authorized_keys"
 
 // DefaultAuthorizedKeys contains a template for a new 'global_authorized_keys' file
 //
-//go:embed bootstrap/global_authorized_keys
+//go:embed global_authorized_keys
 var DefaultAuthorizedKeys []byte

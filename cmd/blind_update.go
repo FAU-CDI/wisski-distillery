@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/lib/collection"
@@ -25,7 +25,7 @@ type blindUpdate struct {
 
 func (blindUpdate) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
-		Requirements: core.Requirements{
+		Requirements: cli.Requirements{
 			NeedsDistillery: true,
 		},
 		Command:     "blind_update",
