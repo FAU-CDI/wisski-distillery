@@ -1,4 +1,4 @@
-package snapshots
+package exporter
 
 import (
 	"io"

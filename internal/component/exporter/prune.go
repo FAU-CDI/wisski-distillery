@@ -1,4 +1,4 @@
-package snapshots
+package exporter
 
 import (
 	"path/filepath"
@@ -9,16 +9,16 @@ import (
 
 // ShouldPrune determines if a file with the provided modification time should be
 // removed from the export log.
-func (manager *Manager) ShouldPrune(modtime time.Time) bool {
-	return time.Since(modtime) > time.Duration(manager.Config.MaxBackupAge)*24*time.Hour
+func (exporter *Exporter) ShouldPrune(modtime time.Time) bool {
+	return time.Since(modtime) > time.Duration(exporter.Config.MaxBackupAge)*24*time.Hour
 }
 
 // Prune prunes all old exports
-func (manager *Manager) PruneExports(io stream.IOStream) error {
-	sPath := manager.ArchivePath()
+func (exporter *Exporter) PruneExports(io stream.IOStream) error {
+	sPath := exporter.ArchivePath()
 
 	// list all the files
-	entries, err := manager.Core.Environment.ReadDir(sPath)
+	entries, err := exporter.Core.Environment.ReadDir(sPath)
 	if err != nil {
 		return err
 	}
@@ -36,20 +36,20 @@ func (manager *Manager) PruneExports(io stream.IOStream) error {
 		}
 
 		// check if it should be pruned!
-		if !manager.ShouldPrune(info.ModTime()) {
+		if !exporter.ShouldPrune(info.ModTime()) {
 			continue
 		}
 
 		// assemble path, and then remove the file!
 		path := filepath.Join(sPath, entry.Name())
-		io.Printf("Removing %s cause it is older than %d days", path, manager.Config.MaxBackupAge)
+		io.Printf("Removing %s cause it is older than %d days", path, exporter.Config.MaxBackupAge)
 
-		if err := manager.Core.Environment.Remove(path); err != nil {
+		if err := exporter.Core.Environment.Remove(path); err != nil {
 			return err
 		}
 	}
 
 	// prune the snapshot log!
-	_, err = manager.SnapshotsLog.Log()
+	_, err = exporter.ExporterLogger.Log()
 	return err
 }

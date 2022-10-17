@@ -5,8 +5,9 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshotslog"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -20,10 +21,10 @@ import (
 type Instances struct {
 	component.ComponentBase
 
-	TS           *triplestore.Triplestore
-	SQL          *sql.SQL
-	Meta         *meta.Meta
-	SnapshotsLog *snapshotslog.SnapshotsLog
+	TS          *triplestore.Triplestore
+	SQL         *sql.SQL
+	Meta        *meta.Meta
+	ExporterLog *logger.Logger
 }
 
 func (Instances) Name() string {
@@ -48,7 +49,7 @@ func (instances *Instances) use(wisski *wisski.WissKI) {
 	wisski.SQL = instances.SQL
 	wisski.TS = instances.TS
 	wisski.Meta = instances.Meta
-	wisski.SnapshotsLog = instances.SnapshotsLog
+	wisski.ExporterLog = instances.ExporterLog
 }
 
 // WissKI returns the WissKI with the provided slug, if it exists.

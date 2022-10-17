@@ -1,4 +1,4 @@
-package snapshots
+package exporter
 
 import (
 	"fmt"
@@ -43,7 +43,7 @@ type Snapshot struct {
 }
 
 // Snapshot creates a new snapshot of this instance into dest
-func (snapshots *Manager) NewSnapshot(instance *wisski.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
+func (snapshots *Exporter) NewSnapshot(instance *wisski.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
 
 	logging.LogMessage(io, "Locking instance")
 	if err := instance.TryLock(); err != nil {
@@ -83,7 +83,7 @@ func (snapshots *Manager) NewSnapshot(instance *wisski.WissKI, io stream.IOStrea
 	return
 }
 
-func (snapshot *Snapshot) makeParts(ios stream.IOStream, snapshots *Manager, instance *wisski.WissKI, needsRunning bool) map[string]error {
+func (snapshot *Snapshot) makeParts(ios stream.IOStream, snapshots *Exporter, instance *wisski.WissKI, needsRunning bool) map[string]error {
 	if !needsRunning && !snapshot.Description.Keepalive {
 		stack := instance.Barrel()
 

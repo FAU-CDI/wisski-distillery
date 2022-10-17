@@ -1,7 +1,7 @@
 package info
 
 import (
-	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/tkw1536/goprogram/status"
@@ -12,9 +12,9 @@ type instanceActionFunc = func(info *Info, instance *wisski.WissKI, str stream.I
 
 var socketInstanceActions = map[string]instanceActionFunc{
 	"snapshot": func(info *Info, instance *wisski.WissKI, str stream.IOStream) error {
-		return info.SnapshotManager.MakeExport(
+		return info.Exporter.MakeExport(
 			str,
-			snapshots.ExportTask{
+			exporter.ExportTask{
 				Dest:     "",
 				Instance: instance,
 

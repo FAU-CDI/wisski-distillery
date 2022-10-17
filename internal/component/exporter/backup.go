@@ -1,4 +1,4 @@
-package snapshots
+package exporter
 
 import (
 	"fmt"
@@ -49,7 +49,7 @@ type BackupDescription struct {
 }
 
 // New create a new Backup
-func (manager *Manager) NewBackup(io stream.IOStream, description BackupDescription) (backup Backup) {
+func (exporter *Exporter) NewBackup(io stream.IOStream, description BackupDescription) (backup Backup) {
 	backup.Description = description
 
 	// catch anything critical that happened during the snapshot
@@ -60,7 +60,7 @@ func (manager *Manager) NewBackup(io stream.IOStream, description BackupDescript
 	// do the create keeping track of time!
 	logging.LogOperation(func() error {
 		backup.StartTime = time.Now().UTC()
-		backup.run(io, manager)
+		backup.run(io, exporter)
 		backup.EndTime = time.Now().UTC()
 
 		return nil
@@ -69,13 +69,13 @@ func (manager *Manager) NewBackup(io stream.IOStream, description BackupDescript
 	return
 }
 
-func (backup *Backup) run(ios stream.IOStream, manager *Manager) {
+func (backup *Backup) run(ios stream.IOStream, exporter *Exporter) {
 	// create a manifest
 	manifest, done := backup.handleManifest(backup.Description.Dest)
 	defer done()
 
 	// create a new status display
-	backups := manager.Backupable
+	backups := exporter.Backupable
 	backup.ComponentErrors = make(map[string]error, len(backups))
 
 	// Component backup tasks
@@ -93,7 +93,7 @@ func (backup *Backup) run(ios stream.IOStream, manager *Manager) {
 			Handler: func(bc component.Backupable, index int, writer io.Writer) error {
 				return bc.Backup(
 					component.NewStagingContext(
-						manager.Environment,
+						exporter.Environment,
 						stream.NewIOStream(writer, writer, nil, 0),
 						filepath.Join(backup.Description.Dest, bc.BackupName()),
 						manifest,
@@ -118,13 +118,13 @@ func (backup *Backup) run(ios stream.IOStream, manager *Manager) {
 		defer st.Stop()
 
 		instancesBackupDir := filepath.Join(backup.Description.Dest, "instances")
-		if err := manager.Environment.Mkdir(instancesBackupDir, environment.DefaultDirPerm); err != nil {
+		if err := exporter.Environment.Mkdir(instancesBackupDir, environment.DefaultDirPerm); err != nil {
 			backup.InstanceListErr = err
 			return nil
 		}
 
 		// list all instances
-		wissKIs, err := manager.Instances.All()
+		wissKIs, err := exporter.Instances.All()
 		if err != nil {
 			backup.InstanceListErr = err
 			return nil
@@ -139,7 +139,7 @@ func (backup *Backup) run(ios stream.IOStream, manager *Manager) {
 
 			Handler: func(instance *wisski.WissKI, index int, writer io.Writer) Snapshot {
 				dir := filepath.Join(instancesBackupDir, instance.Slug)
-				if err := manager.Environment.Mkdir(dir, environment.DefaultDirPerm); err != nil {
+				if err := exporter.Environment.Mkdir(dir, environment.DefaultDirPerm); err != nil {
 					return Snapshot{
 						ErrPanic: err,
 					}
@@ -147,7 +147,7 @@ func (backup *Backup) run(ios stream.IOStream, manager *Manager) {
 
 				manifest <- dir
 
-				return manager.NewSnapshot(instance, stream.NewIOStream(writer, writer, nil, 0), SnapshotDescription{
+				return exporter.NewSnapshot(instance, stream.NewIOStream(writer, writer, nil, 0), SnapshotDescription{
 					Dest: dir,
 				})
 			},

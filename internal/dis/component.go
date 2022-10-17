@@ -5,13 +5,14 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter/logger"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/component/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/info"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshotslog"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/static"
@@ -42,12 +43,12 @@ func (dis *Distillery) register(context component.ComponentPoolContext) []compon
 		auto[*meta.Meta],
 
 		// Snapshots
-		auto[*snapshots.Manager],
-		auto[*snapshotslog.SnapshotsLog],
-		auto[*snapshots.Config],
-		auto[*snapshots.Bookkeeping],
-		auto[*snapshots.Filesystem],
-		auto[*snapshots.Pathbuilders],
+		auto[*exporter.Exporter],
+		auto[*logger.Logger],
+		auto[*exporter.Config],
+		auto[*exporter.Bookkeeping],
+		auto[*exporter.Filesystem],
+		auto[*exporter.Pathbuilders],
 
 		// Control server
 		auto[*control.Control],

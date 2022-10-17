@@ -1,4 +1,4 @@
-package snapshots
+package exporter
 
 import (
 	"io"
@@ -14,7 +14,7 @@ import (
 )
 
 // ExportTask describes a task that makes either a [Backup] or a [Snapshot].
-// See [Manager.MakeExport]
+// See [Exporter.MakeExport]
 type ExportTask struct {
 	// Dest is the destination path to write the backup to.
 	// When empty, this is created automatically in the staging or archive directory.
@@ -42,7 +42,7 @@ type export interface {
 
 // MakeExport performs an export task as described by flags.
 // Output is directed to the provided io.
-func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err error) {
+func (exporter *Exporter) MakeExport(io stream.IOStream, task ExportTask) (err error) {
 	// extract parameters
 	Title := "Backup"
 	Slug := ""
@@ -60,20 +60,20 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 		archivePath = task.Dest
 	}
 	if stagingDir == "" {
-		stagingDir, err = manager.NewStagingDir(Slug)
+		stagingDir, err = exporter.NewStagingDir(Slug)
 		if err != nil {
 			return err
 		}
 	}
 	if !task.StagingOnly && archivePath == "" {
-		archivePath = manager.NewArchivePath(Slug)
+		archivePath = exporter.NewArchivePath(Slug)
 	}
 	io.Printf("Staging Directory: %s\n", stagingDir)
 	io.Printf("Archive Path:      %s\n", archivePath)
 
 	// create the staging directory
 	logging.LogMessage(io, "Creating staging directory")
-	err = manager.Environment.Mkdir(stagingDir, environment.DefaultDirPerm)
+	err = exporter.Environment.Mkdir(stagingDir, environment.DefaultDirPerm)
 	if !environment.IsExist(err) && err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 	if !task.StagingOnly {
 		defer func() {
 			logging.LogMessage(io, "Removing staging directory")
-			manager.Environment.RemoveAll(stagingDir)
+			exporter.Environment.RemoveAll(stagingDir)
 		}()
 	}
 
@@ -95,11 +95,11 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 		var sl export
 		if task.Instance == nil {
 			task.BackupDescription.Dest = stagingDir
-			backup := manager.NewBackup(io, task.BackupDescription)
+			backup := exporter.NewBackup(io, task.BackupDescription)
 			sl = &backup
 		} else {
 			task.SnapshotDescription.Dest = stagingDir
-			snapshot := manager.NewSnapshot(task.Instance, io, task.SnapshotDescription)
+			snapshot := exporter.NewSnapshot(task.Instance, io, task.SnapshotDescription)
 			sl = &snapshot
 		}
 
@@ -111,7 +111,7 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 		io.Println(reportPath)
 
 		// create the path
-		report, err := manager.Environment.Create(reportPath, environment.DefaultFilePerm)
+		report, err := exporter.Environment.Create(reportPath, environment.DefaultFilePerm)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 		// write out the log entry
 		entry.Path = stagingDir
 		entry.Packed = false
-		manager.SnapshotsLog.Add(entry)
+		exporter.ExporterLogger.Add(entry)
 
 		io.Printf("Wrote %s\n", stagingDir)
 		return nil
@@ -146,7 +146,7 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 		st.Start()
 		defer st.Stop()
 
-		count, err = targz.Package(manager.Environment, archivePath, stagingDir, func(dst, src string) {
+		count, err = targz.Package(exporter.Environment, archivePath, stagingDir, func(dst, src string) {
 			st.Set(0, dst)
 		})
 
@@ -159,7 +159,7 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 	logging.LogMessage(io, "Writing Log Entry")
 	entry.Path = archivePath
 	entry.Packed = true
-	manager.SnapshotsLog.Add(entry)
+	exporter.ExporterLogger.Add(entry)
 
 	// and we're done!
 	return nil

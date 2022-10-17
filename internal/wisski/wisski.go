@@ -3,8 +3,9 @@ package wisski
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshotslog"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -24,7 +25,7 @@ type WissKI struct {
 	TS   *triplestore.Triplestore
 	SQL  *sql.SQL
 
-	SnapshotsLog *snapshotslog.SnapshotsLog
+	ExporterLog *logger.Logger
 }
 
 // Save saves this instance in the bookkeeping table

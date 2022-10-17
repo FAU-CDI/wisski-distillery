@@ -1,4 +1,4 @@
-package snapshotslog
+package logger
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
@@ -8,19 +8,19 @@ import (
 	"github.com/tkw1536/goprogram/lib/collection"
 )
 
-// SnapshotsLog is responsible for logging snapshots
-type SnapshotsLog struct {
+// Logger is responsible for logging backups and snapshots
+type Logger struct {
 	component.ComponentBase
 
 	SQL *sql.SQL
 }
 
-func (*SnapshotsLog) Name() string { return "snapshots-log" }
+func (*Logger) Name() string { return "snapshots-log" }
 
 // For retrieves (and prunes) the ExportLog.
 // Slug determines if entries for Backups (empty slug)
 // or a specific Instance (non-empty slug) are returned.
-func (log *SnapshotsLog) For(slug string) (exports []models.Export, err error) {
+func (log *Logger) For(slug string) (exports []models.Export, err error) {
 	exports, err = log.Log()
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (log *SnapshotsLog) For(slug string) (exports []models.Export, err error) {
 }
 
 // Log retrieves (and prunes) all entries in the snapshot log.
-func (log *SnapshotsLog) Log() ([]models.Export, error) {
+func (log *Logger) Log() ([]models.Export, error) {
 	// query the table!
 	table, err := log.SQL.QueryTable(false, models.ExportTable)
 	if err != nil {
@@ -64,7 +64,7 @@ func (log *SnapshotsLog) Log() ([]models.Export, error) {
 }
 
 // AddToExportLog adds the provided export to the log.
-func (log *SnapshotsLog) Add(export models.Export) error {
+func (log *Logger) Add(export models.Export) error {
 	// find the table
 	table, err := log.SQL.QueryTable(false, models.ExportTable)
 	if err != nil {

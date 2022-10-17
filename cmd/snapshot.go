@@ -2,7 +2,7 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -45,7 +45,7 @@ func (sn snapshot) Run(context wisski_distillery.Context) error {
 	}
 
 	// do a snapshot of it!
-	err = dis.ExportManager().MakeExport(context.IOStream, snapshots.ExportTask{
+	err = dis.Exporter().MakeExport(context.IOStream, exporter.ExportTask{
 		Dest:        sn.Positionals.Dest,
 		StagingOnly: sn.StagingOnly,
 

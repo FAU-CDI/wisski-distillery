@@ -1,4 +1,4 @@
-package snapshots
+package exporter
 
 import "github.com/FAU-CDI/wisski-distillery/internal/models"
 

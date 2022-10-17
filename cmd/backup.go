@@ -2,7 +2,7 @@ package cmd
 
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
@@ -41,18 +41,18 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 	// prune old backups
 	if !bk.NoPrune {
 		defer logging.LogOperation(func() error {
-			return dis.ExportManager().PruneExports(context.IOStream)
+			return dis.Exporter().PruneExports(context.IOStream)
 		}, context.IOStream, "Pruning old backups")
 	}
 
 	// do the handling
-	err := dis.ExportManager().MakeExport(context.IOStream, snapshots.ExportTask{
+	err := dis.Exporter().MakeExport(context.IOStream, exporter.ExportTask{
 		Dest:        bk.Positionals.Dest,
 		StagingOnly: bk.StagingOnly,
 
 		Instance: nil,
 
-		BackupDescription: snapshots.BackupDescription{
+		BackupDescription: exporter.BackupDescription{
 			ConcurrentSnapshots: bk.ConcurrentSnapshots,
 		},
 	})

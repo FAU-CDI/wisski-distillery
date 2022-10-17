@@ -6,9 +6,9 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
@@ -85,8 +85,8 @@ func (dis *Distillery) Triplestore() *triplestore.Triplestore {
 func (dis *Distillery) Instances() *instances.Instances {
 	return e[*instances.Instances](dis)
 }
-func (dis *Distillery) ExportManager() *snapshots.Manager {
-	return e[*snapshots.Manager](dis)
+func (dis *Distillery) Exporter() *exporter.Exporter {
+	return e[*exporter.Exporter](dis)
 }
 
 func (dis *Distillery) Installable() []component.Installable {
