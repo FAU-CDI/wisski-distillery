@@ -19,7 +19,7 @@ import (
 // It is the main structure used to interact with different components.
 type Distillery struct {
 	// core holds the core of the distillery
-	component.Core
+	component.Still
 
 	// internal context for the distillery
 	context context.Context
@@ -54,7 +54,7 @@ func (dis *Distillery) Context() context.Context {
 func e[C component.Component](dis *Distillery) C {
 	return component.ExportComponent[C](
 		&dis.pool,
-		dis.Core,
+		dis.Still,
 		dis.register,
 	)
 }
@@ -62,7 +62,7 @@ func e[C component.Component](dis *Distillery) C {
 func ea[C component.Component](dis *Distillery) []C {
 	return component.ExportComponents[C](
 		&dis.pool,
-		dis.Core,
+		dis.Still,
 		dis.register,
 	)
 }

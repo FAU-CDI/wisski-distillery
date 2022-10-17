@@ -133,7 +133,7 @@ func (sql *SQL) network() string {
 		// this seems like a bit of a hack, but it works for now.
 		name = fmt.Sprintf("sql-network-%d", atomic.AddUint64(&proxyNameCounter, 1))
 		mysqldriver.RegisterDialContext(name, func(ctx context.Context, addr string) (net.Conn, error) {
-			return sql.Core.Environment.DialContext(ctx, network, addr)
+			return sql.Still.Environment.DialContext(ctx, network, addr)
 		})
 		return
 	})

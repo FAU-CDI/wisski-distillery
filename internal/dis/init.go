@@ -22,7 +22,7 @@ var errOpenConfig = exit.Error{
 func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (dis *Distillery, err error) {
 	dis = &Distillery{
 		context: params.Context,
-		Core: component.Core{
+		Still: component.Still{
 			Environment: environment.Native{},
 		},
 		Upstream: Upstream{
@@ -38,7 +38,7 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	if flags.InternalInDocker {
 		dis.Upstream.SQL = "sql:3306"
 		dis.Upstream.Triplestore = "triplestore:7200"
-		params.ConfigPath = dis.Core.Environment.GetEnv("CONFIG_PATH")
+		params.ConfigPath = dis.Still.Environment.GetEnv("CONFIG_PATH")
 	}
 
 	// if we don't need to load the config, there is nothing to do
@@ -56,7 +56,7 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	}
 
 	// open the config file!
-	f, err := dis.Core.Environment.Open(params.ConfigPath)
+	f, err := dis.Still.Environment.Open(params.ConfigPath)
 	if err != nil {
 		return nil, errOpenConfig.WithMessageF(err)
 	}
@@ -66,6 +66,6 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	dis.Config = &config.Config{
 		ConfigPath: cfg,
 	}
-	err = dis.Config.Unmarshal(dis.Core.Environment, f)
+	err = dis.Config.Unmarshal(dis.Still.Environment, f)
 	return
 }

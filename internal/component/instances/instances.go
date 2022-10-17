@@ -27,12 +27,8 @@ type Instances struct {
 	ExporterLog *logger.Logger
 }
 
-func (Instances) Name() string {
-	return "instances"
-}
-
 func (instances *Instances) Path() string {
-	return filepath.Join(instances.Core.Config.DeployRoot, instances.Name())
+	return filepath.Join(instances.Still.Config.DeployRoot, "instances")
 }
 
 // ErrWissKINotFound is returned when a WissKI is not found
@@ -45,7 +41,7 @@ var errSQL = exit.Error{
 
 // use uses the non-nil wisski instance with this instances
 func (instances *Instances) use(wisski *wisski.WissKI) {
-	wisski.Core = instances.Core
+	wisski.Core = instances.Still
 	wisski.SQL = instances.SQL
 	wisski.TS = instances.TS
 	wisski.Meta = instances.Meta

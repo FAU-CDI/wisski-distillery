@@ -24,8 +24,6 @@ type Home struct {
 	homeBytes     lazy.Lazy[[]byte]
 }
 
-func (*Home) Name() string { return "home" }
-
 func (*Home) Routes() []string { return []string{"/"} }
 
 func (home *Home) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {

@@ -20,7 +20,7 @@ var runtimeResources embed.FS
 
 // Update installs or updates runtime components needed by this component.
 func (instances *Instances) Update(stream stream.IOStream) error {
-	err := unpack.InstallDir(instances.Core.Environment, instances.Config.RuntimeDir(), "runtime", runtimeResources, func(dst, src string) {
+	err := unpack.InstallDir(instances.Still.Environment, instances.Config.RuntimeDir(), "runtime", runtimeResources, func(dst, src string) {
 		stream.Printf("[copy]  %s\n", dst)
 	})
 	if err != nil {

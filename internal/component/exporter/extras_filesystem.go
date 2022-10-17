@@ -10,8 +10,6 @@ type Filesystem struct {
 	component.ComponentBase
 }
 
-func (Filesystem) Name() string { return "filesystem" }
-
 // SnapshotNeedsRunning returns if this Snapshotable requires a running instance.
 func (Filesystem) SnapshotNeedsRunning() bool { return false }
 

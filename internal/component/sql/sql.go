@@ -22,12 +22,8 @@ type SQL struct {
 	lazyNetwork lazy.Lazy[string]
 }
 
-func (*SQL) Name() string {
-	return "sql"
-}
-
 func (sql *SQL) Path() string {
-	return filepath.Join(sql.Core.Config.DeployRoot, "core", sql.Name())
+	return filepath.Join(sql.Still.Config.DeployRoot, "core", "sql")
 }
 
 func (*SQL) Context(parent component.InstallationContext) component.InstallationContext {

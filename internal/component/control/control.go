@@ -16,12 +16,8 @@ type Control struct {
 	Servables []component.Servable
 }
 
-func (control Control) Name() string {
-	return "dis" // TODO: Rename this to control!
-}
-
 func (control Control) Path() string {
-	return filepath.Join(control.Core.Config.DeployRoot, "core", control.Name())
+	return filepath.Join(control.Still.Config.DeployRoot, "core", "dis")
 }
 
 //go:embed all:control control.env

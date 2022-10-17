@@ -13,8 +13,6 @@ type Pathbuilders struct {
 	Instances *instances.Instances
 }
 
-func (Pathbuilders) Name() string { return "pathbuilders" }
-
 func (Pathbuilders) SnapshotNeedsRunning() bool { return true }
 
 func (Pathbuilders) SnapshotName() string { return "pathbuilders" }

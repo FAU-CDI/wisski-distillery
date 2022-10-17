@@ -18,7 +18,7 @@ func (exporter *Exporter) PruneExports(io stream.IOStream) error {
 	sPath := exporter.ArchivePath()
 
 	// list all the files
-	entries, err := exporter.Core.Environment.ReadDir(sPath)
+	entries, err := exporter.Still.Environment.ReadDir(sPath)
 	if err != nil {
 		return err
 	}
@@ -44,7 +44,7 @@ func (exporter *Exporter) PruneExports(io stream.IOStream) error {
 		path := filepath.Join(sPath, entry.Name())
 		io.Printf("Removing %s cause it is older than %d days", path, exporter.Config.MaxBackupAge)
 
-		if err := exporter.Core.Environment.Remove(path); err != nil {
+		if err := exporter.Still.Environment.Remove(path); err != nil {
 			return err
 		}
 	}

@@ -74,7 +74,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		dis.Exporter().ArchivePath(),
 	} {
 		context.Println(d)
-		if err := dis.Core.Environment.MkdirAll(d, environment.DefaultDirPerm); err != nil {
+		if err := dis.Still.Environment.MkdirAll(d, environment.DefaultDirPerm); err != nil {
 			return errBoostrapFailedToCreateDirectory.WithMessageF(d, err)
 		}
 	}
@@ -166,7 +166,7 @@ func (si systemupdate) mustExec(context wisski_distillery.Context, workdir strin
 	if workdir == "" {
 		workdir = context.Environment.Config.DeployRoot
 	}
-	code := dis.Core.Environment.Exec(context.IOStream, workdir, exe, argv...)
+	code := dis.Still.Environment.Exec(context.IOStream, workdir, exe, argv...)
 	if code != 0 {
 		err := errMustExecFailed.WithMessageF(code)
 		err.ExitCode = exit.ExitCode(code)

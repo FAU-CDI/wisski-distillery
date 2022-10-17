@@ -21,8 +21,6 @@ type Info struct {
 	SnapshotsLog *logger.Logger
 }
 
-func (Info) Name() string { return "control-info" }
-
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
 func (info *Info) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {

@@ -70,11 +70,11 @@ type initFunc = func(dis *Distillery, context component.ComponentPoolContext) co
 // manual initializes a component from the provided distillery.
 func manual[C component.Component](init func(component C)) initFunc {
 	return func(dis *Distillery, context component.ComponentPoolContext) component.Component {
-		return component.MakeComponent(context, dis.Core, init)
+		return component.MakeComponent(context, dis.Still, init)
 	}
 }
 
 // use is like r, but does not provided additional initialization
 func auto[C component.Component](dis *Distillery, context component.ComponentPoolContext) component.Component {
-	return component.MakeComponent[C](context, dis.Core, nil)
+	return component.MakeComponent[C](context, dis.Still, nil)
 }

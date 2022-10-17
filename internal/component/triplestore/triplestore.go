@@ -19,12 +19,8 @@ type Triplestore struct {
 	PollInterval time.Duration   // duration to wait for during wait
 }
 
-func (Triplestore) Name() string {
-	return "triplestore"
-}
-
-func (ts Triplestore) Path() string {
-	return filepath.Join(ts.Core.Config.DeployRoot, "core", ts.Name())
+func (ts *Triplestore) Path() string {
+	return filepath.Join(ts.Still.Config.DeployRoot, "core", "triplestore")
 }
 
 func (Triplestore) Context(parent component.InstallationContext) component.InstallationContext {

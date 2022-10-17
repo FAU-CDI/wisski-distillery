@@ -71,7 +71,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// remove the filesystem
 	logging.LogMessage(context.IOStream, "Removing from filesystem %s", instance.FilesystemBase)
-	if err := dis.Core.Environment.RemoveAll(instance.FilesystemBase); err != nil {
+	if err := dis.Still.Environment.RemoveAll(instance.FilesystemBase); err != nil {
 		context.EPrintln(err)
 	}
 

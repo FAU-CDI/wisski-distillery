@@ -41,7 +41,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 	context.Printf("Listening on %s\n", s.Bind)
 
 	// make a new listener
-	listener, err := dis.Core.Environment.Listen("tcp", s.Bind)
+	listener, err := dis.Still.Environment.Listen("tcp", s.Bind)
 	if err != nil {
 		return errServerListen.Wrap(err)
 	}

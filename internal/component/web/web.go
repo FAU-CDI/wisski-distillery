@@ -15,16 +15,11 @@ type Web struct {
 	component.ComponentBase
 }
 
-func (Web) Name() string {
-	return "web"
+func (web *Web) Path() string {
+	return filepath.Join(web.Still.Config.DeployRoot, "core", "web")
 }
 
-func (web Web) Path() string {
-	res := filepath.Join(web.Core.Config.DeployRoot, "core", web.Name())
-	return res
-}
-
-func (Web) Context(parent component.InstallationContext) component.InstallationContext {
+func (*Web) Context(parent component.InstallationContext) component.InstallationContext {
 	return parent
 }
 

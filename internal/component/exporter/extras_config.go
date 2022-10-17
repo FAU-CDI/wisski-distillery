@@ -11,8 +11,6 @@ type Config struct {
 	component.ComponentBase
 }
 
-func (Config) Name() string { return "config" }
-
 func (*Config) BackupName() string {
 	return "config"
 }

@@ -10,20 +10,11 @@ package component
 //
 // Components are initialized using a [Pool].
 type Component interface {
-	// Name returns the name of this component.
-	// It should correspond to the appropriate subpackage.
+	// Name returns the name of this component
+	// Name should be implemented by the [ComponentBase] struct.
 	Name() string
 
-	// getBase returns the embedded ComponentBase struct.
-	getBase() *ComponentBase
-}
-
-// ComponentBase should be embedded into every component
-type ComponentBase struct {
-	Core // the underlying stillage of the distillery
-}
-
-//lint:ignore U1000 used to implement the private methods of [Component]
-func (cb *ComponentBase) getBase() *ComponentBase {
-	return cb
+	// getComponentBase returns the underlying ComponentBase object of this Component.
+	// It is used internally during initialization
+	getComponentBase() *ComponentBase
 }

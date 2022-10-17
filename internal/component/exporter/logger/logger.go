@@ -15,8 +15,6 @@ type Logger struct {
 	SQL *sql.SQL
 }
 
-func (*Logger) Name() string { return "snapshots-log" }
-
 // For retrieves (and prunes) the ExportLog.
 // Slug determines if entries for Backups (empty slug)
 // or a specific Instance (non-empty slug) are returned.
@@ -48,7 +46,7 @@ func (log *Logger) Log() ([]models.Export, error) {
 
 	// partition out the exports that have been deleted!
 	parts := collection.Partition(exports, func(s models.Export) bool {
-		_, err := log.Core.Environment.Stat(s.Path)
+		_, err := log.Still.Environment.Stat(s.Path)
 		return !environment.IsNotExist(err)
 	})
 

@@ -12,15 +12,11 @@ type SSH struct {
 	component.ComponentBase
 }
 
-func (SSH) Name() string {
-	return "ssh"
+func (ssh *SSH) Path() string {
+	return filepath.Join(ssh.Still.Config.DeployRoot, "core", "ssh")
 }
 
-func (ssh SSH) Path() string {
-	return filepath.Join(ssh.Core.Config.DeployRoot, "core", ssh.Name())
-}
-
-func (SSH) Context(parent component.InstallationContext) component.InstallationContext {
+func (*SSH) Context(parent component.InstallationContext) component.InstallationContext {
 	return parent
 }
 

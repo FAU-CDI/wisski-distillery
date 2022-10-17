@@ -20,7 +20,7 @@ type WissKI struct {
 	DrupalPassword string
 
 	// references to components!
-	Core component.Core
+	Core component.Still
 	Meta *meta.Meta
 	TS   *triplestore.Triplestore
 	SQL  *sql.SQL

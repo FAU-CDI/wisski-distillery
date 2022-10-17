@@ -12,8 +12,6 @@ type Bookkeeping struct {
 	component.ComponentBase
 }
 
-func (Bookkeeping) Name() string { return "bookkeeping" }
-
 // SnapshotNeedsRunning returns if this Snapshotable requires a running instance.
 func (Bookkeeping) SnapshotNeedsRunning() bool { return false }
 

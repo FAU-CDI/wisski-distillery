@@ -27,8 +27,6 @@ type Exporter struct {
 	Backupable   []component.Backupable
 }
 
-func (Exporter) Name() string { return "snapshots" }
-
 // Path returns the path that contains all snapshot related data.
 func (dis *Exporter) Path() string {
 	return filepath.Join(dis.Config.DeployRoot, "snapshots")
@@ -74,7 +72,7 @@ func (*Exporter) newSnapshotName(prefix string) string {
 func (dis *Exporter) NewStagingDir(prefix string) (path string, err error) {
 	for path == "" || environment.IsExist(err) {
 		path = filepath.Join(dis.StagingPath(), dis.newSnapshotName(prefix))
-		err = dis.Core.Environment.Mkdir(path, environment.DefaultFilePerm)
+		err = dis.Still.Environment.Mkdir(path, environment.DefaultFilePerm)
 	}
 	if err != nil {
 		path = ""

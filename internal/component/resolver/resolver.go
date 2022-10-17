@@ -26,8 +26,6 @@ type Resolver struct {
 	handler lazy.Lazy[wdresolve.ResolveHandler] // handler
 }
 
-func (*Resolver) Name() string { return "resolver" }
-
 func (resolver *Resolver) Routes() []string { return []string{"/go/", "/wisski/get/"} }
 
 func (resolver *Resolver) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {
