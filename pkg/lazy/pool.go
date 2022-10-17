@@ -56,7 +56,7 @@ type PoolContext[Component any] struct {
 
 	// function to return all components
 
-	metaCache sync.Map
+	metaCache sync.Map                 // Map[string]meta[Component]
 	cache     map[string]Component     // cached components
 	queue     []delayedInit[Component] // init queue
 }

@@ -1,8 +1,9 @@
-package instances
+package wisski
 
 import (
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
@@ -26,14 +27,11 @@ func (wisski *WissKI) BlindUpdate(io stream.IOStream) error {
 	return wisski.setLastUpdate()
 }
 
-const KeyLastUpdate MetaKey = "lastUpdate"
+var lastUpdate = meta.StorageFor[int64]("lastUpdate")
 
 func (wisski *WissKI) LastUpdate() (t time.Time, err error) {
-	var epoch int64
-
-	// read the epoch!
-	err = wisski.Metadata().Get(KeyLastUpdate, &epoch)
-	if err == ErrMetadatumNotSet {
+	epoch, err := lastUpdate(wisski.storage()).Get()
+	if err == meta.ErrMetadatumNotSet {
 		return t, nil
 	}
 	if err != nil {
@@ -45,5 +43,5 @@ func (wisski *WissKI) LastUpdate() (t time.Time, err error) {
 }
 
 func (wisski *WissKI) setLastUpdate() error {
-	return wisski.Metadata().Set(KeyLastUpdate, time.Now().Unix())
+	return lastUpdate(wisski.storage()).Set(time.Now().Unix())
 }

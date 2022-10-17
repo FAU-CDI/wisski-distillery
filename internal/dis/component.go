@@ -8,61 +8,72 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/info"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshotslog"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/web"
+	"github.com/tkw1536/goprogram/lib/collection"
 )
 
 // register returns all components of the distillery
 func (dis *Distillery) register(context component.ComponentPoolContext) []component.Component {
-	return []component.Component{
-		ra[*web.Web](dis, context),
+	return collection.MapSlice([]initFunc{
+		auto[*web.Web],
 
-		ra[*ssh.SSH](dis, context),
+		auto[*ssh.SSH],
 
-		r(dis, context, func(ts *triplestore.Triplestore) {
+		manual(func(ts *triplestore.Triplestore) {
 			ts.BaseURL = "http://" + dis.Upstream.Triplestore
 			ts.PollContext = dis.Context()
 			ts.PollInterval = time.Second
 		}),
-		r(dis, context, func(sql *sql.SQL) {
+		manual(func(sql *sql.SQL) {
 			sql.ServerURL = dis.Upstream.SQL
 			sql.PollContext = dis.Context()
 			sql.PollInterval = time.Second
 		}),
 
-		ra[*instances.Instances](dis, context),
+		auto[*instances.Instances],
+		auto[*meta.Meta],
 
 		// Snapshots
-		ra[*snapshots.Manager](dis, context),
-		ra[*snapshots.Config](dis, context),
-		ra[*snapshots.Bookkeeping](dis, context),
-		ra[*snapshots.Filesystem](dis, context),
-		ra[*snapshots.Pathbuilders](dis, context),
+		auto[*snapshots.Manager],
+		auto[*snapshotslog.SnapshotsLog],
+		auto[*snapshots.Config],
+		auto[*snapshots.Bookkeeping],
+		auto[*snapshots.Filesystem],
+		auto[*snapshots.Pathbuilders],
 
 		// Control server
-		ra[*control.Control](dis, context),
-		ra[*static.Static](dis, context),
-		r(dis, context, func(home *home.Home) {
+		auto[*control.Control],
+		auto[*static.Static],
+		manual(func(home *home.Home) {
 			home.RefreshInterval = time.Minute
 		}),
-		r(dis, context, func(resolver *resolver.Resolver) {
+		manual(func(resolver *resolver.Resolver) {
 			resolver.RefreshInterval = time.Minute
 		}),
-		ra[*info.Info](dis, context),
+		auto[*info.Info],
+	}, func(f initFunc) component.Component {
+		return f(dis, context)
+	})
+}
+
+type initFunc = func(dis *Distillery, context component.ComponentPoolContext) component.Component
+
+// manual initializes a component from the provided distillery.
+func manual[C component.Component](init func(component C)) initFunc {
+	return func(dis *Distillery, context component.ComponentPoolContext) component.Component {
+		return component.MakeComponent(context, dis.Core, init)
 	}
 }
 
-// r initializes a component from the provided distillery.
-func r[C component.Component](dis *Distillery, context component.ComponentPoolContext, init func(component C)) C {
-	return component.MakeComponent(context, dis.Core, init)
-}
-
-// ra is like r, but does not provided additional initialization
-func ra[C component.Component](dis *Distillery, context component.ComponentPoolContext) C {
-	return r[C](dis, context, nil)
+// use is like r, but does not provided additional initialization
+func auto[C component.Component](dis *Distillery, context component.ComponentPoolContext) component.Component {
+	return component.MakeComponent[C](context, dis.Core, nil)
 }

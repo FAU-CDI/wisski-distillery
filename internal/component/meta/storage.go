@@ -1,4 +1,4 @@
-package instances
+package meta
 
 import (
 	"encoding/json"
@@ -6,68 +6,26 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/tkw1536/goprogram/lib/collection"
 	"gorm.io/gorm"
 )
 
-// MetaKey represents a key for metadata.
-type MetaKey string
+// Key represents a key for metadata.
+type Key string
 
 // ErrMetadatumNotSet is returned by various [MetaStorage] functions when a metadatum is not set
 var ErrMetadatumNotSet = errors.New("metadatum not set")
 
-// MetaStorage manages some metadata.
-type MetaStorage interface {
-	// Get retrieves metadata with the provided key and deserializes the first one into target.
-	// If no metadatum exists, returns [ErrMetadatumNotSet].
-	Get(key MetaKey, target any) error
-
-	// GetAll receives all metadata with the provided keys.
-	// For each received value, the targets function is called with the current index, and total number of results.
-	// The function is intended to return a target for deserialization.
-	//
-	// When no metadatum exists, targets is not called, and nil error is returned.
-	GetAll(key MetaKey, targets func(index, total int) any) error
-
-	// Delete deletes all metadata with the provided key.
-	Delete(key MetaKey) error
-
-	// Set serializes value and stores it with the provided key.
-	// Any other metadata with the same key is deleted.
-	Set(key MetaKey, value any) error
-
-	// Set serializes values and stores them with the provided key.
-	// Any other metadata with the same key is deleted.
-	SetAll(key MetaKey, values ...any) error
-
-	// Purge removes all metadata, regardless of key.
-	Purge() error
-}
-
-// Metadata returns a system-wide [MetaStorage].
-func (instances *Instances) Metadata() MetaStorage {
-	return &storage{
-		SQL:  instances.SQL,
-		Slug: "", // not associated to any slug
-	}
-}
-
-// Metadata returns a [MetaStorage] that manages metadata related to this WissKI instance.
-// It will be automatically deleted once the instance is deleted.
-func (wisski *WissKI) Metadata() MetaStorage {
-	return &storage{
-		SQL:  wisski.instances.SQL,
-		Slug: wisski.Slug, // associated to this instance
-	}
-}
-
-// storage implements MetaStorage
-type storage struct {
-	SQL  *sql.SQL
+// Storage manages metadata for either the entire distillery, or a single slug
+type Storage struct {
 	Slug string
+	sql  *sql.SQL
 }
 
-func (s *storage) Get(key MetaKey, target any) error {
-	table, err := s.SQL.QueryTable(true, models.MetadataTable)
+// Get retrieves metadata with the provided key and deserializes the first one into target.
+// If no metadatum exists, returns [ErrMetadatumNotSet].
+func (s Storage) Get(key Key, target any) error {
+	table, err := s.sql.QueryTable(true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -90,8 +48,13 @@ func (s *storage) Get(key MetaKey, target any) error {
 	return json.Unmarshal(datum.Value, target)
 }
 
-func (s *storage) GetAll(key MetaKey, target func(index, total int) any) error {
-	table, err := s.SQL.QueryTable(true, models.MetadataTable)
+// GetAll receives all metadata with the provided keys.
+// For each received value, the targets function is called with the current index, and total number of results.
+// The function is intended to return a target for deserialization.
+//
+// When no metadatum exists, targets is not called, and nil error is returned.
+func (s Storage) GetAll(key Key, target func(index, total int) any) error {
+	table, err := s.sql.QueryTable(true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -116,8 +79,9 @@ func (s *storage) GetAll(key MetaKey, target func(index, total int) any) error {
 	return nil
 }
 
-func (s *storage) Delete(key MetaKey) error {
-	table, err := s.SQL.QueryTable(true, models.MetadataTable)
+// Delete deletes all metadata with the provided key.
+func (s Storage) Delete(key Key) error {
+	table, err := s.sql.QueryTable(true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -130,8 +94,10 @@ func (s *storage) Delete(key MetaKey) error {
 	return nil
 }
 
-func (s *storage) Set(key MetaKey, value any) error {
-	table, err := s.SQL.QueryTable(true, models.MetadataTable)
+// Set serializes value and stores it with the provided key.
+// Any other metadata with the same key is deleted.
+func (s Storage) Set(key Key, value any) error {
+	table, err := s.sql.QueryTable(true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -163,8 +129,10 @@ func (s *storage) Set(key MetaKey, value any) error {
 	})
 }
 
-func (s *storage) SetAll(key MetaKey, values ...any) error {
-	table, err := s.SQL.QueryTable(true, models.MetadataTable)
+// Set serializes values and stores them with the provided key.
+// Any other metadata with the same key is deleted.
+func (s Storage) SetAll(key Key, values ...any) error {
+	table, err := s.sql.QueryTable(true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -196,8 +164,9 @@ func (s *storage) SetAll(key MetaKey, values ...any) error {
 	})
 }
 
-func (s *storage) Purge() error {
-	table, err := s.SQL.QueryTable(true, models.MetadataTable)
+// Purge removes all metadata, regardless of key.
+func (s Storage) Purge() error {
+	table, err := s.sql.QueryTable(true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -207,4 +176,43 @@ func (s *storage) Purge() error {
 		return status.Error
 	}
 	return nil
+}
+
+// StorageFor returns a storage for the given key.
+func StorageFor[Value any](key Key) func(storage *Storage) SpecifcStorage[Value] {
+	return func(storage *Storage) SpecifcStorage[Value] {
+		return SpecifcStorage[Value]{storage: storage, key: key}
+	}
+}
+
+type SpecifcStorage[Value any] struct {
+	storage *Storage
+	key     Key
+}
+
+func (sf SpecifcStorage[Value]) Get() (value Value, err error) {
+	err = sf.storage.Get(sf.key, &value)
+	return
+}
+
+func (sf SpecifcStorage[Value]) GetAll() (values []Value, err error) {
+	err = sf.storage.GetAll(sf.key, func(index, total int) any {
+		if values == nil {
+			values = make([]Value, total)
+		}
+		return &values[index]
+	})
+	return values, err
+}
+
+func (sf SpecifcStorage[Value]) Set(value Value) error {
+	return sf.storage.Set(sf.key, value)
+}
+
+func (sf SpecifcStorage[Value]) SetAll(values ...Value) error {
+	return sf.storage.SetAll(sf.key, collection.AsAny(values)...)
+}
+
+func (sf SpecifcStorage[Value]) Delete() error {
+	return sf.storage.Delete(sf.key)
 }

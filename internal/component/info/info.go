@@ -7,6 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshotslog"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -16,6 +17,7 @@ type Info struct {
 
 	SnapshotManager *snapshots.Manager
 	Instances       *instances.Instances
+	SnapshotsLog    *snapshotslog.SnapshotsLog
 }
 
 func (Info) Name() string { return "control-info" }

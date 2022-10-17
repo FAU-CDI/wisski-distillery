@@ -1,4 +1,4 @@
-package instances
+package wisski
 
 import (
 	_ "embed"

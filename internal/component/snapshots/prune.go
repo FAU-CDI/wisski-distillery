@@ -50,6 +50,6 @@ func (manager *Manager) PruneExports(io stream.IOStream) error {
 	}
 
 	// prune the snapshot log!
-	_, err = manager.Instances.ExportLog()
+	_, err = manager.SnapshotsLog.Log()
 	return err
 }

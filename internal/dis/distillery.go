@@ -85,7 +85,7 @@ func (dis *Distillery) Triplestore() *triplestore.Triplestore {
 func (dis *Distillery) Instances() *instances.Instances {
 	return e[*instances.Instances](dis)
 }
-func (dis *Distillery) SnapshotManager() *snapshots.Manager {
+func (dis *Distillery) ExportManager() *snapshots.Manager {
 	return e[*snapshots.Manager](dis)
 }
 

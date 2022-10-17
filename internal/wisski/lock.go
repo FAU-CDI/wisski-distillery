@@ -1,4 +1,4 @@
-package instances
+package wisski
 
 import (
 	"errors"
@@ -10,8 +10,8 @@ var ErrLocked = errors.New("instance is locked")
 
 // TryLock attemps to lock this WissKI
 // If this is not possible, returns ErrLocked
-func (wisski WissKI) TryLock() error {
-	table, err := wisski.instances.SQL.QueryTable(true, models.LockTable)
+func (wisski *WissKI) TryLock() error {
+	table, err := wisski.SQL.QueryTable(true, models.LockTable)
 	if err != nil {
 		return ErrLocked
 	}
@@ -25,8 +25,8 @@ func (wisski WissKI) TryLock() error {
 	return nil
 }
 
-func (wisski WissKI) IsLocked() (locked bool) {
-	table, err := wisski.instances.SQL.QueryTable(true, models.LockTable)
+func (wisski *WissKI) IsLocked() (locked bool) {
+	table, err := wisski.SQL.QueryTable(true, models.LockTable)
 	if err != nil {
 		return false
 	}
@@ -38,7 +38,7 @@ func (wisski WissKI) IsLocked() (locked bool) {
 
 // Unlock unlocks this WissKI instance and returns if it succeeded
 func (wisski WissKI) Unlock() bool {
-	table, err := wisski.instances.SQL.QueryTable(true, models.LockTable)
+	table, err := wisski.SQL.QueryTable(true, models.LockTable)
 	if err != nil {
 		return false
 	}

@@ -97,11 +97,6 @@ func (p purge) Run(context wisski_distillery.Context) error {
 		context.EPrintln(err)
 	}
 
-	logging.LogMessage(context.IOStream, "Purging instance metadata")
-	if err := instance.Metadata().Purge(); err != nil {
-		context.EPrintln(err)
-	}
-
 	// remove the filesystem
 	logging.LogMessage(context.IOStream, "Remove lock data", instance.FilesystemBase)
 	if !instance.Unlock() {

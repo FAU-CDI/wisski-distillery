@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -39,9 +39,9 @@ func (cr cron) Run(context wisski_distillery.Context) error {
 	}
 
 	// and do the actual blind_update!
-	return status.StreamGroup(context.IOStream, cr.Parallel, func(instance instances.WissKI, io stream.IOStream) error {
+	return status.StreamGroup(context.IOStream, cr.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
 		return instance.Cron(io)
-	}, wissKIs, status.SmartMessage(func(item instances.WissKI) string {
+	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("cron %q", item.Slug)
 	}))
 }

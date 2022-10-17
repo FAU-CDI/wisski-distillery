@@ -6,10 +6,10 @@ import (
 
 	_ "embed"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -22,7 +22,7 @@ type indexPageContext struct {
 
 	Config *config.Config
 
-	Instances []instances.WissKIInfo
+	Instances []wisski.WissKIInfo
 
 	TotalCount   int
 	RunningCount int
@@ -42,7 +42,7 @@ func (info *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error
 		}
 
 		// get all of their info!
-		idx.Instances = make([]instances.WissKIInfo, len(all))
+		idx.Instances = make([]wisski.WissKIInfo, len(all))
 		for i, instance := range all {
 			{
 				i := i
@@ -61,7 +61,7 @@ func (info *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error
 
 	// get the log entries
 	group.Go(func() (err error) {
-		idx.Backups, err = info.Instances.ExportLogFor("")
+		idx.Backups, err = info.SnapshotsLog.For("")
 		return
 	})
 

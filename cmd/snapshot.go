@@ -45,11 +45,11 @@ func (sn snapshot) Run(context wisski_distillery.Context) error {
 	}
 
 	// do a snapshot of it!
-	err = dis.SnapshotManager().MakeExport(context.IOStream, snapshots.ExportTask{
+	err = dis.ExportManager().MakeExport(context.IOStream, snapshots.ExportTask{
 		Dest:        sn.Positionals.Dest,
 		StagingOnly: sn.StagingOnly,
 
-		Instance: &instance,
+		Instance: instance,
 	})
 
 	if err != nil {

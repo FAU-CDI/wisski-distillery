@@ -1,34 +1,34 @@
 package info
 
 import (
-	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshots"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
 )
 
-type instanceActionFunc = func(info *Info, instance instances.WissKI, str stream.IOStream) error
+type instanceActionFunc = func(info *Info, instance *wisski.WissKI, str stream.IOStream) error
 
 var socketInstanceActions = map[string]instanceActionFunc{
-	"snapshot": func(info *Info, instance instances.WissKI, str stream.IOStream) error {
+	"snapshot": func(info *Info, instance *wisski.WissKI, str stream.IOStream) error {
 		return info.SnapshotManager.MakeExport(
 			str,
 			snapshots.ExportTask{
 				Dest:     "",
-				Instance: &instance,
+				Instance: instance,
 
 				StagingOnly: false,
 			},
 		)
 	},
-	"rebuild": func(_ *Info, instance instances.WissKI, str stream.IOStream) error {
+	"rebuild": func(_ *Info, instance *wisski.WissKI, str stream.IOStream) error {
 		return instance.Build(str, true)
 	},
-	"update": func(_ *Info, instance instances.WissKI, str stream.IOStream) error {
+	"update": func(_ *Info, instance *wisski.WissKI, str stream.IOStream) error {
 		return instance.BlindUpdate(str)
 	},
-	"cron": func(_ *Info, instance instances.WissKI, str stream.IOStream) error {
+	"cron": func(_ *Info, instance *wisski.WissKI, str stream.IOStream) error {
 		return instance.Cron(str)
 	},
 }

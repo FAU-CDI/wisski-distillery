@@ -1,16 +1,27 @@
-package instances
+package snapshotslog
 
 import (
+	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/lib/collection"
 )
 
-// ExportLogFor retrieves (and prunes) the ExportLog.
+// SnapshotsLog is responsible for logging snapshots
+type SnapshotsLog struct {
+	component.ComponentBase
+
+	SQL *sql.SQL
+}
+
+func (*SnapshotsLog) Name() string { return "snapshots-log" }
+
+// For retrieves (and prunes) the ExportLog.
 // Slug determines if entries for Backups (empty slug)
 // or a specific Instance (non-empty slug) are returned.
-func (instances *Instances) ExportLogFor(slug string) (exports []models.Export, err error) {
-	exports, err = instances.ExportLog()
+func (log *SnapshotsLog) For(slug string) (exports []models.Export, err error) {
+	exports, err = log.Log()
 	if err != nil {
 		return nil, err
 	}
@@ -20,10 +31,10 @@ func (instances *Instances) ExportLogFor(slug string) (exports []models.Export, 
 	}), nil
 }
 
-// ExportLog retrieves (and prunes) all entries in the snapshot log.
-func (instances *Instances) ExportLog() ([]models.Export, error) {
+// Log retrieves (and prunes) all entries in the snapshot log.
+func (log *SnapshotsLog) Log() ([]models.Export, error) {
 	// query the table!
-	table, err := instances.SQL.QueryTable(false, models.ExportTable)
+	table, err := log.SQL.QueryTable(false, models.ExportTable)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +48,7 @@ func (instances *Instances) ExportLog() ([]models.Export, error) {
 
 	// partition out the exports that have been deleted!
 	parts := collection.Partition(exports, func(s models.Export) bool {
-		_, err := instances.Core.Environment.Stat(s.Path)
+		_, err := log.Core.Environment.Stat(s.Path)
 		return !environment.IsNotExist(err)
 	})
 
@@ -52,15 +63,10 @@ func (instances *Instances) ExportLog() ([]models.Export, error) {
 	return parts[true], nil
 }
 
-// Snapshots returns the list of snapshots of this WissKI
-func (wisski *WissKI) Snapshots() (snapshots []models.Export, err error) {
-	return wisski.instances.ExportLogFor(wisski.Slug)
-}
-
 // AddToExportLog adds the provided export to the log.
-func (instances *Instances) AddToExportLog(export models.Export) error {
+func (log *SnapshotsLog) Add(export models.Export) error {
 	// find the table
-	table, err := instances.SQL.QueryTable(false, models.ExportTable)
+	table, err := log.SQL.QueryTable(false, models.ExportTable)
 	if err != nil {
 		return err
 	}

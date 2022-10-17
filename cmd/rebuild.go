@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/core"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/goprogram/stream"
@@ -46,9 +46,9 @@ func (rb rebuild) Run(context wisski_distillery.Context) error {
 	}
 
 	// and do the actual rebuild
-	return status.StreamGroup(context.IOStream, rb.Parallel, func(instance instances.WissKI, io stream.IOStream) error {
+	return status.StreamGroup(context.IOStream, rb.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
 		return instance.Build(io, true)
-	}, wissKIs, status.SmartMessage(func(item instances.WissKI) string {
+	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)
 	}))
 }

@@ -1,4 +1,4 @@
-package instances
+package wisski
 
 import (
 	"embed"
@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -17,7 +18,7 @@ func (wisski *WissKI) Barrel() component.StackWithResources {
 	return component.StackWithResources{
 		Stack: component.Stack{
 			Dir: wisski.FilesystemBase,
-			Env: wisski.instances.Environment,
+			Env: wisski.Core.Environment,
 		},
 
 		Resources:   barrelResources,
@@ -25,15 +26,15 @@ func (wisski *WissKI) Barrel() component.StackWithResources {
 		EnvPath:     filepath.Join("instances", "barrel.env"),
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": wisski.instances.Config.DockerNetworkName,
+			"DOCKER_NETWORK_NAME": wisski.Core.Config.DockerNetworkName,
 
 			"SLUG":          wisski.Slug,
 			"VIRTUAL_HOST":  wisski.Domain(),
-			"HTTPS_ENABLED": wisski.instances.Config.HTTPSEnabledEnv(),
+			"HTTPS_ENABLED": wisski.Core.Config.HTTPSEnabledEnv(),
 
 			"DATA_PATH":                   filepath.Join(wisski.FilesystemBase, "data"),
-			"RUNTIME_DIR":                 wisski.instances.Config.RuntimeDir(),
-			"GLOBAL_AUTHORIZED_KEYS_FILE": wisski.instances.Config.GlobalAuthorizedKeysFile,
+			"RUNTIME_DIR":                 wisski.Core.Config.RuntimeDir(),
+			"GLOBAL_AUTHORIZED_KEYS_FILE": wisski.Core.Config.GlobalAuthorizedKeysFile,
 		},
 
 		MakeDirs: []string{"data", ".composer"},
@@ -44,14 +45,12 @@ func (wisski *WissKI) Barrel() component.StackWithResources {
 	}
 }
 
-const KeyLastRebuild MetaKey = "lastRebuild"
+// TODO: Move this to time.Time
+var lastRebuild = meta.StorageFor[int64]("lastRebuild")
 
 func (wisski *WissKI) LastRebuild() (t time.Time, err error) {
-	var epoch int64
-
-	// read the epoch!
-	err = wisski.Metadata().Get(KeyLastRebuild, &epoch)
-	if err == ErrMetadatumNotSet {
+	epoch, err := lastRebuild(wisski.storage()).Get()
+	if err == meta.ErrMetadatumNotSet {
 		return t, nil
 	}
 	if err != nil {
@@ -63,7 +62,7 @@ func (wisski *WissKI) LastRebuild() (t time.Time, err error) {
 }
 
 func (wisski *WissKI) setLastRebuild() error {
-	return wisski.Metadata().Set(KeyLastRebuild, time.Now().Unix())
+	return lastRebuild(wisski.storage()).Set(time.Now().Unix())
 }
 
 // Build builds or rebuilds the barel connected to this instance.
@@ -105,7 +104,7 @@ func (wisski *WissKI) Reserve() component.StackWithResources {
 	return component.StackWithResources{
 		Stack: component.Stack{
 			Dir: wisski.FilesystemBase,
-			Env: wisski.instances.Environment,
+			Env: wisski.Core.Environment,
 		},
 
 		Resources:   reserveResources,
@@ -113,11 +112,16 @@ func (wisski *WissKI) Reserve() component.StackWithResources {
 		EnvPath:     filepath.Join("instances", "reserve.env"),
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": wisski.instances.Config.DockerNetworkName,
+			"DOCKER_NETWORK_NAME": wisski.Core.Config.DockerNetworkName,
 
 			"SLUG":          wisski.Slug,
 			"VIRTUAL_HOST":  wisski.Domain(),
-			"HTTPS_ENABLED": wisski.instances.Config.HTTPSEnabledEnv(),
+			"HTTPS_ENABLED": wisski.Core.Config.HTTPSEnabledEnv(),
 		},
 	}
+}
+
+// Shell executes a shell command inside the instance.
+func (wisski *WissKI) Shell(io stream.IOStream, argv ...string) (int, error) {
+	return wisski.Barrel().Exec(io, "barrel", "/bin/sh", append([]string{"/user_shell.sh"}, argv...)...)
 }

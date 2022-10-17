@@ -4,8 +4,8 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
@@ -26,7 +26,7 @@ type ExportTask struct {
 
 	// Instance is the instance to generate a snapshot of.
 	// To generate a backup, leave this to be nil.
-	Instance *instances.WissKI
+	Instance *wisski.WissKI
 
 	// BackupDescriptions and SnapshotDescriptions further specitfy options for the export.
 	// The Dest parameter is ignored, and updated automatically.
@@ -99,7 +99,7 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 			sl = &backup
 		} else {
 			task.SnapshotDescription.Dest = stagingDir
-			snapshot := manager.NewSnapshot(*task.Instance, io, task.SnapshotDescription)
+			snapshot := manager.NewSnapshot(task.Instance, io, task.SnapshotDescription)
 			sl = &snapshot
 		}
 
@@ -131,7 +131,7 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 		// write out the log entry
 		entry.Path = stagingDir
 		entry.Packed = false
-		manager.Instances.AddToExportLog(entry)
+		manager.SnapshotsLog.Add(entry)
 
 		io.Printf("Wrote %s\n", stagingDir)
 		return nil
@@ -159,7 +159,7 @@ func (manager *Manager) MakeExport(io stream.IOStream, task ExportTask) (err err
 	logging.LogMessage(io, "Writing Log Entry")
 	entry.Path = archivePath
 	entry.Packed = true
-	manager.Instances.AddToExportLog(entry)
+	manager.SnapshotsLog.Add(entry)
 
 	// and we're done!
 	return nil

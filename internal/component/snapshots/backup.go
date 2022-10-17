@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -131,13 +131,13 @@ func (backup *Backup) run(ios stream.IOStream, manager *Manager) {
 		}
 
 		// make a backup of the snapshots
-		backup.InstanceSnapshots = status.Group[instances.WissKI, Snapshot]{
-			PrefixString: func(item instances.WissKI, index int) string {
+		backup.InstanceSnapshots = status.Group[*wisski.WissKI, Snapshot]{
+			PrefixString: func(item *wisski.WissKI, index int) string {
 				return fmt.Sprintf("[snapshot %q]: ", item.Slug)
 			},
 			PrefixAlign: true,
 
-			Handler: func(instance instances.WissKI, index int, writer io.Writer) Snapshot {
+			Handler: func(instance *wisski.WissKI, index int, writer io.Writer) Snapshot {
 				dir := filepath.Join(instancesBackupDir, instance.Slug)
 				if err := manager.Environment.Mkdir(dir, environment.DefaultDirPerm); err != nil {
 					return Snapshot{
@@ -151,10 +151,10 @@ func (backup *Backup) run(ios stream.IOStream, manager *Manager) {
 					Dest: dir,
 				})
 			},
-			ResultString: func(res Snapshot, item instances.WissKI, index int) string {
+			ResultString: func(res Snapshot, item *wisski.WissKI, index int) string {
 				return "done"
 			},
-			WaitString:   status.DefaultWaitString[instances.WissKI],
+			WaitString:   status.DefaultWaitString[*wisski.WissKI],
 			HandlerLimit: backup.Description.ConcurrentSnapshots,
 		}.Use(st, wissKIs)
 

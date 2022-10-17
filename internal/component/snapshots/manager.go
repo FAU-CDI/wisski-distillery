@@ -7,6 +7,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/snapshotslog"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
@@ -17,8 +18,9 @@ import (
 type Manager struct {
 	component.ComponentBase
 
-	SQL       *sql.SQL
-	Instances *instances.Instances
+	SQL          *sql.SQL
+	Instances    *instances.Instances
+	SnapshotsLog *snapshotslog.SnapshotsLog
 
 	Snapshotable []component.Snapshotable
 	Backupable   []component.Backupable
