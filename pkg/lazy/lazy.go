@@ -4,20 +4,20 @@ import (
 	"sync"
 )
 
-// Lazy is an object that a lazily-initialized value of type T.
-//
-// A Lazy must not be copied after first use.
+// Lazy holds a lazily initialized value of T.
+// Lazy non-zero lazy must not be copied after first use.
 type Lazy[T any] struct {
 	once sync.Once
 
 	m     sync.RWMutex // m protects setting the value of this T
-	value T
+	value T            // the stored value
 }
 
 // Get returns the value associated with this Lazy.
 //
-// If no other call to Get has started or completed an initialization, initializes the value using the init function.
-// Otherwise, it returns the initialized value.
+// If no other call to Get has started or completed an initialization, calls init to initialize the value.
+// A nil init function indicates to store the zero value of T.
+// If an initialization has been previously completed, the previously stored value is returned.
 //
 // If init panics, the initization is considered to be completed.
 // Future calls to Get() do not invoke init, and the zero value of T is returned.
@@ -28,13 +28,19 @@ func (lazy *Lazy[T]) Get(init func() T) T {
 	defer lazy.m.RUnlock()
 
 	lazy.once.Do(func() {
-		lazy.value = init()
+		if init != nil {
+			lazy.value = init()
+		}
 	})
+
 	return lazy.value
 }
 
-// Set atomically sets the value of this lazy, preventing future calls to get from invoking init.
-// It may be called concurrently with calls to [Get] and [Reset].
+// Set atomically sets the value of this lazy.
+// Any previously set value will be overwritten.
+// Future calls to [Get] will not invoke init.
+//
+// It may be called concurrently with calls to [Get].
 func (lazy *Lazy[T]) Set(value T) {
 	lazy.m.Lock()
 	defer lazy.m.Unlock()

@@ -1,4 +1,4 @@
-package component
+package lazy
 
 import (
 	"reflect"
@@ -8,19 +8,17 @@ import (
 	"github.com/tkw1536/goprogram/lib/reflectx"
 )
 
-var metaCache sync.Map // Map[reflect.Type]meta
-
 // getMeta gets the component belonging to a component type
-func getMeta[C Component]() meta {
-	tp := reflectx.TypeOf[C]()
+func getMeta[Component any, ConcreteComponent any](metaCache *sync.Map) meta[Component] {
+	tp := reflectx.TypeOf[ConcreteComponent]()
 
 	// we already have a m => return it
 	if m, ok := metaCache.Load(tp); ok {
-		return m.(meta)
+		return m.(meta[Component])
 	}
 
 	// create a new m
-	var m meta
+	var m meta[Component]
 	m.init(tp)
 
 	// store it in the cache
@@ -29,7 +27,7 @@ func getMeta[C Component]() meta {
 }
 
 // meta stores meta-information about a specific component
-type meta struct {
+type meta[Component any] struct {
 	Name string       // the type name of this component
 	Elem reflect.Type // the element type of the component
 
@@ -37,11 +35,10 @@ type meta struct {
 	IFields map[string]reflect.Type // fields []I where I is an interface that implements component
 }
 
-// componentType is the type of components
-var componentType = reflectx.TypeOf[Component]()
+// init initializes this meta
+func (m *meta[Component]) init(tp reflect.Type) {
+	var componentType = reflectx.TypeOf[Component]()
 
-// init initializes this refklecttype
-func (m *meta) init(tp reflect.Type) {
 	if tp.Kind() != reflect.Pointer && tp.Elem().Kind() != reflect.Struct {
 		panic("GetMeta: Type (" + tp.String() + ") must be backed by a pointer to slice")
 	}
@@ -73,17 +70,17 @@ func (m *meta) init(tp reflect.Type) {
 }
 
 // New creates a new ComponentDescription
-func (m meta) New() Component {
+func (m meta[Component]) New() Component {
 	return reflect.New(m.Elem).Interface().(Component)
 }
 
 // NeedsInitComponent
-func (m meta) NeedsInitComponent() bool {
+func (m meta[Component]) NeedsInitComponent() bool {
 	return len(m.CFields) > 0 || len(m.IFields) > 0
 }
 
 // InitComponent sets up the fields of the given instance of a component.
-func (m meta) InitComponent(instance reflect.Value, all []Component) {
+func (m meta[Component]) InitComponent(instance reflect.Value, all []Component) {
 	elem := instance.Elem()
 
 	// assign the component fields

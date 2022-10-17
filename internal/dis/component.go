@@ -18,7 +18,7 @@ import (
 )
 
 // register returns all components of the distillery
-func (dis *Distillery) register(context *component.PoolContext) []component.Component {
+func (dis *Distillery) register(context component.ComponentPoolContext) []component.Component {
 	return []component.Component{
 		ra[*web.Web](dis, context),
 
@@ -58,11 +58,11 @@ func (dis *Distillery) register(context *component.PoolContext) []component.Comp
 }
 
 // r initializes a component from the provided distillery.
-func r[C component.Component](dis *Distillery, context *component.PoolContext, init func(component C)) C {
-	return component.Make(context, dis.Core, init)
+func r[C component.Component](dis *Distillery, context component.ComponentPoolContext, init func(component C)) C {
+	return component.MakeComponent(context, dis.Core, init)
 }
 
 // ra is like r, but does not provided additional initialization
-func ra[C component.Component](dis *Distillery, context *component.PoolContext) C {
+func ra[C component.Component](dis *Distillery, context component.ComponentPoolContext) C {
 	return r[C](dis, context, nil)
 }
