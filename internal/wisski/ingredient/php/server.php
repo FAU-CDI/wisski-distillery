@@ -5,21 +5,33 @@
 //
 // As such it is preprocessed and shortened.
 // It should only contain comments at the beginning of each line, and only starting with '//'.
-// See wisski_php_server.go.
+// See server.go.
 
-// don't buffer stdin!
+// prevent STDIN from being buffered
 stream_set_read_buffer(STDIN,0);
 
-// stop all other output
+// stop outputting errors when executing
 ob_start(null,0,PHP_OUTPUT_HANDLER_CLEANABLE);
 
-while($line =  fgets(STDIN)){
-    // decode the command to run
-	$code=@json_decode($line);
+
+while(1){
+	// read the next line to get an end-of-line marker
+	$marker = fgets(STDIN);
+	if (!$marker) break;
+
+	// accumulate the buffer until the marker is reached
+	// bail out if there is an unexpected end of input
+	$buffer = "";
+	while(1) {
+		$line = fgets(STDIN);
+		if (!$line) break 2;
+		if ($line === $marker) break;
+		$buffer .= $line . "\n";
+	}
 
     // execute it
 	try{
-		$json = json_encode([eval($code),""]);
+		$json = json_encode([eval($buffer),""]);
 	}catch(Throwable $t){
 		$json = json_encode([null,(string)$t]);
 	}

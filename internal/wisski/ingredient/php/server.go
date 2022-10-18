@@ -80,7 +80,6 @@ func (php *PHP) NewServer() (*Server, error) {
 
 			cancel()
 		}()
-
 		// start the server
 		io := stream.NewIOStream(ow, nil, ir, 0)
 		php.Barrel.Shell(io, "-c", shellescape.QuoteCommand([]string{"drush", "php:eval", serverPHP}))
@@ -122,14 +121,9 @@ func (server *Server) MarshalEval(value any, code string) error {
 		return errPHPClosed
 	}
 
-	// marshal the code, and send it to the server
-	bytes, err := json.Marshal(code)
-	if err != nil {
-		return ServerError{Message: errPHPMarshal, Err: err}
-	}
-
-	// send it to the server
-	io.WriteString(server.in, string(bytes)+"\n")
+	// find a delimiter for the code, and then send
+	delim := findDelimiter(code)
+	io.WriteString(server.in, delim+"\n"+code+"\n"+delim+"\n")
 
 	// read the next line (as a response)
 	data, err := nobufio.ReadLine(server.out)
@@ -169,22 +163,30 @@ func (server *Server) Eval(code string) (value any, err error) {
 //
 // Return values are received as in [MarshalEval].
 func (server *Server) MarshalCall(value any, function string, args ...any) error {
-	// marshal a code for the call
-	userFunction, err := marshalPHP(function)
-	if err != nil {
-		return ServerError{Message: errPHPMarshal, Err: err}
-	}
 
-	userFunctionArgs := "[]"
-	if len(args) > 0 {
-		userFunctionArgs, err = marshalPHP(args)
+	// name of function to call
+	name := MarshalString(function)
+
+	// generate code to call
+	var code string
+	switch len(args) {
+	case 0:
+		code = "return call_user_func(" + name + ");"
+	case 1:
+		param, err := Marshal(args[0])
 		if err != nil {
-			return ServerError{Message: errPHPMarshal, Err: err}
+			return err
 		}
+		code = "return call_user_func(" + name + "," + param + ");"
+	default:
+		params, err := Marshal(args)
+		if err != nil {
+			return err
+		}
+		code = "return call_user_func_array(" + name + "," + params + ");"
 	}
-	code := "return call_user_func_array(" + userFunction + "," + userFunctionArgs + ");"
 
-	// and return the evaluated code!
+	// and evaluate the code
 	return server.MarshalEval(value, code)
 }
 
@@ -194,27 +196,14 @@ func (server *Server) Call(function string, args ...any) (value any, err error) 
 	return
 }
 
-const marshalRune = 'F' // press to pay respect
+const delimiterRune = 'F' // press to pay respect
 
-// marshalPHP marshals some data which can be marshaled using [json.Encode] into a PHP Expression.
-// the string can be safely used directly within php.
-func marshalPHP(data any) (string, error) {
-	// this function uses json as a data format to transport the data into php.
-	// then we build a heredoc to encode it safely, and decode it in php
-
-	// Step 1: Encode the data as json
-	jbytes, err := json.Marshal(data)
-	if err != nil {
-		return "", err
-	}
-	jstring := string(jbytes)
-
-	// Step 2: Find a delimiter for the heredoc.
-	// Step 2a: Find the longest sequence of [marshalRune]s inside the encoded string.
+// findDelimiter finds a delimiter that does not occur in the input string
+func findDelimiter(input string) string {
+	// find the longest sequence of delimiter rune
 	var current, longest int
-	for _, r := range jstring {
-
-		if r == marshalRune {
+	for _, r := range input {
+		if r == delimiterRune {
 			current++
 		} else {
 			current = 0
@@ -224,12 +213,8 @@ func marshalPHP(data any) (string, error) {
 			longest = current
 		}
 	}
-	// Step 2b: Build a string of marshalRune that is one longer!
-	delim := strings.Repeat(string(marshalRune), longest+1)
-
-	// Step 3: Assemble the encoded string!
-	result := "call_user_func(function(){$x=<<<'" + delim + "'\n" + jstring + "\n" + delim + ";return json_decode(trim($x));})" // press to doubt
-	return result, nil
+	// and then return it multipled longer than that
+	return strings.Repeat(string(delimiterRune), longest+1)
 }
 
 // Close closes this server and prevents any further code from being run.
