@@ -7,7 +7,7 @@ import (
 	"github.com/tkw1536/goprogram/stream"
 )
 
-// Servable implements a component with a Serve method
+// Servable is a component that is servable
 type Servable interface {
 	Component
 

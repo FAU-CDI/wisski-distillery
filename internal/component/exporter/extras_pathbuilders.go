@@ -9,7 +9,7 @@ import (
 )
 
 type Pathbuilders struct {
-	component.ComponentBase
+	component.Base
 	Instances *instances.Instances
 }
 

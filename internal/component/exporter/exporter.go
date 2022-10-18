@@ -17,7 +17,7 @@ import (
 
 // Exporter manages snapshots and backups
 type Exporter struct {
-	component.ComponentBase
+	component.Base
 
 	SQL            *sql.SQL
 	Instances      *instances.Instances

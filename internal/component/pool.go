@@ -6,31 +6,27 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
-type ComponentPool struct {
+// Pool holds a pool of components.
+type Pool struct {
 	pool     lazy.Pool[Component, Still]
 	poolInit sync.Once
 }
 
-func (pool *ComponentPool) init() {
+func (pool *Pool) init() {
 	pool.poolInit.Do(func() {
-		pool.pool.Init = func(component Component, core Still) Component {
-			base := component.getComponentBase()
-			base.Still = core
-			base.name = nameOf(component)
-			return component
-		}
+		pool.pool.Init = Init
 	})
 }
 
-type ComponentPoolContext = *lazy.PoolContext[Component]
-type ComponentAllFunc = func(context ComponentPoolContext) []Component
+type PoolContext = *lazy.PoolContext[Component]
+type AllFunc = func(context PoolContext) []Component
 
-func (pool *ComponentPool) All(core Still, init func(context ComponentPoolContext) []Component) []Component {
+func (pool *Pool) All(core Still, init func(context PoolContext) []Component) []Component {
 	pool.init()
 	return pool.pool.All(core, init)
 }
 
-// MakeComponent creates or returns a cached component of the given Context.
+// Make creates or returns a cached component of the given Context.
 //
 // Components are initialized by first calling the init function.
 // Then all component-like fields of fields are filled with their appropriate components.
@@ -45,24 +41,24 @@ func (pool *ComponentPool) All(core Still, init func(context ComponentPoolContex
 // Furthermore, the init function may not cause other components to be initialized.
 //
 // The init function may be nil, indicating that no additional initialization is required.
-func MakeComponent[C Component](context ComponentPoolContext, core Still, init func(component C)) C {
+func Make[C Component](context PoolContext, core Still, init func(component C)) C {
 	return lazy.Make(context, init)
 }
 
-// ExportComponents exports all components that are a C from the pool.
+// ExportAll exports all components that are a C from the pool.
 //
 // All should be the function of the core that initializes all components.
 // All should only make calls to [InitComponent].
-func ExportComponents[C Component](pool *ComponentPool, core Still, All ComponentAllFunc) []C {
+func ExportAll[C Component](pool *Pool, core Still, All AllFunc) []C {
 	pool.init()
 	return lazy.ExportComponents[Component, Still, C](&pool.pool, core, All)
 }
 
-// ExportComponent exports the first component that is a C from the pool.
+// Export exports the first component that is a C from the pool.
 //
 // All should be the function of the core that initializes all components.
 // All should only make calls to [InitComponent].
-func ExportComponent[C Component](pool *ComponentPool, core Still, All ComponentAllFunc) C {
+func Export[C Component](pool *Pool, core Still, All AllFunc) C {
 	pool.init()
 	return lazy.ExportComponent[Component, Still, C](&pool.pool, core, All)
 }

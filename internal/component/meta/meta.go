@@ -9,7 +9,7 @@ import (
 
 // Component meta is responsible for managing metadata per WissKI Instance
 type Meta struct {
-	component.ComponentBase
+	component.Base
 
 	SQL *sql.SQL
 

@@ -12,7 +12,7 @@ import (
 )
 
 type SQL struct {
-	component.ComponentBase
+	component.Base
 
 	ServerURL string // upstream server url
 

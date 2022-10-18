@@ -22,7 +22,7 @@ import (
 )
 
 // register returns all components of the distillery
-func (dis *Distillery) register(context component.ComponentPoolContext) []component.Component {
+func (dis *Distillery) register(context component.PoolContext) []component.Component {
 	return collection.MapSlice([]initFunc{
 		auto[*web.Web],
 
@@ -65,16 +65,16 @@ func (dis *Distillery) register(context component.ComponentPoolContext) []compon
 	})
 }
 
-type initFunc = func(dis *Distillery, context component.ComponentPoolContext) component.Component
+type initFunc = func(dis *Distillery, context component.PoolContext) component.Component
 
 // manual initializes a component from the provided distillery.
 func manual[C component.Component](init func(component C)) initFunc {
-	return func(dis *Distillery, context component.ComponentPoolContext) component.Component {
-		return component.MakeComponent(context, dis.Still, init)
+	return func(dis *Distillery, context component.PoolContext) component.Component {
+		return component.Make(context, dis.Still, init)
 	}
 }
 
 // use is like r, but does not provided additional initialization
-func auto[C component.Component](dis *Distillery, context component.ComponentPoolContext) component.Component {
-	return component.MakeComponent[C](context, dis.Still, nil)
+func auto[C component.Component](dis *Distillery, context component.PoolContext) component.Component {
+	return component.Make[C](context, dis.Still, nil)
 }

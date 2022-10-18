@@ -10,7 +10,7 @@ import (
 
 // Logger is responsible for logging backups and snapshots
 type Logger struct {
-	component.ComponentBase
+	component.Base
 
 	SQL *sql.SQL
 }

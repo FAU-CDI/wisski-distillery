@@ -12,7 +12,7 @@ import (
 //
 // It consists of an nginx docker container and an optional letsencrypt container.
 type Web struct {
-	component.ComponentBase
+	component.Base
 }
 
 func (web *Web) Path() string {

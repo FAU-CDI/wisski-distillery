@@ -4,7 +4,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
-// Provisionable represents a component with a Provision and a Purge method.
+// Provisionable is a component that can be provisioned
 type Provisionable interface {
 	Component
 

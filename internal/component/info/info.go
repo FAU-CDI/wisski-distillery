@@ -14,7 +14,7 @@ import (
 )
 
 type Info struct {
-	component.ComponentBase
+	component.Base
 
 	Exporter     *exporter.Exporter
 	Instances    *instances.Instances

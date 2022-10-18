@@ -8,7 +8,7 @@ import (
 
 // Config implements backing up configuration
 type Config struct {
-	component.ComponentBase
+	component.Base
 }
 
 func (*Config) BackupName() string {

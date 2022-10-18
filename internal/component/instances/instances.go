@@ -19,7 +19,7 @@ import (
 
 // Instances manages multiple WissKI Instances.
 type Instances struct {
-	component.ComponentBase
+	component.Base
 
 	TS          *triplestore.Triplestore
 	SQL         *sql.SQL

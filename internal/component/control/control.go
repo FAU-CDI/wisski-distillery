@@ -11,7 +11,7 @@ import (
 
 // Control represents the running control server.
 type Control struct {
-	component.ComponentBase
+	component.Base
 
 	Servables []component.Servable
 }

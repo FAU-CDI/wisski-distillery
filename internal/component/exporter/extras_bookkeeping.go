@@ -9,7 +9,7 @@ import (
 )
 
 type Bookkeeping struct {
-	component.ComponentBase
+	component.Base
 }
 
 // SnapshotNeedsRunning returns if this Snapshotable requires a running instance.

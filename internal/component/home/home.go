@@ -13,7 +13,7 @@ import (
 )
 
 type Home struct {
-	component.ComponentBase
+	component.Base
 
 	Instances *instances.Instances
 

@@ -12,7 +12,7 @@ import (
 )
 
 type Static struct {
-	component.ComponentBase
+	component.Base
 }
 
 func (*Static) Routes() []string { return []string{"/static/"} }

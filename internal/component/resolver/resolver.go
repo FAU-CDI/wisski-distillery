@@ -16,7 +16,7 @@ import (
 )
 
 type Resolver struct {
-	component.ComponentBase
+	component.Base
 
 	Instances *instances.Instances
 

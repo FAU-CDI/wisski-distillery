@@ -9,7 +9,7 @@ import (
 )
 
 type SSH struct {
-	component.ComponentBase
+	component.Base
 }
 
 func (ssh *SSH) Path() string {

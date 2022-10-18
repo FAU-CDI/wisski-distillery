@@ -11,7 +11,7 @@ import (
 )
 
 type Triplestore struct {
-	component.ComponentBase
+	component.Base
 
 	BaseURL string // upstream server url
 
