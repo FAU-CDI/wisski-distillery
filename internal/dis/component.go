@@ -1,80 +1,67 @@
 package dis
 
 import (
-	"time"
-
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter/logger"
-
-	"github.com/FAU-CDI/wisski-distillery/internal/component/home"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/info"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/web"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/tkw1536/goprogram/lib/collection"
 )
 
-// register returns all components of the distillery
-func (dis *Distillery) register(context component.PoolContext) []component.Component {
-	return collection.MapSlice([]initFunc{
-		auto[*web.Web],
+//
+//  ==== init ====
+//
 
-		auto[*ssh.SSH],
-
-		manual(func(ts *triplestore.Triplestore) {
-			ts.BaseURL = "http://" + dis.Upstream.Triplestore
-			ts.PollContext = dis.Context()
-			ts.PollInterval = time.Second
-		}),
-		manual(func(sql *sql.SQL) {
-			sql.ServerURL = dis.Upstream.SQL
-			sql.PollContext = dis.Context()
-			sql.PollInterval = time.Second
-		}),
-
-		auto[*instances.Instances],
-		auto[*meta.Meta],
-
-		// Snapshots
-		auto[*exporter.Exporter],
-		auto[*logger.Logger],
-		auto[*exporter.Config],
-		auto[*exporter.Bookkeeping],
-		auto[*exporter.Filesystem],
-		auto[*exporter.Pathbuilders],
-
-		// Control server
-		auto[*control.Control],
-		auto[*static.Static],
-		manual(func(home *home.Home) {
-			home.RefreshInterval = time.Minute
-		}),
-		manual(func(resolver *resolver.Resolver) {
-			resolver.RefreshInterval = time.Minute
-		}),
-		auto[*info.Info],
-	}, func(f initFunc) component.Component {
-		return f(dis, context)
+func (dis *Distillery) init() {
+	dis.poolInit.Do(func() {
+		dis.pool.Init = component.Init
 	})
 }
 
-type initFunc = func(dis *Distillery, context component.PoolContext) component.Component
+//
+//  ==== registration ====
+//
 
 // manual initializes a component from the provided distillery.
 func manual[C component.Component](init func(component C)) initFunc {
-	return func(dis *Distillery, context component.PoolContext) component.Component {
-		return component.Make(context, dis.Still, init)
+	return func(context ctx) component.Component {
+		return lazy.Make(context, init)
 	}
 }
 
 // use is like r, but does not provided additional initialization
-func auto[C component.Component](dis *Distillery, context component.PoolContext) component.Component {
-	return component.Make[C](context, dis.Still, nil)
+func auto[C component.Component](context ctx) component.Component {
+	return lazy.Make[component.Component, C](context, nil)
 }
+
+// register returns all components of the distillery
+func (dis *Distillery) register(context ctx) []component.Component {
+	dis.poolInit.Do(func() {
+		dis.pool.Init = component.Init
+	})
+
+	return collection.MapSlice(
+		dis.allComponents(),
+		func(f initFunc) component.Component {
+			return f(context)
+		},
+	)
+}
+
+// ctx is a context for component initialization
+type ctx = *lazy.PoolContext[component.Component]
+
+//
+//  ==== export ====
+//
+
+// export is a convenience function to export a single component
+func export[C component.Component](dis *Distillery) C {
+	dis.init()
+	return lazy.ExportComponent[component.Component, component.Still, C](&dis.pool, dis.Still, dis.register)
+}
+
+func exportAll[C component.Component](dis *Distillery) []C {
+	dis.init()
+	return lazy.ExportComponents[component.Component, component.Still, C](&dis.pool, dis.Still, dis.register)
+}
+
+type initFunc = func(context ctx) component.Component

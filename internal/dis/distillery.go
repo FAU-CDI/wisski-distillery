@@ -3,15 +3,24 @@ package dis
 
 import (
 	"context"
+	"sync"
+	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter/logger"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/home"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/info"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/ssh"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
+	"github.com/FAU-CDI/wisski-distillery/internal/component/web"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
 // Distillery represents a WissKI Distillery
@@ -31,8 +40,9 @@ type Distillery struct {
 	// But for now this will just hold upstream configuration.
 	Upstream Upstream
 
-	// Pool holds all the components in this pool
-	pool component.Pool
+	// pool holds all components
+	pool     lazy.Pool[component.Component, component.Still]
+	poolInit sync.Once
 }
 
 // Upstream contains the configuration for accessing remote configuration.
@@ -50,51 +60,80 @@ func (dis *Distillery) Context() context.Context {
 // PUBLIC COMPONENT GETTERS
 //
 
-// e is a convenience function to export a single component
-func e[C component.Component](dis *Distillery) C {
-	return component.Export[C](
-		&dis.pool,
-		dis.Still,
-		dis.register,
-	)
-}
-
-func ea[C component.Component](dis *Distillery) []C {
-	return component.ExportAll[C](
-		&dis.pool,
-		dis.Still,
-		dis.register,
-	)
-}
-
 func (dis *Distillery) Control() *control.Control {
-	return e[*control.Control](dis)
+	return export[*control.Control](dis)
 }
 func (dis *Distillery) Resolver() *resolver.Resolver {
-	return e[*resolver.Resolver](dis)
+	return export[*resolver.Resolver](dis)
 }
 func (dis *Distillery) SSH() *ssh.SSH {
-	return e[*ssh.SSH](dis)
+	return export[*ssh.SSH](dis)
 }
 func (dis *Distillery) SQL() *sql.SQL {
-	return e[*sql.SQL](dis)
+	return export[*sql.SQL](dis)
 }
 func (dis *Distillery) Triplestore() *triplestore.Triplestore {
-	return e[*triplestore.Triplestore](dis)
+	return export[*triplestore.Triplestore](dis)
 }
 func (dis *Distillery) Instances() *instances.Instances {
-	return e[*instances.Instances](dis)
+	return export[*instances.Instances](dis)
 }
 func (dis *Distillery) Exporter() *exporter.Exporter {
-	return e[*exporter.Exporter](dis)
+	return export[*exporter.Exporter](dis)
 }
 
 func (dis *Distillery) Installable() []component.Installable {
-	return ea[component.Installable](dis)
+	return exportAll[component.Installable](dis)
 }
 func (dis *Distillery) Updatable() []component.Updatable {
-	return ea[component.Updatable](dis)
+	return exportAll[component.Updatable](dis)
 }
 func (dis *Distillery) Provisionable() []component.Provisionable {
-	return ea[component.Provisionable](dis)
+	return exportAll[component.Provisionable](dis)
+}
+
+//
+// All components
+// THESE SHOULD NEVER BE CALLED DIRECTLY
+//
+
+func (dis *Distillery) allComponents() []initFunc {
+	return []initFunc{
+		auto[*web.Web],
+
+		auto[*ssh.SSH],
+
+		manual(func(ts *triplestore.Triplestore) {
+			ts.BaseURL = "http://" + dis.Upstream.Triplestore
+			ts.PollContext = dis.Context()
+			ts.PollInterval = time.Second
+		}),
+		manual(func(sql *sql.SQL) {
+			sql.ServerURL = dis.Upstream.SQL
+			sql.PollContext = dis.Context()
+			sql.PollInterval = time.Second
+		}),
+
+		auto[*instances.Instances],
+		auto[*meta.Meta],
+
+		// Snapshots
+		auto[*exporter.Exporter],
+		auto[*logger.Logger],
+		auto[*exporter.Config],
+		auto[*exporter.Bookkeeping],
+		auto[*exporter.Filesystem],
+		auto[*exporter.Pathbuilders],
+
+		// Control server
+		auto[*control.Control],
+		auto[*static.Static],
+		manual(func(home *home.Home) {
+			home.RefreshInterval = time.Minute
+		}),
+		manual(func(resolver *resolver.Resolver) {
+			resolver.RefreshInterval = time.Minute
+		}),
+		auto[*info.Info],
+	}
 }
