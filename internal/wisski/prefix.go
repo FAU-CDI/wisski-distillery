@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/goprogram/lib/collection"
 

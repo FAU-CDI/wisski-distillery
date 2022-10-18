@@ -2,12 +2,12 @@
 package wisski
 
 import (
-	"github.com/FAU-CDI/wisski-distillery/internal/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/component/exporter/logger"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/sql"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/triplestore"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 

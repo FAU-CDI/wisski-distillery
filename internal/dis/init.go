@@ -2,8 +2,8 @@ package dis
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"github.com/FAU-CDI/wisski-distillery/internal/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
 )

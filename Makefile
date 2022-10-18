@@ -3,7 +3,7 @@
 all: wdcli
 
 wdcli:
-	go generate ./internal/component/static/
+	go generate ./internal/dis/component/static/
 	go build -o ./wdcli ./cmd/wdcli
 
 deps:

@@ -3,7 +3,7 @@ package wisski
 import (
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"

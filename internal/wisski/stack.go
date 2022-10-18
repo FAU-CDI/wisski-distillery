@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/tkw1536/goprogram/stream"
 )
 
