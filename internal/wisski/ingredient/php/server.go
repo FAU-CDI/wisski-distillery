@@ -1,4 +1,4 @@
-package wisski
+package php
 
 import (
 	"context"
@@ -21,50 +21,50 @@ import (
 var (
 	errPHPInit    = "Unable to initialize"
 	errPHPMarshal = "Marshal failed"
-	errPHPInvalid = PHPServerError{Message: "Invalid code to execute"}
+	errPHPInvalid = ServerError{Message: "Invalid code to execute"}
 	errPHPReceive = "Failed to receive response"
-	errPHPClosed  = PHPServerError{Message: "Server closed"}
+	errPHPClosed  = ServerError{Message: "Server closed"}
 )
 
 // PHPError represents an error during PHPServer logic
-type PHPServerError struct {
+type ServerError struct {
 	Message string
 	Err     error
 }
 
-func (err PHPServerError) Unwrap() error {
+func (err ServerError) Unwrap() error {
 	return err.Err
 }
 
-func (err PHPServerError) Error() string {
+func (err ServerError) Error() string {
 	if err.Err == nil {
 		return fmt.Sprintf("PHPServer: %s", err.Message)
 	}
 	return fmt.Sprintf("PHPServer: %s: %s", err.Message, err.Err)
 }
 
-// PHPThrowable represents an error during php code
-type PHPThrowable string
+// Throwable represents an error during php code
+type Throwable string
 
-func (throwable PHPThrowable) Error() string {
+func (throwable Throwable) Error() string {
 	return string(throwable)
 }
 
-// NewPHPServer returns a new server that can execute code within this distillery.
+// NewServer returns a new server that can execute code within this distillery.
 // When err == nil, the caller must call server.Close().
 //
 // See [PHPServer].
-func (wisski *WissKI) NewPHPServer() (*PHPServer, error) {
+func (php *PHP) NewServer() (*Server, error) {
 	// create input and output pipes
 	ir, iw, err := os.Pipe()
 	if err != nil {
-		return nil, PHPServerError{errPHPInit, err}
+		return nil, ServerError{errPHPInit, err}
 	}
 	or, ow, err := os.Pipe()
 	if err != nil {
 		ir.Close()
 		iw.Close()
-		return nil, PHPServerError{errPHPInit, err}
+		return nil, ServerError{errPHPInit, err}
 	}
 
 	// create a context to close the server
@@ -83,22 +83,22 @@ func (wisski *WissKI) NewPHPServer() (*PHPServer, error) {
 
 		// start the server
 		io := stream.NewIOStream(ow, nil, ir, 0)
-		wisski.Shell(io, "-c", shellescape.QuoteCommand([]string{"drush", "php:eval", serverPHP}))
+		php.Barrel.Shell(io, "-c", shellescape.QuoteCommand([]string{"drush", "php:eval", serverPHP}))
 	}()
 
 	// return the seerver
-	return &PHPServer{
+	return &Server{
 		in:  iw,
 		out: or,
 		c:   context,
 	}, nil
 }
 
-// PHPServer represents a server that executes code within a distillery.
+// Server represents a server that executes code within a distillery.
 // A typical use-case is to define functions using [MarshalEval], and then call those functions [MarshalCall].
 //
-// A nil PHPServer will return [ErrServerBroken] on every function call.
-type PHPServer struct {
+// A nil Server will return [ErrServerBroken] on every function call.
+type Server struct {
 	m sync.Mutex
 
 	in  io.WriteCloser
@@ -113,7 +113,7 @@ type PHPServer struct {
 // as such any functions defined will remain in server memory.
 //
 // When an exception is thrown by the PHP Code, error is not nil, and dest remains unchanged.
-func (server *PHPServer) MarshalEval(value any, code string) error {
+func (server *Server) MarshalEval(value any, code string) error {
 	server.m.Lock()
 	defer server.m.Unlock()
 
@@ -125,7 +125,7 @@ func (server *PHPServer) MarshalEval(value any, code string) error {
 	// marshal the code, and send it to the server
 	bytes, err := json.Marshal(code)
 	if err != nil {
-		return PHPServerError{Message: errPHPMarshal, Err: err}
+		return ServerError{Message: errPHPMarshal, Err: err}
 	}
 
 	// send it to the server
@@ -134,19 +134,19 @@ func (server *PHPServer) MarshalEval(value any, code string) error {
 	// read the next line (as a response)
 	data, err := nobufio.ReadLine(server.out)
 	if err != nil {
-		return PHPServerError{Message: errPHPReceive, Err: err}
+		return ServerError{Message: errPHPReceive, Err: err}
 	}
 
 	// read whatever we received
 	var received [2]json.RawMessage
 	if err := json.Unmarshal([]byte(data), &received); err != nil {
-		return PHPServerError{Message: errPHPMarshal, Err: err}
+		return ServerError{Message: errPHPMarshal, Err: err}
 	}
 
 	// check if there was an error
 	var errString string
 	if err := json.Unmarshal(received[1], &errString); err == nil && errString != "" {
-		return PHPThrowable(errString)
+		return Throwable(errString)
 	}
 
 	// special case: no return value => no unmarshaling needed
@@ -159,7 +159,7 @@ func (server *PHPServer) MarshalEval(value any, code string) error {
 }
 
 // Eval is like [MarshalEval], but returns the value as an any
-func (server *PHPServer) Eval(code string) (value any, err error) {
+func (server *Server) Eval(code string) (value any, err error) {
 	err = server.MarshalEval(&value, code)
 	return
 }
@@ -168,18 +168,18 @@ func (server *PHPServer) Eval(code string) (value any, err error) {
 // Arguments are sent to php using json Marshal, and are 'json_decode'd on the php side.
 //
 // Return values are received as in [MarshalEval].
-func (server *PHPServer) MarshalCall(value any, function string, args ...any) error {
+func (server *Server) MarshalCall(value any, function string, args ...any) error {
 	// marshal a code for the call
 	userFunction, err := marshalPHP(function)
 	if err != nil {
-		return PHPServerError{Message: errPHPMarshal, Err: err}
+		return ServerError{Message: errPHPMarshal, Err: err}
 	}
 
 	userFunctionArgs := "[]"
 	if len(args) > 0 {
 		userFunctionArgs, err = marshalPHP(args)
 		if err != nil {
-			return PHPServerError{Message: errPHPMarshal, Err: err}
+			return ServerError{Message: errPHPMarshal, Err: err}
 		}
 	}
 	code := "return call_user_func_array(" + userFunction + "," + userFunctionArgs + ");"
@@ -189,7 +189,7 @@ func (server *PHPServer) MarshalCall(value any, function string, args ...any) er
 }
 
 // Call is like [MarshalCall] but returns the return value of the function as an any
-func (server *PHPServer) Call(function string, args ...any) (value any, err error) {
+func (server *Server) Call(function string, args ...any) (value any, err error) {
 	err = server.MarshalCall(&value, function, args...)
 	return
 }
@@ -233,7 +233,7 @@ func marshalPHP(data any) (string, error) {
 }
 
 // Close closes this server and prevents any further code from being run.
-func (server *PHPServer) Close() error {
+func (server *Server) Close() error {
 	server.m.Lock()
 	defer server.m.Unlock()
 
@@ -248,51 +248,7 @@ func (server *PHPServer) Close() error {
 	return nil
 }
 
-// ExecPHPScript executes the PHP code as a script on the given server.
-// When server is nil, creates a new server and automatically closes it after execution.
-// Calling this function repeatedly with server = nil is inefficient.
-//
-// The script should define a function called entrypoint, and may define additional functions.
-//
-// Code must start with "<?php" and may not contain a closing tag.
-// Code is expected not to mess with PHPs output buffer.
-// Code should not contain user input.
-// Code breaking these conventions may or may not result in an error.
-//
-// It's arguments are encoded as json using [json.Marshal] and decoded within php.
-//
-// The return value of the function is again marshaled with json and returned to the caller.
-func (wisski *WissKI) ExecPHPScript(server *PHPServer, value any, code string, entrypoint string, args ...any) (err error) {
-	if server == nil {
-		server, err = wisski.NewPHPServer()
-		if err != nil {
-			return
-		}
-		defer server.Close()
-	}
-
-	if code != "" {
-		if err := server.MarshalEval(nil, strings.TrimPrefix(code, "<?php")); err != nil {
-			return err
-		}
-	}
-
-	return server.MarshalCall(value, entrypoint, args...)
-}
-
-func (wisski *WissKI) EvalPHPCode(server *PHPServer, value any, code string) (err error) {
-	if server == nil {
-		server, err = wisski.NewPHPServer()
-		if err != nil {
-			return
-		}
-		defer server.Close()
-	}
-
-	return server.MarshalEval(value, code)
-}
-
-//go:embed php/server.php
+//go:embed server.php
 var serverPHP string
 
 // pre-process the server.php code to make it shorter

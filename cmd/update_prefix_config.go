@@ -44,7 +44,7 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 
 	return status.StreamGroup(context.IOStream, upc.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
 		io.Println("reading prefixes")
-		err := instance.UpdatePrefixes()
+		err := instance.Prefixes().UpdatePrefixes()
 		if err != nil {
 			return errPrefixUpdateFailed.Wrap(err)
 		}

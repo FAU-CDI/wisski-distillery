@@ -52,7 +52,7 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) error {
 
 	// and do the actual blind_update!
 	return status.StreamGroup(context.IOStream, bu.Parallel, func(instance *wisski.WissKI, str stream.IOStream) error {
-		return instance.BlindUpdate(str)
+		return instance.Drush().Update(str)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("blind_update %q", item.Slug)
 	}))

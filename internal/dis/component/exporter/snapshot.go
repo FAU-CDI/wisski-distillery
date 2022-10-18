@@ -9,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/status"
@@ -46,7 +47,8 @@ type Snapshot struct {
 func (snapshots *Exporter) NewSnapshot(instance *wisski.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
 
 	logging.LogMessage(io, "Locking instance")
-	if err := instance.TryLock(); err != nil {
+	if !instance.Locker().TryLock() {
+		err := locker.Locked
 		io.EPrintln(err)
 		logging.LogMessage(io, "Aborting snapshot creation")
 
@@ -56,7 +58,7 @@ func (snapshots *Exporter) NewSnapshot(instance *wisski.WissKI, io stream.IOStre
 	}
 	defer func() {
 		logging.LogMessage(io, "Unlocking instance")
-		instance.Unlock()
+		instance.Locker().Unlock()
 	}()
 
 	// setup the snapshot
@@ -85,7 +87,7 @@ func (snapshots *Exporter) NewSnapshot(instance *wisski.WissKI, io stream.IOStre
 
 func (snapshot *Snapshot) makeParts(ios stream.IOStream, snapshots *Exporter, instance *wisski.WissKI, needsRunning bool) map[string]error {
 	if !needsRunning && !snapshot.Description.Keepalive {
-		stack := instance.Barrel()
+		stack := instance.Barrel().Stack()
 
 		logging.LogMessage(ios, "Stopping instance")
 		snapshot.ErrStop = stack.Down(ios)

@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/info"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
@@ -114,8 +115,10 @@ func (dis *Distillery) allComponents() []initFunc {
 			sql.PollInterval = time.Second
 		}),
 
+		// instainces
 		auto[*instances.Instances],
 		auto[*meta.Meta],
+		auto[*malt.Malt],
 
 		// Snapshots
 		auto[*exporter.Exporter],

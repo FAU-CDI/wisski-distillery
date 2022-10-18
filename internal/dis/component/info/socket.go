@@ -23,13 +23,13 @@ var socketInstanceActions = map[string]instanceActionFunc{
 		)
 	},
 	"rebuild": func(_ *Info, instance *wisski.WissKI, str stream.IOStream) error {
-		return instance.Build(str, true)
+		return instance.Barrel().Build(str, true)
 	},
 	"update": func(_ *Info, instance *wisski.WissKI, str stream.IOStream) error {
-		return instance.BlindUpdate(str)
+		return instance.Drush().Update(str)
 	},
 	"cron": func(_ *Info, instance *wisski.WissKI, str stream.IOStream) error {
-		return instance.Cron(str)
+		return instance.Drush().Cron(str)
 	},
 }
 

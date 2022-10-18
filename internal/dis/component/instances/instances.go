@@ -6,10 +6,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/exit"
@@ -21,10 +19,8 @@ import (
 type Instances struct {
 	component.Base
 
-	TS          *triplestore.Triplestore
-	SQL         *sql.SQL
-	Meta        *meta.Meta
-	ExporterLog *logger.Logger
+	Malt *malt.Malt
+	SQL  *sql.SQL
 }
 
 func (instances *Instances) Path() string {
@@ -41,11 +37,7 @@ var errSQL = exit.Error{
 
 // use uses the non-nil wisski instance with this instances
 func (instances *Instances) use(wisski *wisski.WissKI) {
-	wisski.Core = instances.Still
-	wisski.SQL = instances.SQL
-	wisski.TS = instances.TS
-	wisski.Meta = instances.Meta
-	wisski.ExporterLog = instances.ExporterLog
+	wisski.Liquid.Malt = instances.Malt
 }
 
 // WissKI returns the WissKI with the provided slug, if it exists.
@@ -65,7 +57,7 @@ func (instances *Instances) WissKI(slug string) (wissKI *wisski.WissKI, err erro
 	wissKI = new(wisski.WissKI)
 
 	// find the instance by slug
-	query := table.Where(&models.Instance{Slug: slug}).Find(&wissKI.Instance)
+	query := table.Where(&models.Instance{Slug: slug}).Find(&wissKI.Liquid.Instance)
 	switch {
 	case query.Error != nil:
 		return nil, errSQL.WithMessageF(query.Error)
@@ -166,7 +158,7 @@ func (instances *Instances) find(order bool, query func(table *gorm.DB) *gorm.DB
 	results = make([]*wisski.WissKI, len(bks))
 	for i, bk := range bks {
 		results[i] = new(wisski.WissKI)
-		results[i].Instance = bk
+		results[i].Liquid.Instance = bk
 		instances.use(results[i])
 	}
 

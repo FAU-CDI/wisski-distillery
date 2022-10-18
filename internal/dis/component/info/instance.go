@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
@@ -21,7 +21,7 @@ type instancePageContext struct {
 	Time time.Time
 
 	Instance models.Instance
-	Info     wisski.WissKIInfo
+	Info     info.WissKIInfo
 }
 
 func (info *Info) instancePageAPI(r *http.Request) (is instancePageContext, err error) {
@@ -40,7 +40,7 @@ func (info *Info) instancePageAPI(r *http.Request) (is instancePageContext, err 
 	is.Instance = instance.Instance
 
 	// get some more info about the wisski
-	is.Info, err = instance.Info(false)
+	is.Info, err = instance.Info().Fetch(false)
 	if err != nil {
 		return is, err
 	}

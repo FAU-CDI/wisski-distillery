@@ -19,7 +19,7 @@ func (Pathbuilders) SnapshotName() string { return "pathbuilders" }
 
 func (pbs *Pathbuilders) Snapshot(wisski models.Instance, context component.StagingContext) error {
 	return context.AddDirectory(".", func() error {
-		builders, err := pbs.Instances.Instance(wisski).AllPathbuilders(nil)
+		builders, err := pbs.Instances.Instance(wisski).Pathbuilder().GetAll(nil)
 		if err != nil {
 			return err
 		}

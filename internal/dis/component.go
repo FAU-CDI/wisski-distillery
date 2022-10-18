@@ -34,10 +34,6 @@ func auto[C component.Component](context ctx) component.Component {
 
 // register returns all components of the distillery
 func (dis *Distillery) register(context ctx) []component.Component {
-	dis.poolInit.Do(func() {
-		dis.pool.Init = component.Init
-	})
-
 	return collection.MapSlice(
 		dis.allComponents(),
 		func(f initFunc) component.Component {

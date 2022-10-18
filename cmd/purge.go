@@ -65,7 +65,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// remove docker stack
 	logging.LogMessage(context.IOStream, "Stopping and removing docker container")
-	if err := instance.Barrel().Down(context.IOStream); err != nil {
+	if err := instance.Barrel().Stack().Down(context.IOStream); err != nil {
 		context.EPrintln(err)
 	}
 
@@ -93,13 +93,13 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// remove from bookkeeping
 	logging.LogMessage(context.IOStream, "Removing instance from bookkeeping")
-	if err := instance.Delete(); err != nil {
+	if err := instance.Bookkeeping().Delete(); err != nil {
 		context.EPrintln(err)
 	}
 
 	// remove the filesystem
 	logging.LogMessage(context.IOStream, "Remove lock data", instance.FilesystemBase)
-	if !instance.Unlock() {
+	if instance.Locker().TryUnlock() {
 		context.EPrintln("instance was not locked")
 	}
 

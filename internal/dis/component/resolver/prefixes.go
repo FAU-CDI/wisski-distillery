@@ -30,14 +30,14 @@ func (resolver *Resolver) AllPrefixes() (map[string]string, error) {
 	gPrefixes := make(map[string]string)
 	var lastErr error
 	for _, instance := range instances {
-		if instance.NoPrefix() {
+		if instance.Prefixes().NoPrefix() {
 			continue
 		}
 		url := instance.URL().String()
 
 		// failed to fetch prefixes for this particular instance
 		// => skip it!
-		prefixes, err := instance.PrefixesCached()
+		prefixes, err := instance.Prefixes().PrefixesCached()
 		if err != nil {
 			lastErr = err
 			continue

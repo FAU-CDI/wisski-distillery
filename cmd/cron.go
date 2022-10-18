@@ -40,7 +40,7 @@ func (cr cron) Run(context wisski_distillery.Context) error {
 
 	// and do the actual blind_update!
 	return status.StreamGroup(context.IOStream, cr.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
-		return instance.Cron(io)
+		return instance.Drush().Cron(io)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("cron %q", item.Slug)
 	}))

@@ -8,7 +8,7 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/sync/errgroup"
@@ -65,7 +65,7 @@ func (home *Home) homeRender() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	context.Instances = make([]wisski.WissKIInfo, len(wissKIs))
+	context.Instances = make([]info.WissKIInfo, len(wissKIs))
 
 	// determine their infos
 	var eg errgroup.Group
@@ -73,7 +73,7 @@ func (home *Home) homeRender() ([]byte, error) {
 		i := i
 		wissKI := instance
 		eg.Go(func() (err error) {
-			context.Instances[i], err = wissKI.Info(true)
+			context.Instances[i], err = wissKI.Info().Fetch(true)
 			return
 		})
 	}
@@ -86,7 +86,7 @@ func (home *Home) homeRender() ([]byte, error) {
 }
 
 type HomeContext struct {
-	Instances []wisski.WissKIInfo
+	Instances []info.WissKIInfo
 
 	Time time.Time
 

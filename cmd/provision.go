@@ -63,7 +63,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// Store in the instances table!
 	if err := logging.LogOperation(func() error {
-		if err := instance.Save(); err != nil {
+		if err := instance.Bookkeeping().Save(); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 
@@ -90,7 +90,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// run the provision script
 	if err := logging.LogOperation(func() error {
-		if err := instance.Provision(context.IOStream); err != nil {
+		if err := instance.Provisioner().Provision(context.IOStream); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 
@@ -101,7 +101,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// start the container!
 	logging.LogMessage(context.IOStream, "Starting Container")
-	if err := instance.Barrel().Up(context.IOStream); err != nil {
+	if err := instance.Barrel().Stack().Up(context.IOStream); err != nil {
 		return err
 	}
 

@@ -1,8 +1,9 @@
-package wisski
+package drush
 
 import (
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -12,23 +13,23 @@ var errCronFailed = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (wisski *WissKI) Cron(io stream.IOStream) error {
-	code, err := wisski.Shell(io, "/runtime/cron.sh")
+func (drush *Drush) Cron(io stream.IOStream) error {
+	code, err := drush.Barrel.Shell(io, "/runtime/cron.sh")
 	if err != nil {
 		io.EPrintln(err)
 	}
 	if code != 0 {
 		// keep going, because we want to run as many crons as possible
-		err = errBlindUpdateFailed.WithMessageF(wisski.Slug, code)
+		err = errCronFailed.WithMessageF(drush.Slug, code)
 		io.EPrintln(err)
 	}
 
 	return nil
 }
 
-func (wisski *WissKI) LastCron(server *PHPServer) (t time.Time, err error) {
+func (drush *Drush) LastCron(server *php.Server) (t time.Time, err error) {
 	var timestamp int64
-	err = wisski.EvalPHPCode(server, &timestamp, `$val = \Drupal::state()->get('system.cron_last'); return $val; `)
+	err = drush.PHP.EvalCode(server, &timestamp, `$val = \Drupal::state()->get('system.cron_last'); return $val; `)
 	if err != nil {
 		return
 	}

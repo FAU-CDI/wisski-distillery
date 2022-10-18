@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -22,7 +22,7 @@ type indexPageContext struct {
 
 	Config *config.Config
 
-	Instances []wisski.WissKIInfo
+	Instances []info.WissKIInfo
 
 	TotalCount   int
 	RunningCount int
@@ -31,18 +31,18 @@ type indexPageContext struct {
 	Backups []models.Export
 }
 
-func (info *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error) {
+func (nfo *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error) {
 	var group errgroup.Group
 
 	group.Go(func() error {
 		// list all the instances
-		all, err := info.Instances.All()
+		all, err := nfo.Instances.All()
 		if err != nil {
 			return err
 		}
 
 		// get all of their info!
-		idx.Instances = make([]wisski.WissKIInfo, len(all))
+		idx.Instances = make([]info.WissKIInfo, len(all))
 		for i, instance := range all {
 			{
 				i := i
@@ -50,7 +50,7 @@ func (info *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error
 
 				// store the info for this group!
 				group.Go(func() (err error) {
-					idx.Instances[i], err = instance.Info(true)
+					idx.Instances[i], err = instance.Info().Fetch(true)
 					return err
 				})
 			}
@@ -61,12 +61,12 @@ func (info *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error
 
 	// get the log entries
 	group.Go(func() (err error) {
-		idx.Backups, err = info.SnapshotsLog.For("")
+		idx.Backups, err = nfo.SnapshotsLog.For("")
 		return
 	})
 
 	// get the static properties
-	idx.Config = info.Config
+	idx.Config = nfo.Config
 	idx.Time = time.Now().UTC()
 
 	group.Wait()

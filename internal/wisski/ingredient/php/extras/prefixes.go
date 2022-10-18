@@ -1,47 +1,57 @@
-package wisski
+package extras
 
 import (
 	"bufio"
 	"path/filepath"
 	"strings"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/goprogram/lib/collection"
 
 	_ "embed"
 )
 
-// NoPrefix checks if this WissKI instance is excluded from generating prefixes.
-// TODO: Move this to the database!
-func (wisski *WissKI) NoPrefix() bool {
-	return fsx.IsFile(wisski.Core.Environment, filepath.Join(wisski.FilesystemBase, "prefixes.skip"))
+// Prefixes implements reading and writing prefix
+type Prefixes struct {
+	ingredient.Base
+
+	PHP    *php.PHP
+	MStore *mstore.MStore
 }
 
-//go:embed php/list_uri_prefixes.php
+// NoPrefix checks if this WissKI instance is excluded from generating prefixes.
+// TODO: Move this to the database!
+func (prefixes *Prefixes) NoPrefix() bool {
+	return fsx.IsFile(prefixes.Malt.Environment, filepath.Join(prefixes.FilesystemBase, "prefixes.skip"))
+}
+
+//go:embed prefixes.php
 var listURIPrefixesPHP string
 
-// Prefixes returns the prefixes applying to this WissKI
+// All returns the prefixes applying to this WissKI
 //
 // server is an optional server to fetch prefixes from.
 // server may be nil.
-func (wisski *WissKI) Prefixes(server *PHPServer) ([]string, error) {
-	prefixes, err := wisski.dbPrefixes(server)
+func (prefixes *Prefixes) All(server *php.Server) ([]string, error) {
+	uris, err := prefixes.database(server)
 	if err != nil {
 		return nil, err
 	}
 
-	prefixes2, err := wisski.filePrefixes()
+	uris2, err := prefixes.filePrefixes()
 	if err != nil {
 		return nil, err
 	}
 
-	return append(prefixes, prefixes2...), nil
+	return append(uris, uris2...), nil
 }
 
-func (wisski *WissKI) dbPrefixes(server *PHPServer) (prefixes []string, err error) {
+func (wisski *Prefixes) database(server *php.Server) (prefixes []string, err error) {
 	// get all the ugly prefixes
-	err = wisski.ExecPHPScript(server, &prefixes, listURIPrefixesPHP, "list_prefixes")
+	err = wisski.PHP.ExecScript(server, &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +62,7 @@ func (wisski *WissKI) dbPrefixes(server *PHPServer) (prefixes []string, err erro
 	})
 
 	// load the list of blocked prefixes
-	blocks, err := wisski.blockedPrefixes()
+	blocks, err := wisski.blocked()
 	if err != nil {
 		return nil, err
 	}
@@ -61,9 +71,10 @@ func (wisski *WissKI) dbPrefixes(server *PHPServer) (prefixes []string, err erro
 	return collection.Filter(prefixes, func(uri string) bool { return !hasAnyPrefix(uri, blocks) }), nil
 }
 
-func (wisski *WissKI) blockedPrefixes() ([]string, error) {
+func (prefixes *Prefixes) blocked() ([]string, error) {
 	// open the resolver block file
-	file, err := wisski.Core.Environment.Open(wisski.Core.Config.SelfResolverBlockFile)
+	// TODO: move this to the distillery
+	file, err := prefixes.Malt.Environment.Open(prefixes.Malt.Config.SelfResolverBlockFile)
 	if err != nil {
 		return nil, err
 	}
@@ -98,13 +109,13 @@ func hasAnyPrefix(candidate string, prefixes []string) bool {
 	)
 }
 
-func (wisski *WissKI) filePrefixes() (prefixes []string, err error) {
+func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 	path := filepath.Join(wisski.FilesystemBase, "prefixes")
-	if !fsx.IsFile(wisski.Core.Environment, path) {
+	if !fsx.IsFile(wisski.Malt.Environment, path) {
 		return nil, nil
 	}
 
-	file, err := wisski.Core.Environment.Open(path)
+	file, err := wisski.Malt.Environment.Open(path)
 	if err != nil {
 		return nil, err
 	}
@@ -127,18 +138,18 @@ func (wisski *WissKI) filePrefixes() (prefixes []string, err error) {
 
 // CACHING
 
-var prefix = meta.StorageFor[string]("prefix")
+var prefix = mstore.For[string]("prefix")
 
 // Prefixes returns the cached prefixes from the given instance
-func (wisski *WissKI) PrefixesCached() (results []string, err error) {
-	return prefix(wisski.storage()).GetAll()
+func (wisski *Prefixes) PrefixesCached() (results []string, err error) {
+	return prefix.GetAll(wisski.MStore)
 }
 
 // UpdatePrefixes updates the cached prefixes of this instance
-func (wisski *WissKI) UpdatePrefixes() error {
-	prefixes, err := wisski.Prefixes(nil)
+func (wisski *Prefixes) UpdatePrefixes() error {
+	prefixes, err := wisski.All(nil)
 	if err != nil {
 		return err
 	}
-	return prefix(wisski.storage()).SetAll(prefixes...)
+	return prefix.SetAll(wisski.MStore, prefixes...)
 }

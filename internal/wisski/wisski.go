@@ -2,60 +2,108 @@
 package wisski
 
 import (
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"sync"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
-	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/drush"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/provisioner"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/bookkeeping"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/reserve"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/liquid"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
-// WissKI represents a single WissKI Instance
+// WissKI represents a single WissKI Instance.
+// A WissKI may not be copied
 type WissKI struct {
-	models.Instance // whatever is stored inside the underlying instance
+	liquid.Liquid
 
-	// Drupal credentials - not stored in the database
-	DrupalUsername string
-	DrupalPassword string
-
-	// references to components!
-	Core component.Still
-	Meta *meta.Meta
-	TS   *triplestore.Triplestore
-	SQL  *sql.SQL
-
-	ExporterLog *logger.Logger
+	poolInit sync.Once
+	pool     lazy.Pool[ingredient.Ingredient, *liquid.Liquid]
 }
 
-// Save saves this instance in the bookkeeping table
-func (wisski *WissKI) Save() error {
-	db, err := wisski.SQL.QueryTable(false, models.InstanceTable)
-	if err != nil {
-		return err
-	}
+//
+// PUBLIC INGREDIENT GETTERS
+//
 
-	// it has never been created => we need to create it in the database
-	if wisski.Instance.Created.IsZero() {
-		return db.Create(&wisski.Instance).Error
-	}
-
-	// Update based on the primary key!
-	return db.Where("pk = ?", wisski.Instance.Pk).Updates(&wisski.Instance).Error
+func (wisski *WissKI) Locker() *locker.Locker {
+	return export[*locker.Locker](wisski)
 }
 
-// Delete deletes this instance from the bookkeeping table
-func (wisski *WissKI) Delete() error {
-	db, err := wisski.SQL.QueryTable(false, models.InstanceTable)
-	if err != nil {
-		return err
-	}
+func (wisski *WissKI) Reserve() *reserve.Reserve {
+	return export[*reserve.Reserve](wisski)
+}
 
-	// doesn't exist => nothing to delete
-	if wisski.Instance.Created.IsZero() {
-		return nil
-	}
+func (wisski *WissKI) Barrel() *barrel.Barrel {
+	return export[*barrel.Barrel](wisski)
+}
 
-	// delete it directly
-	return db.Delete(&wisski.Instance).Error
+func (wisski *WissKI) Provisioner() *provisioner.Provisioner {
+	return export[*provisioner.Provisioner](wisski)
+}
+
+func (wisski *WissKI) PHP() *php.PHP {
+	return export[*php.PHP](wisski)
+}
+
+func (wisski *WissKI) Bookkeeping() *bookkeeping.Bookkeeping {
+	return export[*bookkeeping.Bookkeeping](wisski)
+}
+
+func (wisski *WissKI) Drush() *drush.Drush {
+	return export[*drush.Drush](wisski)
+}
+
+func (wisski *WissKI) Prefixes() *extras.Prefixes {
+	return export[*extras.Prefixes](wisski)
+}
+
+func (wisski *WissKI) Settings() *extras.Settings {
+	return export[*extras.Settings](wisski)
+}
+
+func (wisski *WissKI) Pathbuilder() *extras.Pathbuilder {
+	return export[*extras.Pathbuilder](wisski)
+}
+
+func (wisski *WissKI) Info() *info.Info {
+	return export[*info.Info](wisski)
+}
+
+//
+// All components
+// THESE SHOULD NEVER BE CALLED DIRECTLY
+//
+
+func (wisski *WissKI) allIngredients() []initFunc {
+	return []initFunc{
+		// core bits
+		auto[*locker.Locker],
+		manual(func(m *mstore.MStore) {
+			m.Storage = wisski.Malt.Meta.Storage(wisski.Slug)
+		}),
+
+		// php
+		auto[*php.PHP],
+		auto[*extras.Prefixes],
+		auto[*extras.Settings],
+		auto[*extras.Pathbuilder],
+
+		// info
+		auto[*info.Info],
+
+		// stacks
+		auto[*barrel.Barrel],
+		auto[*bookkeeping.Bookkeeping],
+		auto[*provisioner.Provisioner],
+		auto[*drush.Drush],
+
+		auto[*reserve.Reserve],
+	}
 }

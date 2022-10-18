@@ -3,6 +3,7 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -51,15 +52,15 @@ func (l instanceLock) Run(context wisski_distillery.Context) error {
 	}
 
 	if l.Unlock {
-		if !instance.Unlock() {
+		if !instance.Locker().TryUnlock() {
 			return errNotUnlock
 		}
 		context.Println("unlocked")
 		return nil
 	}
 
-	if err := instance.TryLock(); err != nil {
-		return err
+	if !instance.Locker().TryLock() {
+		return locker.Locked
 	}
 
 	context.Println("locked")

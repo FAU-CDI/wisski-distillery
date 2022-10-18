@@ -25,37 +25,37 @@ func (instances *Instances) Create(slug string) (wissKI *wisski.WissKI, err erro
 	wissKI = new(wisski.WissKI)
 	instances.use(wissKI)
 
-	wissKI.Instance.Slug = slug
-	wissKI.Instance.FilesystemBase = filepath.Join(instances.Path(), wissKI.Domain())
+	wissKI.Liquid.Instance.Slug = slug
+	wissKI.Liquid.Instance.FilesystemBase = filepath.Join(instances.Path(), wissKI.Domain())
 
-	wissKI.Instance.OwnerEmail = ""
-	wissKI.Instance.AutoBlindUpdateEnabled = true
+	wissKI.Liquid.Instance.OwnerEmail = ""
+	wissKI.Liquid.Instance.AutoBlindUpdateEnabled = true
 
 	// sql
 
-	wissKI.Instance.SqlDatabase = instances.Config.MysqlDatabasePrefix + slug
-	wissKI.Instance.SqlUsername = instances.Config.MysqlUserPrefix + slug
+	wissKI.Liquid.Instance.SqlDatabase = instances.Config.MysqlDatabasePrefix + slug
+	wissKI.Liquid.Instance.SqlUsername = instances.Config.MysqlUserPrefix + slug
 
-	wissKI.Instance.SqlPassword, err = instances.Config.NewPassword()
+	wissKI.Liquid.Instance.SqlPassword, err = instances.Config.NewPassword()
 	if err != nil {
 		return nil, err
 	}
 
 	// triplestore
 
-	wissKI.Instance.GraphDBRepository = instances.Config.GraphDBRepoPrefix + slug
-	wissKI.Instance.GraphDBUsername = instances.Config.GraphDBUserPrefix + slug
+	wissKI.Liquid.Instance.GraphDBRepository = instances.Config.GraphDBRepoPrefix + slug
+	wissKI.Liquid.Instance.GraphDBUsername = instances.Config.GraphDBUserPrefix + slug
 
-	wissKI.Instance.GraphDBPassword, err = instances.Config.NewPassword()
+	wissKI.Liquid.Instance.GraphDBPassword, err = instances.Config.NewPassword()
 	if err != nil {
 		return nil, err
 	}
 
 	// drupal
 
-	wissKI.DrupalUsername = "admin" // TODO: Change this!
+	wissKI.Liquid.DrupalUsername = "admin" // TODO: Change this!
 
-	wissKI.DrupalPassword, err = instances.Config.NewPassword()
+	wissKI.Liquid.DrupalPassword, err = instances.Config.NewPassword()
 	if err != nil {
 		return nil, err
 	}

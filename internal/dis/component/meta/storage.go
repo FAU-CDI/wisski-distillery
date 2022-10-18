@@ -6,7 +6,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/goprogram/lib/collection"
 	"gorm.io/gorm"
 )
 
@@ -176,43 +175,4 @@ func (s Storage) Purge() error {
 		return status.Error
 	}
 	return nil
-}
-
-// StorageFor returns a storage for the given key.
-func StorageFor[Value any](key Key) func(storage *Storage) SpecifcStorage[Value] {
-	return func(storage *Storage) SpecifcStorage[Value] {
-		return SpecifcStorage[Value]{storage: storage, key: key}
-	}
-}
-
-type SpecifcStorage[Value any] struct {
-	storage *Storage
-	key     Key
-}
-
-func (sf SpecifcStorage[Value]) Get() (value Value, err error) {
-	err = sf.storage.Get(sf.key, &value)
-	return
-}
-
-func (sf SpecifcStorage[Value]) GetAll() (values []Value, err error) {
-	err = sf.storage.GetAll(sf.key, func(index, total int) any {
-		if values == nil {
-			values = make([]Value, total)
-		}
-		return &values[index]
-	})
-	return values, err
-}
-
-func (sf SpecifcStorage[Value]) Set(value Value) error {
-	return sf.storage.Set(sf.key, value)
-}
-
-func (sf SpecifcStorage[Value]) SetAll(values ...Value) error {
-	return sf.storage.SetAll(sf.key, collection.AsAny(values)...)
-}
-
-func (sf SpecifcStorage[Value]) Delete() error {
-	return sf.storage.Delete(sf.key)
 }

@@ -47,7 +47,7 @@ func (ds setting) Run(context wisski_distillery.Context) error {
 
 	if ds.Positionals.Value == "" {
 		// get the setting
-		value, err := instance.GetSettingsPHP(nil, ds.Positionals.Setting)
+		value, err := instance.Settings().Get(nil, ds.Positionals.Setting)
 		if err != nil {
 			return errSettingGet.Wrap(err)
 		}
@@ -69,7 +69,7 @@ func (ds setting) Run(context wisski_distillery.Context) error {
 	}
 
 	// set the serialized value!
-	if err := instance.SetSettingsPHP(nil, ds.Positionals.Setting, data); err != nil {
+	if err := instance.Settings().Set(nil, ds.Positionals.Setting, data); err != nil {
 		return errSettingSet.Wrap(err)
 	}
 

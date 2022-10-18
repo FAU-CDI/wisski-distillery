@@ -46,7 +46,7 @@ func (pb pathbuilders) Run(context wisski_distillery.Context) error {
 
 	// get all of the pathbuilders
 	if pb.Positionals.Name == "" {
-		names, err := instance.Pathbuilders(nil)
+		names, err := instance.Pathbuilder().All(nil)
 		if err != nil {
 			return errPathbuilders.WithMessageF(err)
 		}
@@ -57,7 +57,7 @@ func (pb pathbuilders) Run(context wisski_distillery.Context) error {
 	}
 
 	// get all the pathbuilders
-	xml, err := instance.Pathbuilder(nil, pb.Positionals.Name)
+	xml, err := instance.Pathbuilder().Get(nil, pb.Positionals.Name)
 	if xml == "" {
 		return errNoPathbuilder.WithMessageF(pb.Positionals.Name)
 	}
