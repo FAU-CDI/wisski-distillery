@@ -13,9 +13,12 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
-//go:embed "html/instance.html"
+//go:embed "html/info_instance.html"
 var instanceTemplateString string
-var instanceTemplate = static.AssetsControlInstance.MustParse(instanceTemplateString)
+var instanceTemplate = static.AssetsControlInstance.MustParse(
+	base("info_instance.html"),
+	instanceTemplateString,
+)
 
 type instancePageContext struct {
 	Time time.Time

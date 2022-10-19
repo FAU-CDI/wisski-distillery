@@ -13,9 +13,12 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-//go:embed "html/index.html"
+//go:embed "html/info_index.html"
 var indexTemplateStr string
-var indexTemplate = static.AssetsControlIndex.MustParse(indexTemplateStr)
+var indexTemplate = static.AssetsControlIndex.MustParse(
+	base("info_index.html"),
+	indexTemplateStr,
+)
 
 type indexPageContext struct {
 	Time time.Time

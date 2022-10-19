@@ -27,8 +27,11 @@ type Assets struct {
 // MustParse parses a new template from the given source
 // and registers the Asset functions to it.
 // See [Assets.RegisterFuncs].
-func (assets *Assets) MustParse(value string) *template.Template {
-	return template.Must(assets.RegisterFuncs(template.New("")).Parse(value))
+func (assets *Assets) MustParse(t *template.Template, value string) *template.Template {
+	if t == nil {
+		t = template.New("")
+	}
+	return template.Must(assets.RegisterFuncs(t).Parse(value))
 }
 
 // RegisterFuncs registers three new template functions called "JS", "CSS" and "json".
