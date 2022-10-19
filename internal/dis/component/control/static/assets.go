@@ -22,7 +22,7 @@ type Assets struct {
 	Styles  string // <link> tags inserted by the asset
 }
 
-//go:generate node build.mjs HomeHome ControlIndex ControlInstance
+//go:generate node build.mjs HomeHome ComponentsIndex ControlIndex ControlInstance
 
 // MustParse parses a new template from the given source
 // and registers the Asset functions to it.

@@ -10,11 +10,14 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/tkw1536/goprogram/stream"
 )
 
 type Info struct {
 	component.Base
+
+	Analytics *lazy.PoolAnalytics
 
 	Exporter     *exporter.Exporter
 	Instances    *instances.Instances
@@ -39,6 +42,12 @@ func (info *Info) Handler(route string, context context.Context, io stream.IOStr
 	mux.Handle(route+"index", httpx.HTMLHandler[indexPageContext]{
 		Handler:  info.indexPageAPI,
 		Template: indexTemplate,
+	})
+
+	// add a handler for the component page
+	mux.Handle(route+"components", httpx.HTMLHandler[componentsPageContext]{
+		Handler:  info.componentsPageAPI,
+		Template: componentsTemplate,
 	})
 
 	// add a handler for the instance page

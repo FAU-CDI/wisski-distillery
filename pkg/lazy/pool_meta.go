@@ -2,19 +2,18 @@ package lazy
 
 import (
 	"reflect"
-	"sync"
 
 	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/lib/reflectx"
 )
 
 // getMeta gets the component belonging to a component type
-func getMeta[Component any, ConcreteComponent any](metaCache *sync.Map) meta[Component] {
+func getMeta[Component any, ConcreteComponent any](cache map[reflect.Type]meta[Component]) meta[Component] {
 	tp := reflectx.TypeOf[ConcreteComponent]()
 
 	// we already have a m => return it
-	if m, ok := metaCache.Load(tp); ok {
-		return m.(meta[Component])
+	if m, ok := cache[tp]; ok {
+		return m
 	}
 
 	// create a new m
@@ -22,7 +21,7 @@ func getMeta[Component any, ConcreteComponent any](metaCache *sync.Map) meta[Com
 	m.init(tp)
 
 	// store it in the cache
-	metaCache.Store(tp, m)
+	cache[tp] = m
 	return m
 }
 
@@ -43,8 +42,8 @@ func (m *meta[Component]) init(tp reflect.Type) {
 		panic("GetMeta: Type (" + tp.String() + ") must be backed by a pointer to slice")
 	}
 
-	m.Name = tp.Elem().PkgPath() + "." + tp.Elem().Name()
 	m.Elem = tp.Elem()
+	m.Name = nameOf(m.Elem)
 
 	m.CFields = make(map[string]reflect.Type)
 	m.IFields = make(map[string]reflect.Type)
@@ -67,6 +66,10 @@ func (m *meta[Component]) init(tp reflect.Type) {
 			m.IFields[name] = tp.Elem()
 		}
 	}
+}
+
+func nameOf(tp reflect.Type) string {
+	return tp.PkgPath() + "." + tp.Name()
 }
 
 // New creates a new ComponentDescription

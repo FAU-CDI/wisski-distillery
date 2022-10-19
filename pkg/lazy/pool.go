@@ -2,7 +2,6 @@ package lazy
 
 import (
 	"reflect"
-	"sync"
 )
 
 // Pool represents a pool of laziliy initialized and potentially referencing Component instances.
@@ -18,6 +17,9 @@ import (
 type Pool[Component any, InitParams any] struct {
 	// Init is called on every component to be initialized.
 	Init func(Component, InitParams) Component
+
+	// Analytics are written on the first retrieval operation on this Pool
+	Analytics PoolAnalytics
 
 	all Lazy[[]Component]
 }
@@ -37,12 +39,16 @@ func (p *Pool[Component, InitParams]) All(Params InitParams, All func(context *P
 				}
 				return p.Init(c, Params)
 			},
-			cache: make(map[string]Component),
+			metaCache: make(map[reflect.Type]meta[Component]),
+			cache:     make(map[string]Component),
 		}
 
 		// and process them all
 		all := context.all(context)
-		context.Process(all)
+		context.process(all)
+
+		// write out analytics
+		context.anal(&p.Analytics)
 		return all
 	})
 }
@@ -56,7 +62,7 @@ type PoolContext[Component any] struct {
 
 	// function to return all components
 
-	metaCache sync.Map                 // Map[string]meta[Component]
+	metaCache map[reflect.Type]meta[Component]
 	cache     map[string]Component     // cached components
 	queue     []delayedInit[Component] // init queue
 }
@@ -67,7 +73,7 @@ type delayedInit[Component any] struct {
 }
 
 // Process processes all components in the queue
-func (p *PoolContext[Component]) Process(all []Component) {
+func (p *PoolContext[Component]) process(all []Component) {
 	index := 0
 	for len(p.queue) > index {
 		p.queue[index].Run(all)
@@ -97,7 +103,7 @@ func (di *delayedInit[Component]) Run(all []Component) {
 // The init function may be nil, indicating that no additional initialization is required.
 func Make[Component any, ConcreteComponent any](context *PoolContext[Component], init func(component ConcreteComponent)) ConcreteComponent {
 	// get a description of the type
-	cd := getMeta[Component, ConcreteComponent](&context.metaCache)
+	cd := getMeta[Component, ConcreteComponent](context.metaCache)
 
 	// if an instance already exists, return it!
 	if instance, ok := context.cache[cd.Name]; ok {

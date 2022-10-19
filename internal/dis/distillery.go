@@ -137,6 +137,8 @@ func (dis *Distillery) allComponents() []initFunc {
 		manual(func(resolver *resolver.Resolver) {
 			resolver.RefreshInterval = time.Minute
 		}),
-		auto[*info.Info],
+		manual(func(info *info.Info) {
+			info.Analytics = &dis.pool.Analytics
+		}),
 	}
 }

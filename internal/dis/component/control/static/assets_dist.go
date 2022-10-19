@@ -8,6 +8,12 @@ var AssetsHomeHome = Assets{
 	Styles:  `<link rel="stylesheet" href="/static/HomeHome.a75f04fa.css"><link rel="stylesheet" href="/static/HomeHome.38d394c2.css">`,	
 }
 
+// AssetsComponentsIndex contains assets for the 'ComponentsIndex' entrypoint.
+var AssetsComponentsIndex = Assets{
+	Scripts: `<script type="module" src="/static/HomeHome.38d394c2.js"></script><script src="/static/HomeHome.38d394c2.js" nomodule="" defer></script><script type="module" src="/static/ComponentsIndex.38d394c2.js"></script><script src="/static/ComponentsIndex.38d394c2.js" nomodule="" defer></script>`,
+	Styles:  `<link rel="stylesheet" href="/static/HomeHome.a75f04fa.css"><link rel="stylesheet" href="/static/ComponentsIndex.38d394c2.css">`,	
+}
+
 // AssetsControlIndex contains assets for the 'ControlIndex' entrypoint.
 var AssetsControlIndex = Assets{
 	Scripts: `<script type="module" src="/static/HomeHome.38d394c2.js"></script><script src="/static/HomeHome.38d394c2.js" nomodule="" defer></script><script type="module" src="/static/ControlIndex.cfbf936d.js"></script><script src="/static/ControlIndex.613b02c2.js" nomodule="" defer></script>`,

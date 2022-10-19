@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Distillery Control Page - Components Page</title>
+    {{ CSS }}
+</head>
+
+<body>
+    <header>
+        <h1 id="top">Distillery Control Page - Components Page</h1>
+        <small>Generated at <code class="date">{{ .Time.Format "2006-01-02T15:04:05Z07:00" }}</code></small>
+        <p>
+            <a class="pure-button" href="/dis/index">Control</a> &gt;
+            <a class="pure-button pure-button-primary" href="/dis/components">Components</a>
+        </p>
+    </header>
+
+    <main>
+        <div class="pure-g">
+            <div class="pure-u-1-1">
+                <h2 id="components">Components</h2>
+            </div>
+
+            {{ range $name, $comp := .Analytics.Components }}
+            <div class="pure-u-1-1" id="{{ $name }}">
+                <div class="padding">
+
+                    <div class="overflow">
+                        <table class="pure-table pure-table-bordered">
+                            <thead>
+                                <tr>
+                                    <th colspan="3">
+                                        {{ $name }}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{ range .Groups }}
+                                <tr>
+                                    <td>
+                                        Implements
+                                    </td>
+                                    <td colspan="2">
+                                        <code><a href="#{{.}}">{{ . }}</a></code><br />
+                                    </td>
+                                </tr>
+                                {{ end }}
+                                {{ range $name, $comp := .CFields }}
+                                <tr>
+                                    <td>Component Pointer</td>
+                                    <td>
+                                        <code>{{ $name }}</code>
+                                    </td>
+                                    <td>
+                                        <code><a href="#{{ $comp }}">{{ $comp }}</a></code>
+                                    </td>
+                                </tr>
+                                {{ end }}
+                                {{ range $name, $iface := .IFields }}
+                                <tr>
+                                    <td>Interface Slice</td>
+                                    <td>
+                                        <code>{{ $name }}</code>
+                                    </td>
+                                    <td>
+                                        <code><a href="#{{ $iface }}">[]{{ $iface }}</a></code>
+                                    </td>
+                                </tr>
+                                {{ end }}
+                                {{ range $name, $sig := $comp.Methods }}
+                                <tr>
+                                    <td>
+                                        Method
+                                    </td>
+                                    <td>
+                                        <code>{{ $name }}</code>
+                                    </td>
+                                    <td>
+                                        <code>{{ $sig }}</code>
+                                    </td>
+                                </tr>
+                                {{ end }}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ end }}
+
+        <div class="pure-u-1-1">
+            <h2 id="interfaces">Interfaces</h2>
+        </div>
+
+        {{ range $name, $group := .Analytics.Groups }}
+        <div class="pure-u-1-1" id="{{ $name }}">
+            <div class="padding">
+
+                <div class="overflow">
+                    <table class="pure-table pure-table-bordered">
+                        <thead>
+                            <tr>
+                                <th colspan="3">
+                                    {{ $name }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{ range $name, $sig := $group.Methods }}
+                            <tr>
+                                <td>
+                                    Method
+                                </td>
+                                <td>
+                                    <code>{{ $name }}</code>
+                                </td>
+                                <td>
+                                    <code>{{ $sig }}</code>
+                                </td>
+                            </tr>
+                            {{ end }}
+                            {{ range $group.Components }}
+                            <tr>
+                                <td>
+                                    Implemented By
+                                </td>
+                                <td colspan="2">
+                                    <code><a href="#{{.}}">{{ . }}</a></code>
+                                </td>
+                            </tr>
+                            {{ end }}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        </div>
+        {{ end }}
+    </main>
+
+    {{ JS }}
+</body>
