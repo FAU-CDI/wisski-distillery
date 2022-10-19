@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"

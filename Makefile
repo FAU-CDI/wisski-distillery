@@ -3,11 +3,11 @@
 all: wdcli
 
 wdcli:
-	go generate ./internal/dis/component/static/
+	go generate ./internal/dis/component/control/static/
 	go build -o ./wdcli ./cmd/wdcli
 
 deps:
-	cd internal/component/static/ && yarn install
+	cd internal/dis/component/control/static/ && yarn install
 
 clean:
 	rm wdcli

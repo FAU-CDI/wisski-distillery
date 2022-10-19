@@ -7,7 +7,7 @@ import (
 
 	_ "embed"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/tkw1536/goprogram/stream"

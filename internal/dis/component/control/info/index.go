@@ -7,7 +7,7 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
 	"golang.org/x/sync/errgroup"
