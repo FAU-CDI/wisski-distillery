@@ -6,6 +6,7 @@
   "dependencies": {
     "dayjs": "^1.11.5",
     "node-html-parser": "^6.1.1",
-    "parcel": "^2.7.0"
+    "parcel": "^2.7.0",
+    "purecss": "^2.1.0"
   }
 }
