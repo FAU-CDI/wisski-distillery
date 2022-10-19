@@ -5,6 +5,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/tkw1536/goprogram/stream"
@@ -60,4 +61,15 @@ func (barrel Barrel) LastRebuild() (t time.Time, err error) {
 
 func (barrel *Barrel) setLastRebuild() error {
 	return lastRebuild.Set(barrel.MStore, time.Now().Unix())
+}
+
+type LastRebuildFetcher struct {
+	ingredient.Base
+
+	Barrel *Barrel
+}
+
+func (lbr *LastRebuildFetcher) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+	info.LastRebuild, _ = lbr.Barrel.LastRebuild()
+	return
 }

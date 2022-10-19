@@ -37,7 +37,7 @@ func (resolver *Resolver) AllPrefixes() (map[string]string, error) {
 
 		// failed to fetch prefixes for this particular instance
 		// => skip it!
-		prefixes, err := instance.Prefixes().PrefixesCached()
+		prefixes, err := instance.Prefixes().AllCached()
 		if err != nil {
 			lastErr = err
 			continue

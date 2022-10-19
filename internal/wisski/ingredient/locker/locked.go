@@ -1,6 +1,9 @@
 package locker
 
-import "github.com/FAU-CDI/wisski-distillery/internal/models"
+import (
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+)
 
 // Locked checks if this WissKI is currently locked.
 func (lock *Locker) Locked() (locked bool) {
@@ -11,5 +14,10 @@ func (lock *Locker) Locked() (locked bool) {
 
 	// check if this instance is locked
 	table.Select("count(*) > 0").Where("slug = ?", lock.Slug).Find(&locked)
+	return
+}
+
+func (locker *Locker) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+	info.Locked = locker.Locked()
 	return
 }

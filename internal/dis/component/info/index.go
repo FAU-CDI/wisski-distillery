@@ -50,7 +50,7 @@ func (nfo *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error)
 
 				// store the info for this group!
 				group.Go(func() (err error) {
-					idx.Instances[i], err = instance.Info().Fetch(true)
+					idx.Instances[i], err = instance.Info().Information(true)
 					return err
 				})
 			}

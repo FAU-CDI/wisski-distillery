@@ -73,7 +73,7 @@ func (home *Home) homeRender() ([]byte, error) {
 		i := i
 		wissKI := instance
 		eg.Go(func() (err error) {
-			context.Instances[i], err = wissKI.Info().Fetch(true)
+			context.Instances[i], err = wissKI.Info().Information(true)
 			return
 		})
 	}

@@ -141,15 +141,28 @@ func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 var prefix = mstore.For[string]("prefix")
 
 // Prefixes returns the cached prefixes from the given instance
-func (wisski *Prefixes) PrefixesCached() (results []string, err error) {
+func (wisski *Prefixes) AllCached() (results []string, err error) {
 	return prefix.GetAll(wisski.MStore)
 }
 
-// UpdatePrefixes updates the cached prefixes of this instance
-func (wisski *Prefixes) UpdatePrefixes() error {
+// Update updates the cached prefixes of this instance
+func (wisski *Prefixes) Update() error {
 	prefixes, err := wisski.All(nil)
 	if err != nil {
 		return err
 	}
 	return prefix.SetAll(wisski.MStore, prefixes...)
+}
+
+func (prefixes *Prefixes) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+	info.NoPrefixes = prefixes.NoPrefix()
+	if flags.Quick {
+		// quick mode: grab only the cached prefixes
+		info.Prefixes, _ = prefixes.AllCached()
+	} else {
+		// slow mode: grab the fresh prefixes from the server
+		// TODO: Do we want to update them while we are at it?
+		info.Prefixes, _ = prefixes.All(flags.Server)
+	}
+	return
 }

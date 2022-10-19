@@ -97,6 +97,11 @@ func (wisski *WissKI) allIngredients() []initFunc {
 
 		// info
 		auto[*info.Info],
+		auto[*barrel.LastRebuildFetcher],
+		auto[*barrel.RunningFetcher],
+		auto[*drush.LastUpdateFetcher],
+		auto[*drush.LastCronFetcher],
+		auto[*info.SnapshotsFetcher],
 
 		// stacks
 		auto[*barrel.Barrel],

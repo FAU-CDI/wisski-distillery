@@ -3,6 +3,7 @@ package drush
 import (
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
@@ -34,4 +35,19 @@ func (drush *Drush) LastCron(server *php.Server) (t time.Time, err error) {
 		return
 	}
 	return time.Unix(timestamp, 0), nil
+}
+
+type LastCronFetcher struct {
+	ingredient.Base
+
+	Drush *Drush
+}
+
+func (lbr *LastCronFetcher) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+	if flags.Quick {
+		return
+	}
+
+	info.LastRebuild, _ = lbr.Drush.LastCron(flags.Server)
+	return
 }

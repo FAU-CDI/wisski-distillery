@@ -42,3 +42,12 @@ func (pathbuilder *Pathbuilder) GetAll(server *php.Server) (pathbuilders map[str
 	err = pathbuilder.PHP.ExecScript(server, &pathbuilders, pathbuilderPHP, "all_xml")
 	return
 }
+
+func (pathbuilder *Pathbuilder) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+	if flags.Quick {
+		return
+	}
+
+	info.Pathbuilders, _ = pathbuilder.GetAll(flags.Server)
+	return
+}

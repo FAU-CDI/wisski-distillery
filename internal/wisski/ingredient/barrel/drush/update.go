@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
@@ -45,4 +46,15 @@ func (drush *Drush) LastUpdate() (t time.Time, err error) {
 
 func (drush *Drush) setLastUpdate() error {
 	return lastUpdate.Set(drush.MStore, time.Now().Unix())
+}
+
+type LastUpdateFetcher struct {
+	ingredient.Base
+
+	Drush *Drush
+}
+
+func (lbr *LastUpdateFetcher) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+	info.LastUpdate, err = lbr.Drush.LastUpdate()
+	return
 }

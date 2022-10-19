@@ -34,7 +34,7 @@ func (i info) Run(context wisski_distillery.Context) error {
 		return err
 	}
 
-	info, err := instance.Info().Fetch(false)
+	info, err := instance.Info().Information(false)
 	if err != nil {
 		return err
 	}

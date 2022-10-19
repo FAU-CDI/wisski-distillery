@@ -40,7 +40,7 @@ func (info *Info) instancePageAPI(r *http.Request) (is instancePageContext, err 
 	is.Instance = instance.Instance
 
 	// get some more info about the wisski
-	is.Info, err = instance.Info().Fetch(false)
+	is.Info, err = instance.Info().Information(false)
 	if err != nil {
 		return is, err
 	}
