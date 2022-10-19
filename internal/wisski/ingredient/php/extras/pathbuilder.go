@@ -3,6 +3,7 @@ package extras
 import (
 	_ "embed"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"golang.org/x/exp/slices"
@@ -20,7 +21,7 @@ var pathbuilderPHP string
 // All returns the ids of all pathbuilders in consistent order.
 //
 // server is the server to fetch the pathbuilders from, any may be nil.
-func (pathbuilder *Pathbuilder) All(server *php.Server) (ids []string, err error) {
+func (pathbuilder *Pathbuilder) All(server *phpx.Server) (ids []string, err error) {
 	err = pathbuilder.PHP.ExecScript(server, &ids, pathbuilderPHP, "all_list")
 	slices.Sort(ids)
 	return
@@ -30,7 +31,7 @@ func (pathbuilder *Pathbuilder) All(server *php.Server) (ids []string, err error
 // If it does not exist, it returns the empty string and nil error.
 //
 // server is the server to fetch the pathbuilders from, any may be nil.
-func (pathbuilder *Pathbuilder) Get(server *php.Server, id string) (xml string, err error) {
+func (pathbuilder *Pathbuilder) Get(server *phpx.Server, id string) (xml string, err error) {
 	err = pathbuilder.PHP.ExecScript(server, &xml, pathbuilderPHP, "one_xml", id)
 	return
 }
@@ -38,7 +39,7 @@ func (pathbuilder *Pathbuilder) Get(server *php.Server, id string) (xml string, 
 // GetAll returns all pathbuilders serialized as xml
 //
 // server is the server to fetch the pathbuilders from, any may be nil.
-func (pathbuilder *Pathbuilder) GetAll(server *php.Server) (pathbuilders map[string]string, err error) {
+func (pathbuilder *Pathbuilder) GetAll(server *phpx.Server) (pathbuilders map[string]string, err error) {
 	err = pathbuilder.PHP.ExecScript(server, &pathbuilders, pathbuilderPHP, "all_xml")
 	return
 }

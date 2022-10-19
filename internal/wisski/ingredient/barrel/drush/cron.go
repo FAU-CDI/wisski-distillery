@@ -3,8 +3,8 @@ package drush
 import (
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -28,7 +28,7 @@ func (drush *Drush) Cron(io stream.IOStream) error {
 	return nil
 }
 
-func (drush *Drush) LastCron(server *php.Server) (t time.Time, err error) {
+func (drush *Drush) LastCron(server *phpx.Server) (t time.Time, err error) {
 	var timestamp int64
 	err = drush.PHP.EvalCode(server, &timestamp, `$val = \Drupal::state()->get('system.cron_last'); return $val; `)
 	if err != nil {

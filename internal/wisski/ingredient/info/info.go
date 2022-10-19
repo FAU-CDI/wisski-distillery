@@ -38,9 +38,9 @@ func (wisski *Info) Information(quick bool) (info WissKIInfo, err error) {
 
 	// potentially setup a new server
 	if !flags.Quick {
-		server, err := wisski.PHP.NewServer()
+		flags.Server = wisski.PHP.NewServer()
 		if err == nil {
-			defer server.Close()
+			defer flags.Server.Close()
 		}
 	}
 

@@ -1,4 +1,4 @@
-package phpserver
+package phpx
 
 import (
 	"encoding/json"

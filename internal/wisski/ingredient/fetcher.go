@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/phpserver"
+	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 )
 
 // Fetcher is an ingredient with a fetch method
@@ -19,7 +19,7 @@ type Fetcher interface {
 // FetchFlags specifies what information to fetch
 type FetchFlags struct {
 	Quick  bool
-	Server *phpserver.Server
+	Server *phpx.Server
 }
 
 // Information represents fetched information about a WissKI

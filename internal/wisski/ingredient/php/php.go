@@ -3,6 +3,7 @@ package php
 import (
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 )
@@ -27,9 +28,9 @@ type PHP struct {
 // It's arguments are encoded as json using [json.Marshal] and decoded within php.
 //
 // The return value of the function is again marshaled with json and returned to the caller.
-func (php *PHP) ExecScript(server *Server, value any, code string, entrypoint string, args ...any) (err error) {
+func (php *PHP) ExecScript(server *phpx.Server, value any, code string, entrypoint string, args ...any) (err error) {
 	if server == nil {
-		server, err = php.NewServer()
+		server = php.NewServer()
 		if err != nil {
 			return
 		}
@@ -45,9 +46,9 @@ func (php *PHP) ExecScript(server *Server, value any, code string, entrypoint st
 	return server.MarshalCall(value, entrypoint, args...)
 }
 
-func (php *PHP) EvalCode(server *Server, value any, code string) (err error) {
+func (php *PHP) EvalCode(server *phpx.Server, value any, code string) (err error) {
 	if server == nil {
-		server, err = php.NewServer()
+		server = php.NewServer()
 		if err != nil {
 			return
 		}

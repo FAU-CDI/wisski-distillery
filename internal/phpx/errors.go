@@ -1,14 +1,12 @@
-package phpserver
+package phpx
 
 import "fmt"
 
 // Common PHP Errors
-var (
-	errPHPInit    = "Unable to initialize"
-	errPHPMarshal = "Marshal failed"
-	errPHPInvalid = ServerError{Message: "Invalid code to execute"}
-	errPHPReceive = "Failed to receive response"
-	errPHPClosed  = ServerError{Message: "Server closed"}
+const (
+	errInit    = "Server initialization failed"
+	errClosed  = "Server closed"
+	errReceive = "Failed to decode response"
 )
 
 // PHPError represents an error during PHPServer logic
@@ -17,6 +15,7 @@ type ServerError struct {
 	Err     error
 }
 
+// Unwrap returns the underlying error
 func (err ServerError) Unwrap() error {
 	return err.Err
 }

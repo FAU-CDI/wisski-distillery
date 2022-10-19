@@ -1,4 +1,4 @@
-package phpserver
+package phpx
 
 import (
 	"context"
@@ -10,62 +10,78 @@ import (
 
 	_ "embed"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/lib/nobufio"
 	"github.com/tkw1536/goprogram/stream"
 )
 
-// New creates a new server, with execPHP as a method to call a PHP Shell.
-func New(execPHP func(str stream.IOStream, script string)) (*Server, error) {
-	// create input and output pipes
-	ir, iw, err := os.Pipe()
-	if err != nil {
-		return nil, ServerError{errPHPInit, err}
-	}
-	or, ow, err := os.Pipe()
-	if err != nil {
-		ir.Close()
-		iw.Close()
-		return nil, ServerError{errPHPInit, err}
-	}
-
-	// create a context to close the server
-	context, cancel := context.WithCancel(context.Background())
-
-	// start the shell process, which will close everything once done
-	go func() {
-		defer func() {
-			ir.Close()
-			iw.Close()
-			or.Close()
-			ow.Close()
-
-			cancel()
-		}()
-
-		// start the server
-		io := stream.NewIOStream(ow, nil, ir, 0)
-		execPHP(io, serverPHP)
-	}()
-
-	// return a new server
-	return &Server{
-		in:  iw,
-		out: or,
-		c:   context,
-	}, nil
-}
-
-// Server represents a server that executes code within a distillery.
+// Server represents a server that executes PHP code.
 // A typical use-case is to define functions using [MarshalEval], and then call those functions [MarshalCall].
 //
-// A nil Server will return [ErrServerBroken] on every function call.
+// A server, once used, should be closed using the [Close] method.
 type Server struct {
-	m sync.Mutex
+	// Executor is the executor used by this server.
+	// It may not be modified concurrently with other processes.
+	Executor Executor
 
+	// prepares the server
+	init sync.Once
+	err  lazy.Lazy[error]
+
+	// input / output for underlying executor
 	in  io.WriteCloser
 	out io.Reader
-	c   context.Context
+
+	m sync.Mutex // prevents concurrent access on any of the methods
+
+	c context.Context // closed when server is finished
+
+}
+
+func (server *Server) prepare() error {
+	server.init.Do(func() {
+		// create input and output pipes
+		ir, iw, err := os.Pipe()
+		if err != nil {
+			server.err.Set(ServerError{errInit, err})
+			return
+		}
+		or, ow, err := os.Pipe()
+		if err != nil {
+			ir.Close()
+			iw.Close()
+
+			server.err.Set(ServerError{errInit, err})
+			return
+		}
+
+		// create a context to close the server
+		context, cancel := context.WithCancel(context.Background())
+
+		// start the shell process, which will close everything once done
+		go func() {
+			defer func() {
+				ir.Close()
+				iw.Close()
+				or.Close()
+				ow.Close()
+
+				cancel()
+			}()
+
+			// start the server
+			io := stream.NewIOStream(ow, nil, ir, 0)
+			err := server.Executor.Spawn(io, serverPHP)
+			server.err.Set(ServerError{errClosed, err})
+		}()
+
+		server.in = iw
+		server.out = or
+		server.c = context
+	})
+
+	return server.err.Get(nil)
 }
 
 // MarshalEval evaluates code on the server and Marshals the result into value.
@@ -76,28 +92,35 @@ type Server struct {
 //
 // When an exception is thrown by the PHP Code, error is not nil, and dest remains unchanged.
 func (server *Server) MarshalEval(value any, code string) error {
+	if err := server.prepare(); err != nil {
+		return err
+	}
+
+	// input to be sent to the server
+	delim := findDelimiter(code)
+	input := delim + "\n" + code + "\n" + delim + "\n"
+
 	server.m.Lock()
 	defer server.m.Unlock()
 
-	// quick hack: when the server is already done
+	// when the server is already done
 	if err := server.c.Err(); err != nil {
-		return errPHPClosed
+		return ServerError{Message: errClosed}
 	}
 
 	// find a delimiter for the code, and then send
-	delim := findDelimiter(code)
-	io.WriteString(server.in, delim+"\n"+code+"\n"+delim+"\n")
+	io.WriteString(server.in, input)
 
 	// read the next line (as a response)
 	data, err := nobufio.ReadLine(server.out)
 	if err != nil {
-		return ServerError{Message: errPHPReceive, Err: err}
+		return ServerError{Message: errReceive, Err: err}
 	}
 
 	// read whatever we received
 	var received [2]json.RawMessage
 	if err := json.Unmarshal([]byte(data), &received); err != nil {
-		return ServerError{Message: errPHPMarshal, Err: err}
+		return ServerError{Message: errReceive, Err: err}
 	}
 
 	// check if there was an error
@@ -126,7 +149,6 @@ func (server *Server) Eval(code string) (value any, err error) {
 //
 // Return values are received as in [MarshalEval].
 func (server *Server) MarshalCall(value any, function string, args ...any) error {
-
 	// name of function to call
 	name := MarshalString(function)
 
@@ -182,12 +204,14 @@ func findDelimiter(input string) string {
 
 // Close closes this server and prevents any further code from being run.
 func (server *Server) Close() error {
+	server.prepare()
+
 	server.m.Lock()
 	defer server.m.Unlock()
 
 	// if the context is already closed
 	if err := server.c.Err(); err != nil {
-		return errPHPClosed
+		return ServerError{Message: errClosed}
 	}
 
 	server.in.Close()

@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
@@ -35,7 +36,7 @@ var listURIPrefixesPHP string
 //
 // server is an optional server to fetch prefixes from.
 // server may be nil.
-func (prefixes *Prefixes) All(server *php.Server) ([]string, error) {
+func (prefixes *Prefixes) All(server *phpx.Server) ([]string, error) {
 	uris, err := prefixes.database(server)
 	if err != nil {
 		return nil, err
@@ -49,7 +50,7 @@ func (prefixes *Prefixes) All(server *php.Server) ([]string, error) {
 	return append(uris, uris2...), nil
 }
 
-func (wisski *Prefixes) database(server *php.Server) (prefixes []string, err error) {
+func (wisski *Prefixes) database(server *phpx.Server) (prefixes []string, err error) {
 	// get all the ugly prefixes
 	err = wisski.PHP.ExecScript(server, &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {
