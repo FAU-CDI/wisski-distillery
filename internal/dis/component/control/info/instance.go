@@ -15,8 +15,8 @@ import (
 
 //go:embed "html/info_instance.html"
 var instanceTemplateString string
-var instanceTemplate = static.AssetsControlInstance.MustParse(
-	base("info_instance.html"),
+var instanceTemplate = static.AssetsControlInstance.MustParseShared(
+	"info_instance.html",
 	instanceTemplateString,
 )
 

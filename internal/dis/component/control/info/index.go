@@ -15,8 +15,8 @@ import (
 
 //go:embed "html/info_index.html"
 var indexTemplateStr string
-var indexTemplate = static.AssetsControlIndex.MustParse(
-	base("info_index.html"),
+var indexTemplate = static.AssetsControlIndex.MustParseShared(
+	"info_index.html",
 	indexTemplateStr,
 )
 

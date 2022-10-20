@@ -3,14 +3,18 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>{{ block "title" . }}Distillery Control Page{{ end }}</title>
-    {{ block "head" . }}head{{ end }}
+    <title>{{ block "block" . }}Distillery Control Page{{ end }}</title>
+    {{ block "styles" . }}styles{{ end }}
 </head>
 
 <body>
     <header>
         <h1 id="top">{{ template "title" . }}</h1>
+        {{ block "header/time" . }}
+        {{ if .Time }}
         <small>Generated at <code class="date">{{ .Time.Format "2006-01-02T15:04:05Z07:00" }}</code></small>
+        {{ end }}
+        {{ end }}
         {{ block "header" . }}header{{ end }}
     </header>
     <main>
@@ -19,8 +23,11 @@
         </div>
     </main>
 
+    {{ if .Time }}
     <footer>
         Generated at <code>{{ .Time }}</code>
     </footer>
-    {{ block "footer" . }}footer{{ end }}
+    {{ end }}
+    
+    {{ block "scripts" . }}scripts{{ end }}
 </body>

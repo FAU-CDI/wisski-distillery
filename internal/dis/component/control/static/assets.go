@@ -1,7 +1,6 @@
 package static
 
 import (
-	"encoding/json"
 	"html/template"
 )
 
@@ -25,26 +24,25 @@ type Assets struct {
 //go:generate node build.mjs HomeHome ComponentsIndex ControlIndex ControlInstance
 
 // MustParse parses a new template from the given source
-// and registers the Asset functions to it.
-// See [Assets.RegisterFuncs].
+// and calls [RegisterAssoc] on it.
 func (assets *Assets) MustParse(t *template.Template, value string) *template.Template {
-	if t == nil {
-		t = template.New("")
-	}
-	return template.Must(assets.RegisterFuncs(t).Parse(value))
+	t = template.Must(t.Parse(value))
+	assets.RegisterAssoc(t)
+	return t
 }
 
-// RegisterFuncs registers three new template functions called "JS", "CSS" and "json".
+// MustParseShared is like [MustParse], but creates a new SharedTemplate instead
+func (assets *Assets) MustParseShared(name string, value string) *template.Template {
+	return assets.MustParse(NewSharedTemplate(name), value)
+}
+
+// RegisterAssoc registers two new associated templates with t.
 //
-// "JS" and "CSS" take no arguments, and return appropriate tags to be inserted into html.
-// json takes a single argument of any type, and returns it's encoding as a string to be inserted into the page.
-func (assets *Assets) RegisterFuncs(t *template.Template) *template.Template {
-	return t.Funcs(template.FuncMap{
-		"JS":  func() template.HTML { return template.HTML(assets.Scripts) },
-		"CSS": func() template.HTML { return template.HTML(assets.Styles) },
-		"json": func(data any) (string, error) {
-			bytes, err := json.Marshal(data)
-			return string(bytes), err
-		},
-	})
+// The template "scripts" will render all script tags required.
+// The template "styles" will render all style tags required.
+//
+// If either template already exists, it will be overwritten.
+func (assets *Assets) RegisterAssoc(t *template.Template) {
+	t.New("scripts").Parse(assets.Scripts)
+	t.New("styles").Parse(assets.Styles)
 }
