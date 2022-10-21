@@ -13,14 +13,14 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-//go:embed "html/info_index.html"
+//go:embed "html/index.html"
 var indexTemplateStr string
 var indexTemplate = static.AssetsControlIndex.MustParseShared(
-	"info_index.html",
+	"index.html",
 	indexTemplateStr,
 )
 
-type indexPageContext struct {
+type indexContext struct {
 	Time time.Time
 
 	Config *config.Config
@@ -34,7 +34,7 @@ type indexPageContext struct {
 	Backups []models.Export
 }
 
-func (nfo *Info) indexPageAPI(r *http.Request) (idx indexPageContext, err error) {
+func (nfo *Info) index(r *http.Request) (idx indexContext, err error) {
 	var group errgroup.Group
 
 	group.Go(func() error {

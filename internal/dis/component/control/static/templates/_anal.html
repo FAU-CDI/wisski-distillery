@@ -1,19 +1,8 @@
-{{ template "_base.html" . }}
-{{ define "title" }}Distillery Control Page - Components Page{{ end }}
-
-{{ define "header"}}
-<p>
-    <a class="pure-button" href="/dis/index">Control</a> &gt;
-    <a class="pure-button pure-button-primary" href="/dis/components">Components</a>
-</p>
-{{ end }}
-
-{{ define "content" }}
 <div class="pure-u-1-1">
     <h2 id="components">Components</h2>
 </div>
 
-{{ range $name, $comp := .Analytics.Components }}
+{{ range $name, $comp := .Components }}
 <div class="pure-u-1-1" id="{{ $name }}">
     <div class="padding">
         <div class="overflow">
@@ -83,7 +72,7 @@
     <h2 id="interfaces">Interfaces</h2>
 </div>
 
-{{ range $name, $group := .Analytics.Groups }}
+{{ range $name, $group := .Groups }}
 <div class="pure-u-1-1" id="{{ $name }}">
     <div class="padding">
 
@@ -125,5 +114,4 @@
         </div>
     </div>
 </div>
-{{ end }}
 {{ end }}

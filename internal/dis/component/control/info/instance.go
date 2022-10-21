@@ -13,21 +13,21 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
-//go:embed "html/info_instance.html"
+//go:embed "html/instance.html"
 var instanceTemplateString string
 var instanceTemplate = static.AssetsControlInstance.MustParseShared(
-	"info_instance.html",
+	"instance.html",
 	instanceTemplateString,
 )
 
-type instancePageContext struct {
+type instanceContext struct {
 	Time time.Time
 
 	Instance models.Instance
 	Info     info.WissKIInfo
 }
 
-func (info *Info) instancePageAPI(r *http.Request) (is instancePageContext, err error) {
+func (info *Info) instance(r *http.Request) (is instanceContext, err error) {
 	// find the slug as the last component of path!
 	slug := strings.TrimSuffix(r.URL.Path, "/")
 	slug = slug[strings.LastIndex(slug, "/")+1:]

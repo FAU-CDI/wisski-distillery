@@ -1,0 +1,14 @@
+{{ template "_base.html" . }}
+{{ define "title" }}Distillery Control Page - {{ .Instance.Slug }} - Ingredients{{ end }}
+
+{{ define "header"}}
+<p>
+    <a class="pure-button" href="/dis/index">Control</a> &gt;
+    <a class="pure-button" href="/dis/instance/{{ .Instance.Slug }}">Instance</a> &gt;
+    <a class="pure-button pure-button-primary" href="/dis/ingredients/{{ .Instance.Slug }}">Ingredients</a>
+</p>
+{{ end }}
+
+{{ define "content" }}
+{{ template "_anal.html" .Analytics }}
+{{ end }}

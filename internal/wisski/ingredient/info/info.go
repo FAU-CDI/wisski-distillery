@@ -4,11 +4,8 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/drush"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -18,11 +15,7 @@ type Info struct {
 	PHP      *php.PHP
 	Fetchers []ingredient.Fetcher
 
-	Barrel      *barrel.Barrel
-	Locker      *locker.Locker
-	Drush       *drush.Drush
-	Prefixes    *extras.Prefixes
-	Pathbuilder *extras.Pathbuilder
+	Analytics *lazy.PoolAnalytics
 }
 
 // TODO: Use the information struct globally

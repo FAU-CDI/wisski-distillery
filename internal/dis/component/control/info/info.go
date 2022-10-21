@@ -39,20 +39,26 @@ func (info *Info) Handler(route string, context context.Context, io stream.IOStr
 	})
 
 	// add a handler for the index page
-	mux.Handle(route+"index", httpx.HTMLHandler[indexPageContext]{
-		Handler:  info.indexPageAPI,
+	mux.Handle(route+"index", httpx.HTMLHandler[indexContext]{
+		Handler:  info.index,
 		Template: indexTemplate,
 	})
 
 	// add a handler for the component page
-	mux.Handle(route+"components", httpx.HTMLHandler[componentsPageContext]{
-		Handler:  info.componentsPageAPI,
+	mux.Handle(route+"components", httpx.HTMLHandler[componentContext]{
+		Handler:  info.components,
 		Template: componentsTemplate,
 	})
 
+	// add a handler for the component page
+	mux.Handle(route+"ingredients/", httpx.HTMLHandler[ingredientsContext]{
+		Handler:  info.ingredients,
+		Template: ingredientsTemplate,
+	})
+
 	// add a handler for the instance page
-	mux.Handle(route+"instance/", httpx.HTMLHandler[instancePageContext]{
-		Handler:  info.instancePageAPI,
+	mux.Handle(route+"instance/", httpx.HTMLHandler[instanceContext]{
+		Handler:  info.instance,
 		Template: instanceTemplate,
 	})
 

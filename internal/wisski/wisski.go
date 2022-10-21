@@ -96,7 +96,9 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		auto[*extras.Pathbuilder],
 
 		// info
-		auto[*info.Info],
+		manual(func(info *info.Info) {
+			info.Analytics = &wisski.pool.Analytics
+		}),
 		auto[*barrel.LastRebuildFetcher],
 		auto[*barrel.RunningFetcher],
 		auto[*drush.LastUpdateFetcher],
