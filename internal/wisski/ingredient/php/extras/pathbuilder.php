@@ -27,51 +27,59 @@ function one_xml(string $id): string {
 // =================================================================================
 
 
-function entity_to_xml($pb) {
-    $xml = new \SimpleXMLElement("<pathbuilderinterface></pathbuilderinterface>");
+function entity_to_xml($pathbuilderEntity) {
+    // NOTE: This function is verbatum copied from wisski_pathbuilder/src/PathbuilderManager.php.
+    // The original code is licensed GPL-2-or-later, we choose GPL 3.0. 
+    //
+    // As per section 13 of GPL 3.0, we can reuse it under AGPL-3.0 (which this project is licensed under).
+    
+    // Create initial XML tree.
+    $xmlTree = new \SimpleXMLElement("<pathbuilderinterface></pathbuilderinterface>");
 
-    $paths = $pb->getAllPaths();
+    // Get the paths.
+    $paths = $pathbuilderEntity->getPbPaths();
+
+    // Iterate over every path.
     foreach ($paths as $key => $path) {
-        $id = $path->getID();
+      $pathbuilder = $pathbuilderEntity->getPbPath($path['id']);
+      $pathChild = $xmlTree->addChild("path");
+      $pathObject = WisskiPathEntity::load($path['id']);
 
-        $path = $pb->getPbPath($id);
-
-        $pathChild = $xml->addChild("path");
-        $pathObject = WisskiPathEntity::load($id);
-
-        foreach ($path as $subkey => $value) {
-
-            if (in_array($subkey, ['relativepath'])) {
-                continue;
-            }
-
-            if ($subkey == "parent") {
-                $subkey = "group_id";
-            }
-
-            $pathChild->addChild($subkey, htmlspecialchars($value));
+      foreach ($pathbuilder as $subkey => $value) {
+        if (in_array($subkey, ['relativepath'])) {
+          continue;
         }
 
-        $pathArray = $pathChild->addChild('path_array');
-        foreach ($pathObject->getPathArray() as $subkey => $value) {
-            $pathArray->addChild($subkey % 2 == 0 ? 'x' : 'y', $value);
+        if ($subkey == "parent") {
+          $subkey = "group_id";
         }
 
-        $pathChild->addChild('datatype_property', htmlspecialchars($pathObject->getDatatypeProperty()));
-        $pathChild->addChild('short_name', htmlspecialchars($pathObject->getShortName()));
-        $pathChild->addChild('disamb', htmlspecialchars($pathObject->getDisamb()));
-        $pathChild->addChild('description', htmlspecialchars($pathObject->getDescription()));
-        $pathChild->addChild('uuid', htmlspecialchars($pathObject->uuid()));
-        if ($pathObject->getType() == "Group" || $pathObject->getType() == "Smartgroup") {
-            $pathChild->addChild('is_group', "1");
-        } else {
-            $pathChild->addChild('is_group', "0");
-        }
-        $pathChild->addChild('name', htmlspecialchars($pathObject->getName()));
+        $pathChild->addChild($subkey, htmlspecialchars($value));
+      }
+
+      $pathArray = $pathChild->addChild('path_array');
+      foreach ($pathObject->getPathArray() as $subkey => $value) {
+        $pathArray->addChild($subkey % 2 == 0 ? 'x' : 'y', $value);
+      }
+
+      $pathChild->addChild('datatype_property', htmlspecialchars($pathObject->getDatatypeProperty()));
+      $pathChild->addChild('short_name', htmlspecialchars($pathObject->getShortName()));
+      $pathChild->addChild('disamb', htmlspecialchars($pathObject->getDisamb()));
+      $pathChild->addChild('description', htmlspecialchars($pathObject->getDescription()));
+      $pathChild->addChild('uuid', htmlspecialchars($pathObject->uuid()));
+      if ($pathObject->getType() == "Group" || $pathObject->getType() == "Smartgroup") {
+        $pathChild->addChild('is_group', "1");
+      }
+      else {
+        $pathChild->addChild('is_group', "0");
+      }
+      $pathChild->addChild('name', htmlspecialchars($pathObject->getName()));
+
     }
-
-    // turn it into XML
-    $dom = dom_import_simplexml($xml)->ownerDocument;
+    
+    // Create XML DOM.
+    $dom = dom_import_simplexml($xmlTree)->ownerDocument;
     $dom->formatOutput = TRUE;
+
     return $dom->saveXML();
 }
