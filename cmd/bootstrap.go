@@ -71,7 +71,7 @@ var errBootstrapCreateFile = exit.Error{
 func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	// installation environment is the native environment!
 	// TODO: Should this be configurable?
-	var env environment.Native
+	env := new(environment.Native)
 
 	root := bs.Directory
 

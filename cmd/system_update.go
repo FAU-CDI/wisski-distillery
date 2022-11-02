@@ -46,7 +46,7 @@ var errNoGraphDBZip = exit.Error{
 
 func (s systemupdate) AfterParse() error {
 	// TODO: Use a generic environment here!
-	if !fsx.IsFile(environment.Native{}, s.Positionals.GraphdbZip) {
+	if !fsx.IsFile(new(environment.Native), s.Positionals.GraphdbZip) {
 		return errNoGraphDBZip.WithMessageF(s.Positionals.GraphdbZip)
 	}
 	return nil

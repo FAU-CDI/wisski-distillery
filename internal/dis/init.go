@@ -23,11 +23,12 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	dis = &Distillery{
 		context: params.Context,
 		Still: component.Still{
-			Environment: environment.Native{},
+			Environment: new(environment.Native),
 		},
 		Upstream: Upstream{
 			SQL:         "127.0.0.1:3306",
 			Triplestore: "127.0.0.1:7200",
+			Solr:        "127.0.0.1:8983",
 		},
 	}
 
@@ -38,6 +39,7 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	if flags.InternalInDocker {
 		dis.Upstream.SQL = "sql:3306"
 		dis.Upstream.Triplestore = "triplestore:7200"
+		dis.Upstream.Solr = "solr:8983"
 		params.ConfigPath = dis.Still.Environment.GetEnv("CONFIG_PATH")
 	}
 

@@ -55,5 +55,5 @@ type WritableFile interface {
 }
 
 func init() {
-	var _ Environment = Native{}
+	var _ Environment = new(Native)
 }

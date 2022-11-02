@@ -10,7 +10,7 @@ import (
 //
 // If the command executes, it's exit code will be returned.
 // If the command can not be executed, returns [ExecCommandError].
-func (Native) Exec(io stream.IOStream, workdir string, exe string, argv ...string) int {
+func (*Native) Exec(io stream.IOStream, workdir string, exe string, argv ...string) int {
 	// setup the command
 	cmd := exec.Command(exe, argv...)
 	cmd.Dir = workdir
@@ -35,7 +35,7 @@ func (Native) Exec(io stream.IOStream, workdir string, exe string, argv ...strin
 	return 0
 }
 
-func (n Native) LookPathAbs(file string) (string, error) {
+func (n *Native) LookPathAbs(file string) (string, error) {
 	path, err := exec.LookPath(file)
 	if err != nil {
 		return "", err

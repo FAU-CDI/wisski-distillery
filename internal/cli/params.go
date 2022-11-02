@@ -21,7 +21,7 @@ type Params struct {
 func ParamsFromEnv() (params Params, err error) {
 
 	// try to read the base directory!
-	value, err := ReadBaseDirectory(environment.Native{}) // TODO: Are we sure about the native environment here?
+	value, err := ReadBaseDirectory(new(environment.Native)) // TODO: Are we sure about the native environment here?
 	switch {
 	case environment.IsNotExist(err):
 		params.ConfigPath = bootstrap.BaseDirectoryDefault

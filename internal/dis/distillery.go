@@ -17,6 +17,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/resolver"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
@@ -50,6 +51,7 @@ type Distillery struct {
 type Upstream struct {
 	SQL         string
 	Triplestore string
+	Solr        string
 }
 
 // Context returns a new Context belonging to this distillery
@@ -113,6 +115,11 @@ func (dis *Distillery) allComponents() []initFunc {
 			sql.ServerURL = dis.Upstream.SQL
 			sql.PollContext = dis.Context()
 			sql.PollInterval = time.Second
+		}),
+		manual(func(s *solr.Solr) {
+			s.BaseURL = dis.Upstream.Solr
+			s.PollContext = dis.Context()
+			s.PollInterval = time.Second
 		}),
 
 		// instainces

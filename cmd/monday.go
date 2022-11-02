@@ -30,7 +30,7 @@ func (monday) Description() wisski_distillery.Description {
 
 func (monday monday) AfterParse() error {
 	// TODO: Use a generic environment here!
-	if !fsx.IsFile(environment.Native{}, monday.Positionals.GraphdbZip) {
+	if !fsx.IsFile(new(environment.Native), monday.Positionals.GraphdbZip) {
 		return errNoGraphDBZip.WithMessageF(monday.Positionals.GraphdbZip)
 	}
 	return nil
