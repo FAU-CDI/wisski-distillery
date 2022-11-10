@@ -15,11 +15,11 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/legacyssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/web"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
@@ -69,9 +69,6 @@ func (dis *Distillery) Control() *control.Control {
 func (dis *Distillery) Resolver() *resolver.Resolver {
 	return export[*resolver.Resolver](dis)
 }
-func (dis *Distillery) SSH() *ssh.SSH {
-	return export[*ssh.SSH](dis)
-}
 func (dis *Distillery) SQL() *sql.SQL {
 	return export[*sql.SQL](dis)
 }
@@ -104,7 +101,7 @@ func (dis *Distillery) allComponents() []initFunc {
 	return []initFunc{
 		auto[*web.Web],
 
-		auto[*ssh.SSH],
+		auto[*legacyssh.SSH],
 
 		manual(func(ts *triplestore.Triplestore) {
 			ts.BaseURL = "http://" + dis.Upstream.Triplestore
