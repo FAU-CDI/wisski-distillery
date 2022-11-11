@@ -10,7 +10,8 @@ import (
 var SSH wisski_distillery.Command = ssh{}
 
 type ssh struct {
-	Bind string `short:"b" long:"bind" description:"address to listen on" default:"127.0.0.1:2223"`
+	Bind           string `short:"b" long:"bind" description:"address to listen on" default:"127.0.0.1:2223"`
+	PrivateKeyPath string `short:"p" long:"private-key-path" description:"Path to store private host keys in" required:"1"`
 }
 
 func (s ssh) Description() wisski_distillery.Description {
@@ -30,7 +31,7 @@ var errSSHListen = exit.Error{
 
 func (s ssh) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
-	server, err := dis.SSH().Server(dis.Context(), context.IOStream)
+	server, err := dis.SSH().Server(dis.Context(), s.PrivateKeyPath, context.IOStream)
 	if err != nil {
 		return err
 	}

@@ -7,5 +7,8 @@ chown www-data:www-data /var/www
 chown www-data:www-data /var/www/.composer
 chown www-data:www-data /var/www/data/
 
+# start up dropbear
+/ssh/start.sh &
+
 # run the original entrypoint
 docker-php-entrypoint "$@"

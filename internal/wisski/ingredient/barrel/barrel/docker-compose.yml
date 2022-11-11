@@ -24,6 +24,7 @@ services:
       - ${GLOBAL_AUTHORIZED_KEYS_FILE}:/var/www/.ssh/global_authorized_keys:ro
       - ${DATA_PATH}/.composer:/var/www/.composer
       - ${DATA_PATH}/data:/var/www/data
+      - ${DATA_PATH}/hostkeys:/ssh/hostkeys:rw
       - ${DATA_PATH}/authorized_keys:/var/www/.ssh/authorized_keys
       - ${RUNTIME_DIR}:/runtime:ro
 

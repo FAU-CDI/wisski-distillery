@@ -1,0 +1,27 @@
+# sshd_config file for distillery ssh server
+
+# listen on port 22
+Port 22
+ListenAddress 0.0.0.0
+
+# Use hostkeys from /ssh/hostkeys
+HostKey /ssh/hostkeys/ssh_host_rsa_key
+HostKey /ssh/hostkeys/ssh_host_ecdsa_key
+HostKey /ssh/hostkeys/ssh_host_ed25519_key
+
+# Disable forwarding and motd
+X11Forwarding no
+PrintMotd no
+
+# allow sftp
+Subsystem       sftp    /usr/lib/openssh/sftp-server
+
+# allow only www-data to login
+AllowUsers www-data
+
+# allow only public keys using /ssh/keys.sh
+PubkeyAuthentication yes     
+AuthenticationMethods publickey
+AuthorizedKeysFile none
+AuthorizedKeysCommand /ssh/keys.sh
+AuthorizedKeysCommandUser root

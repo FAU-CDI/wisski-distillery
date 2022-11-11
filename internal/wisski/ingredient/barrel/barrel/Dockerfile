@@ -2,9 +2,10 @@ FROM docker.io/library/php:8.0-apache-bullseye
 ARG COMPOSER_VERSION=2.3.8
 WORKDIR /var/www
 
-# install and enable the various required php extension
-RUN apt-get update && apt-get install -y \
+# install and enable the various required php extensions and dropbear ssh server
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         curl \
+        openssh-server \
         default-mysql-client \
         git \
         imagemagick \
@@ -89,6 +90,7 @@ RUN a2ensite wisski
 VOLUME /var/www/.composer
 VOLUME /var/www/data
 
+
 # Add and configure the entrypoint
 ADD scripts/entrypoint.sh /entrypoint.sh
 
@@ -101,6 +103,12 @@ ADD wisskiutils/ /wisskiutils
 
 # Add the user_shell.sh
 ADD scripts/user_shell.sh /user_shell.sh
+ADD ssh/ /ssh/
+VOLUME /ssh/hostkeys/
+RUN chmod 700 /ssh/keys.sh && \
+    chmod 700 /ssh/start.sh && \
+    chmod 777 /user_shell.sh && \
+    chsh www-data --shell /user_shell.sh
 
 # expose port 8080
 EXPOSE 8080
