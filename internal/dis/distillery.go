@@ -20,6 +20,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/web"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
@@ -72,6 +73,10 @@ func (dis *Distillery) Resolver() *resolver.Resolver {
 func (dis *Distillery) SQL() *sql.SQL {
 	return export[*sql.SQL](dis)
 }
+func (dis *Distillery) SSH() *ssh.SSH {
+	return export[*ssh.SSH](dis)
+}
+
 func (dis *Distillery) Triplestore() *triplestore.Triplestore {
 	return export[*triplestore.Triplestore](dis)
 }
@@ -119,7 +124,7 @@ func (dis *Distillery) allComponents() []initFunc {
 			s.PollInterval = time.Second
 		}),
 
-		// instainces
+		// instances
 		auto[*instances.Instances],
 		auto[*meta.Meta],
 		auto[*malt.Malt],
@@ -131,6 +136,9 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*exporter.Bookkeeping],
 		auto[*exporter.Filesystem],
 		auto[*exporter.Pathbuilders],
+
+		// ssh server
+		auto[*ssh.SSH],
 
 		// Control server
 		auto[*control.Control],

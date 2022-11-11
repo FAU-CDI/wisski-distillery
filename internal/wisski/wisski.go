@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/drush"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/provisioner"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/ssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
@@ -76,6 +77,10 @@ func (wisski *WissKI) Info() *info.Info {
 	return export[*info.Info](wisski)
 }
 
+func (wisski *WissKI) SSH() *ssh.SSH {
+	return export[*ssh.SSH](wisski)
+}
+
 //
 // All components
 // THESE SHOULD NEVER BE CALLED DIRECTLY
@@ -112,5 +117,7 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		auto[*drush.Drush],
 
 		auto[*reserve.Reserve],
+
+		auto[*ssh.SSH],
 	}
 }

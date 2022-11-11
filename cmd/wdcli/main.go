@@ -56,6 +56,7 @@ func init() {
 
 	// servers
 	wdcli.Register(cmd.Server)
+	wdcli.Register(cmd.SSH)
 }
 
 // an error when no arguments are provided.
