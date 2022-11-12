@@ -63,6 +63,11 @@ func (i info) Run(context wisski_distillery.Context) error {
 	context.Printf("Last Update:          %v\n", info.LastUpdate.String())
 	context.Printf("Last Cron:            %v\n", info.LastCron.String())
 
+	context.Printf("SSH Keys: (count %d)\n", len(info.SSHKeys))
+	for _, key := range info.SSHKeys {
+		context.Printf("- %s\n", key)
+	}
+
 	context.Printf("Skip Prefixes:        %v\n", info.NoPrefixes)
 	context.Printf("Prefixes: (count %d)\n", len(info.Prefixes))
 	for _, prefix := range info.Prefixes {

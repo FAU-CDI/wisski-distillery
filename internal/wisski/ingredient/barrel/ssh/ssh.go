@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/sshx"
 	"github.com/gliderlabs/ssh"
+	gossh "golang.org/x/crypto/ssh"
 )
 
 type SSH struct {
@@ -29,4 +30,21 @@ func (ssh *SSH) Keys() ([]ssh.PublicKey, error) {
 		return nil, err
 	}
 	return sshx.ParseAllKeys(bytes), nil
+}
+
+func (sshx *SSH) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) error {
+	if flags.Quick {
+		return nil
+	}
+
+	keys, err := sshx.Keys()
+	if err != nil {
+		return err
+	}
+
+	info.SSHKeys = make([]string, len(keys))
+	for i, key := range keys {
+		info.SSHKeys[i] = string(gossh.MarshalAuthorizedKey(key))
+	}
+	return nil
 }

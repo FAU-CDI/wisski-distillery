@@ -41,6 +41,9 @@ type Information struct {
 	// List of backups made
 	Snapshots []models.Export
 
+	// List of SSH Keys
+	SSHKeys []string
+
 	// WissKI content information
 	NoPrefixes   bool              // TODO: Move this into the database
 	Prefixes     []string          // list of prefixes

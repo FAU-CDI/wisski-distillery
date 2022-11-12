@@ -266,6 +266,21 @@
 </div>
 
 <div class="pure-u-1-1">
+    <h2 id="ssh">SSH Keys</h2>
+    <table class="pure-table pure-table-bordered padding">
+        <tbody>
+            {{ range .Info.Keys }}
+            <tr>
+                <td>
+                    <code>{{ . }}</code>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
+
+<div class="pure-u-1-1">
     <h2 id="snapshots">Snapshots</h2>
     <p>
         <button class="remote-action pure-button pure-button-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Take a snapshot</button>
