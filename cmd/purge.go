@@ -38,6 +38,11 @@ var errPurgeNoConfirmation = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
+var errPurgeGeneric = exit.Error{
+	Message:  "Unable to purge instance %s: %s",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (p purge) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 	slug := p.Positionals.Slug
@@ -88,7 +93,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 		return nil
 	}, context.IOStream, "Purging instance-specific resources"); err != nil {
-		return errProvisionGeneric.WithMessageF(slug, err)
+		return errPurgeGeneric.WithMessageF(slug, err)
 	}
 
 	// remove from bookkeeping
@@ -98,7 +103,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 	}
 
 	// remove the filesystem
-	logging.LogMessage(context.IOStream, "Remove lock data", instance.FilesystemBase)
+	logging.LogMessage(context.IOStream, "Remove lock data")
 	if instance.Locker().TryUnlock() {
 		context.EPrintln("instance was not locked")
 	}

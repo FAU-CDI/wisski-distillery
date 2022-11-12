@@ -99,25 +99,27 @@ func (ts Triplestore) Wait() error {
 	}, ts.PollContext, ts.PollInterval)
 }
 
-// TriplestorePurgeUser deletes the specified user from the triplestore
+// PurgeUser deletes the specified user from the triplestore.
+// When the user does not exist, returns no error.
 func (ts Triplestore) PurgeUser(user string) error {
 	res, err := ts.OpenRaw("DELETE", "/rest/security/users/"+user, nil, "", "")
 	if err != nil {
 		return err
 	}
-	if res.StatusCode != http.StatusNoContent {
+	if res.StatusCode != http.StatusNoContent && res.StatusCode != http.StatusNotFound {
 		return errors.Errorf("Delete returned code %d", res.StatusCode)
 	}
 	return nil
 }
 
-// TriplestorePurgeRepo deletes the specified repo from the triplestore
+// PurgeRepo deletes the specified repo from the triplestore.
+// When the repo does not exist, returns no error.
 func (ts Triplestore) PurgeRepo(repo string) error {
 	res, err := ts.OpenRaw("DELETE", "/rest/repositories/"+repo, nil, "", "")
 	if err != nil {
 		return err
 	}
-	if res.StatusCode != http.StatusOK {
+	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusNotFound {
 		return errors.Errorf("Delete returned code %d", res.StatusCode)
 	}
 	return nil
