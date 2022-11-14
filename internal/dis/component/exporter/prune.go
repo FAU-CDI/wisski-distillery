@@ -42,7 +42,7 @@ func (exporter *Exporter) PruneExports(io stream.IOStream) error {
 
 		// assemble path, and then remove the file!
 		path := filepath.Join(sPath, entry.Name())
-		io.Printf("Removing %s cause it is older than %d days", path, exporter.Config.MaxBackupAge)
+		io.Printf("Removing %s cause it is older than %d days\n", path, exporter.Config.MaxBackupAge)
 
 		if err := exporter.Still.Environment.Remove(path); err != nil {
 			return err
