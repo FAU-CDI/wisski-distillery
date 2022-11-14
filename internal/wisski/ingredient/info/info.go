@@ -18,12 +18,9 @@ type Info struct {
 	Analytics *lazy.PoolAnalytics
 }
 
-// TODO: Use the information struct globally
-type WissKIInfo = ingredient.Information
-
 // Information fetches information about this WissKI.
 // TODO: Rework this to be able to determine what kind of information is available.
-func (wisski *Info) Information(quick bool) (info WissKIInfo, err error) {
+func (wisski *Info) Information(quick bool) (info ingredient.Information, err error) {
 	// setup flags
 	flags := ingredient.FetchFlags{
 		Quick: quick,

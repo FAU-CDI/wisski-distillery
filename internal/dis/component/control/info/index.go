@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -25,7 +25,7 @@ type indexContext struct {
 
 	Config *config.Config
 
-	Instances []info.WissKIInfo
+	Instances []ingredient.Information
 
 	TotalCount   int
 	RunningCount int
@@ -45,7 +45,7 @@ func (nfo *Info) index(r *http.Request) (idx indexContext, err error) {
 		}
 
 		// get all of their info!
-		idx.Instances = make([]info.WissKIInfo, len(all))
+		idx.Instances = make([]ingredient.Information, len(all))
 		for i, instance := range all {
 			{
 				i := i
