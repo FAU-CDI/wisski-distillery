@@ -96,6 +96,9 @@ func (dis *Distillery) Updatable() []component.Updatable {
 func (dis *Distillery) Provisionable() []component.Provisionable {
 	return exportAll[component.Provisionable](dis)
 }
+func (dis *Distillery) Info() *info.Info {
+	return export[*info.Info](dis)
+}
 
 //
 // All components

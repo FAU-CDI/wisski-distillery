@@ -18,6 +18,7 @@ type Info struct {
 	component.Base
 
 	Analytics *lazy.PoolAnalytics
+	Obervers  []component.Observer
 
 	Exporter     *exporter.Exporter
 	Instances    *instances.Instances

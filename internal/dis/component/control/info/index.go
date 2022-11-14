@@ -6,9 +6,8 @@ import (
 
 	_ "embed"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/config"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"golang.org/x/sync/errgroup"
 )
@@ -21,31 +20,29 @@ var indexTemplate = static.AssetsControlIndex.MustParseShared(
 )
 
 type indexContext struct {
-	Time time.Time
-
-	Config *config.Config
-
+	component.Observation
 	Instances []ingredient.Information
-
-	TotalCount   int
-	RunningCount int
-	StoppedCount int
-
-	Backups []models.Export
 }
 
-func (nfo *Info) index(r *http.Request) (idx indexContext, err error) {
+func (info *Info) index(r *http.Request) (idx indexContext, err error) {
+	idx.Observation, idx.Instances, err = info.Status(true)
+	return
+}
+
+// Status produces a new observation of the distillery, and a new information of all instances
+// The information on all instances is passed the given quick flag.
+func (info *Info) Status(QuickInformation bool) (observation component.Observation, information []ingredient.Information, err error) {
 	var group errgroup.Group
 
 	group.Go(func() error {
 		// list all the instances
-		all, err := nfo.Instances.All()
+		all, err := info.Instances.All()
 		if err != nil {
 			return err
 		}
 
 		// get all of their info!
-		idx.Instances = make([]ingredient.Information, len(all))
+		information = make([]ingredient.Information, len(all))
 		for i, instance := range all {
 			{
 				i := i
@@ -53,36 +50,43 @@ func (nfo *Info) index(r *http.Request) (idx indexContext, err error) {
 
 				// store the info for this group!
 				group.Go(func() (err error) {
-					idx.Instances[i], err = instance.Info().Information(true)
+					information[i], err = instance.Info().Information(true)
 					return err
 				})
 			}
 		}
-
 		return nil
 	})
 
-	// get the log entries
-	group.Go(func() (err error) {
-		idx.Backups, err = nfo.SnapshotsLog.For("")
-		return
-	})
+	// gather all the observations
+	var flags component.ObservationFlags
+	for _, o := range info.Obervers {
+		o := o
+		group.Go(func() error {
+			return o.Observe(flags, &observation)
+		})
+	}
 
-	// get the static properties
-	idx.Config = nfo.Config
-	idx.Time = time.Now().UTC()
+	// wait for all the observes to finish
+	if err := group.Wait(); err != nil {
+		return component.Observation{}, nil, err
+	}
 
-	group.Wait()
-
-	// count how many are running and how many are stopped
-	for _, i := range idx.Instances {
+	// count overall instances
+	for _, i := range information {
 		if i.Running {
-			idx.RunningCount++
+			observation.RunningCount++
 		} else {
-			idx.StoppedCount++
+			observation.StoppedCount++
 		}
 	}
-	idx.TotalCount = len(idx.Instances)
+	observation.TotalCount = len(information)
 
 	return
+}
+
+func (nfo *Info) Observe(flags component.ObservationFlags, observation *component.Observation) error {
+	observation.Time = time.Now().UTC()
+	observation.Config = nfo.Config
+	return nil
 }

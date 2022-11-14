@@ -24,7 +24,7 @@ func (info) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "info",
-		Description: "Provide information about a single repository",
+		Description: "Provide information about a single instance",
 	}
 }
 

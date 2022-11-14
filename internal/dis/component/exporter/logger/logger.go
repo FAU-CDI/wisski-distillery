@@ -76,3 +76,9 @@ func (log *Logger) Add(export models.Export) error {
 	}
 	return nil
 }
+
+// Observe writes the SnapshotLog into the given observation
+func (logger *Logger) Observe(flags component.ObservationFlags, observation *component.Observation) (err error) {
+	observation.Backups, err = logger.For("")
+	return
+}
