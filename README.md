@@ -1,12 +1,9 @@
 # WissKI-Distillery
 
-WissKI-Distillery is a Docker-based server provisioning and managing for multiple
-[WissKI](https://wiss-ki.eu/) instances.
+WissKI-Distillery is a Docker-based server provisioning and managing for multiple [WissKI](https://wiss-ki.eu/) instances.
 
-The WissKI Distillery is a set of scripts, tools, and applications that allows to operate
-a WissKI cloud of distinct but jointly managed WissKI instances, hosted on a dedicated
-hardware pool. Like the WissKI system, the WissKI Distillery is open source and free to
-use.
+The WissKI Distillery is a set of scripts, tools, and applications that allows to operate a WissKI cloud of distinct but jointly managed WissKI instances, hosted on a dedicated hardware system.
+Like the WissKI system, the WissKI Distillery is open source and free to use.
 
 This README contains only technical documentation.
 For members of [FAU Erlangen-Nürnberg](https://www.fau.de/) a cloud offering based on this service known as FAUWissKICloud.
@@ -16,15 +13,46 @@ Please see https://wisski.data.fau.de/ for related documentation.
 
 This project consists of the following:
 
-- this README
+- this README containing mostly technical documentation
+- a [NEWS.md] file containing recent technical enhancements
 - a [Go](https://go.dev/) command `wdcli` 
-- a `Vagrantfile` for local testing
+
+## High-Level Overview
+
+NOTE: A list of new features can be found in [NEWS](./NEWS.md)
+
+The Distillery consists of a set of instances of WissKIs and (high-level) components.
+Components are implemented in the [component](/internal/dis/component) directory.
+Furthermore each instance consists of several components refered to as ingredients.
+Ingredients are implemented in [ingredient](/internal/wisski/ingredient/) directory.
+
+Each WissKI is implemented as a single [docker](https://www.docker.com/) container that talks to several components.
+There are only three components that directly talk to a WissKI Instance
+- A [Triplestore](internal/dis/component/triplestore), in this case [GraphDB](http://graphdb.ontotext.com/)
+  - a SPARQL backend for WissKI (Version 10.0 or later)
+  - Each instance receives a seperate `repository`
+- An [SQL Database](internal/dis/component/sql), in this case [MariaDB](https://mariadb.org/)
+  - A [phpmyadmin](https://www.phpmyadmin.net/) instance is additionally startyted started on `127.0.0.1:8080`.
+  - See [internal/component/sql](internal/dis/component/sql) for implementation details.
+- A [SOLR Instance](internal/dis/component/solr)
+  - Only preliminary support at this moment
+
+Furthermore to allow end-users to access the WissKIs two further components exist:
+- [web](internal/dis/component/web) powered by [Traefik](https://traefik.io/traefik/) to route web traffic to inidividual instances
+- A custom [ssh](internal/dis/component/ssh2) server that enables ssh access to individual WissKI instances 
+
+Finally two other components exist:
+- A public homepage that lists all instances, and provides basic statistics
+- An instance administration system called [info](internal/dis/component/control/info/) that allows web admins to perform certain maintance tasks
+
+# Technical Overview
 
 The go command is almost dependency free. 
 It expects that a basic debian system (in particular the `apt-get` command) is available.
 The command has been tested only under Debian 10, but may also work under older or newer versions.
 The command expects to be run as root, and will fail when this is not the case.
-Each subcommand comes with documentation, which can be found in this readme, as well as via the command line when passing a `--help` flag.
+
+Each subcommand comes with documentation, which can be found in this readme (and the readme is always outdated), as well as via the command line when passing a `--help` flag.
 
 To bootstrap a new distillery instance, the `wdcli bootstrap` command can be used.
 First copy the executable onto the server, using a command similar as:
@@ -49,25 +77,6 @@ Next, download a [GraphDB](https://graphdb.ontotext.com/) zip file, and bring th
 ```bash
 /var/www/deploy/wdcli system_update /path/to/graphdb.zip
 ```
-
-## Vagrantfile
-
-For local testing, it is recommended to use [Vagrant](https://www.vagrantup.com/) and the provided `Vagrantfile`.
-After installing vagrant, run:
-
-```bash
-# once, to install the plugin to automatically build the guest iso
-# at the time of writing version 0.25.0 is broken.
-vagrant plugin install --plugin-version 0.24.0 vagrant-vbguest
-
-# start the vargant box
-vagrant up
-
-# open a shell inside the vm
-# for debugging purposes forward port 7200 (GraphDB) and 8080 (phpmyadmin)
-vagrant ssh -- -L 7200:127.0.0.1:7200 -L 8080:127.0.0.1:8080
-```
-
 ## System Updates
 
 _TLDR: `sudo /var/www/deploy/wdcli system_update /path/to/graphdb.zip`_
@@ -93,11 +102,6 @@ These are:
   - A [phpmyadmin](https://www.phpmyadmin.net/) is started on `127.0.0.1:8080`.
   - See [internal/component/sql](internal/component/sql) for implementation details.
 
-- [GraphDB](http://graphdb.ontotext.com/) - a SPARQL backend for WissKI (Version 10.0 or later)
-  - It is configured to run inside a docker container.
-  - The Workbench API is started on `127.0.0.1:7200`.
-  - Security is not enabled at the moment.
-  - See [internal/component/triplestore](internal/component/triplestore) for implementation details.
 
 - [proxyssh](https://github.com/tkw1536/proxyssh) - an ssh server that delegates client connections to different WissKIs
   - It is configured to run inside a docker container.
