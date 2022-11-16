@@ -2,6 +2,10 @@
 
 This file contains signficant news items for the distillery.
 
+# Showing Statistics (2022-11-16)
+- The distillery nows shows generic statistics on the public homepage 
+- detailed statistics can be found on the admin interface
+
 # Refactored SSH Support (2022-11-12)
 - Fully refactored ssh for users to use a real OpenSSH Server along with a small custom proxy in between
 - It is now possible for developers to directly use e.g. [VSCode Remote SSH](https://code.visualstudio.com/docs/remote/ssh) to develop new WissKI features directly on the distillery.

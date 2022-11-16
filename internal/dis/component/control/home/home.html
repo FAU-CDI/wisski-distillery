@@ -25,6 +25,9 @@
             <h3>{{.Slug}}</h3>
             <p>
                 <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br>
+                <small>
+                    {{ .Statistics.Bundles.Summary }}
+                </small>
             </p>
         </div>
     {{ end }}

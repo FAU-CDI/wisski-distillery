@@ -1,6 +1,7 @@
 package ingredient
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -62,20 +63,7 @@ type Statistics struct {
 		} `json:"pageVisits"`
 		TotalEditsLastWeek int `json:"totalEditsLastWeek"`
 	} `json:"activity"`
-	Bundles struct {
-		Bundles []struct {
-			Label       string `json:"label"`
-			MachineName string `json:"machineName"`
-
-			Count int `json:"entities"`
-
-			LastEdit int `json:"lastEdit"`
-
-			MainBundle phpx.BooleanIsh `json:"mainBundle"`
-		} `json:"bundleStatistics"`
-		TotalBundles     int `json:"totalBundles"`
-		TotalMainBundles int `json:"totalMainBundles"`
-	} `json:"bundles"`
+	Bundles     BundleStatistics `json:"bundles"`
 	Triplestore struct {
 		Graphs []struct {
 			URI   string `json:"uri"`
@@ -87,4 +75,41 @@ type Statistics struct {
 		LastLogin  string `json:"lastLogin"`
 		TotalUsers int    `json:"totalUsers"`
 	} `json:"users"`
+}
+
+type BundleStatistics struct {
+	Bundles []struct {
+		Label       string `json:"label"`
+		MachineName string `json:"machineName"`
+
+		Count int `json:"entities"`
+
+		LastEdit int `json:"lastEdit"`
+
+		MainBundle phpx.BooleanIsh `json:"mainBundle"`
+	} `json:"bundleStatistics"`
+	TotalBundles     int `json:"totalBundles"`
+	TotalMainBundles int `json:"totalMainBundles"`
+}
+
+func (bs BundleStatistics) Summary() string {
+	var totalCount int
+	for _, bundle := range bs.Bundles {
+		totalCount += bundle.Count
+	}
+	if totalCount == 0 {
+		return ""
+	}
+
+	entitySubject := "Entities"
+	if totalCount == 1 {
+		entitySubject = "Entity"
+	}
+
+	bundleSubject := "Bundles"
+	if len(bs.Bundles) == 1 {
+		bundleSubject = "Bundle"
+	}
+
+	return fmt.Sprintf("%d %s in %d %s", totalCount, entitySubject, len(bs.Bundles), bundleSubject)
 }
