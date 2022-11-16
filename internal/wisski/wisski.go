@@ -99,6 +99,7 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		auto[*extras.Prefixes],
 		auto[*extras.Settings],
 		auto[*extras.Pathbuilder],
+		auto[*extras.Stats],
 
 		// info
 		manual(func(info *info.Info) {

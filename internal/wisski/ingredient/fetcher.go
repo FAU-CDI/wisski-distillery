@@ -38,6 +38,9 @@ type Information struct {
 	LastUpdate  time.Time
 	LastCron    time.Time
 
+	// Statistics of the wisski (TODO: fix me)
+	Statistics Statistics
+
 	// List of backups made
 	Snapshots []models.Export
 
@@ -48,4 +51,40 @@ type Information struct {
 	NoPrefixes   bool              // TODO: Move this into the database
 	Prefixes     []string          // list of prefixes
 	Pathbuilders map[string]string // all the pathbuilders
+}
+
+type Statistics struct {
+	Activity struct {
+		MostVisited string `json:"mostVisited"`
+		PageVisits  []struct {
+			URL    string `json:"url"`
+			Visits int    `json:"visits"`
+		} `json:"pageVisits"`
+		TotalEditsLastWeek int `json:"totalEditsLastWeek"`
+	} `json:"activity"`
+	Bundles struct {
+		Bundles []struct {
+			Label       string `json:"label"`
+			MachineName string `json:"machineName"`
+
+			Count int `json:"entities"`
+
+			LastEdit int `json:"lastEdit"`
+
+			MainBundle phpx.BooleanIsh `json:"mainBundle"`
+		} `json:"bundleStatistics"`
+		TotalBundles     int `json:"totalBundles"`
+		TotalMainBundles int `json:"totalMainBundles"`
+	} `json:"bundles"`
+	Triplestore struct {
+		Graphs []struct {
+			URI   string `json:"uri"`
+			Count int    `json:"triples"`
+		} `json:"graphStatistics"`
+		Total int `json:"totalTriples"`
+	} `json:"triplestore"`
+	Users struct {
+		LastLogin  string `json:"lastLogin"`
+		TotalUsers int    `json:"totalUsers"`
+	} `json:"users"`
 }

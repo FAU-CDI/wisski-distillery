@@ -1,12 +1,15 @@
 #!/bin/bash
 set -e
 
-# This script is used to start a user shell inside the docker container. 
+# if the user is not www-data, re-invoke self as www-data
+if [ "$USER" != "www-data" ]; then
+    sudo -u www-data /bin/bash /user_shell.sh "$@"
+    exit $?
+fi
+
+# Now start a shell in the proper path
 cd "/var/www/data/project"
 export "PATH=/var/www/data/project/vendor/bin:$PATH"
 
-if [ "$USER" = "www-data" ]; then
-    /bin/bash "$@"
-else
-    sudo -u www-data  /bin/bash "$@"
-fi;
+# Re-invoke the actual command
+/bin/bash "$@"

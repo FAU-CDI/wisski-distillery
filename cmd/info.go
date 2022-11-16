@@ -63,6 +63,18 @@ func (i info) Run(context wisski_distillery.Context) error {
 	context.Printf("Last Update:          %v\n", info.LastUpdate.String())
 	context.Printf("Last Cron:            %v\n", info.LastCron.String())
 
+	context.Printf("Bundles: (count %d)\n", info.Statistics.Bundles.TotalBundles)
+	for _, bundle := range info.Statistics.Bundles.Bundles {
+		if bundle.Count == 0 {
+			continue
+		}
+		context.Printf("- %s %d %v\n", bundle.Label, bundle.Count, bundle.MainBundle)
+	}
+	context.Printf("Graphs: (count %d)\n", len(info.Statistics.Triplestore.Graphs))
+	for _, graph := range info.Statistics.Triplestore.Graphs {
+		context.Printf("- %s %d\n", graph.URI, graph.Count)
+	}
+
 	context.Printf("SSH Keys: (count %d)\n", len(info.SSHKeys))
 	for _, key := range info.SSHKeys {
 		context.Printf("- %s\n", key)

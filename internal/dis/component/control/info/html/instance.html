@@ -266,10 +266,105 @@
 </div>
 
 <div class="pure-u-1-1">
+    <h2 id="stats">Statistics</h2>
+</div>
+
+<div class="pure-u-1 pure-u-xl-1-2">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="5">
+                            Bundles
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            Label
+                        </th>
+                        <th>
+                            Machine Name
+                        </th>
+                        <th>
+                            Count
+                        </th>
+                        <th>
+                            LastEdit
+                        </th>
+                        <th>
+                            MainBundle
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range .Info.Statistics.Bundles.Bundles }}
+                    <tr>
+                        <td>
+                            <code>{{ .Label }}</code>
+                        </td>
+                        <td>
+                            <code>{{ .MachineName }}</code>
+                        </td>
+                        <td>
+                            <code>{{ .Count }}</code>
+                        </td>
+                        <td>
+                            <code>{{ .LastEdit }}</code>
+                        </td>
+                        <td>
+                            <code>{{ .MainBundle }}</code>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="pure-u-1 pure-u-xl-1-2">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="2">
+                            Triplestore
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>
+                            URI
+                        </th>
+                        <th>
+                            Count
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range .Info.Statistics.Triplestore.Graphs }}
+                    <tr>
+                        <td>
+                            <code>{{ .URI }}</code>
+                        </td>
+                        <td>
+                            <code>{{ .Count }}</code>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="pure-u-1-1">
     <h2 id="ssh">SSH Keys</h2>
     <table class="pure-table pure-table-bordered padding">
         <tbody>
-            {{ range .Info.Keys }}
+            {{ range .Info.SSHKeys }}
             <tr>
                 <td>
                     <code>{{ . }}</code>
