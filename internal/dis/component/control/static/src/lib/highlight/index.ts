@@ -1,7 +1,17 @@
 import dayjs from "dayjs"
 const types: Record<string, (element: HTMLElement) => HTMLElement | string> = {
     "date": (element) => {
-        return dayjs(element.innerText).format('YYYY-MM-DD HH:mm:ss ([UTC]Z)')
+        const value =  dayjs(element.innerText);
+        const text = value.format('YYYY-MM-DD HH:mm:ss ([UTC]Z)')
+
+        // if the date is the zero date, then it is assumed to be invalid
+        if (value.unix() === 0) {
+            const code = document.createElement('code')
+            code.style.color = 'gray'
+            code.append(text)
+            return code
+        }
+        return text
     },
     "path": (element) => {
         const text = element.innerText.split("/");

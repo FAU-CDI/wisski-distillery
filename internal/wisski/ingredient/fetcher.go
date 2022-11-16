@@ -84,12 +84,29 @@ type BundleStatistics struct {
 
 		Count int `json:"entities"`
 
-		LastEdit int `json:"lastEdit"`
+		LastEdit phpx.TimeInt `json:"lastEdit"`
 
-		MainBundle phpx.BooleanIsh `json:"mainBundle"`
+		MainBundle phpx.PHPBoolean `json:"mainBundle"`
 	} `json:"bundleStatistics"`
 	TotalBundles     int `json:"totalBundles"`
 	TotalMainBundles int `json:"totalMainBundles"`
+}
+
+type LastEdit struct {
+	Time  time.Time
+	Valid bool
+}
+
+// LastEdit returns the last time any bundle was edited, and if any edit was bigger than the reference time
+func (bs BundleStatistics) LastEdit() (le LastEdit) {
+	for _, bundle := range bs.Bundles {
+		time := bundle.LastEdit.Time()
+		if time.After(le.Time) {
+			le.Valid = true
+			le.Time = time
+		}
+	}
+	return
 }
 
 func (bs BundleStatistics) Summary() string {

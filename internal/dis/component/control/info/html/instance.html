@@ -310,7 +310,7 @@
                             <code>{{ .Count }}</code>
                         </td>
                         <td>
-                            <code>{{ .LastEdit }}</code>
+                            <code class="date">{{ .LastEdit.Time.Format "2006-01-02T15:04:05Z07:00" }}</code>
                         </td>
                         <td>
                             <code>{{ .MainBundle }}</code>
