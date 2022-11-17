@@ -23,6 +23,7 @@ func init() {
 	// setup commands
 	wdcli.Register(cmd.Bootstrap)
 	wdcli.Register(cmd.SystemUpdate)
+	wdcli.Register(cmd.SystemPause)
 
 	// sql commands
 	wdcli.Register(cmd.Mysql)
