@@ -15,7 +15,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/legacyssh"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
@@ -108,8 +107,6 @@ func (dis *Distillery) Info() *info.Info {
 func (dis *Distillery) allComponents() []initFunc {
 	return []initFunc{
 		auto[*web.Web],
-
-		auto[*legacyssh.SSH],
 
 		manual(func(ts *triplestore.Triplestore) {
 			ts.BaseURL = "http://" + dis.Upstream.Triplestore
