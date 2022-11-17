@@ -3,6 +3,7 @@ package ssh2
 import (
 	"embed"
 	"path/filepath"
+	"strconv"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -33,6 +34,8 @@ func (ssh *SSH2) Stack(env environment.Environment) component.StackWithResources
 			"GLOBAL_AUTHORIZED_KEYS_FILE": ssh.Config.GlobalAuthorizedKeysFile,
 			"SELF_OVERRIDES_FILE":         ssh.Config.SelfOverridesFile,
 			"SELF_RESOLVER_BLOCK_FILE":    ssh.Config.SelfResolverBlockFile,
+
+			"SSH_PORT": strconv.FormatUint(uint64(ssh.Config.PublicSSHPort), 10),
 		},
 
 		CopyContextFiles: []string{bootstrap.Executable},

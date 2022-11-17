@@ -46,6 +46,7 @@ var knownParsers map[string]Parser[any] = map[string]Parser[any]{
 	"domain":    asGenericParser(ParseValidDomain),
 	"domains":   asGenericParser(ParseValidDomains),
 	"number":    asGenericParser(ParseNumber),
+	"port":      asGenericParser(ParsePort),
 	"https_url": asGenericParser(ParseHttpsURL),
 	"slug":      asGenericParser(ParseSlug),
 	"file":      asGenericParser(ParseFile),

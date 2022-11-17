@@ -76,6 +76,12 @@ func ParseNumber(env environment.Environment, s string) (int, error) {
 	return int(value), err
 }
 
+// ParsePort parses s as a port
+func ParsePort(env environment.Environment, s string) (uint16, error) {
+	value, err := strconv.ParseUint(s, 10, 16)
+	return uint16(value), err
+}
+
 // ParseHttpsURL parses a string into a url that starts with 'https://'
 func ParseHttpsURL(env environment.Environment, s string) (*url.URL, error) {
 	url, err := url.Parse(s)

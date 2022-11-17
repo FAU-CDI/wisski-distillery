@@ -68,6 +68,9 @@ type Config struct {
 	// This variable can be used to determine their length.
 	PasswordLength int `env:"PASSWORD_LENGTH" default:"64" parser:"number"`
 
+	// Public port to use for the ssh server
+	PublicSSHPort uint16 `env:"SSH_PORT" default:"2222" parser:"port"`
+
 	// A file to be used for global authorized_keys for the ssh server.
 	GlobalAuthorizedKeysFile string `env:"GLOBAL_AUTHORIZED_KEYS_FILE" default:"/var/www/deploy/authorized_keys" parser:"file"`
 

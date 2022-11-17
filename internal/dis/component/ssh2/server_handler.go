@@ -3,6 +3,7 @@ package ssh2
 import (
 	"bufio"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/gliderlabs/ssh"
@@ -34,7 +35,7 @@ is the name of the WissKI you want to you want to connect to.
 
 From a linux (or mac, or windows 11) command line you may use: 
 
-ssh -J ${DOMAIN}:2222 www-data@${HOSTNAME}
+ssh -J ${DOMAIN}:${PORT} www-data@${HOSTNAME}
 
 You may also place the following into your $HOME/.ssh/config file:
 
@@ -44,7 +45,7 @@ Host *.${DOMAIN}
 Host ${DOMAIN}.proxy
   User www-data
   Hostname ${DOMAIN}
-  Port 2222
+  Port ${PORT}
 
 and then connect simply via:
 
@@ -81,6 +82,7 @@ func (ssh2 *SSH2) handleConnection(session ssh.Session) {
 		{"${SLUG}", slug},
 		{"${DOMAIN}", ssh2.Config.DefaultDomain},
 		{"${HOSTNAME}", slug + "." + ssh2.Config.DefaultDomain},
+		{"${PORT}", strconv.FormatUint(uint64(ssh2.Config.PublicSSHPort), 10)},
 	} {
 		banner = strings.ReplaceAll(banner, oldnew[0], oldnew[1])
 	}

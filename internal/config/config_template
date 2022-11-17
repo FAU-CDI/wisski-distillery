@@ -58,6 +58,9 @@ PASSWORD_LENGTH=64
 # A file to be used for global authorized_keys for the ssh server.
 GLOBAL_AUTHORIZED_KEYS_FILE=${AUTHORIZED_KEYS_FILE}
 
+# the port to use for the ssh server
+SSH_PORT=2222
+
 # The admin user and password of the GraphDB interface, to be used for queries
 GRAPHDB_ADMIN_USER=${GRAPHDB_ADMIN_USER}
 GRAPHDB_ADMIN_PASSWORD=${GRAPHDB_ADMIN_PASSWORD}

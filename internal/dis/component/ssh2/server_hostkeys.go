@@ -118,10 +118,10 @@ func (ssh2 *SSH2) makeHostKey(io stream.IOStream, key HostKey, path string) erro
 
 	// generate and write private key as PEM
 	privateKeyFile, err := ssh2.Environment.Create(path, environment.DefaultFilePerm)
-	defer privateKeyFile.Close()
 	if err != nil {
 		return err
 	}
+	defer privateKeyFile.Close()
 	return pem.Encode(privateKeyFile, privateKeyPEM)
 }
 
@@ -228,8 +228,7 @@ func (ek *ed25519HostKey) UnmarshalPEM(block *pem.Block) (err error) {
 	// store the private key and setup the signer
 	ek.pk = &pk
 	ek.Signer, err = gossh.NewSignerFromKey(ek.pk)
-
-	return nil
+	return err
 }
 
 //
