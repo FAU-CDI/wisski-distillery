@@ -11,7 +11,7 @@ type SnapshotsFetcher struct {
 	Info *Info
 }
 
-func (lbr *SnapshotsFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
+func (lbr *SnapshotsFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	if flags.Quick {
 		return
 	}

@@ -8,8 +8,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 )
 
-// Information provides information about a single WissKI
-type Information struct {
+// WissKI provides information about a single WissKI
+type WissKI struct {
 	Time time.Time // Time this info was built
 
 	Slug string // slug

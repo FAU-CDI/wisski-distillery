@@ -55,7 +55,7 @@ type LastUpdateFetcher struct {
 	Drush *Drush
 }
 
-func (lbr *LastUpdateFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
+func (lbr *LastUpdateFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	info.LastUpdate, err = lbr.Drush.LastUpdate()
 	return
 }

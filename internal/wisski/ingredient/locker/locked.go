@@ -18,7 +18,7 @@ func (lock *Locker) Locked() (locked bool) {
 	return
 }
 
-func (locker *Locker) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
+func (locker *Locker) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	info.Locked = locker.Locked()
 	return
 }

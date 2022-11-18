@@ -10,7 +10,7 @@ type WissKIFetcher interface {
 
 	// Fetch fetches information from this ingredient and writes it into target.
 	// Distinct WissKIFetchers must write into distinct fields.
-	Fetch(flags FetcherFlags, target *status.Information) error
+	Fetch(flags FetcherFlags, target *status.WissKI) error
 }
 
 // FetcherFlags describes options for a WissKIFetcher

@@ -44,7 +44,7 @@ type LastCronFetcher struct {
 	Drush *Drush
 }
 
-func (lbr *LastCronFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
+func (lbr *LastCronFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	if flags.Quick {
 		return
 	}

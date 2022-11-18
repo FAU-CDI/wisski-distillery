@@ -33,7 +33,7 @@ func (ssh *SSH) Keys() ([]ssh.PublicKey, error) {
 	return sshx.ParseAllKeys(bytes), nil
 }
 
-func (sshx *SSH) Fetch(flags ingredient.FetcherFlags, info *status.Information) error {
+func (sshx *SSH) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) error {
 	if flags.Quick {
 		return nil
 	}

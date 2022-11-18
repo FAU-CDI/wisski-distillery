@@ -21,7 +21,7 @@ type Info struct {
 
 // Information fetches information about this WissKI.
 // TODO: Rework this to be able to determine what kind of information is available.
-func (wisski *Info) Information(quick bool) (info status.Information, err error) {
+func (wisski *Info) Information(quick bool) (info status.WissKI, err error) {
 	// setup flags
 	flags := ingredient.FetcherFlags{
 		Quick: quick,
@@ -48,7 +48,7 @@ func (wisski *Info) Information(quick bool) (info status.Information, err error)
 	return
 }
 
-func (wisski *Info) Fetch(flags ingredient.FetcherFlags, info *status.Information) error {
+func (wisski *Info) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) error {
 	info.Time = time.Now().UTC()
 	info.Slug = wisski.Slug
 	info.URL = wisski.URL().String()

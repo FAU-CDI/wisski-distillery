@@ -21,7 +21,7 @@ type RunningFetcher struct {
 	Barrel *Barrel
 }
 
-func (rf *RunningFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
+func (rf *RunningFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	info.Running, err = rf.Barrel.Running()
 	return
 }

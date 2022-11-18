@@ -45,7 +45,7 @@ func (pathbuilder *Pathbuilder) GetAll(server *phpx.Server) (pathbuilders map[st
 	return
 }
 
-func (pathbuilder *Pathbuilder) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
+func (pathbuilder *Pathbuilder) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	if flags.Quick {
 		return
 	}

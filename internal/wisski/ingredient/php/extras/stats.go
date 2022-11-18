@@ -28,7 +28,7 @@ func (stats *Stats) Get(server *phpx.Server) (data status.Statistics, err error)
 	return
 }
 
-func (stats *Stats) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
+func (stats *Stats) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	if flags.Quick {
 		return
 	}

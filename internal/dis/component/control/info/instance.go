@@ -24,7 +24,7 @@ type instanceContext struct {
 	Time time.Time
 
 	Instance models.Instance
-	Info     status.Information
+	Info     status.WissKI
 }
 
 func (info *Info) instance(r *http.Request) (is instanceContext, err error) {

@@ -65,7 +65,7 @@ func (home *Home) homeRender() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	context.Instances = make([]status.Information, len(wissKIs))
+	context.Instances = make([]status.WissKI, len(wissKIs))
 
 	// determine their infos
 	var eg errgroup.Group
@@ -86,7 +86,7 @@ func (home *Home) homeRender() ([]byte, error) {
 }
 
 type HomeContext struct {
-	Instances []status.Information
+	Instances []status.WissKI
 
 	Time time.Time
 

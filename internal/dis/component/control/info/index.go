@@ -21,7 +21,7 @@ var indexTemplate = static.AssetsControlIndex.MustParseShared(
 
 type indexContext struct {
 	status.Distillery
-	Instances []status.Information
+	Instances []status.WissKI
 }
 
 func (info *Info) index(r *http.Request) (idx indexContext, err error) {
@@ -31,7 +31,7 @@ func (info *Info) index(r *http.Request) (idx indexContext, err error) {
 
 // Status produces a new observation of the distillery, and a new information of all instances
 // The information on all instances is passed the given quick flag.
-func (info *Info) Status(QuickInformation bool) (target status.Distillery, information []status.Information, err error) {
+func (info *Info) Status(QuickInformation bool) (target status.Distillery, information []status.WissKI, err error) {
 	var group errgroup.Group
 
 	group.Go(func() error {
@@ -42,7 +42,7 @@ func (info *Info) Status(QuickInformation bool) (target status.Distillery, infor
 		}
 
 		// get all of their info!
-		information = make([]status.Information, len(all))
+		information = make([]status.WissKI, len(all))
 		for i, instance := range all {
 			{
 				i := i

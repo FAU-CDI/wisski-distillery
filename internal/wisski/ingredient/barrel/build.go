@@ -70,7 +70,7 @@ type LastRebuildFetcher struct {
 	Barrel *Barrel
 }
 
-func (lbr *LastRebuildFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
+func (lbr *LastRebuildFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	info.LastRebuild, _ = lbr.Barrel.LastRebuild()
 	return
 }
