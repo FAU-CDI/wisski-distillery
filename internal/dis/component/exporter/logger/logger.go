@@ -4,6 +4,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/lib/collection"
 )
@@ -77,8 +78,8 @@ func (log *Logger) Add(export models.Export) error {
 	return nil
 }
 
-// Observe writes the SnapshotLog into the given observation
-func (logger *Logger) Observe(flags component.ObservationFlags, observation *component.Observation) (err error) {
-	observation.Backups, err = logger.For("")
+// Fetch writes the SnapshotLog into the given observation
+func (logger *Logger) Fetch(flags component.FetcherFlags, target *status.Distillery) (err error) {
+	target.Backups, err = logger.For("")
 	return
 }

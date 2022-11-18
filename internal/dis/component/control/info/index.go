@@ -8,7 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -20,18 +20,18 @@ var indexTemplate = static.AssetsControlIndex.MustParseShared(
 )
 
 type indexContext struct {
-	component.Observation
-	Instances []ingredient.Information
+	status.Distillery
+	Instances []status.Information
 }
 
 func (info *Info) index(r *http.Request) (idx indexContext, err error) {
-	idx.Observation, idx.Instances, err = info.Status(true)
+	idx.Distillery, idx.Instances, err = info.Status(true)
 	return
 }
 
 // Status produces a new observation of the distillery, and a new information of all instances
 // The information on all instances is passed the given quick flag.
-func (info *Info) Status(QuickInformation bool) (observation component.Observation, information []ingredient.Information, err error) {
+func (info *Info) Status(QuickInformation bool) (target status.Distillery, information []status.Information, err error) {
 	var group errgroup.Group
 
 	group.Go(func() error {
@@ -42,7 +42,7 @@ func (info *Info) Status(QuickInformation bool) (observation component.Observati
 		}
 
 		// get all of their info!
-		information = make([]ingredient.Information, len(all))
+		information = make([]status.Information, len(all))
 		for i, instance := range all {
 			{
 				i := i
@@ -59,34 +59,34 @@ func (info *Info) Status(QuickInformation bool) (observation component.Observati
 	})
 
 	// gather all the observations
-	var flags component.ObservationFlags
-	for _, o := range info.Obervers {
+	var flags component.FetcherFlags
+	for _, o := range info.Fetchers {
 		o := o
 		group.Go(func() error {
-			return o.Observe(flags, &observation)
+			return o.Fetch(flags, &target)
 		})
 	}
 
-	// wait for all the observes to finish
+	// wait for all the fetchers to finish
 	if err := group.Wait(); err != nil {
-		return component.Observation{}, nil, err
+		return status.Distillery{}, nil, err
 	}
 
 	// count overall instances
 	for _, i := range information {
 		if i.Running {
-			observation.RunningCount++
+			target.RunningCount++
 		} else {
-			observation.StoppedCount++
+			target.StoppedCount++
 		}
 	}
-	observation.TotalCount = len(information)
+	target.TotalCount = len(information)
 
 	return
 }
 
-func (nfo *Info) Observe(flags component.ObservationFlags, observation *component.Observation) error {
-	observation.Time = time.Now().UTC()
-	observation.Config = nfo.Config
+func (nfo *Info) Fetch(flags component.FetcherFlags, target *status.Distillery) error {
+	target.Time = time.Now().UTC()
+	target.Config = nfo.Config
 	return nil
 }

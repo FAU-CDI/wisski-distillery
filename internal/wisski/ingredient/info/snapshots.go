@@ -1,6 +1,9 @@
 package info
 
-import "github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+import (
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+)
 
 type SnapshotsFetcher struct {
 	ingredient.Base
@@ -8,7 +11,7 @@ type SnapshotsFetcher struct {
 	Info *Info
 }
 
-func (lbr *SnapshotsFetcher) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+func (lbr *SnapshotsFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
 	if flags.Quick {
 		return
 	}

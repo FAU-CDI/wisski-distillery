@@ -4,6 +4,7 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"golang.org/x/exp/slices"
@@ -44,7 +45,7 @@ func (pathbuilder *Pathbuilder) GetAll(server *phpx.Server) (pathbuilders map[st
 	return
 }
 
-func (pathbuilder *Pathbuilder) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+func (pathbuilder *Pathbuilder) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
 	if flags.Quick {
 		return
 	}

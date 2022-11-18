@@ -171,6 +171,5 @@ func ExportComponent[Component any, InitParams any, ConcreteComponentType any](
 		}
 	}
 
-	var component ConcreteComponentType
-	return component
+	panic("ExportComponent: Attempted to export unregistered component")
 }

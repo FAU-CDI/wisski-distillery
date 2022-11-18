@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
@@ -54,7 +55,7 @@ type LastUpdateFetcher struct {
 	Drush *Drush
 }
 
-func (lbr *LastUpdateFetcher) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+func (lbr *LastUpdateFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
 	info.LastUpdate, err = lbr.Drush.LastUpdate()
 	return
 }

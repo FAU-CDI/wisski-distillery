@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
@@ -155,7 +156,7 @@ func (wisski *Prefixes) Update() error {
 	return prefix.SetAll(wisski.MStore, prefixes...)
 }
 
-func (prefixes *Prefixes) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+func (prefixes *Prefixes) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
 	info.NoPrefixes = prefixes.NoPrefix()
 	if flags.Quick {
 		// quick mode: grab only the cached prefixes

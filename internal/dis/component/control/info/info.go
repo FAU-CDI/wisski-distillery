@@ -18,7 +18,7 @@ type Info struct {
 	component.Base
 
 	Analytics *lazy.PoolAnalytics
-	Obervers  []component.Observer
+	Fetchers  []component.DistilleryFetcher
 
 	Exporter     *exporter.Exporter
 	Instances    *instances.Instances

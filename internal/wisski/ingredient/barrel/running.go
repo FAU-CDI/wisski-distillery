@@ -1,6 +1,7 @@
 package barrel
 
 import (
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -20,7 +21,7 @@ type RunningFetcher struct {
 	Barrel *Barrel
 }
 
-func (rf *RunningFetcher) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+func (rf *RunningFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
 	info.Running, err = rf.Barrel.Running()
 	return
 }

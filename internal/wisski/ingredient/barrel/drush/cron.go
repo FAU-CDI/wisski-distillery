@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
@@ -43,7 +44,7 @@ type LastCronFetcher struct {
 	Drush *Drush
 }
 
-func (lbr *LastCronFetcher) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+func (lbr *LastCronFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
 	if flags.Quick {
 		return
 	}

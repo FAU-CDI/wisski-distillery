@@ -2,6 +2,7 @@ package locker
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 )
 
@@ -17,7 +18,7 @@ func (lock *Locker) Locked() (locked bool) {
 	return
 }
 
-func (locker *Locker) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+func (locker *Locker) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
 	info.Locked = locker.Locked()
 	return
 }

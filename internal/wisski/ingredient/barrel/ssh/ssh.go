@@ -3,6 +3,7 @@ package ssh
 import (
 	"io"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
@@ -32,7 +33,7 @@ func (ssh *SSH) Keys() ([]ssh.PublicKey, error) {
 	return sshx.ParseAllKeys(bytes), nil
 }
 
-func (sshx *SSH) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) error {
+func (sshx *SSH) Fetch(flags ingredient.FetcherFlags, info *status.Information) error {
 	if flags.Quick {
 		return nil
 	}

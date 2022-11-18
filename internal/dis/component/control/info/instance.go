@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
@@ -24,7 +24,7 @@ type instanceContext struct {
 	Time time.Time
 
 	Instance models.Instance
-	Info     ingredient.Information
+	Info     status.Information
 }
 
 func (info *Info) instance(r *http.Request) (is instanceContext, err error) {

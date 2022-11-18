@@ -5,6 +5,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
@@ -69,7 +70,7 @@ type LastRebuildFetcher struct {
 	Barrel *Barrel
 }
 
-func (lbr *LastRebuildFetcher) Fetch(flags ingredient.FetchFlags, info *ingredient.Information) (err error) {
+func (lbr *LastRebuildFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Information) (err error) {
 	info.LastRebuild, _ = lbr.Barrel.LastRebuild()
 	return
 }
