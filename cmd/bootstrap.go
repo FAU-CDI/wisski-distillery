@@ -193,7 +193,8 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	// Tell the user how to proceed
 	logging.LogMessage(context.IOStream, "Bootstrap is complete")
 	context.Printf("Adjust the configuration file at %s\n", envPath)
-	context.Printf("Then grab a GraphDB zipped source file and run:\n")
+	context.Printf("Then make sure 'docker compose' is installed.\n")
+	context.Printf("Finally grab a GraphDB zipped source file and run:\n")
 	context.Printf("%s system_update /path/to/graphdb.zip\n", wdcliPath)
 
 	return nil

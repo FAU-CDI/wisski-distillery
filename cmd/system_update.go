@@ -20,8 +20,8 @@ import (
 var SystemUpdate wisski_distillery.Command = systemupdate{}
 
 type systemupdate struct {
-	SkipCoreUpdates bool `short:"s" long:"skip-core-updates" description:"Skip applying operating system and other core system updates"`
-	Positionals     struct {
+	InstallDocker bool `short:"a" long:"install-docker" description:"Try to automatically install docker. Assumes 'apt-get' as a package manager. "`
+	Positionals   struct {
 		GraphdbZip string `positional-arg-name:"PATH_TO_GRAPHDB_ZIP" required:"1-1" description:"path to the graphdb.zip file"`
 	} `positional-args:"true"`
 }
@@ -79,7 +79,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		}
 	}
 
-	if !si.SkipCoreUpdates {
+	if si.InstallDocker {
 		// install system updates
 		logging.LogMessage(context.IOStream, "Updating Operating System Packages")
 		if err := si.mustExec(context, "", "apt-get", "update"); err != nil {
@@ -98,6 +98,16 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		if err := si.mustExec(context, "", "/bin/sh", "-c", "curl -fsSL https://get.docker.com -o - | /bin/sh"); err != nil {
 			return err
 		}
+	}
+
+	logging.LogMessage(context.IOStream, "Checking that 'docker' is installed")
+	if err := si.mustExec(context, "", "docker", "--version", dis.Config.DockerNetworkName); err != nil {
+		return err
+	}
+
+	logging.LogMessage(context.IOStream, "Checking that 'docker compose' is available")
+	if err := si.mustExec(context, "", "docker", "compose", "version"); err != nil {
+		return err
 	}
 
 	// create the docker network

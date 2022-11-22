@@ -48,9 +48,7 @@ Finally two other components exist:
 # Technical Overview
 
 The go command is almost dependency free. 
-It expects that a basic debian system (in particular the `apt-get` command) is available.
-The command has been tested only under Debian 10, but may also work under older or newer versions.
-The command expects to be run as root, and will fail when this is not the case.
+It only expects that `docker` and `docker compose` are available.
 
 Each subcommand comes with documentation, which can be found in this readme (and the readme is always outdated), as well as via the command line when passing a `--help` flag.
 
