@@ -5,6 +5,7 @@ services:
         image: mariadb
         volumes:
             - "./data/:/var/lib/mysql"
+            - "./imports/:/imports/"
         ports:
             - 127.0.0.1:3306:3306
         labels:

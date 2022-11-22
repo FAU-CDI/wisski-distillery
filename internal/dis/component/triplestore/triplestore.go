@@ -47,6 +47,7 @@ func (ts *Triplestore) Stack(env environment.Environment) component.StackWithRes
 			filepath.Join("data", "data"),
 			filepath.Join("data", "work"),
 			filepath.Join("data", "logs"),
+			filepath.Join("data", "import"),
 		},
 	})
 }

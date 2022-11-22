@@ -48,6 +48,7 @@ func (sql *SQL) Stack(env environment.Environment) component.StackWithResources 
 		MakeDirsPerm: environment.DefaultDirPerm,
 		MakeDirs: []string{
 			"data",
+			"imports",
 		},
 	})
 }
