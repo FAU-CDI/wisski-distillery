@@ -48,6 +48,7 @@ func init() {
 	wdcli.Register(cmd.Pathbuilders)
 	wdcli.Register(cmd.Prefixes)
 	wdcli.Register(cmd.DrupalSetting)
+	wdcli.Register(cmd.DrupalUser)
 
 	// backup & cron
 	wdcli.Register(cmd.Snapshot)
