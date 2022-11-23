@@ -82,6 +82,10 @@ type Config struct {
 	MysqlAdminUser     string `env:"MYSQL_ADMIN_USER" default:"admin" parser:"nonempty"`
 	MysqlAdminPassword string `env:"MYSQL_ADMIN_PASSWORD" default:"" parser:"nonempty"`
 
+	// admin credentials for the keycloak server
+	KeycloakAdminUser     string `env:"KEYCLOAK_ADMIN_USER" default:"admin" parser:"nonempty"`
+	KeycloakAdminPassword string `env:"KEYCLOAK_ADMIN_PASSWORD" default:"" parser:"nonempty"`
+
 	// admin credentials for the dis server
 	DisAdminUser     string `env:"DIS_ADMIN_USER" default:"admin" parser:"nonempty"`
 	DisAdminPassword string `env:"DIS_ADMIN_PASSWORD" default:"" parser:"nonempty"`

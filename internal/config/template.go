@@ -28,6 +28,8 @@ type Template struct {
 	MysqlAdminPassword       string `env:"MYSQL_ADMIN_PASSWORD"`
 	DisAdminUsername         string `env:"DIS_ADMIN_USER"`
 	DisAdminPassword         string `env:"DIS_ADMIN_PASSWORD"`
+	KeycloakAdminUser        string `env:"KEYCLOAK_ADMIN_USER"`
+	KeycloakAdminPassword    string `env:"KEYCLOAK_ADMIN_PASSWORD"`
 	DockerNetworkName        string `env:"DOCKER_NETWORK_NAME"`
 }
 
@@ -70,6 +72,17 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 
 	if tpl.MysqlAdminPassword == "" {
 		tpl.MysqlAdminPassword, err = password.Password(64)
+		if err != nil {
+			return err
+		}
+	}
+
+	if tpl.KeycloakAdminUser == "" {
+		tpl.KeycloakAdminUser = "admin"
+	}
+
+	if tpl.KeycloakAdminPassword == "" {
+		tpl.KeycloakAdminPassword, err = password.Password(64)
 		if err != nil {
 			return err
 		}

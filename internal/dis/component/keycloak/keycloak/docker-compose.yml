@@ -1,0 +1,18 @@
+version: "3.7"
+
+services:
+    solr:
+        image: docker.io/library/solr:8.11-slim
+        ports:
+            - "127.0.0.1:8983:8983"
+        volumes:
+            - './data/:/var/solr'
+        labels:
+            - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
+
+        restart: always
+
+networks:
+    default:
+        name: ${DOCKER_NETWORK_NAME}
+        external: true
