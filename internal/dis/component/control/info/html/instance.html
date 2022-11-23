@@ -177,31 +177,34 @@
 </div>
 
 <div class="pure-u-1 pure-u-xl-2-5">
-    <!--
-                <div class="padding">
-                    <div class="overflow">
-                        <table class="pure-table pure-table-bordered">
-                            <thead>
-                                <tr>
-                                    <th colspan="2">
-                                        Composer Status
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        ???
-                                    </td>
-                                    <td>
-                                        ???
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                -->
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="2">
+                            Users
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ $slug := .Instance.Slug }}
+                    {{ range $index, $user := .Info.Users }}
+                    <tr>
+                        <td>
+                            <code>{{ $user }}</code>
+                        </td>
+                        <td>
+                            <small>
+                                <button class="remote-link pure-button pure-button-action" role="link" data-action="login" data-params="{{ $slug }} {{ $user }} ">Login in new window</button>
+                            </small>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <div class="pure-u-1-1">

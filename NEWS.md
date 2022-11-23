@@ -2,6 +2,9 @@
 
 This file contains signficant news items for the distillery.
 
+# Login using Distillery Administration (2022-11-23)
+- The admin interface now allows login to individual user accounts
+
 # Showing Statistics (2022-11-16)
 - The distillery nows shows generic statistics on the public homepage 
 - detailed statistics can be found on the admin interface

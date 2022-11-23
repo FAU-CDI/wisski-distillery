@@ -46,8 +46,8 @@ function makeTextBuffer(target: HTMLElement, scrollContainer: HTMLElement, size:
     return println;
 }
 
-const elements = document.getElementsByClassName('remote-action')
-Array.from(elements).forEach((element) => {
+const remote_action = document.getElementsByClassName('remote-action')
+Array.from(remote_action).forEach((element) => {
     const action = element.getAttribute('data-action') as string;
     const reload = element.hasAttribute('data-force-reload');
     const param = element.getAttribute('data-param') as string | undefined;
@@ -123,3 +123,58 @@ Array.from(elements).forEach((element) => {
         });
     });
 })
+
+const remote_link = document.getElementsByClassName('remote-link')
+Array.from(remote_link).forEach((element) => {
+    const action = element.getAttribute('data-action') as string;
+    const param = element.getAttribute('data-params') as string | undefined;
+    const params = param?.split(" ");
+
+    element.addEventListener('click', function (ev) {
+        ev.preventDefault();
+
+        getValue(action, params).then(v => {
+            window.open(v);
+        }).catch(e => {
+            console.error(e);
+        })
+    });
+})
+
+async function getValue(action: string, params?: Array<string>): Promise<any> {
+    return new Promise((rs, rj) => {
+        let buffer = "";
+        var resolve = function() {
+            const index = buffer.indexOf('\n')
+            if (index < 0) {
+                rj("invalid buffer");
+                return
+            }
+            
+            // check that the server sent back true
+            const ok = buffer.substring(0, index) === 'true';
+            if(!ok) {
+                rj(buffer);
+                return
+            }
+
+            // parse the rest as json
+            const value = JSON.parse(buffer.substring(index+1))
+            rs(value);
+        }
+
+        connectSocket((socket) => {
+            socket.send(action);
+            if (params) {
+                params.forEach(p => socket.send(p))
+            }
+        }, (data) => {
+            buffer += data + "\n";
+        }).then(() => {
+            resolve();
+        }).catch(() => {
+            buffer = "false\n";
+            resolve();
+        });
+    })
+}

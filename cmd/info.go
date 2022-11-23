@@ -96,5 +96,10 @@ func (i info) Run(context wisski_distillery.Context) error {
 		context.Printf("- %s (%d bytes)\n", name, len(data))
 	})
 
+	context.Printf("Users: (count %d)\n", len(info.Users))
+	for _, user := range info.Users {
+		context.Printf("- %s\n", user)
+	}
+
 	return nil
 }

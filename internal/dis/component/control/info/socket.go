@@ -1,6 +1,9 @@
 package info
 
 import (
+	"encoding/json"
+	"time"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -8,28 +11,48 @@ import (
 	"github.com/tkw1536/goprogram/stream"
 )
 
-type instanceActionFunc = func(info *Info, instance *wisski.WissKI, str stream.IOStream) error
+type InstanceAction struct {
+	NumParams int
 
-var socketInstanceActions = map[string]instanceActionFunc{
-	"snapshot": func(info *Info, instance *wisski.WissKI, str stream.IOStream) error {
-		return info.Exporter.MakeExport(
-			str,
-			exporter.ExportTask{
-				Dest:     "",
-				Instance: instance,
+	HandleInteractive func(info *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error
+	HandleResult      func(info *Info, instance *wisski.WissKI, params ...string) (value any, err error)
+}
 
-				StagingOnly: false,
-			},
-		)
+var socketInstanceActions = map[string]InstanceAction{
+	"snapshot": {
+		HandleInteractive: func(info *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+			return info.Exporter.MakeExport(
+				str,
+				exporter.ExportTask{
+					Dest:     "",
+					Instance: instance,
+
+					StagingOnly: false,
+				},
+			)
+		},
 	},
-	"rebuild": func(_ *Info, instance *wisski.WissKI, str stream.IOStream) error {
-		return instance.Barrel().Build(str, true)
+	"rebuild": {
+		HandleInteractive: func(_ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+			return instance.Barrel().Build(str, true)
+		},
 	},
-	"update": func(_ *Info, instance *wisski.WissKI, str stream.IOStream) error {
-		return instance.Drush().Update(str)
+	"update": {
+		HandleInteractive: func(_ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+			return instance.Drush().Update(str)
+		},
 	},
-	"cron": func(_ *Info, instance *wisski.WissKI, str stream.IOStream) error {
-		return instance.Drush().Cron(str)
+	"cron": {
+		HandleInteractive: func(_ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+			return instance.Drush().Cron(str)
+		},
+	},
+	"login": {
+		NumParams: 1,
+		HandleResult: func(_ *Info, instance *wisski.WissKI, params ...string) (any, error) {
+			link, err := instance.Drush().Login(stream.FromNil(), params[0])
+			return link, err
+		},
 	},
 }
 
@@ -47,20 +70,38 @@ func (info *Info) serveSocket(conn httpx.WebSocketConnection) {
 	}
 }
 
-func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action instanceActionFunc) {
+var instanceParamsTimeout = time.Second
+
+func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action InstanceAction) {
 
 	// read the slug
 	slug, ok := <-conn.Read()
 	if !ok {
-		conn.WriteText("Error reading slug")
+		<-conn.WriteText("Error reading slug")
 		return
 	}
 
 	// resolve the instance
 	instance, err := info.Instances.WissKI(string(slug.Bytes))
 	if err != nil {
-		conn.WriteText("Instance not found")
+		<-conn.WriteText("Instance not found")
 		return
+	}
+
+	// read the parameters
+	params := make([]string, action.NumParams)
+	for i := range params {
+		select {
+		case message, ok := <-conn.Read():
+			if !ok {
+				<-conn.WriteText("Insufficient parameters")
+				return
+			}
+			params[i] = string(message.Bytes)
+		case <-time.After(instanceParamsTimeout):
+			<-conn.WriteText("Timed out reading parameters")
+			return
+		}
 	}
 
 	// build a stream
@@ -74,13 +115,31 @@ func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action in
 
 	str := stream.NewIOStream(writer, writer, nil, 0)
 
-	// and perform the action
-	{
-		err := action(info, instance, str)
+	// handle the interactive action
+	if action.HandleInteractive != nil {
+		err := action.HandleInteractive(info, instance, str, params...)
 		if err != nil {
 			str.EPrintln(err)
 			return
 		}
 		str.Println("done")
 	}
+
+	// handle the result computation
+	if action.HandleResult != nil {
+		result, err := action.HandleResult(info, instance, params...)
+		if err != nil {
+			str.Println("false")
+			return
+		}
+		data, err := json.Marshal(result)
+		if err != nil {
+			str.Println("false")
+			return
+		}
+		data = append(data, "\n"...)
+		str.Println("true")
+		str.Stdout.Write(data)
+	}
+
 }
