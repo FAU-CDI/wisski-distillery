@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io"
+	"sync"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -120,10 +121,13 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		"graphdb.zip": si.Positionals.GraphdbZip,
 	}
 
+	var updated = make(map[string]struct{})
+	var updateMutex sync.Mutex
+
 	if err := logging.LogOperation(func() error {
 		return status.RunErrorGroup(context.Stdout, status.Group[component.Installable, error]{
 			PrefixString: func(item component.Installable, index int) string {
-				return fmt.Sprintf("[install %q]: ", item.Name())
+				return fmt.Sprintf("[update %q]: ", item.Name())
 			},
 			PrefixAlign: true,
 
@@ -139,7 +143,18 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 					return err
 				}
 
-				return nil
+				ud, ok := item.(component.Updatable)
+				if !ok {
+					return nil
+				}
+
+				defer func() {
+					updateMutex.Lock()
+					defer updateMutex.Unlock()
+					updated[item.ID()] = struct{}{}
+				}()
+
+				return ud.Update(io)
 			},
 		}, dis.Installable())
 	}, context.IOStream, "Performing Stack Updates"); err != nil {
@@ -147,10 +162,15 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	if err := logging.LogOperation(func() error {
-		for _, component := range dis.Updatable() {
-			name := component.Name()
+		for _, item := range dis.Updatable() {
+			name := item.Name()
 			if err := logging.LogOperation(func() error {
-				return component.Update(context.IOStream)
+				_, ok := updated[item.ID()]
+				if ok {
+					context.Println("Already updated")
+					return nil
+				}
+				return item.Update(context.IOStream)
 			}, context.IOStream, "Updating Component: %s", name); err != nil {
 				return errBootstrapComponent.WithMessageF(name, err)
 			}
