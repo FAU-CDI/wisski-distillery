@@ -7,6 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/envreader"
 	"github.com/FAU-CDI/wisski-distillery/pkg/stringparser"
+	"github.com/pkg/errors"
 )
 
 // Unmarshal updates this configuration from the provided [io.Reader].
@@ -45,15 +46,14 @@ func (config *Config) Unmarshal(env environment.Environment, src io.Reader) erro
 		// read the value with a default
 		value, ok := values[tEnv]
 		if !ok || value == "" {
-			if tDefault == "" {
-				continue
+			if tDefault != "" {
+				value = tDefault
 			}
-			value = tDefault
 		}
 
 		// parse the value!
 		if err := stringparser.Parse(env, tParser, value, vField); err != nil {
-			return err
+			return errors.Errorf("Config.Unmarshal: Setting %q, Parser %q: %s", tEnv, tParser, err)
 		}
 	}
 

@@ -8,19 +8,21 @@ import (
 	"github.com/pkg/errors"
 )
 
+var errUnknownParser = errors.New("unknown parser")
+
 // Parse parses the provided value with the parser.
 func Parse(env environment.Environment, name, value string, vField reflect.Value) error {
 
 	// use the validator
 	parser, ok := knownParsers[strings.ToLower(name)]
 	if parser == nil || !ok {
-		return errors.Errorf("unknown parser %q", name)
+		return errUnknownParser
 	}
 
 	// get the parsed value
 	checked, err := parser(env, value)
 	if err != nil {
-		return errors.Wrapf(err, "parser %s returned error", name)
+		return err
 	}
 
 	// set the value of the field
@@ -34,7 +36,7 @@ func Parse(env environment.Environment, name, value string, vField reflect.Value
 
 	// capture any error
 	if errSet != nil {
-		return errors.Errorf("parser %s: set returned %v", name, errSet)
+		return errors.Errorf("set returned %v", name, errSet)
 	}
 
 	return nil

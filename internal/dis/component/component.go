@@ -20,6 +20,10 @@ type Component interface {
 	// Name should be implemented by the [ComponentBase] struct.
 	Name() string
 
+	// ID returns a unique id of this component
+	// ID should be implemented by the [ComponentBase] struct.
+	ID() string
+
 	// getBase returns the underlying ComponentBase object of this Component.
 	// It is used internally during initialization
 	getBase() *Base
@@ -27,8 +31,8 @@ type Component interface {
 
 // Base is embedded into every Component
 type Base struct {
-	name  string // name is the name of this component
-	Still        // the underlying still of the distillery
+	name, id string // name and id of this component
+	Still           // the underlying still of the distillery
 }
 
 //lint:ignore U1000 used to implement the private methods of [Component]
@@ -41,12 +45,20 @@ func (cb *Base) getBase() *Base {
 func Init(component Component, core Still) Component {
 	base := component.getBase() // pointer to a struct
 	base.Still = core
-	base.name = strings.ToLower(reflect.TypeOf(component).Elem().Name())
+
+	tp := reflect.TypeOf(component).Elem()
+	base.name = strings.ToLower(tp.Name())
+	base.id = tp.PkgPath() + "." + tp.Name()
+
 	return component
 }
 
 func (cb Base) Name() string {
 	return cb.name
+}
+
+func (cb Base) ID() string {
+	return cb.id
 }
 
 // Still represents the central part of a distillery.
