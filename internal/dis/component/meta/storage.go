@@ -6,6 +6,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/tkw1536/goprogram/lib/collection"
 	"gorm.io/gorm"
 )
 
@@ -175,4 +176,43 @@ func (s Storage) Purge() error {
 		return status.Error
 	}
 	return nil
+}
+
+// TypedKey represents a convenience wrapper for a given with a given value.
+type TypedKey[Value any] Key
+
+func (f TypedKey[Value]) Get(s *Storage) (value Value, err error) {
+	err = s.Get(Key(f), &value)
+	return
+}
+
+func (f TypedKey[Value]) GetOrSet(s *Storage, dflt Value) (value Value, err error) {
+	value, err = f.Get(s)
+	if err == ErrMetadatumNotSet {
+		value = dflt
+		err = f.Set(s, value)
+	}
+	return
+}
+
+func (f TypedKey[Value]) GetAll(m *Storage) (values []Value, err error) {
+	err = m.GetAll(Key(f), func(index, total int) any {
+		if values == nil {
+			values = make([]Value, total)
+		}
+		return &values[index]
+	})
+	return values, err
+}
+
+func (f TypedKey[Value]) Set(m *Storage, value Value) error {
+	return m.Set(Key(f), value)
+}
+
+func (f TypedKey[Value]) SetAll(m *Storage, values ...Value) error {
+	return m.SetAll(Key(f), collection.AsAny(values)...)
+}
+
+func (f TypedKey[Value]) Delete(m *Storage) error {
+	return m.Delete(Key(f))
 }

@@ -3,7 +3,6 @@ package mstore
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/tkw1536/goprogram/lib/collection"
 )
 
 // MStore implements metadata storage for this WissKI
@@ -13,29 +12,26 @@ type MStore struct {
 }
 
 // For is a Store for the provided value
-type For[Value any] meta.Key
+type For[Value any] meta.TypedKey[Value]
 
 func (f For[Value]) Get(m *MStore) (value Value, err error) {
-	err = m.Storage.Get(meta.Key(f), &value)
-	return
+	return meta.TypedKey[Value](f).Get(m.Storage)
 }
 
 func (f For[Value]) GetAll(m *MStore) (values []Value, err error) {
-	err = m.Storage.GetAll(meta.Key(f), func(index, total int) any {
-		if values == nil {
-			values = make([]Value, total)
-		}
-		return &values[index]
-	})
-	return values, err
+	return meta.TypedKey[Value](f).GetAll(m.Storage)
+}
+
+func (f For[Value]) GetOrSet(m *MStore, dflt Value) (value Value, err error) {
+	return meta.TypedKey[Value](f).GetOrSet(m.Storage, dflt)
 }
 
 func (f For[Value]) Set(m *MStore, value Value) error {
-	return m.Storage.Set(meta.Key(f), value)
+	return meta.TypedKey[Value](f).Set(m.Storage, value)
 }
 
 func (f For[Value]) SetAll(m *MStore, values ...Value) error {
-	return m.Storage.SetAll(meta.Key(f), collection.AsAny(values)...)
+	return meta.TypedKey[Value](f).SetAll(m.Storage, values...)
 }
 
 func (f For[Value]) Delete(m *MStore) error {
