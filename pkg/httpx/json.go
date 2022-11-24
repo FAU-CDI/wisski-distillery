@@ -5,9 +5,6 @@ import (
 	"net/http"
 )
 
-var jsonInternalServerErr = []byte(`{"status":"internal server error"}`)
-var jsonNotFound = []byte(`{"status":"not found"}`)
-
 // JSON creates a new JSONHandler
 func JSON[T any](f func(r *http.Request) (T, error)) JSONHandler[T] {
 	return JSONHandler[T](f)
@@ -22,19 +19,8 @@ func (j JSONHandler[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// call the function
 	result, err := j(r)
 
-	// entity not found
-	if err == ErrNotFound {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusNotFound)
-		w.Write(jsonNotFound)
-		return
-	}
-
-	// handle other errors
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write(jsonInternalServerErr)
+	// handle any errors
+	if jsonInterceptor.Intercept(w, r, err) {
 		return
 	}
 
