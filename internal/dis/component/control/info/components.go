@@ -2,7 +2,6 @@ package info
 
 import (
 	"net/http"
-	"strings"
 	"time"
 
 	_ "embed"
@@ -12,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
+	"github.com/gorilla/mux"
 )
 
 //go:embed "html/components.html"
@@ -51,12 +51,8 @@ type ingredientsContext struct {
 func (info *Info) ingredients(r *http.Request) (cp ingredientsContext, err error) {
 	cp.Time = time.Now().UTC()
 
-	// find the slug as the last component of path!
-	slug := strings.TrimSuffix(r.URL.Path, "/")
-	slug = slug[strings.LastIndex(slug, "/")+1:]
-
 	// find the instance itself!
-	instance, err := info.Instances.WissKI(slug)
+	instance, err := info.Instances.WissKI(mux.Vars(r)["slug"])
 	if err == instances.ErrWissKINotFound {
 		return cp, httpx.ErrNotFound
 	}

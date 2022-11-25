@@ -1,21 +1,28 @@
 package cmd
 
 import (
+	"fmt"
+	"io"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	wstatus "github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/goprogram/status"
 )
 
 // DrupalUser is the 'drupal_user' setting
 var DrupalUser wisski_distillery.Command = duser{}
 
 type duser struct {
-	Passwd      bool `short:"p" long:"password" description:"reset password for user"`
-	Login       bool `short:"l" long:"login" description:"print url to login as"`
-	Positionals struct {
+	CheckCommonPasswords   bool `short:"d" long:"check-common-passwords" description:"check for most common passwords. Operates on all users concurrently."`
+	CheckPasswdInteractive bool `short:"c" long:"check-password" description:"interactively check user password"`
+	ResetPasswd            bool `short:"r" long:"reset-password" description:"reset password for user"`
+	Login                  bool `short:"l" long:"login" description:"print url to login as"`
+	Positionals            struct {
 		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to manage"`
-		User string `positional-arg-name:"USER" description:"username to manage"`
+		User string `positional-arg-name:"USER" description:"username to manage. May be omitted for some actions"`
 	} `positional-args:"true"`
 }
 
@@ -29,6 +36,39 @@ func (duser) Description() wisski_distillery.Description {
 	}
 }
 
+var errNoActionSelected = exit.Error{
+	Message:  "exactly one action must be selected",
+	ExitCode: exit.ExitGeneric,
+}
+
+var errUserParameter = exit.Error{
+	Message:  "incorrect username parameter",
+	ExitCode: exit.ExitGeneric,
+}
+
+func (du duser) AfterParse() error {
+	var count int
+	for _, s := range []bool{
+		du.CheckCommonPasswords,
+		du.CheckPasswdInteractive,
+		du.ResetPasswd,
+		du.Login,
+	} {
+		if s {
+			count++
+		}
+	}
+	if count != 1 {
+		return errNoActionSelected
+	}
+
+	if du.CheckCommonPasswords != (du.Positionals.User == "") {
+		return errUserParameter
+	}
+
+	return nil
+}
+
 var errPasswordsNotIdentical = exit.Error{
 	Message:  "Passwords are not identical",
 	ExitCode: exit.ExitGeneric,
@@ -40,18 +80,84 @@ func (du duser) Run(context wisski_distillery.Context) error {
 		return err
 	}
 
-	if du.Passwd {
+	switch {
+	case du.CheckCommonPasswords:
+		return du.checkCommonPassword(context, instance)
+	case du.CheckPasswdInteractive:
+		return du.checkPasswordInteractive(context, instance)
+	case du.ResetPasswd:
 		return du.resetPassword(context, instance)
+	case du.Login:
+		return du.login(context, instance)
 	}
-	return du.login(context, instance)
+	panic("never reached")
 }
 
 func (du duser) login(context wisski_distillery.Context, instance *wisski.WissKI) error {
-	link, err := instance.Drush().Login(context.IOStream, du.Positionals.User)
+	link, err := instance.Users().Login(nil, du.Positionals.User)
 	if err != nil {
 		return err
 	}
 	context.Println(link)
+	return nil
+}
+
+var errPasswordFound = exit.Error{
+	Message:  "User had a dictionary password",
+	ExitCode: 5,
+}
+
+func (du duser) checkCommonPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
+	users := instance.Users()
+
+	entities, err := users.All(nil)
+	if err != nil {
+		return err
+	}
+
+	return status.RunErrorGroup(context.Stderr, status.Group[wstatus.User, error]{
+		PrefixString: func(item wstatus.User, index int) string {
+			return fmt.Sprintf("User[%q]: ", item.Name)
+		},
+		PrefixAlign: true,
+		Handler: func(user wstatus.User, index int, writer io.Writer) error {
+			pv, err := users.GetPasswordValidator(string(user.Name))
+			if err != nil {
+				return err
+			}
+			defer pv.Close()
+
+			return pv.CheckDictionary(context.Environment.Context(), writer)
+		},
+	}, entities)
+}
+
+func (du duser) checkPasswordInteractive(context wisski_distillery.Context, instance *wisski.WissKI) error {
+	validator, err := instance.Users().GetPasswordValidator(du.Positionals.User)
+	if err != nil {
+		return err
+	}
+	defer validator.Close()
+
+	for {
+		context.Printf("Enter a password to check:")
+		candidate, err := context.IOStream.ReadPassword()
+		if err != nil {
+			return err
+		}
+		context.Println()
+
+		if candidate == "" {
+			break
+		}
+
+		if validator.Check(candidate) {
+			context.Println("check passed")
+		} else {
+			context.Println("check did not pass")
+		}
+	}
+
 	return nil
 }
 
@@ -61,16 +167,18 @@ func (du duser) resetPassword(context wisski_distillery.Context, instance *wissk
 	if err != nil {
 		return err
 	}
+	context.Println()
 
 	context.Printf("Enter the same password again:")
 	passwd2, err := context.IOStream.ReadPassword()
 	if err != nil {
 		return err
 	}
+	context.Println()
 
 	if passwd1 != passwd2 {
 		return errPasswordsNotIdentical
 	}
 
-	return instance.Drush().ResetPassword(context.IOStream, du.Positionals.User, passwd1)
+	return instance.Users().SetPassword(nil, du.Positionals.User, passwd1)
 }

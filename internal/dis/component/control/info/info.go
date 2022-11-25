@@ -7,6 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
+	"github.com/gorilla/mux"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -27,50 +28,71 @@ type Info struct {
 
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
-func (info *Info) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {
-	mux := http.NewServeMux()
+func (info *Info) Handler(route string, context context.Context, io stream.IOStream) (handler http.Handler, err error) {
+	router := mux.NewRouter()
+	{
+		socket := &httpx.WebSocket{
+			Context:  context,
+			Fallback: router,
+			Handler:  info.serveSocket,
+		}
+		handler = httpx.BasicAuth(socket, "WissKI Distillery Admin", func(user, pass string) bool {
+			return user == info.Config.DisAdminUser && pass == info.Config.DisAdminPassword
+		})
+	}
 
 	// handle everything
-	mux.HandleFunc(route, func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == route {
-			http.Redirect(w, r, route+"/index", http.StatusTemporaryRedirect)
-			return
-		}
-		http.NotFound(w, r)
+	router.Path(route).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, route+"/index", http.StatusTemporaryRedirect)
 	})
 
 	// add a handler for the index page
-	mux.Handle(route+"index", httpx.HTMLHandler[indexContext]{
+	router.Path(route + "index").Handler(httpx.HTMLHandler[indexContext]{
 		Handler:  info.index,
 		Template: indexTemplate,
 	})
 
 	// add a handler for the component page
-	mux.Handle(route+"components", httpx.HTMLHandler[componentContext]{
+	router.Path(route + "components").Handler(httpx.HTMLHandler[componentContext]{
 		Handler:  info.components,
 		Template: componentsTemplate,
 	})
 
 	// add a handler for the component page
-	mux.Handle(route+"ingredients/", httpx.HTMLHandler[ingredientsContext]{
+	router.Path(route + "ingredients/{slug}").Handler(httpx.HTMLHandler[ingredientsContext]{
 		Handler:  info.ingredients,
 		Template: ingredientsTemplate,
 	})
 
 	// add a handler for the instance page
-	mux.Handle(route+"instance/", httpx.HTMLHandler[instanceContext]{
+	router.Path(route + "instance/{slug}").Handler(httpx.HTMLHandler[instanceContext]{
 		Handler:  info.instance,
 		Template: instanceTemplate,
 	})
 
-	handler := &httpx.WebSocket{
-		Context:  context,
-		Fallback: mux,
-		Handler:  info.serveSocket,
-	}
+	router.Path(route + "api/login").Handler(httpx.ClientSideRedirect(func(r *http.Request) (string, error) {
+		// enforce POST
+		if r.Method != http.MethodPost {
+			return "", httpx.ErrMethodNotAllowed
+		}
 
-	// ensure that everyone is logged in!
-	return httpx.BasicAuth(handler, "WissKI Distillery Admin", func(user, pass string) bool {
-		return user == info.Config.DisAdminUser && pass == info.Config.DisAdminPassword
-	}), nil
+		// parse the form
+		if err := r.ParseForm(); err != nil {
+			return "", err
+		}
+
+		// get the instance
+		instance, err := info.Instances.WissKI(r.PostFormValue("slug"))
+		if err != nil {
+			return "", httpx.ErrNotFound
+		}
+
+		target, err := instance.Users().Login(nil, r.PostFormValue("user"))
+		if err != nil {
+			return "", err
+		}
+		return target.String(), err
+	}))
+
+	return
 }

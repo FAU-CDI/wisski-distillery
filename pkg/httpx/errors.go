@@ -49,8 +49,9 @@ func StatusInterceptor(contentType string, body func(code int, text string) ([]b
 
 	return ErrInterceptor{
 		Errors: map[error]Response{
-			ErrNotFound:  makeResponse(http.StatusNotFound),
-			ErrForbidden: makeResponse(http.StatusForbidden),
+			ErrNotFound:         makeResponse(http.StatusNotFound),
+			ErrForbidden:        makeResponse(http.StatusForbidden),
+			ErrMethodNotAllowed: makeResponse(http.StatusMethodNotAllowed),
 		},
 		Fallback: makeResponse(http.StatusInternalServerError),
 	}
@@ -58,8 +59,9 @@ func StatusInterceptor(contentType string, body func(code int, text string) ([]b
 
 // Common errors accepted by all httpx handlers
 var (
-	ErrNotFound  = errors.New("httpx: Not Found")
-	ErrForbidden = errors.New("httpx: Forbidden")
+	ErrNotFound         = errors.New("httpx: Not Found")
+	ErrForbidden        = errors.New("httpx: Forbidden")
+	ErrMethodNotAllowed = errors.New("httpx: Method Not Allowed")
 )
 
 var (

@@ -3,7 +3,6 @@ package info
 import (
 	_ "embed"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
@@ -11,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/gorilla/mux"
 )
 
 //go:embed "html/instance.html"
@@ -28,12 +28,8 @@ type instanceContext struct {
 }
 
 func (info *Info) instance(r *http.Request) (is instanceContext, err error) {
-	// find the slug as the last component of path!
-	slug := strings.TrimSuffix(r.URL.Path, "/")
-	slug = slug[strings.LastIndex(slug, "/")+1:]
-
 	// find the instance itself!
-	instance, err := info.Instances.WissKI(slug)
+	instance, err := info.Instances.WissKI(mux.Vars(r)["slug"])
 	if err == instances.ErrWissKINotFound {
 		return is, httpx.ErrNotFound
 	}

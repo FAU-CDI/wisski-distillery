@@ -2,6 +2,9 @@
 
 This file contains signficant news items for the distillery.
 
+# Automatic Password Checking (2022-11-25)
+- Implemented automatic password checking
+
 # Login using Distillery Administration (2022-11-23)
 - The admin interface now allows login to individual user accounts
 

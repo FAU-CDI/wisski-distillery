@@ -98,7 +98,7 @@ func (i info) Run(context wisski_distillery.Context) error {
 
 	context.Printf("Users: (count %d)\n", len(info.Users))
 	for _, user := range info.Users {
-		context.Printf("- %s\n", user)
+		context.Printf("- %v\n", user)
 	}
 
 	return nil

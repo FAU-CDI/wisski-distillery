@@ -47,13 +47,6 @@ var socketInstanceActions = map[string]InstanceAction{
 			return instance.Drush().Cron(str)
 		},
 	},
-	"login": {
-		NumParams: 1,
-		HandleResult: func(_ *Info, instance *wisski.WissKI, params ...string) (any, error) {
-			link, err := instance.Drush().Login(stream.FromNil(), params[0])
-			return link, err
-		},
-	},
 }
 
 func (info *Info) serveSocket(conn httpx.WebSocketConnection) {

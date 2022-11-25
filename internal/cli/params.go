@@ -35,16 +35,7 @@ func ParamsFromEnv() (params Params, err error) {
 	params.ConfigPath = filepath.Join(params.ConfigPath, bootstrap.ConfigFile)
 
 	// generate a new context
-	ctx, cancel := context.WithCancel(context.Background())
-	params.Context = ctx
-
-	// cancel the context on an interrupt
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
-	go func() {
-		<-c
-		cancel()
-	}()
+	params.Context, _ = signal.NotifyContext(context.Background(), os.Interrupt)
 
 	// and return the params!
 	return params, nil

@@ -15,6 +15,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/users"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/reserve"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/liquid"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
@@ -61,6 +62,10 @@ func (wisski *WissKI) Drush() *drush.Drush {
 	return export[*drush.Drush](wisski)
 }
 
+func (wisski *WissKI) Users() *users.Users {
+	return export[*users.Users](wisski)
+}
+
 func (wisski *WissKI) Prefixes() *extras.Prefixes {
 	return export[*extras.Prefixes](wisski)
 }
@@ -99,8 +104,8 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		auto[*extras.Prefixes],
 		auto[*extras.Settings],
 		auto[*extras.Pathbuilder],
-		auto[*extras.Users],
 		auto[*extras.Stats],
+		auto[*users.Users],
 
 		// info
 		manual(func(info *info.Info) {
