@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -16,22 +17,22 @@ import (
 // Shell runs a mysql shell with the provided databases.
 //
 // NOTE(twiesing): This command should not be used to connect to the database or execute queries except in known situations.
-func (sql *SQL) Shell(io stream.IOStream, argv ...string) (int, error) {
-	return sql.Stack(sql.Environment).Exec(io, "sql", "mysql", argv...)
+func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) (int, error) {
+	return sql.Stack(sql.Environment).Exec(ctx, io, "sql", "mysql", argv...)
 }
 
 // unsafeWaitShell waits for a connection via the database shell to succeed
-func (sql *SQL) unsafeWaitShell() error {
+func (sql *SQL) unsafeWaitShell(ctx context.Context) error {
 	n := stream.FromNil()
 	return timex.TickUntilFunc(func(time.Time) bool {
-		code, err := sql.Shell(n, "-e", "select 1;")
+		code, err := sql.Shell(ctx, n, "-e", "select 1;")
 		return err == nil && code == 0
-	}, sql.PollContext, sql.PollInterval)
+	}, ctx, sql.PollInterval)
 }
 
 // unsafeQuery shell executes a raw database query.
-func (sql *SQL) unsafeQueryShell(query string) bool {
-	code, err := sql.Shell(stream.FromNil(), "-e", query)
+func (sql *SQL) unsafeQueryShell(ctx context.Context, query string) bool {
+	code, err := sql.Shell(ctx, stream.FromNil(), "-e", query)
 	return err == nil && code == 0
 }
 
@@ -43,18 +44,18 @@ var errSQLUnableToMigrate = exit.Error{
 }
 
 // Update initializes or updates the SQL database.
-func (sql *SQL) Update(io stream.IOStream) error {
+func (sql *SQL) Update(ctx context.Context, io stream.IOStream) error {
 
 	// unsafely create the admin user!
 	{
-		if err := sql.unsafeWaitShell(); err != nil {
+		if err := sql.unsafeWaitShell(ctx); err != nil {
 			return err
 		}
 		logging.LogMessage(io, "Creating administrative user")
 		{
 			username := sql.Config.MysqlAdminUser
 			password := sql.Config.MysqlAdminPassword
-			if err := sql.CreateSuperuser(username, password, true); err != nil {
+			if err := sql.CreateSuperuser(ctx, username, password, true); err != nil {
 				return errSQLUnableToCreateUser
 			}
 		}
@@ -74,7 +75,7 @@ func (sql *SQL) Update(io stream.IOStream) error {
 
 	// wait for the database to come up
 	logging.LogMessage(io, "Waiting for database update to be complete")
-	sql.WaitQueryTable()
+	sql.WaitQueryTable(ctx)
 
 	tables := []struct {
 		name  string
@@ -107,7 +108,7 @@ func (sql *SQL) Update(io stream.IOStream) error {
 	return logging.LogOperation(func() error {
 		for _, table := range tables {
 			logging.LogMessage(io, "migrating %q table", table.name)
-			db, err := sql.QueryTable(false, table.table)
+			db, err := sql.QueryTable(ctx, false, table.table)
 			if err != nil {
 				return errSQLUnableToMigrate.WithMessageF(table.name, "unable to access table")
 			}

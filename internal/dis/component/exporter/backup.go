@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -49,7 +50,7 @@ type BackupDescription struct {
 }
 
 // New create a new Backup
-func (exporter *Exporter) NewBackup(io stream.IOStream, description BackupDescription) (backup Backup) {
+func (exporter *Exporter) NewBackup(ctx context.Context, io stream.IOStream, description BackupDescription) (backup Backup) {
 	backup.Description = description
 
 	// catch anything critical that happened during the snapshot
@@ -60,7 +61,7 @@ func (exporter *Exporter) NewBackup(io stream.IOStream, description BackupDescri
 	// do the create keeping track of time!
 	logging.LogOperation(func() error {
 		backup.StartTime = time.Now().UTC()
-		backup.run(io, exporter)
+		backup.run(ctx, io, exporter)
 		backup.EndTime = time.Now().UTC()
 
 		return nil
@@ -69,7 +70,7 @@ func (exporter *Exporter) NewBackup(io stream.IOStream, description BackupDescri
 	return
 }
 
-func (backup *Backup) run(ios stream.IOStream, exporter *Exporter) {
+func (backup *Backup) run(ctx context.Context, ios stream.IOStream, exporter *Exporter) {
 	// create a manifest
 	manifest, done := backup.handleManifest(backup.Description.Dest)
 	defer done()
@@ -93,6 +94,7 @@ func (backup *Backup) run(ios stream.IOStream, exporter *Exporter) {
 			Handler: func(bc component.Backupable, index int, writer io.Writer) error {
 				return bc.Backup(
 					component.NewStagingContext(
+						ctx,
 						exporter.Environment,
 						stream.NewIOStream(writer, writer, nil, 0),
 						filepath.Join(backup.Description.Dest, bc.BackupName()),
@@ -124,7 +126,7 @@ func (backup *Backup) run(ios stream.IOStream, exporter *Exporter) {
 		}
 
 		// list all instances
-		wissKIs, err := exporter.Instances.All()
+		wissKIs, err := exporter.Instances.All(ctx)
 		if err != nil {
 			backup.InstanceListErr = err
 			return nil
@@ -147,7 +149,7 @@ func (backup *Backup) run(ios stream.IOStream, exporter *Exporter) {
 
 				manifest <- dir
 
-				return exporter.NewSnapshot(instance, stream.NewIOStream(writer, writer, nil, 0), SnapshotDescription{
+				return exporter.NewSnapshot(ctx, instance, stream.NewIOStream(writer, writer, nil, 0), SnapshotDescription{
 					Dest: dir,
 				})
 			},

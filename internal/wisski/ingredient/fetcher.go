@@ -1,6 +1,8 @@
 package ingredient
 
 import (
+	"context"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 )
@@ -15,6 +17,7 @@ type WissKIFetcher interface {
 
 // FetcherFlags describes options for a WissKIFetcher
 type FetcherFlags struct {
-	Quick  bool
-	Server *phpx.Server
+	Context context.Context
+	Quick   bool
+	Server  *phpx.Server
 }

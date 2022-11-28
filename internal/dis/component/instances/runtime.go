@@ -1,6 +1,7 @@
 package instances
 
 import (
+	"context"
 	"embed"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
@@ -19,7 +20,7 @@ var errBootstrapFailedRuntime = exit.Error{
 var runtimeResources embed.FS
 
 // Update installs or updates runtime components needed by this component.
-func (instances *Instances) Update(stream stream.IOStream) error {
+func (instances *Instances) Update(ctx context.Context, stream stream.IOStream) error {
 	err := unpack.InstallDir(instances.Still.Environment, instances.Config.RuntimeDir(), "runtime", runtimeResources, func(dst, src string) {
 		stream.Printf("[copy]  %s\n", dst)
 	})

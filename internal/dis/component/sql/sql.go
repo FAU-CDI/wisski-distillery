@@ -1,7 +1,6 @@
 package sql
 
 import (
-	"context"
 	"embed"
 	"path/filepath"
 	"time"
@@ -16,8 +15,7 @@ type SQL struct {
 
 	ServerURL string // upstream server url
 
-	PollContext  context.Context // context to abort polling with
-	PollInterval time.Duration   // duration to wait for during wait
+	PollInterval time.Duration // duration to wait for during wait
 
 	lazyNetwork lazy.Lazy[string]
 }

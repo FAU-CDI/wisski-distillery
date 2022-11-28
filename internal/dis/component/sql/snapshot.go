@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"context"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -12,19 +13,19 @@ func (*SQL) SnapshotNeedsRunning() bool { return false }
 
 func (*SQL) SnapshotName() string { return "sql" }
 
-func (sql *SQL) Snapshot(wisski models.Instance, context component.StagingContext) error {
-	return context.AddDirectory(".", func() error {
-		return context.AddFile(wisski.SqlDatabase+".sql", func(file io.Writer) error {
-			return sql.SnapshotDB(context.IO(), file, wisski.SqlDatabase)
+func (sql *SQL) Snapshot(wisski models.Instance, scontext component.StagingContext) error {
+	return scontext.AddDirectory(".", func(ctx context.Context) error {
+		return scontext.AddFile(wisski.SqlDatabase+".sql", func(ctx context.Context, file io.Writer) error {
+			return sql.SnapshotDB(ctx, scontext.IO(), file, wisski.SqlDatabase)
 		})
 	})
 }
 
 // SnapshotDB makes a backup of the sql database into dest.
-func (sql *SQL) SnapshotDB(io stream.IOStream, dest io.Writer, database string) error {
+func (sql *SQL) SnapshotDB(ctx context.Context, io stream.IOStream, dest io.Writer, database string) error {
 	io = io.Streams(dest, nil, nil, 0).NonInteractive()
 
-	code, err := sql.Stack(sql.Environment).Exec(io, "sql", "mysqldump", "--databases", database)
+	code, err := sql.Stack(sql.Environment).Exec(ctx, io, "sql", "mysqldump", "--databases", database)
 	if err != nil {
 		return err
 	}

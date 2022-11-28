@@ -33,14 +33,14 @@ func (cron) Description() wisski_distillery.Description {
 
 func (cr cron) Run(context wisski_distillery.Context) error {
 	// find all the instances!
-	wissKIs, err := context.Environment.Instances().Load(cr.Positionals.Slug...)
+	wissKIs, err := context.Environment.Instances().Load(context.Context, cr.Positionals.Slug...)
 	if err != nil {
 		return err
 	}
 
 	// and do the actual blind_update!
 	return status.StreamGroup(context.IOStream, cr.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
-		return instance.Drush().Cron(io)
+		return instance.Drush().Cron(context.Context, io)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("cron %q", item.Slug)
 	}))

@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"io"
 	"path/filepath"
 
@@ -42,7 +43,7 @@ type export interface {
 
 // MakeExport performs an export task as described by flags.
 // Output is directed to the provided io.
-func (exporter *Exporter) MakeExport(io stream.IOStream, task ExportTask) (err error) {
+func (exporter *Exporter) MakeExport(ctx context.Context, io stream.IOStream, task ExportTask) (err error) {
 	// extract parameters
 	Title := "Backup"
 	Slug := ""
@@ -95,11 +96,11 @@ func (exporter *Exporter) MakeExport(io stream.IOStream, task ExportTask) (err e
 		var sl export
 		if task.Instance == nil {
 			task.BackupDescription.Dest = stagingDir
-			backup := exporter.NewBackup(io, task.BackupDescription)
+			backup := exporter.NewBackup(ctx, io, task.BackupDescription)
 			sl = &backup
 		} else {
 			task.SnapshotDescription.Dest = stagingDir
-			snapshot := exporter.NewSnapshot(task.Instance, io, task.SnapshotDescription)
+			snapshot := exporter.NewSnapshot(ctx, task.Instance, io, task.SnapshotDescription)
 			sl = &snapshot
 		}
 
@@ -131,7 +132,7 @@ func (exporter *Exporter) MakeExport(io stream.IOStream, task ExportTask) (err e
 		// write out the log entry
 		entry.Path = stagingDir
 		entry.Packed = false
-		exporter.ExporterLogger.Add(entry)
+		exporter.ExporterLogger.Add(ctx, entry)
 
 		io.Printf("Wrote %s\n", stagingDir)
 		return nil
@@ -159,7 +160,7 @@ func (exporter *Exporter) MakeExport(io stream.IOStream, task ExportTask) (err e
 	logging.LogMessage(io, "Writing Log Entry")
 	entry.Path = archivePath
 	entry.Packed = true
-	exporter.ExporterLogger.Add(entry)
+	exporter.ExporterLogger.Add(ctx, entry)
 
 	// and we're done!
 	return nil

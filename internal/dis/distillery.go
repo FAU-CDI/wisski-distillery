@@ -2,7 +2,7 @@
 package dis
 
 import (
-	"context"
+	"io"
 	"sync"
 	"time"
 
@@ -32,8 +32,8 @@ type Distillery struct {
 	// core holds the core of the distillery
 	component.Still
 
-	// internal context for the distillery
-	context context.Context
+	// Where interactive progress is displayed
+	Progress io.Writer
 
 	// Upstream holds information to connect to the various running
 	// distillery components.
@@ -52,11 +52,6 @@ type Upstream struct {
 	SQL         string
 	Triplestore string
 	Solr        string
-}
-
-// Context returns a new Context belonging to this distillery
-func (dis *Distillery) Context() context.Context {
-	return dis.context
 }
 
 //
@@ -110,17 +105,14 @@ func (dis *Distillery) allComponents() []initFunc {
 
 		manual(func(ts *triplestore.Triplestore) {
 			ts.BaseURL = "http://" + dis.Upstream.Triplestore
-			ts.PollContext = dis.Context()
 			ts.PollInterval = time.Second
 		}),
 		manual(func(sql *sql.SQL) {
 			sql.ServerURL = dis.Upstream.SQL
-			sql.PollContext = dis.Context()
 			sql.PollInterval = time.Second
 		}),
 		manual(func(s *solr.Solr) {
 			s.BaseURL = dis.Upstream.Solr
-			s.PollContext = dis.Context()
 			s.PollInterval = time.Second
 		}),
 

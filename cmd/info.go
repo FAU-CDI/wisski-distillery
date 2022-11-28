@@ -29,12 +29,12 @@ func (info) Description() wisski_distillery.Description {
 }
 
 func (i info) Run(context wisski_distillery.Context) error {
-	instance, err := context.Environment.Instances().WissKI(i.Positionals.Slug)
+	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)
 	if err != nil {
 		return err
 	}
 
-	info, err := instance.Info().Information(false)
+	info, err := instance.Info().Information(context.Context, false)
 	if err != nil {
 		return err
 	}

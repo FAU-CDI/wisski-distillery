@@ -75,7 +75,7 @@ var errPasswordsNotIdentical = exit.Error{
 }
 
 func (du duser) Run(context wisski_distillery.Context) error {
-	instance, err := context.Environment.Instances().WissKI(du.Positionals.Slug)
+	instance, err := context.Environment.Instances().WissKI(context.Context, du.Positionals.Slug)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (du duser) Run(context wisski_distillery.Context) error {
 }
 
 func (du duser) login(context wisski_distillery.Context, instance *wisski.WissKI) error {
-	link, err := instance.Users().Login(nil, du.Positionals.User)
+	link, err := instance.Users().Login(context.Context, nil, du.Positionals.User)
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ var errPasswordFound = exit.Error{
 func (du duser) checkCommonPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
 	users := instance.Users()
 
-	entities, err := users.All(nil)
+	entities, err := users.All(context.Context, nil)
 	if err != nil {
 		return err
 	}
@@ -121,19 +121,19 @@ func (du duser) checkCommonPassword(context wisski_distillery.Context, instance 
 		},
 		PrefixAlign: true,
 		Handler: func(user wstatus.User, index int, writer io.Writer) error {
-			pv, err := users.GetPasswordValidator(string(user.Name))
+			pv, err := users.GetPasswordValidator(context.Context, string(user.Name))
 			if err != nil {
 				return err
 			}
 			defer pv.Close()
 
-			return pv.CheckDictionary(context.Environment.Context(), writer)
+			return pv.CheckDictionary(context.Context, writer)
 		},
 	}, entities)
 }
 
 func (du duser) checkPasswordInteractive(context wisski_distillery.Context, instance *wisski.WissKI) error {
-	validator, err := instance.Users().GetPasswordValidator(du.Positionals.User)
+	validator, err := instance.Users().GetPasswordValidator(context.Context, du.Positionals.User)
 	if err != nil {
 		return err
 	}
@@ -151,7 +151,7 @@ func (du duser) checkPasswordInteractive(context wisski_distillery.Context, inst
 			break
 		}
 
-		if validator.Check(candidate) {
+		if validator.Check(context.Context, candidate) {
 			context.Println("check passed")
 		} else {
 			context.Println("check did not pass")
@@ -180,5 +180,5 @@ func (du duser) resetPassword(context wisski_distillery.Context, instance *wissk
 		return errPasswordsNotIdentical
 	}
 
-	return instance.Users().SetPassword(nil, du.Positionals.User, passwd1)
+	return instance.Users().SetPassword(context.Context, nil, du.Positionals.User, passwd1)
 }

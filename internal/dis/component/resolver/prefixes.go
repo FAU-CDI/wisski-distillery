@@ -9,20 +9,34 @@ import (
 )
 
 // updatePrefixes starts updating prefixes
-func (resolver *Resolver) updatePrefixes(io stream.IOStream, ctx context.Context) {
+func (resolver *Resolver) updatePrefixes(ctx context.Context, io stream.IOStream) {
 	go func() {
 		for t := range timex.TickContext(ctx, resolver.RefreshInterval) {
 			io.Printf("[%s]: reloading prefixes\n", t.Format(time.Stamp))
-			prefixes, _ := resolver.AllPrefixes()
-			resolver.prefixes.Set(prefixes)
+
+			err := (func() (err error) {
+				ctx, cancel := context.WithTimeout(ctx, resolver.RefreshInterval)
+				defer cancel()
+
+				prefixes, err := resolver.AllPrefixes(ctx)
+				if err != nil {
+					return err
+				}
+
+				resolver.prefixes.Set(prefixes)
+				return nil
+			})()
+			if err != nil {
+				io.EPrintf("error reloading prefixes: ", err.Error())
+			}
 		}
 	}()
 }
 
 // AllPrefixes returns a list of all prefixes from the server.
 // Prefixes may be cached on the server
-func (resolver *Resolver) AllPrefixes() (map[string]string, error) {
-	instances, err := resolver.Instances.All()
+func (resolver *Resolver) AllPrefixes(ctx context.Context) (map[string]string, error) {
+	instances, err := resolver.Instances.All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +51,7 @@ func (resolver *Resolver) AllPrefixes() (map[string]string, error) {
 
 		// failed to fetch prefixes for this particular instance
 		// => skip it!
-		prefixes, err := instance.Prefixes().AllCached()
+		prefixes, err := instance.Prefixes().AllCached(ctx)
 		if err != nil {
 			lastErr = err
 			continue

@@ -1,6 +1,7 @@
 package info
 
 import (
+	"context"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -21,10 +22,11 @@ type Info struct {
 
 // Information fetches information about this WissKI.
 // TODO: Rework this to be able to determine what kind of information is available.
-func (wisski *Info) Information(quick bool) (info status.WissKI, err error) {
+func (wisski *Info) Information(ctx context.Context, quick bool) (info status.WissKI, err error) {
 	// setup flags
 	flags := ingredient.FetcherFlags{
-		Quick: quick,
+		Quick:   quick,
+		Context: ctx,
 	}
 
 	// potentially setup a new server

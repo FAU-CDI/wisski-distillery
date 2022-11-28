@@ -31,12 +31,12 @@ var errPrefixesGeneric = exit.Error{
 }
 
 func (p prefixes) Run(context wisski_distillery.Context) error {
-	instance, err := context.Environment.Instances().WissKI(p.Positionals.Slug)
+	instance, err := context.Environment.Instances().WissKI(context.Context, p.Positionals.Slug)
 	if err != nil {
 		return err
 	}
 
-	prefixes, err := instance.Prefixes().All(nil)
+	prefixes, err := instance.Prefixes().All(context.Context, nil)
 	if err != nil {
 		return errPrefixesGeneric.Wrap(err)
 	}

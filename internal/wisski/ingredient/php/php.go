@@ -1,6 +1,7 @@
 package php
 
 import (
+	"context"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
@@ -28,7 +29,7 @@ type PHP struct {
 // It's arguments are encoded as json using [json.Marshal] and decoded within php.
 //
 // The return value of the function is again marshaled with json and returned to the caller.
-func (php *PHP) ExecScript(server *phpx.Server, value any, code string, entrypoint string, args ...any) (err error) {
+func (php *PHP) ExecScript(ctx context.Context, server *phpx.Server, value any, code string, entrypoint string, args ...any) (err error) {
 	if server == nil {
 		server = php.NewServer()
 		if err != nil {
@@ -38,15 +39,15 @@ func (php *PHP) ExecScript(server *phpx.Server, value any, code string, entrypoi
 	}
 
 	if code != "" {
-		if err := server.MarshalEval(nil, strings.TrimPrefix(code, "<?php")); err != nil {
+		if err := server.MarshalEval(ctx, nil, strings.TrimPrefix(code, "<?php")); err != nil {
 			return err
 		}
 	}
 
-	return server.MarshalCall(value, entrypoint, args...)
+	return server.MarshalCall(ctx, value, entrypoint, args...)
 }
 
-func (php *PHP) EvalCode(server *phpx.Server, value any, code string) (err error) {
+func (php *PHP) EvalCode(ctx context.Context, server *phpx.Server, value any, code string) (err error) {
 	if server == nil {
 		server = php.NewServer()
 		if err != nil {
@@ -55,5 +56,5 @@ func (php *PHP) EvalCode(server *phpx.Server, value any, code string) (err error
 		defer server.Close()
 	}
 
-	return server.MarshalEval(value, code)
+	return server.MarshalEval(ctx, value, code)
 }

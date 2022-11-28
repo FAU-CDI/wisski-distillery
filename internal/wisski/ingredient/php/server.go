@@ -1,6 +1,7 @@
 package php
 
 import (
+	"context"
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
@@ -14,11 +15,12 @@ import (
 // See [PHPServer].
 func (php *PHP) NewServer() *phpx.Server {
 	return &phpx.Server{
+		Context:  context.Background(),
 		Executor: phpx.SpawnFunc(php.spawn),
 	}
 }
 
-func (php *PHP) spawn(str stream.IOStream, code string) error {
-	_, err := php.Barrel.Shell(str, "-c", shellescape.QuoteCommand([]string{"drush", "php:eval", code}))
+func (php *PHP) spawn(ctx context.Context, str stream.IOStream, code string) error {
+	_, err := php.Barrel.Shell(ctx, str, "-c", shellescape.QuoteCommand([]string{"drush", "php:eval", code}))
 	return err
 }

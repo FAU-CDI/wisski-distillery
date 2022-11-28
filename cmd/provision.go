@@ -45,7 +45,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// check that it doesn't already exist
 	logging.LogMessage(context.IOStream, "Provisioning new WissKI instance %s", slug)
-	if exists, err := dis.Instances().Has(slug); err != nil || exists {
+	if exists, err := dis.Instances().Has(context.Context, slug); err != nil || exists {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
 
@@ -63,7 +63,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// Store in the instances table!
 	if err := logging.LogOperation(func() error {
-		if err := instance.Bookkeeping().Save(); err != nil {
+		if err := instance.Bookkeeping().Save(context.Context); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 
@@ -77,7 +77,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 		domain := instance.Domain()
 		for _, pc := range dis.Provisionable() {
 			logging.LogMessage(context.IOStream, "Provisioning %s resources", pc.Name())
-			err := pc.Provision(instance.Instance, domain)
+			err := pc.Provision(context.Context, instance.Instance, domain)
 			if err != nil {
 				return err
 			}
@@ -90,7 +90,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// run the provision script
 	if err := logging.LogOperation(func() error {
-		if err := instance.Provisioner().Provision(context.IOStream); err != nil {
+		if err := instance.Provisioner().Provision(context.Context, context.IOStream); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 
@@ -101,7 +101,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 
 	// start the container!
 	logging.LogMessage(context.IOStream, "Starting Container")
-	if err := instance.Barrel().Stack().Up(context.IOStream); err != nil {
+	if err := instance.Barrel().Stack().Up(context.Context, context.IOStream); err != nil {
 		return err
 	}
 

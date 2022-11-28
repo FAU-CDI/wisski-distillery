@@ -1,6 +1,7 @@
 package meta
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -24,8 +25,8 @@ type Storage struct {
 
 // Get retrieves metadata with the provided key and deserializes the first one into target.
 // If no metadatum exists, returns [ErrMetadatumNotSet].
-func (s Storage) Get(key Key, target any) error {
-	table, err := s.sql.QueryTable(true, models.MetadataTable)
+func (s Storage) Get(ctx context.Context, key Key, target any) error {
+	table, err := s.sql.QueryTable(ctx, true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -53,8 +54,8 @@ func (s Storage) Get(key Key, target any) error {
 // The function is intended to return a target for deserialization.
 //
 // When no metadatum exists, targets is not called, and nil error is returned.
-func (s Storage) GetAll(key Key, target func(index, total int) any) error {
-	table, err := s.sql.QueryTable(true, models.MetadataTable)
+func (s Storage) GetAll(ctx context.Context, key Key, target func(index, total int) any) error {
+	table, err := s.sql.QueryTable(ctx, true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -80,8 +81,8 @@ func (s Storage) GetAll(key Key, target func(index, total int) any) error {
 }
 
 // Delete deletes all metadata with the provided key.
-func (s Storage) Delete(key Key) error {
-	table, err := s.sql.QueryTable(true, models.MetadataTable)
+func (s Storage) Delete(ctx context.Context, key Key) error {
+	table, err := s.sql.QueryTable(ctx, true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -96,8 +97,8 @@ func (s Storage) Delete(key Key) error {
 
 // Set serializes value and stores it with the provided key.
 // Any other metadata with the same key is deleted.
-func (s Storage) Set(key Key, value any) error {
-	table, err := s.sql.QueryTable(true, models.MetadataTable)
+func (s Storage) Set(ctx context.Context, key Key, value any) error {
+	table, err := s.sql.QueryTable(ctx, true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -131,8 +132,8 @@ func (s Storage) Set(key Key, value any) error {
 
 // Set serializes values and stores them with the provided key.
 // Any other metadata with the same key is deleted.
-func (s Storage) SetAll(key Key, values ...any) error {
-	table, err := s.sql.QueryTable(true, models.MetadataTable)
+func (s Storage) SetAll(ctx context.Context, key Key, values ...any) error {
+	table, err := s.sql.QueryTable(ctx, true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -165,8 +166,8 @@ func (s Storage) SetAll(key Key, values ...any) error {
 }
 
 // Purge removes all metadata, regardless of key.
-func (s Storage) Purge() error {
-	table, err := s.sql.QueryTable(true, models.MetadataTable)
+func (s Storage) Purge(ctx context.Context) error {
+	table, err := s.sql.QueryTable(ctx, true, models.MetadataTable)
 	if err != nil {
 		return err
 	}
@@ -181,22 +182,22 @@ func (s Storage) Purge() error {
 // TypedKey represents a convenience wrapper for a given with a given value.
 type TypedKey[Value any] Key
 
-func (f TypedKey[Value]) Get(s *Storage) (value Value, err error) {
-	err = s.Get(Key(f), &value)
+func (f TypedKey[Value]) Get(ctx context.Context, s *Storage) (value Value, err error) {
+	err = s.Get(ctx, Key(f), &value)
 	return
 }
 
-func (f TypedKey[Value]) GetOrSet(s *Storage, dflt Value) (value Value, err error) {
-	value, err = f.Get(s)
+func (f TypedKey[Value]) GetOrSet(ctx context.Context, s *Storage, dflt Value) (value Value, err error) {
+	value, err = f.Get(ctx, s)
 	if err == ErrMetadatumNotSet {
 		value = dflt
-		err = f.Set(s, value)
+		err = f.Set(ctx, s, value)
 	}
 	return
 }
 
-func (f TypedKey[Value]) GetAll(m *Storage) (values []Value, err error) {
-	err = m.GetAll(Key(f), func(index, total int) any {
+func (f TypedKey[Value]) GetAll(ctx context.Context, m *Storage) (values []Value, err error) {
+	err = m.GetAll(ctx, Key(f), func(index, total int) any {
 		if values == nil {
 			values = make([]Value, total)
 		}
@@ -205,14 +206,14 @@ func (f TypedKey[Value]) GetAll(m *Storage) (values []Value, err error) {
 	return values, err
 }
 
-func (f TypedKey[Value]) Set(m *Storage, value Value) error {
-	return m.Set(Key(f), value)
+func (f TypedKey[Value]) Set(ctx context.Context, m *Storage, value Value) error {
+	return m.Set(ctx, Key(f), value)
 }
 
-func (f TypedKey[Value]) SetAll(m *Storage, values ...Value) error {
-	return m.SetAll(Key(f), collection.AsAny(values)...)
+func (f TypedKey[Value]) SetAll(ctx context.Context, m *Storage, values ...Value) error {
+	return m.SetAll(ctx, Key(f), collection.AsAny(values)...)
 }
 
-func (f TypedKey[Value]) Delete(m *Storage) error {
-	return m.Delete(Key(f))
+func (f TypedKey[Value]) Delete(ctx context.Context, m *Storage) error {
+	return m.Delete(ctx, Key(f))
 }

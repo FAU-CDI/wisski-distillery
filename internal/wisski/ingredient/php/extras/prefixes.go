@@ -2,6 +2,7 @@ package extras
 
 import (
 	"bufio"
+	"context"
 	"path/filepath"
 	"strings"
 
@@ -37,8 +38,8 @@ var listURIPrefixesPHP string
 //
 // server is an optional server to fetch prefixes from.
 // server may be nil.
-func (prefixes *Prefixes) All(server *phpx.Server) ([]string, error) {
-	uris, err := prefixes.database(server)
+func (prefixes *Prefixes) All(ctx context.Context, server *phpx.Server) ([]string, error) {
+	uris, err := prefixes.database(ctx, server)
 	if err != nil {
 		return nil, err
 	}
@@ -51,9 +52,9 @@ func (prefixes *Prefixes) All(server *phpx.Server) ([]string, error) {
 	return append(uris, uris2...), nil
 }
 
-func (wisski *Prefixes) database(server *phpx.Server) (prefixes []string, err error) {
+func (wisski *Prefixes) database(ctx context.Context, server *phpx.Server) (prefixes []string, err error) {
 	// get all the ugly prefixes
-	err = wisski.PHP.ExecScript(server, &prefixes, listURIPrefixesPHP, "list_prefixes")
+	err = wisski.PHP.ExecScript(ctx, server, &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {
 		return nil, err
 	}
@@ -143,28 +144,28 @@ func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 var prefix = mstore.For[string]("prefix")
 
 // Prefixes returns the cached prefixes from the given instance
-func (wisski *Prefixes) AllCached() (results []string, err error) {
-	return prefix.GetAll(wisski.MStore)
+func (wisski *Prefixes) AllCached(ctx context.Context) (results []string, err error) {
+	return prefix.GetAll(ctx, wisski.MStore)
 }
 
 // Update updates the cached prefixes of this instance
-func (wisski *Prefixes) Update() error {
-	prefixes, err := wisski.All(nil)
+func (wisski *Prefixes) Update(ctx context.Context) error {
+	prefixes, err := wisski.All(ctx, nil)
 	if err != nil {
 		return err
 	}
-	return prefix.SetAll(wisski.MStore, prefixes...)
+	return prefix.SetAll(ctx, wisski.MStore, prefixes...)
 }
 
 func (prefixes *Prefixes) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	info.NoPrefixes = prefixes.NoPrefix()
 	if flags.Quick {
 		// quick mode: grab only the cached prefixes
-		info.Prefixes, _ = prefixes.AllCached()
+		info.Prefixes, _ = prefixes.AllCached(flags.Context)
 	} else {
 		// slow mode: grab the fresh prefixes from the server
 		// TODO: Do we want to update them while we are at it?
-		info.Prefixes, _ = prefixes.All(flags.Server)
+		info.Prefixes, _ = prefixes.All(flags.Context, flags.Server)
 	}
 	return
 }

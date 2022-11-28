@@ -40,20 +40,12 @@ func (sql *SQL) Exec(query string, args ...interface{}) error {
 	}
 }
 
-// WaitExec waits for the query interface to be able to connect to the database
-func (sql *SQL) WaitExec() error {
-	return timex.TickUntilFunc(func(time.Time) bool {
-		err := sql.Exec("select 1;")
-		return err == nil
-	}, sql.PollContext, sql.PollInterval)
-}
-
 //
 // ========== connection via gorm ==========
 //
 
 // QueryTable returns a gorm.DB to connect to the provided distillery database table
-func (sql *SQL) QueryTable(silent bool, table string) (*gorm.DB, error) {
+func (sql *SQL) QueryTable(ctx context.Context, silent bool, table string) (*gorm.DB, error) {
 	conn, err := sql.connect(sql.Config.DistilleryDatabase)
 	if err != nil {
 		return nil, err
@@ -79,7 +71,7 @@ func (sql *SQL) QueryTable(silent bool, table string) (*gorm.DB, error) {
 	}
 
 	// set the table
-	db = db.Table(table)
+	db = db.WithContext(ctx).Table(table)
 
 	// check that nothing went wrong
 	if db.Error != nil {
@@ -89,12 +81,12 @@ func (sql *SQL) QueryTable(silent bool, table string) (*gorm.DB, error) {
 }
 
 // WaitQueryTable waits for a connection to succeed via QueryTable
-func (sql *SQL) WaitQueryTable() error {
+func (sql *SQL) WaitQueryTable(ctx context.Context) error {
 	// TODO: Establish a convention on when to wait for this!
 	return timex.TickUntilFunc(func(time.Time) bool {
-		_, err := sql.QueryTable(true, models.InstanceTable)
+		_, err := sql.QueryTable(ctx, true, models.InstanceTable)
 		return err == nil
-	}, sql.PollContext, sql.PollInterval)
+	}, ctx, sql.PollInterval)
 }
 
 //

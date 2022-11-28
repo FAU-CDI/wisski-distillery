@@ -16,6 +16,6 @@ func (lbr *SnapshotsFetcher) Fetch(flags ingredient.FetcherFlags, info *status.W
 		return
 	}
 
-	info.Snapshots, _ = lbr.Snapshots()
+	info.Snapshots, _ = lbr.Snapshots(flags.Context)
 	return
 }

@@ -59,7 +59,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// load the instance (first via bookkeeping, then via defaults)
 	logging.LogMessage(context.IOStream, "Checking bookkeeping table")
-	instance, err := dis.Instances().WissKI(slug)
+	instance, err := dis.Instances().WissKI(context.Context, slug)
 	if err == instances.ErrWissKINotFound {
 		context.Println("Not found in bookkeeping table, assuming defaults")
 		instance, err = dis.Instances().Create(slug)
@@ -70,7 +70,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// remove docker stack
 	logging.LogMessage(context.IOStream, "Stopping and removing docker container")
-	if err := instance.Barrel().Stack().Down(context.IOStream); err != nil {
+	if err := instance.Barrel().Stack().Down(context.Context, context.IOStream); err != nil {
 		context.EPrintln(err)
 	}
 
@@ -85,7 +85,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 		domain := instance.Domain()
 		for _, pc := range dis.Provisionable() {
 			logging.LogMessage(context.IOStream, "Purging %s resources", pc.Name())
-			err := pc.Purge(instance.Instance, domain)
+			err := pc.Purge(context.Context, instance.Instance, domain)
 			if err != nil {
 				return err
 			}
@@ -98,13 +98,13 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// remove from bookkeeping
 	logging.LogMessage(context.IOStream, "Removing instance from bookkeeping")
-	if err := instance.Bookkeeping().Delete(); err != nil {
+	if err := instance.Bookkeeping().Delete(context.Context); err != nil {
 		context.EPrintln(err)
 	}
 
 	// remove the filesystem
 	logging.LogMessage(context.IOStream, "Remove lock data")
-	if instance.Locker().TryUnlock() {
+	if instance.Locker().TryUnlock(context.Context) {
 		context.EPrintln("instance was not locked")
 	}
 

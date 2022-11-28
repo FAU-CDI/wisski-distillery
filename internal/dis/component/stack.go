@@ -4,6 +4,7 @@ package component
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"io/fs"
 	"path/filepath"
 
@@ -33,9 +34,9 @@ var errStackUpdateBuild = errors.New("Stack.Update: Build returned non-zero exit
 // This does not have a direct 'docker compose' shell equivalent.
 //
 // See also Up.
-func (ds Stack) Update(io stream.IOStream, start bool) error {
+func (ds Stack) Update(ctx context.Context, io stream.IOStream, start bool) error {
 	{
-		code, err := ds.compose(io, "pull")
+		code, err := ds.compose(ctx, io, "pull")
 		if err != nil {
 			return err
 		}
@@ -45,7 +46,7 @@ func (ds Stack) Update(io stream.IOStream, start bool) error {
 	}
 
 	{
-		code, err := ds.compose(io, "build", "--pull")
+		code, err := ds.compose(ctx, io, "build", "--pull")
 		if err != nil {
 			return err
 		}
@@ -54,7 +55,7 @@ func (ds Stack) Update(io stream.IOStream, start bool) error {
 		}
 	}
 	if start {
-		return ds.Up(io)
+		return ds.Up(ctx, io)
 	}
 	return nil
 }
@@ -63,8 +64,8 @@ var errStackUp = errors.New("Stack.Up: Up returned non-zero exit code")
 
 // Up creates and starts the containers in this Stack.
 // It is equivalent to 'docker compose up --remove-orphans --detach' on the shell.
-func (ds Stack) Up(io stream.IOStream) error {
-	code, err := ds.compose(io, "up", "--remove-orphans", "--detach")
+func (ds Stack) Up(ctx context.Context, io stream.IOStream) error {
+	code, err := ds.compose(ctx, io, "up", "--remove-orphans", "--detach")
 	if err != nil {
 		return err
 	}
@@ -78,7 +79,7 @@ func (ds Stack) Up(io stream.IOStream) error {
 // It is equivalent to 'docker compose exec $service $executable $args...'.
 //
 // It returns the exit code of the process.
-func (ds Stack) Exec(io stream.IOStream, service, executable string, args ...string) (int, error) {
+func (ds Stack) Exec(ctx context.Context, io stream.IOStream, service, executable string, args ...string) (int, error) {
 	compose := []string{"exec"}
 	if io.StdinIsATerminal() {
 		compose = append(compose, "-ti")
@@ -86,14 +87,14 @@ func (ds Stack) Exec(io stream.IOStream, service, executable string, args ...str
 	compose = append(compose, service)
 	compose = append(compose, executable)
 	compose = append(compose, args...)
-	return ds.compose(io, compose...)
+	return ds.compose(ctx, io, compose...)
 }
 
 // Run runs a command in a running container with the given executable.
 // It is equivalent to 'docker compose run [--rm] $service $executable $args...'.
 //
 // It returns the exit code of the process.
-func (ds Stack) Run(io stream.IOStream, autoRemove bool, service, command string, args ...string) (int, error) {
+func (ds Stack) Run(ctx context.Context, io stream.IOStream, autoRemove bool, service, command string, args ...string) (int, error) {
 	compose := []string{"run"}
 	if autoRemove {
 		compose = append(compose, "--rm")
@@ -104,7 +105,7 @@ func (ds Stack) Run(io stream.IOStream, autoRemove bool, service, command string
 	compose = append(compose, service, command)
 	compose = append(compose, args...)
 
-	code, err := ds.compose(io, compose...)
+	code, err := ds.compose(ctx, io, compose...)
 	if err != nil {
 		return environment.ExecCommandError, nil
 	}
@@ -115,8 +116,8 @@ var errStackRestart = errors.New("Stack.Restart: Restart returned non-zero exit 
 
 // Restart restarts all containers in this Stack.
 // It is equivalent to 'docker compose restart' on the shell.
-func (ds Stack) Restart(io stream.IOStream) error {
-	code, err := ds.compose(io, "restart")
+func (ds Stack) Restart(ctx context.Context, io stream.IOStream) error {
+	code, err := ds.compose(ctx, io, "restart")
 	if err != nil {
 		return err
 	}
@@ -129,12 +130,12 @@ func (ds Stack) Restart(io stream.IOStream) error {
 var errStackPs = errors.New("Stack.Ps: Down returned non-zero exit code")
 
 // Ps returns the ids of the containers currently running
-func (ds Stack) Ps(io stream.IOStream) ([]string, error) {
+func (ds Stack) Ps(ctx context.Context, io stream.IOStream) ([]string, error) {
 	// create a buffer
 	var buffer bytes.Buffer
 
 	// read the ids from the command!
-	code, err := ds.compose(io.Streams(&buffer, nil, nil, 0), "ps", "-q")
+	code, err := ds.compose(ctx, io.Streams(&buffer, nil, nil, 0), "ps", "-q")
 	if err != nil {
 		return nil, err
 	}
@@ -162,8 +163,8 @@ var errStackDown = errors.New("Stack.Down: Down returned non-zero exit code")
 
 // Down stops and removes all containers in this Stack.
 // It is equivalent to 'docker compose down -v' on the shell.
-func (ds Stack) Down(io stream.IOStream) error {
-	code, err := ds.compose(io, "down", "-v")
+func (ds Stack) Down(ctx context.Context, io stream.IOStream) error {
+	code, err := ds.compose(ctx, io, "down", "-v")
 	if err != nil {
 		return err
 	}
@@ -177,7 +178,7 @@ func (ds Stack) Down(io stream.IOStream) error {
 //
 // NOTE(twiesing): Check if this can be replaced by an internal call to libcompose.
 // But probably not.
-func (ds Stack) compose(io stream.IOStream, args ...string) (int, error) {
+func (ds Stack) compose(ctx context.Context, io stream.IOStream, args ...string) (int, error) {
 	if ds.DockerExecutable == "" {
 		var err error
 		ds.DockerExecutable, err = ds.Env.LookPathAbs("docker")
@@ -185,7 +186,7 @@ func (ds Stack) compose(io stream.IOStream, args ...string) (int, error) {
 			return environment.ExecCommandError, err
 		}
 	}
-	return ds.Env.Exec(io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...), nil
+	return ds.Env.Exec(ctx, io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...), nil
 }
 
 // StackWithResources represents a Stack that can be automatically installed from a set of resources.
@@ -218,7 +219,7 @@ type InstallationContext map[string]string
 //
 // Installation is non-interactive, but will provide debugging output onto io.
 // InstallationContext
-func (is StackWithResources) Install(io stream.IOStream, context InstallationContext) error {
+func (is StackWithResources) Install(ctx context.Context, io stream.IOStream, context InstallationContext) error {
 	env := is.Stack.Env
 	if is.ContextPath != "" {
 		// setup the base files
@@ -277,7 +278,7 @@ func (is StackWithResources) Install(io stream.IOStream, context InstallationCon
 
 		// copy over file from context
 		io.Printf("[copy]    %s (from %s)\n", dst, src)
-		if err := fsx.CopyFile(env, dst, src); err != nil {
+		if err := fsx.CopyFile(ctx, env, dst, src); err != nil {
 			return errors.Wrapf(err, "Unable to copy file %s", src)
 		}
 	}

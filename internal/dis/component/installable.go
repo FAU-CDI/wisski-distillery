@@ -1,6 +1,8 @@
 package component
 
 import (
+	"context"
+
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -40,5 +42,5 @@ type Updatable interface {
 	// It may send output to the provided stream.
 	//
 	// Updating should be idempotent, meaning running it multiple times must not break the existing system.
-	Update(stream stream.IOStream) error
+	Update(ctx context.Context, stream stream.IOStream) error
 }

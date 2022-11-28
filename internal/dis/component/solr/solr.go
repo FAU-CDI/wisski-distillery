@@ -1,7 +1,6 @@
 package solr
 
 import (
-	"context"
 	"embed"
 	"path/filepath"
 	"time"
@@ -15,8 +14,7 @@ type Solr struct {
 
 	BaseURL string // upstream solr url
 
-	PollContext  context.Context // context to abort polling with
-	PollInterval time.Duration   // duration to wait for during wait
+	PollInterval time.Duration // duration to wait for during wait
 }
 
 func (s *Solr) Path() string {

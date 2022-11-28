@@ -32,7 +32,7 @@ func (mysql) Description() wisski_distillery.Description {
 }
 
 func (ms mysql) Run(context wisski_distillery.Context) error {
-	code, err := context.Environment.SQL().Shell(context.IOStream, ms.Positionals.Args...)
+	code, err := context.Environment.SQL().Shell(context.Context, context.IOStream, ms.Positionals.Args...)
 	if err != nil {
 		return err
 	}

@@ -1,7 +1,6 @@
 package triplestore
 
 import (
-	"context"
 	"embed"
 	"path/filepath"
 	"time"
@@ -15,8 +14,7 @@ type Triplestore struct {
 
 	BaseURL string // upstream server url
 
-	PollContext  context.Context // context to abort polling with
-	PollInterval time.Duration   // duration to wait for during wait
+	PollInterval time.Duration // duration to wait for during wait
 }
 
 func (ts *Triplestore) Path() string {

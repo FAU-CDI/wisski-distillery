@@ -29,7 +29,7 @@ type instanceContext struct {
 
 func (info *Info) instance(r *http.Request) (is instanceContext, err error) {
 	// find the instance itself!
-	instance, err := info.Instances.WissKI(mux.Vars(r)["slug"])
+	instance, err := info.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])
 	if err == instances.ErrWissKINotFound {
 		return is, httpx.ErrNotFound
 	}
@@ -39,7 +39,7 @@ func (info *Info) instance(r *http.Request) (is instanceContext, err error) {
 	is.Instance = instance.Instance
 
 	// get some more info about the wisski
-	is.Info, err = instance.Info().Information(false)
+	is.Info, err = instance.Info().Information(r.Context(), false)
 	if err != nil {
 		return is, err
 	}

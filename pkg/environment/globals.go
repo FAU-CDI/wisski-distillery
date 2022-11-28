@@ -2,6 +2,7 @@ package environment
 
 import (
 	"bytes"
+	"context"
 	"io"
 	"io/fs"
 	"os"
@@ -64,6 +65,6 @@ func ReadFile(env Environment, path string) ([]byte, error) {
 }
 
 // MustExec is like Exec, except that it returns true if the command exited successfully, and else false.
-func MustExec(env Environment, io stream.IOStream, workdir string, exe string, argv ...string) bool {
-	return env.Exec(io, workdir, exe, argv...) == 0
+func MustExec(ctx context.Context, env Environment, io stream.IOStream, workdir string, exe string, argv ...string) bool {
+	return env.Exec(ctx, io, workdir, exe, argv...) == 0
 }

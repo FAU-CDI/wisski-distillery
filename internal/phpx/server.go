@@ -10,6 +10,7 @@ import (
 
 	_ "embed"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/lib/nobufio"
@@ -21,6 +22,9 @@ import (
 //
 // A server, once used, should be closed using the [Close] method.
 type Server struct {
+	// Context to use for the server
+	Context context.Context
+
 	// Executor is the executor used by this server.
 	// It may not be modified concurrently with other processes.
 	Executor Executor
@@ -35,8 +39,8 @@ type Server struct {
 
 	m sync.Mutex // prevents concurrent access on any of the methods
 
-	c context.Context // closed when server is finished
-
+	cancel context.CancelFunc
+	c      context.Context // closed when server is finished
 }
 
 func (server *Server) prepare() error {
@@ -57,7 +61,8 @@ func (server *Server) prepare() error {
 		}
 
 		// create a context to close the server
-		context, cancel := context.WithCancel(context.Background())
+		context, cancel := context.WithCancel(server.Context)
+		server.cancel = cancel
 
 		// start the shell process, which will close everything once done
 		go func() {
@@ -67,12 +72,12 @@ func (server *Server) prepare() error {
 				or.Close()
 				ow.Close()
 
-				cancel()
+				server.cancel()
 			}()
 
 			// start the server
 			io := stream.NewIOStream(ow, nil, ir, 0)
-			err := server.Executor.Spawn(io, serverPHP)
+			err := server.Executor.Spawn(server.c, io, serverPHP)
 			server.err.Set(ServerError{errClosed, err})
 		}()
 
@@ -91,7 +96,7 @@ func (server *Server) prepare() error {
 // as such any functions defined will remain in server memory.
 //
 // When an exception is thrown by the PHP Code, error is not nil, and dest remains unchanged.
-func (server *Server) MarshalEval(value any, code string) error {
+func (server *Server) MarshalEval(ctx context.Context, value any, code string) error {
 	if err := server.prepare(); err != nil {
 		return err
 	}
@@ -111,8 +116,11 @@ func (server *Server) MarshalEval(value any, code string) error {
 	// find a delimiter for the code, and then send
 	io.WriteString(server.in, input)
 
-	// read the next line (as a response)
-	data, err := nobufio.ReadLine(server.out)
+	data, err, _ := cancel.WithContext2(ctx, func(start func()) (string, error) {
+		return nobufio.ReadLine(server.out)
+	}, func() {
+		server.cancel()
+	})
 	if err != nil {
 		return ServerError{Message: errReceive, Err: err}
 	}
@@ -139,8 +147,8 @@ func (server *Server) MarshalEval(value any, code string) error {
 }
 
 // Eval is like [MarshalEval], but returns the value as an any
-func (server *Server) Eval(code string) (value any, err error) {
-	err = server.MarshalEval(&value, code)
+func (server *Server) Eval(ctx context.Context, code string) (value any, err error) {
+	err = server.MarshalEval(ctx, &value, code)
 	return
 }
 
@@ -148,7 +156,7 @@ func (server *Server) Eval(code string) (value any, err error) {
 // Arguments are sent to php using json Marshal, and are 'json_decode'd on the php side.
 //
 // Return values are received as in [MarshalEval].
-func (server *Server) MarshalCall(value any, function string, args ...any) error {
+func (server *Server) MarshalCall(ctx context.Context, value any, function string, args ...any) error {
 	// name of function to call
 	name := MarshalString(function)
 
@@ -172,12 +180,12 @@ func (server *Server) MarshalCall(value any, function string, args ...any) error
 	}
 
 	// and evaluate the code
-	return server.MarshalEval(value, code)
+	return server.MarshalEval(ctx, value, code)
 }
 
 // Call is like [MarshalCall] but returns the return value of the function as an any
-func (server *Server) Call(function string, args ...any) (value any, err error) {
-	err = server.MarshalCall(&value, function, args...)
+func (server *Server) Call(ctx context.Context, function string, args ...any) (value any, err error) {
+	err = server.MarshalCall(ctx, &value, function, args...)
 	return
 }
 

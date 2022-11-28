@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -44,10 +45,10 @@ type Snapshot struct {
 }
 
 // Snapshot creates a new snapshot of this instance into dest
-func (snapshots *Exporter) NewSnapshot(instance *wisski.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
+func (snapshots *Exporter) NewSnapshot(ctx context.Context, instance *wisski.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
 
 	logging.LogMessage(io, "Locking instance")
-	if !instance.Locker().TryLock() {
+	if !instance.Locker().TryLock(ctx) {
 		err := locker.Locked
 		io.EPrintln(err)
 		logging.LogMessage(io, "Aborting snapshot creation")
@@ -58,7 +59,7 @@ func (snapshots *Exporter) NewSnapshot(instance *wisski.WissKI, io stream.IOStre
 	}
 	defer func() {
 		logging.LogMessage(io, "Unlocking instance")
-		instance.Locker().Unlock()
+		instance.Locker().Unlock(ctx)
 	}()
 
 	// setup the snapshot
@@ -74,8 +75,8 @@ func (snapshots *Exporter) NewSnapshot(instance *wisski.WissKI, io stream.IOStre
 	logging.LogOperation(func() error {
 		snapshot.StartTime = time.Now().UTC()
 
-		snapshot.ErrWhitebox = snapshot.makeParts(io, snapshots, instance, false)
-		snapshot.ErrBlackbox = snapshot.makeParts(io, snapshots, instance, true)
+		snapshot.ErrWhitebox = snapshot.makeParts(ctx, io, snapshots, instance, false)
+		snapshot.ErrBlackbox = snapshot.makeParts(ctx, io, snapshots, instance, true)
 
 		snapshot.EndTime = time.Now().UTC()
 		return nil
@@ -85,16 +86,16 @@ func (snapshots *Exporter) NewSnapshot(instance *wisski.WissKI, io stream.IOStre
 	return
 }
 
-func (snapshot *Snapshot) makeParts(ios stream.IOStream, snapshots *Exporter, instance *wisski.WissKI, needsRunning bool) map[string]error {
+func (snapshot *Snapshot) makeParts(ctx context.Context, ios stream.IOStream, snapshots *Exporter, instance *wisski.WissKI, needsRunning bool) map[string]error {
 	if !needsRunning && !snapshot.Description.Keepalive {
 		stack := instance.Barrel().Stack()
 
 		logging.LogMessage(ios, "Stopping instance")
-		snapshot.ErrStop = stack.Down(ios)
+		snapshot.ErrStop = stack.Down(ctx, ios)
 
 		defer func() {
 			logging.LogMessage(ios, "Starting instance")
-			snapshot.ErrStart = stack.Up(ios)
+			snapshot.ErrStart = stack.Up(ctx, ios)
 		}()
 	}
 	// handle writing the manifest!
@@ -123,6 +124,7 @@ func (snapshot *Snapshot) makeParts(ios stream.IOStream, snapshots *Exporter, in
 			return sc.Snapshot(
 				instance.Instance,
 				component.NewStagingContext(
+					ctx,
 					snapshots.Environment,
 					stream.NewIOStream(writer, writer, nil, 0),
 					filepath.Join(snapshot.Description.Dest, sc.SnapshotName()),

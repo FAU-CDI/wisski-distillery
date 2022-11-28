@@ -45,7 +45,7 @@ type Environment interface {
 	DialContext(context context.Context, network, address string) (net.Conn, error)
 
 	Executable() (string, error)
-	Exec(io stream.IOStream, workdir string, exe string, argv ...string) int
+	Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, argv ...string) int
 	LookPathAbs(name string) (string, error)
 }
 

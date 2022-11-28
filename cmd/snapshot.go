@@ -39,13 +39,13 @@ func (sn snapshot) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
 	// find the instance!
-	instance, err := dis.Instances().WissKI(sn.Positionals.Slug)
+	instance, err := dis.Instances().WissKI(context.Context, sn.Positionals.Slug)
 	if err != nil {
 		return err
 	}
 
 	// do a snapshot of it!
-	err = dis.Exporter().MakeExport(context.IOStream, exporter.ExportTask{
+	err = dis.Exporter().MakeExport(context.Context, context.IOStream, exporter.ExportTask{
 		Dest:        sn.Positionals.Dest,
 		StagingOnly: sn.StagingOnly,
 

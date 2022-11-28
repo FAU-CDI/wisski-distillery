@@ -46,7 +46,7 @@ func (r reserve) Run(context wisski_distillery.Context) error {
 
 	// check that it doesn't already exist
 	logging.LogMessage(context.IOStream, "Reserving new WissKI instance %s", slug)
-	if exists, err := dis.Instances().Has(slug); err != nil || exists {
+	if exists, err := dis.Instances().Has(context.Context, slug); err != nil || exists {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
 
@@ -66,13 +66,13 @@ func (r reserve) Run(context wisski_distillery.Context) error {
 	s := instance.Reserve().Stack()
 	{
 		if err := logging.LogOperation(func() error {
-			return s.Install(context.IOStream, component.InstallationContext{})
+			return s.Install(context.Context, context.IOStream, component.InstallationContext{})
 		}, context.IOStream, "Installing docker stack"); err != nil {
 			return err
 		}
 
 		if err := logging.LogOperation(func() error {
-			return s.Update(context.IOStream, true)
+			return s.Update(context.Context, context.IOStream, true)
 		}, context.IOStream, "Updating docker stack"); err != nil {
 			return err
 		}

@@ -39,14 +39,14 @@ var errNoPathbuilder = exit.Error{
 func (pb pathbuilders) Run(context wisski_distillery.Context) error {
 
 	// get the wisski
-	instance, err := context.Environment.Instances().WissKI(pb.Positionals.Slug)
+	instance, err := context.Environment.Instances().WissKI(context.Context, pb.Positionals.Slug)
 	if err != nil {
 		return err
 	}
 
 	// get all of the pathbuilders
 	if pb.Positionals.Name == "" {
-		names, err := instance.Pathbuilder().All(nil)
+		names, err := instance.Pathbuilder().All(context.Context, nil)
 		if err != nil {
 			return errPathbuilders.WithMessageF(err)
 		}
@@ -57,7 +57,7 @@ func (pb pathbuilders) Run(context wisski_distillery.Context) error {
 	}
 
 	// get all the pathbuilders
-	xml, err := instance.Pathbuilder().Get(nil, pb.Positionals.Name)
+	xml, err := instance.Pathbuilder().Get(context.Context, nil, pb.Positionals.Name)
 	if xml == "" {
 		return errNoPathbuilder.WithMessageF(pb.Positionals.Name)
 	}

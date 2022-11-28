@@ -2,6 +2,7 @@ package triplestore
 
 import (
 	"bytes"
+	"context"
 	"net/http"
 
 	_ "embed"
@@ -20,19 +21,19 @@ var errTripleStoreFailedRepository = exit.Error{
 //go:embed create-repo.ttl
 var createRepoTTL []byte
 
-func (ts *Triplestore) Provision(instance models.Instance, domain string) error {
-	return ts.CreateRepository(instance.GraphDBRepository, domain, instance.GraphDBUsername, instance.GraphDBPassword)
+func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, domain string) error {
+	return ts.CreateRepository(ctx, instance.GraphDBRepository, domain, instance.GraphDBUsername, instance.GraphDBPassword)
 }
 
-func (ts *Triplestore) Purge(instance models.Instance, domain string) error {
+func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, domain string) error {
 	return errorx.First(
-		ts.PurgeRepo(instance.GraphDBRepository),
-		ts.PurgeUser(instance.GraphDBUsername),
+		ts.PurgeRepo(ctx, instance.GraphDBRepository),
+		ts.PurgeUser(ctx, instance.GraphDBUsername),
 	)
 }
 
-func (ts *Triplestore) CreateRepository(name, domain, user, password string) error {
-	if err := ts.Wait(); err != nil {
+func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user, password string) error {
+	if err := ts.Wait(ctx); err != nil {
 		return err
 	}
 
@@ -48,7 +49,7 @@ func (ts *Triplestore) CreateRepository(name, domain, user, password string) err
 
 	// do the create!
 	{
-		res, err := ts.OpenRaw("POST", "/rest/repositories", createRepo.Bytes(), "config", "")
+		res, err := ts.OpenRaw(ctx, "POST", "/rest/repositories", createRepo.Bytes(), "config", "")
 		if err != nil {
 			return errTripleStoreFailedRepository.WithMessageF(err)
 		}
@@ -60,7 +61,7 @@ func (ts *Triplestore) CreateRepository(name, domain, user, password string) err
 
 	// create the user and grant them access
 	{
-		res, err := ts.OpenRaw("POST", "/rest/security/users/"+user, TriplestoreUserPayload{
+		res, err := ts.OpenRaw(ctx, "POST", "/rest/security/users/"+user, TriplestoreUserPayload{
 			Password: password,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,

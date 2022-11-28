@@ -12,12 +12,12 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/pkg/errors v0.9.1
-	github.com/tkw1536/goprogram v0.1.1
+	github.com/tkw1536/goprogram v0.2.0
 	golang.org/x/crypto v0.3.0
-	golang.org/x/exp v0.0.0-20221004215720-b9f4876ce741
-	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0
-	gorm.io/driver/mysql v1.3.6
-	gorm.io/gorm v1.23.10
+	golang.org/x/exp v0.0.0-20221126150942-6ab00d035af9
+	golang.org/x/sync v0.1.0
+	gorm.io/driver/mysql v1.4.4
+	gorm.io/gorm v1.24.2
 )
 
 require (

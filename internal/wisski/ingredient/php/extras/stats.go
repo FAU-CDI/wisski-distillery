@@ -1,8 +1,8 @@
 package extras
 
 import (
+	"context"
 	_ "embed"
-	"log"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -20,11 +20,8 @@ type Stats struct {
 var statsPHP string
 
 // Get fetches all statistics from the server
-func (stats *Stats) Get(server *phpx.Server) (data status.Statistics, err error) {
-	err = stats.PHP.ExecScript(server, &data, statsPHP, "export_statistics")
-	if err != nil {
-		log.Println(err)
-	}
+func (stats *Stats) Get(ctx context.Context, server *phpx.Server) (data status.Statistics, err error) {
+	err = stats.PHP.ExecScript(ctx, server, &data, statsPHP, "export_statistics")
 	return
 }
 
@@ -33,6 +30,6 @@ func (stats *Stats) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (e
 		return
 	}
 
-	info.Statistics, _ = stats.Get(flags.Server)
+	info.Statistics, _ = stats.Get(flags.Context, flags.Server)
 	return
 }

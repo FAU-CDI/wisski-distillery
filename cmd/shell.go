@@ -38,12 +38,12 @@ var errShell = exit.Error{
 }
 
 func (sh shell) Run(context wisski_distillery.Context) error {
-	instance, err := context.Environment.Instances().WissKI(sh.Positionals.Slug)
+	instance, err := context.Environment.Instances().WissKI(context.Context, sh.Positionals.Slug)
 	if err != nil {
 		return err
 	}
 
-	code, err := instance.Barrel().Shell(context.IOStream, sh.Positionals.Args...)
+	code, err := instance.Barrel().Shell(context.Context, context.IOStream, sh.Positionals.Args...)
 	if err != nil {
 		return errShell.WithMessageF(err)
 	}

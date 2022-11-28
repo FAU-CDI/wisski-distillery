@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"path/filepath"
 	"time"
 
@@ -14,7 +15,7 @@ func (exporter *Exporter) ShouldPrune(modtime time.Time) bool {
 }
 
 // Prune prunes all old exports
-func (exporter *Exporter) PruneExports(io stream.IOStream) error {
+func (exporter *Exporter) PruneExports(ctx context.Context, io stream.IOStream) error {
 	sPath := exporter.ArchivePath()
 
 	// list all the files
@@ -50,6 +51,6 @@ func (exporter *Exporter) PruneExports(io stream.IOStream) error {
 	}
 
 	// prune the snapshot log!
-	_, err = exporter.ExporterLogger.Log()
+	_, err = exporter.ExporterLogger.Log(ctx)
 	return err
 }

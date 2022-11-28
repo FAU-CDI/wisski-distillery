@@ -65,7 +65,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 
 		Handler: func(item component.Installable, index int, writer io.Writer) error {
 			io := stream.NewIOStream(writer, writer, stream.Null, 0)
-			return item.Stack(context.Environment.Environment).Up(io)
+			return item.Stack(context.Environment.Environment).Up(context.Context, io)
 		},
 	}, dis.Installable()); err != nil {
 		return err
@@ -74,7 +74,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 	logging.LogMessage(context.IOStream, "Starting Up WissKIs")
 
 	// find the instances
-	wissKIs, err := dis.Instances().All()
+	wissKIs, err := dis.Instances().All(context.Context)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 
 		Handler: func(item *wisski.WissKI, index int, writer io.Writer) error {
 			io := stream.NewIOStream(writer, writer, stream.Null, 0)
-			return item.Barrel().Stack().Up(io)
+			return item.Barrel().Stack().Up(context.Context, io)
 		},
 	}, wissKIs); err != nil {
 		return err
@@ -101,7 +101,7 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 	logging.LogMessage(context.IOStream, "Shutting Down WissKIs")
 
 	// find the instances
-	wissKIs, err := dis.Instances().All()
+	wissKIs, err := dis.Instances().All(context.Context)
 	if err != nil {
 		return err
 	}
@@ -115,7 +115,7 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 
 		Handler: func(item *wisski.WissKI, index int, writer io.Writer) error {
 			io := stream.NewIOStream(writer, writer, stream.Null, 0)
-			return item.Barrel().Stack().Down(io)
+			return item.Barrel().Stack().Down(context.Context, io)
 		},
 	}, wissKIs); err != nil {
 		return err
@@ -132,7 +132,7 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 
 		Handler: func(item component.Installable, index int, writer io.Writer) error {
 			io := stream.NewIOStream(writer, writer, stream.Null, 0)
-			return item.Stack(context.Environment.Environment).Down(io)
+			return item.Stack(context.Environment.Environment).Down(context.Context, io)
 		},
 	}, dis.Installable()); err != nil {
 		return err

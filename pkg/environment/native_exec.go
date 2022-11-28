@@ -1,8 +1,10 @@
 package environment
 
 import (
+	"context"
 	"os/exec"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -10,7 +12,7 @@ import (
 //
 // If the command executes, it's exit code will be returned.
 // If the command can not be executed, returns [ExecCommandError].
-func (*Native) Exec(io stream.IOStream, workdir string, exe string, argv ...string) int {
+func (*Native) Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, argv ...string) int {
 	// setup the command
 	cmd := exec.Command(exe, argv...)
 	cmd.Dir = workdir
@@ -18,8 +20,27 @@ func (*Native) Exec(io stream.IOStream, workdir string, exe string, argv ...stri
 	cmd.Stdout = io.Stdout
 	cmd.Stderr = io.Stderr
 
-	// run it
-	err := cmd.Run()
+	// run the process in a cancelable fashion
+	err, cErr := cancel.WithContext(ctx, func(cancelable func()) error {
+		// start the process
+		err := cmd.Start()
+		if err != nil {
+			return err
+		}
+
+		// allow it to be cancellable
+		cancelable()
+
+		// and wait for the rest of the process
+		return cmd.Wait()
+	}, func() {
+		if cmd.Process != nil {
+			cmd.Process.Kill()
+		}
+	})
+	if err == nil {
+		err = cErr
+	}
 
 	// non-zero exit
 	if err, ok := err.(*exec.ExitError); ok {

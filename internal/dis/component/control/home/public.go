@@ -19,14 +19,27 @@ func (home *Home) updateInstances(ctx context.Context, io stream.IOStream) {
 		for t := range timex.TickContext(ctx, home.RefreshInterval) {
 			io.Printf("[%s]: reloading instance list\n", t.Format(time.Stamp))
 
-			names, _ := home.instanceMap()
-			home.instanceNames.Set(names)
+			err := (func() error {
+				ctx, cancel := context.WithTimeout(ctx, home.RefreshInterval)
+				defer cancel()
+
+				names, err := home.instanceMap(ctx)
+				if err != nil {
+					return err
+				}
+
+				home.instanceNames.Set(names)
+				return nil
+			})()
+			if err != nil {
+				io.EPrintf("error reloading instances: ", err.Error())
+			}
 		}
 	}()
 }
 
-func (home *Home) instanceMap() (map[string]struct{}, error) {
-	wissKIs, err := home.Instances.All()
+func (home *Home) instanceMap(ctx context.Context) (map[string]struct{}, error) {
+	wissKIs, err := home.Instances.All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,10 +54,23 @@ func (home *Home) instanceMap() (map[string]struct{}, error) {
 func (home *Home) updateRender(ctx context.Context, io stream.IOStream) {
 	go func() {
 		for t := range timex.TickContext(ctx, home.RefreshInterval) {
-			io.Printf("[%s]: reloading home render\n", t.Format(time.Stamp))
+			io.Printf("[%s]: reloading home render list\n", t.Format(time.Stamp))
 
-			bytes, _ := home.homeRender()
-			home.homeBytes.Set(bytes)
+			err := (func() error {
+				ctx, cancel := context.WithTimeout(ctx, home.RefreshInterval)
+				defer cancel()
+
+				bytes, err := home.homeRender(ctx)
+				if err != nil {
+					return err
+				}
+
+				home.homeBytes.Set(bytes)
+				return nil
+			})()
+			if err != nil {
+				io.EPrintf("error reloading instances: ", err.Error())
+			}
 		}
 	}()
 }
@@ -53,7 +79,7 @@ func (home *Home) updateRender(ctx context.Context, io stream.IOStream) {
 var homeHTMLStr string
 var homeTemplate = static.AssetsHomeHome.MustParseShared("home.html", homeHTMLStr)
 
-func (home *Home) homeRender() ([]byte, error) {
+func (home *Home) homeRender(ctx context.Context) ([]byte, error) {
 	var context HomeContext
 
 	// setup a couple of static things
@@ -61,7 +87,7 @@ func (home *Home) homeRender() ([]byte, error) {
 	context.SelfRedirect = home.Config.SelfRedirect.String()
 
 	// find all the WissKIs
-	wissKIs, err := home.Instances.All()
+	wissKIs, err := home.Instances.All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +99,7 @@ func (home *Home) homeRender() ([]byte, error) {
 		i := i
 		wissKI := instance
 		eg.Go(func() (err error) {
-			context.Instances[i], err = wissKI.Info().Information(false)
+			context.Instances[i], err = wissKI.Info().Information(ctx, false)
 			return
 		})
 	}

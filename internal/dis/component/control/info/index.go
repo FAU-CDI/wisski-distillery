@@ -1,6 +1,7 @@
 package info
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -25,18 +26,18 @@ type indexContext struct {
 }
 
 func (info *Info) index(r *http.Request) (idx indexContext, err error) {
-	idx.Distillery, idx.Instances, err = info.Status(true)
+	idx.Distillery, idx.Instances, err = info.Status(r.Context(), true)
 	return
 }
 
 // Status produces a new observation of the distillery, and a new information of all instances
 // The information on all instances is passed the given quick flag.
-func (info *Info) Status(QuickInformation bool) (target status.Distillery, information []status.WissKI, err error) {
+func (info *Info) Status(ctx context.Context, QuickInformation bool) (target status.Distillery, information []status.WissKI, err error) {
 	var group errgroup.Group
 
 	group.Go(func() error {
 		// list all the instances
-		all, err := info.Instances.All()
+		all, err := info.Instances.All(ctx)
 		if err != nil {
 			return err
 		}
@@ -50,7 +51,7 @@ func (info *Info) Status(QuickInformation bool) (target status.Distillery, infor
 
 				// store the info for this group!
 				group.Go(func() (err error) {
-					information[i], err = instance.Info().Information(true)
+					information[i], err = instance.Info().Information(ctx, true)
 					return err
 				})
 			}
@@ -59,7 +60,9 @@ func (info *Info) Status(QuickInformation bool) (target status.Distillery, infor
 	})
 
 	// gather all the observations
-	var flags component.FetcherFlags
+	flags := component.FetcherFlags{
+		Context: ctx,
+	}
 	for _, o := range info.Fetchers {
 		o := o
 		group.Go(func() error {

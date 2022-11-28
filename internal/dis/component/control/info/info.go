@@ -28,11 +28,11 @@ type Info struct {
 
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
-func (info *Info) Handler(route string, context context.Context, io stream.IOStream) (handler http.Handler, err error) {
+func (info *Info) Handler(ctx context.Context, route string, io stream.IOStream) (handler http.Handler, err error) {
 	router := mux.NewRouter()
 	{
 		socket := &httpx.WebSocket{
-			Context:  context,
+			Context:  ctx,
 			Fallback: router,
 			Handler:  info.serveSocket,
 		}
@@ -82,12 +82,12 @@ func (info *Info) Handler(route string, context context.Context, io stream.IOStr
 		}
 
 		// get the instance
-		instance, err := info.Instances.WissKI(r.PostFormValue("slug"))
+		instance, err := info.Instances.WissKI(r.Context(), r.PostFormValue("slug"))
 		if err != nil {
 			return "", httpx.ErrNotFound
 		}
 
-		target, err := instance.Users().Login(nil, r.PostFormValue("user"))
+		target, err := instance.Users().Login(r.Context(), nil, r.PostFormValue("user"))
 		if err != nil {
 			return "", err
 		}

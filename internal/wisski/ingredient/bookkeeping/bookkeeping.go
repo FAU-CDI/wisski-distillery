@@ -1,6 +1,8 @@
 package bookkeeping
 
 import (
+	"context"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 )
@@ -11,8 +13,8 @@ type Bookkeeping struct {
 }
 
 // Save saves this instance in the bookkeeping table
-func (bk *Bookkeeping) Save() error {
-	sdb, err := bk.Malt.SQL.QueryTable(false, models.InstanceTable)
+func (bk *Bookkeeping) Save(ctx context.Context) error {
+	sdb, err := bk.Malt.SQL.QueryTable(ctx, false, models.InstanceTable)
 	if err != nil {
 		return err
 	}
@@ -27,8 +29,8 @@ func (bk *Bookkeeping) Save() error {
 }
 
 // Delete deletes this instance from the bookkeeping table
-func (bk *Bookkeeping) Delete() error {
-	sdb, err := bk.Malt.SQL.QueryTable(false, models.InstanceTable)
+func (bk *Bookkeeping) Delete(ctx context.Context) error {
+	sdb, err := bk.Malt.SQL.QueryTable(ctx, false, models.InstanceTable)
 	if err != nil {
 		return err
 	}

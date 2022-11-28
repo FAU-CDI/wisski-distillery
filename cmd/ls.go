@@ -25,7 +25,7 @@ func (ls) Description() wisski_distillery.Description {
 }
 
 func (l ls) Run(context wisski_distillery.Context) error {
-	instances, err := context.Environment.Instances().Load(l.Positionals.Slug...)
+	instances, err := context.Environment.Instances().Load(context.Context, l.Positionals.Slug...)
 	if err != nil {
 		return err
 	}

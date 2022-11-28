@@ -1,6 +1,7 @@
 package drush
 
 import (
+	"context"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
@@ -15,8 +16,8 @@ var errCronFailed = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (drush *Drush) Cron(io stream.IOStream) error {
-	code, err := drush.Barrel.Shell(io, "/runtime/cron.sh")
+func (drush *Drush) Cron(ctx context.Context, io stream.IOStream) error {
+	code, err := drush.Barrel.Shell(ctx, io, "/runtime/cron.sh")
 	if err != nil {
 		io.EPrintln(err)
 	}
@@ -29,9 +30,9 @@ func (drush *Drush) Cron(io stream.IOStream) error {
 	return nil
 }
 
-func (drush *Drush) LastCron(server *phpx.Server) (t time.Time, err error) {
+func (drush *Drush) LastCron(ctx context.Context, server *phpx.Server) (t time.Time, err error) {
 	var timestamp int64
-	err = drush.PHP.EvalCode(server, &timestamp, `$val = \Drupal::state()->get('system.cron_last'); return $val; `)
+	err = drush.PHP.EvalCode(ctx, server, &timestamp, `$val = \Drupal::state()->get('system.cron_last'); return $val; `)
 	if err != nil {
 		return
 	}
@@ -49,6 +50,6 @@ func (lbr *LastCronFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Wi
 		return
 	}
 
-	info.LastRebuild, _ = lbr.Drush.LastCron(flags.Server)
+	info.LastRebuild, _ = lbr.Drush.LastCron(flags.Context, flags.Server)
 	return
 }

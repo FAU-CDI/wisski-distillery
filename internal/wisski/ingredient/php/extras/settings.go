@@ -1,6 +1,7 @@
 package extras
 
 import (
+	"context"
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
@@ -17,11 +18,11 @@ type Settings struct {
 //go:embed settings.php
 var settingsPHP string
 
-func (settings *Settings) Get(server *phpx.Server, key string) (value any, err error) {
-	err = settings.PHP.ExecScript(server, &value, settingsPHP, "get_setting", key)
+func (settings *Settings) Get(ctx context.Context, server *phpx.Server, key string) (value any, err error) {
+	err = settings.PHP.ExecScript(ctx, server, &value, settingsPHP, "get_setting", key)
 	return
 }
 
-func (settings *Settings) Set(server *phpx.Server, key string, value any) error {
-	return settings.PHP.ExecScript(server, nil, settingsPHP, "set_setting", key, value)
+func (settings *Settings) Set(ctx context.Context, server *phpx.Server, key string, value any) error {
+	return settings.PHP.ExecScript(ctx, server, nil, settingsPHP, "set_setting", key, value)
 }

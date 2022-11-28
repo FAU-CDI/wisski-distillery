@@ -1,6 +1,8 @@
 package locker
 
 import (
+	"context"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/tkw1536/goprogram/exit"
@@ -17,8 +19,8 @@ var Locked = exit.Error{
 }
 
 // TryLock attemps to lock this WissKI and returns if it suceeded
-func (lock *Locker) TryLock() bool {
-	table, err := lock.Malt.SQL.QueryTable(true, models.LockTable)
+func (lock *Locker) TryLock(ctx context.Context) bool {
+	table, err := lock.Malt.SQL.QueryTable(ctx, true, models.LockTable)
 	if err != nil {
 		return false
 	}
@@ -29,8 +31,8 @@ func (lock *Locker) TryLock() bool {
 
 // TryUnlock attempts to unlock this WissKI and reports if it succeeded.
 // An unlock can only
-func (lock *Locker) TryUnlock() bool {
-	table, err := lock.Malt.SQL.QueryTable(true, models.LockTable)
+func (lock *Locker) TryUnlock(ctx context.Context) bool {
+	table, err := lock.Malt.SQL.QueryTable(ctx, true, models.LockTable)
 	if err != nil {
 		return false
 	}
@@ -39,6 +41,6 @@ func (lock *Locker) TryUnlock() bool {
 }
 
 // Unlock unlocks this WissKI, ignoring any error.
-func (lock *Locker) Unlock() {
-	lock.TryUnlock()
+func (lock *Locker) Unlock(ctx context.Context) {
+	lock.TryUnlock(ctx)
 }

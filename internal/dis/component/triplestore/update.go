@@ -1,6 +1,7 @@
 package triplestore
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -11,15 +12,15 @@ import (
 
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
 
-func (ts Triplestore) Update(io stream.IOStream) error {
+func (ts Triplestore) Update(ctx context.Context, io stream.IOStream) error {
 	logging.LogMessage(io, "Waiting for Triplestore")
-	if err := ts.Wait(); err != nil {
+	if err := ts.Wait(ctx); err != nil {
 		return err
 	}
 
 	logging.LogMessage(io, "Resetting admin user password")
 	{
-		res, err := ts.OpenRaw("PUT", "/rest/security/users/"+ts.Config.TriplestoreAdminUser, TriplestoreUserPayload{
+		res, err := ts.OpenRaw(ctx, "PUT", "/rest/security/users/"+ts.Config.TriplestoreAdminUser, TriplestoreUserPayload{
 			Password: ts.Config.TriplestoreAdminPassword,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
@@ -51,7 +52,7 @@ func (ts Triplestore) Update(io stream.IOStream) error {
 
 	logging.LogMessage(io, "Enabling Triplestore security")
 	{
-		res, err := ts.OpenRaw("POST", "/rest/security", true, "", "")
+		res, err := ts.OpenRaw(ctx, "POST", "/rest/security", true, "", "")
 		if err != nil {
 			return fmt.Errorf("failed to enable triplestore security: %s", err)
 		}

@@ -15,11 +15,11 @@ import (
 
 var errGetValidator = errors.New("GetPasswordValidator: Unknown Error")
 
-func (u *Users) GetPasswordValidator(username string) (pv PasswordValidator, err error) {
+func (u *Users) GetPasswordValidator(ctx context.Context, username string) (pv PasswordValidator, err error) {
 	server := u.PHP.NewServer()
 
 	var hash string
-	err = u.PHP.ExecScript(server, &hash, usersPHP, "get_password_hash", username)
+	err = u.PHP.ExecScript(ctx, server, &hash, usersPHP, "get_password_hash", username)
 	if err != nil {
 		server.Close()
 		return pv, err
@@ -46,9 +46,9 @@ func (pv PasswordValidator) Close() error {
 	return pv.server.Close()
 }
 
-func (pv PasswordValidator) Check(password string) bool {
+func (pv PasswordValidator) Check(ctx context.Context, password string) bool {
 	var result phpx.Boolean
-	err := pv.server.MarshalCall(&result, "check_password_hash", password, string(pv.hash))
+	err := pv.server.MarshalCall(ctx, &result, "check_password_hash", password, string(pv.hash))
 	if err != nil {
 		return false
 	}
@@ -65,10 +65,10 @@ func (cpe CommonPasswordError) Error() string {
 	return fmt.Sprintf("%q from %q", cpe.Password.Password, cpe.Password.Source)
 }
 
-func (pv PasswordValidator) CheckDictionary(context context.Context, writer io.Writer) error {
+func (pv PasswordValidator) CheckDictionary(ctx context.Context, writer io.Writer) error {
 	var counter int
 
-	if pv.Check(pv.username) {
+	if pv.Check(ctx, pv.username) {
 		if writer != nil {
 			counter++
 			fmt.Fprintln(writer, counter)
@@ -76,10 +76,10 @@ func (pv PasswordValidator) CheckDictionary(context context.Context, writer io.W
 		return errPasswordUsername
 	}
 	for candidate := range CommonPasswords() {
-		if context.Err() != nil {
+		if ctx.Err() != nil {
 			continue
 		}
-		result := pv.Check(candidate.Password)
+		result := pv.Check(ctx, candidate.Password)
 		if writer != nil {
 			counter++
 			fmt.Fprintln(writer, counter)
@@ -90,7 +90,7 @@ func (pv PasswordValidator) CheckDictionary(context context.Context, writer io.W
 		}
 	}
 
-	return context.Err()
+	return ctx.Err()
 }
 
 //go:embed passwords

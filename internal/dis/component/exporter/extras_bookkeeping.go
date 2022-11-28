@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"fmt"
 	"io"
 
@@ -19,8 +20,8 @@ func (Bookkeeping) SnapshotNeedsRunning() bool { return false }
 func (Bookkeeping) SnapshotName() string { return "bookkeeping.txt" }
 
 // Snapshot creates a snapshot of this instance
-func (*Bookkeeping) Snapshot(wisski models.Instance, context component.StagingContext) error {
-	return context.AddFile(".", func(file io.Writer) error {
+func (*Bookkeeping) Snapshot(wisski models.Instance, scontext component.StagingContext) error {
+	return scontext.AddFile(".", func(ctx context.Context, file io.Writer) error {
 		_, err := fmt.Fprintf(file, "%#v\n", wisski)
 		return err
 	})

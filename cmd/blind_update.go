@@ -40,7 +40,7 @@ var errBlindUpdateFailed = exit.Error{
 
 func (bu blindUpdate) Run(context wisski_distillery.Context) error {
 	// find all the instances!
-	wissKIs, err := context.Environment.Instances().Load(bu.Positionals.Slug...)
+	wissKIs, err := context.Environment.Instances().Load(context.Context, bu.Positionals.Slug...)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) error {
 
 	// and do the actual blind_update!
 	return status.StreamGroup(context.IOStream, bu.Parallel, func(instance *wisski.WissKI, str stream.IOStream) error {
-		return instance.Drush().Update(str)
+		return instance.Drush().Update(context.Context, str)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("blind_update %q", item.Slug)
 	}))

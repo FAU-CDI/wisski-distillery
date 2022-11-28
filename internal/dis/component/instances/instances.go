@@ -1,6 +1,7 @@
 package instances
 
 import (
+	"context"
 	"errors"
 	"path/filepath"
 
@@ -42,13 +43,13 @@ func (instances *Instances) use(wisski *wisski.WissKI) {
 
 // WissKI returns the WissKI with the provided slug, if it exists.
 // It the WissKI does not exist, returns ErrWissKINotFound.
-func (instances *Instances) WissKI(slug string) (wissKI *wisski.WissKI, err error) {
+func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wisski.WissKI, err error) {
 	sql := instances.SQL
-	if err := sql.WaitQueryTable(); err != nil {
+	if err := sql.WaitQueryTable(ctx); err != nil {
 		return nil, err
 	}
 
-	table, err := sql.QueryTable(false, models.InstanceTable)
+	table, err := sql.QueryTable(ctx, false, models.InstanceTable)
 	if err != nil {
 		return nil, err
 	}
@@ -72,8 +73,8 @@ func (instances *Instances) WissKI(slug string) (wissKI *wisski.WissKI, err erro
 
 // Instance is a convenience function to return an instance based on a model slug.
 // When the instance does not exist, returns nil.
-func (instances *Instances) Instance(instance models.Instance) *wisski.WissKI {
-	wissKI, err := instances.WissKI(instance.Slug)
+func (instances *Instances) Instance(ctx context.Context, instance models.Instance) *wisski.WissKI {
+	wissKI, err := instances.WissKI(ctx, instance.Slug)
 	if err != nil {
 		return nil
 	}
@@ -82,13 +83,13 @@ func (instances *Instances) Instance(instance models.Instance) *wisski.WissKI {
 
 // Has checks if a WissKI with the provided slug exists inside the database.
 // It does not perform any checks on the WissKI itself.
-func (instances *Instances) Has(slug string) (ok bool, err error) {
+func (instances *Instances) Has(ctx context.Context, slug string) (ok bool, err error) {
 	sql := instances.SQL
-	if err := sql.WaitQueryTable(); err != nil {
+	if err := sql.WaitQueryTable(ctx); err != nil {
 		return false, err
 	}
 
-	table, err := sql.QueryTable(false, models.InstanceTable)
+	table, err := sql.QueryTable(ctx, false, models.InstanceTable)
 	if err != nil {
 		return false, err
 	}
@@ -103,37 +104,37 @@ func (instances *Instances) Has(slug string) (ok bool, err error) {
 // All returns all instances of the WissKI Distillery in consistent order.
 //
 // There is no guarantee that this order remains identical between different api releases; however subsequent invocations are guaranteed to return the same order.
-func (instances *Instances) All() ([]*wisski.WissKI, error) {
-	return instances.find(true, func(table *gorm.DB) *gorm.DB {
+func (instances *Instances) All(ctx context.Context) ([]*wisski.WissKI, error) {
+	return instances.find(ctx, true, func(table *gorm.DB) *gorm.DB {
 		return table
 	})
 }
 
 // WissKIs returns the WissKI instances with the provides slugs.
 // If a slug does not exist, it is omitted from the result.
-func (instances *Instances) WissKIs(slugs ...string) ([]*wisski.WissKI, error) {
-	return instances.find(true, func(table *gorm.DB) *gorm.DB {
+func (instances *Instances) WissKIs(ctx context.Context, slugs ...string) ([]*wisski.WissKI, error) {
+	return instances.find(ctx, true, func(table *gorm.DB) *gorm.DB {
 		return table.Where("slug IN ?", slugs)
 	})
 }
 
 // Load is like All, except that when no slugs are provided, it calls All.
-func (instances *Instances) Load(slugs ...string) ([]*wisski.WissKI, error) {
+func (instances *Instances) Load(ctx context.Context, slugs ...string) ([]*wisski.WissKI, error) {
 	if len(slugs) == 0 {
-		return instances.All()
+		return instances.All(ctx)
 	}
-	return instances.WissKIs(slugs...)
+	return instances.WissKIs(ctx, slugs...)
 }
 
 // find finds instances based on the provided query
-func (instances *Instances) find(order bool, query func(table *gorm.DB) *gorm.DB) (results []*wisski.WissKI, err error) {
+func (instances *Instances) find(ctx context.Context, order bool, query func(table *gorm.DB) *gorm.DB) (results []*wisski.WissKI, err error) {
 	sql := instances.SQL
-	if err := sql.WaitQueryTable(); err != nil {
+	if err := sql.WaitQueryTable(ctx); err != nil {
 		return nil, err
 	}
 
 	// open the bookkeeping table
-	table, err := sql.QueryTable(false, models.InstanceTable)
+	table, err := sql.QueryTable(ctx, false, models.InstanceTable)
 	if err != nil {
 		return nil, err
 	}

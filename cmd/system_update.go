@@ -135,11 +135,11 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 				io := stream.NewIOStream(writer, writer, stream.Null, 0)
 				stack := item.Stack(context.Environment.Environment)
 
-				if err := stack.Install(io, item.Context(ctx)); err != nil {
+				if err := stack.Install(context.Context, io, item.Context(ctx)); err != nil {
 					return err
 				}
 
-				if err := stack.Update(io, true); err != nil {
+				if err := stack.Update(context.Context, io, true); err != nil {
 					return err
 				}
 
@@ -154,7 +154,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 					updated[item.ID()] = struct{}{}
 				}()
 
-				return ud.Update(io)
+				return ud.Update(context.Context, io)
 			},
 		}, dis.Installable())
 	}, context.IOStream, "Performing Stack Updates"); err != nil {
@@ -170,7 +170,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 					context.Println("Already updated")
 					return nil
 				}
-				return item.Update(context.IOStream)
+				return item.Update(context.Context, context.IOStream)
 			}, context.IOStream, "Updating Component: %s", name); err != nil {
 				return errBootstrapComponent.WithMessageF(name, err)
 			}
@@ -194,9 +194,9 @@ var errMustExecFailed = exit.Error{
 func (si systemupdate) mustExec(context wisski_distillery.Context, workdir string, exe string, argv ...string) error {
 	dis := context.Environment
 	if workdir == "" {
-		workdir = context.Environment.Config.DeployRoot
+		workdir = dis.Config.DeployRoot
 	}
-	code := dis.Still.Environment.Exec(context.IOStream, workdir, exe, argv...)
+	code := dis.Still.Environment.Exec(context.Context, context.IOStream, workdir, exe, argv...)
 	if code != 0 {
 		err := errMustExecFailed.WithMessageF(code)
 		err.ExitCode = exit.ExitCode(code)

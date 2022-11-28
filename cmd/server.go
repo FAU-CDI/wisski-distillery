@@ -5,6 +5,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -33,7 +34,7 @@ var errServerListen = exit.Error{
 
 func (s server) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
-	handler, err := dis.Control().Server(dis.Context(), context.IOStream)
+	handler, err := dis.Control().Server(context.Context, context.IOStream)
 	if err != nil {
 		return err
 	}
@@ -47,14 +48,21 @@ func (s server) Run(context wisski_distillery.Context) error {
 	}
 
 	go func() {
-		<-dis.Context().Done()
+		<-context.Context.Done()
 		listener.Close()
 	}()
 
-	// and serve that listener
-	err = http.Serve(listener, http.StripPrefix(s.Prefix, handler))
-	if err == nil {
-		return nil
+	server := http.Server{
+		Handler: http.StripPrefix(s.Prefix, handler),
 	}
+
+	err, _ = cancel.WithContext(context.Context, func(start func()) error {
+		start()
+		return server.Serve(listener)
+	}, func() {
+		// gracefully shutdown server
+		context.Printf("shutting down server")
+		server.Shutdown(context.Context)
+	})
 	return errServerListen.Wrap(err)
 }

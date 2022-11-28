@@ -16,13 +16,27 @@ func (home *Home) updateRedirect(ctx context.Context, io stream.IOStream) {
 		for t := range timex.TickContext(ctx, home.RefreshInterval) {
 			io.Printf("[%s]: reloading overrides\n", t.Format(time.Stamp))
 
-			redirect, _ := home.loadRedirect()
-			home.redirect.Set(&redirect)
+			err := (func() error {
+				ctx, cancel := context.WithTimeout(ctx, home.RefreshInterval)
+				defer cancel()
+
+				redirect, err := home.loadRedirect(ctx)
+				if err != nil {
+					return err
+				}
+
+				home.redirect.Set(&redirect)
+				return nil
+			})()
+			if err != nil {
+				io.EPrintf("error reloading overrides: ", err.Error())
+			}
+
 		}
 	}()
 }
 
-func (home *Home) loadRedirect() (redirect Redirect, err error) {
+func (home *Home) loadRedirect(ctx context.Context) (redirect Redirect, err error) {
 	if redirect.Overrides == nil {
 		redirect.Overrides = make(map[string]string)
 	}

@@ -1,6 +1,7 @@
 package info
 
 import (
+	"context"
 	"encoding/json"
 	"time"
 
@@ -14,14 +15,15 @@ import (
 type InstanceAction struct {
 	NumParams int
 
-	HandleInteractive func(info *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error
-	HandleResult      func(info *Info, instance *wisski.WissKI, params ...string) (value any, err error)
+	HandleInteractive func(ctx context.Context, info *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error
+	HandleResult      func(ctx context.Context, info *Info, instance *wisski.WissKI, params ...string) (value any, err error)
 }
 
 var socketInstanceActions = map[string]InstanceAction{
 	"snapshot": {
-		HandleInteractive: func(info *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+		HandleInteractive: func(ctx context.Context, info *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
 			return info.Exporter.MakeExport(
+				ctx,
 				str,
 				exporter.ExportTask{
 					Dest:     "",
@@ -33,18 +35,18 @@ var socketInstanceActions = map[string]InstanceAction{
 		},
 	},
 	"rebuild": {
-		HandleInteractive: func(_ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
-			return instance.Barrel().Build(str, true)
+		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+			return instance.Barrel().Build(ctx, str, true)
 		},
 	},
 	"update": {
-		HandleInteractive: func(_ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
-			return instance.Drush().Update(str)
+		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+			return instance.Drush().Update(ctx, str)
 		},
 	},
 	"cron": {
-		HandleInteractive: func(_ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
-			return instance.Drush().Cron(str)
+		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+			return instance.Drush().Cron(ctx, str)
 		},
 	},
 }
@@ -75,7 +77,7 @@ func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action In
 	}
 
 	// resolve the instance
-	instance, err := info.Instances.WissKI(string(slug.Bytes))
+	instance, err := info.Instances.WissKI(conn.Context(), string(slug.Bytes))
 	if err != nil {
 		<-conn.WriteText("Instance not found")
 		return
@@ -110,7 +112,7 @@ func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action In
 
 	// handle the interactive action
 	if action.HandleInteractive != nil {
-		err := action.HandleInteractive(info, instance, str, params...)
+		err := action.HandleInteractive(conn.Context(), info, instance, str, params...)
 		if err != nil {
 			str.EPrintln(err)
 			return
@@ -120,7 +122,7 @@ func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action In
 
 	// handle the result computation
 	if action.HandleResult != nil {
-		result, err := action.HandleResult(info, instance, params...)
+		result, err := action.HandleResult(conn.Context(), info, instance, params...)
 		if err != nil {
 			str.Println("false")
 			return

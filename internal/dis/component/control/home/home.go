@@ -26,10 +26,10 @@ type Home struct {
 
 func (*Home) Routes() []string { return []string{"/"} }
 
-func (home *Home) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {
-	home.updateRedirect(context, io)
-	home.updateInstances(context, io)
-	home.updateRender(context, io)
+func (home *Home) Handler(ctx context.Context, route string, io stream.IOStream) (http.Handler, error) {
+	home.updateRedirect(ctx, io)
+	home.updateInstances(ctx, io)
+	home.updateRender(ctx, io)
 	return home, nil
 }
 

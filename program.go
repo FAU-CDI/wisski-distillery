@@ -1,6 +1,9 @@
 package wisski_distillery
 
 import (
+	"context"
+	"os"
+	"os/signal"
 	"os/user"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
@@ -21,6 +24,7 @@ type Program = goprogram.Program[wdcliEnv, wdcliParameters, wdCliFlags, wdcliReq
 type Command = goprogram.Command[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
 type Context = goprogram.Context[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
 type Arguments = goprogram.Arguments[wdCliFlags]
+type ContextCleanupFunc = goprogram.ContextCleanupFunc[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
 type Description = goprogram.Description[wdCliFlags, wdcliRequirements]
 
 // an error when nor arguments are provided.
@@ -47,6 +51,14 @@ func NewProgram() Program {
 			}
 
 			return nil
+		},
+
+		NewContext: func(params *wdcliParameters, parent context.Context) (context.Context, ContextCleanupFunc, error) {
+			if params == nil {
+				return parent, nil, nil
+			}
+			ctx, stop := signal.NotifyContext(parent, os.Interrupt)
+			return ctx, func(context *Context) { stop() }, nil
 		},
 
 		NewEnvironment: func(params wdcliParameters, context Context) (e wdcliEnv, err error) {

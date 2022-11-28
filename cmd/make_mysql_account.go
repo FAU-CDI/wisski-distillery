@@ -50,7 +50,7 @@ func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
 		return errUnableToReadPassword.WithMessageF(err)
 	}
 
-	if err := dis.SQL().CreateSuperuser(username, password, false); err != nil {
+	if err := dis.SQL().CreateSuperuser(context.Context, username, password, false); err != nil {
 		return err
 	}
 

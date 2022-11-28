@@ -2,6 +2,7 @@ package triplestore
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"io"
 	"mime/multipart"
@@ -30,7 +31,7 @@ type TriplestoreUserAppSettings struct {
 //
 // When bodyName is non-empty, expect body to be a byte slice representing a multipart/form-data upload with the given name.
 // When bodyName is empty, simply marshal body as application/json
-func (ts Triplestore) OpenRaw(method, url string, body interface{}, bodyName string, accept string) (*http.Response, error) {
+func (ts Triplestore) OpenRaw(ctx context.Context, method, url string, body interface{}, bodyName string, accept string) (*http.Response, error) {
 	var reader io.Reader
 
 	var contentType string
@@ -66,7 +67,7 @@ func (ts Triplestore) OpenRaw(method, url string, body interface{}, bodyName str
 			DisableKeepAlives: true,
 		},
 	}
-	req, err := http.NewRequest(method, ts.BaseURL+url, reader)
+	req, err := http.NewRequestWithContext(ctx, method, ts.BaseURL+url, reader)
 	if err != nil {
 		return nil, err
 	}
@@ -86,23 +87,23 @@ func (ts Triplestore) OpenRaw(method, url string, body interface{}, bodyName str
 
 // Wait waits for the connection to the Triplestore to succeed.
 // This is achieved using a polling strategy.
-func (ts Triplestore) Wait() error {
+func (ts Triplestore) Wait(ctx context.Context) error {
 	n := stream.FromNil()
 	return timex.TickUntilFunc(func(time.Time) bool {
-		res, err := ts.OpenRaw("GET", "/rest/repositories", nil, "", "")
+		res, err := ts.OpenRaw(ctx, "GET", "/rest/repositories", nil, "", "")
 		n.EPrintf("[Triplestore.Wait]: %s\n", err)
 		if err != nil {
 			return false
 		}
 		defer res.Body.Close()
 		return true
-	}, ts.PollContext, ts.PollInterval)
+	}, ctx, ts.PollInterval)
 }
 
 // PurgeUser deletes the specified user from the triplestore.
 // When the user does not exist, returns no error.
-func (ts Triplestore) PurgeUser(user string) error {
-	res, err := ts.OpenRaw("DELETE", "/rest/security/users/"+user, nil, "", "")
+func (ts Triplestore) PurgeUser(ctx context.Context, user string) error {
+	res, err := ts.OpenRaw(ctx, "DELETE", "/rest/security/users/"+user, nil, "", "")
 	if err != nil {
 		return err
 	}
@@ -114,8 +115,8 @@ func (ts Triplestore) PurgeUser(user string) error {
 
 // PurgeRepo deletes the specified repo from the triplestore.
 // When the repo does not exist, returns no error.
-func (ts Triplestore) PurgeRepo(repo string) error {
-	res, err := ts.OpenRaw("DELETE", "/rest/repositories/"+repo, nil, "", "")
+func (ts Triplestore) PurgeRepo(ctx context.Context, repo string) error {
+	res, err := ts.OpenRaw(ctx, "DELETE", "/rest/repositories/"+repo, nil, "", "")
 	if err != nil {
 		return err
 	}

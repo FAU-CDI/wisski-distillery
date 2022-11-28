@@ -28,7 +28,7 @@ type Resolver struct {
 
 func (resolver *Resolver) Routes() []string { return []string{"/go/", "/wisski/get/"} }
 
-func (resolver *Resolver) Handler(route string, context context.Context, io stream.IOStream) (http.Handler, error) {
+func (resolver *Resolver) Handler(ctx context.Context, route string, io stream.IOStream) (http.Handler, error) {
 	var err error
 	return resolver.handler.Get(func() (p wdresolve.ResolveHandler) {
 		p.TrustXForwardedProto = true
@@ -51,7 +51,7 @@ func (resolver *Resolver) Handler(route string, context context.Context, io stre
 		}
 
 		// start updating prefixes
-		resolver.updatePrefixes(io, context)
+		resolver.updatePrefixes(ctx, io)
 
 		// resolve the prefixes
 		p.Resolver = resolvers.InOrder{

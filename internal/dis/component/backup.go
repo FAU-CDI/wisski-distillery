@@ -1,6 +1,7 @@
 package component
 
 import (
+	"context"
 	"io"
 	"path/filepath"
 
@@ -45,7 +46,7 @@ type StagingContext interface {
 	// Passing the empty path creates the destination as a directory.
 	//
 	// It then allows op to fill the file.
-	AddDirectory(path string, op func() error) error
+	AddDirectory(path string, op func(context.Context) error) error
 
 	// CopyFile copies a file from src to dst.
 	CopyFile(dst, src string) error
@@ -61,12 +62,13 @@ type StagingContext interface {
 	// The op function must not retain file.
 	// The underlying file does not need to be closed.
 	// AddFile will not return before op has returned.
-	AddFile(path string, op func(file io.Writer) error) error
+	AddFile(path string, op func(ctx context.Context, file io.Writer) error) error
 }
 
 // NewStagingContext returns a new [StagingContext]
-func NewStagingContext(env environment.Environment, io stream.IOStream, path string, manifest chan<- string) StagingContext {
+func NewStagingContext(ctx context.Context, env environment.Environment, io stream.IOStream, path string, manifest chan<- string) StagingContext {
 	return &stagingContext{
+		ctx:      ctx,
 		env:      env,
 		io:       io,
 		path:     path,
@@ -76,6 +78,7 @@ func NewStagingContext(env environment.Environment, io stream.IOStream, path str
 
 // stagingContext implements [components.StagingContext]
 type stagingContext struct {
+	ctx      context.Context
 	env      environment.Environment // environment
 	io       stream.IOStream         // context the files are sent to
 	path     string                  // path to send files to
@@ -110,7 +113,12 @@ func (bc *stagingContext) resolve(path string) (dest string, err error) {
 	return filepath.Join(bc.path, path), nil
 }
 
-func (sc *stagingContext) AddDirectory(path string, op func() error) error {
+func (sc *stagingContext) AddDirectory(path string, op func(context.Context) error) error {
+	// check if we are already done
+	if err, ok := sc.ctxdone(); ok {
+		return err
+	}
+
 	// resolve the path!
 	dst, err := sc.resolve(path)
 	if err != nil {
@@ -126,30 +134,43 @@ func (sc *stagingContext) AddDirectory(path string, op func() error) error {
 	sc.sendPath(path)
 
 	// and run the files!
-	return op()
+	return op(sc.ctx)
 }
 
 func (sc *stagingContext) CopyFile(dst, src string) error {
+	if err, ok := sc.ctxdone(); ok {
+		return err
+	}
+
 	dstPath, err := sc.resolve(dst)
 	if err != nil {
 		return err
 	}
 	sc.sendPath(dst)
-	return fsx.CopyFile(sc.env, dstPath, src)
+	return fsx.CopyFile(sc.ctx, sc.env, dstPath, src)
 }
 
 func (sc *stagingContext) CopyDirectory(dst, src string) error {
+	if err, ok := sc.ctxdone(); ok {
+		return err
+	}
+
 	dstPath, err := sc.resolve(dst)
 	if err != nil {
 		return err
 	}
 
-	return fsx.CopyDirectory(sc.env, dstPath, src, func(dst, src string) {
+	return fsx.CopyDirectory(sc.ctx, sc.env, dstPath, src, func(dst, src string) {
 		sc.sendPath(dst)
 	})
 }
 
-func (sc *stagingContext) AddFile(path string, op func(file io.Writer) error) error {
+func (sc *stagingContext) AddFile(path string, op func(ctx context.Context, file io.Writer) error) error {
+	// check if we're already done
+	if err, ok := sc.ctxdone(); ok {
+		return err
+	}
+
 	// resolve the path!
 	dst, err := sc.resolve(path)
 	if err != nil {
@@ -167,5 +188,11 @@ func (sc *stagingContext) AddFile(path string, op func(file io.Writer) error) er
 	sc.sendPath(path)
 
 	// and do whatever they wanted to do
-	return op(file)
+	return op(sc.ctx, file)
+}
+
+func (sc *stagingContext) ctxdone() (err error, done bool) {
+	err = sc.ctx.Err()
+	done = (err != nil)
+	return
 }

@@ -1,6 +1,7 @@
 package barrel
 
 import (
+	"context"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -15,40 +16,40 @@ import (
 // Build builds or rebuilds the barel connected to this instance.
 //
 // It also logs the current time into the metadata belonging to this instance.
-func (barrel *Barrel) Build(stream stream.IOStream, start bool) error {
-	if !barrel.Locker.TryLock() {
+func (barrel *Barrel) Build(ctx context.Context, stream stream.IOStream, start bool) error {
+	if !barrel.Locker.TryLock(ctx) {
 		err := locker.Locked
 		return err
 	}
-	defer barrel.Locker.Unlock()
+	defer barrel.Locker.Unlock(ctx)
 
 	stack := barrel.Stack()
 
 	var context component.InstallationContext
 
 	{
-		err := stack.Install(stream, context)
+		err := stack.Install(ctx, stream, context)
 		if err != nil {
 			return err
 		}
 	}
 
 	{
-		err := stack.Update(stream, start)
+		err := stack.Update(ctx, stream, start)
 		if err != nil {
 			return err
 		}
 	}
 
 	// store the current last rebuild
-	return barrel.setLastRebuild()
+	return barrel.setLastRebuild(ctx)
 }
 
 // TODO: Move this to time.Time
 var lastRebuild = mstore.For[int64]("lastRebuild")
 
-func (barrel Barrel) LastRebuild() (t time.Time, err error) {
-	epoch, err := lastRebuild.Get(barrel.MStore)
+func (barrel Barrel) LastRebuild(ctx context.Context) (t time.Time, err error) {
+	epoch, err := lastRebuild.Get(ctx, barrel.MStore)
 	if err == meta.ErrMetadatumNotSet {
 		return t, nil
 	}
@@ -60,8 +61,8 @@ func (barrel Barrel) LastRebuild() (t time.Time, err error) {
 	return time.Unix(epoch, 0), nil
 }
 
-func (barrel *Barrel) setLastRebuild() error {
-	return lastRebuild.Set(barrel.MStore, time.Now().Unix())
+func (barrel *Barrel) setLastRebuild(ctx context.Context) error {
+	return lastRebuild.Set(ctx, barrel.MStore, time.Now().Unix())
 }
 
 type LastRebuildFetcher struct {
@@ -70,7 +71,7 @@ type LastRebuildFetcher struct {
 	Barrel *Barrel
 }
 
-func (lbr *LastRebuildFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.LastRebuild, _ = lbr.Barrel.LastRebuild()
+func (lbr *LastRebuildFetcher) Fetch(ctx context.Context, flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
+	info.LastRebuild, _ = lbr.Barrel.LastRebuild(ctx)
 	return
 }

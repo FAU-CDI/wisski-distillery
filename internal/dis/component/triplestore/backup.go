@@ -1,6 +1,7 @@
 package triplestore
 
 import (
+	"context"
 	"encoding/json"
 	"io"
 
@@ -10,19 +11,17 @@ import (
 func (ts *Triplestore) BackupName() string { return "triplestore" }
 
 // Backup makes a backup of all Triplestore repositories databases into the path dest.
-func (ts *Triplestore) Backup(context component.StagingContext) error {
+func (ts *Triplestore) Backup(scontext component.StagingContext) error {
+	return scontext.AddDirectory("", func(ctx context.Context) error {
+		// list all the directories
+		repos, err := ts.listRepositories(ctx)
+		if err != nil {
+			return err
+		}
 
-	// list all the directories
-	repos, err := ts.listRepositories()
-	if err != nil {
-		return err
-	}
-
-	// then backup each file separatly
-	return context.AddDirectory("", func() error {
 		for _, repo := range repos {
-			if err := context.AddFile(repo.ID+".nq", func(file io.Writer) error {
-				_, err := ts.SnapshotDB(file, repo.ID)
+			if err := scontext.AddFile(repo.ID+".nq", func(ctx context.Context, file io.Writer) error {
+				_, err := ts.SnapshotDB(ctx, file, repo.ID)
 				return err
 			}); err != nil {
 				return err
@@ -32,8 +31,8 @@ func (ts *Triplestore) Backup(context component.StagingContext) error {
 	})
 }
 
-func (ts Triplestore) listRepositories() (repos []Repository, err error) {
-	res, err := ts.OpenRaw("GET", "/rest/repositories", nil, "", "application/json")
+func (ts Triplestore) listRepositories(ctx context.Context) (repos []Repository, err error) {
+	res, err := ts.OpenRaw(ctx, "GET", "/rest/repositories", nil, "", "application/json")
 	if err != nil {
 		return nil, err
 	}

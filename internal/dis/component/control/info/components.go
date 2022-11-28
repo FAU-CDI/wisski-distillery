@@ -52,7 +52,7 @@ func (info *Info) ingredients(r *http.Request) (cp ingredientsContext, err error
 	cp.Time = time.Now().UTC()
 
 	// find the instance itself!
-	instance, err := info.Instances.WissKI(mux.Vars(r)["slug"])
+	instance, err := info.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])
 	if err == instances.ErrWissKINotFound {
 		return cp, httpx.ErrNotFound
 	}

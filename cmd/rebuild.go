@@ -40,14 +40,14 @@ func (rb rebuild) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
 	// find the instances
-	wissKIs, err := dis.Instances().Load(rb.Positionals.Slug...)
+	wissKIs, err := dis.Instances().Load(context.Context, rb.Positionals.Slug...)
 	if err != nil {
 		return err
 	}
 
 	// and do the actual rebuild
 	return status.StreamGroup(context.IOStream, rb.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
-		return instance.Barrel().Build(io, true)
+		return instance.Barrel().Build(context.Context, io, true)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)
 	}))

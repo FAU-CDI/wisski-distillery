@@ -25,7 +25,7 @@ func (cStatus) Description() wisski_distillery.Description {
 }
 
 func (s cStatus) Run(context wisski_distillery.Context) error {
-	status, _, err := context.Environment.Info().Status(true)
+	status, _, err := context.Environment.Info().Status(context.Context, true)
 	if err != nil {
 		return err
 	}

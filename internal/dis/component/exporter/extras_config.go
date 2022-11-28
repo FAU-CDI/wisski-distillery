@@ -1,6 +1,7 @@
 package exporter
 
 import (
+	"context"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -15,13 +16,13 @@ func (*Config) BackupName() string {
 	return "config"
 }
 
-func (control *Config) Backup(context component.StagingContext) error {
+func (control *Config) Backup(scontext component.StagingContext) error {
 	files := control.backupFiles()
 
-	return context.AddDirectory("", func() error {
+	return scontext.AddDirectory("", func(ctx context.Context) error {
 		for _, src := range files {
 			name := filepath.Base(src)
-			if err := context.CopyFile(name, src); err != nil {
+			if err := scontext.CopyFile(name, src); err != nil {
 				return err
 			}
 		}

@@ -115,7 +115,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
 
-		err = fsx.CopyFile(env, wdcliPath, exe)
+		err = fsx.CopyFile(context.Context, env, wdcliPath, exe)
 		if err != nil && err != fsx.ErrCopySameFile {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}

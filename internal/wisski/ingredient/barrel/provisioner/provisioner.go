@@ -1,6 +1,7 @@
 package provisioner
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -19,10 +20,10 @@ type Provisioner struct {
 }
 
 // Provision provisions an instance, assuming that the required databases already exist.
-func (provision *Provisioner) Provision(io stream.IOStream) error {
+func (provision *Provisioner) Provision(ctx context.Context, io stream.IOStream) error {
 
 	// build the container
-	if err := provision.Barrel.Build(io, false); err != nil {
+	if err := provision.Barrel.Build(ctx, io, false); err != nil {
 		return err
 	}
 
@@ -53,7 +54,7 @@ func (provision *Provisioner) Provision(io stream.IOStream) error {
 	// TODO: Move the provision script into the control plane!
 	provisionScript := "sudo PATH=$PATH -u www-data /bin/bash /provision_container.sh " + strings.Join(provisionParams, " ")
 
-	code, err := provision.Barrel.Stack().Run(io, true, "barrel", "/bin/bash", "-c", provisionScript)
+	code, err := provision.Barrel.Stack().Run(ctx, io, true, "barrel", "/bin/bash", "-c", provisionScript)
 	if err != nil {
 		return err
 	}

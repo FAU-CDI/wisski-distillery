@@ -37,14 +37,14 @@ var errPrefixUpdateFailed = exit.Error{
 func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
-	wissKIs, err := dis.Instances().All()
+	wissKIs, err := dis.Instances().All(context.Context)
 	if err != nil {
 		return errPrefixUpdateFailed.Wrap(err)
 	}
 
 	return status.StreamGroup(context.IOStream, upc.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
 		io.Println("reading prefixes")
-		err := instance.Prefixes().Update()
+		err := instance.Prefixes().Update(context.Context)
 		if err != nil {
 			return errPrefixUpdateFailed.Wrap(err)
 		}

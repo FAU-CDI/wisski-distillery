@@ -1,6 +1,10 @@
 package component
 
-import "github.com/FAU-CDI/wisski-distillery/internal/status"
+import (
+	"context"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
+)
 
 type DistilleryFetcher interface {
 	Component
@@ -11,4 +15,6 @@ type DistilleryFetcher interface {
 }
 
 // FetcherFlags describes options for a DistilleryFetcher
-type FetcherFlags struct{}
+type FetcherFlags struct {
+	Context context.Context
+}

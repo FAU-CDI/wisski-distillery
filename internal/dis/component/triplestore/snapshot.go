@@ -1,6 +1,7 @@
 package triplestore
 
 import (
+	"context"
 	"io"
 	"net/http"
 
@@ -13,10 +14,10 @@ func (Triplestore) SnapshotNeedsRunning() bool { return false }
 
 func (Triplestore) SnapshotName() string { return "triplestore" }
 
-func (ts *Triplestore) Snapshot(wisski models.Instance, context component.StagingContext) error {
-	return context.AddDirectory(".", func() error {
-		return context.AddFile(wisski.GraphDBRepository+".nq", func(file io.Writer) error {
-			_, err := ts.SnapshotDB(file, wisski.GraphDBRepository)
+func (ts *Triplestore) Snapshot(wisski models.Instance, scontext component.StagingContext) error {
+	return scontext.AddDirectory(".", func(ctx context.Context) error {
+		return scontext.AddFile(wisski.GraphDBRepository+".nq", func(ctx context.Context, file io.Writer) error {
+			_, err := ts.SnapshotDB(ctx, file, wisski.GraphDBRepository)
 			return err
 		})
 	})
@@ -25,8 +26,8 @@ func (ts *Triplestore) Snapshot(wisski models.Instance, context component.Stagin
 var errTSBackupWrongStatusCode = errors.New("Triplestore.Backup: Wrong status code")
 
 // SnapshotDB snapshots the provided repository into dst
-func (ts Triplestore) SnapshotDB(dst io.Writer, repo string) (int64, error) {
-	res, err := ts.OpenRaw("GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads")
+func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string) (int64, error) {
+	res, err := ts.OpenRaw(ctx, "GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads")
 	if err != nil {
 		return 0, err
 	}

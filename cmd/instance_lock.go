@@ -46,20 +46,20 @@ var errNotUnlock = exit.Error{
 }
 
 func (l instanceLock) Run(context wisski_distillery.Context) error {
-	instance, err := context.Environment.Instances().WissKI(l.Positionals.Slug)
+	instance, err := context.Environment.Instances().WissKI(context.Context, l.Positionals.Slug)
 	if err != nil {
 		return err
 	}
 
 	if l.Unlock {
-		if !instance.Locker().TryUnlock() {
+		if !instance.Locker().TryUnlock(context.Context) {
 			return errNotUnlock
 		}
 		context.Println("unlocked")
 		return nil
 	}
 
-	if !instance.Locker().TryLock() {
+	if !instance.Locker().TryLock(context.Context) {
 		return locker.Locked
 	}
 
