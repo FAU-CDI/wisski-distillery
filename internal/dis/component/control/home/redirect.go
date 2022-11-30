@@ -3,18 +3,19 @@ package home
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
-	"github.com/tkw1536/goprogram/stream"
 )
 
-func (home *Home) updateRedirect(ctx context.Context, io stream.IOStream) {
+func (home *Home) updateRedirect(ctx context.Context, progress io.Writer) {
 	go func() {
 		for t := range timex.TickContext(ctx, home.RefreshInterval) {
-			io.Printf("[%s]: reloading overrides\n", t.Format(time.Stamp))
+			fmt.Fprintf(progress, "[%s]: reloading overrides\n", t.Format(time.Stamp))
 
 			err := (func() error {
 				ctx, cancel := context.WithTimeout(ctx, home.RefreshInterval)
@@ -29,7 +30,7 @@ func (home *Home) updateRedirect(ctx context.Context, io stream.IOStream) {
 				return nil
 			})()
 			if err != nil {
-				io.EPrintf("error reloading overrides: ", err.Error())
+				fmt.Fprintf(progress, "error reloading overrides: %s", err.Error())
 			}
 
 		}

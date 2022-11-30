@@ -14,7 +14,6 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
 	"github.com/tkw1536/goprogram/status"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // SystemUpdate is the 'system_update' command
@@ -67,7 +66,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
 	// create all the other directories
-	logging.LogMessage(context.IOStream, "Ensuring distillery installation directories exist")
+	logging.LogMessage(context.Stderr, "Ensuring distillery installation directories exist")
 	for _, d := range []string{
 		dis.Config.DeployRoot,
 		dis.Instances().Path(),
@@ -82,7 +81,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 
 	if si.InstallDocker {
 		// install system updates
-		logging.LogMessage(context.IOStream, "Updating Operating System Packages")
+		logging.LogMessage(context.Stderr, "Updating Operating System Packages")
 		if err := si.mustExec(context, "", "apt-get", "update"); err != nil {
 			return err
 		}
@@ -91,7 +90,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		}
 
 		// install docker
-		logging.LogMessage(context.IOStream, "Installing / Updating Docker")
+		logging.LogMessage(context.Stderr, "Installing / Updating Docker")
 		if err := si.mustExec(context, "", "apt-get", "install", "curl"); err != nil {
 			return err
 		}
@@ -101,19 +100,19 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		}
 	}
 
-	logging.LogMessage(context.IOStream, "Checking that 'docker' is installed")
+	logging.LogMessage(context.Stderr, "Checking that 'docker' is installed")
 	if err := si.mustExec(context, "", "docker", "--version", dis.Config.DockerNetworkName); err != nil {
 		return err
 	}
 
-	logging.LogMessage(context.IOStream, "Checking that 'docker compose' is available")
+	logging.LogMessage(context.Stderr, "Checking that 'docker compose' is available")
 	if err := si.mustExec(context, "", "docker", "compose", "version"); err != nil {
 		return err
 	}
 
 	// create the docker network
 	// TODO: Use docker API for this
-	logging.LogMessage(context.IOStream, "Updating Docker Configuration")
+	logging.LogMessage(context.Stderr, "Updating Docker Configuration")
 	si.mustExec(context, "", "docker", "network", "create", dis.Config.DockerNetworkName)
 
 	// install and update the various stacks!
@@ -125,21 +124,20 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	var updateMutex sync.Mutex
 
 	if err := logging.LogOperation(func() error {
-		return status.RunErrorGroup(context.Stdout, status.Group[component.Installable, error]{
+		return status.RunErrorGroup(context.Stderr, status.Group[component.Installable, error]{
 			PrefixString: func(item component.Installable, index int) string {
 				return fmt.Sprintf("[update %q]: ", item.Name())
 			},
 			PrefixAlign: true,
 
 			Handler: func(item component.Installable, index int, writer io.Writer) error {
-				io := stream.NewIOStream(writer, writer, stream.Null, 0)
 				stack := item.Stack(context.Environment.Environment)
 
-				if err := stack.Install(context.Context, io, item.Context(ctx)); err != nil {
+				if err := stack.Install(context.Context, writer, item.Context(ctx)); err != nil {
 					return err
 				}
 
-				if err := stack.Update(context.Context, io, true); err != nil {
+				if err := stack.Update(context.Context, writer, true); err != nil {
 					return err
 				}
 
@@ -154,10 +152,10 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 					updated[item.ID()] = struct{}{}
 				}()
 
-				return ud.Update(context.Context, io)
+				return ud.Update(context.Context, writer)
 			},
 		}, dis.Installable())
-	}, context.IOStream, "Performing Stack Updates"); err != nil {
+	}, context.Stderr, "Performing Stack Updates"); err != nil {
 		return err
 	}
 
@@ -170,18 +168,18 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 					context.Println("Already updated")
 					return nil
 				}
-				return item.Update(context.Context, context.IOStream)
-			}, context.IOStream, "Updating Component: %s", name); err != nil {
+				return item.Update(context.Context, context.Stderr)
+			}, context.Stderr, "Updating Component: %s", name); err != nil {
 				return errBootstrapComponent.WithMessageF(name, err)
 			}
 		}
 		return nil
-	}, context.IOStream, "Performing Component Updates"); err != nil {
+	}, context.Stderr, "Performing Component Updates"); err != nil {
 		return err
 	}
 	// TODO: Register cronjob in /etc/cron.d!
 
-	logging.LogMessage(context.IOStream, "System has been updated")
+	logging.LogMessage(context.Stderr, "System has been updated")
 	return nil
 }
 

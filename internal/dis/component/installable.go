@@ -2,9 +2,9 @@ package component
 
 import (
 	"context"
+	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // Installable implements an installable component.
@@ -39,8 +39,8 @@ type Updatable interface {
 	// Update updates or initializes the provided components.
 	// It is called after the component has been installed (if applicable).
 	//
-	// It may send output to the provided stream.
+	// It may send progress to the provided stream.
 	//
 	// Updating should be idempotent, meaning running it multiple times must not break the existing system.
-	Update(ctx context.Context, stream stream.IOStream) error
+	Update(ctx context.Context, progress io.Writer) error
 }

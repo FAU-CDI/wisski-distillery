@@ -2,15 +2,15 @@ package barrel
 
 import (
 	"context"
+	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // Running checks if this WissKI is currently running.
-func (barrel *Barrel) Running(ctx context.Context) (bool, error) {
-	ps, err := barrel.Stack().Ps(ctx, stream.FromNil())
+func (barrel *Barrel) Running(ctx context.Context, progress io.Writer) (bool, error) {
+	ps, err := barrel.Stack().Ps(ctx, progress)
 	if err != nil {
 		return false, err
 	}
@@ -28,6 +28,6 @@ var (
 )
 
 func (rf *RunningFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.Running, err = rf.Barrel.Running(flags.Context)
+	info.Running, err = rf.Barrel.Running(flags.Context, io.Discard)
 	return
 }

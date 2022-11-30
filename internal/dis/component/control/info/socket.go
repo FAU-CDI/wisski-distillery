@@ -3,28 +3,29 @@ package info
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/tkw1536/goprogram/status"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 type InstanceAction struct {
 	NumParams int
 
-	HandleInteractive func(ctx context.Context, info *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error
+	HandleInteractive func(ctx context.Context, info *Info, instance *wisski.WissKI, out io.Writer, params ...string) error
 	HandleResult      func(ctx context.Context, info *Info, instance *wisski.WissKI, params ...string) (value any, err error)
 }
 
 var socketInstanceActions = map[string]InstanceAction{
 	"snapshot": {
-		HandleInteractive: func(ctx context.Context, info *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+		HandleInteractive: func(ctx context.Context, info *Info, instance *wisski.WissKI, out io.Writer, params ...string) error {
 			return info.Exporter.MakeExport(
 				ctx,
-				str,
+				out,
 				exporter.ExportTask{
 					Dest:     "",
 					Instance: instance,
@@ -35,17 +36,17 @@ var socketInstanceActions = map[string]InstanceAction{
 		},
 	},
 	"rebuild": {
-		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
-			return instance.Barrel().Build(ctx, str, true)
+		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, out io.Writer, params ...string) error {
+			return instance.Barrel().Build(ctx, out, true)
 		},
 	},
 	"update": {
-		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
-			return instance.Drush().Update(ctx, str)
+		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, out io.Writer, params ...string) error {
+			return instance.Drush().Update(ctx, out)
 		},
 	},
 	"cron": {
-		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, str stream.IOStream, params ...string) error {
+		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, str io.Writer, params ...string) error {
 			return instance.Drush().Cron(ctx, str)
 		},
 	},
@@ -108,33 +109,30 @@ func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action In
 	}
 	defer writer.Close()
 
-	str := stream.NewIOStream(writer, writer, nil, 0)
-
 	// handle the interactive action
 	if action.HandleInteractive != nil {
-		err := action.HandleInteractive(conn.Context(), info, instance, str, params...)
+		err := action.HandleInteractive(conn.Context(), info, instance, writer, params...)
 		if err != nil {
-			str.EPrintln(err)
+			fmt.Fprintln(writer, err)
 			return
 		}
-		str.Println("done")
+		fmt.Fprintln(writer, "done")
 	}
 
 	// handle the result computation
 	if action.HandleResult != nil {
 		result, err := action.HandleResult(conn.Context(), info, instance, params...)
 		if err != nil {
-			str.Println("false")
+			fmt.Fprintln(writer, "false")
 			return
 		}
 		data, err := json.Marshal(result)
 		if err != nil {
-			str.Println("false")
+			fmt.Fprintln(writer, "false")
 			return
 		}
-		data = append(data, "\n"...)
-		str.Println("true")
-		str.Stdout.Write(data)
+		fmt.Fprintln(writer, "true")
+		fmt.Fprintln(writer, data)
 	}
 
 }

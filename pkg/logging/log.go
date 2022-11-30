@@ -1,30 +1,38 @@
 package logging
 
 import (
+	"fmt"
+	"io"
 	"strings"
 
-	"github.com/tkw1536/goprogram/stream"
+	"golang.org/x/term"
 )
 
 // LogOperation logs a message that is displayed to the user, and then increases the log indent level.
-func LogOperation(operation func() error, io stream.IOStream, format string, args ...interface{}) error {
-	logOperation(io, getIndent(io), format, args...)
-	incIndent(io)
-	defer decIndent(io)
+func LogOperation(operation func() error, progress io.Writer, format string, args ...interface{}) error {
+	logOperation(progress, getIndent(progress), format, args...)
+	incIndent(progress)
+	defer decIndent(progress)
 
 	return operation()
 }
 
 // LogMessage logs a message that is displayed to the user
-func LogMessage(io stream.IOStream, format string, args ...interface{}) (int, error) {
-	return logOperation(io, getIndent(io), format, args...)
+func LogMessage(progress io.Writer, format string, args ...interface{}) (int, error) {
+	return logOperation(progress, getIndent(progress), format, args...)
 }
 
-func logOperation(io stream.IOStream, indent int, format string, args ...interface{}) (int, error) {
+func logOperation(progress io.Writer, indent int, format string, args ...interface{}) (int, error) {
 	message := "\033[1m" + strings.Repeat(" ", indent+1) + "=> " + format + "\033[0m\n"
-	if !io.StdoutIsATerminal() {
+	if !streamIsTerminal(progress) {
 		message = " => " + format + "\n"
 	}
 
-	return io.Printf(message, args...)
+	return fmt.Fprintf(progress, message, args...)
+}
+
+// streamIsTerminal checks if stream is a terminal
+func streamIsTerminal(stream any) bool {
+	file, ok := stream.(interface{ Fd() uintptr })
+	return ok && term.IsTerminal(int(file.Fd()))
 }

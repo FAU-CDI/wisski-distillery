@@ -89,20 +89,21 @@ func (h *WebSocket) serveWebsocket(w http.ResponseWriter, r *http.Request) {
 	h.pool.Get(nil).Put(socket)
 }
 
-// WebSocketConnection represents a connected Websocket
+// WebSocketConnection represents a connected WebSocket.
 type WebSocketConnection interface {
-	// Context returns a context that is closed once this websocket is closed.
+	// Context returns a context that is closed once the connection is terminated.
 	Context() context.Context
 
 	// Read returns a channel that receives message.
-	// The channel is closed once no more messags are available.
+	// The channel is closed if no more messags are available (for instance because the server closed).
 	Read() <-chan WebSocketMessage
 
-	// Write queues the provided message for sending
-	// and returns a channel that is closed once the message has been sent.
+	// Write queues the provided message for sending.
+	// The returned channel is closed once the message has been sent.
 	Write(WebSocketMessage) <-chan struct{}
 
-	// WriteText is a convenience method to send a TextMessage
+	// WriteText is a convenience method to send a TextMessage.
+	// The returned channel is closed once the message has been sent.
 	WriteText(text string) <-chan struct{}
 
 	// Close closes the underlying connection

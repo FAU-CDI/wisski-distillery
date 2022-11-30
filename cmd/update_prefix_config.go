@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/status"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // Cron is the 'cron' command
@@ -42,8 +42,8 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 		return errPrefixUpdateFailed.Wrap(err)
 	}
 
-	return status.StreamGroup(context.IOStream, upc.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
-		io.Println("reading prefixes")
+	return status.WriterGroup(context.Stderr, upc.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+		fmt.Fprintln(writer, "reading prefixes")
 		err := instance.Prefixes().Update(context.Context)
 		if err != nil {
 			return errPrefixUpdateFailed.Wrap(err)

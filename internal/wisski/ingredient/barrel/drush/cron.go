@@ -2,7 +2,10 @@ package drush
 
 import (
 	"context"
+	"fmt"
 	"time"
+
+	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -16,15 +19,15 @@ var errCronFailed = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (drush *Drush) Cron(ctx context.Context, io stream.IOStream) error {
-	code, err := drush.Barrel.Shell(ctx, io, "/runtime/cron.sh")
+func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
+	code, err := drush.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/cron.sh")
 	if err != nil {
-		io.EPrintln(err)
+		fmt.Fprintln(progress, err)
 	}
 	if code != 0 {
 		// keep going, because we want to run as many crons as possible
 		err = errCronFailed.WithMessageF(drush.Slug, code)
-		io.EPrintln(err)
+		fmt.Fprintln(progress, err)
 	}
 
 	return nil

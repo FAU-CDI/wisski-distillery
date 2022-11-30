@@ -2,6 +2,7 @@ package info
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -12,7 +13,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 type Info struct {
@@ -33,7 +33,7 @@ var (
 
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
-func (info *Info) Handler(ctx context.Context, route string, io stream.IOStream) (handler http.Handler, err error) {
+func (info *Info) Handler(ctx context.Context, route string, progress io.Writer) (handler http.Handler, err error) {
 	router := mux.NewRouter()
 	{
 		socket := &httpx.WebSocket{

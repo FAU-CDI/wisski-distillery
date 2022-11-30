@@ -2,13 +2,13 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/status"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // Cron is the 'cron' command
@@ -46,8 +46,8 @@ func (rb rebuild) Run(context wisski_distillery.Context) error {
 	}
 
 	// and do the actual rebuild
-	return status.StreamGroup(context.IOStream, rb.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
-		return instance.Barrel().Build(context.Context, io, true)
+	return status.WriterGroup(context.Stderr, rb.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+		return instance.Barrel().Build(context.Context, writer, true)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)
 	}))

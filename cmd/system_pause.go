@@ -12,7 +12,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/status"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // SystemPause is the 'system_pause' command
@@ -54,24 +53,23 @@ func (sp systempause) Run(context wisski_distillery.Context) error {
 }
 
 func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distillery) error {
-	logging.LogMessage(context.IOStream, "Starting Components")
+	logging.LogMessage(context.Stderr, "Starting Components")
 
 	// find all the core stacks
-	if err := status.RunErrorGroup(context.Stdout, status.Group[component.Installable, error]{
+	if err := status.RunErrorGroup(context.Stderr, status.Group[component.Installable, error]{
 		PrefixString: func(item component.Installable, index int) string {
 			return fmt.Sprintf("[up %q]: ", item.Name())
 		},
 		PrefixAlign: true,
 
 		Handler: func(item component.Installable, index int, writer io.Writer) error {
-			io := stream.NewIOStream(writer, writer, stream.Null, 0)
-			return item.Stack(context.Environment.Environment).Up(context.Context, io)
+			return item.Stack(context.Environment.Environment).Up(context.Context, writer)
 		},
 	}, dis.Installable()); err != nil {
 		return err
 	}
 
-	logging.LogMessage(context.IOStream, "Starting Up WissKIs")
+	logging.LogMessage(context.Stderr, "Starting Up WissKIs")
 
 	// find the instances
 	wissKIs, err := dis.Instances().All(context.Context)
@@ -80,15 +78,14 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 	}
 
 	// shut them all down
-	if err := status.RunErrorGroup(context.Stdout, status.Group[*wisski.WissKI, error]{
+	if err := status.RunErrorGroup(context.Stderr, status.Group[*wisski.WissKI, error]{
 		PrefixString: func(item *wisski.WissKI, index int) string {
 			return fmt.Sprintf("[up %q]: ", item.Slug)
 		},
 		PrefixAlign: true,
 
 		Handler: func(item *wisski.WissKI, index int, writer io.Writer) error {
-			io := stream.NewIOStream(writer, writer, stream.Null, 0)
-			return item.Barrel().Stack().Up(context.Context, io)
+			return item.Barrel().Stack().Up(context.Context, writer)
 		},
 	}, wissKIs); err != nil {
 		return err
@@ -98,7 +95,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 }
 
 func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distillery) error {
-	logging.LogMessage(context.IOStream, "Shutting Down WissKIs")
+	logging.LogMessage(context.Stderr, "Shutting Down WissKIs")
 
 	// find the instances
 	wissKIs, err := dis.Instances().All(context.Context)
@@ -107,32 +104,30 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 	}
 
 	// shut them all down
-	if err := status.RunErrorGroup(context.Stdout, status.Group[*wisski.WissKI, error]{
+	if err := status.RunErrorGroup(context.Stderr, status.Group[*wisski.WissKI, error]{
 		PrefixString: func(item *wisski.WissKI, index int) string {
 			return fmt.Sprintf("[down %q]: ", item.Slug)
 		},
 		PrefixAlign: true,
 
 		Handler: func(item *wisski.WissKI, index int, writer io.Writer) error {
-			io := stream.NewIOStream(writer, writer, stream.Null, 0)
-			return item.Barrel().Stack().Down(context.Context, io)
+			return item.Barrel().Stack().Down(context.Context, writer)
 		},
 	}, wissKIs); err != nil {
 		return err
 	}
 
-	logging.LogMessage(context.IOStream, "Shutting Down Components")
+	logging.LogMessage(context.Stderr, "Shutting Down Components")
 
 	// find all the core stacks
-	if err := status.RunErrorGroup(context.Stdout, status.Group[component.Installable, error]{
+	if err := status.RunErrorGroup(context.Stderr, status.Group[component.Installable, error]{
 		PrefixString: func(item component.Installable, index int) string {
 			return fmt.Sprintf("[down %q]: ", item.Name())
 		},
 		PrefixAlign: true,
 
 		Handler: func(item component.Installable, index int, writer io.Writer) error {
-			io := stream.NewIOStream(writer, writer, stream.Null, 0)
-			return item.Stack(context.Environment.Environment).Down(context.Context, io)
+			return item.Stack(context.Environment.Environment).Down(context.Context, writer)
 		},
 	}, dis.Installable()); err != nil {
 		return err
@@ -140,48 +135,3 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 
 	return nil
 }
-
-/*
-	handleStack := func(io stream.IOStream, stack component.StackWithResources) error {
-		if sp.Start {
-			return stack.Up(io)
-		} else {
-			return stack.Down(io)
-		}
-	}
-
-	logging.LogMessage(context.IOStream, "Iterating over components")
-	if err := status.RunErrorGroup(context.Stdout, status.Group[component.Installable, error]{
-		PrefixString: func(item component.Installable, index int) string {
-			return fmt.Sprintf("[%s %q]: ", verb, item.Name())
-		},
-		PrefixAlign: true,
-
-		Handler: func(item component.Installable, index int, writer io.Writer) error {
-			io := stream.NewIOStream(writer, writer, stream.Null, 0)
-			stack := item.Stack(context.Environment.Environment)
-
-			return handleStack(io, stack)
-		},
-	}, dis.Installable()); err != nil {
-		return err
-	}
-
-	logging.LogMessage(context.IOStream, "Shutting Down WissKIs")
-
-	// find the instances
-	wissKIs, err := dis.Instances().All()
-	if err != nil {
-		return err
-	}
-
-	// and do the actual rebuild
-	if err := status.StreamGroup(context.IOStream, rb.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
-		return instance.Barrel().Build(io, true)
-	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
-		return fmt.Sprintf("rebuild %q", item.Slug)
-	})); err != nil {
-		return err
-	}
-}
-*/

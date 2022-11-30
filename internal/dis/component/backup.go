@@ -2,6 +2,7 @@ package component
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"path/filepath"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/pkg/errors"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // Backupable represents a component with a Backup method
@@ -39,8 +39,8 @@ type Snapshotable interface {
 
 // StagingContext represents a context for [Backupable] and [Snapshotable]
 type StagingContext interface {
-	// IO returns the input output stream belonging to this backup file
-	IO() stream.IOStream
+	// Progress returns a writer to write progress information to.
+	Progress() io.Writer
 
 	// Name creates a new directory inside the destination.
 	// Passing the empty path creates the destination as a directory.
@@ -66,11 +66,11 @@ type StagingContext interface {
 }
 
 // NewStagingContext returns a new [StagingContext]
-func NewStagingContext(ctx context.Context, env environment.Environment, io stream.IOStream, path string, manifest chan<- string) StagingContext {
+func NewStagingContext(ctx context.Context, env environment.Environment, progress io.Writer, path string, manifest chan<- string) StagingContext {
 	return &stagingContext{
 		ctx:      ctx,
 		env:      env,
-		io:       io,
+		progress: progress,
 		path:     path,
 		manifest: manifest,
 	}
@@ -80,7 +80,7 @@ func NewStagingContext(ctx context.Context, env environment.Environment, io stre
 type stagingContext struct {
 	ctx      context.Context
 	env      environment.Environment // environment
-	io       stream.IOStream         // context the files are sent to
+	progress io.Writer               // writer to direct progress to
 	path     string                  // path to send files to
 	manifest chan<- string           // channel the manifest is sent to
 }
@@ -93,12 +93,12 @@ func (bc *stagingContext) sendPath(path string) {
 		return
 	}
 
-	bc.io.Println(dst)
+	fmt.Fprintln(bc.progress, dst)
 	bc.manifest <- dst
 }
 
-func (bc *stagingContext) IO() stream.IOStream {
-	return bc.io
+func (bc *stagingContext) Progress() io.Writer {
+	return bc.progress
 }
 
 var errResolveAbsolute = errors.New("resolve: path must be relative")

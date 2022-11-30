@@ -41,12 +41,12 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 	// prune old backups
 	if !bk.NoPrune {
 		defer logging.LogOperation(func() error {
-			return dis.Exporter().PruneExports(context.Context, context.IOStream)
-		}, context.IOStream, "Pruning old backups")
+			return dis.Exporter().PruneExports(context.Context, context.Stderr)
+		}, context.Stderr, "Pruning old backups")
 	}
 
 	// do the handling
-	err := dis.Exporter().MakeExport(context.Context, context.IOStream, exporter.ExportTask{
+	err := dis.Exporter().MakeExport(context.Context, context.Stderr, exporter.ExportTask{
 		Dest:        bk.Positionals.Dest,
 		StagingOnly: bk.StagingOnly,
 

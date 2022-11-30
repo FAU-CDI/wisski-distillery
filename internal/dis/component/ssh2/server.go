@@ -2,9 +2,9 @@ package ssh2
 
 import (
 	"context"
+	"io"
 
 	"github.com/gliderlabs/ssh"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 const (
@@ -13,10 +13,10 @@ const (
 )
 
 // Server returns an ssh server that implements the main ssh server
-func (ssh2 *SSH2) Server(context context.Context, privateKeyPath string, io stream.IOStream) (*ssh.Server, error) {
+func (ssh2 *SSH2) Server(context context.Context, privateKeyPath string, progress io.Writer) (*ssh.Server, error) {
 	var server ssh.Server
 
-	if err := ssh2.setupHostKeys(io, privateKeyPath, &server); err != nil {
+	if err := ssh2.setupHostKeys(progress, privateKeyPath, &server); err != nil {
 		return nil, err
 	}
 

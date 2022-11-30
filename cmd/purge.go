@@ -58,7 +58,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 	}
 
 	// load the instance (first via bookkeeping, then via defaults)
-	logging.LogMessage(context.IOStream, "Checking bookkeeping table")
+	logging.LogMessage(context.Stderr, "Checking bookkeeping table")
 	instance, err := dis.Instances().WissKI(context.Context, slug)
 	if err == instances.ErrWissKINotFound {
 		context.Println("Not found in bookkeeping table, assuming defaults")
@@ -69,13 +69,13 @@ func (p purge) Run(context wisski_distillery.Context) error {
 	}
 
 	// remove docker stack
-	logging.LogMessage(context.IOStream, "Stopping and removing docker container")
-	if err := instance.Barrel().Stack().Down(context.Context, context.IOStream); err != nil {
+	logging.LogMessage(context.Stderr, "Stopping and removing docker container")
+	if err := instance.Barrel().Stack().Down(context.Context, context.Stderr); err != nil {
 		context.EPrintln(err)
 	}
 
 	// remove the filesystem
-	logging.LogMessage(context.IOStream, "Removing from filesystem %s", instance.FilesystemBase)
+	logging.LogMessage(context.Stderr, "Removing from filesystem %s", instance.FilesystemBase)
 	if err := dis.Still.Environment.RemoveAll(instance.FilesystemBase); err != nil {
 		context.EPrintln(err)
 	}
@@ -84,7 +84,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
 		for _, pc := range dis.Provisionable() {
-			logging.LogMessage(context.IOStream, "Purging %s resources", pc.Name())
+			logging.LogMessage(context.Stderr, "Purging %s resources", pc.Name())
 			err := pc.Purge(context.Context, instance.Instance, domain)
 			if err != nil {
 				return err
@@ -92,22 +92,22 @@ func (p purge) Run(context wisski_distillery.Context) error {
 		}
 
 		return nil
-	}, context.IOStream, "Purging instance-specific resources"); err != nil {
+	}, context.Stderr, "Purging instance-specific resources"); err != nil {
 		return errPurgeGeneric.WithMessageF(slug, err)
 	}
 
 	// remove from bookkeeping
-	logging.LogMessage(context.IOStream, "Removing instance from bookkeeping")
+	logging.LogMessage(context.Stderr, "Removing instance from bookkeeping")
 	if err := instance.Bookkeeping().Delete(context.Context); err != nil {
 		context.EPrintln(err)
 	}
 
 	// remove the filesystem
-	logging.LogMessage(context.IOStream, "Remove lock data")
+	logging.LogMessage(context.Stderr, "Remove lock data")
 	if instance.Locker().TryUnlock(context.Context) {
 		context.EPrintln("instance was not locked")
 	}
 
-	logging.LogMessage(context.IOStream, "Instance %s has been purged", slug)
+	logging.LogMessage(context.Stderr, "Instance %s has been purged", slug)
 	return nil
 }

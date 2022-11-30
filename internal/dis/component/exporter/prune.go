@@ -2,10 +2,10 @@ package exporter
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"path/filepath"
 	"time"
-
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // ShouldPrune determines if a file with the provided modification time should be
@@ -15,7 +15,7 @@ func (exporter *Exporter) ShouldPrune(modtime time.Time) bool {
 }
 
 // Prune prunes all old exports
-func (exporter *Exporter) PruneExports(ctx context.Context, io stream.IOStream) error {
+func (exporter *Exporter) PruneExports(ctx context.Context, progress io.Writer) error {
 	sPath := exporter.ArchivePath()
 
 	// list all the files
@@ -43,7 +43,7 @@ func (exporter *Exporter) PruneExports(ctx context.Context, io stream.IOStream) 
 
 		// assemble path, and then remove the file!
 		path := filepath.Join(sPath, entry.Name())
-		io.Printf("Removing %s cause it is older than %d days\n", path, exporter.Config.MaxBackupAge)
+		fmt.Fprintf(progress, "Removing %s cause it is older than %d days\n", path, exporter.Config.MaxBackupAge)
 
 		if err := exporter.Still.Environment.Remove(path); err != nil {
 			return err

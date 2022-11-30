@@ -2,6 +2,7 @@ package barrel
 
 import (
 	"context"
+	"io"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -10,13 +11,12 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // Build builds or rebuilds the barel connected to this instance.
 //
 // It also logs the current time into the metadata belonging to this instance.
-func (barrel *Barrel) Build(ctx context.Context, stream stream.IOStream, start bool) error {
+func (barrel *Barrel) Build(ctx context.Context, progress io.Writer, start bool) error {
 	if !barrel.Locker.TryLock(ctx) {
 		err := locker.Locked
 		return err
@@ -28,14 +28,14 @@ func (barrel *Barrel) Build(ctx context.Context, stream stream.IOStream, start b
 	var context component.InstallationContext
 
 	{
-		err := stack.Install(ctx, stream, context)
+		err := stack.Install(ctx, progress, context)
 		if err != nil {
 			return err
 		}
 	}
 
 	{
-		err := stack.Update(ctx, stream, start)
+		err := stack.Update(ctx, progress, start)
 		if err != nil {
 			return err
 		}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -44,14 +45,14 @@ var errSQLUnableToMigrate = exit.Error{
 }
 
 // Update initializes or updates the SQL database.
-func (sql *SQL) Update(ctx context.Context, io stream.IOStream) error {
+func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 
 	// unsafely create the admin user!
 	{
 		if err := sql.unsafeWaitShell(ctx); err != nil {
 			return err
 		}
-		logging.LogMessage(io, "Creating administrative user")
+		logging.LogMessage(progress, "Creating administrative user")
 		{
 			username := sql.Config.MysqlAdminUser
 			password := sql.Config.MysqlAdminPassword
@@ -62,7 +63,7 @@ func (sql *SQL) Update(ctx context.Context, io stream.IOStream) error {
 	}
 
 	// create the admin user
-	logging.LogMessage(io, "Creating sql database")
+	logging.LogMessage(progress, "Creating sql database")
 	{
 		if !sqle.IsSafeDatabaseLiteral(sql.Config.DistilleryDatabase) {
 			return errSQLUnsafeDatabaseName
@@ -74,7 +75,7 @@ func (sql *SQL) Update(ctx context.Context, io stream.IOStream) error {
 	}
 
 	// wait for the database to come up
-	logging.LogMessage(io, "Waiting for database update to be complete")
+	logging.LogMessage(progress, "Waiting for database update to be complete")
 	sql.WaitQueryTable(ctx)
 
 	tables := []struct {
@@ -107,7 +108,7 @@ func (sql *SQL) Update(ctx context.Context, io stream.IOStream) error {
 	// migrate all of the tables!
 	return logging.LogOperation(func() error {
 		for _, table := range tables {
-			logging.LogMessage(io, "migrating %q table", table.name)
+			logging.LogMessage(progress, "migrating %q table", table.name)
 			db, err := sql.QueryTable(ctx, false, table.table)
 			if err != nil {
 				return errSQLUnableToMigrate.WithMessageF(table.name, "unable to access table")
@@ -118,5 +119,5 @@ func (sql *SQL) Update(ctx context.Context, io stream.IOStream) error {
 			}
 		}
 		return nil
-	}, io, "migrating database tables")
+	}, progress, "migrating database tables")
 }

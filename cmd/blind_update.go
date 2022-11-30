@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -9,7 +10,6 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/status"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // BlindUpdate is the 'blind_update' command
@@ -51,8 +51,8 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) error {
 	}
 
 	// and do the actual blind_update!
-	return status.StreamGroup(context.IOStream, bu.Parallel, func(instance *wisski.WissKI, str stream.IOStream) error {
-		return instance.Drush().Update(context.Context, str)
+	return status.WriterGroup(context.Stderr, bu.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+		return instance.Drush().Update(context.Context, writer)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("blind_update %q", item.Slug)
 	}))

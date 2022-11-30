@@ -3,10 +3,11 @@ package instances
 import (
 	"context"
 	"embed"
+	"fmt"
+	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 var errBootstrapFailedRuntime = exit.Error{
@@ -20,9 +21,9 @@ var errBootstrapFailedRuntime = exit.Error{
 var runtimeResources embed.FS
 
 // Update installs or updates runtime components needed by this component.
-func (instances *Instances) Update(ctx context.Context, stream stream.IOStream) error {
+func (instances *Instances) Update(ctx context.Context, progress io.Writer) error {
 	err := unpack.InstallDir(instances.Still.Environment, instances.Config.RuntimeDir(), "runtime", runtimeResources, func(dst, src string) {
-		stream.Printf("[copy]  %s\n", dst)
+		fmt.Fprintf(progress, "[copy]  %s\n", dst)
 	})
 	if err != nil {
 		return errBootstrapFailedRuntime.Wrap(err)

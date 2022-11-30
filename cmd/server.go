@@ -34,7 +34,7 @@ var errServerListen = exit.Error{
 
 func (s server) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
-	handler, err := dis.Control().Server(context.Context, context.IOStream)
+	handler, err := dis.Control().Server(context.Context, context.Stderr)
 	if err != nil {
 		return err
 	}

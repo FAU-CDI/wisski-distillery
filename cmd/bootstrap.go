@@ -84,7 +84,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	{
-		logging.LogMessage(context.IOStream, "Creating root deployment directory")
+		logging.LogMessage(context.Stderr, "Creating root deployment directory")
 		if err := env.MkdirAll(root, environment.DefaultDirPerm); err != nil {
 			return errBootstrapFailedToCreateDirectory.WithMessageF(root)
 		}
@@ -109,7 +109,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	{
-		logging.LogMessage(context.IOStream, "Copying over wdcli executable")
+		logging.LogMessage(context.Stderr, "Copying over wdcli executable")
 		exe, err := env.Executable()
 		if err != nil {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
@@ -132,7 +132,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 				defer env.Close()
 
 				return tpl.MarshalTo(env)
-			}, context.IOStream, "Installing configuration file"); err != nil {
+			}, context.Stderr, "Installing configuration file"); err != nil {
 				return errBootstrapWriteConfig.WithMessageF(err)
 			}
 
@@ -169,7 +169,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 				}
 
 				return nil
-			}, context.IOStream, "Creating additional config files"); err != nil {
+			}, context.Stderr, "Creating additional config files"); err != nil {
 				return errBootstrapCreateFile.WithMessageF(err)
 			}
 		}
@@ -177,7 +177,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	// re-read the configuration and print it!
-	logging.LogMessage(context.IOStream, "Configuration is now complete")
+	logging.LogMessage(context.Stderr, "Configuration is now complete")
 	f, err := env.Open(envPath)
 	if err != nil {
 		return errBootstrapOpenConfig.WithMessageF(err)
@@ -191,7 +191,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	context.Println(cfg)
 
 	// Tell the user how to proceed
-	logging.LogMessage(context.IOStream, "Bootstrap is complete")
+	logging.LogMessage(context.Stderr, "Bootstrap is complete")
 	context.Printf("Adjust the configuration file at %s\n", envPath)
 	context.Printf("Then make sure 'docker compose' is installed.\n")
 	context.Printf("Finally grab a GraphDB zipped source file and run:\n")

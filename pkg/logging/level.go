@@ -1,57 +1,108 @@
 package logging
 
 import (
+	"io"
 	"sync"
-
-	"github.com/tkw1536/goprogram/stream"
 )
 
-var logLevelMutex sync.Mutex
-var logLevelMap = make(map[uintptr]int)
+type writerIndent struct{}
 
-func getIndent(io stream.IOStream) int {
-	logLevelMutex.Lock()
-	defer logLevelMutex.Unlock()
+var indentKey = writerIndent{}
 
-	id, ok := logID(io)
+func getIndent(writer io.Writer) int {
+	value, ok := getKey(writer, indentKey)
+	if !ok {
+		value = 0
+	}
+	return value.(int)
+}
+
+func incIndent(writer io.Writer) int {
+	value, ok := upsetKey(writer, indentKey, func(value any, fresh bool) any {
+		if fresh {
+			return 0
+		}
+		return value.(int) + 1
+	})
 	if !ok {
 		return 0
 	}
-
-	return logLevelMap[id]
+	return value.(int)
 }
 
-func incIndent(io stream.IOStream) int {
-	logLevelMutex.Lock()
-	defer logLevelMutex.Unlock()
-
-	id, ok := logID(io)
-	if !ok { // if we don't have an id, then inc statically returns 1
-		return 1
-	}
-
-	logLevelMap[id]++
-	return logLevelMap[id]
-}
-
-func decIndent(io stream.IOStream) int {
-	logLevelMutex.Lock()
-	defer logLevelMutex.Unlock()
-	id, ok := logID(io)
-
-	if !ok { // if we don't have an id, then dec statically returns 0
+func decIndent(writer io.Writer) int {
+	value, ok := upsetKey(writer, indentKey, func(value any, fresh bool) any {
+		if fresh {
+			return 0
+		}
+		level := value.(int) - 1
+		if level < 0 {
+			level = 0
+		}
+		return level
+	})
+	if !ok {
 		return 0
 	}
-
-	logLevelMap[id]--
-	if logLevelMap[id] < 0 {
-		panic("DecLogIdent: decrease below 0")
-	}
-	return logLevelMap[id]
+	return value.(int)
 }
 
-func logID(io stream.IOStream) (uintptr, bool) {
-	file, ok := io.Stdin.(interface{ Fd() uintptr })
+// KEY-VALUE STORE for writers
+
+var writerDataMutex sync.RWMutex
+var writerDataData = make(map[uintptr]map[any]any)
+
+func getKey(writer io.Writer, key any) (value any, ok bool) {
+	uid, ok := id(writer)
+	if !ok {
+		return nil, false
+	}
+
+	writerDataMutex.RLock()
+	defer writerDataMutex.RUnlock()
+
+	value, ok = writerDataData[uid][key]
+	return
+}
+
+func setKey(writer io.Writer, key, value any) bool {
+	uid, ok := id(writer)
+	if !ok {
+		return false
+	}
+
+	writerDataMutex.Lock()
+	defer writerDataMutex.Unlock()
+
+	values, ok := writerDataData[uid]
+	if !ok {
+		values = make(map[any]any)
+		writerDataData[uid] = values
+	}
+	values[key] = value
+	return true
+}
+
+func upsetKey(writer io.Writer, key any, update func(value any, fresh bool) any) (any, bool) {
+	uid, ok := id(writer)
+	if !ok {
+		return nil, false
+	}
+
+	writerDataMutex.Lock()
+	defer writerDataMutex.Unlock()
+
+	values, ok := writerDataData[uid]
+	if !ok {
+		values = make(map[any]any)
+		writerDataData[uid] = values
+	}
+	values[key] = update(values[key], !ok)
+	return values[key], true
+}
+
+func id(writer io.Writer) (uintptr, bool) {
+	file, ok := writer.(interface{ Fd() uintptr })
 	if !ok {
 		return 0, false
 	}

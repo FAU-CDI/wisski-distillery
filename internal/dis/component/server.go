@@ -2,9 +2,8 @@ package component
 
 import (
 	"context"
+	"io"
 	"net/http"
-
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // Servable is a component that is servable
@@ -15,5 +14,5 @@ type Servable interface {
 	Routes() []string
 
 	// Handler returns the handler for the requested route
-	Handler(ctx context.Context, route string, io stream.IOStream) (http.Handler, error)
+	Handler(ctx context.Context, route string, progress io.Writer) (http.Handler, error)
 }

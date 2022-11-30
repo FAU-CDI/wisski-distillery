@@ -45,7 +45,7 @@ func (sn snapshot) Run(context wisski_distillery.Context) error {
 	}
 
 	// do a snapshot of it!
-	err = dis.Exporter().MakeExport(context.Context, context.IOStream, exporter.ExportTask{
+	err = dis.Exporter().MakeExport(context.Context, context.Stderr, exporter.ExportTask{
 		Dest:        sn.Positionals.Dest,
 		StagingOnly: sn.StagingOnly,
 

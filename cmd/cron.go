@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/status"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // Cron is the 'cron' command
@@ -39,8 +39,8 @@ func (cr cron) Run(context wisski_distillery.Context) error {
 	}
 
 	// and do the actual blind_update!
-	return status.StreamGroup(context.IOStream, cr.Parallel, func(instance *wisski.WissKI, io stream.IOStream) error {
-		return instance.Drush().Cron(context.Context, io)
+	return status.WriterGroup(context.Stderr, cr.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+		return instance.Drush().Cron(context.Context, writer)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("cron %q", item.Slug)
 	}))

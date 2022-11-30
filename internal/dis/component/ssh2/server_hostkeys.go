@@ -6,32 +6,32 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/gliderlabs/ssh"
 
 	"github.com/pkg/errors"
-	"github.com/tkw1536/goprogram/stream"
 	gossh "golang.org/x/crypto/ssh"
 )
 
-func (ssh2 *SSH2) setupHostKeys(io stream.IOStream, privateKeyPath string, server *ssh.Server) error {
-	return ssh2.UseOrMakeHostKeys(io, server, privateKeyPath, nil)
+func (ssh2 *SSH2) setupHostKeys(progress io.Writer, privateKeyPath string, server *ssh.Server) error {
+	return ssh2.UseOrMakeHostKeys(progress, server, privateKeyPath, nil)
 }
 
 // UseOrMakeHostKeys is like UseOrMakeHostKey except that it accepts multiple HostKeyAlgorithms.
 // For each key algorithm, the privateKeyPath is appended with "_" + the name of the algorithm in question.
 //
 // When algorithms is nil, picks a reasonable set of default algorithms.
-func (ssh2 *SSH2) UseOrMakeHostKeys(io stream.IOStream, server *ssh.Server, privateKeyPath string, algorithms []HostKeyAlgorithm) error {
+func (ssh2 *SSH2) UseOrMakeHostKeys(progress io.Writer, server *ssh.Server, privateKeyPath string, algorithms []HostKeyAlgorithm) error {
 	if algorithms == nil {
 		algorithms = []HostKeyAlgorithm{RSAAlgorithm, ED25519Algorithm}
 	}
 
 	for _, algorithm := range algorithms {
 		path := privateKeyPath + "_" + string(algorithm)
-		if err := ssh2.UseOrMakeHostKey(io, server, path, algorithm); err != nil {
+		if err := ssh2.UseOrMakeHostKey(progress, server, path, algorithm); err != nil {
 			return err
 		}
 	}
@@ -44,8 +44,8 @@ func (ssh2 *SSH2) UseOrMakeHostKeys(io stream.IOStream, server *ssh.Server, priv
 //
 // All parameters except the server are passed to ReadOrMakeHostKey.
 // Please see the appropriate documentation for that function.
-func (ssh2 *SSH2) UseOrMakeHostKey(io stream.IOStream, server *ssh.Server, privateKeyPath string, algorithm HostKeyAlgorithm) error {
-	key, err := ssh2.ReadOrMakeHostKey(io, privateKeyPath, algorithm)
+func (ssh2 *SSH2) UseOrMakeHostKey(progress io.Writer, server *ssh.Server, privateKeyPath string, algorithm HostKeyAlgorithm) error {
+	key, err := ssh2.ReadOrMakeHostKey(progress, privateKeyPath, algorithm)
 	if err != nil {
 		return err
 	}
@@ -60,17 +60,17 @@ func (ssh2 *SSH2) UseOrMakeHostKey(io stream.IOStream, server *ssh.Server, priva
 //
 // This function assumes that if there is a host key in privateKeyPath it uses the provided HostKeyAlgorithm.
 // It makes no attempt at verifiying this; the key mail fail to load and return an error, or it may load incorrect data.
-func (ssh2 *SSH2) ReadOrMakeHostKey(io stream.IOStream, privateKeyPath string, algorithm HostKeyAlgorithm) (key gossh.Signer, err error) {
+func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, privateKeyPath string, algorithm HostKeyAlgorithm) (key gossh.Signer, err error) {
 	hostKey := NewHostKey(algorithm)
 
 	if _, e := ssh2.Environment.Lstat(privateKeyPath); environment.IsNotExist(e) { // path doesn't exist => generate a new key there!
-		err = ssh2.makeHostKey(io, hostKey, privateKeyPath)
+		err = ssh2.makeHostKey(progress, hostKey, privateKeyPath)
 		if err != nil {
 			err = errors.Wrap(err, "Unable to generate new host key")
 			return
 		}
 	}
-	err = ssh2.loadHostKey(io, hostKey, privateKeyPath)
+	err = ssh2.loadHostKey(progress, hostKey, privateKeyPath)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +78,8 @@ func (ssh2 *SSH2) ReadOrMakeHostKey(io stream.IOStream, privateKeyPath string, a
 }
 
 // loadHostKey loadsa host key
-func (ssh2 *SSH2) loadHostKey(io stream.IOStream, key HostKey, path string) (err error) {
-	io.EPrintf("Loading hostkey (algorithm %s) from %q", key.Algorithm(), path)
+func (ssh2 *SSH2) loadHostKey(progress io.Writer, key HostKey, path string) (err error) {
+	fmt.Fprintf(progress, "Loading hostkey (algorithm %s) from %q", key.Algorithm(), path)
 
 	// read all the bytes from the file
 	privateKeyBytes, err := environment.ReadFile(ssh2.Environment, path)
@@ -104,8 +104,8 @@ func (ssh2 *SSH2) loadHostKey(io stream.IOStream, key HostKey, path string) (err
 }
 
 // makeHostKey makes a new host key
-func (ssh2 *SSH2) makeHostKey(io stream.IOStream, key HostKey, path string) error {
-	io.EPrintf("Writing hostkey (algorithm %s) to %q", key.Algorithm(), path)
+func (ssh2 *SSH2) makeHostKey(progress io.Writer, key HostKey, path string) error {
+	fmt.Fprintf(progress, "Writing hostkey (algorithm %s) to %q", key.Algorithm(), path)
 
 	if err := key.Generate(0, nil); err != nil {
 		return errors.Wrap(err, "Failed to generate key")

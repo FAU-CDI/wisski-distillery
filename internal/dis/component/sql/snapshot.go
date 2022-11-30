@@ -16,16 +16,14 @@ func (*SQL) SnapshotName() string { return "sql" }
 func (sql *SQL) Snapshot(wisski models.Instance, scontext component.StagingContext) error {
 	return scontext.AddDirectory(".", func(ctx context.Context) error {
 		return scontext.AddFile(wisski.SqlDatabase+".sql", func(ctx context.Context, file io.Writer) error {
-			return sql.SnapshotDB(ctx, scontext.IO(), file, wisski.SqlDatabase)
+			return sql.SnapshotDB(ctx, scontext.Progress(), file, wisski.SqlDatabase)
 		})
 	})
 }
 
 // SnapshotDB makes a backup of the sql database into dest.
-func (sql *SQL) SnapshotDB(ctx context.Context, io stream.IOStream, dest io.Writer, database string) error {
-	io = io.Streams(dest, nil, nil, 0).NonInteractive()
-
-	code, err := sql.Stack(sql.Environment).Exec(ctx, io, "sql", "mysqldump", "--databases", database)
+func (sql *SQL) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Writer, database string) error {
+	code, err := sql.Stack(sql.Environment).Exec(ctx, stream.NonInteractive(progress), "sql", "mysqldump", "--databases", database)
 	if err != nil {
 		return err
 	}

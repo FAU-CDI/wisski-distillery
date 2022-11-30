@@ -44,7 +44,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 	slug := p.Positionals.Slug
 
 	// check that it doesn't already exist
-	logging.LogMessage(context.IOStream, "Provisioning new WissKI instance %s", slug)
+	logging.LogMessage(context.Stderr, "Provisioning new WissKI instance %s", slug)
 	if exists, err := dis.Instances().Has(context.Context, slug); err != nil || exists {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
@@ -56,7 +56,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 	}
 
 	// check that the base directory does not exist
-	logging.LogMessage(context.IOStream, "Checking that base directory %s does not exist", instance.FilesystemBase)
+	logging.LogMessage(context.Stderr, "Checking that base directory %s does not exist", instance.FilesystemBase)
 	if fsx.IsDirectory(dis.Environment, instance.FilesystemBase) {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
@@ -68,7 +68,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 		}
 
 		return nil
-	}, context.IOStream, "Updating bookkeeping database"); err != nil {
+	}, context.Stderr, "Updating bookkeeping database"); err != nil {
 		return err
 	}
 
@@ -76,7 +76,7 @@ func (p provision) Run(context wisski_distillery.Context) error {
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
 		for _, pc := range dis.Provisionable() {
-			logging.LogMessage(context.IOStream, "Provisioning %s resources", pc.Name())
+			logging.LogMessage(context.Stderr, "Provisioning %s resources", pc.Name())
 			err := pc.Provision(context.Context, instance.Instance, domain)
 			if err != nil {
 				return err
@@ -84,29 +84,29 @@ func (p provision) Run(context wisski_distillery.Context) error {
 		}
 
 		return nil
-	}, context.IOStream, "Provisioning instance-specific resources"); err != nil {
+	}, context.Stderr, "Provisioning instance-specific resources"); err != nil {
 		return errProvisionGeneric.WithMessageF(slug, err)
 	}
 
 	// run the provision script
 	if err := logging.LogOperation(func() error {
-		if err := instance.Provisioner().Provision(context.Context, context.IOStream); err != nil {
+		if err := instance.Provisioner().Provision(context.Context, context.Stderr); err != nil {
 			return errProvisionGeneric.WithMessageF(slug, err)
 		}
 
 		return nil
-	}, context.IOStream, "Running setup scripts"); err != nil {
+	}, context.Stderr, "Running setup scripts"); err != nil {
 		return err
 	}
 
 	// start the container!
-	logging.LogMessage(context.IOStream, "Starting Container")
-	if err := instance.Barrel().Stack().Up(context.Context, context.IOStream); err != nil {
+	logging.LogMessage(context.Stderr, "Starting Container")
+	if err := instance.Barrel().Stack().Up(context.Context, context.Stderr); err != nil {
 		return err
 	}
 
 	// and we're done!
-	logging.LogMessage(context.IOStream, "Instance has been provisioned")
+	logging.LogMessage(context.Stderr, "Instance has been provisioned")
 	context.Printf("URL:      %s\n", instance.URL().String())
 	context.Printf("Username: %s\n", instance.DrupalUsername)
 	context.Printf("Password: %s\n", instance.DrupalPassword)

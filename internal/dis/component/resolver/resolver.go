@@ -3,6 +3,7 @@ package resolver
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"regexp"
 	"time"
@@ -12,7 +13,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 type Resolver struct {
@@ -32,7 +32,7 @@ var (
 
 func (resolver *Resolver) Routes() []string { return []string{"/go/", "/wisski/get/"} }
 
-func (resolver *Resolver) Handler(ctx context.Context, route string, io stream.IOStream) (http.Handler, error) {
+func (resolver *Resolver) Handler(ctx context.Context, route string, progress io.Writer) (http.Handler, error) {
 	var err error
 	return resolver.handler.Get(func() (p wdresolve.ResolveHandler) {
 		p.TrustXForwardedProto = true
@@ -45,17 +45,17 @@ func (resolver *Resolver) Handler(ctx context.Context, route string, io stream.I
 		domainName := resolver.Config.DefaultDomain
 		if domainName != "" {
 			fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domainName))] = fmt.Sprintf("https://$1.%s", domainName)
-			io.Printf("registering default domain %s\n", domainName)
+			fmt.Fprintf(progress, "registering default domain %s\n", domainName)
 		}
 
 		// handle the extra domains!
 		for _, domain := range resolver.Config.SelfExtraDomains {
 			fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
-			io.Printf("registering legacy domain %s\n", domain)
+			fmt.Fprintf(progress, "registering legacy domain %s\n", domain)
 		}
 
 		// start updating prefixes
-		resolver.updatePrefixes(ctx, io)
+		resolver.updatePrefixes(ctx, progress)
 
 		// resolve the prefixes
 		p.Resolver = resolvers.InOrder{

@@ -3,13 +3,13 @@ package home
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 type Home struct {
@@ -30,10 +30,10 @@ var (
 
 func (*Home) Routes() []string { return []string{"/"} }
 
-func (home *Home) Handler(ctx context.Context, route string, io stream.IOStream) (http.Handler, error) {
-	home.updateRedirect(ctx, io)
-	home.updateInstances(ctx, io)
-	home.updateRender(ctx, io)
+func (home *Home) Handler(ctx context.Context, route string, progress io.Writer) (http.Handler, error) {
+	home.updateRedirect(ctx, progress)
+	home.updateInstances(ctx, progress)
+	home.updateRender(ctx, progress)
 	return home, nil
 }
 

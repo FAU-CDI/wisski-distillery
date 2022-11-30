@@ -14,7 +14,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/status"
-	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/exp/slices"
 )
 
@@ -45,20 +44,20 @@ type Snapshot struct {
 }
 
 // Snapshot creates a new snapshot of this instance into dest
-func (snapshots *Exporter) NewSnapshot(ctx context.Context, instance *wisski.WissKI, io stream.IOStream, desc SnapshotDescription) (snapshot Snapshot) {
+func (snapshots *Exporter) NewSnapshot(ctx context.Context, instance *wisski.WissKI, progress io.Writer, desc SnapshotDescription) (snapshot Snapshot) {
 
-	logging.LogMessage(io, "Locking instance")
+	logging.LogMessage(progress, "Locking instance")
 	if !instance.Locker().TryLock(ctx) {
 		err := locker.Locked
-		io.EPrintln(err)
-		logging.LogMessage(io, "Aborting snapshot creation")
+		fmt.Fprintln(progress, err)
+		logging.LogMessage(progress, "Aborting snapshot creation")
 
 		return Snapshot{
 			ErrPanic: err,
 		}
 	}
 	defer func() {
-		logging.LogMessage(io, "Unlocking instance")
+		logging.LogMessage(progress, "Unlocking instance")
 		instance.Locker().Unlock(ctx)
 	}()
 
@@ -75,27 +74,27 @@ func (snapshots *Exporter) NewSnapshot(ctx context.Context, instance *wisski.Wis
 	logging.LogOperation(func() error {
 		snapshot.StartTime = time.Now().UTC()
 
-		snapshot.ErrWhitebox = snapshot.makeParts(ctx, io, snapshots, instance, false)
-		snapshot.ErrBlackbox = snapshot.makeParts(ctx, io, snapshots, instance, true)
+		snapshot.ErrWhitebox = snapshot.makeParts(ctx, progress, snapshots, instance, false)
+		snapshot.ErrBlackbox = snapshot.makeParts(ctx, progress, snapshots, instance, true)
 
 		snapshot.EndTime = time.Now().UTC()
 		return nil
-	}, io, "Writing snapshot files")
+	}, progress, "Writing snapshot files")
 
 	slices.Sort(snapshot.Manifest)
 	return
 }
 
-func (snapshot *Snapshot) makeParts(ctx context.Context, ios stream.IOStream, snapshots *Exporter, instance *wisski.WissKI, needsRunning bool) map[string]error {
+func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, snapshots *Exporter, instance *wisski.WissKI, needsRunning bool) map[string]error {
 	if !needsRunning && !snapshot.Description.Keepalive {
 		stack := instance.Barrel().Stack()
 
-		logging.LogMessage(ios, "Stopping instance")
-		snapshot.ErrStop = stack.Down(ctx, ios)
+		logging.LogMessage(progress, "Stopping instance")
+		snapshot.ErrStop = stack.Down(ctx, progress)
 
 		defer func() {
-			logging.LogMessage(ios, "Starting instance")
-			snapshot.ErrStart = stack.Up(ctx, ios)
+			logging.LogMessage(progress, "Starting instance")
+			snapshot.ErrStart = stack.Up(ctx, progress)
 		}()
 	}
 	// handle writing the manifest!
@@ -103,7 +102,7 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, ios stream.IOStream, sn
 	defer done()
 
 	// create a new status
-	st := status.NewWithCompat(ios.Stdout, 0)
+	st := status.NewWithCompat(progress, 0)
 	st.Start()
 	defer st.Stop()
 
@@ -126,7 +125,7 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, ios stream.IOStream, sn
 				component.NewStagingContext(
 					ctx,
 					snapshots.Environment,
-					stream.NewIOStream(writer, writer, nil, 0),
+					writer,
 					filepath.Join(snapshot.Description.Dest, sc.SnapshotName()),
 					manifest,
 				),

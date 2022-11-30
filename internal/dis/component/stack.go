@@ -5,6 +5,8 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"fmt"
+	"io"
 	"io/fs"
 	"path/filepath"
 
@@ -34,9 +36,9 @@ var errStackUpdateBuild = errors.New("Stack.Update: Build returned non-zero exit
 // This does not have a direct 'docker compose' shell equivalent.
 //
 // See also Up.
-func (ds Stack) Update(ctx context.Context, io stream.IOStream, start bool) error {
+func (ds Stack) Update(ctx context.Context, progress io.Writer, start bool) error {
 	{
-		code, err := ds.compose(ctx, io, "pull")
+		code, err := ds.compose(ctx, stream.NonInteractive(progress), "pull")
 		if err != nil {
 			return err
 		}
@@ -46,7 +48,7 @@ func (ds Stack) Update(ctx context.Context, io stream.IOStream, start bool) erro
 	}
 
 	{
-		code, err := ds.compose(ctx, io, "build", "--pull")
+		code, err := ds.compose(ctx, stream.NonInteractive(progress), "build", "--pull")
 		if err != nil {
 			return err
 		}
@@ -55,7 +57,7 @@ func (ds Stack) Update(ctx context.Context, io stream.IOStream, start bool) erro
 		}
 	}
 	if start {
-		return ds.Up(ctx, io)
+		return ds.Up(ctx, progress)
 	}
 	return nil
 }
@@ -64,8 +66,8 @@ var errStackUp = errors.New("Stack.Up: Up returned non-zero exit code")
 
 // Up creates and starts the containers in this Stack.
 // It is equivalent to 'docker compose up --remove-orphans --detach' on the shell.
-func (ds Stack) Up(ctx context.Context, io stream.IOStream) error {
-	code, err := ds.compose(ctx, io, "up", "--remove-orphans", "--detach")
+func (ds Stack) Up(ctx context.Context, progress io.Writer) error {
+	code, err := ds.compose(ctx, stream.NonInteractive(progress), "up", "--remove-orphans", "--detach")
 	if err != nil {
 		return err
 	}
@@ -116,8 +118,8 @@ var errStackRestart = errors.New("Stack.Restart: Restart returned non-zero exit 
 
 // Restart restarts all containers in this Stack.
 // It is equivalent to 'docker compose restart' on the shell.
-func (ds Stack) Restart(ctx context.Context, io stream.IOStream) error {
-	code, err := ds.compose(ctx, io, "restart")
+func (ds Stack) Restart(ctx context.Context, progress io.Writer) error {
+	code, err := ds.compose(ctx, stream.NonInteractive(progress), "restart")
 	if err != nil {
 		return err
 	}
@@ -130,12 +132,12 @@ func (ds Stack) Restart(ctx context.Context, io stream.IOStream) error {
 var errStackPs = errors.New("Stack.Ps: Down returned non-zero exit code")
 
 // Ps returns the ids of the containers currently running
-func (ds Stack) Ps(ctx context.Context, io stream.IOStream) ([]string, error) {
+func (ds Stack) Ps(ctx context.Context, progress io.Writer) ([]string, error) {
 	// create a buffer
 	var buffer bytes.Buffer
 
 	// read the ids from the command!
-	code, err := ds.compose(ctx, io.Streams(&buffer, nil, nil, 0), "ps", "-q")
+	code, err := ds.compose(ctx, stream.NewIOStream(&buffer, progress, nil, 0), "ps", "-q")
 	if err != nil {
 		return nil, err
 	}
@@ -163,8 +165,8 @@ var errStackDown = errors.New("Stack.Down: Down returned non-zero exit code")
 
 // Down stops and removes all containers in this Stack.
 // It is equivalent to 'docker compose down -v' on the shell.
-func (ds Stack) Down(ctx context.Context, io stream.IOStream) error {
-	code, err := ds.compose(ctx, io, "down", "-v")
+func (ds Stack) Down(ctx context.Context, progress io.Writer) error {
+	code, err := ds.compose(ctx, stream.NonInteractive(progress), "down", "-v")
 	if err != nil {
 		return err
 	}
@@ -219,7 +221,7 @@ type InstallationContext map[string]string
 //
 // Installation is non-interactive, but will provide debugging output onto io.
 // InstallationContext
-func (is StackWithResources) Install(ctx context.Context, io stream.IOStream, context InstallationContext) error {
+func (is StackWithResources) Install(ctx context.Context, progress io.Writer, context InstallationContext) error {
 	env := is.Stack.Env
 	if is.ContextPath != "" {
 		// setup the base files
@@ -229,7 +231,7 @@ func (is StackWithResources) Install(ctx context.Context, io stream.IOStream, co
 			is.ContextPath,
 			is.Resources,
 			func(dst, src string) {
-				io.Printf("[install] %s\n", dst)
+				fmt.Fprintf(progress, "[install] %s\n", dst)
 			},
 		); err != nil {
 			return err
@@ -239,7 +241,7 @@ func (is StackWithResources) Install(ctx context.Context, io stream.IOStream, co
 	// configure .env
 	envDest := filepath.Join(is.Dir, ".env")
 	if is.EnvPath != "" && is.EnvContext != nil {
-		io.Printf("[config]  %s\n", envDest)
+		fmt.Fprintf(progress, "[config]  %s\n", envDest)
 		if err := unpack.InstallTemplate(
 			env,
 			envDest,
@@ -256,7 +258,7 @@ func (is StackWithResources) Install(ctx context.Context, io stream.IOStream, co
 		// find the destination!
 		dst := filepath.Join(is.Dir, name)
 
-		io.Printf("[make]    %s\n", dst)
+		fmt.Fprintf(progress, "[make]    %s\n", dst)
 		if is.MakeDirsPerm == fs.FileMode(0) {
 			is.MakeDirsPerm = environment.DefaultDirPerm
 		}
@@ -277,7 +279,7 @@ func (is StackWithResources) Install(ctx context.Context, io stream.IOStream, co
 		dst := filepath.Join(is.Dir, name)
 
 		// copy over file from context
-		io.Printf("[copy]    %s (from %s)\n", dst, src)
+		fmt.Fprintf(progress, "[copy]    %s (from %s)\n", dst, src)
 		if err := fsx.CopyFile(ctx, env, dst, src); err != nil {
 			return errors.Wrapf(err, "Unable to copy file %s", src)
 		}
@@ -288,7 +290,7 @@ func (is StackWithResources) Install(ctx context.Context, io stream.IOStream, co
 		// find the destination!
 		dst := filepath.Join(is.Dir, name)
 
-		io.Printf("[touch]   %s\n", dst)
+		fmt.Fprintf(progress, "[touch]   %s\n", dst)
 		if err := fsx.Touch(env, dst, is.TouchFilesPerm); err != nil {
 			return err
 		}

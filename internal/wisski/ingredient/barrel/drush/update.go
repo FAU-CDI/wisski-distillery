@@ -2,6 +2,7 @@ package drush
 
 import (
 	"context"
+	"io"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
@@ -19,8 +20,8 @@ var errBlindUpdateFailed = exit.Error{
 }
 
 // Update performs a blind drush update
-func (drush *Drush) Update(ctx context.Context, io stream.IOStream) error {
-	code, err := drush.Barrel.Shell(ctx, io, "/runtime/blind_update.sh")
+func (drush *Drush) Update(ctx context.Context, progress io.Writer) error {
+	code, err := drush.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/blind_update.sh")
 	if err != nil {
 		return errBlindUpdateFailed.WithMessageF(drush.Slug, environment.ExecCommandError)
 	}

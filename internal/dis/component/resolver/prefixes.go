@@ -2,17 +2,18 @@ package resolver
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // updatePrefixes starts updating prefixes
-func (resolver *Resolver) updatePrefixes(ctx context.Context, io stream.IOStream) {
+func (resolver *Resolver) updatePrefixes(ctx context.Context, progress io.Writer) {
 	go func() {
 		for t := range timex.TickContext(ctx, resolver.RefreshInterval) {
-			io.Printf("[%s]: reloading prefixes\n", t.Format(time.Stamp))
+			fmt.Fprintf(progress, "[%s]: reloading prefixes\n", t.Format(time.Stamp))
 
 			err := (func() (err error) {
 				ctx, cancel := context.WithTimeout(ctx, resolver.RefreshInterval)
@@ -27,7 +28,7 @@ func (resolver *Resolver) updatePrefixes(ctx context.Context, io stream.IOStream
 				return nil
 			})()
 			if err != nil {
-				io.EPrintf("error reloading prefixes: ", err.Error())
+				fmt.Fprintf(progress, "error reloading prefixes: %s", err.Error())
 			}
 		}
 	}()

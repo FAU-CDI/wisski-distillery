@@ -31,7 +31,7 @@ var errSSHListen = exit.Error{
 
 func (s ssh) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
-	server, err := dis.SSH().Server(context.Context, s.PrivateKeyPath, context.IOStream)
+	server, err := dis.SSH().Server(context.Context, s.PrivateKeyPath, context.Stderr)
 	if err != nil {
 		return err
 	}

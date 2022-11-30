@@ -13,7 +13,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/status"
-	"github.com/tkw1536/goprogram/stream"
 	"golang.org/x/exp/slices"
 )
 
@@ -50,7 +49,7 @@ type BackupDescription struct {
 }
 
 // New create a new Backup
-func (exporter *Exporter) NewBackup(ctx context.Context, io stream.IOStream, description BackupDescription) (backup Backup) {
+func (exporter *Exporter) NewBackup(ctx context.Context, progress io.Writer, description BackupDescription) (backup Backup) {
 	backup.Description = description
 
 	// catch anything critical that happened during the snapshot
@@ -61,16 +60,16 @@ func (exporter *Exporter) NewBackup(ctx context.Context, io stream.IOStream, des
 	// do the create keeping track of time!
 	logging.LogOperation(func() error {
 		backup.StartTime = time.Now().UTC()
-		backup.run(ctx, io, exporter)
+		backup.run(ctx, progress, exporter)
 		backup.EndTime = time.Now().UTC()
 
 		return nil
-	}, io, "Writing backup files")
+	}, progress, "Writing backup files")
 
 	return
 }
 
-func (backup *Backup) run(ctx context.Context, ios stream.IOStream, exporter *Exporter) {
+func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exporter) {
 	// create a manifest
 	manifest, done := backup.handleManifest(backup.Description.Dest)
 	defer done()
@@ -81,7 +80,7 @@ func (backup *Backup) run(ctx context.Context, ios stream.IOStream, exporter *Ex
 
 	// Component backup tasks
 	logging.LogOperation(func() error {
-		st := status.NewWithCompat(ios.Stdout, 0)
+		st := status.NewWithCompat(progress, 0)
 		st.Start()
 		defer st.Stop()
 
@@ -96,7 +95,7 @@ func (backup *Backup) run(ctx context.Context, ios stream.IOStream, exporter *Ex
 					component.NewStagingContext(
 						ctx,
 						exporter.Environment,
-						stream.NewIOStream(writer, writer, nil, 0),
+						writer,
 						filepath.Join(backup.Description.Dest, bc.BackupName()),
 						manifest,
 					),
@@ -111,11 +110,11 @@ func (backup *Backup) run(ctx context.Context, ios stream.IOStream, exporter *Ex
 		}
 
 		return nil
-	}, ios, "Backing up core components")
+	}, progress, "Backing up core components")
 
 	// backup instances
 	logging.LogOperation(func() error {
-		st := status.NewWithCompat(ios.Stdout, 0)
+		st := status.NewWithCompat(progress, 0)
 		st.Start()
 		defer st.Stop()
 
@@ -149,7 +148,7 @@ func (backup *Backup) run(ctx context.Context, ios stream.IOStream, exporter *Ex
 
 				manifest <- dir
 
-				return exporter.NewSnapshot(ctx, instance, stream.NewIOStream(writer, writer, nil, 0), SnapshotDescription{
+				return exporter.NewSnapshot(ctx, instance, writer, SnapshotDescription{
 					Dest: dir,
 				})
 			},
@@ -166,6 +165,6 @@ func (backup *Backup) run(ctx context.Context, ios stream.IOStream, exporter *Ex
 		})
 
 		return nil
-	}, ios, "Creating instance snapshots")
+	}, progress, "Creating instance snapshots")
 
 }
