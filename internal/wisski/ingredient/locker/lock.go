@@ -13,6 +13,10 @@ type Locker struct {
 	ingredient.Base
 }
 
+var (
+	_ = (ingredient.WissKIFetcher)((*Locker)(nil))
+)
+
 var Locked = exit.Error{
 	Message:  "WissKI Instance is locked for administrative operations",
 	ExitCode: exit.ExitGeneric,

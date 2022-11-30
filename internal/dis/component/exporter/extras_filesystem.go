@@ -10,6 +10,10 @@ type Filesystem struct {
 	component.Base
 }
 
+var (
+	_ component.Snapshotable = (*Filesystem)(nil)
+)
+
 // SnapshotNeedsRunning returns if this Snapshotable requires a running instance.
 func (Filesystem) SnapshotNeedsRunning() bool { return false }
 

@@ -17,6 +17,10 @@ type SSH struct {
 	Barrel *barrel.Barrel
 }
 
+var (
+	_ ingredient.WissKIFetcher = (*SSH)(nil)
+)
+
 func (ssh *SSH) Keys() ([]ssh.PublicKey, error) {
 	file, err := ssh.Environment.Open(ssh.Barrel.AuthorizedKeysPath())
 	if environment.IsNotExist(err) {

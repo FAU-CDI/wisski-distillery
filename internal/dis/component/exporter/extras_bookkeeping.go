@@ -13,6 +13,10 @@ type Bookkeeping struct {
 	component.Base
 }
 
+var (
+	_ component.Snapshotable = (*Bookkeeping)(nil)
+)
+
 // SnapshotNeedsRunning returns if this Snapshotable requires a running instance.
 func (Bookkeeping) SnapshotNeedsRunning() bool { return false }
 

@@ -14,6 +14,7 @@ import (
 func (wisski *WissKI) init() {
 	wisski.poolInit.Do(func() {
 		wisski.pool.Init = ingredient.Init
+		lazy.RegisterPoolGroup[ingredient.WissKIFetcher](&wisski.pool)
 	})
 }
 

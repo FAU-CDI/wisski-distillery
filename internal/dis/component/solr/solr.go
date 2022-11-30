@@ -17,6 +17,10 @@ type Solr struct {
 	PollInterval time.Duration // duration to wait for during wait
 }
 
+var (
+	_ component.Installable = (*Solr)(nil)
+)
+
 func (s *Solr) Path() string {
 	return filepath.Join(s.Still.Config.DeployRoot, "core", "solr")
 }

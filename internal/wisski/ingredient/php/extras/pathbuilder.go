@@ -17,6 +17,10 @@ type Pathbuilder struct {
 	PHP *php.PHP
 }
 
+var (
+	_ ingredient.WissKIFetcher = (*Pathbuilder)(nil)
+)
+
 //go:embed pathbuilder.php
 var pathbuilderPHP string
 

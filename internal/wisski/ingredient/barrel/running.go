@@ -23,6 +23,10 @@ type RunningFetcher struct {
 	Barrel *Barrel
 }
 
+var (
+	_ ingredient.WissKIFetcher = (*RunningFetcher)(nil)
+)
+
 func (rf *RunningFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	info.Running, err = rf.Barrel.Running(flags.Context)
 	return

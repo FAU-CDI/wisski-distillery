@@ -45,6 +45,10 @@ type LastCronFetcher struct {
 	Drush *Drush
 }
 
+var (
+	_ ingredient.WissKIFetcher = (*LastCronFetcher)(nil)
+)
+
 func (lbr *LastCronFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	if flags.Quick {
 		return

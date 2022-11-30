@@ -13,6 +13,12 @@ import (
 func (dis *Distillery) init() {
 	dis.poolInit.Do(func() {
 		dis.pool.Init = component.Init
+		lazy.RegisterPoolGroup[component.Backupable](&dis.pool)
+		lazy.RegisterPoolGroup[component.Snapshotable](&dis.pool)
+		lazy.RegisterPoolGroup[component.DistilleryFetcher](&dis.pool)
+		lazy.RegisterPoolGroup[component.Installable](&dis.pool)
+		lazy.RegisterPoolGroup[component.Provisionable](&dis.pool)
+		lazy.RegisterPoolGroup[component.Servable](&dis.pool)
 	})
 }
 

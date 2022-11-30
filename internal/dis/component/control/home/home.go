@@ -24,6 +24,10 @@ type Home struct {
 	homeBytes     lazy.Lazy[[]byte]
 }
 
+var (
+	_ component.Servable = (*Home)(nil)
+)
+
 func (*Home) Routes() []string { return []string{"/"} }
 
 func (home *Home) Handler(ctx context.Context, route string, io stream.IOStream) (http.Handler, error) {

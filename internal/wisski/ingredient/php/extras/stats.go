@@ -16,6 +16,10 @@ type Stats struct {
 	PHP *php.PHP
 }
 
+var (
+	_ ingredient.WissKIFetcher = (*Stats)(nil)
+)
+
 //go:embed stats.php
 var statsPHP string
 

@@ -25,6 +25,10 @@ type Prefixes struct {
 	MStore *mstore.MStore
 }
 
+var (
+	_ ingredient.WissKIFetcher = (*Prefixes)(nil)
+)
+
 // NoPrefix checks if this WissKI instance is excluded from generating prefixes.
 // TODO: Move this to the database!
 func (prefixes *Prefixes) NoPrefix() bool {

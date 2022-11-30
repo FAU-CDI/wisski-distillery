@@ -11,6 +11,10 @@ type SnapshotsFetcher struct {
 	Info *Info
 }
 
+var (
+	_ ingredient.WissKIFetcher = (*SnapshotsFetcher)(nil)
+)
+
 func (lbr *SnapshotsFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	if flags.Quick {
 		return

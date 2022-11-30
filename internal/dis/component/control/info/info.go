@@ -26,6 +26,11 @@ type Info struct {
 	SnapshotsLog *logger.Logger
 }
 
+var (
+	_ component.DistilleryFetcher = (*Info)(nil)
+	_ component.Servable          = (*Info)(nil)
+)
+
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
 func (info *Info) Handler(ctx context.Context, route string, io stream.IOStream) (handler http.Handler, err error) {

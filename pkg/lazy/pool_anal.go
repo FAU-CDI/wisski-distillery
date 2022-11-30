@@ -29,7 +29,7 @@ type PoolAnalyticsGroup struct {
 }
 
 // anal writes analytics about this context to anal
-func (context *PoolContext[Component]) anal(anal *PoolAnalytics) {
+func (context *PoolContext[Component]) anal(anal *PoolAnalytics, groups []reflect.Type) {
 	anal.Components = make(map[string]*PoolAnalyticsComponent, len(context.metaCache))
 	anal.Groups = make(map[string]*PoolAnalyticsGroup)
 
@@ -51,6 +51,10 @@ func (context *PoolContext[Component]) anal(anal *PoolAnalytics) {
 		}
 	}
 
+	// collect interfaces to analyze
+	ifaces := make([]reflect.Type, len(groups))
+	copy(ifaces, groups)
+
 	// take all of the components out of the cache
 	for _, meta := range context.metaCache {
 		anal.Components[meta.Name].Type = meta.Name
@@ -59,32 +63,37 @@ func (context *PoolContext[Component]) anal(anal *PoolAnalytics) {
 		})
 
 		anal.Components[meta.Name].IFields = collection.MapValues(meta.IFields, func(key string, iface reflect.Type) string {
-			name := nameOf(iface)
-
-			if _, ok := anal.Groups[name]; !ok {
-				types := collection.FilterClone(tpPointers, func(tp reflect.Type) bool {
-					return tp.AssignableTo(iface)
-				})
-
-				anal.Groups[name] = &PoolAnalyticsGroup{
-					Type: name,
-					Components: collection.MapSlice(types, func(tp reflect.Type) string {
-						cname := nameOf(tp.Elem())
-						anal.Components[cname].Groups = append(anal.Components[cname].Groups, name)
-						return cname
-					}),
-				}
-
-				mcount := iface.NumMethod()
-				anal.Groups[name].Methods = make(map[string]string, mcount)
-				for i := 0; i < mcount; i++ {
-					method := iface.Method(i)
-					anal.Groups[name].Methods[method.Name] = method.Type.String()
-				}
-			}
-
-			return name
+			ifaces = append(ifaces, iface)
+			return nameOf(iface)
 		})
+	}
+
+	// and analyze all ifaces
+	for _, iface := range ifaces {
+		name := nameOf(iface)
+		if _, ok := anal.Groups[name]; ok {
+			continue
+		}
+
+		types := collection.FilterClone(tpPointers, func(tp reflect.Type) bool {
+			return tp.AssignableTo(iface)
+		})
+
+		anal.Groups[name] = &PoolAnalyticsGroup{
+			Type: name,
+			Components: collection.MapSlice(types, func(tp reflect.Type) string {
+				cname := nameOf(tp.Elem())
+				anal.Components[cname].Groups = append(anal.Components[cname].Groups, name)
+				return cname
+			}),
+		}
+
+		mcount := iface.NumMethod()
+		anal.Groups[name].Methods = make(map[string]string, mcount)
+		for i := 0; i < mcount; i++ {
+			method := iface.Method(i)
+			anal.Groups[name].Methods[method.Name] = method.Type.String()
+		}
 	}
 
 	for _, comp := range anal.Components {

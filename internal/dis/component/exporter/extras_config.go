@@ -12,6 +12,10 @@ type Config struct {
 	component.Base
 }
 
+var (
+	_ = (component.Backupable)((*Config)(nil))
+)
+
 func (*Config) BackupName() string {
 	return "config"
 }

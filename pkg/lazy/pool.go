@@ -2,6 +2,8 @@ package lazy
 
 import (
 	"reflect"
+
+	"github.com/tkw1536/goprogram/lib/reflectx"
 )
 
 // Pool represents a pool of laziliy initialized and potentially referencing Component instances.
@@ -18,10 +20,21 @@ type Pool[Component any, InitParams any] struct {
 	// Init is called on every component to be initialized.
 	Init func(Component, InitParams) Component
 
-	// Analytics are written on the first retrieval operation on this Pool
-	Analytics PoolAnalytics
+	// Analytics are written on the first retrieval operation on this Pool.
+	//
+	// Contains all groups and structs that are referenced during initialization.
+	// To add extra groups, call RegisterPoolGroup.
+	Analytics   PoolAnalytics
+	extraGroups []reflect.Type
 
 	all Lazy[[]Component]
+}
+
+// RegisterPoolGroup registers the given group type to be added to the pools' analytics.
+//
+// Only groups not referenced during initialization need to be registered explicitly.
+func RegisterPoolGroup[Group any, Component any, InitParams any](p *Pool[Component, InitParams]) {
+	p.extraGroups = append(p.extraGroups, reflectx.TypeOf[Group]())
 }
 
 // All initializes or returns all components stored in this pool.
@@ -48,7 +61,7 @@ func (p *Pool[Component, InitParams]) All(Params InitParams, All func(context *P
 		context.process(all)
 
 		// write out analytics
-		context.anal(&p.Analytics)
+		context.anal(&p.Analytics, p.extraGroups)
 		return all
 	})
 }
@@ -57,10 +70,6 @@ func (p *Pool[Component, InitParams]) All(Params InitParams, All func(context *P
 type PoolContext[Component any] struct {
 	init func(Component) Component                         // initializes a new component
 	all  func(context *PoolContext[Component]) []Component // initializes all components
-
-	// cache for metas
-
-	// function to return all components
 
 	metaCache map[reflect.Type]meta[Component]
 	cache     map[string]Component     // cached components

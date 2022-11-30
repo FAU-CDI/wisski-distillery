@@ -14,6 +14,10 @@ type SSH2 struct {
 	Instances *instances.Instances
 }
 
+var (
+	_ component.Installable = (*SSH2)(nil)
+)
+
 // GlobalKeys returns the global authorized keys
 func (s *SSH2) GlobalKeys() ([]ssh.PublicKey, error) {
 	file, err := s.Environment.Open(s.Config.GlobalAuthorizedKeysFile)

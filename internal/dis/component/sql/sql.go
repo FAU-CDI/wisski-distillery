@@ -20,6 +20,12 @@ type SQL struct {
 	lazyNetwork lazy.Lazy[string]
 }
 
+var (
+	_ component.Backupable   = (*SQL)(nil)
+	_ component.Snapshotable = (*SQL)(nil)
+	_ component.Installable  = (*SQL)(nil)
+)
+
 func (sql *SQL) Path() string {
 	return filepath.Join(sql.Still.Config.DeployRoot, "core", "sql")
 }

@@ -15,6 +15,10 @@ type Web struct {
 	component.Base
 }
 
+var (
+	_ component.Installable = (*Web)(nil)
+)
+
 func (web *Web) Path() string {
 	return filepath.Join(web.Still.Config.DeployRoot, "core", "web")
 }

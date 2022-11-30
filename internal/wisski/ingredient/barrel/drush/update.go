@@ -56,6 +56,10 @@ type LastUpdateFetcher struct {
 	Drush *Drush
 }
 
+var (
+	_ ingredient.WissKIFetcher = (*LastUpdateFetcher)(nil)
+)
+
 func (lbr *LastUpdateFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	info.LastUpdate, err = lbr.Drush.LastUpdate(flags.Context)
 	return

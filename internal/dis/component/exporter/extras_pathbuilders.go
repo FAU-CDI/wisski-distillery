@@ -14,6 +14,10 @@ type Pathbuilders struct {
 	Instances *instances.Instances
 }
 
+var (
+	_ component.Snapshotable = (*Pathbuilders)(nil)
+)
+
 func (Pathbuilders) SnapshotNeedsRunning() bool { return true }
 
 func (Pathbuilders) SnapshotName() string { return "pathbuilders" }

@@ -18,6 +18,10 @@ type Users struct {
 	PHP *php.PHP
 }
 
+var (
+	_ ingredient.WissKIFetcher = (*Users)(nil)
+)
+
 //go:embed users.php
 var usersPHP string
 

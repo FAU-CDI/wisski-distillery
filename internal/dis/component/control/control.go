@@ -16,6 +16,10 @@ type Control struct {
 	Servables []component.Servable
 }
 
+var (
+	_ component.Installable = (*Control)(nil)
+)
+
 func (control Control) Path() string {
 	return filepath.Join(control.Still.Config.DeployRoot, "core", "dis")
 }

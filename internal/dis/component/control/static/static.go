@@ -15,6 +15,10 @@ type Static struct {
 	component.Base
 }
 
+var (
+	_ component.Servable = (*Static)(nil)
+)
+
 func (*Static) Routes() []string { return []string{"/static/"} }
 
 //go:embed dist
