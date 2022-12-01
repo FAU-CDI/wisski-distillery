@@ -2,10 +2,10 @@ package resolver
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 )
 
@@ -13,7 +13,7 @@ import (
 func (resolver *Resolver) updatePrefixes(ctx context.Context, progress io.Writer) {
 	go func() {
 		for t := range timex.TickContext(ctx, resolver.RefreshInterval) {
-			fmt.Fprintf(progress, "[%s]: reloading prefixes\n", t.Format(time.Stamp))
+			logging.ProgressF(progress, ctx, "[%s]: reloading prefixes\n", t.Format(time.Stamp))
 
 			err := (func() (err error) {
 				ctx, cancel := context.WithTimeout(ctx, resolver.RefreshInterval)
@@ -28,7 +28,7 @@ func (resolver *Resolver) updatePrefixes(ctx context.Context, progress io.Writer
 				return nil
 			})()
 			if err != nil {
-				fmt.Fprintf(progress, "error reloading prefixes: %s", err.Error())
+				logging.ProgressF(progress, ctx, "error reloading prefixes: %s", err.Error())
 			}
 		}
 	}()

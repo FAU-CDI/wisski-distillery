@@ -1,37 +1,38 @@
 package ssh2
 
 import (
+	"context"
 	"crypto/ed25519"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/gliderlabs/ssh"
 
 	"github.com/pkg/errors"
 	gossh "golang.org/x/crypto/ssh"
 )
 
-func (ssh2 *SSH2) setupHostKeys(progress io.Writer, privateKeyPath string, server *ssh.Server) error {
-	return ssh2.UseOrMakeHostKeys(progress, server, privateKeyPath, nil)
+func (ssh2 *SSH2) setupHostKeys(progress io.Writer, ctx context.Context, privateKeyPath string, server *ssh.Server) error {
+	return ssh2.UseOrMakeHostKeys(progress, ctx, server, privateKeyPath, nil)
 }
 
 // UseOrMakeHostKeys is like UseOrMakeHostKey except that it accepts multiple HostKeyAlgorithms.
 // For each key algorithm, the privateKeyPath is appended with "_" + the name of the algorithm in question.
 //
 // When algorithms is nil, picks a reasonable set of default algorithms.
-func (ssh2 *SSH2) UseOrMakeHostKeys(progress io.Writer, server *ssh.Server, privateKeyPath string, algorithms []HostKeyAlgorithm) error {
+func (ssh2 *SSH2) UseOrMakeHostKeys(progress io.Writer, ctx context.Context, server *ssh.Server, privateKeyPath string, algorithms []HostKeyAlgorithm) error {
 	if algorithms == nil {
 		algorithms = []HostKeyAlgorithm{RSAAlgorithm, ED25519Algorithm}
 	}
 
 	for _, algorithm := range algorithms {
 		path := privateKeyPath + "_" + string(algorithm)
-		if err := ssh2.UseOrMakeHostKey(progress, server, path, algorithm); err != nil {
+		if err := ssh2.UseOrMakeHostKey(progress, ctx, server, path, algorithm); err != nil {
 			return err
 		}
 	}
@@ -44,8 +45,8 @@ func (ssh2 *SSH2) UseOrMakeHostKeys(progress io.Writer, server *ssh.Server, priv
 //
 // All parameters except the server are passed to ReadOrMakeHostKey.
 // Please see the appropriate documentation for that function.
-func (ssh2 *SSH2) UseOrMakeHostKey(progress io.Writer, server *ssh.Server, privateKeyPath string, algorithm HostKeyAlgorithm) error {
-	key, err := ssh2.ReadOrMakeHostKey(progress, privateKeyPath, algorithm)
+func (ssh2 *SSH2) UseOrMakeHostKey(progress io.Writer, ctx context.Context, server *ssh.Server, privateKeyPath string, algorithm HostKeyAlgorithm) error {
+	key, err := ssh2.ReadOrMakeHostKey(progress, ctx, privateKeyPath, algorithm)
 	if err != nil {
 		return err
 	}
@@ -60,17 +61,17 @@ func (ssh2 *SSH2) UseOrMakeHostKey(progress io.Writer, server *ssh.Server, priva
 //
 // This function assumes that if there is a host key in privateKeyPath it uses the provided HostKeyAlgorithm.
 // It makes no attempt at verifiying this; the key mail fail to load and return an error, or it may load incorrect data.
-func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, privateKeyPath string, algorithm HostKeyAlgorithm) (key gossh.Signer, err error) {
+func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, ctx context.Context, privateKeyPath string, algorithm HostKeyAlgorithm) (key gossh.Signer, err error) {
 	hostKey := NewHostKey(algorithm)
 
 	if _, e := ssh2.Environment.Lstat(privateKeyPath); environment.IsNotExist(e) { // path doesn't exist => generate a new key there!
-		err = ssh2.makeHostKey(progress, hostKey, privateKeyPath)
+		err = ssh2.makeHostKey(progress, ctx, hostKey, privateKeyPath)
 		if err != nil {
 			err = errors.Wrap(err, "Unable to generate new host key")
 			return
 		}
 	}
-	err = ssh2.loadHostKey(progress, hostKey, privateKeyPath)
+	err = ssh2.loadHostKey(progress, ctx, hostKey, privateKeyPath)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +79,8 @@ func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, privateKeyPath string, a
 }
 
 // loadHostKey loadsa host key
-func (ssh2 *SSH2) loadHostKey(progress io.Writer, key HostKey, path string) (err error) {
-	fmt.Fprintf(progress, "Loading hostkey (algorithm %s) from %q", key.Algorithm(), path)
+func (ssh2 *SSH2) loadHostKey(progress io.Writer, ctx context.Context, key HostKey, path string) (err error) {
+	logging.ProgressF(progress, ctx, "Loading hostkey (algorithm %s) from %q", key.Algorithm(), path)
 
 	// read all the bytes from the file
 	privateKeyBytes, err := environment.ReadFile(ssh2.Environment, path)
@@ -104,10 +105,10 @@ func (ssh2 *SSH2) loadHostKey(progress io.Writer, key HostKey, path string) (err
 }
 
 // makeHostKey makes a new host key
-func (ssh2 *SSH2) makeHostKey(progress io.Writer, key HostKey, path string) error {
-	fmt.Fprintf(progress, "Writing hostkey (algorithm %s) to %q", key.Algorithm(), path)
+func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostKey, path string) error {
+	logging.ProgressF(progress, ctx, "Writing hostkey (algorithm %s) to %q", key.Algorithm(), path)
 
-	if err := key.Generate(0, nil); err != nil {
+	if err := key.Generate(ctx, 0, nil); err != nil {
 		return errors.Wrap(err, "Failed to generate key")
 	}
 
@@ -137,7 +138,7 @@ type HostKey interface {
 	//
 	// keySize is the desired public key size in bits. When keySize is 0, a sensible default is used.
 	// random is the source of randomness. If random is nil, crypto/rand.Reader will be used.
-	Generate(keySize int, random io.Reader) error
+	Generate(ctx context.Context, keySize int, random io.Reader) error
 
 	// MarshalPEM marshals the private key into a pem.Block to be used for exporting.
 	// The format is not guaranteed to follow any kind of standard, only that it is readable with the corresponding UnmarshalPEM.
@@ -191,7 +192,7 @@ func (ek *ed25519HostKey) Algorithm() HostKeyAlgorithm {
 
 var errKeySizeUnsupported = errors.New("ed25519HostKey.Generate(): keySize not supported")
 
-func (ek *ed25519HostKey) Generate(keySize int, random io.Reader) (err error) {
+func (ek *ed25519HostKey) Generate(ctx context.Context, keySize int, random io.Reader) (err error) {
 	if keySize != 0 && keySize != ed25519.PublicKeySize {
 		return errKeySizeUnsupported
 	}
@@ -251,7 +252,7 @@ func (rk *rsaHostKey) Algorithm() HostKeyAlgorithm {
 	return RSAAlgorithm
 }
 
-func (rk *rsaHostKey) Generate(keySize int, random io.Reader) (err error) {
+func (rk *rsaHostKey) Generate(ctx context.Context, keySize int, random io.Reader) (err error) {
 	if keySize == 0 {
 		keySize = rk.defaultBitSize
 	}

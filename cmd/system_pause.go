@@ -53,7 +53,7 @@ func (sp systempause) Run(context wisski_distillery.Context) error {
 }
 
 func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distillery) error {
-	logging.LogMessage(context.Stderr, "Starting Components")
+	logging.LogMessage(context.Stderr, context.Context, "Starting Components")
 
 	// find all the core stacks
 	if err := status.RunErrorGroup(context.Stderr, status.Group[component.Installable, error]{
@@ -69,7 +69,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 		return err
 	}
 
-	logging.LogMessage(context.Stderr, "Starting Up WissKIs")
+	logging.LogMessage(context.Stderr, context.Context, "Starting Up WissKIs")
 
 	// find the instances
 	wissKIs, err := dis.Instances().All(context.Context)
@@ -95,7 +95,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 }
 
 func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distillery) error {
-	logging.LogMessage(context.Stderr, "Shutting Down WissKIs")
+	logging.LogMessage(context.Stderr, context.Context, "Shutting Down WissKIs")
 
 	// find the instances
 	wissKIs, err := dis.Instances().All(context.Context)
@@ -117,7 +117,7 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 		return err
 	}
 
-	logging.LogMessage(context.Stderr, "Shutting Down Components")
+	logging.LogMessage(context.Stderr, context.Context, "Shutting Down Components")
 
 	// find all the core stacks
 	if err := status.RunErrorGroup(context.Stderr, status.Group[component.Installable, error]{

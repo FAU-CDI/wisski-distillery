@@ -7,6 +7,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/status"
@@ -43,7 +44,7 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
 	}
 
 	return status.WriterGroup(context.Stderr, upc.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
-		fmt.Fprintln(writer, "reading prefixes")
+		logging.Progress(writer, context.Context, "reading prefixes")
 		err := instance.Prefixes().Update(context.Context)
 		if err != nil {
 			return errPrefixUpdateFailed.Wrap(err)

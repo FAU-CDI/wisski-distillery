@@ -2,9 +2,10 @@ package control
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 )
 
 // Server returns an http.Mux that implements the main server instance.
@@ -18,7 +19,7 @@ func (control *Control) Server(ctx context.Context, progress io.Writer) (*http.S
 	// add all the servable routes!
 	for _, s := range control.Servables {
 		for _, route := range s.Routes() {
-			fmt.Fprintf(progress, "mounting %s\n", route)
+			logging.ProgressF(progress, ctx, "mounting %s\n", route)
 			handler, err := s.Handler(ctx, route, progress)
 			if err != nil {
 				return nil, err

@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"strings"
@@ -9,20 +10,30 @@ import (
 )
 
 // LogOperation logs a message that is displayed to the user, and then increases the log indent level.
-func LogOperation(operation func() error, progress io.Writer, format string, args ...interface{}) error {
-	logOperation(progress, getIndent(progress), format, args...)
+func LogOperation(operation func() error, progress io.Writer, ctx context.Context, format string, args ...interface{}) error {
+	logOperation(progress, ctx, getIndent(progress), format, args...)
 	incIndent(progress)
 	defer decIndent(progress)
 
 	return operation()
 }
 
-// LogMessage logs a message that is displayed to the user
-func LogMessage(progress io.Writer, format string, args ...interface{}) (int, error) {
-	return logOperation(progress, getIndent(progress), format, args...)
+// Progress writes a progress message to the given progress writer.
+func Progress(progress io.Writer, ctx context.Context, message string) {
+	io.WriteString(progress, message)
 }
 
-func logOperation(progress io.Writer, indent int, format string, args ...interface{}) (int, error) {
+// ProgressF is like progress, but uses fmt.Sprintf()
+func ProgressF(progress io.Writer, ctx context.Context, format string, args ...interface{}) {
+	Progress(progress, ctx, fmt.Sprintf(format, args...))
+}
+
+// LogMessage logs a message that is displayed to the user
+func LogMessage(progress io.Writer, ctx context.Context, format string, args ...interface{}) (int, error) {
+	return logOperation(progress, ctx, getIndent(progress), format, args...)
+}
+
+func logOperation(progress io.Writer, ctx context.Context, indent int, format string, args ...interface{}) (int, error) {
 	message := "\033[1m" + strings.Repeat(" ", indent+1) + "=> " + format + "\033[0m\n"
 	if !streamIsTerminal(progress) {
 		message = " => " + format + "\n"

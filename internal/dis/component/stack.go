@@ -5,13 +5,13 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"io/fs"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
@@ -231,7 +231,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 			is.ContextPath,
 			is.Resources,
 			func(dst, src string) {
-				fmt.Fprintf(progress, "[install] %s\n", dst)
+				logging.ProgressF(progress, ctx, "[install] %s\n", dst)
 			},
 		); err != nil {
 			return err
@@ -241,7 +241,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 	// configure .env
 	envDest := filepath.Join(is.Dir, ".env")
 	if is.EnvPath != "" && is.EnvContext != nil {
-		fmt.Fprintf(progress, "[config]  %s\n", envDest)
+		logging.ProgressF(progress, ctx, "[config]  %s\n", envDest)
 		if err := unpack.InstallTemplate(
 			env,
 			envDest,
@@ -258,7 +258,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		// find the destination!
 		dst := filepath.Join(is.Dir, name)
 
-		fmt.Fprintf(progress, "[make]    %s\n", dst)
+		logging.ProgressF(progress, ctx, "[make]    %s\n", dst)
 		if is.MakeDirsPerm == fs.FileMode(0) {
 			is.MakeDirsPerm = environment.DefaultDirPerm
 		}
@@ -279,7 +279,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		dst := filepath.Join(is.Dir, name)
 
 		// copy over file from context
-		fmt.Fprintf(progress, "[copy]    %s (from %s)\n", dst, src)
+		logging.ProgressF(progress, ctx, "[copy]    %s (from %s)\n", dst, src)
 		if err := fsx.CopyFile(ctx, env, dst, src); err != nil {
 			return errors.Wrapf(err, "Unable to copy file %s", src)
 		}
@@ -290,7 +290,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		// find the destination!
 		dst := filepath.Join(is.Dir, name)
 
-		fmt.Fprintf(progress, "[touch]   %s\n", dst)
+		logging.ProgressF(progress, ctx, "[touch]   %s\n", dst)
 		if err := fsx.Touch(env, dst, is.TouchFilesPerm); err != nil {
 			return err
 		}

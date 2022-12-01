@@ -3,19 +3,19 @@ package home
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 )
 
 func (home *Home) updateRedirect(ctx context.Context, progress io.Writer) {
 	go func() {
 		for t := range timex.TickContext(ctx, home.RefreshInterval) {
-			fmt.Fprintf(progress, "[%s]: reloading overrides\n", t.Format(time.Stamp))
+			logging.ProgressF(progress, ctx, "[%s]: reloading overrides\n", t.Format(time.Stamp))
 
 			err := (func() error {
 				ctx, cancel := context.WithTimeout(ctx, home.RefreshInterval)
@@ -30,7 +30,7 @@ func (home *Home) updateRedirect(ctx context.Context, progress io.Writer) {
 				return nil
 			})()
 			if err != nil {
-				fmt.Fprintf(progress, "error reloading overrides: %s", err.Error())
+				logging.ProgressF(progress, ctx, "error reloading overrides: %s", err.Error())
 			}
 
 		}

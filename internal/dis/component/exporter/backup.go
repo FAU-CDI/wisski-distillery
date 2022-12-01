@@ -64,7 +64,7 @@ func (exporter *Exporter) NewBackup(ctx context.Context, progress io.Writer, des
 		backup.EndTime = time.Now().UTC()
 
 		return nil
-	}, progress, "Writing backup files")
+	}, progress, ctx, "Writing backup files")
 
 	return
 }
@@ -110,7 +110,7 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 		}
 
 		return nil
-	}, progress, "Backing up core components")
+	}, progress, ctx, "Backing up core components")
 
 	// backup instances
 	logging.LogOperation(func() error {
@@ -165,6 +165,6 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 		})
 
 		return nil
-	}, progress, "Creating instance snapshots")
+	}, progress, ctx, "Creating instance snapshots")
 
 }

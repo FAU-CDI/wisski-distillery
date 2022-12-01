@@ -45,7 +45,7 @@ func (r reserve) Run(context wisski_distillery.Context) error {
 	slug := r.Positionals.Slug
 
 	// check that it doesn't already exist
-	logging.LogMessage(context.Stderr, "Reserving new WissKI instance %s", slug)
+	logging.LogMessage(context.Stderr, context.Context, "Reserving new WissKI instance %s", slug)
 	if exists, err := dis.Instances().Has(context.Context, slug); err != nil || exists {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
@@ -57,7 +57,7 @@ func (r reserve) Run(context wisski_distillery.Context) error {
 	}
 
 	// check that the base directory does not exist
-	logging.LogMessage(context.Stderr, "Checking that base directory %s does not exist", instance.FilesystemBase)
+	logging.LogMessage(context.Stderr, context.Context, "Checking that base directory %s does not exist", instance.FilesystemBase)
 	if fsx.IsDirectory(dis.Environment, instance.FilesystemBase) {
 		return errProvisionAlreadyExists.WithMessageF(slug)
 	}
@@ -67,19 +67,19 @@ func (r reserve) Run(context wisski_distillery.Context) error {
 	{
 		if err := logging.LogOperation(func() error {
 			return s.Install(context.Context, context.Stderr, component.InstallationContext{})
-		}, context.Stderr, "Installing docker stack"); err != nil {
+		}, context.Stderr, context.Context, "Installing docker stack"); err != nil {
 			return err
 		}
 
 		if err := logging.LogOperation(func() error {
 			return s.Update(context.Context, context.Stderr, true)
-		}, context.Stderr, "Updating docker stack"); err != nil {
+		}, context.Stderr, context.Context, "Updating docker stack"); err != nil {
 			return err
 		}
 	}
 
 	// and we're done!
-	logging.LogMessage(context.Stderr, "Instance has been reserved")
+	logging.LogMessage(context.Stderr, context.Context, "Instance has been reserved")
 	context.Printf("URL:      %s\n", instance.URL().String())
 
 	return nil

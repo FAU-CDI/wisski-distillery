@@ -2,13 +2,13 @@ package component
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/pkg/errors"
 )
 
@@ -93,7 +93,7 @@ func (bc *stagingContext) sendPath(path string) {
 		return
 	}
 
-	fmt.Fprintln(bc.progress, dst)
+	logging.Progress(bc.progress, bc.ctx, dst)
 	bc.manifest <- dst
 }
 

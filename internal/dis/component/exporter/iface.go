@@ -2,7 +2,6 @@ package exporter
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"path/filepath"
 
@@ -53,7 +52,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	}
 
 	// determine target paths
-	logging.LogMessage(progress, "Determining target paths")
+	logging.LogMessage(progress, ctx, "Determining target paths")
 	var stagingDir, archivePath string
 	if task.StagingOnly {
 		stagingDir = task.Dest
@@ -69,11 +68,11 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	if !task.StagingOnly && archivePath == "" {
 		archivePath = exporter.NewArchivePath(Slug)
 	}
-	fmt.Fprintf(progress, "Staging Directory: %s\n", stagingDir)
-	fmt.Fprintf(progress, "Archive Path:      %s\n", archivePath)
+	logging.ProgressF(progress, ctx, "Staging Directory: %s\n", stagingDir)
+	logging.ProgressF(progress, ctx, "Archive Path:      %s\n", archivePath)
 
 	// create the staging directory
-	logging.LogMessage(progress, "Creating staging directory")
+	logging.LogMessage(progress, ctx, "Creating staging directory")
 	err = exporter.Environment.Mkdir(stagingDir, environment.DefaultDirPerm)
 	if !environment.IsExist(err) && err != nil {
 		return err
@@ -83,7 +82,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	// we need the staging directory to be deleted at the end
 	if !task.StagingOnly {
 		defer func() {
-			logging.LogMessage(progress, "Removing staging directory")
+			logging.LogMessage(progress, ctx, "Removing staging directory")
 			exporter.Environment.RemoveAll(stagingDir)
 		}()
 	}
@@ -109,7 +108,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 
 		// find the report path
 		reportPath := filepath.Join(stagingDir, "report.txt")
-		fmt.Fprintln(progress, reportPath)
+		logging.ProgressF(progress, ctx, reportPath)
 
 		// create the path
 		report, err := exporter.Environment.Create(reportPath, environment.DefaultFilePerm)
@@ -122,26 +121,26 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 			_, err := sl.Report(report)
 			return err
 		}
-	}, progress, "Generating %s", Title)
+	}, progress, ctx, "Generating %s", Title)
 
 	// if we only requested staging
 	// all that is left is to write the log entry
 	if task.StagingOnly {
-		logging.LogMessage(progress, "Writing Log Entry")
+		logging.LogMessage(progress, ctx, "Writing Log Entry")
 
 		// write out the log entry
 		entry.Path = stagingDir
 		entry.Packed = false
 		exporter.ExporterLogger.Add(ctx, entry)
 
-		fmt.Fprintf(progress, "Wrote %s\n", stagingDir)
+		logging.ProgressF(progress, ctx, "Wrote %s\n", stagingDir)
 		return nil
 	}
 
 	// package everything up as an archive!
 	if err := logging.LogOperation(func() error {
 		var count int64
-		defer func() { fmt.Fprintf(progress, "Wrote %d byte(s) to %s\n", count, archivePath) }()
+		defer func() { logging.ProgressF(progress, ctx, "Wrote %d byte(s) to %s\n", count, archivePath) }()
 
 		st := status.NewWithCompat(progress, 1)
 		st.Start()
@@ -152,12 +151,12 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		})
 
 		return err
-	}, progress, "Writing archive"); err != nil {
+	}, progress, ctx, "Writing archive"); err != nil {
 		return err
 	}
 
 	// write out the log entry
-	logging.LogMessage(progress, "Writing Log Entry")
+	logging.LogMessage(progress, ctx, "Writing Log Entry")
 	entry.Path = archivePath
 	entry.Packed = true
 	exporter.ExporterLogger.Add(ctx, entry)

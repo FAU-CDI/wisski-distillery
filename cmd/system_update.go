@@ -66,7 +66,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
 	// create all the other directories
-	logging.LogMessage(context.Stderr, "Ensuring distillery installation directories exist")
+	logging.LogMessage(context.Stderr, context.Context, "Ensuring distillery installation directories exist")
 	for _, d := range []string{
 		dis.Config.DeployRoot,
 		dis.Instances().Path(),
@@ -81,7 +81,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 
 	if si.InstallDocker {
 		// install system updates
-		logging.LogMessage(context.Stderr, "Updating Operating System Packages")
+		logging.LogMessage(context.Stderr, context.Context, "Updating Operating System Packages")
 		if err := si.mustExec(context, "", "apt-get", "update"); err != nil {
 			return err
 		}
@@ -90,7 +90,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		}
 
 		// install docker
-		logging.LogMessage(context.Stderr, "Installing / Updating Docker")
+		logging.LogMessage(context.Stderr, context.Context, "Installing / Updating Docker")
 		if err := si.mustExec(context, "", "apt-get", "install", "curl"); err != nil {
 			return err
 		}
@@ -100,19 +100,19 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		}
 	}
 
-	logging.LogMessage(context.Stderr, "Checking that 'docker' is installed")
+	logging.LogMessage(context.Stderr, context.Context, "Checking that 'docker' is installed")
 	if err := si.mustExec(context, "", "docker", "--version", dis.Config.DockerNetworkName); err != nil {
 		return err
 	}
 
-	logging.LogMessage(context.Stderr, "Checking that 'docker compose' is available")
+	logging.LogMessage(context.Stderr, context.Context, "Checking that 'docker compose' is available")
 	if err := si.mustExec(context, "", "docker", "compose", "version"); err != nil {
 		return err
 	}
 
 	// create the docker network
 	// TODO: Use docker API for this
-	logging.LogMessage(context.Stderr, "Updating Docker Configuration")
+	logging.LogMessage(context.Stderr, context.Context, "Updating Docker Configuration")
 	si.mustExec(context, "", "docker", "network", "create", dis.Config.DockerNetworkName)
 
 	// install and update the various stacks!
@@ -155,7 +155,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 				return ud.Update(context.Context, writer)
 			},
 		}, dis.Installable())
-	}, context.Stderr, "Performing Stack Updates"); err != nil {
+	}, context.Stderr, context.Context, "Performing Stack Updates"); err != nil {
 		return err
 	}
 
@@ -169,17 +169,17 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 					return nil
 				}
 				return item.Update(context.Context, context.Stderr)
-			}, context.Stderr, "Updating Component: %s", name); err != nil {
+			}, context.Stderr, context.Context, "Updating Component: %s", name); err != nil {
 				return errBootstrapComponent.WithMessageF(name, err)
 			}
 		}
 		return nil
-	}, context.Stderr, "Performing Component Updates"); err != nil {
+	}, context.Stderr, context.Context, "Performing Component Updates"); err != nil {
 		return err
 	}
 	// TODO: Register cronjob in /etc/cron.d!
 
-	logging.LogMessage(context.Stderr, "System has been updated")
+	logging.LogMessage(context.Stderr, context.Context, "System has been updated")
 	return nil
 }
 

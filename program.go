@@ -22,6 +22,29 @@ type wdCliFlags = cli.Flags
 
 type Program = goprogram.Program[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
 type Command = goprogram.Command[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
+
+// Context holds the context passed to any wdcli command.
+//
+// The context contains a reference to a "context.Context" as well as an IOStream.
+//
+// The context.Context holds a global context.
+// It is initialized in the NewContext function below.
+//
+// It is cancelled if the user sends SIGINT or SIGKILL.
+// Despite the context being a pseudo-global, it is passed to (almost) every function using the variable name "ctx".
+//
+// The IOStream is typically used in three ways:
+//
+// - Standard output is used to log events
+// - Standard error is used to interactively display progress
+// - Standard input is passed to a (few) interactive programs
+//
+// The standard output writer is passed directly into the context, see the "pkg/logging" package for conventions.
+// Other parts are passed around (standard error using the variable name "progress") as required.
+//
+// The IOStream as a whole is only passed to functions that exist directly under cmd/.
+//
+// TODO(twiesing): The logging on the standard logger is still to be done.
 type Context = goprogram.Context[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
 type Arguments = goprogram.Arguments[wdCliFlags]
 type ContextCleanupFunc = goprogram.ContextCleanupFunc[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
@@ -58,6 +81,7 @@ func NewProgram() Program {
 				return parent, nil, nil
 			}
 			ctx, stop := signal.NotifyContext(parent, os.Interrupt)
+			// ctx = zerolog.New(zerolog.NewConsoleWriter()).WithContext(ctx)
 			return ctx, func(context *Context) { stop() }, nil
 		},
 

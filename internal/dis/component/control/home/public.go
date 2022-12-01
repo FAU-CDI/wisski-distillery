@@ -3,7 +3,6 @@ package home
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"io"
 	"time"
 
@@ -11,6 +10,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"golang.org/x/sync/errgroup"
 )
@@ -18,7 +18,7 @@ import (
 func (home *Home) updateInstances(ctx context.Context, progress io.Writer) {
 	go func() {
 		for t := range timex.TickContext(ctx, home.RefreshInterval) {
-			fmt.Fprintf(progress, "[%s]: reloading instance list\n", t.Format(time.Stamp))
+			logging.ProgressF(progress, ctx, "[%s]: reloading instance list\n", t.Format(time.Stamp))
 
 			err := (func() error {
 				ctx, cancel := context.WithTimeout(ctx, home.RefreshInterval)
@@ -33,7 +33,7 @@ func (home *Home) updateInstances(ctx context.Context, progress io.Writer) {
 				return nil
 			})()
 			if err != nil {
-				fmt.Fprintf(progress, "error reloading instances: %s", err.Error())
+				logging.ProgressF(progress, ctx, "error reloading instances: %s", err.Error())
 			}
 		}
 	}()
@@ -55,7 +55,7 @@ func (home *Home) instanceMap(ctx context.Context) (map[string]struct{}, error) 
 func (home *Home) updateRender(ctx context.Context, progress io.Writer) {
 	go func() {
 		for t := range timex.TickContext(ctx, home.RefreshInterval) {
-			fmt.Fprintf(progress, "[%s]: reloading home render list\n", t.Format(time.Stamp))
+			logging.ProgressF(progress, ctx, "[%s]: reloading home render list\n", t.Format(time.Stamp))
 
 			err := (func() error {
 				ctx, cancel := context.WithTimeout(ctx, home.RefreshInterval)
@@ -70,7 +70,7 @@ func (home *Home) updateRender(ctx context.Context, progress io.Writer) {
 				return nil
 			})()
 			if err != nil {
-				fmt.Fprintf(progress, "error reloading instances: %s", err.Error())
+				logging.ProgressF(progress, ctx, "error reloading instances: %s", err.Error())
 			}
 		}
 	}()

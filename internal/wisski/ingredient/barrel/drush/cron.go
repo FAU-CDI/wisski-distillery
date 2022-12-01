@@ -2,7 +2,6 @@ package drush
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"io"
@@ -10,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -22,12 +22,12 @@ var errCronFailed = exit.Error{
 func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 	code, err := drush.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/cron.sh")
 	if err != nil {
-		fmt.Fprintln(progress, err)
+		logging.ProgressF(progress, ctx, "%v", err)
 	}
 	if code != 0 {
 		// keep going, because we want to run as many crons as possible
 		err = errCronFailed.WithMessageF(drush.Slug, code)
-		fmt.Fprintln(progress, err)
+		logging.ProgressF(progress, ctx, "%v", err)
 	}
 
 	return nil

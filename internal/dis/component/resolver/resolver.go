@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 )
 
 type Resolver struct {
@@ -45,13 +46,13 @@ func (resolver *Resolver) Handler(ctx context.Context, route string, progress io
 		domainName := resolver.Config.DefaultDomain
 		if domainName != "" {
 			fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domainName))] = fmt.Sprintf("https://$1.%s", domainName)
-			fmt.Fprintf(progress, "registering default domain %s\n", domainName)
+			logging.ProgressF(progress, ctx, "registering default domain %s\n", domainName)
 		}
 
 		// handle the extra domains!
 		for _, domain := range resolver.Config.SelfExtraDomains {
 			fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
-			fmt.Fprintf(progress, "registering legacy domain %s\n", domain)
+			logging.ProgressF(progress, ctx, "registering legacy domain %s\n", domain)
 		}
 
 		// start updating prefixes
