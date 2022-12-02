@@ -52,9 +52,13 @@ func (sql *SQL) QueryTable(ctx context.Context, silent bool, table string) (*gor
 	}
 
 	// gorm configuration
-	config := &gorm.Config{}
+	config := &gorm.Config{
+		Logger: newGormLogger(),
+	}
 	if silent {
-		config.Logger = logger.Default.LogMode(logger.Silent)
+		config.Logger = config.Logger.LogMode(logger.Silent)
+	} else {
+		config.Logger = config.Logger.LogMode(logger.Info)
 	}
 
 	// mysql connection

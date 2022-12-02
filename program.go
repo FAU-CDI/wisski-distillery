@@ -9,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
+	"github.com/rs/zerolog"
 	"github.com/tkw1536/goprogram"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -50,6 +51,8 @@ type Arguments = goprogram.Arguments[wdCliFlags]
 type ContextCleanupFunc = goprogram.ContextCleanupFunc[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
 type Description = goprogram.Description[wdCliFlags, wdcliRequirements]
 
+var GetContext = goprogram.GetContext[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
+
 // an error when nor arguments are provided.
 var errUserIsNotRoot = exit.Error{
 	ExitCode: exit.ExitGeneralArguments,
@@ -80,8 +83,18 @@ func NewProgram() Program {
 			if params == nil {
 				return parent, nil, nil
 			}
-			ctx, stop := signal.NotifyContext(parent, os.Interrupt)
-			// ctx = zerolog.New(zerolog.NewConsoleWriter()).WithContext(ctx)
+
+			{
+				context := GetContext(parent)
+				writer := zerolog.NewConsoleWriter()
+				writer.Out = context.Stdout
+
+				logger := zerolog.New(writer).Level(context.Args.Flags.LogLevel.Level())
+
+				parent = logger.WithContext(parent)
+			}
+
+			ctx, stop := signal.NotifyContext(parent, os.Interrupt, os.Kill)
 			return ctx, func(context *Context) { stop() }, nil
 		},
 
