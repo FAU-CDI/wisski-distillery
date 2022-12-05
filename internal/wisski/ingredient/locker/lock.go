@@ -2,9 +2,11 @@ package locker
 
 import (
 	"context"
+	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -34,8 +36,11 @@ func (lock *Locker) TryLock(ctx context.Context) bool {
 }
 
 // TryUnlock attempts to unlock this WissKI and reports if it succeeded.
-// An unlock can only
+// An Unlock is also attempted when ctx is cancelled.
 func (lock *Locker) TryUnlock(ctx context.Context) bool {
+	ctx, close := cancel.Anyways(ctx, time.Second)
+	defer close()
+
 	table, err := lock.Malt.SQL.QueryTable(ctx, true, models.LockTable)
 	if err != nil {
 		return false
