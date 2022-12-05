@@ -5,6 +5,25 @@ import (
 	"net/http"
 )
 
+// WriteHTML writes a html response of type T to w.
+// If an error occured, writes an error response instead.
+func WriteHTML[T any](result T, err error, template *template.Template, templateName string, w http.ResponseWriter, r *http.Request) {
+	// intercept any errors
+	if HTMLInterceptor.Intercept(w, r, err) {
+		return
+	}
+
+	// write out the response as html
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+
+	if templateName != "" {
+		template.ExecuteTemplate(w, templateName, result)
+	} else {
+		template.Execute(w, result)
+	}
+}
+
 type HTMLHandler[T any] struct {
 	Handler func(r *http.Request) (T, error)
 
@@ -16,19 +35,5 @@ type HTMLHandler[T any] struct {
 func (h HTMLHandler[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// call the function
 	result, err := h.Handler(r)
-
-	// intercept any errors
-	if htmlInterceptor.Intercept(w, r, err) {
-		return
-	}
-
-	// write out the response as json
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
-
-	if h.TemplateName != "" {
-		h.Template.ExecuteTemplate(w, h.TemplateName, result)
-	} else {
-		h.Template.Execute(w, result)
-	}
+	WriteHTML(result, err, h.Template, h.TemplateName, w, r)
 }

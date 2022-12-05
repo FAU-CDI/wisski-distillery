@@ -29,12 +29,12 @@ type Info struct {
 
 var (
 	_ component.DistilleryFetcher = (*Info)(nil)
-	_ component.Servable          = (*Info)(nil)
+	_ component.Routeable         = (*Info)(nil)
 )
 
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
-func (info *Info) Handler(ctx context.Context, route string) (handler http.Handler, err error) {
+func (info *Info) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
 
 	router := httprouter.New()
 

@@ -87,6 +87,9 @@ type Config struct {
 	DisAdminUser     string `env:"DIS_ADMIN_USER" default:"admin" parser:"nonempty"`
 	DisAdminPassword string `env:"DIS_ADMIN_PASSWORD" default:"" parser:"nonempty"`
 
+	// session secret holds the secret for login
+	SessionSecret string `env:"SESSION_SECRET" default:"" parser:"nonempty"`
+
 	// name of docker network to use
 	DockerNetworkName string `env:"DOCKER_NETWORK_NAME" default:"distillery" parser:"nonempty"`
 

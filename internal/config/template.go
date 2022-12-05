@@ -29,6 +29,7 @@ type Template struct {
 	DisAdminUsername         string `env:"DIS_ADMIN_USER"`
 	DisAdminPassword         string `env:"DIS_ADMIN_PASSWORD"`
 	DockerNetworkName        string `env:"DOCKER_NETWORK_NAME"`
+	SessionSecret            string `env:"SESSION_SECRET"`
 }
 
 // SetDefaults sets defaults on the template
@@ -92,6 +93,13 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 			return err
 		}
 		tpl.DockerNetworkName = `distillery-` + tpl.DockerNetworkName
+	}
+
+	if tpl.SessionSecret == "" {
+		tpl.SessionSecret, err = password.Password(100)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

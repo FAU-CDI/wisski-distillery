@@ -11,7 +11,7 @@ type Response struct {
 	StatusCode  int // defaults to [http.StatusOK]
 }
 
-func (response Response) ServerHTTP(w http.ResponseWriter, r *http.Request) {
+func (response Response) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if response.ContentType == "" {
 		response.ContentType = "text/plain"
 	}

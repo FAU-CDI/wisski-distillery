@@ -22,12 +22,12 @@ type Home struct {
 }
 
 var (
-	_ component.Servable = (*Home)(nil)
+	_ component.Routeable = (*Home)(nil)
 )
 
 func (*Home) Routes() []string { return []string{"/"} }
 
-func (home *Home) Handler(ctx context.Context, route string) (http.Handler, error) {
+func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	return home, nil
 }
 

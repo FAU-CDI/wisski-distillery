@@ -69,9 +69,6 @@ GRAPHDB_ADMIN_PASSWORD=${GRAPHDB_ADMIN_PASSWORD}
 MYSQL_ADMIN_USER=${MYSQL_ADMIN_USER}
 MYSQL_ADMIN_PASSWORD=${MYSQL_ADMIN_PASSWORD}
 
-# The admin user and password required to access the keycloak server and api
-KEYCLOAK_ADMIN_USER=${KEYCLOAK_ADMIN_USER}
-KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
 
 # The admin user and password required to access the /dis/ server and api
 DIS_ADMIN_USER=${DIS_ADMIN_USER}
@@ -79,3 +76,6 @@ DIS_ADMIN_PASSWORD=${DIS_ADMIN_PASSWORD}
 
 # the interval to run cron in
 CRON_INTERVAL=10m
+
+# The secret for sessions (for login etc)
+SESSION_SECRET=${SESSION_SECRET}

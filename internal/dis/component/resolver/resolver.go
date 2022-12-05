@@ -28,13 +28,15 @@ type Resolver struct {
 }
 
 var (
-	_ component.Servable = (*Resolver)(nil)
-	_ component.Cronable = (*Resolver)(nil)
+	_ component.Routeable = (*Resolver)(nil)
+	_ component.Cronable  = (*Resolver)(nil)
 )
 
 func (resolver *Resolver) Routes() []string { return []string{"/go/", "/wisski/get/"} }
 
-func (resolver *Resolver) Handler(ctx context.Context, route string) (http.Handler, error) {
+func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
+	logger := zerolog.Ctx(ctx)
+
 	var err error
 	return resolver.handler.Get(func() (p wdresolve.ResolveHandler) {
 		p.TrustXForwardedProto = true
@@ -47,13 +49,13 @@ func (resolver *Resolver) Handler(ctx context.Context, route string) (http.Handl
 		domainName := resolver.Config.DefaultDomain
 		if domainName != "" {
 			fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domainName))] = fmt.Sprintf("https://$1.%s", domainName)
-			zerolog.Ctx(ctx).Info().Str("name", domainName).Msg("registering default domain")
+			logger.Info().Str("name", domainName).Msg("registering default domain")
 		}
 
 		// handle the extra domains!
 		for _, domain := range resolver.Config.SelfExtraDomains {
 			fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
-			zerolog.Ctx(ctx).Info().Str("name", domainName).Msg("registering legacy domain")
+			logger.Info().Str("name", domainName).Msg("registering legacy domain")
 		}
 
 		// resolve the prefixes

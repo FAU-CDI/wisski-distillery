@@ -50,6 +50,9 @@ func init() {
 	wdcli.Register(cmd.DrupalSetting)
 	wdcli.Register(cmd.DrupalUser)
 
+	// distillery auth
+	wdcli.Register(cmd.DisUser)
+
 	// backup & cron
 	wdcli.Register(cmd.Snapshot)
 	wdcli.Register(cmd.Backup)

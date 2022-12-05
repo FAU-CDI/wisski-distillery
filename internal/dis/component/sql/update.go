@@ -103,6 +103,11 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 			&models.Lock{},
 			models.LockTable,
 		},
+		{
+			"users",
+			&models.User{},
+			models.UserTable,
+		},
 	}
 
 	// migrate all of the tables!

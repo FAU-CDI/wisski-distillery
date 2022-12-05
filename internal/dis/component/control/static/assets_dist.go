@@ -31,3 +31,9 @@ var AssetsInstanceComponentsIndex = Assets{
 	Scripts: `<script type="module" src="/static/HomeHome.38d394c2.js"></script><script src="/static/HomeHome.38d394c2.js" nomodule="" defer></script><script type="module" src="/static/InstanceComponentsIndex.38d394c2.js"></script><script src="/static/InstanceComponentsIndex.38d394c2.js" nomodule="" defer></script>`,
 	Styles:  `<link rel="stylesheet" href="/static/HomeHome.a75f04fa.css"><link rel="stylesheet" href="/static/InstanceComponentsIndex.38d394c2.css">`,	
 }
+
+// AssetsAuthLogin contains assets for the 'AuthLogin' entrypoint.
+var AssetsAuthLogin = Assets{
+	Scripts: `<script type="module" src="/static/HomeHome.38d394c2.js"></script><script src="/static/HomeHome.38d394c2.js" nomodule="" defer></script><script type="module" src="/static/AuthLogin.38d394c2.js"></script><script src="/static/AuthLogin.38d394c2.js" nomodule="" defer></script>`,
+	Styles:  `<link rel="stylesheet" href="/static/HomeHome.a75f04fa.css"><link rel="stylesheet" href="/static/AuthLogin.38d394c2.css">`,	
+}

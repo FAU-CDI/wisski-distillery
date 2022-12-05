@@ -28,7 +28,7 @@ func (ei ErrInterceptor) Intercept(w http.ResponseWriter, r *http.Request, err e
 		res = ei.Fallback
 	}
 
-	res.ServerHTTP(w, r)
+	res.ServeHTTP(w, r)
 	return true
 }
 
@@ -65,13 +65,13 @@ var (
 )
 
 var (
-	textInterceptor = StatusInterceptor("text/plain", func(code int, text string) ([]byte, error) {
+	TextInterceptor = StatusInterceptor("text/plain", func(code int, text string) ([]byte, error) {
 		return []byte(text), nil
 	})
-	jsonInterceptor = StatusInterceptor("application/json", func(code int, text string) ([]byte, error) {
+	JSONInterceptor = StatusInterceptor("application/json", func(code int, text string) ([]byte, error) {
 		return json.Marshal(map[string]any{"status": text, "code": code})
 	})
-	htmlInterceptor = StatusInterceptor("text/html", func(code int, text string) ([]byte, error) {
+	HTMLInterceptor = StatusInterceptor("text/html", func(code int, text string) ([]byte, error) {
 		return []byte(`<!DOCTYPE HTML><title>` + text + `</title>` + text), nil
 	})
 )

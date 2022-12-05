@@ -13,7 +13,7 @@ func (rh RedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	url, code, err := rh(r)
 
 	// intercept the errors
-	if textInterceptor.Intercept(w, r, err) {
+	if TextInterceptor.Intercept(w, r, err) {
 		return
 	}
 

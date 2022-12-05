@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/cron"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/home"
@@ -71,6 +72,9 @@ func (dis *Distillery) SQL() *sql.SQL {
 func (dis *Distillery) SSH() *ssh2.SSH2 {
 	return export[*ssh2.SSH2](dis)
 }
+func (dis *Distillery) Auth() *auth.Auth {
+	return export[*auth.Auth](dis)
+}
 
 func (dis *Distillery) Cron() *cron.Cron {
 	return export[*cron.Cron](dis)
@@ -120,6 +124,9 @@ func (dis *Distillery) allComponents() []initFunc {
 			s.BaseURL = dis.Upstream.Solr
 			s.PollInterval = time.Second
 		}),
+
+		// auth
+		auto[*auth.Auth],
 
 		// instances
 		auto[*instances.Instances],

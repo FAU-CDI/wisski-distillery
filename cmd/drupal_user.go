@@ -13,9 +13,9 @@ import (
 )
 
 // DrupalUser is the 'drupal_user' setting
-var DrupalUser wisski_distillery.Command = duser{}
+var DrupalUser wisski_distillery.Command = drupalUser{}
 
-type duser struct {
+type drupalUser struct {
 	CheckCommonPasswords   bool `short:"d" long:"check-common-passwords" description:"check for most common passwords. operates on all users concurrently."`
 	CheckPasswdInteractive bool `short:"c" long:"check-password" description:"interactively check user password"`
 	ResetPasswd            bool `short:"r" long:"reset-password" description:"reset password for user"`
@@ -26,7 +26,7 @@ type duser struct {
 	} `positional-args:"true"`
 }
 
-func (duser) Description() wisski_distillery.Description {
+func (drupalUser) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -46,7 +46,7 @@ var errUserParameter = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (du duser) AfterParse() error {
+func (du drupalUser) AfterParse() error {
 	var count int
 	for _, s := range []bool{
 		du.CheckCommonPasswords,
@@ -74,7 +74,7 @@ var errPasswordsNotIdentical = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (du duser) Run(context wisski_distillery.Context) error {
+func (du drupalUser) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, du.Positionals.Slug)
 	if err != nil {
 		return err
@@ -93,7 +93,7 @@ func (du duser) Run(context wisski_distillery.Context) error {
 	panic("never reached")
 }
 
-func (du duser) login(context wisski_distillery.Context, instance *wisski.WissKI) error {
+func (du drupalUser) login(context wisski_distillery.Context, instance *wisski.WissKI) error {
 	link, err := instance.Users().Login(context.Context, nil, du.Positionals.User)
 	if err != nil {
 		return err
@@ -107,7 +107,7 @@ var errPasswordFound = exit.Error{
 	ExitCode: 5,
 }
 
-func (du duser) checkCommonPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
+func (du drupalUser) checkCommonPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
 	users := instance.Users()
 
 	entities, err := users.All(context.Context, nil)
@@ -132,7 +132,7 @@ func (du duser) checkCommonPassword(context wisski_distillery.Context, instance 
 	}, entities)
 }
 
-func (du duser) checkPasswordInteractive(context wisski_distillery.Context, instance *wisski.WissKI) error {
+func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context, instance *wisski.WissKI) error {
 	validator, err := instance.Users().GetPasswordValidator(context.Context, du.Positionals.User)
 	if err != nil {
 		return err
@@ -161,7 +161,7 @@ func (du duser) checkPasswordInteractive(context wisski_distillery.Context, inst
 	return nil
 }
 
-func (du duser) resetPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
+func (du drupalUser) resetPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
 	context.Printf("Enter new password for user %s:", du.Positionals.User)
 	passwd1, err := context.IOStream.ReadPassword()
 	if err != nil {

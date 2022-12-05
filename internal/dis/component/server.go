@@ -5,13 +5,13 @@ import (
 	"net/http"
 )
 
-// Servable is a component that is servable
-type Servable interface {
+// Routeable is a component that is servable
+type Routeable interface {
 	Component
 
 	// Routes returns the routes served by this servable
 	Routes() []string
 
-	// Handler returns the handler for the requested route
-	Handler(ctx context.Context, route string) (http.Handler, error)
+	// HandleRoute returns the handler for the requested route
+	HandleRoute(ctx context.Context, route string) (http.Handler, error)
 }

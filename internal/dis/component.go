@@ -18,7 +18,7 @@ func (dis *Distillery) init() {
 		lazy.RegisterPoolGroup[component.DistilleryFetcher](&dis.pool)
 		lazy.RegisterPoolGroup[component.Installable](&dis.pool)
 		lazy.RegisterPoolGroup[component.Provisionable](&dis.pool)
-		lazy.RegisterPoolGroup[component.Servable](&dis.pool)
+		lazy.RegisterPoolGroup[component.Routeable](&dis.pool)
 		lazy.RegisterPoolGroup[component.Cronable](&dis.pool)
 	})
 }

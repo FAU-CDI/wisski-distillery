@@ -16,8 +16,8 @@ import (
 type Control struct {
 	component.Base
 	Dependencies struct {
-		Servables []component.Servable
-		Cronables []component.Cronable
+		Routeables []component.Routeable
+		Cronables  []component.Cronable
 	}
 }
 

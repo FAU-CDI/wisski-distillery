@@ -1,0 +1,31 @@
+{{ template "_base.html" . }}
+{{ define "title" }}Login{{ end }}
+
+{{ define "header/time" }}
+<!-- no header/time -->
+{{ end }}
+{{ define "header"}}
+<!-- no header -->
+{{ end }}
+
+{{ define "content" }}
+<div class="pure-u-1">
+
+    {{ if .Message }}
+        <div>
+            {{ .Message }}
+        </div>
+    {{ end }}
+
+    <form class="pure-form" method="POST">
+        <fieldset>
+            <legend>Login Required</legend>
+
+            <input type="text" name="username">
+            <input type="password" name="password">
+            <input type="submit" value="Login">
+        </fieldset>
+    </form>
+</div>
+
+{{ end }}

@@ -15,7 +15,7 @@ type Static struct {
 }
 
 var (
-	_ component.Servable = (*Static)(nil)
+	_ component.Routeable = (*Static)(nil)
 )
 
 func (*Static) Routes() []string { return []string{"/static/"} }
@@ -23,7 +23,7 @@ func (*Static) Routes() []string { return []string{"/static/"} }
 //go:embed dist
 var staticFS embed.FS
 
-func (static *Static) Handler(ctx context.Context, route string) (http.Handler, error) {
+func (static *Static) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	// take the filesystem
 	fs, err := fs.Sub(staticFS, "dist")
 	if err != nil {
