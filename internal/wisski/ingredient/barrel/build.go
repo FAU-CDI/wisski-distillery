@@ -18,8 +18,7 @@ import (
 // It also logs the current time into the metadata belonging to this instance.
 func (barrel *Barrel) Build(ctx context.Context, progress io.Writer, start bool) error {
 	if !barrel.Locker.TryLock(ctx) {
-		err := locker.Locked
-		return err
+		return locker.Locked
 	}
 	defer barrel.Locker.Unlock(ctx)
 
