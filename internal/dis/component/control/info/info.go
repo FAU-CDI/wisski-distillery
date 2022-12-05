@@ -75,28 +75,28 @@ func (info *Info) Handler(ctx context.Context, route string, progress io.Writer)
 		Template: instanceTemplate,
 	})
 
-	router.Path(route + "api/login").Handler(httpx.ClientSideRedirect(func(r *http.Request) (string, error) {
+	router.Path(route + "api/login").Handler(httpx.RedirectHandler(func(r *http.Request) (string, int, error) {
 		// enforce POST
 		if r.Method != http.MethodPost {
-			return "", httpx.ErrMethodNotAllowed
+			return "", 0, httpx.ErrMethodNotAllowed
 		}
 
 		// parse the form
 		if err := r.ParseForm(); err != nil {
-			return "", err
+			return "", 0, err
 		}
 
 		// get the instance
 		instance, err := info.Instances.WissKI(r.Context(), r.PostFormValue("slug"))
 		if err != nil {
-			return "", httpx.ErrNotFound
+			return "", 0, httpx.ErrNotFound
 		}
 
 		target, err := instance.Users().Login(r.Context(), nil, r.PostFormValue("user"))
 		if err != nil {
-			return "", err
+			return "", 0, err
 		}
-		return target.String(), err
+		return target.String(), http.StatusSeeOther, err
 	}))
 
 	return
