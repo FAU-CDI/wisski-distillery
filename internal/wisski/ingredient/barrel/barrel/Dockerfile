@@ -1,4 +1,4 @@
-FROM docker.io/library/php:8.0-apache-bullseye
+FROM docker.io/library/php:8.1-apache-bullseye
 ARG COMPOSER_VERSION=2.3.8
 WORKDIR /var/www
 
