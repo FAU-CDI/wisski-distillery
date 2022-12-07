@@ -87,6 +87,10 @@ type LastEdit struct {
 func (bs BundleStatistics) LastEdit() (le LastEdit) {
 	for _, bundle := range bs.Bundles {
 		time := bundle.LastEdit.Time()
+		// skip invalid times
+		if time.Unix() <= 0 {
+			continue
+		}
 		if time.After(le.Time) {
 			le.Valid = true
 			le.Time = time
