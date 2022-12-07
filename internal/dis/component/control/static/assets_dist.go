@@ -5,7 +5,7 @@ package static
 // AssetsHomeHome contains assets for the 'HomeHome' entrypoint.
 var AssetsHomeHome = Assets{
 	Scripts: `<script type="module" src="/static/HomeHome.38d394c2.js"></script><script src="/static/HomeHome.38d394c2.js" nomodule="" defer></script><script type="module" src="/static/HomeHome.38d394c2.js"></script><script src="/static/HomeHome.38d394c2.js" nomodule="" defer></script>`,
-	Styles:  `<link rel="stylesheet" href="/static/HomeHome.a75f04fa.css"><link rel="stylesheet" href="/static/HomeHome.38d394c2.css">`,	
+	Styles:  `<link rel="stylesheet" href="/static/HomeHome.a75f04fa.css"><link rel="stylesheet" href="/static/HomeHome.2353e048.css">`,	
 }
 
 // AssetsComponentsIndex contains assets for the 'ComponentsIndex' entrypoint.

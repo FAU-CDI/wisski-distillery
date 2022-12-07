@@ -21,7 +21,7 @@
 
 {{range .Instances}}
     {{ if and .Running (not .NoPrefixes) }}
-        <div class="pure-u-1-3">
+        <div class="pure-u-1 pure-u-md-1-3">
             <h3>{{.Slug}}</h3>
             <p>
                 <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br>
