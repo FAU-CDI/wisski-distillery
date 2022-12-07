@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"reflect"
 	"strings"
+	"time"
 )
 
 // Config represents the configuration of a WissKI Distillery.
@@ -88,6 +89,9 @@ type Config struct {
 
 	// name of docker network to use
 	DockerNetworkName string `env:"DOCKER_NETWORK_NAME" default:"distillery" parser:"nonempty"`
+
+	// interval to trigger distillery cron tasks in
+	CronInterval time.Duration `env:"CRON_INTERVAL" default:"10m" parser:"duration"`
 
 	// ConfigPath is the path this configuration was loaded from (if any)
 	ConfigPath string

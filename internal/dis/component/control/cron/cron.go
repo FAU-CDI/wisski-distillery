@@ -91,16 +91,18 @@ func (control *Cron) Once(ctx context.Context) {
 	zerolog.Ctx(ctx).Info().Time("time", time.Now()).Msg("Finished Cron")
 }
 
-// Start invokes all cron jobs regularly, waiting interval between invocations.
+// Start invokes all cron jobs regularly, waiting between invocations as specified in configuration.
 //
 // The first run is invoked immediatly.
 // The call to Start returns after the first invocation of all cron tasks.
 //
 // The returned channel is closed once no more cron tasks are active.
-func (control *Cron) Start(ctx context.Context, interval time.Duration, signal <-chan struct{}) <-chan struct{} {
+func (control *Cron) Start(ctx context.Context, signal <-chan struct{}) <-chan struct{} {
+	zerolog.Ctx(ctx).Info().Dur("interval", control.Config.CronInterval).Msg("Scheduling Cron() tasks")
+
 	// run runs cron tasks with the configured timeout
 	run := func() {
-		ctx, done := context.WithTimeout(ctx, interval)
+		ctx, done := context.WithTimeout(ctx, control.Config.CronInterval)
 		defer done()
 
 		control.Once(ctx)
@@ -117,7 +119,7 @@ func (control *Cron) Start(ctx context.Context, interval time.Duration, signal <
 		timer := timex.NewTimer()
 		for {
 			timex.StopTimer(timer)
-			timer.Reset(interval)
+			timer.Reset(control.Config.CronInterval)
 
 			select {
 			case <-timer.C:

@@ -76,3 +76,6 @@ KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD}
 # The admin user and password required to access the /dis/ server and api
 DIS_ADMIN_USER=${DIS_ADMIN_USER}
 DIS_ADMIN_PASSWORD=${DIS_ADMIN_PASSWORD}
+
+# the interval to run cron in
+CRON_INTERVAL=10m

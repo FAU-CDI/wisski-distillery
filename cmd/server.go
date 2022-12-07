@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"net/http"
-	"time"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -51,7 +50,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 
 		// start the cron tasks
 		context.Printf("Starting cron tasks %s\n", s.Bind)
-		done := dis.Cron().Start(context.Context, time.Minute, notify)
+		done := dis.Cron().Start(context.Context, notify)
 		defer func() {
 			<-done
 		}()

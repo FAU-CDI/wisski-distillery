@@ -47,6 +47,7 @@ var knownParsers map[string]Parser[any] = map[string]Parser[any]{
 	"abspath":   asGenericParser(ParseAbspath),
 	"domain":    asGenericParser(ParseValidDomain),
 	"domains":   asGenericParser(ParseValidDomains),
+	"duration":  asGenericParser(ParseDuration),
 	"number":    asGenericParser(ParseNumber),
 	"port":      asGenericParser(ParsePort),
 	"https_url": asGenericParser(ParseHttpsURL),

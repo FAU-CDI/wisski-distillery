@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
@@ -115,4 +116,9 @@ func ParseSlug(env environment.Environment, s string) (string, error) {
 		return "", errors.Errorf("%q is not a valid slug", s)
 	}
 	return s, nil
+}
+
+// ParseDuration parses a time.Duration
+func ParseDuration(env environment.Environment, s string) (time.Duration, error) {
+	return time.ParseDuration(s)
 }
