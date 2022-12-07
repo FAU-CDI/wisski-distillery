@@ -3,9 +3,7 @@ package home
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
-	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -16,8 +14,6 @@ type Home struct {
 	component.Base
 
 	Instances *instances.Instances
-
-	RefreshInterval time.Duration
 
 	redirect      lazy.Lazy[*Redirect]
 	instanceNames lazy.Lazy[map[string]struct{}]
@@ -30,10 +26,7 @@ var (
 
 func (*Home) Routes() []string { return []string{"/"} }
 
-func (home *Home) Handler(ctx context.Context, route string, progress io.Writer) (http.Handler, error) {
-	home.updateRedirect(ctx, progress)
-	home.updateInstances(ctx, progress)
-	home.updateRender(ctx, progress)
+func (home *Home) Handler(ctx context.Context, route string) (http.Handler, error) {
 	return home, nil
 }
 

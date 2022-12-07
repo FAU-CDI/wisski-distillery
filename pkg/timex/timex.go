@@ -6,6 +6,25 @@ import (
 	"time"
 )
 
+// NewTimer creates a new timer with undefined interval.
+// The timer is stopped.
+func NewTimer() *time.Timer {
+	timer := time.NewTimer(time.Second)
+	StopTimer(timer)
+	return timer
+}
+
+// StopTimer stops t and drains the C channel.
+func StopTimer(t *time.Timer) {
+	t.Stop()
+
+	// try to stop
+	select {
+	case <-t.C:
+	default:
+	}
+}
+
 // TickContext is like [time.Tick], but closes the returned channel once the context closes.
 // As such it can be recovered by the garbage collector; see [time.TickContext].
 //

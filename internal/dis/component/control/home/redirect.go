@@ -3,39 +3,9 @@ package home
 import (
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 	"strings"
-	"time"
-
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 )
-
-func (home *Home) updateRedirect(ctx context.Context, progress io.Writer) {
-	go func() {
-		for t := range timex.TickContext(ctx, home.RefreshInterval) {
-			logging.ProgressF(progress, ctx, "[%s]: reloading overrides\n", t.Format(time.Stamp))
-
-			err := (func() error {
-				ctx, cancel := context.WithTimeout(ctx, home.RefreshInterval)
-				defer cancel()
-
-				redirect, err := home.loadRedirect(ctx)
-				if err != nil {
-					return err
-				}
-
-				home.redirect.Set(&redirect)
-				return nil
-			})()
-			if err != nil {
-				logging.ProgressF(progress, ctx, "error reloading overrides: %s", err.Error())
-			}
-
-		}
-	}()
-}
 
 func (home *Home) loadRedirect(ctx context.Context) (redirect Redirect, err error) {
 	if redirect.Overrides == nil {

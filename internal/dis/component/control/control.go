@@ -1,8 +1,11 @@
 package control
 
 import (
+	"context"
 	"embed"
+	"io"
 	"path/filepath"
+	"syscall"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -14,6 +17,7 @@ type Control struct {
 	component.Base
 
 	Servables []component.Servable
+	Cronables []component.Cronable
 }
 
 var (
@@ -28,7 +32,7 @@ func (control Control) Path() string {
 var resources embed.FS
 
 func (control *Control) Stack(env environment.Environment) component.StackWithResources {
-	stt := component.MakeStack(control, env, component.StackWithResources{
+	return component.MakeStack(control, env, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "control",
 		EnvPath:     "control.env",
@@ -48,7 +52,11 @@ func (control *Control) Stack(env environment.Environment) component.StackWithRe
 
 		CopyContextFiles: []string{bootstrap.Executable},
 	})
-	return stt
+}
+
+// Trigger triggers the active cron run to immediatly invoke cron.
+func (control *Control) Trigger(ctx context.Context, env environment.Environment) error {
+	return control.Stack(env).Kill(ctx, io.Discard, "control", syscall.SIGHUP)
 }
 
 func (control Control) Context(parent component.InstallationContext) component.InstallationContext {

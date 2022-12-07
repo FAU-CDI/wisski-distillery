@@ -2,36 +2,20 @@ package resolver
 
 import (
 	"context"
-	"io"
-	"time"
-
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 )
 
-// updatePrefixes starts updating prefixes
-func (resolver *Resolver) updatePrefixes(ctx context.Context, progress io.Writer) {
-	go func() {
-		for t := range timex.TickContext(ctx, resolver.RefreshInterval) {
-			logging.ProgressF(progress, ctx, "[%s]: reloading prefixes\n", t.Format(time.Stamp))
+func (resolver *Resolver) TaskName() string {
+	return "reloading prefixes"
+}
 
-			err := (func() (err error) {
-				ctx, cancel := context.WithTimeout(ctx, resolver.RefreshInterval)
-				defer cancel()
+func (resolver *Resolver) Cron(ctx context.Context) error {
+	prefixes, err := resolver.AllPrefixes(ctx)
+	if err != nil {
+		return err
+	}
 
-				prefixes, err := resolver.AllPrefixes(ctx)
-				if err != nil {
-					return err
-				}
-
-				resolver.prefixes.Set(prefixes)
-				return nil
-			})()
-			if err != nil {
-				logging.ProgressF(progress, ctx, "error reloading prefixes: %s", err.Error())
-			}
-		}
-	}()
+	resolver.prefixes.Set(prefixes)
+	return nil
 }
 
 // AllPrefixes returns a list of all prefixes from the server.

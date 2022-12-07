@@ -7,6 +7,7 @@ import (
 	"context"
 	"io"
 	"io/fs"
+	"os"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
@@ -27,6 +28,19 @@ type Stack struct {
 
 	Env              environment.Environment
 	DockerExecutable string // Path to the native docker executable to use
+}
+
+var errStackKill = errors.New("Stack.Kill: Kill returned non-zero exit code")
+
+func (ds Stack) Kill(ctx context.Context, progress io.Writer, service string, signal os.Signal) error {
+	code, err := ds.compose(ctx, stream.NonInteractive(progress), "kill", service, "-s", signal.String())
+	if err != nil {
+		return err
+	}
+	if code != 0 {
+		return errStackKill
+	}
+	return nil
 }
 
 var errStackUpdatePull = errors.New("Stack.Update: Pull returned non-zero exit code")

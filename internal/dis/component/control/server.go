@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/rs/zerolog"
 )
 
 // Server returns an http.Mux that implements the main server instance.
@@ -19,8 +19,8 @@ func (control *Control) Server(ctx context.Context, progress io.Writer) (*http.S
 	// add all the servable routes!
 	for _, s := range control.Servables {
 		for _, route := range s.Routes() {
-			logging.ProgressF(progress, ctx, "mounting %s\n", route)
-			handler, err := s.Handler(ctx, route, progress)
+			zerolog.Ctx(ctx).Info().Str("component", s.Name()).Str("route", route).Msg("mounting route")
+			handler, err := s.Handler(ctx, route)
 			if err != nil {
 				return nil, err
 			}

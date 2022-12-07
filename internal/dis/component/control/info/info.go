@@ -2,7 +2,6 @@ package info
 
 import (
 	"context"
-	"io"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -33,7 +32,7 @@ var (
 
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
-func (info *Info) Handler(ctx context.Context, route string, progress io.Writer) (handler http.Handler, err error) {
+func (info *Info) Handler(ctx context.Context, route string) (handler http.Handler, err error) {
 	router := mux.NewRouter()
 	{
 		socket := &httpx.WebSocket{

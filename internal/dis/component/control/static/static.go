@@ -4,7 +4,6 @@ package static
 import (
 	"context"
 	"embed"
-	"io"
 	"io/fs"
 	"net/http"
 
@@ -24,7 +23,7 @@ func (*Static) Routes() []string { return []string{"/static/"} }
 //go:embed dist
 var staticFS embed.FS
 
-func (static *Static) Handler(ctx context.Context, route string, progress io.Writer) (http.Handler, error) {
+func (static *Static) Handler(ctx context.Context, route string) (http.Handler, error) {
 	// take the filesystem
 	fs, err := fs.Sub(staticFS, "dist")
 	if err != nil {

@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/cron"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/info"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
@@ -69,6 +70,10 @@ func (dis *Distillery) SQL() *sql.SQL {
 }
 func (dis *Distillery) SSH() *ssh2.SSH2 {
 	return export[*ssh2.SSH2](dis)
+}
+
+func (dis *Distillery) Cron() *cron.Cron {
+	return export[*cron.Cron](dis)
 }
 
 func (dis *Distillery) Triplestore() *triplestore.Triplestore {
@@ -135,14 +140,18 @@ func (dis *Distillery) allComponents() []initFunc {
 		// Control server
 		auto[*control.Control],
 		auto[*static.Static],
-		manual(func(home *home.Home) {
-			home.RefreshInterval = time.Minute
-		}),
+		auto[*home.Home],
 		manual(func(resolver *resolver.Resolver) {
 			resolver.RefreshInterval = time.Minute
 		}),
 		manual(func(info *info.Info) {
 			info.Analytics = &dis.pool.Analytics
 		}),
+
+		// Cron
+		auto[*cron.Cron],
+		auto[*home.UpdateHome],
+		auto[*home.UpdateInstanceList],
+		auto[*home.UpdateRedirect],
 	}
 }

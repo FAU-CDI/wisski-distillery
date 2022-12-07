@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"net/http"
+	"time"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
+	"github.com/rs/zerolog"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -13,8 +15,9 @@ import (
 var Server wisski_distillery.Command = server{}
 
 type server struct {
-	Prefix string `short:"p" long:"prefix" description:"prefix to listen under"`
-	Bind   string `short:"b" long:"bind" description:"address to listen on" default:"127.0.0.1:8888"`
+	Trigger bool   `short:"t" long:"trigger" description:"instead of running on the existing server, simply trigger a cron run"`
+	Prefix  string `short:"p" long:"prefix" description:"prefix to listen under"`
+	Bind    string `short:"b" long:"bind" description:"address to listen on" default:"127.0.0.1:8888"`
 }
 
 func (s server) Description() wisski_distillery.Description {
@@ -34,6 +37,26 @@ var errServerListen = exit.Error{
 
 func (s server) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
+
+	if s.Trigger {
+		context.Println("Triggering Cron Tasks")
+		return dis.Control().Trigger(context.Context, context.Environment.Environment)
+	}
+
+	// start the cron tasks
+	{
+		// create a channel for notifications
+		notify, cancel := dis.Cron().Listen(context.Context)
+		defer cancel()
+
+		// start the cron tasks
+		context.Printf("Starting cron tasks %s\n", s.Bind)
+		done := dis.Cron().Start(context.Context, time.Minute, notify)
+		defer func() {
+			<-done
+		}()
+	}
+
 	handler, err := dis.Control().Server(context.Context, context.Stderr)
 	if err != nil {
 		return err
@@ -60,9 +83,9 @@ func (s server) Run(context wisski_distillery.Context) error {
 		start()
 		return server.Serve(listener)
 	}, func() {
-		// gracefully shutdown server
-		context.Printf("shutting down server")
+		zerolog.Ctx(context.Context).Info().Msg("shutting down server")
 		server.Shutdown(context.Context)
 	})
+
 	return errServerListen.Wrap(err)
 }
