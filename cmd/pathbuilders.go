@@ -27,12 +27,12 @@ func (pathbuilders) Description() wisski_distillery.Description {
 }
 
 var errPathbuilders = exit.Error{
-	Message:  "Unable to export pathbuilder: %s",
+	Message:  "unable to export pathbuilder: %s",
 	ExitCode: exit.ExitGeneric,
 }
 
 var errNoPathbuilder = exit.Error{
-	Message:  "Pathbuilder %q does not exist",
+	Message:  "pathbuilder %q does not exist",
 	ExitCode: exit.ExitGeneric,
 }
 

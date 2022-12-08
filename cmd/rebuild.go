@@ -32,7 +32,7 @@ func (rebuild) Description() wisski_distillery.Description {
 }
 
 var errRebuildFailed = exit.Error{
-	Message:  "Failed to run rebuild script for instance %q: exited with code %s",
+	Message:  "failed to run rebuild script for instance %q: exited with code %s",
 	ExitCode: exit.ExitGeneric,
 }
 

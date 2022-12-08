@@ -26,7 +26,7 @@ func (s ssh) Description() wisski_distillery.Description {
 
 var errSSHListen = exit.Error{
 	ExitCode: exit.ExitGeneric,
-	Message:  "Unable to listen",
+	Message:  "unable to listen",
 }
 
 func (s ssh) Run(context wisski_distillery.Context) error {

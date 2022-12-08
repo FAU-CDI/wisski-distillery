@@ -29,17 +29,17 @@ func (purge) Description() wisski_distillery.Description {
 }
 
 var errPurgeNoDetails = exit.Error{
-	Message:  "Unable to find instance details for purge: %s",
+	Message:  "unable to find instance details for purge: %s",
 	ExitCode: exit.ExitGeneric,
 }
 
 var errPurgeNoConfirmation = exit.Error{
-	Message:  "Aborting after request was not confirmed. Either type `yes` or pass `--yes` on the command line",
+	Message:  "aborting after request was not confirmed. either type `yes` or pass `--yes` on the command line",
 	ExitCode: exit.ExitGeneric,
 }
 
 var errPurgeGeneric = exit.Error{
-	Message:  "Unable to purge instance %s: %s",
+	Message:  "unable to purge instance %q: %s",
 	ExitCode: exit.ExitGeneric,
 }
 

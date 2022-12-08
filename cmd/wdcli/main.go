@@ -67,7 +67,7 @@ func init() {
 // an error when no arguments are provided.
 var errNoArgumentsProvided = exit.Error{
 	ExitCode: exit.ExitGeneralArguments,
-	Message:  "Need at least one argument. Use `wdcli license` to view licensing information. ",
+	Message:  "need at least one argument. use `wdcli license` to view licensing information",
 }
 
 func main() {

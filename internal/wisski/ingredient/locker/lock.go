@@ -20,7 +20,7 @@ var (
 )
 
 var Locked = exit.Error{
-	Message:  "WissKI Instance is locked for administrative operations",
+	Message:  "instance is locked for administrative operations",
 	ExitCode: exit.ExitGeneric,
 }
 

@@ -33,7 +33,7 @@ func (systempause) Description() wisski_distillery.Description {
 }
 
 var errStopStartExcluded = exit.Error{
-	Message:  "Exactly one of `--stop` and `--start` must be provied",
+	Message:  "exactly one of `--stop` and `--start` must be provied",
 	ExitCode: exit.ExitCommandArguments,
 }
 

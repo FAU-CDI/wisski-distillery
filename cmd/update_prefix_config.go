@@ -31,7 +31,7 @@ func (updateprefixconfig) Description() wisski_distillery.Description {
 }
 
 var errPrefixUpdateFailed = exit.Error{
-	Message:  "Failed to update the prefix configuration",
+	Message:  "failed to update the prefix configuration",
 	ExitCode: exit.ExitGeneric,
 }
 

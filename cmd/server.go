@@ -31,7 +31,7 @@ func (s server) Description() wisski_distillery.Description {
 
 var errServerListen = exit.Error{
 	ExitCode: exit.ExitGeneric,
-	Message:  "Unable to listen",
+	Message:  "unable to listen",
 }
 
 func (s server) Run(context wisski_distillery.Context) error {

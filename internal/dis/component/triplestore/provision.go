@@ -14,7 +14,7 @@ import (
 )
 
 var errTripleStoreFailedRepository = exit.Error{
-	Message:  "Failed to create repository: %s",
+	Message:  "failed to create repository: %s",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -55,7 +55,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 		}
 		defer res.Body.Close()
 		if res.StatusCode != http.StatusCreated {
-			return errTripleStoreFailedRepository.WithMessageF("Repo create did not return status code 201")
+			return errTripleStoreFailedRepository.WithMessageF("repo create did not return status code 201")
 		}
 	}
 
@@ -81,7 +81,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 		}
 		defer res.Body.Close()
 		if res.StatusCode != http.StatusCreated {
-			return errTripleStoreFailedRepository.WithMessageF("User create did not return status code 201")
+			return errTripleStoreFailedRepository.WithMessageF("user create did not return status code 201")
 		}
 	}
 

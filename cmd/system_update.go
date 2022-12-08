@@ -58,7 +58,7 @@ var errBoostrapFailedToCreateDirectory = exit.Error{
 }
 
 var errBootstrapComponent = exit.Error{
-	Message:  "Unable to bootstrap %s: %s",
+	Message:  "unable to bootstrap %s: %s",
 	ExitCode: exit.ExitGeneric,
 }
 

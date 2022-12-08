@@ -56,10 +56,10 @@ var GetContext = goprogram.GetContext[wdcliEnv, wdcliParameters, wdCliFlags, wdc
 // an error when nor arguments are provided.
 var errUserIsNotRoot = exit.Error{
 	ExitCode: exit.ExitGeneralArguments,
-	Message:  "This command has to be executed as root. The current user is not root.",
+	Message:  "this command has to be executed as root. the current user is not root",
 }
 
-var warnNoDeployWdcli = "Warning: Not using %q executable at %q. This might leave the distillery in an inconsistent state. \n"
+const warnNoDeployWdcli = "Warning: Not using %q executable at %q. This might leave the distillery in an inconsistent state. \n"
 
 func NewProgram() Program {
 	return Program{

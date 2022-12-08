@@ -27,7 +27,7 @@ func (prefixes) Description() wisski_distillery.Description {
 
 var errPrefixesGeneric = exit.Error{
 	ExitCode: exit.ExitGeneric,
-	Message:  "Unable to load prefixes",
+	Message:  "unable to load prefixes",
 }
 
 func (p prefixes) Run(context wisski_distillery.Context) error {

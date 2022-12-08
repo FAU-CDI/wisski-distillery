@@ -29,7 +29,7 @@ func (instanceLock) Description() wisski_distillery.Description {
 }
 
 var errLockUnlockExcluded = exit.Error{
-	Message:  "Exactly one of `--lock` and `--unlock` must be provied",
+	Message:  "exactly one of `--lock` and `--unlock` must be provied",
 	ExitCode: exit.ExitCommandArguments,
 }
 
@@ -41,7 +41,7 @@ func (l instanceLock) AfterParse() error {
 }
 
 var errNotUnlock = exit.Error{
-	Message:  "Unable to unlock instance: Not locked",
+	Message:  "unable to unlock instance: not locked",
 	ExitCode: exit.ExitCommandArguments,
 }
 

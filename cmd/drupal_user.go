@@ -70,7 +70,7 @@ func (du duser) AfterParse() error {
 }
 
 var errPasswordsNotIdentical = exit.Error{
-	Message:  "Passwords are not identical",
+	Message:  "passwords are not identical",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -103,7 +103,7 @@ func (du duser) login(context wisski_distillery.Context, instance *wisski.WissKI
 }
 
 var errPasswordFound = exit.Error{
-	Message:  "User had a dictionary password",
+	Message:  "user had a dictionary password",
 	ExitCode: 5,
 }
 

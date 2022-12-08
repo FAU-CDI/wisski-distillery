@@ -31,7 +31,7 @@ func (backup) Description() wisski_distillery.Description {
 }
 
 var errBackupFailed = exit.Error{
-	Message:  "Failed to make a backup",
+	Message:  "failed to make a backup",
 	ExitCode: exit.ExitGeneric,
 }
 

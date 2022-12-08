@@ -34,7 +34,7 @@ func (blindUpdate) Description() wisski_distillery.Description {
 }
 
 var errBlindUpdateFailed = exit.Error{
-	Message:  "Failed to run blind update script for instance %q: exited with code %s",
+	Message:  "failed to run blind update script for instance %q: exited with code %s",
 	ExitCode: exit.ExitGeneric,
 }
 

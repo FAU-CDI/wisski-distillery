@@ -31,12 +31,12 @@ func (setting) Description() wisski_distillery.Description {
 
 var errSettingGet = exit.Error{
 	ExitCode: exit.ExitGeneric,
-	Message:  "Unable to get setting",
+	Message:  "unable to get setting",
 }
 
 var errSettingSet = exit.Error{
 	ExitCode: exit.ExitGeneric,
-	Message:  "Unable to set setting",
+	Message:  "unable to set setting",
 }
 
 func (ds setting) Run(context wisski_distillery.Context) error {

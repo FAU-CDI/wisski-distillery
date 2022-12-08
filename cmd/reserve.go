@@ -31,12 +31,12 @@ func (reserve) Description() wisski_distillery.Description {
 // TODO: AfterParse to check instance!
 
 var errReserveAlreadyExists = exit.Error{
-	Message:  "Instance %q already exists",
+	Message:  "instance %q already exists",
 	ExitCode: exit.ExitGeneric,
 }
 
 var errReserveGeneric = exit.Error{
-	Message:  "Unable to provision instance %s: %s",
+	Message:  "unable to provision instance %s: %s",
 	ExitCode: exit.ExitGeneric,
 }
 

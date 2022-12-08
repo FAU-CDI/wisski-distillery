@@ -10,7 +10,7 @@ import (
 
 var errNoConfigFile = exit.Error{
 	ExitCode: exit.ExitGeneralArguments,
-	Message:  "Configuration File does not exist",
+	Message:  "configuration file does not exist",
 }
 
 var errOpenConfig = exit.Error{

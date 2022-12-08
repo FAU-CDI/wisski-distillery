@@ -32,7 +32,7 @@ func (instances *Instances) Path() string {
 var ErrWissKINotFound = errors.New("WissKI not found")
 
 var errSQL = exit.Error{
-	Message:  "Unknown SQL Error %s",
+	Message:  "unknown SQL error %s",
 	ExitCode: exit.ExitGeneric,
 }
 

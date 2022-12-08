@@ -31,7 +31,7 @@ func (snapshot) Description() wisski_distillery.Description {
 }
 
 var errSnapshotFailed = exit.Error{
-	Message:  "Failed to make a snapshot",
+	Message:  "failed to make a snapshot",
 	ExitCode: exit.ExitGeneric,
 }
 

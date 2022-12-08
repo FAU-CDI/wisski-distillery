@@ -33,7 +33,7 @@ func (shell) Description() wisski_distillery.Description {
 }
 
 var errShell = exit.Error{
-	Message:  "Unable to start shell: %s",
+	Message:  "unable to start shell: %s",
 	ExitCode: exit.ExitGeneric,
 }
 
