@@ -27,7 +27,7 @@ func (mysql) Description() wisski_distillery.Description {
 			IncludeUnknown: true,
 		},
 		Command:     "mysql",
-		Description: "Opens a mysql shell",
+		Description: "opens a mysql shell",
 	}
 }
 

@@ -13,7 +13,7 @@ var Provision wisski_distillery.Command = provision{}
 
 type provision struct {
 	Positionals struct {
-		Slug string `positional-arg-name:"slug" required:"1-1" description:"name of WissKI Instance to create"`
+		Slug string `positional-arg-name:"slug" required:"1-1" description:"slug of instance to create"`
 	} `positional-args:"true"`
 }
 
@@ -23,7 +23,7 @@ func (provision) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "provision",
-		Description: "Creates a new WissKI Instance",
+		Description: "creates a new instance",
 	}
 }
 

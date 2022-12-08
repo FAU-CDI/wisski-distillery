@@ -17,7 +17,7 @@ var Rebuild wisski_distillery.Command = rebuild{}
 type rebuild struct {
 	Parallel    int `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
 	Positionals struct {
-		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instance(s) to run rebuild"`
+		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instance or instances to run rebuild"`
 	} `positional-args:"true"`
 }
 
@@ -27,7 +27,7 @@ func (rebuild) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "rebuild",
-		Description: "Runs the rebuild script for several instances",
+		Description: "runs the rebuild script for several instances",
 	}
 }
 

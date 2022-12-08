@@ -12,9 +12,9 @@ import (
 var Monday wisski_distillery.Command = monday{}
 
 type monday struct {
-	UpdateInstances bool `short:"u" long:"update-instances" description:"Fully update instances. May take a long time, and is potentially breaking. "`
+	UpdateInstances bool `short:"u" long:"update-instances" description:"fully update instances. may take a long time, and is potentially breaking"`
 	Positionals     struct {
-		GraphdbZip string `positional-arg-name:"PATH_TO_GRAPHDB_ZIP" required:"1-1" description:"path to the graphdb.zip file"`
+		GraphdbZip string "positional-arg-name:\"PATH_TO_GRAPHDB_ZIP\" required:\"1-1\" description:\"path to the `graphdb.zip` file\""
 	} `positional-args:"true"`
 }
 
@@ -24,7 +24,7 @@ func (monday) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "monday",
-		Description: "Runs regular monday tasks",
+		Description: "runs regular monday tasks",
 	}
 }
 

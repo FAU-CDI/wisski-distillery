@@ -11,12 +11,12 @@ import (
 var Snapshot wisski_distillery.Command = snapshot{}
 
 type snapshot struct {
-	Keepalive   bool `short:"k" long:"keepalive" description:"Keep instance running while taking a backup. Might lead to inconsistent state"`
-	StagingOnly bool `short:"s" long:"staging-only" description:"Do not package into a snapshot archive, but only create a staging directory"`
+	Keepalive   bool `short:"k" long:"keepalive" description:"keep instance running while taking a backup. might lead to inconsistent state"`
+	StagingOnly bool `short:"s" long:"staging-only" description:"do not package into a snapshot archive, but only create a staging directory"`
 
 	Positionals struct {
 		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to take a snapshot of"`
-		Dest string `positional-arg-name:"DEST" description:"Destination path to write snapshot archive to. Defaults to the snapshots/archives/ directory"`
+		Dest string "positional-arg-name:\"DEST\" description:\"destination path to write snapshot archive to. defaults to the `snapshots/archives/` directory\""
 	} `positional-args:"true"`
 }
 
@@ -26,7 +26,7 @@ func (snapshot) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "snapshot",
-		Description: "Generates a snapshot archive for the provided archive",
+		Description: "generates a snapshot archive for the provided instance",
 	}
 }
 

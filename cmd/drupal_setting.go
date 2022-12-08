@@ -25,7 +25,7 @@ func (setting) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "drupal_setting",
-		Description: "Get or set a drupal setting",
+		Description: "get or set a drupal setting",
 	}
 }
 

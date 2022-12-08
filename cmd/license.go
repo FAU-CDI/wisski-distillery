@@ -18,7 +18,7 @@ func (license) Description() wisski_distillery.Description {
 			NeedsDistillery: false,
 		},
 		Command:     "license",
-		Description: "Print licensing information about wdcli and exit. ",
+		Description: "print licensing information about wdcli and exit",
 	}
 }
 

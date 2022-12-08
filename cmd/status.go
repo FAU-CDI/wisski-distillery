@@ -11,7 +11,7 @@ import (
 var Status wisski_distillery.Command = cStatus{}
 
 type cStatus struct {
-	JSON bool `short:"j" long:"json" description:"Print status as JSON instead of as string"`
+	JSON bool `short:"j" long:"json" description:"print status as JSON instead of as string"`
 }
 
 func (cStatus) Description() wisski_distillery.Description {
@@ -20,7 +20,7 @@ func (cStatus) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "status",
-		Description: "Provide information about the distillery as a whole",
+		Description: "provide information about the distillery as a whole",
 	}
 }
 

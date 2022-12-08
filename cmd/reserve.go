@@ -14,7 +14,7 @@ var Reserve wisski_distillery.Command = reserve{}
 
 type reserve struct {
 	Positionals struct {
-		Slug string `positional-arg-name:"slug" required:"1-1" description:"name of WissKI Instance to reserve"`
+		Slug string `positional-arg-name:"slug" required:"1-1" description:"name of instance to reserve"`
 	} `positional-args:"true"`
 }
 
@@ -24,7 +24,7 @@ func (reserve) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "reserve",
-		Description: "Reserves a new WissKI Instance",
+		Description: "reserves a new instance",
 	}
 }
 

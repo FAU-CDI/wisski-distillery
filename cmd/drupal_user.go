@@ -16,13 +16,13 @@ import (
 var DrupalUser wisski_distillery.Command = duser{}
 
 type duser struct {
-	CheckCommonPasswords   bool `short:"d" long:"check-common-passwords" description:"check for most common passwords. Operates on all users concurrently."`
+	CheckCommonPasswords   bool `short:"d" long:"check-common-passwords" description:"check for most common passwords. operates on all users concurrently."`
 	CheckPasswdInteractive bool `short:"c" long:"check-password" description:"interactively check user password"`
 	ResetPasswd            bool `short:"r" long:"reset-password" description:"reset password for user"`
 	Login                  bool `short:"l" long:"login" description:"print url to login as"`
 	Positionals            struct {
 		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to manage"`
-		User string `positional-arg-name:"USER" description:"username to manage. May be omitted for some actions"`
+		User string `positional-arg-name:"USER" description:"username to manage. may be omitted for some actions"`
 	} `positional-args:"true"`
 }
 

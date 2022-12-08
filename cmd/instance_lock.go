@@ -11,8 +11,8 @@ import (
 var InstanceLock wisski_distillery.Command = instanceLock{}
 
 type instanceLock struct {
-	Lock        bool `short:"l" long:"lock" description:"Lock the provided WissKI instance"`
-	Unlock      bool `short:"u" long:"unlock" description:"Unlock the provided WissKI instance"`
+	Lock        bool `short:"l" long:"lock" description:"lock the provided instance"`
+	Unlock      bool `short:"u" long:"unlock" description:"unlock the provided instance"`
 	Positionals struct {
 		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to lock or unlock"`
 	} `positional-args:"true"`
@@ -24,7 +24,7 @@ func (instanceLock) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "instance_lock",
-		Description: "Locks or unlocks a WissKI instance",
+		Description: "locks or unlocks an instance",
 	}
 }
 

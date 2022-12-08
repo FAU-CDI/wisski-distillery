@@ -29,7 +29,7 @@ func (cBootstrap) Description() wisski_distillery.Description {
 			NeedsDistillery: false,
 		},
 		Command:     "bootstrap",
-		Description: "Bootstraps the installation of a Distillery System",
+		Description: "bootstraps the installation of a distillery system",
 	}
 }
 

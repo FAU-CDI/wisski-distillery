@@ -25,7 +25,7 @@ func (s server) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "server",
-		Description: "Starts a server with information about this distillery",
+		Description: "starts a server with information about this distillery",
 	}
 }
 

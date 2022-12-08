@@ -21,7 +21,7 @@ func (makeMysqlAccount) Description() wisski_distillery.Description {
 			IncludeUnknown: true,
 		},
 		Command:     "make_mysql_account",
-		Description: "Open a shell in the provided instance",
+		Description: "opens a shell in the provided instance",
 	}
 }
 

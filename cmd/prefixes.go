@@ -21,7 +21,7 @@ func (prefixes) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "prefixes",
-		Description: "List all Prefixes for a specific WissKI",
+		Description: "list all prefixes for a specific instance",
 	}
 }
 

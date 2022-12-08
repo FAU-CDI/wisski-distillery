@@ -12,7 +12,7 @@ import (
 var Info wisski_distillery.Command = info{}
 
 type info struct {
-	JSON        bool `short:"j" long:"json" description:"Print information as JSON instead of as string"`
+	JSON        bool `short:"j" long:"json" description:"print information as JSON instead of as string"`
 	Positionals struct {
 		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to show info about"`
 	} `positional-args:"true"`
@@ -24,7 +24,7 @@ func (info) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "info",
-		Description: "Provide information about a single instance",
+		Description: "provide information about a single instance",
 	}
 }
 

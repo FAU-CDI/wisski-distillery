@@ -26,7 +26,7 @@ func (updateprefixconfig) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "update_prefix_config",
-		Description: "Updates the prefix configuration",
+		Description: "updates the prefix configuration",
 	}
 }
 

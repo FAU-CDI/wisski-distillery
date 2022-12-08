@@ -14,7 +14,7 @@ var Shell wisski_distillery.Command = shell{}
 
 type shell struct {
 	Positionals struct {
-		Slug string   `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to show run shell in"`
+		Slug string   `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to run shell in"`
 		Args []string `positional-arg-name:"ARGS" description:"arguments to pass to the shell"`
 	} `positional-args:"true"`
 }
@@ -28,7 +28,7 @@ func (shell) Description() wisski_distillery.Description {
 			IncludeUnknown: true,
 		},
 		Command:     "shell",
-		Description: "Open a shell in the provided instance",
+		Description: "open a shell in the provided instance",
 	}
 }
 

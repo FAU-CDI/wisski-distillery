@@ -11,7 +11,7 @@ var SSH wisski_distillery.Command = ssh{}
 
 type ssh struct {
 	Bind           string `short:"b" long:"bind" description:"address to listen on" default:"127.0.0.1:2223"`
-	PrivateKeyPath string `short:"p" long:"private-key-path" description:"Path to store private host keys in" required:"1"`
+	PrivateKeyPath string `short:"p" long:"private-key-path" description:"path to store private host keys in" required:"1"`
 }
 
 func (s ssh) Description() wisski_distillery.Description {
@@ -20,7 +20,7 @@ func (s ssh) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "ssh",
-		Description: "Starts the ssh server to allow clients to connect to this distillery",
+		Description: "starts the ssh server to allow clients to connect to this distillery",
 	}
 }
 

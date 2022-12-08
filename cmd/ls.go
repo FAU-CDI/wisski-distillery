@@ -10,7 +10,7 @@ var Ls wisski_distillery.Command = ls{}
 
 type ls struct {
 	Positionals struct {
-		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug(s) of instance(s) to list"`
+		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slugs of instances to list. if empty, list all instances"`
 	} `positional-args:"true"`
 }
 
@@ -20,7 +20,7 @@ func (ls) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "ls",
-		Description: "Lists WissKI instances",
+		Description: "lists instances",
 	}
 }
 

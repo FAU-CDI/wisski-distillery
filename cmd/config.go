@@ -16,7 +16,7 @@ func (c cfg) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "config",
-		Description: "Prints information about configuration",
+		Description: "prints information about configuration",
 	}
 }
 

@@ -12,7 +12,7 @@ var Pathbuilders wisski_distillery.Command = pathbuilders{}
 type pathbuilders struct {
 	Positionals struct {
 		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to export pathbuilders of"`
-		Name string `positional-arg-name:"NAME" description:"Name of pathbuilder to get. If omitted, show a list of all pathbuilders"`
+		Name string `positional-arg-name:"NAME" description:"name of pathbuilder to get. if omitted, show a list of all pathbuilders"`
 	} `positional-args:"true"`
 }
 
@@ -22,7 +22,7 @@ func (pathbuilders) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "pathbuilder",
-		Description: "Lists of displays pathbuilders of a specific WissKI instance",
+		Description: "list pathbuilders of a specific instance",
 	}
 }
 

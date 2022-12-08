@@ -17,7 +17,7 @@ type cron struct {
 	Parallel int `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
 
 	Positionals struct {
-		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instance(s) to run cron in"`
+		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instances to run cron in"`
 	} `positional-args:"true"`
 }
 
@@ -27,7 +27,7 @@ func (cron) Description() wisski_distillery.Description {
 			NeedsDistillery: true,
 		},
 		Command:     "cron",
-		Description: "Runs the cron script for several instances",
+		Description: "runs the cron script for several instances",
 	}
 }
 
