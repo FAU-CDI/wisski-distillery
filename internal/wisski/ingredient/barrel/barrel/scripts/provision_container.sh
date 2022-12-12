@@ -113,6 +113,22 @@ drupal_sites_permission_workaround
 log_info " => Creating '$ONTOLOGY_DIR'"
 mkdir -p "$ONTOLOGY_DIR"
 
+# Install some additional modules
+# These neeed to go before WissKI because some are WissKI dependencies
+
+log_info " => Installing and enabling modules"
+composer_install_and_enable << EOF
+drupal/inline_entity_form:^1.0@RC
+drupal/imagemagick
+drupal/image_effects
+drupal/colorbox
+drupal/devel:^4.1 devel
+drupal/geofield:^1.40 geofield
+drupal/geofield_map:^2.85 geofield_map
+drupal/imce:^2.4 imce
+EOF
+
+
 # Install the Wisski packages. 
 log_info " => Installing Wisski packages"
 cd "$COMPOSER_DIR"
@@ -136,17 +152,7 @@ if [ -f "$EASYRDF_RESPONSE" ]; then
 fi
 popd
 
-log_info " => Installing and enabling additional modules"
-composer_install_and_enable << EOF
-drupal/inline_entity_form:^1.0@RC
-drupal/imagemagick
-drupal/image_effects
-drupal/colorbox
-drupal/devel:^4.1 devel
-drupal/geofield:^1.40 geofield
-drupal/geofield_map:^2.85 geofield_map
-drupal/imce:^2.4 imce
-EOF
+
 
 log_info " => Enable Wisski modules"
 drush pm-enable --yes wisski_core wisski_linkblock wisski_pathbuilder wisski_adapter_sparql11_pb wisski_salz
