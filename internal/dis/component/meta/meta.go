@@ -17,6 +17,10 @@ type Meta struct {
 	sc map[string]*Storage
 }
 
+var (
+	_ component.Provisionable = (*Meta)(nil)
+)
+
 // Storage returns a Storage for the instance with the given slug.
 // When slug is nil, returns a global storage.
 func (meta *Meta) Storage(slug string) *Storage {

@@ -18,9 +18,10 @@ type Triplestore struct {
 }
 
 var (
-	_ component.Backupable   = (*Triplestore)(nil)
-	_ component.Snapshotable = (*Triplestore)(nil)
-	_ component.Installable  = (*Triplestore)(nil)
+	_ component.Backupable    = (*Triplestore)(nil)
+	_ component.Snapshotable  = (*Triplestore)(nil)
+	_ component.Installable   = (*Triplestore)(nil)
+	_ component.Provisionable = (*Triplestore)(nil)
 )
 
 func (ts *Triplestore) Path() string {

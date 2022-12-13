@@ -7,7 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
-	"github.com/gorilla/mux"
+	"github.com/julienschmidt/httprouter"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -33,7 +33,7 @@ var (
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
 func (info *Info) Handler(ctx context.Context, route string) (handler http.Handler, err error) {
-	router := mux.NewRouter()
+	router := httprouter.New()
 	{
 		socket := &httpx.WebSocket{
 			Context:  ctx,
@@ -46,40 +46,35 @@ func (info *Info) Handler(ctx context.Context, route string) (handler http.Handl
 	}
 
 	// handle everything
-	router.Path(route).HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, route+"/index", http.StatusTemporaryRedirect)
+	router.HandlerFunc(http.MethodGet, route, func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, "index", http.StatusTemporaryRedirect)
 	})
 
 	// add a handler for the index page
-	router.Path(route + "index").Handler(httpx.HTMLHandler[indexContext]{
+	router.Handler(http.MethodGet, "index", httpx.HTMLHandler[indexContext]{
 		Handler:  info.index,
 		Template: indexTemplate,
 	})
 
 	// add a handler for the component page
-	router.Path(route + "components").Handler(httpx.HTMLHandler[componentContext]{
+	router.Handler(http.MethodGet, "components", httpx.HTMLHandler[componentContext]{
 		Handler:  info.components,
 		Template: componentsTemplate,
 	})
 
 	// add a handler for the component page
-	router.Path(route + "ingredients/{slug}").Handler(httpx.HTMLHandler[ingredientsContext]{
+	router.Handler(http.MethodGet, "ingredients/{slug}", httpx.HTMLHandler[ingredientsContext]{
 		Handler:  info.ingredients,
 		Template: ingredientsTemplate,
 	})
 
 	// add a handler for the instance page
-	router.Path(route + "instance/{slug}").Handler(httpx.HTMLHandler[instanceContext]{
+	router.Handler(http.MethodGet, "instance/{slug}", httpx.HTMLHandler[instanceContext]{
 		Handler:  info.instance,
 		Template: instanceTemplate,
 	})
 
-	router.Path(route + "api/login").Handler(httpx.RedirectHandler(func(r *http.Request) (string, int, error) {
-		// enforce POST
-		if r.Method != http.MethodPost {
-			return "", 0, httpx.ErrMethodNotAllowed
-		}
-
+	router.Handler(http.MethodPost, "api/login", httpx.RedirectHandler(func(r *http.Request) (string, int, error) {
 		// parse the form
 		if err := r.ParseForm(); err != nil {
 			return "", 0, err

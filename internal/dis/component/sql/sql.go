@@ -21,9 +21,10 @@ type SQL struct {
 }
 
 var (
-	_ component.Backupable   = (*SQL)(nil)
-	_ component.Snapshotable = (*SQL)(nil)
-	_ component.Installable  = (*SQL)(nil)
+	_ component.Backupable    = (*SQL)(nil)
+	_ component.Snapshotable  = (*SQL)(nil)
+	_ component.Installable   = (*SQL)(nil)
+	_ component.Provisionable = (*SQL)(nil)
 )
 
 func (sql *SQL) Path() string {
