@@ -194,7 +194,7 @@ func (si systemupdate) mustExec(context wisski_distillery.Context, workdir strin
 	if workdir == "" {
 		workdir = dis.Config.DeployRoot
 	}
-	code := dis.Still.Environment.Exec(context.Context, context.IOStream, workdir, exe, argv...)
+	code := dis.Still.Environment.Exec(context.Context, context.IOStream, workdir, exe, argv...)()
 	if code != 0 {
 		err := errMustExecFailed.WithMessageF(code)
 		err.ExitCode = exit.ExitCode(code)

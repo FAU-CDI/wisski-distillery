@@ -9,7 +9,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -21,10 +20,7 @@ var errBlindUpdateFailed = exit.Error{
 
 // Update performs a blind drush update
 func (drush *Drush) Update(ctx context.Context, progress io.Writer) error {
-	code, err := drush.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/blind_update.sh")
-	if err != nil {
-		return errBlindUpdateFailed.WithMessageF(drush.Slug, environment.ExecCommandError)
-	}
+	code := drush.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/blind_update.sh")()
 	if code != 0 {
 		return errBlindUpdateFailed.WithMessageF(drush.Slug, code)
 	}

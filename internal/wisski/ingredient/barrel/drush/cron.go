@@ -20,14 +20,10 @@ var errCronFailed = exit.Error{
 }
 
 func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
-	code, err := drush.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/cron.sh")
-	if err != nil {
-		logging.ProgressF(progress, ctx, "%v", err)
-	}
+	code := drush.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/cron.sh")()
 	if code != 0 {
 		// keep going, because we want to run as many crons as possible
-		err = errCronFailed.WithMessageF(drush.Slug, code)
-		logging.ProgressF(progress, ctx, "%v", err)
+		logging.ProgressF(progress, ctx, "%v", errCronFailed.WithMessageF(drush.Slug, code))
 	}
 
 	return nil

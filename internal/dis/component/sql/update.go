@@ -18,23 +18,23 @@ import (
 // Shell runs a mysql shell with the provided databases.
 //
 // NOTE(twiesing): This command should not be used to connect to the database or execute queries except in known situations.
-func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) (int, error) {
-	return sql.Stack(sql.Environment).Exec(ctx, io, "sql", "mysql", argv...)
+func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) int {
+	return sql.Stack(sql.Environment).Exec(ctx, io, "sql", "mysql", argv...)()
 }
 
 // unsafeWaitShell waits for a connection via the database shell to succeed
 func (sql *SQL) unsafeWaitShell(ctx context.Context) error {
 	n := stream.FromNil()
 	return timex.TickUntilFunc(func(time.Time) bool {
-		code, err := sql.Shell(ctx, n, "-e", "select 1;")
-		return err == nil && code == 0
+		code := sql.Shell(ctx, n, "-e", "select 1;")
+		return code == 0
 	}, ctx, sql.PollInterval)
 }
 
 // unsafeQuery shell executes a raw database query.
 func (sql *SQL) unsafeQueryShell(ctx context.Context, query string) bool {
-	code, err := sql.Shell(ctx, stream.FromNil(), "-e", query)
-	return err == nil && code == 0
+	code := sql.Shell(ctx, stream.FromNil(), "-e", query)
+	return code == 0
 }
 
 var errSQLUnableToCreateUser = errors.New("unable to create administrative user")

@@ -43,10 +43,7 @@ func (sh shell) Run(context wisski_distillery.Context) error {
 		return err
 	}
 
-	code, err := instance.Barrel().Shell(context.Context, context.IOStream, sh.Positionals.Args...)
-	if err != nil {
-		return errShell.WithMessageF(err)
-	}
+	code := instance.Barrel().Shell(context.Context, context.IOStream, sh.Positionals.Args...)()
 	if code != 0 {
 		return exit.Error{
 			ExitCode: exit.ExitCode(uint8(code)),

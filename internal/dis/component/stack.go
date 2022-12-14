@@ -33,10 +33,7 @@ type Stack struct {
 var errStackKill = errors.New("Stack.Kill: Kill returned non-zero exit code")
 
 func (ds Stack) Kill(ctx context.Context, progress io.Writer, service string, signal os.Signal) error {
-	code, err := ds.compose(ctx, stream.NonInteractive(progress), "kill", service, "-s", signal.String())
-	if err != nil {
-		return err
-	}
+	code := ds.compose(ctx, stream.NonInteractive(progress), "kill", service, "-s", signal.String())()
 	if code != 0 {
 		return errStackKill
 	}
@@ -51,25 +48,14 @@ var errStackUpdateBuild = errors.New("Stack.Update: Build returned non-zero exit
 //
 // See also Up.
 func (ds Stack) Update(ctx context.Context, progress io.Writer, start bool) error {
-	{
-		code, err := ds.compose(ctx, stream.NonInteractive(progress), "pull")
-		if err != nil {
-			return err
-		}
-		if code != 0 {
-			return errStackUpdatePull
-		}
+	if code := ds.compose(ctx, stream.NonInteractive(progress), "pull")(); code != 0 {
+		return errStackUpdatePull
 	}
 
-	{
-		code, err := ds.compose(ctx, stream.NonInteractive(progress), "build", "--pull")
-		if err != nil {
-			return err
-		}
-		if code != 0 {
-			return errStackUpdateBuild
-		}
+	if code := ds.compose(ctx, stream.NonInteractive(progress), "build", "--pull")(); code != 0 {
+		return errStackUpdateBuild
 	}
+
 	if start {
 		return ds.Up(ctx, progress)
 	}
@@ -81,11 +67,7 @@ var errStackUp = errors.New("Stack.Up: Up returned non-zero exit code")
 // Up creates and starts the containers in this Stack.
 // It is equivalent to 'docker compose up --remove-orphans --detach' on the shell.
 func (ds Stack) Up(ctx context.Context, progress io.Writer) error {
-	code, err := ds.compose(ctx, stream.NonInteractive(progress), "up", "--remove-orphans", "--detach")
-	if err != nil {
-		return err
-	}
-	if code != 0 {
+	if code := ds.compose(ctx, stream.NonInteractive(progress), "up", "--remove-orphans", "--detach")(); code != 0 {
 		return errStackUp
 	}
 	return nil
@@ -95,14 +77,16 @@ func (ds Stack) Up(ctx context.Context, progress io.Writer) error {
 // It is equivalent to 'docker compose exec $service $executable $args...'.
 //
 // It returns the exit code of the process.
-func (ds Stack) Exec(ctx context.Context, io stream.IOStream, service, executable string, args ...string) (int, error) {
+func (ds Stack) Exec(ctx context.Context, io stream.IOStream, service, executable string, args ...string) func() int {
 	compose := []string{"exec"}
 	if io.StdinIsATerminal() {
 		compose = append(compose, "-ti")
 	}
+
 	compose = append(compose, service)
 	compose = append(compose, executable)
 	compose = append(compose, args...)
+
 	return ds.compose(ctx, io, compose...)
 }
 
@@ -121,10 +105,7 @@ func (ds Stack) Run(ctx context.Context, io stream.IOStream, autoRemove bool, se
 	compose = append(compose, service, command)
 	compose = append(compose, args...)
 
-	code, err := ds.compose(ctx, io, compose...)
-	if err != nil {
-		return environment.ExecCommandError, nil
-	}
+	code := ds.compose(ctx, io, compose...)()
 	return code, nil
 }
 
@@ -133,10 +114,7 @@ var errStackRestart = errors.New("Stack.Restart: Restart returned non-zero exit 
 // Restart restarts all containers in this Stack.
 // It is equivalent to 'docker compose restart' on the shell.
 func (ds Stack) Restart(ctx context.Context, progress io.Writer) error {
-	code, err := ds.compose(ctx, stream.NonInteractive(progress), "restart")
-	if err != nil {
-		return err
-	}
+	code := ds.compose(ctx, stream.NonInteractive(progress), "restart")()
 	if code != 0 {
 		return errStackRestart
 	}
@@ -151,10 +129,7 @@ func (ds Stack) Ps(ctx context.Context, progress io.Writer) ([]string, error) {
 	var buffer bytes.Buffer
 
 	// read the ids from the command!
-	code, err := ds.compose(ctx, stream.NewIOStream(&buffer, progress, nil, 0), "ps", "-q")
-	if err != nil {
-		return nil, err
-	}
+	code := ds.compose(ctx, stream.NewIOStream(&buffer, progress, nil, 0), "ps", "-q")()
 	if code != 0 {
 		return nil, errStackPs
 	}
@@ -180,10 +155,7 @@ var errStackDown = errors.New("Stack.Down: Down returned non-zero exit code")
 // Down stops and removes all containers in this Stack.
 // It is equivalent to 'docker compose down -v' on the shell.
 func (ds Stack) Down(ctx context.Context, progress io.Writer) error {
-	code, err := ds.compose(ctx, stream.NonInteractive(progress), "down", "-v")
-	if err != nil {
-		return err
-	}
+	code := ds.compose(ctx, stream.NonInteractive(progress), "down", "-v")()
 	if code != 0 {
 		return errStackDown
 	}
@@ -194,15 +166,15 @@ func (ds Stack) Down(ctx context.Context, progress io.Writer) error {
 //
 // NOTE(twiesing): Check if this can be replaced by an internal call to libcompose.
 // But probably not.
-func (ds Stack) compose(ctx context.Context, io stream.IOStream, args ...string) (int, error) {
+func (ds Stack) compose(ctx context.Context, io stream.IOStream, args ...string) func() int {
 	if ds.DockerExecutable == "" {
 		var err error
 		ds.DockerExecutable, err = ds.Env.LookPathAbs("docker")
 		if err != nil {
-			return environment.ExecCommandError, err
+			return environment.ExecCommandErrorFunc
 		}
 	}
-	return ds.Env.Exec(ctx, io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...), nil
+	return ds.Env.Exec(ctx, io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...)
 }
 
 // StackWithResources represents a Stack that can be automatically installed from a set of resources.

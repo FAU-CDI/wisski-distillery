@@ -7,6 +7,6 @@ import (
 )
 
 // Shell executes a shell command inside the instance.
-func (barrel *Barrel) Shell(ctx context.Context, io stream.IOStream, argv ...string) (int, error) {
+func (barrel *Barrel) Shell(ctx context.Context, io stream.IOStream, argv ...string) func() int {
 	return barrel.Stack().Exec(ctx, io, "barrel", "/bin/sh", append([]string{"/user_shell.sh"}, argv...)...)
 }

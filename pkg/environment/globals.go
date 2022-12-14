@@ -14,6 +14,11 @@ import (
 // This typically hints that the executable cannot be found, but may have other causes.
 const ExecCommandError = 127
 
+// ExecCommandErrorFunc always returns ExecCommandError.
+func ExecCommandErrorFunc() int {
+	return ExecCommandError
+}
+
 // DefaultFilePerm is the default mode to use for files
 const DefaultFilePerm fs.FileMode = 0666
 
@@ -66,5 +71,5 @@ func ReadFile(env Environment, path string) ([]byte, error) {
 
 // MustExec is like Exec, except that it returns true if the command exited successfully, and else false.
 func MustExec(ctx context.Context, env Environment, io stream.IOStream, workdir string, exe string, argv ...string) bool {
-	return env.Exec(ctx, io, workdir, exe, argv...) == 0
+	return env.Exec(ctx, io, workdir, exe, argv...)() == 0
 }
