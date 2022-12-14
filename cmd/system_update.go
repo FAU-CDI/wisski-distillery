@@ -40,7 +40,7 @@ func (systemupdate) Description() wisski_distillery.Description {
 }
 
 var errNoGraphDBZip = exit.Error{
-	Message:  "%s does not exist",
+	Message:  "%q does not exist",
 	ExitCode: exit.ExitCommandArguments,
 }
 
