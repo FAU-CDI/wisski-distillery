@@ -3,6 +3,8 @@ package config
 
 import (
 	"fmt"
+	"hash/fnv"
+	"math/rand"
 	"net/url"
 	"reflect"
 	"strings"
@@ -98,6 +100,21 @@ type Config struct {
 
 	// ConfigPath is the path this configuration was loaded from (if any)
 	ConfigPath string
+}
+
+// CSRFSecret return the csrfSecret derived from the session secret
+func (config *Config) CSRFSecret() []byte {
+	// take the hash of the secret
+	h := fnv.New32a()
+	h.Write([]byte(config.SessionSecret))
+
+	// seed a random number generator
+	rand := rand.New(rand.NewSource(int64(h.Sum32())))
+
+	// take a bunch of bytes from it
+	secret := make([]byte, 32)
+	rand.Read(secret)
+	return secret
 }
 
 // String serializes this configuration into a string

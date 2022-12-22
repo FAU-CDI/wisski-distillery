@@ -2,11 +2,13 @@ package auth
 
 import (
 	"context"
+	"html/template"
 	"net/http"
 	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/gorilla/csrf"
 	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
 
@@ -28,10 +30,9 @@ const (
 
 // session returns the session belonging to a request
 func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
-	auth.storeOnce.Do(func() {
-		auth.store = sessions.NewCookieStore([]byte(auth.Config.SessionSecret))
-	})
-	return auth.store.Get(r, sessionCookieName)
+	return auth.store.Get(func() sessions.Store {
+		return sessions.NewCookieStore([]byte(auth.Config.SessionSecret))
+	}).Get(r, sessionCookieName)
 }
 
 // UserOf returns the user logged into the given request.
@@ -112,6 +113,15 @@ var loginResponse = httpx.Response{
 func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	router := httprouter.New()
 
+	csrf := auth.csrf.Get(func() func(http.Handler) http.Handler {
+		var opts []csrf.Option
+		if !auth.Config.HTTPSEnabled() {
+			opts = append(opts, csrf.Secure(false))
+		}
+		opts = append(opts, csrf.Path(route))
+		return csrf.Protect(auth.Config.CSRFSecret(), opts...)
+	})
+
 	router.Handler(http.MethodGet, route, auth.Protect(loginResponse, nil))
 
 	router.HandlerFunc(http.MethodGet, route+"login", auth.loginRoute)
@@ -119,11 +129,12 @@ func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, 
 
 	router.HandlerFunc(http.MethodGet, route+"logout", auth.logoutRoute)
 
-	return router, nil
+	return csrf(router), nil
 }
 
 type loginContext struct {
 	Message string
+	CSRF    template.HTML
 }
 
 // Protect returns a new handler which requires a user to be logged in and pass the perm function.
@@ -231,6 +242,7 @@ func (auth *Auth) loginRoute(w http.ResponseWriter, r *http.Request) {
 form:
 	httpx.WriteHTML(loginContext{
 		Message: message,
+		CSRF:    csrf.TemplateField(r),
 	}, nil, loginTemplate, "", w, r)
 	return
 success:

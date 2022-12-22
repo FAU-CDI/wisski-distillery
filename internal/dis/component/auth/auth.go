@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"sync"
+	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/gorilla/sessions"
 )
 
@@ -14,8 +15,8 @@ type Auth struct {
 		SQL *sql.SQL
 	}
 
-	storeOnce sync.Once
-	store     sessions.Store
+	store lazy.Lazy[sessions.Store]
+	csrf  lazy.Lazy[func(http.Handler) http.Handler]
 }
 
 var (
