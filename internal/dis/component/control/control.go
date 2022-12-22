@@ -15,9 +15,10 @@ import (
 // Control represents the running control server.
 type Control struct {
 	component.Base
-
-	Servables []component.Servable
-	Cronables []component.Cronable
+	Dependencies struct {
+		Servables []component.Servable
+		Cronables []component.Cronable
+	}
 }
 
 var (

@@ -65,7 +65,7 @@ func (ssh2 *SSH2) handleAuth(ctx ssh.Context, key ssh.PublicKey) bool {
 
 		// grab permissions for each instance
 		{
-			instances, err := ssh2.Instances.All(ctx)
+			instances, err := ssh2.Dependencies.Instances.All(ctx)
 			if err != nil {
 				return false
 			}

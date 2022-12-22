@@ -8,7 +8,9 @@ import (
 
 type UpdateInstanceList struct {
 	component.Base
-	Home *Home
+	Dependencies struct {
+		Home *Home
+	}
 }
 
 var (
@@ -20,18 +22,20 @@ func (*UpdateInstanceList) TaskName() string {
 }
 
 func (ul *UpdateInstanceList) Cron(ctx context.Context) error {
-	names, err := ul.Home.instanceMap(ctx)
+	names, err := ul.Dependencies.Home.instanceMap(ctx)
 	if err != nil {
 		return err
 	}
 
-	ul.Home.instanceNames.Set(names)
+	ul.Dependencies.Home.instanceNames.Set(names)
 	return nil
 }
 
 type UpdateRedirect struct {
 	component.Base
-	Home *Home
+	Dependencies struct {
+		Home *Home
+	}
 }
 
 var (
@@ -43,18 +47,20 @@ func (ur *UpdateRedirect) TaskName() string {
 }
 
 func (ur *UpdateRedirect) Cron(ctx context.Context) error {
-	redirect, err := ur.Home.loadRedirect(ctx)
+	redirect, err := ur.Dependencies.Home.loadRedirect(ctx)
 	if err != nil {
 		return err
 	}
 
-	ur.Home.redirect.Set(&redirect)
+	ur.Dependencies.Home.redirect.Set(&redirect)
 	return nil
 }
 
 type UpdateHome struct {
 	component.Base
-	Home *Home
+	Dependencies struct {
+		Home *Home
+	}
 }
 
 var (
@@ -66,11 +72,11 @@ func (ur *UpdateHome) TaskName() string {
 }
 
 func (ur *UpdateHome) Cron(ctx context.Context) error {
-	bytes, err := ur.Home.homeRender(ctx)
+	bytes, err := ur.Dependencies.Home.homeRender(ctx)
 	if err != nil {
 		return err
 	}
 
-	ur.Home.homeBytes.Set(bytes)
+	ur.Dependencies.Home.homeBytes.Set(bytes)
 	return nil
 }

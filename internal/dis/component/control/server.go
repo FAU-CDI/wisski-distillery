@@ -17,7 +17,7 @@ func (control *Control) Server(ctx context.Context, progress io.Writer) (*http.S
 	mux := http.NewServeMux()
 
 	// add all the servable routes!
-	for _, s := range control.Servables {
+	for _, s := range control.Dependencies.Servables {
 		for _, route := range s.Routes() {
 			zerolog.Ctx(ctx).Info().Str("component", s.Name()).Str("route", route).Msg("mounting route")
 			handler, err := s.Handler(ctx, route)

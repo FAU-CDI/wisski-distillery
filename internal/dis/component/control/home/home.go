@@ -12,8 +12,9 @@ import (
 
 type Home struct {
 	component.Base
-
-	Instances *instances.Instances
+	Dependencies struct {
+		Instances *instances.Instances
+	}
 
 	redirect      lazy.Lazy[*Redirect]
 	instanceNames lazy.Lazy[map[string]struct{}]

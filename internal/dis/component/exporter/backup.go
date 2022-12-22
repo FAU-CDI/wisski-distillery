@@ -75,7 +75,7 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 	defer done()
 
 	// create a new status display
-	backups := exporter.Backupable
+	backups := exporter.Dependencies.Backupable
 	backup.ComponentErrors = make(map[string]error, len(backups))
 
 	// Component backup tasks
@@ -125,7 +125,7 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 		}
 
 		// list all instances
-		wissKIs, err := exporter.Instances.All(ctx)
+		wissKIs, err := exporter.Dependencies.Instances.All(ctx)
 		if err != nil {
 			backup.InstanceListErr = err
 			return nil

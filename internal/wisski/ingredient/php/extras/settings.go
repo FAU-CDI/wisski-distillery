@@ -11,18 +11,19 @@ import (
 
 type Settings struct {
 	ingredient.Base
-
-	PHP *php.PHP
+	Dependencies struct {
+		PHP *php.PHP
+	}
 }
 
 //go:embed settings.php
 var settingsPHP string
 
 func (settings *Settings) Get(ctx context.Context, server *phpx.Server, key string) (value any, err error) {
-	err = settings.PHP.ExecScript(ctx, server, &value, settingsPHP, "get_setting", key)
+	err = settings.Dependencies.PHP.ExecScript(ctx, server, &value, settingsPHP, "get_setting", key)
 	return
 }
 
 func (settings *Settings) Set(ctx context.Context, server *phpx.Server, key string, value any) error {
-	return settings.PHP.ExecScript(ctx, server, nil, settingsPHP, "set_setting", key, value)
+	return settings.Dependencies.PHP.ExecScript(ctx, server, nil, settingsPHP, "set_setting", key, value)
 }

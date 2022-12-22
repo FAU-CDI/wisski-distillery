@@ -17,8 +17,9 @@ import (
 
 type Resolver struct {
 	component.Base
-
-	Instances *instances.Instances
+	Dependencies struct {
+		Instances *instances.Instances
+	}
 
 	prefixes        lazy.Lazy[map[string]string] // cached prefixes (from the server)
 	RefreshInterval time.Duration

@@ -11,7 +11,9 @@ import (
 
 type Pathbuilders struct {
 	component.Base
-	Instances *instances.Instances
+	Dependencies struct {
+		Instances *instances.Instances
+	}
 }
 
 var (
@@ -24,7 +26,7 @@ func (Pathbuilders) SnapshotName() string { return "pathbuilders" }
 
 func (pbs *Pathbuilders) Snapshot(wisski models.Instance, scontext component.StagingContext) error {
 	return scontext.AddDirectory(".", func(ctx context.Context) error {
-		builders, err := pbs.Instances.Instance(ctx, wisski).Pathbuilder().GetAll(ctx, nil)
+		builders, err := pbs.Dependencies.Instances.Instance(ctx, wisski).Pathbuilder().GetAll(ctx, nil)
 		if err != nil {
 			return err
 		}

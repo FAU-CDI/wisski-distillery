@@ -13,7 +13,7 @@ import (
 )
 
 func (home *Home) instanceMap(ctx context.Context) (map[string]struct{}, error) {
-	wissKIs, err := home.Instances.All(ctx)
+	wissKIs, err := home.Dependencies.Instances.All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +37,7 @@ func (home *Home) homeRender(ctx context.Context) ([]byte, error) {
 	context.SelfRedirect = home.Config.SelfRedirect.String()
 
 	// find all the WissKIs
-	wissKIs, err := home.Instances.All(ctx)
+	wissKIs, err := home.Dependencies.Instances.All(ctx)
 	if err != nil {
 		return nil, err
 	}

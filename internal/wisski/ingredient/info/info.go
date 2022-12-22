@@ -13,9 +13,10 @@ import (
 
 type Info struct {
 	ingredient.Base
-
-	PHP      *php.PHP
-	Fetchers []ingredient.WissKIFetcher
+	Dependencies struct {
+		PHP      *php.PHP
+		Fetchers []ingredient.WissKIFetcher
+	}
 
 	Analytics *lazy.PoolAnalytics
 }
@@ -35,7 +36,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 
 	// potentially setup a new server
 	if !flags.Quick {
-		flags.Server = wisski.PHP.NewServer()
+		flags.Server = wisski.Dependencies.PHP.NewServer()
 		if err == nil {
 			defer flags.Server.Close()
 		}
@@ -43,7 +44,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 
 	// run all the fetchers!
 	var group errgroup.Group
-	for _, fetcher := range wisski.Fetchers {
+	for _, fetcher := range wisski.Dependencies.Fetchers {
 		fetcher := fetcher
 		group.Go(func() error {
 			return fetcher.Fetch(flags, &info)

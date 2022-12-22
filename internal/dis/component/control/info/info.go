@@ -16,13 +16,15 @@ import (
 
 type Info struct {
 	component.Base
+	Dependencies struct {
+		Fetchers []component.DistilleryFetcher
+
+		Exporter     *exporter.Exporter
+		Instances    *instances.Instances
+		SnapshotsLog *logger.Logger
+	}
 
 	Analytics *lazy.PoolAnalytics
-	Fetchers  []component.DistilleryFetcher
-
-	Exporter     *exporter.Exporter
-	Instances    *instances.Instances
-	SnapshotsLog *logger.Logger
 }
 
 var (
@@ -33,7 +35,9 @@ var (
 func (*Info) Routes() []string { return []string{"/dis/"} }
 
 func (info *Info) Handler(ctx context.Context, route string) (handler http.Handler, err error) {
+
 	router := httprouter.New()
+
 	{
 		socket := &httpx.WebSocket{
 			Context:  ctx,
@@ -47,41 +51,41 @@ func (info *Info) Handler(ctx context.Context, route string) (handler http.Handl
 
 	// handle everything
 	router.HandlerFunc(http.MethodGet, route, func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, "index", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, route+"index", http.StatusTemporaryRedirect)
 	})
 
 	// add a handler for the index page
-	router.Handler(http.MethodGet, "index", httpx.HTMLHandler[indexContext]{
+	router.Handler(http.MethodGet, route+"index", httpx.HTMLHandler[indexContext]{
 		Handler:  info.index,
 		Template: indexTemplate,
 	})
 
 	// add a handler for the component page
-	router.Handler(http.MethodGet, "components", httpx.HTMLHandler[componentContext]{
+	router.Handler(http.MethodGet, route+"components", httpx.HTMLHandler[componentContext]{
 		Handler:  info.components,
 		Template: componentsTemplate,
 	})
 
 	// add a handler for the component page
-	router.Handler(http.MethodGet, "ingredients/{slug}", httpx.HTMLHandler[ingredientsContext]{
+	router.Handler(http.MethodGet, route+"ingredients/:slug", httpx.HTMLHandler[ingredientsContext]{
 		Handler:  info.ingredients,
 		Template: ingredientsTemplate,
 	})
 
 	// add a handler for the instance page
-	router.Handler(http.MethodGet, "instance/{slug}", httpx.HTMLHandler[instanceContext]{
+	router.Handler(http.MethodGet, route+"instance/:slug", httpx.HTMLHandler[instanceContext]{
 		Handler:  info.instance,
 		Template: instanceTemplate,
 	})
 
-	router.Handler(http.MethodPost, "api/login", httpx.RedirectHandler(func(r *http.Request) (string, int, error) {
+	router.Handler(http.MethodPost, route+"api/login", httpx.RedirectHandler(func(r *http.Request) (string, int, error) {
 		// parse the form
 		if err := r.ParseForm(); err != nil {
 			return "", 0, err
 		}
 
 		// get the instance
-		instance, err := info.Instances.WissKI(r.Context(), r.PostFormValue("slug"))
+		instance, err := info.Dependencies.Instances.WissKI(r.Context(), r.PostFormValue("slug"))
 		if err != nil {
 			return "", 0, httpx.ErrNotFound
 		}

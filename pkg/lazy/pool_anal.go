@@ -19,6 +19,9 @@ type PoolAnalyticsComponent struct {
 	CFields map[string]string // fields with type C for which C implements component
 	IFields map[string]string // fields []I where I is an interface that implements component
 
+	DCFields map[string]string // fields of the auto field with type C for which C implements component
+	DIFields map[string]string // fields of the auto field []I where I is an interface that implements component
+
 	Methods map[string]string // Method signatures of type
 }
 type PoolAnalyticsGroup struct {
@@ -61,8 +64,15 @@ func (context *PoolContext[Component]) anal(anal *PoolAnalytics, groups []reflec
 		anal.Components[meta.Name].CFields = collection.MapValues(meta.CFields, func(key string, tp reflect.Type) string {
 			return nameOf(tp.Elem())
 		})
+		anal.Components[meta.Name].DCFields = collection.MapValues(meta.DCFields, func(key string, tp reflect.Type) string {
+			return nameOf(tp.Elem())
+		})
 
 		anal.Components[meta.Name].IFields = collection.MapValues(meta.IFields, func(key string, iface reflect.Type) string {
+			ifaces = append(ifaces, iface)
+			return nameOf(iface)
+		})
+		anal.Components[meta.Name].DIFields = collection.MapValues(meta.DIFields, func(key string, iface reflect.Type) string {
 			ifaces = append(ifaces, iface)
 			return nameOf(iface)
 		})

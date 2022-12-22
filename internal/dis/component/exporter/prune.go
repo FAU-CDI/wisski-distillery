@@ -52,6 +52,6 @@ func (exporter *Exporter) PruneExports(ctx context.Context, progress io.Writer) 
 	}
 
 	// prune the snapshot log!
-	_, err = exporter.ExporterLogger.Log(ctx)
+	_, err = exporter.Dependencies.ExporterLogger.Log(ctx)
 	return err
 }

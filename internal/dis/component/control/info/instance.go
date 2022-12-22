@@ -29,7 +29,7 @@ type instanceContext struct {
 
 func (info *Info) instance(r *http.Request) (is instanceContext, err error) {
 	// find the instance itself!
-	instance, err := info.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])
+	instance, err := info.Dependencies.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])
 	if err == instances.ErrWissKINotFound {
 		return is, httpx.ErrNotFound
 	}

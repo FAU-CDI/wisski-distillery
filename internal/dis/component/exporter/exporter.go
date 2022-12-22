@@ -18,13 +18,14 @@ import (
 // Exporter manages snapshots and backups
 type Exporter struct {
 	component.Base
+	Dependencies struct {
+		SQL            *sql.SQL
+		Instances      *instances.Instances
+		ExporterLogger *logger.Logger
 
-	SQL            *sql.SQL
-	Instances      *instances.Instances
-	ExporterLogger *logger.Logger
-
-	Snapshotable []component.Snapshotable
-	Backupable   []component.Backupable
+		Snapshotable []component.Snapshotable
+		Backupable   []component.Backupable
+	}
 }
 
 // Path returns the path that contains all snapshot related data.

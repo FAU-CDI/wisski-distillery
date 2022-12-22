@@ -36,11 +36,33 @@
                         </td>
                     </tr>
                     {{ end }}
+                    {{ range $name, $comp := .DCFields }}
+                    <tr>
+                        <td>Component Pointer</td>
+                        <td>
+                            <code>Dependencies/{{ $name }}</code>
+                        </td>
+                        <td>
+                            <code><a href="#{{ $comp }}">{{ $comp }}</a></code>
+                        </td>
+                    </tr>
+                    {{ end }}
                     {{ range $name, $iface := .IFields }}
                     <tr>
                         <td>Interface Slice</td>
                         <td>
                             <code>{{ $name }}</code>
+                        </td>
+                        <td>
+                            <code><a href="#{{ $iface }}">[]{{ $iface }}</a></code>
+                        </td>
+                    </tr>
+                    {{ end }}
+                    {{ range $name, $iface := .DIFields }}
+                    <tr>
+                        <td>Interface Slice</td>
+                        <td>
+                            <code>Dependencies/{{ $name }}</code>
                         </td>
                         <td>
                             <code><a href="#{{ $iface }}">[]{{ $iface }}</a></code>

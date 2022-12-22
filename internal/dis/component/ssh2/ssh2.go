@@ -11,7 +11,9 @@ import (
 
 type SSH2 struct {
 	component.Base
-	Instances *instances.Instances
+	Dependencies struct {
+		Instances *instances.Instances
+	}
 }
 
 var (

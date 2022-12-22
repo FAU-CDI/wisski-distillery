@@ -105,6 +105,11 @@ func (di *delayedInit[Component]) Run(all []Component) {
 // - A pointer to a struct type that implements component
 // - A slice type of an interface type that implements component
 //
+// Such component-like fields are only initialized if one of the following conditions are met:
+//
+// - The field has a tag 'auto' with the value `true`
+// - The field lives inside a struct field named `Dependencies`
+//
 // These fields are initialized in an undefined order during initialization.
 // The init function may not rely on these existing.
 // Furthermore, the init function may not cause other components to be initialized.

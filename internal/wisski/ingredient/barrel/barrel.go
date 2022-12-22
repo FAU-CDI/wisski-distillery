@@ -11,9 +11,10 @@ import (
 // Barrel provides access to the underlying Barrel
 type Barrel struct {
 	ingredient.Base
-
-	Locker *locker.Locker
-	MStore *mstore.MStore
+	Dependencies struct {
+		Locker *locker.Locker
+		MStore *mstore.MStore
+	}
 }
 
 func (barrel *Barrel) DataPath() string {

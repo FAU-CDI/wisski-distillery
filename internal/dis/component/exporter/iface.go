@@ -131,7 +131,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		// write out the log entry
 		entry.Path = stagingDir
 		entry.Packed = false
-		exporter.ExporterLogger.Add(ctx, entry)
+		exporter.Dependencies.ExporterLogger.Add(ctx, entry)
 
 		logging.ProgressF(progress, ctx, "Wrote %s\n", stagingDir)
 		return nil
@@ -159,7 +159,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	logging.LogMessage(progress, ctx, "Writing Log Entry")
 	entry.Path = archivePath
 	entry.Packed = true
-	exporter.ExporterLogger.Add(ctx, entry)
+	exporter.Dependencies.ExporterLogger.Add(ctx, entry)
 
 	// and we're done!
 	return nil

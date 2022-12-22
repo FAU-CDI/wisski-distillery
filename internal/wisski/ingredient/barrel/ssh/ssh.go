@@ -14,7 +14,9 @@ import (
 
 type SSH struct {
 	ingredient.Base
-	Barrel *barrel.Barrel
+	Dependencies struct {
+		Barrel *barrel.Barrel
+	}
 }
 
 var (
@@ -22,7 +24,7 @@ var (
 )
 
 func (ssh *SSH) Keys() ([]ssh.PublicKey, error) {
-	file, err := ssh.Environment.Open(ssh.Barrel.AuthorizedKeysPath())
+	file, err := ssh.Environment.Open(ssh.Dependencies.Barrel.AuthorizedKeysPath())
 	if environment.IsNotExist(err) {
 		return nil, nil
 	}

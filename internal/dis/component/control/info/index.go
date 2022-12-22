@@ -37,7 +37,7 @@ func (info *Info) Status(ctx context.Context, QuickInformation bool) (target sta
 
 	group.Go(func() error {
 		// list all the instances
-		all, err := info.Instances.All(ctx)
+		all, err := info.Dependencies.Instances.All(ctx)
 		if err != nil {
 			return err
 		}
@@ -63,7 +63,7 @@ func (info *Info) Status(ctx context.Context, QuickInformation bool) (target sta
 	flags := component.FetcherFlags{
 		Context: ctx,
 	}
-	for _, o := range info.Fetchers {
+	for _, o := range info.Dependencies.Fetchers {
 		o := o
 		group.Go(func() error {
 			return o.Fetch(flags, &target)

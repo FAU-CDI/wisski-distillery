@@ -7,8 +7,6 @@ import (
 
 type SnapshotsFetcher struct {
 	ingredient.Base
-
-	Info *Info
 }
 
 var (

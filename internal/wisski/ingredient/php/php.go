@@ -11,8 +11,9 @@ import (
 
 type PHP struct {
 	ingredient.Base
-
-	Barrel *barrel.Barrel
+	Dependencies struct {
+		Barrel *barrel.Barrel
+	}
 }
 
 // ExecScript executes the PHP code as a script on the given server.

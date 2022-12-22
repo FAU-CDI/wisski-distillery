@@ -37,33 +37,32 @@ var errServerListen = exit.Error{
 func (s server) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
+	// if the caller requested a trigger, just trigger the cron tasks
 	if s.Trigger {
-		context.Println("Triggering Cron Tasks")
 		return dis.Control().Trigger(context.Context, context.Environment.Environment)
 	}
 
-	// start the cron tasks
 	{
 		// create a channel for notifications
 		notify, cancel := dis.Cron().Listen(context.Context)
 		defer cancel()
 
 		// start the cron tasks
-		context.Printf("Starting cron tasks %s\n", s.Bind)
 		done := dis.Cron().Start(context.Context, notify)
 		defer func() {
 			<-done
 		}()
 	}
 
+	// and start the server
 	handler, err := dis.Control().Server(context.Context, context.Stderr)
 	if err != nil {
 		return err
 	}
 
-	context.Printf("Listening on %s\n", s.Bind)
+	zerolog.Ctx(context.Context).Info().Str("bind", s.Bind).Msg("listening")
 
-	// make a new listener
+	// create a new listener
 	listener, err := dis.Still.Environment.Listen("tcp", s.Bind)
 	if err != nil {
 		return errServerListen.Wrap(err)

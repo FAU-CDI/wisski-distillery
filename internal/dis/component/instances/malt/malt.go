@@ -12,8 +12,8 @@ import (
 type Malt struct {
 	component.Base
 
-	TS          *triplestore.Triplestore
-	SQL         *sql.SQL
-	Meta        *meta.Meta
-	ExporterLog *logger.Logger
+	TS          *triplestore.Triplestore `auto:"true"`
+	SQL         *sql.SQL                 `auto:"true"`
+	Meta        *meta.Meta               `auto:"true"`
+	ExporterLog *logger.Logger           `auto:"true"`
 }

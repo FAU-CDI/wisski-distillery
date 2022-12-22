@@ -14,8 +14,9 @@ import (
 
 type Users struct {
 	ingredient.Base
-
-	PHP *php.PHP
+	Dependencies struct {
+		PHP *php.PHP
+	}
 }
 
 var (
@@ -27,7 +28,7 @@ var usersPHP string
 
 // All returns all known usernames
 func (u *Users) All(ctx context.Context, server *phpx.Server) (users []status.User, err error) {
-	err = u.PHP.ExecScript(ctx, server, &users, usersPHP, "list_users")
+	err = u.Dependencies.PHP.ExecScript(ctx, server, &users, usersPHP, "list_users")
 	return
 }
 
@@ -38,7 +39,7 @@ func (u *Users) Login(ctx context.Context, server *phpx.Server, username string)
 
 	// generate a (relative) link
 	var path string
-	err = u.PHP.ExecScript(ctx, server, &path, usersPHP, "get_login_link", username)
+	err = u.Dependencies.PHP.ExecScript(ctx, server, &path, usersPHP, "get_login_link", username)
 
 	// if something went wrong, return
 	if err != nil {
@@ -64,7 +65,7 @@ var errSetPassword = errors.New("SetPassword: Unknown Error")
 // SetPassword sets the password for a given user
 func (u *Users) SetPassword(ctx context.Context, server *phpx.Server, username, password string) error {
 	var ok bool
-	err := u.PHP.ExecScript(ctx, server, &ok, usersPHP, "set_user_password", username, password)
+	err := u.Dependencies.PHP.ExecScript(ctx, server, &ok, usersPHP, "set_user_password", username, password)
 	if err != nil {
 		return err
 	}

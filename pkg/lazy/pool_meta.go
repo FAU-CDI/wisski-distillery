@@ -32,11 +32,14 @@ type meta[Component any] struct {
 
 	CFields map[string]reflect.Type // fields with type C for which C implements component
 	IFields map[string]reflect.Type // fields []I where I is an interface that implements component
+
+	DCFields map[string]reflect.Type // fields with type C for which C inside auto field which implement component
+	DIFields map[string]reflect.Type // fields []I where I is an interface inside auto field that implements component
 }
 
 // init initializes this meta
 func (m *meta[Component]) init(tp reflect.Type) {
-	var componentType = reflectx.TypeOf[Component]()
+	var component = reflectx.TypeOf[Component]()
 
 	if tp.Kind() != reflect.Pointer && tp.Elem().Kind() != reflect.Struct {
 		panic("GetMeta: Type (" + tp.String() + ") must be backed by a pointer to slice")
@@ -47,25 +50,59 @@ func (m *meta[Component]) init(tp reflect.Type) {
 
 	m.CFields = make(map[string]reflect.Type)
 	m.IFields = make(map[string]reflect.Type)
+	scanForFields(component, m.Name, m.Elem, false, m.CFields, m.IFields)
 
-	// fill the above variables, with a mapping of field name to struct
-	count := m.Elem.NumField()
+	// check if we have a dependencies field of struct type
+	dependenciesField, ok := m.Elem.FieldByName(dependencies)
+	if !ok {
+		return
+	}
+
+	if dependenciesField.Type.Kind() != reflect.Struct {
+		panic("GetMeta: " + dependencies + " field (" + m.Name + ") is not a struct")
+	}
+
+	// and initialize the type map of the given map
+	m.DCFields = make(map[string]reflect.Type)
+	m.DIFields = make(map[string]reflect.Type)
+	scanForFields(component, m.Name, dependenciesField.Type, true, m.DCFields, m.DIFields)
+}
+
+// scanForFields scans the structtype for fields of component-like fields.
+// they are then writen to the cFields and iFields maps.
+// inDependenciesStruct indicates if we are inside a dependency struct
+func scanForFields(component reflect.Type, elem string, structType reflect.Type, inDependenciesStruct bool, cFields map[string]reflect.Type, iFields map[string]reflect.Type) {
+	count := structType.NumField()
 	for i := 0; i < count; i++ {
-		field := m.Elem.Field(i)
+		field := structType.Field(i)
 
-		name := field.Name
+		if !inDependenciesStruct && field.Tag.Get("auto") != "true" {
+			continue
+		}
+		if inDependenciesStruct && field.Tag != "" {
+			panic("GetMeta: " + dependencies + " field (" + elem + ") contains field (" + field.Name + ") with tag")
+		}
+
 		tp := field.Type
+		name := field.Name
 
 		switch {
-		// field is a pointer to struct that implements a component
-		case tp.Implements(componentType) && tp.Kind() == reflect.Pointer && tp.Elem().Kind() == reflect.Struct:
-			m.CFields[name] = tp
-
-		// field is []I, where I is an interface that implements component
-		case tp.Kind() == reflect.Slice && tp.Elem().Kind() == reflect.Interface && tp.Elem().Implements(componentType):
-			m.IFields[name] = tp.Elem()
+		case implementsComponent(component, tp):
+			cFields[name] = tp
+		case implementsSlice(component, tp):
+			iFields[name] = tp.Elem()
+		case inDependenciesStruct:
+			panic("GetMeta: " + dependencies + " field (" + elem + ") contains non-auto fields")
 		}
 	}
+}
+
+func implementsComponent(component reflect.Type, tp reflect.Type) bool {
+	return tp.Implements(component) && tp.Kind() == reflect.Pointer && tp.Elem().Kind() == reflect.Struct
+}
+
+func implementsSlice(component reflect.Type, tp reflect.Type) bool {
+	return tp.Kind() == reflect.Slice && tp.Elem().Kind() == reflect.Interface && tp.Elem().Implements(component)
 }
 
 func nameOf(tp reflect.Type) string {
@@ -79,12 +116,16 @@ func (m meta[Component]) New() Component {
 
 // NeedsInitComponent
 func (m meta[Component]) NeedsInitComponent() bool {
-	return len(m.CFields) > 0 || len(m.IFields) > 0
+	return len(m.CFields) > 0 || len(m.IFields) > 0 || len(m.DCFields) > 0 || len(m.DIFields) > 0
 }
+
+// name of the dependencies field
+const dependencies = "Dependencies"
 
 // InitComponent sets up the fields of the given instance of a component.
 func (m meta[Component]) InitComponent(instance reflect.Value, all []Component) {
 	elem := instance.Elem()
+	dependenciesElem := elem.FieldByName(dependencies)
 
 	// assign the component fields
 	for field, eType := range m.CFields {
@@ -95,14 +136,28 @@ func (m meta[Component]) InitComponent(instance reflect.Value, all []Component) 
 		field := elem.FieldByName(field)
 		field.Set(reflect.ValueOf(c))
 	}
+	for field, eType := range m.DCFields {
+		c := collection.First(all, func(c Component) bool {
+			return reflect.TypeOf(c).AssignableTo(eType)
+		})
 
-	// assign the multi subtypes
+		field := dependenciesElem.FieldByName(field)
+		field.Set(reflect.ValueOf(c))
+	}
+
+	// assign the interface subtypes
 	registryR := reflect.ValueOf(all)
 	for field, eType := range m.IFields {
 		cs := filterSubtype(registryR, eType)
 		field := elem.FieldByName(field)
 		field.Set(cs)
 	}
+	for field, eType := range m.DIFields {
+		cs := filterSubtype(registryR, eType)
+		field := dependenciesElem.FieldByName(field)
+		field.Set(cs)
+	}
+
 }
 
 // filterSubtype filters the slice of type []S into a slice of type []iface.

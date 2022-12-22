@@ -10,8 +10,9 @@ import (
 // Component meta is responsible for managing metadata per WissKI Instance
 type Meta struct {
 	component.Base
-
-	SQL *sql.SQL
+	Dependencies struct {
+		SQL *sql.SQL
+	}
 
 	sl sync.Mutex
 	sc map[string]*Storage
@@ -40,7 +41,7 @@ func (meta *Meta) Storage(slug string) *Storage {
 	// create a new storage
 	meta.sc[slug] = &Storage{
 		Slug: slug,
-		sql:  meta.SQL,
+		sql:  meta.Dependencies.SQL,
 	}
 	return meta.sc[slug]
 }

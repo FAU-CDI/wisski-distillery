@@ -23,7 +23,7 @@ type InstanceAction struct {
 var socketInstanceActions = map[string]InstanceAction{
 	"snapshot": {
 		HandleInteractive: func(ctx context.Context, info *Info, instance *wisski.WissKI, out io.Writer, params ...string) error {
-			return info.Exporter.MakeExport(
+			return info.Dependencies.Exporter.MakeExport(
 				ctx,
 				out,
 				exporter.ExportTask{
@@ -78,7 +78,7 @@ func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action In
 	}
 
 	// resolve the instance
-	instance, err := info.Instances.WissKI(conn.Context(), string(slug.Bytes))
+	instance, err := info.Dependencies.Instances.WissKI(conn.Context(), string(slug.Bytes))
 	if err != nil {
 		<-conn.WriteText("Instance not found")
 		return

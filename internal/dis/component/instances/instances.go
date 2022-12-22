@@ -19,9 +19,10 @@ import (
 // Instances manages multiple WissKI Instances.
 type Instances struct {
 	component.Base
-
-	Malt *malt.Malt
-	SQL  *sql.SQL
+	Dependencies struct {
+		Malt *malt.Malt
+		SQL  *sql.SQL
+	}
 }
 
 func (instances *Instances) Path() string {
@@ -38,13 +39,13 @@ var errSQL = exit.Error{
 
 // use uses the non-nil wisski instance with this instances
 func (instances *Instances) use(wisski *wisski.WissKI) {
-	wisski.Liquid.Malt = instances.Malt
+	wisski.Liquid.Malt = instances.Dependencies.Malt
 }
 
 // WissKI returns the WissKI with the provided slug, if it exists.
 // It the WissKI does not exist, returns ErrWissKINotFound.
 func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wisski.WissKI, err error) {
-	sql := instances.SQL
+	sql := instances.Dependencies.SQL
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (instances *Instances) Instance(ctx context.Context, instance models.Instan
 // Has checks if a WissKI with the provided slug exists inside the database.
 // It does not perform any checks on the WissKI itself.
 func (instances *Instances) Has(ctx context.Context, slug string) (ok bool, err error) {
-	sql := instances.SQL
+	sql := instances.Dependencies.SQL
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return false, err
 	}
@@ -128,7 +129,7 @@ func (instances *Instances) Load(ctx context.Context, slugs ...string) ([]*wissk
 
 // find finds instances based on the provided query
 func (instances *Instances) find(ctx context.Context, order bool, query func(table *gorm.DB) *gorm.DB) (results []*wisski.WissKI, err error) {
-	sql := instances.SQL
+	sql := instances.Dependencies.SQL
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return nil, err
 	}

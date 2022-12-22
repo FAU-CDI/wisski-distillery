@@ -10,8 +10,9 @@ import (
 // Drush implements commands related to drush
 type Drush struct {
 	ingredient.Base
-
-	Barrel *barrel.Barrel
-	MStore *mstore.MStore
-	PHP    *php.PHP
+	Dependencies struct {
+		Barrel *barrel.Barrel
+		MStore *mstore.MStore
+		PHP    *php.PHP
+	}
 }

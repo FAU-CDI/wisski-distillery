@@ -20,7 +20,7 @@ var errCronFailed = exit.Error{
 }
 
 func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
-	code := drush.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/cron.sh")()
+	code := drush.Dependencies.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/cron.sh")()
 	if code != 0 {
 		// keep going, because we want to run as many crons as possible
 		logging.ProgressF(progress, ctx, "%v", errCronFailed.WithMessageF(drush.Slug, code))
@@ -31,7 +31,7 @@ func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 
 func (drush *Drush) LastCron(ctx context.Context, server *phpx.Server) (t time.Time, err error) {
 	var timestamp int64
-	err = drush.PHP.EvalCode(ctx, server, &timestamp, `$val = \Drupal::state()->get('system.cron_last'); return $val; `)
+	err = drush.Dependencies.PHP.EvalCode(ctx, server, &timestamp, `$val = \Drupal::state()->get('system.cron_last'); return $val; `)
 	if err != nil {
 		return
 	}
@@ -40,8 +40,9 @@ func (drush *Drush) LastCron(ctx context.Context, server *phpx.Server) (t time.T
 
 type LastCronFetcher struct {
 	ingredient.Base
-
-	Drush *Drush
+	Dependencies struct {
+		Drush *Drush
+	}
 }
 
 var (
@@ -53,6 +54,6 @@ func (lbr *LastCronFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Wi
 		return
 	}
 
-	info.LastRebuild, _ = lbr.Drush.LastCron(flags.Context, flags.Server)
+	info.LastRebuild, _ = lbr.Dependencies.Drush.LastCron(flags.Context, flags.Server)
 	return
 }

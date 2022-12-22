@@ -107,7 +107,7 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, sna
 	defer st.Stop()
 
 	// get all the components
-	comps := collection.FilterClone(snapshots.Snapshotable, func(sc component.Snapshotable) bool {
+	comps := collection.FilterClone(snapshots.Dependencies.Snapshotable, func(sc component.Snapshotable) bool {
 		return sc.SnapshotNeedsRunning() == needsRunning
 	})
 

@@ -21,7 +21,7 @@ func (resolver *Resolver) Cron(ctx context.Context) error {
 // AllPrefixes returns a list of all prefixes from the server.
 // Prefixes may be cached on the server
 func (resolver *Resolver) AllPrefixes(ctx context.Context) (map[string]string, error) {
-	instances, err := resolver.Instances.All(ctx)
+	instances, err := resolver.Dependencies.Instances.All(ctx)
 	if err != nil {
 		return nil, err
 	}

@@ -20,7 +20,7 @@ var errBlindUpdateFailed = exit.Error{
 
 // Update performs a blind drush update
 func (drush *Drush) Update(ctx context.Context, progress io.Writer) error {
-	code := drush.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/blind_update.sh")()
+	code := drush.Dependencies.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/blind_update.sh")()
 	if code != 0 {
 		return errBlindUpdateFailed.WithMessageF(drush.Slug, code)
 	}
@@ -31,7 +31,7 @@ func (drush *Drush) Update(ctx context.Context, progress io.Writer) error {
 const lastUpdate = mstore.For[int64]("lastUpdate")
 
 func (drush *Drush) LastUpdate(ctx context.Context) (t time.Time, err error) {
-	epoch, err := lastUpdate.Get(ctx, drush.MStore)
+	epoch, err := lastUpdate.Get(ctx, drush.Dependencies.MStore)
 	if err == meta.ErrMetadatumNotSet {
 		return t, nil
 	}
@@ -44,13 +44,14 @@ func (drush *Drush) LastUpdate(ctx context.Context) (t time.Time, err error) {
 }
 
 func (drush *Drush) setLastUpdate(ctx context.Context) error {
-	return lastUpdate.Set(ctx, drush.MStore, time.Now().Unix())
+	return lastUpdate.Set(ctx, drush.Dependencies.MStore, time.Now().Unix())
 }
 
 type LastUpdateFetcher struct {
 	ingredient.Base
-
-	Drush *Drush
+	Dependencies struct {
+		Drush *Drush
+	}
 }
 
 var (
@@ -58,6 +59,6 @@ var (
 )
 
 func (lbr *LastUpdateFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.LastUpdate, err = lbr.Drush.LastUpdate(flags.Context)
+	info.LastUpdate, err = lbr.Dependencies.Drush.LastUpdate(flags.Context)
 	return
 }
