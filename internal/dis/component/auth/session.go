@@ -8,16 +8,10 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/gorilla/csrf"
 	"github.com/gorilla/sessions"
-	"github.com/julienschmidt/httprouter"
 
 	_ "embed"
 )
-
-func (auth *Auth) Routes() []string {
-	return []string{"/auth/"}
-}
 
 type contextUserKey struct{}
 
@@ -109,32 +103,9 @@ var loginResponse = httpx.Response{
 	Body:        []byte("user is signed in"),
 }
 
-// HandleRoute returns the handler for the requested route
-func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
-	router := httprouter.New()
-
-	csrf := auth.csrf.Get(func() func(http.Handler) http.Handler {
-		var opts []csrf.Option
-		if !auth.Config.HTTPSEnabled() {
-			opts = append(opts, csrf.Secure(false))
-		}
-		opts = append(opts, csrf.Path(route))
-		return csrf.Protect(auth.Config.CSRFSecret(), opts...)
-	})
-
-	router.Handler(http.MethodGet, route, auth.Protect(loginResponse, nil))
-
-	router.HandlerFunc(http.MethodGet, route+"login", auth.loginRoute)
-	router.HandlerFunc(http.MethodPost, route+"login", auth.loginRoute)
-
-	router.HandlerFunc(http.MethodGet, route+"logout", auth.logoutRoute)
-
-	return csrf(router), nil
-}
-
 type loginContext struct {
 	Message string
-	CSRF    template.HTML
+	Form    template.HTML
 }
 
 // Protect returns a new handler which requires a user to be logged in and pass the perm function.
@@ -152,7 +123,6 @@ func (auth *Auth) Protect(handler http.Handler, perm func(user *AuthUser, r *htt
 		// if there is no user in the session
 		// we need to login the user
 		if user == nil {
-
 			// we can't redirect anything other than GET
 			// (because it might be a form)
 			// => so we just return a forbidden
@@ -190,70 +160,68 @@ func (auth *Auth) Protect(handler http.Handler, perm func(user *AuthUser, r *htt
 	})
 }
 
-func (auth *Auth) loginRoute(w http.ResponseWriter, r *http.Request) {
-	var message string
+// loginForm returns the login form handler.
+// auth.csrf must have been populated
+func (auth *Auth) loginForm() *httpx.Form[*AuthUser] {
+	return &httpx.Form[*AuthUser]{
+		Fields: []httpx.Field{
+			{Name: "username", Type: httpx.TextField},
+			{Name: "password", Type: httpx.PasswordField},
+		},
 
-	// try to read a user from the session
-	user, err := auth.UserOf(r)
-	if err != nil {
-		httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
-		return
+		CSRF: auth.csrf.Get(nil),
+
+		RenderForm: func(template template.HTML, err error, w http.ResponseWriter, r *http.Request) {
+			ctx := loginContext{
+				Message: "",
+				Form:    template,
+			}
+			if err != nil {
+				ctx.Message = "Login Failed"
+
+			}
+			httpx.WriteHTML(ctx, nil, loginTemplate, "", w, r)
+		},
+
+		Validate: func(ctx context.Context, values map[string]string) (*AuthUser, error) {
+			username, password := values["username"], values["password"]
+
+			// make sure that the user exists
+			user, err := auth.User(ctx, username)
+			if err != nil {
+				return nil, err
+			}
+
+			// check the password (TODO: Support TOTP)
+			err = user.CheckPassword(ctx, []byte(password))
+			if err != nil {
+				return nil, err
+			}
+			return user, nil
+		},
+
+		SkipForm: func(r *http.Request) (user *AuthUser, skip bool) {
+			user, err := auth.UserOf(r)
+			return user, err == nil && user != nil
+		},
+
+		RenderSuccess: func(user *AuthUser, _ map[string]string, w http.ResponseWriter, r *http.Request) error {
+			if err := auth.writeLogin(w, r, user); err != nil {
+				return err
+			}
+
+			// get the destination
+			next := r.URL.Query().Get("next")
+			if next == "" || next[0] != '/' {
+				next = "/"
+			}
+
+			// and redirect to it!
+			http.Redirect(w, r, next, http.StatusSeeOther)
+
+			return nil
+		},
 	}
-
-	if user != nil {
-		goto success
-	}
-
-	switch r.Method {
-	default:
-		panic("never reached")
-	case http.MethodGet:
-		goto form
-	case http.MethodPost:
-		// parse the form!
-		if err := r.ParseForm(); err != nil {
-			message = "Login failed"
-			goto form
-		}
-
-		// get the username and password
-		username := r.Form.Get("username")
-		password := r.Form.Get("password")
-
-		// make sure that the user exists
-		user, err := auth.User(r.Context(), username)
-		if err != nil {
-			message = "Login failed"
-			goto form
-		}
-
-		// check the password (TODO: Support TOTP)
-		err = user.CheckPassword(r.Context(), []byte(password))
-		if err != nil {
-			message = "Login failed"
-			goto form
-		}
-
-		// and we logged the user in!
-		auth.writeLogin(w, r, user)
-		goto success
-	}
-
-form:
-	httpx.WriteHTML(loginContext{
-		Message: message,
-		CSRF:    csrf.TemplateField(r),
-	}, nil, loginTemplate, "", w, r)
-	return
-success:
-	// get the destination
-	next := r.URL.Query().Get("next")
-	if next == "" || next[0] != '/' {
-		next = "/"
-	}
-
-	// and redirect to it!
-	http.Redirect(w, r, next, http.StatusSeeOther)
 }
 
 func (auth *Auth) logoutRoute(w http.ResponseWriter, r *http.Request) {

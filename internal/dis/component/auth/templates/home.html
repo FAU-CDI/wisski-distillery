@@ -1,0 +1,29 @@
+{{ template "_base.html" . }}
+{{ define "title" }}Distillery User{{ end }}
+
+{{ define "header/time" }}
+<!-- no header/time -->
+{{ end }}
+{{ define "header"}}
+<!-- no header -->
+{{ end }}
+
+{{ define "content" }}
+<div class="pure-u-1">
+
+    <div>
+        Welcome {{ .User.User }}!
+    </div>
+
+    <form method="GET" action="/auth/password/">
+        <input type="submit" value="Change Password"></input>
+    </form>
+
+    <!-- TODO: A logout button only for now -->
+
+    <form method="GET" action="/auth/logout/">
+        <input type="submit" value="Logout"></input>
+    </form>
+</div>
+
+{{ end }}

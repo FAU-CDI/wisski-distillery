@@ -20,10 +20,7 @@
     <form class="pure-form" method="POST">
         <fieldset>
             <legend>Login Required</legend>
-
-            <input type="text" name="username">
-            <input type="password" name="password">
-            {{ .CSRF }}
+            {{ .Form }}
             <input type="submit" value="Login">
         </fieldset>
     </form>
