@@ -43,12 +43,19 @@ func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, 
 
 	router.Handler(http.MethodGet, route, auth.authHome(ctx))
 
-	login := auth.loginForm()
+	{
+		login := auth.authLogin(ctx)
+		router.Handler(http.MethodGet, route+"login", login)
+		router.Handler(http.MethodPost, route+"login", login)
+	}
 
-	router.Handler(http.MethodGet, route+"login", login)
-	router.Handler(http.MethodPost, route+"login", login)
+	router.Handler(http.MethodGet, route+"logout", auth.authLogout(ctx))
 
-	router.HandlerFunc(http.MethodGet, route+"logout", auth.logoutRoute)
+	{
+		password := auth.authPassword(ctx)
+		router.Handler(http.MethodGet, route+"password", password)
+		router.Handler(http.MethodPost, route+"password", password)
+	}
 
 	return router, nil
 }

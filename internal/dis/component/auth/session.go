@@ -13,22 +13,6 @@ import (
 	_ "embed"
 )
 
-type contextUserKey struct{}
-
-var ctxUserKey = contextUserKey{}
-
-const (
-	sessionCookieName = "distillery-session"
-	sessionUserKey    = "user"
-)
-
-// session returns the session belonging to a request
-func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
-	return auth.store.Get(func() sessions.Store {
-		return sessions.NewCookieStore([]byte(auth.Config.SessionSecret))
-	}).Get(r, sessionCookieName)
-}
-
 // UserOf returns the user logged into the given request.
 // If there is no user associated with the given user, user and error will be nil.
 //
@@ -74,8 +58,29 @@ func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, err error) {
 	return user, nil
 }
 
-// writeLogin marks the user as logged in on the given writer
-func (auth *Auth) writeLogin(w http.ResponseWriter, r *http.Request, user *AuthUser) error {
+const sessionCookieName = "distillery-session"
+
+// session returns the session that belongs to a given request.
+// If the session is not set, creates a new session.
+func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
+	return auth.store.Get(func() sessions.Store {
+		return sessions.NewCookieStore([]byte(auth.Config.SessionSecret))
+	}).Get(r, sessionCookieName)
+}
+
+const sessionUserKey = "user"
+
+type contextUserKey struct{}
+
+var ctxUserKey = contextUserKey{}
+
+// Login logs a user into the given request.
+//
+// If a user was previously logged into this session,
+// UserOf may not return the correct user until the user makes a new request.
+//
+// It is recommended to send a HTTP redirect to make sure a new request is made.
+func (auth *Auth) Login(w http.ResponseWriter, r *http.Request, user *AuthUser) error {
 	sess, err := auth.session(r)
 	if err != nil {
 		return err
@@ -84,8 +89,11 @@ func (auth *Auth) writeLogin(w http.ResponseWriter, r *http.Request, user *AuthU
 	return sess.Save(r, w)
 }
 
-// writeLogout logs out the user form the given session
-func (auth *Auth) writeLogout(w http.ResponseWriter, r *http.Request) error {
+// Logout logs out the user from the given session.
+//
+// UserOf may return incorrect results until the user makes a new request.
+// It is recommended to send a HTTP redirect to make sure a new request is made.
+func (auth *Auth) Logout(w http.ResponseWriter, r *http.Request) error {
 	sess, err := auth.session(r)
 	if err != nil {
 		return err
@@ -103,7 +111,7 @@ var loginResponse = httpx.Response{
 	Body:        []byte("user is signed in"),
 }
 
-type loginContext struct {
+type authloginContext struct {
 	Message string
 	Form    template.HTML
 }
@@ -160,30 +168,29 @@ func (auth *Auth) Protect(handler http.Handler, perm func(user *AuthUser, r *htt
 	})
 }
 
-// loginForm returns the login form handler.
-// auth.csrf must have been populated
-func (auth *Auth) loginForm() *httpx.Form[*AuthUser] {
+// authLogin implements a view to login a user
+func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 	return &httpx.Form[*AuthUser]{
 		Fields: []httpx.Field{
-			{Name: "username", Type: httpx.TextField},
-			{Name: "password", Type: httpx.PasswordField},
+			{Name: "username", Type: httpx.TextField, Label: "Username"},
+			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Password"},
 		},
+		FieldTemplate: httpx.PureCSSFieldTemplate,
 
 		CSRF: auth.csrf.Get(nil),
 
 		RenderForm: func(template template.HTML, err error, w http.ResponseWriter, r *http.Request) {
-			ctx := loginContext{
+			ctx := authloginContext{
 				Message: "",
 				Form:    template,
 			}
 			if err != nil {
 				ctx.Message = "Login Failed"
-
 			}
 			httpx.WriteHTML(ctx, nil, loginTemplate, "", w, r)
 		},
 
-		Validate: func(ctx context.Context, values map[string]string) (*AuthUser, error) {
+		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {
 			username, password := values["username"], values["password"]
 
 			// make sure that the user exists
@@ -206,7 +213,7 @@ func (auth *Auth) loginForm() *httpx.Form[*AuthUser] {
 		},
 
 		RenderSuccess: func(user *AuthUser, _ map[string]string, w http.ResponseWriter, r *http.Request) error {
-			if err := auth.writeLogin(w, r, user); err != nil {
+			if err := auth.Login(w, r, user); err != nil {
 				return err
 			}
 
@@ -224,17 +231,19 @@ func (auth *Auth) loginForm() *httpx.Form[*AuthUser] {
 	}
 }
 
-func (auth *Auth) logoutRoute(w http.ResponseWriter, r *http.Request) {
-	// do the logout
-	auth.writeLogout(w, r)
+// authLogout implements the authLogout view to logout a user
+func (auth *Auth) authLogout(ctx context.Context) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// do the logout
+		auth.Logout(w, r)
 
-	// get the destination
-	next := r.URL.Query().Get("next")
-	if next == "" || next[0] != '/' {
-		next = "/"
-	}
+		// get the destination
+		next := r.URL.Query().Get("next")
+		if next == "" || next[0] != '/' {
+			next = "/"
+		}
 
-	// and redirect to it!
-	http.Redirect(w, r, next, http.StatusSeeOther)
-
+		// and redirect to it!
+		http.Redirect(w, r, next, http.StatusSeeOther)
+	})
 }

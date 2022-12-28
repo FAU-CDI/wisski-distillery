@@ -1,7 +1,6 @@
 package httpx
 
 import (
-	"context"
 	"html/template"
 	"io"
 	"net/http"
@@ -11,9 +10,18 @@ import (
 	"github.com/gorilla/csrf"
 )
 
+// DefaultFieldTemplate is the default template to render fields.
+var DefaultFieldTemplate = template.Must(template.New("").Parse(`<input type="{{.Type}}" value="{{.Value}}" name="{{.Name}}" placeholder={{.Placeholder}}>`))
+var PureCSSFieldTemplate = template.Must(template.New("").Parse(`
+<div class="pure-control-group"><label for="{{.Name}}">{{.Label}}</label><input type="{{.Type}}" value="{{.Value}}" name="{{.Name}}" id="{{.Name}}" placeholder="{{.Placeholder}}"></div>`))
+
 // Form implements a user-submittable form
 type Form[D any] struct {
 	Fields []Field
+
+	// FieldTemplate is executed for each field.
+	// Defaults to a [DefaultFieldTemplate]
+	FieldTemplate *template.Template
 
 	// CSRF holds an optional reference to a CSRF.Protect call.
 	// It must be set before any other functions on this Form are called, and may not be changed.
@@ -33,7 +41,7 @@ type Form[D any] struct {
 
 	// Validate, if non-nil, validates the given submitted values.
 	// There is no guarantee that the values are set.
-	Validate func(context context.Context, values map[string]string) (D, error)
+	Validate func(r *http.Request, values map[string]string) (D, error)
 
 	// RenderSuccess handles rendering a success result into a response.
 	RenderSuccess func(data D, values map[string]string, w http.ResponseWriter, r *http.Request) error
@@ -49,7 +57,7 @@ func (form *Form[D]) Template(values map[string]string, isError bool) template.H
 			value = ""
 		}
 
-		field.WriteTo(&builder, value)
+		field.WriteTo(&builder, form.FieldTemplate, value)
 	}
 
 	return template.HTML(builder.String())
@@ -70,7 +78,7 @@ func (form *Form[D]) Values(r *http.Request) (v map[string]string, d D, err erro
 
 	// validate the form
 	if form.Validate != nil {
-		d, err = form.Validate(r.Context(), values)
+		d, err = form.Validate(r, values)
 		if err != nil {
 			return nil, d, err
 		}
@@ -135,18 +143,22 @@ type Field struct {
 	Name string
 	Type InputType
 
+	Placeholder string // Optional placeholder
+	Label       string // Label for the template. Not used by the default template.
+
 	EmptyOnError bool // indicates if the field should be reset on error
 }
-
-var inputTemplate = template.Must(template.New("").Parse(`<input type="{{.Type}}" value="{{.Value}}" name="{{.Name}}">`))
 
 type fieldContext struct {
 	Field
 	Value string
 }
 
-func (field Field) WriteTo(w io.Writer, value string) {
-	inputTemplate.Execute(w, fieldContext{Field: field, Value: value})
+func (field Field) WriteTo(w io.Writer, template *template.Template, value string) {
+	if template == nil {
+		template = DefaultFieldTemplate
+	}
+	template.Execute(w, fieldContext{Field: field, Value: value})
 }
 
 // InputType represents the type of input

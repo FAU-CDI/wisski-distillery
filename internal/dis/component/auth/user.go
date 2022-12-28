@@ -104,7 +104,10 @@ type AuthUser struct {
 	models.User
 }
 
-func (au AuthUser) String() string {
+func (au *AuthUser) String() string {
+	if au == nil {
+		return "User{nil}"
+	}
 	hasPassword := len(au.PasswordHash) > 0
 	return fmt.Sprintf("User{Name:%q,Enabled:%t,HasPassword:%t,Admin:%t}", au.User.User, au.User.Enabled, hasPassword, au.User.Admin)
 }
@@ -126,12 +129,16 @@ func (au *AuthUser) UnsetPassword(ctx context.Context) error {
 	return au.Save(ctx)
 }
 
+var ErrNoUser = errors.New("user is nil")
 var ErrUserDisabled = errors.New("user is disabled")
 var ErrUserBlank = errors.New("user has no password set")
 
 // CheckPassword checks if this user can login with the provided password.
 // Returns nil on success, an error otherwise.
 func (au *AuthUser) CheckPassword(ctx context.Context, password []byte) error {
+	if au == nil {
+		return ErrNoUser
+	}
 	if !au.User.Enabled {
 		return ErrUserDisabled
 	}

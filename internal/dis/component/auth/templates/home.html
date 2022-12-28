@@ -10,20 +10,23 @@
 
 {{ define "content" }}
 <div class="pure-u-1">
-
     <div>
         Welcome {{ .User.User }}!
+        <hr />
     </div>
+</div>
 
-    <form method="GET" action="/auth/password/">
-        <input type="submit" value="Change Password"></input>
-    </form>
+<div class="pure-u-1">
+    <div class="pure-button-group" role="group" role="Actions">
+        <a class="pure-button" href="/auth/logout/">Logout</a>
+    </div>
+    <hr /> 
+</div>
 
-    <!-- TODO: A logout button only for now -->
-
-    <form method="GET" action="/auth/logout/">
-        <input type="submit" value="Logout"></input>
-    </form>
+<div class="pure-u-1">
+    <div class="pure-button-group" role="group" role="Actions">
+        <a class="pure-button" href="/auth/password/">Change Password</a>
+    </div>
 </div>
 
 {{ end }}
