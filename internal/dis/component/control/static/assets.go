@@ -21,7 +21,7 @@ type Assets struct {
 	Styles  string // <link> tags inserted by the asset
 }
 
-//go:generate node build.mjs HomeHome ComponentsIndex ControlIndex ControlInstance InstanceComponentsIndex AuthLogin AuthHome
+//go:generate node build.mjs HomeHome ComponentsIndex ControlIndex ControlInstance InstanceComponentsIndex AuthLogin AuthHome AuthTOTP
 
 // MustParse parses a new template from the given source
 // and calls [RegisterAssoc] on it.

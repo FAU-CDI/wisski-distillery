@@ -37,8 +37,9 @@ type authpasswordContext struct {
 var (
 	errPasswordsNotIdentical = errors.New("passwords are not identical")
 	errPasswordIsEmpty       = errors.New("password is empty")
-	errPasswordIncorrect     = errors.New("old password is not correct")
+	errCredentialsIncorrect  = errors.New("credentials are not correct")
 	errPasswordSetFailure    = errors.New("error saving new password")
+	errTOTPSetFailure        = errors.New("unable to disable totp")
 	errPasswordSet           = errors.New("password was updated")
 )
 
@@ -46,6 +47,7 @@ func (auth *Auth) authPassword(ctx context.Context) http.Handler {
 	return &httpx.Form[struct{}]{
 		Fields: []httpx.Field{
 			{Name: "old", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
+			{Name: "passcode", Type: httpx.TextField, EmptyOnError: true, Label: "Current Passcode (optional)"},
 			{Name: "new", Type: httpx.PasswordField, EmptyOnError: true, Label: "New Password"},
 			{Name: "new2", Type: httpx.PasswordField, EmptyOnError: true, Label: "New Password (again)"},
 		},
@@ -65,7 +67,7 @@ func (auth *Auth) authPassword(ctx context.Context) http.Handler {
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
-			old, new, new2 := values["old"], values["new"], values["new2"]
+			old, passcode, new, new2 := values["old"], values["passcode"], values["new"], values["new2"]
 
 			if new != new2 {
 				return struct{}{}, errPasswordsNotIdentical
@@ -81,9 +83,9 @@ func (auth *Auth) authPassword(ctx context.Context) http.Handler {
 			}
 
 			{
-				err := user.CheckPassword(r.Context(), []byte(old))
+				err := user.CheckCredentials(r.Context(), []byte(old), passcode)
 				if err != nil {
-					return struct{}{}, errPasswordIncorrect
+					return struct{}{}, errCredentialsIncorrect
 				}
 			}
 			{

@@ -57,5 +57,23 @@ func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, 
 		router.Handler(http.MethodPost, route+"password", password)
 	}
 
+	{
+		totpenable := auth.authTOTPEnable(ctx)
+		router.Handler(http.MethodGet, route+"totp/enable", totpenable)
+		router.Handler(http.MethodPost, route+"totp/enable", totpenable)
+	}
+
+	{
+		totpenroll := auth.authTOTPEnroll(ctx)
+		router.Handler(http.MethodGet, route+"totp/enroll", totpenroll)
+		router.Handler(http.MethodPost, route+"totp/enroll", totpenroll)
+	}
+
+	{
+		totpdisable := auth.authTOTPDisable(ctx)
+		router.Handler(http.MethodGet, route+"totp/disable", totpdisable)
+		router.Handler(http.MethodPost, route+"totp/disable", totpdisable)
+	}
+
 	return router, nil
 }

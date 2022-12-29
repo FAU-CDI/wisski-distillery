@@ -1,0 +1,20 @@
+{{ template "_form.html" . }}
+{{ define "form/title" }}Enable TOTP{{ end }}
+{{ define "form/button" }}Enable{{ end }}
+{{ define "form/extra" }}
+<div>
+    <a class="pure-button" href="/auth/">Back</a>
+    <hr />
+</div>
+{{ end }}
+{{ define "form/inside" }}
+<div>
+    <a href="{{ .TOTPURL }}">
+        <img src="{{ .TOTPImage }}" alt="TOTP Enrollment Image">
+    </a>
+    <ul>
+        <li>scan the token above using a <a href="https://en.wikipedia.org/wiki/Time-based_one-time_password">TOTP</a>app on your phone</li>
+        <li>enter your current password and the now generated token to confirm</li>
+    </ul>
+</div>
+{{ end }}

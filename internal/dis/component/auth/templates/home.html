@@ -26,6 +26,11 @@
 <div class="pure-u-1">
     <div class="pure-button-group" role="group" role="Actions">
         <a class="pure-button" href="/auth/password/">Change Password</a>
+        {{ if .User.TOTPEnabled }}
+        <a class="pure-button" href="/auth/totp/disable/">Disable TOTP</a>
+        {{ else }}
+        <a class="pure-button" href="/auth/totp/enable/">Enable TOTP</a>
+        {{ end }}
     </div>
 </div>
 

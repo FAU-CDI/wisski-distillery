@@ -27,6 +27,7 @@ require (
 
 require (
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
+	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gosuri/uilive v0.0.4 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
@@ -34,6 +35,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/pquerna/otp v1.4.0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/tools v0.4.0 // indirect
 )

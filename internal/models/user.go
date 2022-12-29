@@ -10,6 +10,9 @@ type User struct {
 	User         string `gorm:"column:user;not null;unique"` // name of the user
 	PasswordHash []byte `gorm:"column:password"`             // password of the user, hashed
 
+	TOTPEnabled bool   `gorm:"column:totpenabled"` // is totp enabled for the user
+	TOTPURL     string `gorm:"column:totp"`        // the totp of the user
+
 	Enabled bool `gorm:"enabled;not null"`
 	Admin   bool `gorm:"column:admin;not null"`
 }

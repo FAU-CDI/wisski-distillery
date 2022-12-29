@@ -43,3 +43,9 @@ var AssetsAuthHome = Assets{
 	Scripts: `<script type="module" src="/static/HomeHome.38d394c2.js"></script><script src="/static/HomeHome.38d394c2.js" nomodule="" defer></script><script type="module" src="/static/AuthHome.38d394c2.js"></script><script src="/static/AuthHome.38d394c2.js" nomodule="" defer></script>`,
 	Styles:  `<link rel="stylesheet" href="/static/HomeHome.a75f04fa.css"><link rel="stylesheet" href="/static/AuthHome.38d394c2.css">`,	
 }
+
+// AssetsAuthTOTP contains assets for the 'AuthTOTP' entrypoint.
+var AssetsAuthTOTP = Assets{
+	Scripts: `<script type="module" src="/static/HomeHome.38d394c2.js"></script><script src="/static/HomeHome.38d394c2.js" nomodule="" defer></script><script type="module" src="/static/AuthTOTP.38d394c2.js"></script><script src="/static/AuthTOTP.38d394c2.js" nomodule="" defer></script>`,
+	Styles:  `<link rel="stylesheet" href="/static/HomeHome.a75f04fa.css"><link rel="stylesheet" href="/static/AuthTOTP.38d394c2.css">`,	
+}

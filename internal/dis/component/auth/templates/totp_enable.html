@@ -1,0 +1,18 @@
+{{ template "_form.html" . }}
+{{ define "form/title" }}Enable TOTP{{ end }}
+{{ define "form/button" }}Enable{{ end }}
+{{ define "form/extra" }}
+<div>
+    <a class="pure-button" href="/auth/">Back</a>
+    <hr />
+</div>
+{{ end }}
+{{ define "form/inside" }}
+<div>
+    <ul>
+        <li>Use this page to add a <a href="https://en.wikipedia.org/wiki/Time-based_one-time_password">TOTP</a> token to your account</li>
+        <li>You will not be able to login without the second factor</li>
+        <li>If you forget your token, only an administrator can reset it</li>
+    </ul>
+</div>
+{{ end }}

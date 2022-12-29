@@ -1,11 +1,16 @@
 package auth
 
 import (
+	"bytes"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
+	"image/png"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -112,6 +117,90 @@ func (au *AuthUser) String() string {
 	return fmt.Sprintf("User{Name:%q,Enabled:%t,HasPassword:%t,Admin:%t}", au.User.User, au.User.Enabled, hasPassword, au.User.Admin)
 }
 
+var (
+	ErrTOTPEnabled  = errors.New("TOTP is enabled")
+	ErrTOTPDisabled = errors.New("TOTP is disabled")
+	ErrTOTPFailed   = errors.New("TOTP failed")
+)
+
+func (au *AuthUser) TOTP() (*otp.Key, error) {
+	if au.TOTPURL == "" {
+		return nil, ErrTOTPDisabled
+	}
+	return otp.NewKeyFromURL(au.TOTPURL)
+}
+
+// CheckTOTP validates the given totp passcode against the saved secret.
+// If totp is not enabled, any passcode will pass the check.
+func (au *AuthUser) CheckTOTP(passcode string) error {
+	secret, err := au.TOTP()
+	if err != nil {
+		return err
+	}
+
+	if au.TOTPEnabled && !totp.Validate(passcode, secret.Secret()) {
+		return ErrTOTPFailed
+	}
+	return nil
+}
+
+// NewTOTP generates a new TOTP secret, returning a totp key.
+func (au *AuthUser) NewTOTP(ctx context.Context) (*otp.Key, error) {
+	if au.User.TOTPEnabled {
+		return nil, ErrTOTPEnabled
+	}
+
+	key, err := totp.Generate(totp.GenerateOpts{
+		Issuer:      "WissKI Distillery",
+		AccountName: au.User.User,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	au.User.TOTPURL = key.URL()
+	return key, au.Save(ctx)
+}
+
+func TOTPLink(secret *otp.Key, width, height int) (string, error) {
+	// make an image
+	img, err := secret.Image(width, height)
+	if err != nil {
+		return "", err
+	}
+
+	// encode image as base64
+	var buffer bytes.Buffer
+	if err := png.Encode(&buffer, img); err != nil {
+		return "", err
+	}
+
+	// return the image url
+	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(buffer.Bytes()), nil
+}
+
+// EnableTOTP enables totp for the given user
+func (au *AuthUser) EnableTOTP(ctx context.Context, passcode string) error {
+	secret, err := au.TOTP()
+	if err != nil {
+		return err
+	}
+	if !totp.Validate(passcode, secret.Secret()) {
+		return ErrTOTPFailed
+	}
+
+	au.User.TOTPEnabled = true
+	return au.Save(ctx)
+
+}
+
+// DisableTOTP disables totp for the given user
+func (au *AuthUser) DisableTOTP(ctx context.Context) (err error) {
+	au.User.TOTPEnabled = false
+	au.User.TOTPURL = ""
+	return au.Save(ctx)
+}
+
 // SetPassword sets the password for this user and turns the user on
 func (au *AuthUser) SetPassword(ctx context.Context, password []byte) (err error) {
 	au.User.PasswordHash, err = bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
@@ -148,6 +237,16 @@ func (au *AuthUser) CheckPassword(ctx context.Context, password []byte) error {
 	}
 
 	return bcrypt.CompareHashAndPassword(au.User.PasswordHash, password)
+}
+
+func (au *AuthUser) CheckCredentials(ctx context.Context, password []byte, passcode string) error {
+	if err := au.CheckPassword(ctx, password); err != nil {
+		return err
+	}
+	if err := au.CheckTOTP(passcode); err != nil && err != ErrTOTPDisabled {
+		return err
+	}
+	return nil
 }
 
 // MakeAdmin makes this user an admin, and saves the update in the database.

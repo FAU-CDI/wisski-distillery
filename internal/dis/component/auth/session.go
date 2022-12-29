@@ -174,6 +174,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		Fields: []httpx.Field{
 			{Name: "username", Type: httpx.TextField, Label: "Username"},
 			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Password"},
+			{Name: "passcode", Type: httpx.TextField, EmptyOnError: true, Label: "Passcode (optional)"},
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
@@ -191,7 +192,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {
-			username, password := values["username"], values["password"]
+			username, password, passcode := values["username"], values["password"], values["passcode"]
 
 			// make sure that the user exists
 			user, err := auth.User(ctx, username)
@@ -199,8 +200,8 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 				return nil, err
 			}
 
-			// check the password (TODO: Support TOTP)
-			err = user.CheckPassword(ctx, []byte(password))
+			// check the password and totp
+			err = user.CheckCredentials(ctx, []byte(password), passcode)
 			if err != nil {
 				return nil, err
 			}

@@ -3,6 +3,7 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -18,7 +19,10 @@ type disUser struct {
 
 	SetPassword   bool `short:"s" long:"set-password" description:"interactively set a user password"`
 	UnsetPassword bool `short:"u" long:"unset-password" description:"delete a users password and block the account"`
-	CheckPassword bool `short:"p" long:"check-password" description:"interactively check a user password"`
+	CheckPassword bool `short:"p" long:"check-password" description:"interactively check a user credential"`
+
+	EnableTOTP  bool `short:"t" long:"enable-totp" description:"interactively enroll a user in totp"`
+	DisableTOTP bool `short:"v" long:"disable-totp" description:"disable totp for a user"`
 
 	Positionals struct {
 		User string `positional-arg-name:"USER" description:"username to manage. May be omitted for some actions"`
@@ -50,6 +54,8 @@ func (du disUser) AfterParse() error {
 		du.UnsetPassword,
 		du.CheckPassword,
 		du.ListUsers,
+		du.DisableTOTP,
+		du.EnableTOTP,
 	} {
 		if action {
 			counter++
@@ -83,6 +89,10 @@ func (du disUser) Run(context wisski_distillery.Context) error {
 		return du.runCheckPassword(context)
 	case du.ListUsers:
 		return du.runListUsers(context)
+	case du.EnableTOTP:
+		return du.runEnableTOTP(context)
+	case du.DisableTOTP:
+		return du.runDisableTOTP(context)
 	}
 	panic("never reached")
 }
@@ -172,7 +182,18 @@ func (du disUser) runCheckPassword(context wisski_distillery.Context) error {
 	}
 	context.Println()
 
-	return user.CheckPassword(context.Context, []byte(candidate))
+	var passcode string
+	if user.TOTPEnabled {
+		context.Printf("Enter passcode for %s:", du.Positionals.User)
+
+		passcode, err = context.IOStream.ReadPassword()
+		if err != nil {
+			return err
+		}
+		context.Println()
+	}
+
+	return user.CheckCredentials(context.Context, []byte(candidate), passcode)
 }
 
 func (du disUser) runListUsers(context wisski_distillery.Context) error {
@@ -184,4 +205,44 @@ func (du disUser) runListUsers(context wisski_distillery.Context) error {
 		context.Println(user)
 	}
 	return nil
+}
+
+func (du disUser) runEnableTOTP(context wisski_distillery.Context) error {
+	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
+	if err != nil {
+		return err
+	}
+
+	// get the secret
+	key, err := user.NewTOTP(context.Context)
+	if err != nil {
+		return err
+	}
+
+	// print out the link
+	url, err := auth.TOTPLink(key, 100, 100)
+	if err != nil {
+		return err
+	}
+	context.Println(url)
+
+	// request the passcode
+	context.Printf("Enter passcode for %s:", du.Positionals.User)
+	passcode, err := context.IOStream.ReadPassword()
+	if err != nil {
+		return err
+	}
+	context.Println()
+
+	// and enter it
+	return user.EnableTOTP(context.Context, passcode)
+}
+
+func (du disUser) runDisableTOTP(context wisski_distillery.Context) error {
+	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
+	if err != nil {
+		return err
+	}
+
+	return user.DisableTOTP(context.Context)
 }
