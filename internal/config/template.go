@@ -26,8 +26,6 @@ type Template struct {
 	TriplestoreAdminPassword string `env:"GRAPHDB_ADMIN_PASSWORD"`
 	MysqlAdminUsername       string `env:"MYSQL_ADMIN_USER"`
 	MysqlAdminPassword       string `env:"MYSQL_ADMIN_PASSWORD"`
-	DisAdminUsername         string `env:"DIS_ADMIN_USER"`
-	DisAdminPassword         string `env:"DIS_ADMIN_PASSWORD"`
 	DockerNetworkName        string `env:"DOCKER_NETWORK_NAME"`
 	SessionSecret            string `env:"SESSION_SECRET"`
 }
@@ -71,17 +69,6 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 
 	if tpl.MysqlAdminPassword == "" {
 		tpl.MysqlAdminPassword, err = password.Password(64)
-		if err != nil {
-			return err
-		}
-	}
-
-	if tpl.DisAdminUsername == "" {
-		tpl.DisAdminUsername = "admin"
-	}
-
-	if tpl.DisAdminPassword == "" {
-		tpl.DisAdminPassword, err = password.Password(64)
 		if err != nil {
 			return err
 		}

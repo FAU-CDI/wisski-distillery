@@ -14,6 +14,9 @@ type disUser struct {
 	CreateUser bool `short:"c" long:"create" description:"create a new user"`
 	DeleteUser bool `short:"d" long:"delete" description:"delete a user"`
 
+	MakeAdmin   bool `short:"a" long:"add-admin" description:"add admin permission to user"`
+	RemoveAdmin bool `short:"A" long:"remove-admin" description:"remove admin permission from user"`
+
 	InfoUser  bool `short:"i" long:"info" description:"show information about a user"`
 	ListUsers bool `short:"l" long:"list" description:"list all users"`
 
@@ -56,6 +59,8 @@ func (du disUser) AfterParse() error {
 		du.ListUsers,
 		du.DisableTOTP,
 		du.EnableTOTP,
+		du.MakeAdmin,
+		du.RemoveAdmin,
 	} {
 		if action {
 			counter++
@@ -93,6 +98,10 @@ func (du disUser) Run(context wisski_distillery.Context) error {
 		return du.runEnableTOTP(context)
 	case du.DisableTOTP:
 		return du.runDisableTOTP(context)
+	case du.MakeAdmin:
+		return du.runMakeAdmin(context)
+	case du.RemoveAdmin:
+		return du.runRemoveAdmin(context)
 	}
 	panic("never reached")
 }
@@ -245,4 +254,24 @@ func (du disUser) runDisableTOTP(context wisski_distillery.Context) error {
 	}
 
 	return user.DisableTOTP(context.Context)
+}
+
+func (du disUser) runMakeAdmin(context wisski_distillery.Context) error {
+	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
+	if err != nil {
+		return err
+	}
+
+	user.Admin = true
+	return user.Save(context.Context)
+}
+
+func (du disUser) runRemoveAdmin(context wisski_distillery.Context) error {
+	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
+	if err != nil {
+		return err
+	}
+
+	user.Admin = false
+	return user.Save(context.Context)
 }

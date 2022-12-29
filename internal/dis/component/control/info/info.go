@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/julienschmidt/httprouter"
@@ -22,6 +23,8 @@ type Info struct {
 		Exporter     *exporter.Exporter
 		Instances    *instances.Instances
 		SnapshotsLog *logger.Logger
+
+		Auth *auth.Auth
 	}
 
 	Analytics *lazy.PoolAnalytics
@@ -44,9 +47,7 @@ func (info *Info) HandleRoute(ctx context.Context, route string) (handler http.H
 			Fallback: router,
 			Handler:  info.serveSocket,
 		}
-		handler = httpx.BasicAuth(socket, "WissKI Distillery Admin", func(user, pass string) bool {
-			return user == info.Config.DisAdminUser && pass == info.Config.DisAdminPassword
-		})
+		handler = info.Dependencies.Auth.Protect(socket, auth.Admin)
 	}
 
 	// handle everything

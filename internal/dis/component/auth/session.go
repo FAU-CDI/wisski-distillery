@@ -4,7 +4,6 @@ import (
 	"context"
 	"html/template"
 	"net/http"
-	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -114,58 +113,6 @@ var loginResponse = httpx.Response{
 type authloginContext struct {
 	Message string
 	Form    template.HTML
-}
-
-// Protect returns a new handler which requires a user to be logged in and pass the perm function.
-//
-// If an unauthenticated user attempts to access the returned handler, they are redirected to the login endpoint.
-// When a user is logged in, and they pass the perm function (or the perm function is nil), the original handler is called.
-func (auth *Auth) Protect(handler http.Handler, perm func(user *AuthUser, r *http.Request) (ok bool, err error)) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// load the user in the session
-		user, err := auth.UserOf(r)
-		if err != nil {
-			goto err
-		}
-
-		// if there is no user in the session
-		// we need to login the user
-		if user == nil {
-			// we can't redirect anything other than GET
-			// (because it might be a form)
-			// => so we just return a forbidden
-			if r.Method != http.MethodGet {
-				goto forbidden
-			}
-
-			// redirect the user to the login endpoint, with the original URI as a return
-			dest := "/auth/login?next=" + url.QueryEscape(r.URL.RequestURI())
-			http.Redirect(w, r, dest, http.StatusSeeOther)
-			return
-		}
-
-		// if we have a permission check, we need to call it
-		// to find out if the user is actually allowed to access the page
-		if perm != nil {
-			ok, err := perm(user, r)
-			if err != nil {
-				goto err
-			}
-			if !ok {
-				goto forbidden
-			}
-		}
-
-		// store the user into the session
-		r = r.WithContext(context.WithValue(r.Context(), ctxUserKey, user))
-		handler.ServeHTTP(w, r)
-		return
-	forbidden:
-		httpx.HTMLInterceptor.Intercept(w, r, httpx.ErrForbidden)
-		return
-	err:
-		httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
-	})
 }
 
 // authLogin implements a view to login a user

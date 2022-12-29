@@ -16,12 +16,19 @@
     </div>
 </div>
 
+{{ if .User.Admin }}
 <div class="pure-u-1">
-    <div class="pure-button-group" role="group" role="Actions">
-        <a class="pure-button" href="/auth/logout/">Logout</a>
+    {{ if (not .User.TOTPEnabled) }}
+    <div>
+        TOTP is required to access these.
     </div>
-    <hr /> 
+    {{ end }}
+    <div class="pure-button-group" role="group" role="Actions">
+        <a class="pure-button" href="/dis/">Distillery Control Page</a>
+    </div>
+    <hr />
 </div>
+{{ end }}
 
 <div class="pure-u-1">
     <div class="pure-button-group" role="group" role="Actions">
@@ -31,6 +38,13 @@
         {{ else }}
         <a class="pure-button" href="/auth/totp/enable/">Enable TOTP</a>
         {{ end }}
+    </div>
+    <hr /> 
+</div>
+
+<div class="pure-u-1">
+    <div class="pure-button-group" role="group" role="Actions">
+        <a class="pure-button" href="/auth/logout/">Logout</a>
     </div>
 </div>
 

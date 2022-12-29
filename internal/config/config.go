@@ -84,11 +84,6 @@ type Config struct {
 	// admin credentials for the Mysql database
 	MysqlAdminUser     string `env:"MYSQL_ADMIN_USER" default:"admin" parser:"nonempty"`
 	MysqlAdminPassword string `env:"MYSQL_ADMIN_PASSWORD" default:"" parser:"nonempty"`
-
-	// admin credentials for the dis server
-	DisAdminUser     string `env:"DIS_ADMIN_USER" default:"admin" parser:"nonempty"`
-	DisAdminPassword string `env:"DIS_ADMIN_PASSWORD" default:"" parser:"nonempty"`
-
 	// session secret holds the secret for login
 	SessionSecret string `env:"SESSION_SECRET" default:"" parser:"nonempty"`
 
