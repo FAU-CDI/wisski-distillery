@@ -2,6 +2,7 @@ package httpx
 
 import (
 	"net/http"
+	"strconv"
 )
 
 // Response represents a response to an http request.
@@ -16,6 +17,7 @@ func (response Response) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		response.ContentType = "text/plain"
 	}
 	w.Header().Set("Content-Type", response.ContentType)
+	w.Header().Set("Content-Length", strconv.Itoa(len(response.Body)))
 
 	if response.StatusCode <= 0 {
 		response.StatusCode = http.StatusOK
