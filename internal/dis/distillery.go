@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/cron"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/home"
@@ -127,6 +128,7 @@ func (dis *Distillery) allComponents() []initFunc {
 
 		// auth
 		auto[*auth.Auth],
+		auto[*policy.Policy],
 
 		// instances
 		auto[*instances.Instances],

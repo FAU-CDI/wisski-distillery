@@ -15,7 +15,8 @@ import (
 type Auth struct {
 	component.Base
 	Dependencies struct {
-		SQL *sql.SQL
+		SQL             *sql.SQL
+		UserDeleteHooks []component.UserDeleteHook
 	}
 
 	store lazy.Lazy[sessions.Store]

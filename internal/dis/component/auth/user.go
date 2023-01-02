@@ -278,5 +278,13 @@ func (au *AuthUser) Delete(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	// run all the user delete hooks
+	for _, c := range au.auth.Dependencies.UserDeleteHooks {
+		if err := c.OnUserDelete(ctx, &au.User); err != nil {
+			return err
+		}
+	}
+
 	return table.Delete(&au.User).Error
 }

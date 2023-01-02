@@ -26,7 +26,7 @@ type Storage struct {
 // Get retrieves metadata with the provided key and deserializes the first one into target.
 // If no metadatum exists, returns [ErrMetadatumNotSet].
 func (s Storage) Get(ctx context.Context, key Key, target any) error {
-	table, err := s.sql.QueryTable(ctx, true, models.AccessTable)
+	table, err := s.sql.QueryTable(ctx, true, models.GrantTable)
 	if err != nil {
 		return err
 	}
@@ -55,7 +55,7 @@ func (s Storage) Get(ctx context.Context, key Key, target any) error {
 //
 // When no metadatum exists, targets is not called, and nil error is returned.
 func (s Storage) GetAll(ctx context.Context, key Key, target func(index, total int) any) error {
-	table, err := s.sql.QueryTable(ctx, true, models.AccessTable)
+	table, err := s.sql.QueryTable(ctx, true, models.GrantTable)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (s Storage) GetAll(ctx context.Context, key Key, target func(index, total i
 
 // Delete deletes all metadata with the provided key.
 func (s Storage) Delete(ctx context.Context, key Key) error {
-	table, err := s.sql.QueryTable(ctx, true, models.AccessTable)
+	table, err := s.sql.QueryTable(ctx, true, models.GrantTable)
 	if err != nil {
 		return err
 	}
@@ -98,7 +98,7 @@ func (s Storage) Delete(ctx context.Context, key Key) error {
 // Set serializes value and stores it with the provided key.
 // Any other metadata with the same key is deleted.
 func (s Storage) Set(ctx context.Context, key Key, value any) error {
-	table, err := s.sql.QueryTable(ctx, true, models.AccessTable)
+	table, err := s.sql.QueryTable(ctx, true, models.GrantTable)
 	if err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func (s Storage) Set(ctx context.Context, key Key, value any) error {
 // Set serializes values and stores them with the provided key.
 // Any other metadata with the same key is deleted.
 func (s Storage) SetAll(ctx context.Context, key Key, values ...any) error {
-	table, err := s.sql.QueryTable(ctx, true, models.AccessTable)
+	table, err := s.sql.QueryTable(ctx, true, models.GrantTable)
 	if err != nil {
 		return err
 	}
@@ -167,7 +167,7 @@ func (s Storage) SetAll(ctx context.Context, key Key, values ...any) error {
 
 // Purge removes all metadata, regardless of key.
 func (s Storage) Purge(ctx context.Context) error {
-	table, err := s.sql.QueryTable(ctx, true, models.AccessTable)
+	table, err := s.sql.QueryTable(ctx, true, models.GrantTable)
 	if err != nil {
 		return err
 	}

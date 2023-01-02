@@ -1,0 +1,123 @@
+package policy
+
+import (
+	"context"
+	"errors"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"gorm.io/gorm/clause"
+)
+
+var (
+	ErrNoAccess = errors.New("no access")
+	ErrInvalid  = errors.New("invalid parameters")
+)
+
+// Set sets a specific grant, overwriting a previous grant (if any)
+func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
+	if grant.User == "" || grant.Slug == "" || grant.DrupalUsername == "" {
+		return ErrInvalid
+	}
+
+	// get the table
+	table, err := policy.table(ctx)
+	if err != nil {
+		return err
+	}
+
+	// and create or update the given user / slug combination
+	return table.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "user"}, {Name: "slug"}},
+		DoUpdates: clause.AssignmentColumns([]string{"drupal_user", "admin"}),
+	}).Create(&grant).Error
+}
+
+// Remove removes access for the given username form the given instance.
+// The user not having access is not an error.
+func (policy *Policy) Remove(ctx context.Context, username string, slug string) error {
+	// empty username or slug never have acccess
+	if username == "" || slug == "" {
+		return ErrInvalid
+	}
+
+	// get the table
+	table, err := policy.table(ctx)
+	if err != nil {
+		return err
+	}
+
+	// delete the access from the database
+	return table.Delete(&models.Grant{}, models.Grant{User: username, Slug: slug}).Error
+}
+
+// User returns all grants for the given user
+func (policy *Policy) User(ctx context.Context, username string) (grants []models.Grant, err error) {
+	if username == "" {
+		return nil, ErrInvalid
+	}
+
+	// get the table
+	table, err := policy.table(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// find the grants
+	err = table.Find(&grants, models.Grant{User: username}).Error
+	if err != nil {
+		return nil, err
+	}
+	return grants, nil
+}
+
+// Instance returns all the grants for the given instance
+func (policy *Policy) Instance(ctx context.Context, slug string) (grants []models.Grant, err error) {
+	if slug == "" {
+		return nil, ErrInvalid
+	}
+
+	// get the table
+	table, err := policy.table(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// find the grants
+	err = table.Find(&grants, models.Grant{Slug: slug}).Error
+	if err != nil {
+		return nil, err
+	}
+	return grants, nil
+}
+
+// Has checks if the given username has access to the given instance.
+// If the user has access, returns the provided grant.
+//
+// If the user does not have access, returns ErrNoAccess.
+// Other errors may be returned in other cases.
+func (policy *Policy) Has(ctx context.Context, username string, slug string) (grant models.Grant, err error) {
+	// empty username or slug never have acccess
+	if username == "" || slug == "" {
+		return grant, ErrInvalid
+	}
+
+	// get the table
+	table, err := policy.table(ctx)
+	if err != nil {
+		return grant, err
+	}
+
+	// read the access from the database
+	res := table.Find(&grant, models.Grant{User: username, Slug: slug})
+	if err := res.Error; err != nil {
+		return grant, err
+	}
+
+	// if there were no rows affected, then there was no access granted
+	if res.RowsAffected == 0 {
+		return grant, ErrNoAccess
+	}
+
+	// return the username and admin
+	return grant, nil
+}

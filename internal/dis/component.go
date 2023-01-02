@@ -20,6 +20,7 @@ func (dis *Distillery) init() {
 		lazy.RegisterPoolGroup[component.Provisionable](&dis.pool)
 		lazy.RegisterPoolGroup[component.Routeable](&dis.pool)
 		lazy.RegisterPoolGroup[component.Cronable](&dis.pool)
+		lazy.RegisterPoolGroup[component.UserDeleteHook](&dis.pool)
 	})
 }
 
