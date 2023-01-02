@@ -11,11 +11,6 @@ import (
 	_ "embed"
 )
 
-type totpContext struct {
-	Message string
-	Form    template.HTML
-}
-
 //go:embed "templates/totp_enable.html"
 var totpEnableStr string
 var totpEnableTemplate = static.AssetsAuthLogin.MustParseShared("totp_enable.html", totpEnableStr)
@@ -30,19 +25,10 @@ func (auth *Auth) authTOTPEnable(ctx context.Context) http.Handler {
 		CSRF: auth.csrf.Get(nil),
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
-			user, _ := auth.UserOf(r)
-			return struct{}{}, user != nil && user.TOTPEnabled
+			user, err := auth.UserOf(r)
+			return struct{}{}, err == nil && user != nil && user.TOTPEnabled
 		},
-		RenderForm: func(template template.HTML, err error, w http.ResponseWriter, r *http.Request) {
-			ctx := totpContext{
-				Message: "",
-				Form:    template,
-			}
-			if err != nil {
-				ctx.Message = err.Error()
-			}
-			httpx.WriteHTML(ctx, nil, totpEnableTemplate, "", w, r)
-		},
+		RenderTemplate: totpEnableTemplate,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
@@ -80,7 +66,7 @@ var totpEnrollStr string
 var totpEnrollTemplate = static.AssetsAuthLogin.MustParseShared("totp_enroll.html", totpEnrollStr)
 
 type totpEnrollContext struct {
-	totpContext
+	httpx.FormContext
 	TOTPImage template.URL
 	TOTPURL   template.URL
 }
@@ -99,12 +85,9 @@ func (auth *Auth) authTOTPEnroll(ctx context.Context) http.Handler {
 			user, _ := auth.UserOf(r)
 			return struct{}{}, user != nil && user.TOTPEnabled
 		},
-		RenderForm: func(tpl template.HTML, err error, w http.ResponseWriter, r *http.Request) {
+		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
 			ctx := totpEnrollContext{
-				totpContext: totpContext{
-					Message: "",
-					Form:    tpl,
-				},
+				FormContext: context,
 			}
 
 			if user, err := auth.UserOf(r); err == nil && user != nil {
@@ -115,9 +98,6 @@ func (auth *Auth) authTOTPEnroll(ctx context.Context) http.Handler {
 					ctx.TOTPImage = template.URL(img)
 					ctx.TOTPURL = template.URL(secret.URL())
 				}
-			}
-			if err != nil {
-				ctx.Message = err.Error()
 			}
 			httpx.WriteHTML(ctx, nil, totpEnrollTemplate, "", w, r)
 		},
@@ -171,16 +151,7 @@ func (auth *Auth) authTOTPDisable(ctx context.Context) http.Handler {
 			user, _ := auth.UserOf(r)
 			return struct{}{}, user != nil && !user.TOTPEnabled
 		},
-		RenderForm: func(template template.HTML, err error, w http.ResponseWriter, r *http.Request) {
-			ctx := totpContext{
-				Message: "",
-				Form:    template,
-			}
-			if err != nil {
-				ctx.Message = err.Error()
-			}
-			httpx.WriteHTML(ctx, nil, totpDisableTemplate, "", w, r)
-		},
+		RenderTemplate: totpDisableTemplate,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, passcode := values["password"], values["passcode"]

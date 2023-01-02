@@ -15,12 +15,14 @@ var DefaultFieldTemplate = template.Must(template.New("").Parse(`<input type="{{
 var PureCSSFieldTemplate = template.Must(template.New("").Parse(`
 <div class="pure-control-group"><label for="{{.Name}}">{{.Label}}</label><input type="{{.Type}}" value="{{.Value}}" name="{{.Name}}" id="{{.Name}}" placeholder="{{.Placeholder}}"></div>`))
 
-// Form implements a user-submittable form
+// Form provides a form that a user can submit via a http POST method call.
+// It implements [http.Handler].
 type Form[D any] struct {
+	// Fields are the fields this form consists of.
 	Fields []Field
 
-	// FieldTemplate is executed for each field.
-	// Defaults to a [DefaultFieldTemplate]
+	// FieldTemplate is an optional template to be executed for each field.
+	// FieldTemplate may be nil; in which case [DefaultFieldTemplate] is used.
 	FieldTemplate *template.Template
 
 	// CSRF holds an optional reference to a CSRF.Protect call.
@@ -33,11 +35,17 @@ type Form[D any] struct {
 	SkipForm func(r *http.Request) (data D, skip bool)
 
 	// RenderForm handles rendering a form into a request.
+	// If RenderForm is nil, RenderTemplate is invoked with an appropriate [FormContext] instance.
+	// Either RenderForm or RenderTemplate must be non-nil.
 	//
 	// template holds pre-rendered html fields.
 	// err is a non-nil error returned from Validate, or the r.ParseForm() method.
 	// It is nil on the initial render.
-	RenderForm func(template template.HTML, err error, w http.ResponseWriter, r *http.Request)
+	RenderForm func(context FormContext, w http.ResponseWriter, r *http.Request)
+
+	// RenderTemplate represents an optional form to display to the user when RenderForm is nil
+	// It is passed a [FormContext] instance.
+	RenderTemplate *template.Template
 
 	// Validate, if non-nil, validates the given submitted values.
 	// There is no guarantee that the values are set.
@@ -88,6 +96,8 @@ func (form *Form[D]) Values(r *http.Request) (v map[string]string, d D, err erro
 	return values, d, nil
 }
 
+// ServeHTTP implements [http.Handler].
+// If the form contains a csrf reference, then this is invoked also.
 func (form *Form[D]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	handler := form.csrf.Get(func() (handler http.Handler) {
 		handler = http.HandlerFunc(form.serveHTTP)
@@ -122,14 +132,48 @@ func (form *Form[D]) serveHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// renderForm renders the form into a request
 func (form *Form[D]) renderForm(err error, values map[string]string, w http.ResponseWriter, r *http.Request) {
 	template := form.Template(values, err != nil)
 	if form.CSRF != nil {
 		template += csrf.TemplateField(r)
 	}
-	form.RenderForm(template, err, w, r)
+
+	ctx := FormContext{Err: err, Form: template}
+
+	if form.RenderForm != nil {
+		form.RenderForm(ctx, w, r)
+		return
+	}
+
+	// must have a form or a RenderForm
+	if form.RenderTemplate == nil {
+		panic("form.RenderForm and form.Form are nil")
+	}
+
+	// render the form
+	WriteHTML(ctx, nil, form.RenderTemplate, "", w, r)
 }
 
+// FormContext is passed to Form.Form when used
+type FormContext struct {
+	// Error is the underlying error (if any)
+	Err error
+
+	// Template is the underlying template rendered as html
+	Form template.HTML
+}
+
+// Error returns the underlying error string
+func (fc FormContext) Error() string {
+	if fc.Err == nil {
+		return ""
+	}
+	return fc.Err.Error()
+}
+
+// renderSuccess renders a successfull pass of the form
+// if an error occurs during rendering, renderForm is called instead
 func (form *Form[D]) renderSuccess(data D, values map[string]string, w http.ResponseWriter, r *http.Request) {
 	err := form.RenderSuccess(data, values, w, r)
 	if err == nil {
@@ -138,17 +182,18 @@ func (form *Form[D]) renderSuccess(data D, values map[string]string, w http.Resp
 	form.renderForm(err, values, w, r)
 }
 
-// Field represents a field
+// Field represents a field inside a form.
 type Field struct {
-	Name string
-	Type InputType
+	Name string    // Name is the name of the field
+	Type InputType // Type is the type of the field. It corresponds to the "name" attribute in html.
 
-	Placeholder string // Optional placeholder
-	Label       string // Label for the template. Not used by the default template.
+	Placeholder string // Value for the "placeholder" attribute
+	Label       string // (External) Label for the field. Not used by the default template.
 
 	EmptyOnError bool // indicates if the field should be reset on error
 }
 
+// fieldContext is passed to the template context
 type fieldContext struct {
 	Field
 	Value string

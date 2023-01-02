@@ -10,10 +10,33 @@
 
 {{ define "content" }}
 <div class="pure-u-1">
-    <div>
-        Welcome {{ .User.User }}!
-        <hr />
+    Welcome {{ .User.User }}!
+    <a class="pure-button pure-button-small" href="/auth/logout/">Logout</a>
+    <hr />
+</div>
+
+<div class="pure-u-1">
+    <p>
+        {{ if .User.Admin }}
+        You are an administrator.
+        {{ else }}
+        You are a regular user.
+        {{ end }}
+        {{ if .User.TOTPEnabled }}
+        You have TOTP enabled.
+        {{ else }}
+        You do not have TOTP enabled.
+        {{ end }}
+    </p>
+    <div class="pure-button-group" role="group" role="Actions">
+        <a class="pure-button" href="/auth/password/">Change Password</a>
+        {{ if .User.TOTPEnabled }}
+        <a class="pure-button" href="/auth/totp/disable/">Disable TOTP</a>
+        {{ else }}
+        <a class="pure-button" href="/auth/totp/enable/">Enable TOTP</a>
+        {{ end }}
     </div>
+    <hr /> 
 </div>
 
 {{ if .User.Admin }}
@@ -31,21 +54,8 @@
 {{ end }}
 
 <div class="pure-u-1">
-    <div class="pure-button-group" role="group" role="Actions">
-        <a class="pure-button" href="/auth/password/">Change Password</a>
-        {{ if .User.TOTPEnabled }}
-        <a class="pure-button" href="/auth/totp/disable/">Disable TOTP</a>
-        {{ else }}
-        <a class="pure-button" href="/auth/totp/enable/">Enable TOTP</a>
-        {{ end }}
-    </div>
-    <hr /> 
+    There will be a list of WissKIs you have access to here.
 </div>
 
-<div class="pure-u-1">
-    <div class="pure-button-group" role="group" role="Actions">
-        <a class="pure-button" href="/auth/logout/">Logout</a>
-    </div>
-</div>
 
 {{ end }}

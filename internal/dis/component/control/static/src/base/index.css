@@ -48,3 +48,19 @@ footer {
 .pure-button-success {
     background-color: rgb(28, 184, 65) !important;
 }
+
+.pure-button-xsmall {
+    font-size: 70%;
+}
+
+.pure-button-small {
+    font-size: 85%;
+}
+
+.pure-button-large {
+    font-size: 110%;
+}
+
+.pure-button-xlarge {
+    font-size: 125%;
+}

@@ -12,9 +12,10 @@
 <div class="pure-u-1">
 
     {{ block "form/message" . }}
-        {{ if .Message }}
+        {{ $E := .Error }}
+        {{ if not (eq $E "") }}
             <div>
-                {{ .Message }}
+                {{ $E }}
             </div>
         {{ end }}
     {{ end }}

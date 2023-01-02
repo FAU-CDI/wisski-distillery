@@ -4,7 +4,6 @@ import (
 	"context"
 	_ "embed"
 	"errors"
-	"html/template"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
@@ -29,11 +28,6 @@ func (auth *Auth) authHome(ctx context.Context) http.Handler {
 var passwordHTMLString string
 var passwordTemplate = static.AssetsAuthLogin.MustParseShared("password.html", passwordHTMLString)
 
-type authpasswordContext struct {
-	Message string
-	Form    template.HTML
-}
-
 var (
 	errPasswordsNotIdentical = errors.New("passwords are not identical")
 	errPasswordIsEmpty       = errors.New("password is empty")
@@ -55,16 +49,7 @@ func (auth *Auth) authPassword(ctx context.Context) http.Handler {
 
 		CSRF: auth.csrf.Get(nil),
 
-		RenderForm: func(template template.HTML, err error, w http.ResponseWriter, r *http.Request) {
-			ctx := authpasswordContext{
-				Message: "",
-				Form:    template,
-			}
-			if err != nil {
-				ctx.Message = err.Error()
-			}
-			httpx.WriteHTML(ctx, nil, passwordTemplate, "", w, r)
-		},
+		RenderTemplate: passwordTemplate,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			old, passcode, new, new2 := values["old"], values["passcode"], values["new"], values["new2"]

@@ -2,7 +2,7 @@ package auth
 
 import (
 	"context"
-	"html/template"
+	"errors"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
@@ -110,10 +110,7 @@ var loginResponse = httpx.Response{
 	Body:        []byte("user is signed in"),
 }
 
-type authloginContext struct {
-	Message string
-	Form    template.HTML
-}
+var errLoginFailed = errors.New("Login failed")
 
 // authLogin implements a view to login a user
 func (auth *Auth) authLogin(ctx context.Context) http.Handler {
@@ -127,15 +124,11 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 
 		CSRF: auth.csrf.Get(nil),
 
-		RenderForm: func(template template.HTML, err error, w http.ResponseWriter, r *http.Request) {
-			ctx := authloginContext{
-				Message: "",
-				Form:    template,
+		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
+			if context.Err != nil {
+				context.Err = errLoginFailed
 			}
-			if err != nil {
-				ctx.Message = "Login Failed"
-			}
-			httpx.WriteHTML(ctx, nil, loginTemplate, "", w, r)
+			httpx.WriteHTML(context, nil, loginTemplate, "", w, r)
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {
