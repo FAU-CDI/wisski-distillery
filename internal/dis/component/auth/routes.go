@@ -49,7 +49,8 @@ func (auth *Auth) authPassword(ctx context.Context) http.Handler {
 
 		CSRF: auth.csrf.Get(nil),
 
-		RenderTemplate: passwordTemplate,
+		RenderTemplate:        passwordTemplate,
+		RenderTemplateContext: auth.UserFormContext,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			old, passcode, new, new2 := values["old"], values["passcode"], values["new"], values["new2"]

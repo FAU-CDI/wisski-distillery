@@ -35,7 +35,7 @@ var (
 	_ component.Routeable         = (*Info)(nil)
 )
 
-func (*Info) Routes() []string { return []string{"/dis/"} }
+func (*Info) Routes() []string { return []string{"/admin/"} }
 
 func (info *Info) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
 

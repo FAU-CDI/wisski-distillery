@@ -33,7 +33,7 @@ func (auth *Auth) Protect(handler http.Handler, perm Permission) http.Handler {
 			}
 
 			// redirect the user to the login endpoint, with the original URI as a return
-			dest := "/auth/login?next=" + url.QueryEscape(r.URL.RequestURI())
+			dest := "/user/login?next=" + url.QueryEscape(r.URL.RequestURI())
 			http.Redirect(w, r, dest, http.StatusSeeOther)
 			return
 		}

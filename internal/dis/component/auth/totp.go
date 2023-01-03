@@ -28,7 +28,9 @@ func (auth *Auth) authTOTPEnable(ctx context.Context) http.Handler {
 			user, err := auth.UserOf(r)
 			return struct{}{}, err == nil && user != nil && user.TOTPEnabled
 		},
-		RenderTemplate: totpEnableTemplate,
+
+		RenderTemplate:        totpEnableTemplate,
+		RenderTemplateContext: auth.UserFormContext,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
@@ -55,7 +57,7 @@ func (auth *Auth) authTOTPEnable(ctx context.Context) http.Handler {
 		},
 
 		RenderSuccess: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
-			http.Redirect(w, r, "/auth/totp/enroll", http.StatusSeeOther)
+			http.Redirect(w, r, "/user/totp/enroll", http.StatusSeeOther)
 			return nil
 		},
 	}
@@ -66,7 +68,7 @@ var totpEnrollStr string
 var totpEnrollTemplate = static.AssetsAuthLogin.MustParseShared("totp_enroll.html", totpEnrollStr)
 
 type totpEnrollContext struct {
-	httpx.FormContext
+	userFormContext
 	TOTPImage template.URL
 	TOTPURL   template.URL
 }
@@ -86,11 +88,16 @@ func (auth *Auth) authTOTPEnroll(ctx context.Context) http.Handler {
 			return struct{}{}, user != nil && user.TOTPEnabled
 		},
 		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
+			user, err := auth.UserOf(r)
+
 			ctx := totpEnrollContext{
-				FormContext: context,
+				userFormContext: userFormContext{
+					FormContext: context,
+				},
 			}
 
-			if user, err := auth.UserOf(r); err == nil && user != nil {
+			if err == nil && user != nil {
+				ctx.userFormContext.User = &user.User
 				secret, err := user.TOTP()
 				if err == nil {
 					img, _ := TOTPLink(secret, 500, 500)
@@ -127,7 +134,7 @@ func (auth *Auth) authTOTPEnroll(ctx context.Context) http.Handler {
 		},
 
 		RenderSuccess: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
-			http.Redirect(w, r, "/auth/", http.StatusSeeOther)
+			http.Redirect(w, r, "/user/", http.StatusSeeOther)
 			return nil
 		},
 	}
@@ -151,7 +158,8 @@ func (auth *Auth) authTOTPDisable(ctx context.Context) http.Handler {
 			user, _ := auth.UserOf(r)
 			return struct{}{}, user != nil && !user.TOTPEnabled
 		},
-		RenderTemplate: totpDisableTemplate,
+		RenderTemplate:        totpDisableTemplate,
+		RenderTemplateContext: auth.UserFormContext,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, passcode := values["password"], values["passcode"]
@@ -178,7 +186,7 @@ func (auth *Auth) authTOTPDisable(ctx context.Context) http.Handler {
 		},
 
 		RenderSuccess: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
-			http.Redirect(w, r, "/auth/", http.StatusSeeOther)
+			http.Redirect(w, r, "/user/", http.StatusSeeOther)
 			return nil
 		},
 	}

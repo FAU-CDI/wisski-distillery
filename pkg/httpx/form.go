@@ -44,8 +44,12 @@ type Form[D any] struct {
 	RenderForm func(context FormContext, w http.ResponseWriter, r *http.Request)
 
 	// RenderTemplate represents an optional form to display to the user when RenderForm is nil
-	// It is passed a [FormContext] instance.
+	// It is passed the return value of [RenderTemplateContext], or a [FormContext] instance if this does not exist.
 	RenderTemplate *template.Template
+
+	// RenderTemplateContext is the context to be used for RenderTemplate.
+	// When nil, assumed to be the identify function
+	RenderTemplateContext func(ctx FormContext, r *http.Request) any
 
 	// Validate, if non-nil, validates the given submitted values.
 	// There is no guarantee that the values are set.
@@ -151,8 +155,16 @@ func (form *Form[D]) renderForm(err error, values map[string]string, w http.Resp
 		panic("form.RenderForm and form.Form are nil")
 	}
 
+	// get the template context
+	var tplctx any
+	if form.RenderTemplateContext == nil {
+		tplctx = ctx
+	} else {
+		tplctx = form.RenderTemplateContext(ctx, r)
+	}
+
 	// render the form
-	WriteHTML(ctx, nil, form.RenderTemplate, "", w, r)
+	WriteHTML(tplctx, nil, form.RenderTemplate, "", w, r)
 }
 
 // FormContext is passed to Form.Form when used

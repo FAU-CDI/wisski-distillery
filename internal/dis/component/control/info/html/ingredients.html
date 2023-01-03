@@ -1,11 +1,11 @@
 {{ template "_base.html" . }}
-{{ define "title" }}Distillery Control Page - {{ .Instance.Slug }} - Ingredients{{ end }}
+{{ define "title" }}Distillery Admin - {{ .Instance.Slug }} - Ingredients{{ end }}
 
 {{ define "header"}}
 <p>
-    <a class="pure-button" href="/dis/index">Control</a> &gt;
-    <a class="pure-button" href="/dis/instance/{{ .Instance.Slug }}">Instance</a> &gt;
-    <a class="pure-button pure-button-primary" href="/dis/ingredients/{{ .Instance.Slug }}">Ingredients</a>
+    <a class="pure-button" href="/admin/index">Admin</a> &gt;
+    <a class="pure-button" href="/admin/instance/{{ .Instance.Slug }}">Instance</a> &gt;
+    <a class="pure-button pure-button-primary" href="/admin/ingredients/{{ .Instance.Slug }}">Ingredients</a>
 </p>
 {{ end }}
 

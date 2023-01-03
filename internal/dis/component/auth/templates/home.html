@@ -1,20 +1,16 @@
 {{ template "_base.html" . }}
-{{ define "title" }}Distillery User{{ end }}
+{{ define "title" }}User{{ end }}
 
-{{ define "header/time" }}
-<!-- no header/time -->
-{{ end }}
 {{ define "header"}}
-<!-- no header -->
+<p>
+    <a class="pure-button pure-button-primary" href="/user/">{{ .User.User }}</a>
+</p>
+<p>
+    <a class="pure-button pure-button-small" href="/user/logout/">Logout</a>
+</p>
 {{ end }}
 
 {{ define "content" }}
-<div class="pure-u-1">
-    Welcome {{ .User.User }}!
-    <a class="pure-button pure-button-small" href="/auth/logout/">Logout</a>
-    <hr />
-</div>
-
 <div class="pure-u-1">
     <p>
         {{ if .User.Admin }}
@@ -29,11 +25,11 @@
         {{ end }}
     </p>
     <div class="pure-button-group" role="group" role="Actions">
-        <a class="pure-button" href="/auth/password/">Change Password</a>
+        <a class="pure-button" href="/user/password/">Change Password</a>
         {{ if .User.TOTPEnabled }}
-        <a class="pure-button" href="/auth/totp/disable/">Disable TOTP</a>
+        <a class="pure-button" href="/user/totp/disable/">Disable TOTP</a>
         {{ else }}
-        <a class="pure-button" href="/auth/totp/enable/">Enable TOTP</a>
+        <a class="pure-button" href="/user/totp/enable/">Enable TOTP</a>
         {{ end }}
     </div>
     <hr /> 
@@ -43,11 +39,13 @@
 <div class="pure-u-1">
     {{ if (not .User.TOTPEnabled) }}
     <div>
-        TOTP is required to access these.
+        <p class="error-message">
+            TOTP is required to access these.
+        </p>
     </div>
     {{ end }}
     <div class="pure-button-group" role="group" role="Actions">
-        <a class="pure-button" href="/dis/">Distillery Control Page</a>
+        <a class="pure-button" href="/admin/">Distillery Admin Page</a>
     </div>
     <hr />
 </div>

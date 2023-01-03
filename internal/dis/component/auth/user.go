@@ -7,8 +7,10 @@ import (
 	"errors"
 	"fmt"
 	"image/png"
+	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
@@ -287,4 +289,19 @@ func (au *AuthUser) Delete(ctx context.Context) error {
 	}
 
 	return table.Delete(&au.User).Error
+}
+
+type userFormContext struct {
+	httpx.FormContext
+	User *models.User
+}
+
+func (au *Auth) UserFormContext(ctx httpx.FormContext, r *http.Request) any {
+	user, err := au.UserOf(r)
+
+	uctx := userFormContext{FormContext: ctx}
+	if err == nil {
+		uctx.User = &user.User
+	}
+	return uctx
 }

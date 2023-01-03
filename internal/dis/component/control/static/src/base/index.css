@@ -64,3 +64,10 @@ footer {
 .pure-button-xlarge {
     font-size: 125%;
 }
+
+.error-message {
+    background-color: pink;
+    border: 1px solid red;
+    padding: 2px;
+    color: red;
+}

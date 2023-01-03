@@ -1,13 +1,13 @@
 {{ template "_base.html" . }}
-{{ define "title" }}Distillery Control Page - {{ .Info.Slug }}{{ end }}
+{{ define "title" }}Distillery Admin - {{ .Info.Slug }}{{ end }}
 
 {{ define "header"}}
 <p>
-    <a class="pure-button" href="/dis/index">Control</a> &gt;
-    <a class="pure-button pure-button-primary" href="/dis/instance/{{ .Info.Slug }}">Instance</a>
+    <a class="pure-button" href="/admin/index">Control</a> &gt;
+    <a class="pure-button pure-button-primary" href="/admin/instance/{{ .Info.Slug }}">Instance</a>
 </p>
 <p>
-    <a class="pure-button" href="/dis/ingredients/{{ .Info.Slug }}">Ingredients</a>
+    <a class="pure-button" href="/admin/ingredients/{{ .Info.Slug }}">Ingredients</a>
 </p>
 {{ end }}
 
@@ -247,7 +247,7 @@
                             <code class="date">{{ $user.Login.Time.Format "2006-01-02T15:04:05Z07:00" }}</code>
                         </td>
                         <td>
-                            <form action="/dis/api/login" method="POST" target="_blank">
+                            <form action="/admin/api/login" method="POST" target="_blank">
                                 <input type="hidden" name="slug" value="{{ $slug }}">
                                 <input type="hidden" name="user" value="{{ $user.Name }}">
                                 <input type="submit" class="pure-button pure-button-action" value="Login in new window">

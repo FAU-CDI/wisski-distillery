@@ -1,12 +1,12 @@
 {{ template "_base.html" . }}
-{{ define "title" }}Distillery Control Page{{ end }}
+{{ define "title" }}Distillery Admin{{ end }}
 
 {{ define "header"}}
 <p>
-    <a class="pure-button pure-button-primary" href="/dis/index">Control</a>
+    <a class="pure-button pure-button-primary" href="/admin/index">Admin</a>
 </p>
 <p>
-    <a class="pure-button" href="/dis/components">Components</a>
+    <a class="pure-button" href="/admin/components">Components</a>
 </p>
 {{ end }}
 
@@ -269,7 +269,7 @@
         <p>
             <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br>
 
-            <a class="pure-button" href="/dis/instance/{{.Slug}}">Details</a>
+            <a class="pure-button" href="/admin/instance/{{.Slug}}">Details</a>
         </p>
     </div>
 </div>

@@ -1,32 +1,30 @@
 {{ template "_base.html" . }}
 {{ define "title" }}{{ block "form/title" . }}Form{{ end }}{{ end }}
 
-{{ define "header/time" }}
-<!-- no header/time -->
-{{ end }}
-{{ define "header"}}
-<!-- no header -->
-{{ end }}
-
+{{ define "header" }}<!-- no header -->{{ end }}
+{{ define "header/time" }}<!-- no time -->{{ end }}
 {{ define "content" }}
 <div class="pure-u-1">
-
-    {{ block "form/message" . }}
-        {{ $E := .Error }}
-        {{ if not (eq $E "") }}
-            <div>
-                {{ $E }}
-            </div>
-        {{ end }}
-    {{ end }}
     {{ block "form/extra" . }}<!-- no extra -->{{ end }}
 
     <form class="pure-form pure-form-aligned" method="POST">
         <fieldset>
             <legend>{{ template "form/title" . }}</legend>
+
+            {{ block "form/message" . }}
+                {{ $E := .Error }}
+                {{ if not (eq $E "") }}
+                    <div class="pure-form-group">
+                        <p class="error-message">
+                            {{ $E }}
+                        </p>
+                    </div>
+                {{ end }}
+            {{ end }}
+
             {{ block "form/inside" . }}<!-- no inside -->{{ end }}
             {{ .Form }}
-            <input type="submit" value="{{ block "form/button" .}}Submit{{ end }}" class="pure-button">
+            <input type="submit" value="{{ block " form/button" .}}Submit{{ end }}" class="pure-button">
         </fieldset>
     </form>
 </div>

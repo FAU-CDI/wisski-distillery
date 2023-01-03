@@ -1,12 +1,17 @@
 {{ template "_form.html" . }}
 {{ define "form/title" }}Disable TOTP{{ end }}
 {{ define "form/button" }}Disable{{ end }}
-{{ define "form/extra" }}
-<div>
-    <a class="pure-button" href="/auth/">Back</a>
-    <hr />
-</div>
+
+{{ define "header"}}
+<p>
+    <a class="pure-button" href="/user/">{{ .User.User }}</a> &gt;
+    <a class="pure-button pure-button-primary" href="/user/totp/disable/">Disable TOTP</a>
+</p>
+<p>
+    <a class="pure-button pure-button-small" href="/user/logout/">Logout</a>
+</p>
 {{ end }}
+
 {{ define "form/inside" }}
 <div>
     <ul>

@@ -27,7 +27,7 @@ var (
 	_ component.Routeable = (*Auth)(nil)
 )
 
-func (auth *Auth) Routes() []string { return []string{"/auth/"} }
+func (auth *Auth) Routes() []string { return []string{"/user/"} }
 
 func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	router := httprouter.New()
