@@ -176,8 +176,9 @@
     </div>
 </div>
 
+
 <div class="pure-u-1-1">
-    <h2 id="wisski">Users</h2>
+    <h2 id="wisski">(Drupal) Users</h2>
 </div>
 
 <div class="pure-u-1">
@@ -251,6 +252,47 @@
                                 <input type="hidden" name="user" value="{{ $user.Name }}">
                                 <input type="submit" class="pure-button pure-button-action" value="Login in new window">
                             </form>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="pure-u-1-1">
+    <h2 id="distillery">(Distillery) Users</h2>
+</div>
+
+<div class="pure-u-1">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            Distillery User
+                        </th>
+                        <th>
+                            WissKI User
+                        </th>
+                        <th>
+                            Admin
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range $index, $grant := .Info.Grants }}
+                    <tr>
+                        <td>
+                            <code>{{ $grant.User }}</code>
+                        </td>
+                        <td>
+                            <code>{{ $grant.DrupalUsername }}</code>
+                        </td>
+                        <td>
+                            <code>{{ $grant.DrupalAdminRole }}</code>
                         </td>
                     </tr>
                     {{ end }}
