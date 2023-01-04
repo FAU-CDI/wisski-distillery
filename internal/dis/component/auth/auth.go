@@ -32,17 +32,7 @@ func (auth *Auth) Routes() []string { return []string{"/user/"} }
 func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	router := httprouter.New()
 
-	// setup the csrf handler (if needed)
-	auth.csrf.Get(func() func(http.Handler) http.Handler {
-		var opts []csrf.Option
-		if !auth.Config.HTTPSEnabled() {
-			opts = append(opts, csrf.Secure(false))
-		}
-		opts = append(opts, csrf.Path(route))
-		return csrf.Protect(auth.Config.CSRFSecret(), opts...)
-	})
-
-	router.Handler(http.MethodGet, route, auth.authHome(ctx))
+	router.Handler(http.MethodGet, route, auth.authUser(ctx))
 
 	{
 		login := auth.authLogin(ctx)
@@ -77,4 +67,15 @@ func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, 
 	}
 
 	return router, nil
+}
+
+func (auth *Auth) CSRF() func(http.Handler) http.Handler {
+	// setup the csrf handler (if needed)
+	return auth.csrf.Get(func() func(http.Handler) http.Handler {
+		var opts []csrf.Option
+		if !auth.Config.HTTPSEnabled() {
+			opts = append(opts, csrf.Secure(false))
+		}
+		return csrf.Protect(auth.Config.CSRFSecret(), opts...)
+	})
 }

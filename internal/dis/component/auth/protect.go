@@ -74,5 +74,5 @@ func (auth *Auth) Protect(handler http.Handler, perm Permission) http.Handler {
 
 // Admin represents a permission that checks if a user is an administrator and has totp enabled.
 var Admin Permission = func(user *AuthUser, r *http.Request) (ok Grant, err error) {
-	return Bool2Grant(user != nil && user.Admin && user.TOTPEnabled, "user needs to have admin permissions and TOTP enabled"), nil
+	return Bool2Grant(user != nil && user.IsAdmin() && user.IsTOTPEnabled(), "user needs to have admin permissions and TOTP enabled"), nil
 }

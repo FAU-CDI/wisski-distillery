@@ -4,13 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"image/png"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/pkg/errors"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"golang.org/x/crypto/bcrypt"
@@ -90,15 +90,17 @@ func (auth *Auth) CreateUser(ctx context.Context, name string) (user *AuthUser, 
 
 	user = &AuthUser{
 		User: models.User{
-			User:    name,
-			Enabled: false,
+			User: name,
 		},
 	}
+	user.SetAdmin(false)
+	user.SetEnabled(false)
+	user.SetTOTPEnabled(false)
 
 	// do the create statement
-	err = table.Create(&user.User).Error
+	err = table.Select("*").Create(&user.User).Error
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "Create")
 	}
 
 	user.auth = auth
@@ -116,7 +118,7 @@ func (au *AuthUser) String() string {
 		return "User{nil}"
 	}
 	hasPassword := len(au.PasswordHash) > 0
-	return fmt.Sprintf("User{Name:%q,Enabled:%t,HasPassword:%t,Admin:%t}", au.User.User, au.User.Enabled, hasPassword, au.User.Admin)
+	return fmt.Sprintf("User{Name:%q,Enabled:%t,HasPassword:%t,Admin:%t}", au.User.User, au.User.IsEnabled(), hasPassword, au.User.IsAdmin())
 }
 
 var (
@@ -140,7 +142,7 @@ func (au *AuthUser) CheckTOTP(passcode string) error {
 		return err
 	}
 
-	if au.TOTPEnabled && !totp.Validate(passcode, secret.Secret()) {
+	if au.IsTOTPEnabled() && !totp.Validate(passcode, secret.Secret()) {
 		return ErrTOTPFailed
 	}
 	return nil
@@ -148,7 +150,7 @@ func (au *AuthUser) CheckTOTP(passcode string) error {
 
 // NewTOTP generates a new TOTP secret, returning a totp key.
 func (au *AuthUser) NewTOTP(ctx context.Context) (*otp.Key, error) {
-	if au.User.TOTPEnabled {
+	if au.User.IsTOTPEnabled() {
 		return nil, ErrTOTPEnabled
 	}
 
@@ -191,14 +193,14 @@ func (au *AuthUser) EnableTOTP(ctx context.Context, passcode string) error {
 		return ErrTOTPFailed
 	}
 
-	au.User.TOTPEnabled = true
+	au.User.SetTOTPEnabled(true)
 	return au.Save(ctx)
 
 }
 
 // DisableTOTP disables totp for the given user
 func (au *AuthUser) DisableTOTP(ctx context.Context) (err error) {
-	au.User.TOTPEnabled = false
+	au.User.SetTOTPEnabled(false)
 	au.User.TOTPURL = ""
 	return au.Save(ctx)
 }
@@ -209,14 +211,14 @@ func (au *AuthUser) SetPassword(ctx context.Context, password []byte) (err error
 	if err != nil {
 		return err
 	}
-	au.User.Enabled = true
+	au.User.SetEnabled(true)
 	return au.Save(ctx)
 }
 
 // UnsetPassword removes the password from this user, and disables them
 func (au *AuthUser) UnsetPassword(ctx context.Context) error {
 	au.User.PasswordHash = nil
-	au.User.Enabled = false
+	au.User.SetEnabled(false)
 	return au.Save(ctx)
 }
 
@@ -230,7 +232,7 @@ func (au *AuthUser) CheckPassword(ctx context.Context, password []byte) error {
 	if au == nil {
 		return ErrNoUser
 	}
-	if !au.User.Enabled {
+	if !au.User.IsEnabled() {
 		return ErrUserDisabled
 	}
 
@@ -254,14 +256,14 @@ func (au *AuthUser) CheckCredentials(ctx context.Context, password []byte, passc
 // MakeAdmin makes this user an admin, and saves the update in the database.
 // If the user is already an admin, does not return an error.
 func (au *AuthUser) MakeAdmin(ctx context.Context) error {
-	au.User.Admin = true
+	au.User.SetAdmin(true)
 	return au.Save(ctx)
 }
 
 // MakeRegular removes admin rights from this user.
 // If this user is not an dmin, does not return an error.
 func (au *AuthUser) MakeRegular(ctx context.Context) error {
-	au.User.Admin = true
+	au.User.SetAdmin(false)
 	return au.Save(ctx)
 }
 
@@ -271,7 +273,7 @@ func (au *AuthUser) Save(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return table.Save(&au.User).Error
+	return table.Select("*").Updates(&au.User).Error
 }
 
 // Delete deletes the user from the database

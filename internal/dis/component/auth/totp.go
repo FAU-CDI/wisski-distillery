@@ -22,11 +22,11 @@ func (auth *Auth) authTOTPEnable(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
-		CSRF: auth.csrf.Get(nil),
+		CSRF: auth.CSRF(),
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := auth.UserOf(r)
-			return struct{}{}, err == nil && user != nil && user.TOTPEnabled
+			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 
 		RenderTemplate:        totpEnableTemplate,
@@ -81,11 +81,11 @@ func (auth *Auth) authTOTPEnroll(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
-		CSRF: auth.csrf.Get(nil),
+		CSRF: auth.CSRF(),
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
-			user, _ := auth.UserOf(r)
-			return struct{}{}, user != nil && user.TOTPEnabled
+			user, err := auth.UserOf(r)
+			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
 			user, err := auth.UserOf(r)
@@ -152,11 +152,11 @@ func (auth *Auth) authTOTPDisable(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
-		CSRF: auth.csrf.Get(nil),
+		CSRF: auth.CSRF(),
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
-			user, _ := auth.UserOf(r)
-			return struct{}{}, user != nil && !user.TOTPEnabled
+			user, err := auth.UserOf(r)
+			return struct{}{}, err == nil && user != nil && !user.IsTOTPEnabled()
 		},
 		RenderTemplate:        totpDisableTemplate,
 		RenderTemplateContext: auth.UserFormContext,

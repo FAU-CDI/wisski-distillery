@@ -13,12 +13,12 @@
 {{ define "content" }}
 <div class="pure-u-1">
     <p>
-        {{ if .User.Admin }}
+        {{ if .User.IsAdmin }}
         You are an administrator.
         {{ else }}
         You are a regular user.
         {{ end }}
-        {{ if .User.TOTPEnabled }}
+        {{ if .User.IsTOTPEnabled }}
         You have TOTP enabled.
         {{ else }}
         You do not have TOTP enabled.
@@ -26,7 +26,7 @@
     </p>
     <div class="pure-button-group" role="group" role="Actions">
         <a class="pure-button" href="/user/password/">Change Password</a>
-        {{ if .User.TOTPEnabled }}
+        {{ if .User.IsTOTPEnabled }}
         <a class="pure-button" href="/user/totp/disable/">Disable TOTP</a>
         {{ else }}
         <a class="pure-button" href="/user/totp/enable/">Enable TOTP</a>
@@ -35,9 +35,9 @@
     <hr /> 
 </div>
 
-{{ if .User.Admin }}
+{{ if .User.IsAdmin }}
 <div class="pure-u-1">
-    {{ if (not .User.TOTPEnabled) }}
+    {{ if (not .User.IsTOTPEnabled) }}
     <div>
         <p class="error-message">
             TOTP is required to access these.

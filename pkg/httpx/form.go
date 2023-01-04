@@ -224,4 +224,5 @@ type InputType string
 const (
 	TextField     InputType = "text"
 	PasswordField InputType = "password"
+	CheckboxField InputType = "checkbox"
 )

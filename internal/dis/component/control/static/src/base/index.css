@@ -21,7 +21,7 @@ footer {
 }
 
 .overflow table td,
-.overflow table th{
+.overflow table th {
     padding: .5em .5em;
 }
 
@@ -41,12 +41,24 @@ footer {
     display: block;
     height: 1em;
 }
+.pure-form-group {
+    display: inline;
+}
 
 .pure-button-action {
     background-color: rgb(66, 184, 221) !important;
 }
+
 .pure-button-success {
     background-color: rgb(28, 184, 65) !important;
+}
+
+.pure-button-danger {
+    background: rgb(202, 60, 60) !important;
+}
+
+.pure-button-warning {
+    background: rgb(223, 117, 20) !important;
 }
 
 .pure-button-xsmall {

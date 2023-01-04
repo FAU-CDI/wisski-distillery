@@ -10,17 +10,17 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
-//go:embed "templates/home.html"
-var homeHTMLStr string
-var homeTemplate = static.AssetsHome.MustParseShared(
-	"home.html",
-	homeHTMLStr,
+//go:embed "templates/user.html"
+var userHTMLStr string
+var userTemplate = static.AssetsUser.MustParseShared(
+	"user.html",
+	userHTMLStr,
 )
 
-func (auth *Auth) authHome(ctx context.Context) http.Handler {
+func (auth *Auth) authUser(ctx context.Context) http.Handler {
 	return auth.Protect(&httpx.HTMLHandler[*AuthUser]{
 		Handler:  auth.UserOf,
-		Template: homeTemplate,
+		Template: userTemplate,
 	}, nil)
 }
 
@@ -47,7 +47,7 @@ func (auth *Auth) authPassword(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
-		CSRF: auth.csrf.Get(nil),
+		CSRF: auth.CSRF(),
 
 		RenderTemplate:        passwordTemplate,
 		RenderTemplateContext: auth.UserFormContext,

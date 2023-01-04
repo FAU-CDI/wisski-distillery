@@ -1,0 +1,95 @@
+{{ template "_base.html" . }}
+{{ define "title" }}Distillery Admin - Users{{ end }}
+
+{{ define "header"}}
+<p>
+    <a class="pure-button" href="/admin/index">Control</a> &gt;
+    <a class="pure-button pure-button-primary" href="/admin/users">Users</a>
+</p>
+<p>
+    <div class="pure-button-group" role="group" aria-label="Actions">
+        <a class="pure-button" href="/admin/users/create">Create New</a>
+    </div>
+</p>
+{{ end }}
+
+{{ define "content" }}
+<div class="pure-u-1">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            Username
+                        </th>
+                        <th>
+                            Enabled
+                        </th>
+                        <th>
+                            Admin
+                        </th>
+                        <th>
+                            Passcode (TOTP)
+                        </th>
+                        <th>
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ $csrf := .CSRF }}
+                    {{ range .Users }}
+                        <tr {{ if not .User.IsEnabled }}style="color:gray"{{ end }}>
+                            <td>
+                                {{ .User.User }}
+                            </td>
+                            <td>
+                                {{ .User.IsEnabled }}
+                                
+                            </td>
+                            <td>
+                                {{ .User.IsAdmin }}
+                            </td>
+                            <td>
+                                {{ .User.IsTOTPEnabled }}
+                            </td>
+                            <td>
+                                <div class="pure-button-group" role="group">
+                                    <form action="/admin/users/toggleadmin" method="POST" class="pure-form-group">
+                                        <input type="hidden" name="user" value="{{ .User.User }}">
+                                        <input type="submit" class="pure-button" value="{{ if .User.IsAdmin }}Remove Admin{{ else }} Make Admin{{ end }}">
+                                        {{ $csrf }}
+                                    </form>
+                                    <form action="/admin/users/password" method="POST" class="pure-form pure-form-group">
+                                        <input type="hidden" name="user" value="{{ .User.User }}">
+                                        <input type="password" name="password"> &nbsp;
+                                        <input type="submit" class="pure-button" value="Update Password">
+                                        {{ $csrf }}
+                                    </form>
+                                    <form action="/admin/users/disable" method="POST" class="pure-form-group">
+                                        <input type="hidden" name="user" value="{{ .User.User }}">
+                                        <input type="submit" class="pure-button" {{ if (not .User.IsEnabled) }}disabled{{ end }} value="Disable">
+                                        {{ $csrf }}
+                                    </form>
+                                    <form action="/admin/users/disabletotp" method="POST" class="pure-form-group">
+                                        <input type="hidden" name="user" value="{{ .User.User }}">
+                                        <input type="submit" class="pure-button" {{ if (not .User.IsTOTPEnabled) }}disabled{{ end }} value="Remove Passcode">
+                                        {{ $csrf }}
+                                    </form>
+                                    <form action="/admin/users/delete" method="POST" class="pure-form-group">
+                                        <input type="hidden" name="user" value="{{ .User.User }}">
+                                        <input type="submit" class="pure-button pure-button-danger" value="Delete">
+                                        {{ $csrf }}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{{ end }}

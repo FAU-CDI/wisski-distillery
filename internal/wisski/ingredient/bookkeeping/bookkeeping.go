@@ -25,7 +25,7 @@ func (bk *Bookkeeping) Save(ctx context.Context) error {
 	}
 
 	// Update based on the primary key!
-	return sdb.Where("pk = ?", bk.Instance.Pk).Updates(&bk.Instance).Error
+	return sdb.Select("*").Save(&bk.Instance).Error
 }
 
 // Delete deletes this instance from the bookkeeping table

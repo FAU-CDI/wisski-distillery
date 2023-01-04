@@ -49,7 +49,7 @@ func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, err error) {
 	}
 
 	// user isn't enabled
-	if !user.Enabled {
+	if !user.IsEnabled() {
 		return nil, nil
 	}
 
@@ -122,7 +122,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
-		CSRF: auth.csrf.Get(nil),
+		CSRF: auth.CSRF(),
 
 		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
 			if context.Err != nil {

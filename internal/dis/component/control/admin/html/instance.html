@@ -7,7 +7,9 @@
     <a class="pure-button pure-button-primary" href="/admin/instance/{{ .Info.Slug }}">Instance</a>
 </p>
 <p>
-    <a class="pure-button" href="/admin/ingredients/{{ .Info.Slug }}">Ingredients</a>
+    <div class="pure-button-group" role="group" aria-label="Actions">
+        <a class="pure-button pure-button-small" href="/admin/ingredients/{{ .Info.Slug }}">Ingredients</a>
+    </div>
 </p>
 {{ end }}
 
@@ -216,6 +218,7 @@
                 </thead>
                 <tbody>
                     {{ $slug := .Instance.Slug }}
+                    {{ $csrf := .CSRF }}
                     {{ range $index, $user := .Info.Users }}
                     <tr {{ if not $user.Status }}style="color:gray"{{ end }}>
                         <td>
@@ -247,10 +250,11 @@
                             <code class="date">{{ $user.Login.Time.Format "2006-01-02T15:04:05Z07:00" }}</code>
                         </td>
                         <td>
-                            <form action="/admin/api/login" method="POST" target="_blank">
+                            <form action="/admin/login" method="POST" target="_blank">
                                 <input type="hidden" name="slug" value="{{ $slug }}">
                                 <input type="hidden" name="user" value="{{ $user.Name }}">
                                 <input type="submit" class="pure-button pure-button-action" value="Login in new window">
+                                {{ $csrf }}
                             </form>
                         </td>
                     </tr>

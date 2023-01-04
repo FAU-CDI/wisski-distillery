@@ -192,8 +192,7 @@ func (du disUser) runCheckPassword(context wisski_distillery.Context) error {
 	context.Println()
 
 	var passcode string
-	if user.TOTPEnabled {
-		context.Printf("Enter passcode for %s:", du.Positionals.User)
+	if user.IsTOTPEnabled() {
 
 		passcode, err = context.IOStream.ReadPassword()
 		if err != nil {
@@ -261,9 +260,7 @@ func (du disUser) runMakeAdmin(context wisski_distillery.Context) error {
 	if err != nil {
 		return err
 	}
-
-	user.Admin = true
-	return user.Save(context.Context)
+	return user.MakeAdmin(context.Context)
 }
 
 func (du disUser) runRemoveAdmin(context wisski_distillery.Context) error {
@@ -272,6 +269,5 @@ func (du disUser) runRemoveAdmin(context wisski_distillery.Context) error {
 		return err
 	}
 
-	user.Admin = false
-	return user.Save(context.Context)
+	return user.MakeRegular(context.Context)
 }
