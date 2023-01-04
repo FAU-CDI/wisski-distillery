@@ -1,4 +1,4 @@
-package info
+package admin
 
 import (
 	"net/http"
@@ -27,8 +27,8 @@ type componentContext struct {
 	Analytics lazy.PoolAnalytics
 }
 
-func (info *Info) components(r *http.Request) (cp componentContext, err error) {
-	cp.Analytics = *info.Analytics
+func (admin *Admin) components(r *http.Request) (cp componentContext, err error) {
+	cp.Analytics = *admin.Analytics
 	cp.Time = time.Now().UTC()
 
 	return
@@ -48,11 +48,11 @@ type ingredientsContext struct {
 	Analytics *lazy.PoolAnalytics
 }
 
-func (info *Info) ingredients(r *http.Request) (cp ingredientsContext, err error) {
+func (admin *Admin) ingredients(r *http.Request) (cp ingredientsContext, err error) {
 	cp.Time = time.Now().UTC()
 
 	// find the instance itself!
-	instance, err := info.Dependencies.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])
+	instance, err := admin.Dependencies.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])
 	if err == instances.ErrWissKINotFound {
 		return cp, httpx.ErrNotFound
 	}

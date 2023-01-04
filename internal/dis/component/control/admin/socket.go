@@ -1,4 +1,4 @@
-package info
+package admin
 
 import (
 	"context"
@@ -16,13 +16,13 @@ import (
 type InstanceAction struct {
 	NumParams int
 
-	HandleInteractive func(ctx context.Context, info *Info, instance *wisski.WissKI, out io.Writer, params ...string) error
-	HandleResult      func(ctx context.Context, info *Info, instance *wisski.WissKI, params ...string) (value any, err error)
+	HandleInteractive func(ctx context.Context, info *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error
+	HandleResult      func(ctx context.Context, info *Admin, instance *wisski.WissKI, params ...string) (value any, err error)
 }
 
 var socketInstanceActions = map[string]InstanceAction{
 	"snapshot": {
-		HandleInteractive: func(ctx context.Context, info *Info, instance *wisski.WissKI, out io.Writer, params ...string) error {
+		HandleInteractive: func(ctx context.Context, info *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
 			return info.Dependencies.Exporter.MakeExport(
 				ctx,
 				out,
@@ -36,23 +36,23 @@ var socketInstanceActions = map[string]InstanceAction{
 		},
 	},
 	"rebuild": {
-		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, out io.Writer, params ...string) error {
+		HandleInteractive: func(ctx context.Context, _ *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
 			return instance.Barrel().Build(ctx, out, true)
 		},
 	},
 	"update": {
-		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, out io.Writer, params ...string) error {
+		HandleInteractive: func(ctx context.Context, _ *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
 			return instance.Drush().Update(ctx, out)
 		},
 	},
 	"cron": {
-		HandleInteractive: func(ctx context.Context, _ *Info, instance *wisski.WissKI, str io.Writer, params ...string) error {
+		HandleInteractive: func(ctx context.Context, _ *Admin, instance *wisski.WissKI, str io.Writer, params ...string) error {
 			return instance.Drush().Cron(ctx, str)
 		},
 	},
 }
 
-func (info *Info) serveSocket(conn httpx.WebSocketConnection) {
+func (admin *Admin) serveSocket(conn httpx.WebSocketConnection) {
 	// read the next message to act on
 	message, ok := <-conn.Read()
 	if !ok {
@@ -61,14 +61,14 @@ func (info *Info) serveSocket(conn httpx.WebSocketConnection) {
 
 	// perform an action if it exists!
 	if action, ok := socketInstanceActions[string(message.Bytes)]; ok {
-		info.handleInstanceAction(conn, action)
+		admin.handleInstanceAction(conn, action)
 		return
 	}
 }
 
 var instanceParamsTimeout = time.Second
 
-func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action InstanceAction) {
+func (admin *Admin) handleInstanceAction(conn httpx.WebSocketConnection, action InstanceAction) {
 
 	// read the slug
 	slug, ok := <-conn.Read()
@@ -78,7 +78,7 @@ func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action In
 	}
 
 	// resolve the instance
-	instance, err := info.Dependencies.Instances.WissKI(conn.Context(), string(slug.Bytes))
+	instance, err := admin.Dependencies.Instances.WissKI(conn.Context(), string(slug.Bytes))
 	if err != nil {
 		<-conn.WriteText("Instance not found")
 		return
@@ -111,7 +111,7 @@ func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action In
 
 	// handle the interactive action
 	if action.HandleInteractive != nil {
-		err := action.HandleInteractive(conn.Context(), info, instance, writer, params...)
+		err := action.HandleInteractive(conn.Context(), admin, instance, writer, params...)
 		if err != nil {
 			fmt.Fprintln(writer, err)
 			return
@@ -121,7 +121,7 @@ func (info *Info) handleInstanceAction(conn httpx.WebSocketConnection, action In
 
 	// handle the result computation
 	if action.HandleResult != nil {
-		result, err := action.HandleResult(conn.Context(), info, instance, params...)
+		result, err := action.HandleResult(conn.Context(), admin, instance, params...)
 		if err != nil {
 			fmt.Fprintln(writer, "false")
 			return

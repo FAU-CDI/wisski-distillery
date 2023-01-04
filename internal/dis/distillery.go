@@ -10,9 +10,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/admin"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/cron"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/home"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/info"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
@@ -100,8 +100,8 @@ func (dis *Distillery) Updatable() []component.Updatable {
 func (dis *Distillery) Provisionable() []component.Provisionable {
 	return exportAll[component.Provisionable](dis)
 }
-func (dis *Distillery) Info() *info.Info {
-	return export[*info.Info](dis)
+func (dis *Distillery) Info() *admin.Admin {
+	return export[*admin.Admin](dis)
 }
 
 //
@@ -153,8 +153,8 @@ func (dis *Distillery) allComponents() []initFunc {
 		manual(func(resolver *resolver.Resolver) {
 			resolver.RefreshInterval = time.Minute
 		}),
-		manual(func(info *info.Info) {
-			info.Analytics = &dis.pool.Analytics
+		manual(func(admin *admin.Admin) {
+			admin.Analytics = &dis.pool.Analytics
 		}),
 
 		// Cron

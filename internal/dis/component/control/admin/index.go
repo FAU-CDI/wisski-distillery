@@ -1,4 +1,4 @@
-package info
+package admin
 
 import (
 	"context"
@@ -20,24 +20,14 @@ var indexTemplate = static.AssetsControlIndex.MustParseShared(
 	indexTemplateStr,
 )
 
-type indexContext struct {
-	status.Distillery
-	Instances []status.WissKI
-}
-
-func (info *Info) index(r *http.Request) (idx indexContext, err error) {
-	idx.Distillery, idx.Instances, err = info.Status(r.Context(), true)
-	return
-}
-
 // Status produces a new observation of the distillery, and a new information of all instances
 // The information on all instances is passed the given quick flag.
-func (info *Info) Status(ctx context.Context, QuickInformation bool) (target status.Distillery, information []status.WissKI, err error) {
+func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target status.Distillery, information []status.WissKI, err error) {
 	var group errgroup.Group
 
 	group.Go(func() error {
 		// list all the instances
-		all, err := info.Dependencies.Instances.All(ctx)
+		all, err := admin.Dependencies.Instances.All(ctx)
 		if err != nil {
 			return err
 		}
@@ -63,7 +53,7 @@ func (info *Info) Status(ctx context.Context, QuickInformation bool) (target sta
 	flags := component.FetcherFlags{
 		Context: ctx,
 	}
-	for _, o := range info.Dependencies.Fetchers {
+	for _, o := range admin.Dependencies.Fetchers {
 		o := o
 		group.Go(func() error {
 			return o.Fetch(flags, &target)
@@ -88,8 +78,18 @@ func (info *Info) Status(ctx context.Context, QuickInformation bool) (target sta
 	return
 }
 
-func (nfo *Info) Fetch(flags component.FetcherFlags, target *status.Distillery) error {
+type indexContext struct {
+	status.Distillery
+	Instances []status.WissKI
+}
+
+func (admin *Admin) index(r *http.Request) (idx indexContext, err error) {
+	idx.Distillery, idx.Instances, err = admin.Status(r.Context(), true)
+	return
+}
+
+func (admin *Admin) Fetch(flags component.FetcherFlags, target *status.Distillery) error {
 	target.Time = time.Now().UTC()
-	target.Config = nfo.Config
+	target.Config = admin.Config
 	return nil
 }

@@ -1,4 +1,4 @@
-package info
+package admin
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
-type Info struct {
+type Admin struct {
 	component.Base
 	Dependencies struct {
 		Fetchers []component.DistilleryFetcher
@@ -31,13 +31,13 @@ type Info struct {
 }
 
 var (
-	_ component.DistilleryFetcher = (*Info)(nil)
-	_ component.Routeable         = (*Info)(nil)
+	_ component.DistilleryFetcher = (*Admin)(nil)
+	_ component.Routeable         = (*Admin)(nil)
 )
 
-func (*Info) Routes() []string { return []string{"/admin/"} }
+func (*Admin) Routes() []string { return []string{"/admin/"} }
 
-func (info *Info) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
+func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
 
 	router := httprouter.New()
 
@@ -45,9 +45,9 @@ func (info *Info) HandleRoute(ctx context.Context, route string) (handler http.H
 		socket := &httpx.WebSocket{
 			Context:  ctx,
 			Fallback: router,
-			Handler:  info.serveSocket,
+			Handler:  admin.serveSocket,
 		}
-		handler = info.Dependencies.Auth.Protect(socket, auth.Admin)
+		handler = admin.Dependencies.Auth.Protect(socket, auth.Admin)
 	}
 
 	// handle everything
@@ -57,25 +57,25 @@ func (info *Info) HandleRoute(ctx context.Context, route string) (handler http.H
 
 	// add a handler for the index page
 	router.Handler(http.MethodGet, route+"index", httpx.HTMLHandler[indexContext]{
-		Handler:  info.index,
+		Handler:  admin.index,
 		Template: indexTemplate,
 	})
 
 	// add a handler for the component page
 	router.Handler(http.MethodGet, route+"components", httpx.HTMLHandler[componentContext]{
-		Handler:  info.components,
+		Handler:  admin.components,
 		Template: componentsTemplate,
 	})
 
 	// add a handler for the component page
 	router.Handler(http.MethodGet, route+"ingredients/:slug", httpx.HTMLHandler[ingredientsContext]{
-		Handler:  info.ingredients,
+		Handler:  admin.ingredients,
 		Template: ingredientsTemplate,
 	})
 
 	// add a handler for the instance page
 	router.Handler(http.MethodGet, route+"instance/:slug", httpx.HTMLHandler[instanceContext]{
-		Handler:  info.instance,
+		Handler:  admin.instance,
 		Template: instanceTemplate,
 	})
 
@@ -86,7 +86,7 @@ func (info *Info) HandleRoute(ctx context.Context, route string) (handler http.H
 		}
 
 		// get the instance
-		instance, err := info.Dependencies.Instances.WissKI(r.Context(), r.PostFormValue("slug"))
+		instance, err := admin.Dependencies.Instances.WissKI(r.Context(), r.PostFormValue("slug"))
 		if err != nil {
 			return "", 0, httpx.ErrNotFound
 		}

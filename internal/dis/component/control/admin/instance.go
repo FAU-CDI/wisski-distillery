@@ -1,4 +1,4 @@
-package info
+package admin
 
 import (
 	_ "embed"
@@ -27,9 +27,9 @@ type instanceContext struct {
 	Info     status.WissKI
 }
 
-func (info *Info) instance(r *http.Request) (is instanceContext, err error) {
+func (admin *Admin) instance(r *http.Request) (is instanceContext, err error) {
 	// find the instance itself!
-	instance, err := info.Dependencies.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])
+	instance, err := admin.Dependencies.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])
 	if err == instances.ErrWissKINotFound {
 		return is, httpx.ErrNotFound
 	}
