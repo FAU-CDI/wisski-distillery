@@ -72,6 +72,6 @@ var (
 		return json.Marshal(map[string]any{"status": text, "code": code})
 	})
 	HTMLInterceptor = StatusInterceptor("text/html", func(code int, text string) ([]byte, error) {
-		return []byte(`<!DOCTYPE HTML><title>` + text + `</title>` + text), nil
+		return MinifyHTML([]byte(`<!DOCTYPE HTML><title>` + text + `</title>` + text)), nil
 	})
 )

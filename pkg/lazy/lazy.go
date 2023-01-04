@@ -5,7 +5,7 @@ import (
 )
 
 // Lazy holds a lazily initialized value of T.
-// Lazy non-zero lazy must not be copied after first use.
+// A non-zero lazy must not be copied after first use.
 type Lazy[T any] struct {
 	once sync.Once
 

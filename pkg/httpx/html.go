@@ -17,10 +17,15 @@ func WriteHTML[T any](result T, err error, template *template.Template, template
 	w.Header().Set("Content-Type", "text/html")
 	w.WriteHeader(http.StatusOK)
 
+	// minify html!
+	minifier := MinifyHTMLWriter(w)
+	defer minifier.Close()
+
+	// and return the template
 	if templateName != "" {
-		template.ExecuteTemplate(w, templateName, result)
+		template.ExecuteTemplate(minifier, templateName, result)
 	} else {
-		template.Execute(w, result)
+		template.Execute(minifier, result)
 	}
 }
 

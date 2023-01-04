@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
 type UpdateInstanceList struct {
@@ -77,6 +78,6 @@ func (ur *UpdateHome) Cron(ctx context.Context) error {
 		return err
 	}
 
-	ur.Dependencies.Home.homeBytes.Set(bytes)
+	ur.Dependencies.Home.homeBytes.Set(httpx.MinifyHTML(bytes))
 	return nil
 }
