@@ -12,7 +12,7 @@ import (
 
 //go:embed "templates/home.html"
 var homeHTMLStr string
-var homeTemplate = static.AssetsAuthHome.MustParseShared(
+var homeTemplate = static.AssetsHome.MustParseShared(
 	"home.html",
 	homeHTMLStr,
 )
@@ -26,7 +26,7 @@ func (auth *Auth) authHome(ctx context.Context) http.Handler {
 
 //go:embed "templates/password.html"
 var passwordHTMLString string
-var passwordTemplate = static.AssetsAuthLogin.MustParseShared("password.html", passwordHTMLString)
+var passwordTemplate = static.AssetsUser.MustParseShared("password.html", passwordHTMLString)
 
 var (
 	errPasswordsNotIdentical = errors.New("passwords are not identical")

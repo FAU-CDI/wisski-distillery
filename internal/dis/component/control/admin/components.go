@@ -16,7 +16,7 @@ import (
 
 //go:embed "html/components.html"
 var componentsTemplateString string
-var componentsTemplate = static.AssetsComponentsIndex.MustParseShared(
+var componentsTemplate = static.AssetsAdmin.MustParseShared(
 	"components.html",
 	componentsTemplateString,
 )
@@ -36,7 +36,7 @@ func (admin *Admin) components(r *http.Request) (cp componentContext, err error)
 
 //go:embed "html/ingredients.html"
 var ingredientsTemplateString string
-var ingredientsTemplate = static.AssetsInstanceComponentsIndex.MustParseShared(
+var ingredientsTemplate = static.AssetsAdmin.MustParseShared(
 	"ingredients.html",
 	ingredientsTemplateString,
 )

@@ -27,7 +27,7 @@ func (home *Home) instanceMap(ctx context.Context) (map[string]struct{}, error) 
 
 //go:embed "home.html"
 var homeHTMLStr string
-var homeTemplate = static.AssetsHomeHome.MustParseShared("home.html", homeHTMLStr)
+var homeTemplate = static.AssetsHome.MustParseShared("home.html", homeHTMLStr)
 
 func (home *Home) homeRender(ctx context.Context) ([]byte, error) {
 	var context HomeContext

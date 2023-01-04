@@ -13,7 +13,7 @@ import (
 
 //go:embed "templates/totp_enable.html"
 var totpEnableStr string
-var totpEnableTemplate = static.AssetsAuthLogin.MustParseShared("totp_enable.html", totpEnableStr)
+var totpEnableTemplate = static.AssetsUser.MustParseShared("totp_enable.html", totpEnableStr)
 
 func (auth *Auth) authTOTPEnable(ctx context.Context) http.Handler {
 	return &httpx.Form[struct{}]{
@@ -65,7 +65,7 @@ func (auth *Auth) authTOTPEnable(ctx context.Context) http.Handler {
 
 //go:embed "templates/totp_enroll.html"
 var totpEnrollStr string
-var totpEnrollTemplate = static.AssetsAuthLogin.MustParseShared("totp_enroll.html", totpEnrollStr)
+var totpEnrollTemplate = static.AssetsUser.MustParseShared("totp_enroll.html", totpEnrollStr)
 
 type totpEnrollContext struct {
 	userFormContext
@@ -142,7 +142,7 @@ func (auth *Auth) authTOTPEnroll(ctx context.Context) http.Handler {
 
 //go:embed "templates/totp_disable.html"
 var totpDisableStr string
-var totpDisableTemplate = static.AssetsAuthLogin.MustParseShared("totp_disable.html", totpDisableStr)
+var totpDisableTemplate = static.AssetsUser.MustParseShared("totp_disable.html", totpDisableStr)
 
 func (auth *Auth) authTOTPDisable(ctx context.Context) http.Handler {
 	return &httpx.Form[struct{}]{

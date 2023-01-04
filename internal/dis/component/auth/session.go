@@ -103,7 +103,7 @@ func (auth *Auth) Logout(w http.ResponseWriter, r *http.Request) error {
 
 //go:embed "templates/login.html"
 var loginHTMLStr string
-var loginTemplate = static.AssetsAuthLogin.MustParseShared("login.html", loginHTMLStr)
+var loginTemplate = static.AssetsUser.MustParseShared("login.html", loginHTMLStr)
 
 var loginResponse = httpx.Response{
 	ContentType: "text/plain",
