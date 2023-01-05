@@ -64,7 +64,7 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
-		CSRF: admin.Dependencies.Auth.CSRF(),
+		CSRF: true,
 
 		RenderTemplate: userCreateTemplate,
 

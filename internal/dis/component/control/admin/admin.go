@@ -49,7 +49,6 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 			Handler:  admin.serveSocket,
 		}
 		handler = admin.Dependencies.Auth.Protect(socket, auth.Admin)
-		handler = admin.Dependencies.Auth.CSRF()(handler)
 	}
 
 	// handle everything

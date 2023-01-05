@@ -121,8 +121,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Passcode (optional)"},
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
-
-		CSRF: auth.CSRF(),
+		CSRF:          true,
 
 		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
 			if context.Err != nil {

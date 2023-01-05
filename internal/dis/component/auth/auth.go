@@ -7,7 +7,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
-	"github.com/gorilla/csrf"
 	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
 )
@@ -40,16 +39,4 @@ func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, 
 	router.Handler(http.MethodGet, route+"logout", auth.authLogout(ctx))
 
 	return router, nil
-}
-
-func (auth *Auth) CSRF() func(http.Handler) http.Handler {
-	// setup the csrf handler (if needed)
-	// TOOD: This should move to the server handler
-	return auth.csrf.Get(func() func(http.Handler) http.Handler {
-		var opts []csrf.Option
-		if !auth.Config.HTTPSEnabled() {
-			opts = append(opts, csrf.Secure(false))
-		}
-		return csrf.Protect(auth.Config.CSRFSecret(), opts...)
-	})
 }

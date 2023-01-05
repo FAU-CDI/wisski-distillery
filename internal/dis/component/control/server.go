@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
+	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
 )
 
@@ -29,7 +30,15 @@ func (control *Control) Server(ctx context.Context, progress io.Writer) (http.Ha
 		}
 	}
 
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return func(handler http.HandlerFunc) http.Handler {
+		// setup a csrf protector for everything with POST
+		var opts []csrf.Option
+		if !control.Config.HTTPSEnabled() {
+			opts = append(opts, csrf.Secure(false))
+		}
+		opts = append(opts, csrf.SameSite(csrf.SameSiteStrictMode))
+		return csrf.Protect(control.Config.CSRFSecret(), opts...)(handler)
+	}(func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(cancel.ValuesOf(r.Context(), ctx))
 		mux.ServeHTTP(w, r)
 	}), nil
