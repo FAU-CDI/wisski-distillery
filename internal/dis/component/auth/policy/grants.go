@@ -15,8 +15,19 @@ var (
 
 // Set sets a specific grant, overwriting a previous grant (if any)
 func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
-	if grant.User == "" || grant.Slug == "" || grant.DrupalUsername == "" {
+	if grant.DrupalUsername == "" {
+		grant.DrupalUsername = grant.User
+	}
+	if grant.User == "" || grant.Slug == "" {
 		return ErrInvalid
+	}
+
+	// check that the referenced user exists!
+	{
+		_, err := policy.Dependencies.Auth.User(ctx, grant.User)
+		if err != nil {
+			return err
+		}
 	}
 
 	// get the table
@@ -27,8 +38,7 @@ func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
 
 	// and create or update the given user / slug combination
 	return table.Clauses(clause.OnConflict{
-		Columns:   []clause.Column{{Name: "user"}, {Name: "slug"}},
-		DoUpdates: clause.AssignmentColumns([]string{"drupal_user", "admin"}),
+		UpdateAll: true,
 	}).Create(&grant).Error
 }
 

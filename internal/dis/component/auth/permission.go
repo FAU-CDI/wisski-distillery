@@ -48,6 +48,24 @@ func (g grantDeny) Denied() string {
 	return string(g)
 }
 
+// AllPermissions returns a new permission that checks if all the given permissions are set
+func AllPermissions(clauses ...Permission) Permission {
+	return func(user *AuthUser, r *http.Request) (ok Grant, err error) {
+		for _, clause := range clauses {
+			perm, err := clause.Permit(user, r)
+			if err != nil {
+				return perm, err
+			}
+			if !perm.Granted() {
+				return perm, nil
+			}
+		}
+
+		// everything was fine
+		return grantAllow{}, nil
+	}
+}
+
 var errPermissionPanic = errors.New("permission: panic()")
 
 // Permit checks if the given user has this permission.

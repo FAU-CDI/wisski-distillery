@@ -13,23 +13,26 @@
 {{ define "content" }}
 <div class="pure-u-1">
     <p>
-        {{ if .User.IsAdmin }}
-        You are an administrator.
-        {{ else }}
-        You are a regular user.
-        {{ end }}
-        {{ if .User.IsTOTPEnabled }}
-        You have TOTP enabled.
-        {{ else }}
-        You do not have TOTP enabled.
-        {{ end }}
+        <ul>
+            {{ if .User.IsAdmin }}
+                <li>Role: <b>Administrator</b></li>
+            {{ else }}
+                <li>Role: <b>Regular User</b></li>
+            {{ end }}
+
+            {{ if .User.IsTOTPEnabled }}
+                <li>Passcode Enabled: <b>true</b></li>
+            {{ else }}
+                <li>Passcode Enabled: <b>false</b> <small>(some actions are disabled)</small></li>
+            {{ end }}
+        </ul>
     </p>
     <div class="pure-button-group" role="group" role="Actions">
         <a class="pure-button" href="/user/password/">Change Password</a>
         {{ if .User.IsTOTPEnabled }}
-        <a class="pure-button" href="/user/totp/disable/">Disable TOTP</a>
+            <a class="pure-button" href="/user/totp/disable/">Disable Passcode (TOTP)</a>
         {{ else }}
-        <a class="pure-button" href="/user/totp/enable/">Enable TOTP</a>
+            <a class="pure-button" href="/user/totp/enable/">Enable Passcode (TOTP)</a>
         {{ end }}
     </div>
     <hr /> 

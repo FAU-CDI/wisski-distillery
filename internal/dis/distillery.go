@@ -103,6 +103,9 @@ func (dis *Distillery) Provisionable() []component.Provisionable {
 func (dis *Distillery) Info() *admin.Admin {
 	return export[*admin.Admin](dis)
 }
+func (dis *Distillery) Policy() *policy.Policy {
+	return export[*policy.Policy](dis)
+}
 
 //
 // All components

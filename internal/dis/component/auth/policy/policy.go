@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"gorm.io/gorm"
@@ -13,7 +14,8 @@ type Policy struct {
 	component.Base
 
 	Dependencies struct {
-		SQL *sql.SQL
+		SQL  *sql.SQL
+		Auth *auth.Auth
 	}
 }
 

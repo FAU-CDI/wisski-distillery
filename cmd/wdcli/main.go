@@ -52,6 +52,7 @@ func init() {
 
 	// distillery auth
 	wdcli.Register(cmd.DisUser)
+	wdcli.Register(cmd.DisGrant)
 
 	// backup & cron
 	wdcli.Register(cmd.Snapshot)
