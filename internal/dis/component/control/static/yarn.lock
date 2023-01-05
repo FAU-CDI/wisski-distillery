@@ -1093,6 +1093,11 @@ json5@^2.2.0, json5@^2.2.1:
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.1.tgz#655d50ed1e6f95ad1a3caababd2b0efda10b395c"
   integrity sha512-1hqLFMSrGHRHxav9q9gNjJ5EXznIxGVO09xQRrwplcS8qs28pZ8s8hupZAmqDwZUmVZ2Qb2jnyPOWcDH8m8dlA==
 
+latex.css@^1.8.0:
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/latex.css/-/latex.css-1.8.0.tgz#463f77c844900825f5a53bd3aa0457473a293cba"
+  integrity sha512-3mUWF6M2/3eqEhekJ2i3GWQbJQpGIQ3JDKtd3GwsmQCifxqCFS3UkOlkvsAOB6C+AN/O2y9kPOVbs/kR2O5sDg==
+
 lightningcss-darwin-arm64@1.16.0:
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/lightningcss-darwin-arm64/-/lightningcss-darwin-arm64-1.16.0.tgz#f3318a2e64ca160610977675ee1a7e611f4a3617"

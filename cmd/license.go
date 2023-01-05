@@ -3,6 +3,7 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 )
 
 // License is the 'wdcli license' command.
@@ -27,7 +28,7 @@ func (license) AfterParse() error {
 }
 
 func (license) Run(context wisski_distillery.Context) error {
-	context.Printf(stringLicenseInfo, wisski_distillery.License, cli.LegalNotices)
+	context.Printf(stringLicenseInfo, wisski_distillery.License, cli.LegalNotices, static.AssetsDisclaimer)
 	return nil
 }
 
@@ -42,5 +43,10 @@ wdcli is licensed under the terms of the AGPL Version 3.0 License:
 ================================================================================
 
 Furthermore, this executable may include code from the following projects:
+%s
+
+================================================================================
+
+Finally, the web frontend may contain additional code.
 %s
 `

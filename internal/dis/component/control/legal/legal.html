@@ -1,0 +1,79 @@
+{{ template "_base.html" . }}
+{{ define "title" }}Legal{{ end }}
+
+{{ define "header/time" }}
+<!-- no header/time -->
+{{ end }}
+{{ define "header"}}
+<!-- no header -->
+{{ end }}
+
+{{ define "content" }}
+<div class="pure-u-1">
+    <h2 id="cookies">Cookie Usage</h2>
+
+    <p>
+        Parts of this site use cookies for essential purposes.
+        <a href="https://en.wikipedia.org/wiki/HTTP_cookie">Wikipedia</a> says that
+    </p>
+    <blockquote>
+        <p>A […] cookie (also called web cookie, Internet cookie, browser cookie, or simply cookie) is a small piece of data sent from a website and stored on the user’s computer by the user’s web browser while the user is browsing.</p>
+    </blockquote>
+    <p>
+        This site only uses cookies where necessary; in particular they are only used on access protected sites.
+        Public sites are cookie-free.
+        For signed in users only two cookies are used.
+
+    <ol>
+        <li>
+            The cookie named <code>{{ .CSRFCookie }}</code> is used to prevent <a href="https://en.wikipedia.org/wiki/Cross-site_request_forgery">Cross-site request forgery</a>.
+        </li>
+        <li>
+            The cookie named <code>{{ .SessionCookie }}</code> is used to track a distillery user session, so that a user does not constantly have to login again.
+            It is automatically deleted once a user signs out.
+        </li>
+    </ol>
+
+    Neither cookie is used beyond the purposes they are required for.
+    In particular, they are not used for analytics or any other kind of tracking.
+    </p>
+</div>
+<div class="pure-u-1">
+    <h2 id="notices">Legal Notices</h2>
+
+    <ul>
+        <li><a href="#license.backend">Backend</a></li>
+        <li><a href="#license.frontend">Frontend</a></li>
+    </ul>
+
+    <p>
+        This site is powered by the <a href="https://github.com/FAU-CDI/wisski-distillery" target="_blank" rel="noopener noreferer">WissKI Distillery</a>.
+        The project is licensed under the terms of the AGPL Version 3.0 License.
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <h3 id="license.backend">Backend</h2>
+
+    <p>
+        <small><a href="#notices">Back to Notices</a></small>
+    </p>
+
+    <p>
+        The backend may contain code from the following projects:
+    </p>
+
+    <pre>{{ .LegalNotices }}</pre>
+</div>
+
+
+<div class="pure-u-1">
+    <h3 id="license.frontend">Frontend</h2>
+
+    <p>
+        <small><a href="#notices">Back to Notices</a></small>
+    </p>
+
+    <pre>{{ .AssetsDisclaimer }}</pre>
+</div>
+{{ end }}
