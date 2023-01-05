@@ -13,7 +13,10 @@ var (
 	ErrInvalid  = errors.New("invalid parameters")
 )
 
-// Set sets a specific grant, overwriting a previous grant (if any)
+// Set sets a specific grant, overwriting any previous grant.
+//
+// User and Slug must not be empty.
+// If DrupalUsername is empty, sets the username to be equal to the user.
 func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
 	if grant.DrupalUsername == "" {
 		grant.DrupalUsername = grant.User
@@ -37,9 +40,9 @@ func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
 	}
 
 	// and create or update the given user / slug combination
-	return table.Clauses(clause.OnConflict{
-		UpdateAll: true,
-	}).Create(&grant).Error
+	return table.Clauses(
+		clause.OnConflict{OnConstraint: "user_slug", UpdateAll: true},
+	).Create(&grant).Error
 }
 
 // Remove removes access for the given username form the given instance.
