@@ -19,14 +19,18 @@ type Auth struct {
 	}
 
 	store lazy.Lazy[sessions.Store]
-	csrf  lazy.Lazy[func(http.Handler) http.Handler]
 }
 
 var (
 	_ component.Routeable = (*Auth)(nil)
 )
 
-func (auth *Auth) Routes() []string { return []string{"/auth/"} }
+func (auth *Auth) Routes() component.Routes {
+	return component.Routes{
+		Paths: []string{"/auth/"},
+		CSRF:  true,
+	}
+}
 
 func (auth *Auth) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	router := httprouter.New()

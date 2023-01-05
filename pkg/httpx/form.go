@@ -24,8 +24,8 @@ type Form[D any] struct {
 	// FieldTemplate may be nil; in which case [DefaultFieldTemplate] is used.
 	FieldTemplate *template.Template
 
-	// CSRF indicates if a CSRF field should be added automatically
-	CSRF bool
+	// SkipCSRF if CSRF should be explicitly omitted
+	SkipCSRF bool
 
 	// SkipForm, if non-nil, is called on every get request to determine if form parsing should be skipped entirely.
 	// If skip is true, RenderSuccess is directly called with the given values map.
@@ -124,7 +124,7 @@ func (form *Form[D]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // renderForm renders the form into a request
 func (form *Form[D]) renderForm(err error, values map[string]string, w http.ResponseWriter, r *http.Request) {
 	template := form.Template(values, err != nil)
-	if form.CSRF {
+	if !form.SkipCSRF {
 		template += csrf.TemplateField(r)
 	}
 

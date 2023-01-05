@@ -72,6 +72,14 @@ func (auth *Auth) Protect(handler http.Handler, perm Permission) http.Handler {
 	})
 }
 
+// Require returns a slice containing one decorator that acts like Protect(perm) on every request.
+// It returns
+func (auth *Auth) Require(perm Permission) func(http.Handler) http.Handler {
+	return func(h http.Handler) http.Handler {
+		return auth.Protect(h, perm)
+	}
+}
+
 // Admin represents a permission that checks if a user is an administrator and has totp enabled.
 var Admin Permission = func(user *AuthUser, r *http.Request) (ok Grant, err error) {
 	return Bool2Grant(user != nil && user.IsAdmin() && user.IsTOTPEnabled(), "user needs to have admin permissions and passcode enabled"), nil

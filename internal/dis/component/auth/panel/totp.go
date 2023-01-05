@@ -22,7 +22,6 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
-		CSRF:          true,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := panel.Dependencies.Auth.UserOf(r)
@@ -80,7 +79,6 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Passcode"},
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
-		CSRF:          true,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := panel.Dependencies.Auth.UserOf(r)
@@ -150,7 +148,6 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Current Passcode"},
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
-		CSRF:          true,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := panel.Dependencies.Auth.UserOf(r)

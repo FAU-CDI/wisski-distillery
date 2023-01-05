@@ -33,7 +33,6 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 			{Name: "new2", Type: httpx.PasswordField, EmptyOnError: true, Label: "New Password (again)"},
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
-		CSRF:          true,
 
 		RenderTemplate:        passwordTemplate,
 		RenderTemplateContext: panel.UserFormContext,

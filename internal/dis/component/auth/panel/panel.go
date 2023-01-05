@@ -22,7 +22,13 @@ var (
 	_ component.Routeable = (*UserPanel)(nil)
 )
 
-func (panel *UserPanel) Routes() []string { return []string{"/user/"} }
+func (panel *UserPanel) Routes() component.Routes {
+	return component.Routes{
+		Paths:     []string{"/user/"},
+		CSRF:      true,
+		Decorator: panel.Dependencies.Auth.Require(nil),
+	}
+}
 
 func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	router := httprouter.New()

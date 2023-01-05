@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/gorilla/sessions"
@@ -30,7 +31,7 @@ func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, err error) {
 	}
 
 	// try to read the name from the session
-	name, ok := sess.Values[sessionUserKey]
+	name, ok := sess.Values[control.SessionUserKey]
 	if !ok {
 		return nil, nil
 	}
@@ -57,17 +58,13 @@ func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, err error) {
 	return user, nil
 }
 
-const sessionCookieName = "distillery-session"
-
 // session returns the session that belongs to a given request.
 // If the session is not set, creates a new session.
 func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
 	return auth.store.Get(func() sessions.Store {
 		return sessions.NewCookieStore([]byte(auth.Config.SessionSecret))
-	}).Get(r, sessionCookieName)
+	}).Get(r, control.SessionCookie)
 }
-
-const sessionUserKey = "user"
 
 type contextUserKey struct{}
 
@@ -84,7 +81,7 @@ func (auth *Auth) Login(w http.ResponseWriter, r *http.Request, user *AuthUser) 
 	if err != nil {
 		return err
 	}
-	sess.Values[sessionUserKey] = user.User.User
+	sess.Values[control.SessionUserKey] = user.User.User
 	return sess.Save(r, w)
 }
 
@@ -121,7 +118,6 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Passcode (optional)"},
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
-		CSRF:          true,
 
 		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
 			if context.Err != nil {

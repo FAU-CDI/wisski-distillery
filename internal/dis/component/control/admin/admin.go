@@ -36,19 +36,24 @@ var (
 	_ component.Routeable         = (*Admin)(nil)
 )
 
-func (*Admin) Routes() []string { return []string{"/admin/"} }
+func (admin *Admin) Routes() component.Routes {
+	return component.Routes{
+		Paths:     []string{"/admin/"},
+		CSRF:      true,
+		Decorator: admin.Dependencies.Auth.Require(auth.Admin),
+	}
+}
 
 func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
 
 	router := httprouter.New()
 
 	{
-		socket := &httpx.WebSocket{
+		handler = &httpx.WebSocket{
 			Context:  ctx,
 			Fallback: router,
 			Handler:  admin.serveSocket,
 		}
-		handler = admin.Dependencies.Auth.Protect(socket, auth.Admin)
 	}
 
 	// handle everything

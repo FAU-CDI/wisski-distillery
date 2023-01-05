@@ -32,7 +32,12 @@ var (
 	_ component.Cronable  = (*Resolver)(nil)
 )
 
-func (resolver *Resolver) Routes() []string { return []string{"/go/", "/wisski/get/"} }
+func (resolver *Resolver) Routes() component.Routes {
+	return component.Routes{
+		Paths: []string{"/go/", "/wisski/get/"},
+		CSRF:  false,
+	}
+}
 
 func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	logger := zerolog.Ctx(ctx)

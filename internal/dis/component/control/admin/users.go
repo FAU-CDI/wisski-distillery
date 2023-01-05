@@ -64,8 +64,6 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
-		CSRF: true,
-
 		RenderTemplate: userCreateTemplate,
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {

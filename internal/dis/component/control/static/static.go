@@ -18,7 +18,12 @@ var (
 	_ component.Routeable = (*Static)(nil)
 )
 
-func (*Static) Routes() []string { return []string{"/static/"} }
+func (*Static) Routes() component.Routes {
+	return component.Routes{
+		Paths: []string{"/static/"},
+		CSRF:  false,
+	}
+}
 
 //go:embed dist
 var staticFS embed.FS

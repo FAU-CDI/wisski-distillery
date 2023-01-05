@@ -25,7 +25,12 @@ var (
 	_ component.Routeable = (*Home)(nil)
 )
 
-func (*Home) Routes() []string { return []string{"/"} }
+func (*Home) Routes() component.Routes {
+	return component.Routes{
+		Paths: []string{"/"},
+		CSRF:  false,
+	}
+}
 
 func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	return home, nil
