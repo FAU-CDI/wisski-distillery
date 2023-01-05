@@ -91,7 +91,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 		{
 			"metadata",
 			&models.Metadatum{},
-			models.GrantTable,
+			models.MetadataTable,
 		},
 		{
 			"snapshot",
