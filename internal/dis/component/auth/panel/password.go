@@ -1,28 +1,15 @@
-package auth
+package panel
 
 import (
 	"context"
-	_ "embed"
 	"errors"
 	"net/http"
+
+	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
-
-//go:embed "templates/user.html"
-var userHTMLStr string
-var userTemplate = static.AssetsUser.MustParseShared(
-	"user.html",
-	userHTMLStr,
-)
-
-func (auth *Auth) authUser(ctx context.Context) http.Handler {
-	return auth.Protect(&httpx.HTMLHandler[*AuthUser]{
-		Handler:  auth.UserOf,
-		Template: userTemplate,
-	}, nil)
-}
 
 //go:embed "templates/password.html"
 var passwordHTMLString string
@@ -37,23 +24,23 @@ var (
 	errPasswordSet           = errors.New("password was updated")
 )
 
-func (auth *Auth) authPassword(ctx context.Context) http.Handler {
+func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 	return &httpx.Form[struct{}]{
 		Fields: []httpx.Field{
 			{Name: "old", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
-			{Name: "passcode", Type: httpx.TextField, EmptyOnError: true, Label: "Current Passcode (optional)"},
+			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Current Passcode (optional)"},
 			{Name: "new", Type: httpx.PasswordField, EmptyOnError: true, Label: "New Password"},
 			{Name: "new2", Type: httpx.PasswordField, EmptyOnError: true, Label: "New Password (again)"},
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
-		CSRF: auth.CSRF(),
+		CSRF: panel.Dependencies.Auth.CSRF(),
 
 		RenderTemplate:        passwordTemplate,
-		RenderTemplateContext: auth.UserFormContext,
+		RenderTemplateContext: panel.UserFormContext,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
-			old, passcode, new, new2 := values["old"], values["passcode"], values["new"], values["new2"]
+			old, passcode, new, new2 := values["old"], values["otp"], values["new"], values["new2"]
 
 			if new != new2 {
 				return struct{}{}, errPasswordsNotIdentical
@@ -63,7 +50,7 @@ func (auth *Auth) authPassword(ctx context.Context) http.Handler {
 				return struct{}{}, errPasswordIsEmpty
 			}
 
-			user, err := auth.UserOf(r)
+			user, err := panel.Dependencies.Auth.UserOf(r)
 			if err != nil {
 				return struct{}{}, err
 			}

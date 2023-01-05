@@ -101,7 +101,7 @@ func (auth *Auth) Logout(w http.ResponseWriter, r *http.Request) error {
 	return sess.Save(r, w)
 }
 
-//go:embed "templates/login.html"
+//go:embed "login.html"
 var loginHTMLStr string
 var loginTemplate = static.AssetsUser.MustParseShared("login.html", loginHTMLStr)
 
@@ -118,7 +118,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		Fields: []httpx.Field{
 			{Name: "username", Type: httpx.TextField, Label: "Username"},
 			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Password"},
-			{Name: "passcode", Type: httpx.TextField, EmptyOnError: true, Label: "Passcode (optional)"},
+			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Passcode (optional)"},
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
@@ -132,7 +132,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {
-			username, password, passcode := values["username"], values["password"], values["passcode"]
+			username, password, passcode := values["username"], values["password"], values["otp"]
 
 			// make sure that the user exists
 			user, err := auth.User(ctx, username)
