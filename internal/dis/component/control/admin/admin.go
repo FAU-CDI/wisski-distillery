@@ -6,6 +6,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/julienschmidt/httprouter"
@@ -26,6 +27,8 @@ type Admin struct {
 		SnapshotsLog *logger.Logger
 
 		Auth *auth.Auth
+
+		Custom *custom.Custom
 	}
 
 	Analytics *lazy.PoolAnalytics
@@ -64,13 +67,13 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	// add a handler for the index page
 	router.Handler(http.MethodGet, route+"index", httpx.HTMLHandler[indexContext]{
 		Handler:  admin.index,
-		Template: indexTemplate,
+		Template: admin.Dependencies.Custom.Template(indexTemplate),
 	})
 
 	// add a handler for the user page
 	router.Handler(http.MethodGet, route+"users", httpx.HTMLHandler[userContext]{
 		Handler:  admin.users,
-		Template: userTemplate,
+		Template: admin.Dependencies.Custom.Template(userTemplate),
 	})
 
 	// add a user create form
@@ -90,19 +93,19 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	// add a handler for the component page
 	router.Handler(http.MethodGet, route+"components", httpx.HTMLHandler[componentContext]{
 		Handler:  admin.components,
-		Template: componentsTemplate,
+		Template: admin.Dependencies.Custom.Template(componentsTemplate),
 	})
 
 	// add a handler for the component page
 	router.Handler(http.MethodGet, route+"ingredients/:slug", httpx.HTMLHandler[ingredientsContext]{
 		Handler:  admin.ingredients,
-		Template: ingredientsTemplate,
+		Template: admin.Dependencies.Custom.Template(ingredientsTemplate),
 	})
 
 	// add a handler for the instance page
 	router.Handler(http.MethodGet, route+"instance/:slug", httpx.HTMLHandler[instanceContext]{
 		Handler:  admin.instance,
-		Template: instanceTemplate,
+		Template: admin.Dependencies.Custom.Template(instanceTemplate),
 	})
 
 	// add a router for the login page

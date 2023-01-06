@@ -16,6 +16,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/legal"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -108,6 +109,9 @@ func (dis *Distillery) Info() *admin.Admin {
 func (dis *Distillery) Policy() *policy.Policy {
 	return export[*policy.Policy](dis)
 }
+func (dis *Distillery) Custom() *custom.Custom {
+	return export[*custom.Custom](dis)
+}
 
 //
 // All components
@@ -154,7 +158,7 @@ func (dis *Distillery) allComponents() []initFunc {
 
 		// Control server
 		auto[*control.Control],
-		auto[*static.Static],
+
 		auto[*home.Home],
 		manual(func(resolver *resolver.Resolver) {
 			resolver.RefreshInterval = time.Minute
@@ -163,6 +167,9 @@ func (dis *Distillery) allComponents() []initFunc {
 			admin.Analytics = &dis.pool.Analytics
 		}),
 		auto[*legal.Legal],
+
+		auto[*static.Static],
+		auto[*custom.Custom],
 
 		// Cron
 		auto[*cron.Cron],

@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 
 	_ "embed"
@@ -15,6 +16,10 @@ import (
 
 type Legal struct {
 	component.Base
+	Dependencies struct {
+		Static *static.Static
+		Custom *custom.Custom
+	}
 }
 
 var (
@@ -33,6 +38,8 @@ func (legal *Legal) Routes() component.Routes {
 }
 
 func (legal *Legal) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
+	legalTemplate := legal.Dependencies.Custom.Template(legalTemplate)
+
 	return httpx.HTMLHandler[legalContext]{
 		Handler:  legal.context,
 		Template: legalTemplate,
@@ -40,6 +47,8 @@ func (legal *Legal) HandleRoute(ctx context.Context, route string) (http.Handler
 }
 
 type legalContext struct {
+	custom.BaseContext
+
 	LegalNotices string
 
 	CSRFCookie       string
@@ -49,6 +58,7 @@ type legalContext struct {
 
 func (legal *Legal) context(r *http.Request) (legalContext, error) {
 	return legalContext{
+		BaseContext:  legal.Dependencies.Custom.New(),
 		LegalNotices: cli.LegalNotices,
 
 		CSRFCookie:       control.CSRFCookie,

@@ -9,6 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"golang.org/x/sync/errgroup"
 )
@@ -79,11 +80,14 @@ func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target s
 }
 
 type indexContext struct {
+	custom.BaseContext
+
 	status.Distillery
 	Instances []status.WissKI
 }
 
 func (admin *Admin) index(r *http.Request) (idx indexContext, err error) {
+	admin.Dependencies.Custom.Update(&idx)
 	idx.Distillery, idx.Instances, err = admin.Status(r.Context(), true)
 	return
 }

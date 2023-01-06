@@ -3,9 +3,11 @@ package home
 import (
 	"context"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
@@ -14,11 +16,13 @@ type Home struct {
 	component.Base
 	Dependencies struct {
 		Instances *instances.Instances
+		Custom    *custom.Custom
 	}
 
 	redirect      lazy.Lazy[*Redirect]
 	instanceNames lazy.Lazy[map[string]struct{}]
 	homeBytes     lazy.Lazy[[]byte]
+	homeTemplate  lazy.Lazy[*template.Template]
 }
 
 var (

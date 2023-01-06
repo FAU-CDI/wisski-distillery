@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/gorilla/sessions"
@@ -16,6 +17,7 @@ type Auth struct {
 	Dependencies struct {
 		SQL             *sql.SQL
 		UserDeleteHooks []component.UserDeleteHook
+		Custom          *custom.Custom
 	}
 
 	store lazy.Lazy[sessions.Store]

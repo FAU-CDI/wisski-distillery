@@ -4,9 +4,9 @@ import (
 	_ "embed"
 	"html/template"
 	"net/http"
-	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -23,7 +23,7 @@ var instanceTemplate = static.AssetsAdmin.MustParseShared(
 )
 
 type instanceContext struct {
-	Time time.Time
+	custom.BaseContext
 
 	CSRF     template.HTML
 	Instance models.Instance
@@ -31,6 +31,8 @@ type instanceContext struct {
 }
 
 func (admin *Admin) instance(r *http.Request) (is instanceContext, err error) {
+	admin.Dependencies.Custom.Update(&is)
+
 	is.CSRF = csrf.TemplateField(r)
 
 	// find the instance itself!
@@ -48,9 +50,6 @@ func (admin *Admin) instance(r *http.Request) (is instanceContext, err error) {
 	if err != nil {
 		return is, err
 	}
-
-	// current time
-	is.Time = time.Now().UTC()
 
 	return
 }

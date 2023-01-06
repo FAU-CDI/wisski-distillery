@@ -6,6 +6,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/julienschmidt/httprouter"
@@ -14,7 +15,8 @@ import (
 type UserPanel struct {
 	component.Base
 	Dependencies struct {
-		Auth *auth.Auth
+		Auth   *auth.Auth
+		Custom *custom.Custom
 	}
 }
 
@@ -67,7 +69,9 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 }
 
 type userFormContext struct {
+	custom.BaseContext
 	httpx.FormContext
+
 	User *models.User
 }
 
@@ -75,6 +79,7 @@ func (panel *UserPanel) UserFormContext(ctx httpx.FormContext, r *http.Request) 
 	user, err := panel.Dependencies.Auth.UserOf(r)
 
 	uctx := userFormContext{FormContext: ctx}
+	panel.Dependencies.Custom.Update(&uctx)
 	if err == nil {
 		uctx.User = &user.User
 	}

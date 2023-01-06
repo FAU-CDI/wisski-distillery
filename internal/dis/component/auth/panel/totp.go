@@ -17,6 +17,8 @@ var totpEnableStr string
 var totpEnableTemplate = static.AssetsUser.MustParseShared("totp_enable.html", totpEnableStr)
 
 func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
+	totpEnableTemplate := panel.Dependencies.Custom.Template(totpEnableTemplate)
+
 	return &httpx.Form[struct{}]{
 		Fields: []httpx.Field{
 			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
@@ -73,6 +75,8 @@ type totpEnrollContext struct {
 }
 
 func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
+	totpEnrollTemplate := panel.Dependencies.Custom.Template(totpEnrollTemplate)
+
 	return &httpx.Form[struct{}]{
 		Fields: []httpx.Field{
 			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
@@ -85,6 +89,8 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
+			// TODO: Do we want to reuse the same function here?
+
 			user, err := panel.Dependencies.Auth.UserOf(r)
 
 			ctx := totpEnrollContext{
@@ -92,6 +98,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 					FormContext: context,
 				},
 			}
+			panel.Dependencies.Custom.Update(&ctx.userFormContext)
 
 			if err == nil && user != nil {
 				ctx.userFormContext.User = &user.User
@@ -142,6 +149,8 @@ var totpDisableStr string
 var totpDisableTemplate = static.AssetsUser.MustParseShared("totp_disable.html", totpDisableStr)
 
 func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
+	totpDisableTemplate := panel.Dependencies.Custom.Template(totpDisableTemplate)
+
 	return &httpx.Form[struct{}]{
 		Fields: []httpx.Field{
 			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},

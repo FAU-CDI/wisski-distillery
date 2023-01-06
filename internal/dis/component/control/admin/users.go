@@ -5,12 +5,12 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
-	"time"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
@@ -24,15 +24,17 @@ var userTemplate = static.AssetsAdmin.MustParseShared(
 )
 
 type userContext struct {
-	Time time.Time
+	custom.BaseContext
+	httpx.FormContext
 
 	CSRF  template.HTML
 	Users []*auth.AuthUser
 }
 
 func (admin *Admin) users(r *http.Request) (uc userContext, err error) {
+	admin.Dependencies.Custom.Update(&uc)
+
 	uc.CSRF = csrf.TemplateField(r)
-	uc.Time = time.Now()
 	uc.Users, err = admin.Dependencies.Auth.Users(r.Context())
 	return
 }
@@ -56,6 +58,8 @@ type createUserResult struct {
 }
 
 func (admin *Admin) createUser(ctx context.Context) http.Handler {
+	userCreateTemplate := admin.Dependencies.Custom.Template(userCreateTemplate)
+
 	return &httpx.Form[createUserResult]{
 		Fields: []httpx.Field{
 			{Name: "username", Type: httpx.TextField, Label: "Username"},
@@ -64,7 +68,8 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: httpx.PureCSSFieldTemplate,
 
-		RenderTemplate: userCreateTemplate,
+		RenderTemplate:        userCreateTemplate,
+		RenderTemplateContext: admin.Dependencies.Custom.RenderContext,
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {
 			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == "on"

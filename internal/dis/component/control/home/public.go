@@ -3,11 +3,13 @@ package home
 import (
 	"bytes"
 	"context"
+	"html/template"
 	"time"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"golang.org/x/sync/errgroup"
 )
@@ -30,7 +32,8 @@ var homeHTMLStr string
 var homeTemplate = static.AssetsHome.MustParseShared("home.html", homeHTMLStr)
 
 func (home *Home) homeRender(ctx context.Context) ([]byte, error) {
-	var context HomeContext
+	var context homeContext
+	home.Dependencies.Custom.Update(&context)
 
 	// setup a couple of static things
 	context.Time = time.Now().UTC()
@@ -57,11 +60,15 @@ func (home *Home) homeRender(ctx context.Context) ([]byte, error) {
 
 	// render the template
 	var buffer bytes.Buffer
-	homeTemplate.Execute(&buffer, context)
+	home.homeTemplate.Get(func() *template.Template {
+		return home.Dependencies.Custom.Template(homeTemplate)
+	}).Execute(&buffer, context)
 	return buffer.Bytes(), nil
 }
 
-type HomeContext struct {
+type homeContext struct {
+	custom.BaseContext
+
 	Instances []status.WissKI
 
 	Time time.Time

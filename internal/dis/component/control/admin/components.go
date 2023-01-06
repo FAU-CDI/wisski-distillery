@@ -2,11 +2,11 @@ package admin
 
 import (
 	"net/http"
-	"time"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -22,15 +22,15 @@ var componentsTemplate = static.AssetsAdmin.MustParseShared(
 )
 
 type componentContext struct {
-	Time time.Time
+	custom.BaseContext
 
 	Analytics lazy.PoolAnalytics
 }
 
 func (admin *Admin) components(r *http.Request) (cp componentContext, err error) {
-	cp.Analytics = *admin.Analytics
-	cp.Time = time.Now().UTC()
+	admin.Dependencies.Custom.Update(&cp)
 
+	cp.Analytics = *admin.Analytics
 	return
 }
 
@@ -42,14 +42,14 @@ var ingredientsTemplate = static.AssetsAdmin.MustParseShared(
 )
 
 type ingredientsContext struct {
-	Time time.Time
+	custom.BaseContext
 
 	Instance  models.Instance
 	Analytics *lazy.PoolAnalytics
 }
 
 func (admin *Admin) ingredients(r *http.Request) (cp ingredientsContext, err error) {
-	cp.Time = time.Now().UTC()
+	admin.Dependencies.Custom.Update(&cp)
 
 	// find the instance itself!
 	instance, err := admin.Dependencies.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])

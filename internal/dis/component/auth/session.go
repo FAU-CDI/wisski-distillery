@@ -111,6 +111,8 @@ var errLoginFailed = errors.New("Login failed")
 
 // authLogin implements a view to login a user
 func (auth *Auth) authLogin(ctx context.Context) http.Handler {
+	loginTemplate := auth.Dependencies.Custom.Template(loginTemplate)
+
 	return &httpx.Form[*AuthUser]{
 		Fields: []httpx.Field{
 			{Name: "username", Type: httpx.TextField, Label: "Username"},
@@ -123,7 +125,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			if context.Err != nil {
 				context.Err = errLoginFailed
 			}
-			httpx.WriteHTML(context, nil, loginTemplate, "", w, r)
+			httpx.WriteHTML(auth.Dependencies.Custom.NewForm(context), nil, loginTemplate, "", w, r)
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {

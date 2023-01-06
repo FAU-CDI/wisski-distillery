@@ -25,6 +25,8 @@ var (
 )
 
 func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
+	passwordTemplate := panel.Dependencies.Custom.Template(passwordTemplate)
+
 	return &httpx.Form[struct{}]{
 		Fields: []httpx.Field{
 			{Name: "old", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
