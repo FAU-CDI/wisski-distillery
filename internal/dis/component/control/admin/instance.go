@@ -2,7 +2,6 @@ package admin
 
 import (
 	_ "embed"
-	"html/template"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
@@ -25,13 +24,12 @@ var instanceTemplate = static.AssetsAdmin.MustParseShared(
 type instanceContext struct {
 	custom.BaseContext
 
-	CSRF     template.HTML
 	Instance models.Instance
 	Info     status.WissKI
 }
 
 func (admin *Admin) instance(r *http.Request) (is instanceContext, err error) {
-	admin.Dependencies.Custom.Update(&is)
+	admin.Dependencies.Custom.Update(&is, r)
 
 	is.CSRF = csrf.TemplateField(r)
 

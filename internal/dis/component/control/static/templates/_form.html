@@ -2,7 +2,6 @@
 {{ define "title" }}{{ block "form/title" . }}Form{{ end }}{{ end }}
 
 {{ define "header" }}<!-- no header -->{{ end }}
-{{ define "header/time" }}<!-- no time -->{{ end }}
 {{ define "content" }}
 <div class="pure-u-1">
     {{ block "form/extra" . }}<!-- no extra -->{{ end }}
@@ -24,7 +23,7 @@
 
             {{ block "form/inside" . }}<!-- no inside -->{{ end }}
             {{ .Form }}
-            <input type="submit" value="{{ block " form/button" .}}Submit{{ end }}" class="pure-button">
+            <input type="submit" value="{{ block "form/button" .}}Submit{{ end }}" class="pure-button">
         </fieldset>
     </form>
 </div>

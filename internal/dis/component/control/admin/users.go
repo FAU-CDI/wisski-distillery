@@ -3,7 +3,6 @@ package admin
 import (
 	"context"
 	"errors"
-	"html/template"
 	"net/http"
 
 	_ "embed"
@@ -27,12 +26,11 @@ type userContext struct {
 	custom.BaseContext
 	httpx.FormContext
 
-	CSRF  template.HTML
 	Users []*auth.AuthUser
 }
 
 func (admin *Admin) users(r *http.Request) (uc userContext, err error) {
-	admin.Dependencies.Custom.Update(&uc)
+	admin.Dependencies.Custom.Update(&uc, r)
 
 	uc.CSRF = csrf.TemplateField(r)
 	uc.Users, err = admin.Dependencies.Auth.Users(r.Context())

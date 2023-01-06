@@ -28,7 +28,7 @@ type componentContext struct {
 }
 
 func (admin *Admin) components(r *http.Request) (cp componentContext, err error) {
-	admin.Dependencies.Custom.Update(&cp)
+	admin.Dependencies.Custom.Update(&cp, r)
 
 	cp.Analytics = *admin.Analytics
 	return
@@ -49,7 +49,7 @@ type ingredientsContext struct {
 }
 
 func (admin *Admin) ingredients(r *http.Request) (cp ingredientsContext, err error) {
-	admin.Dependencies.Custom.Update(&cp)
+	admin.Dependencies.Custom.Update(&cp, r)
 
 	// find the instance itself!
 	instance, err := admin.Dependencies.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])

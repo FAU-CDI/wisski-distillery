@@ -1,3 +1,5 @@
+//go:build nominify
+
 package httpx
 
 import (

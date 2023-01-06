@@ -33,7 +33,7 @@ var homeTemplate = static.AssetsHome.MustParseShared("home.html", homeHTMLStr)
 
 func (home *Home) homeRender(ctx context.Context) ([]byte, error) {
 	var context homeContext
-	home.Dependencies.Custom.Update(&context)
+	home.Dependencies.Custom.Update(&context, nil)
 
 	// setup a couple of static things
 	context.Time = time.Now().UTC()
@@ -60,10 +60,10 @@ func (home *Home) homeRender(ctx context.Context) ([]byte, error) {
 
 	// render the template
 	var buffer bytes.Buffer
-	home.homeTemplate.Get(func() *template.Template {
+	err = home.homeTemplate.Get(func() *template.Template {
 		return home.Dependencies.Custom.Template(homeTemplate)
 	}).Execute(&buffer, context)
-	return buffer.Bytes(), nil
+	return buffer.Bytes(), err
 }
 
 type homeContext struct {

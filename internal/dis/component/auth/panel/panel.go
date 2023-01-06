@@ -79,7 +79,7 @@ func (panel *UserPanel) UserFormContext(ctx httpx.FormContext, r *http.Request) 
 	user, err := panel.Dependencies.Auth.UserOf(r)
 
 	uctx := userFormContext{FormContext: ctx}
-	panel.Dependencies.Custom.Update(&uctx)
+	panel.Dependencies.Custom.Update(&uctx, r)
 	if err == nil {
 		uctx.User = &user.User
 	}

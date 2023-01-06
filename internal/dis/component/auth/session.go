@@ -125,7 +125,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			if context.Err != nil {
 				context.Err = errLoginFailed
 			}
-			httpx.WriteHTML(auth.Dependencies.Custom.NewForm(context), nil, loginTemplate, "", w, r)
+			httpx.WriteHTML(auth.Dependencies.Custom.NewForm(context, r), nil, loginTemplate, "", w, r)
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {

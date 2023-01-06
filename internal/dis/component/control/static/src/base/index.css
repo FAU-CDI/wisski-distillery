@@ -8,6 +8,20 @@ footer {
     margin: 2em;
 }
 
+footer {
+    font-size: small;
+    border-top: 1px solid black;
+    padding-top: 1em;
+}
+
+footer a {
+    color: blue !important;
+}
+
+time {
+    font-style: italic;
+}
+
 .padding {
     padding: 1em;
 }

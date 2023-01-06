@@ -1,3 +1,20 @@
 {{ template "_form.html" . }}
 {{ define "form/title" }}Login Required{{ end }}
 {{ define "form/button" }}Login{{ end }}
+{{ define "form/inside" }}
+<div class="pure-form-group">
+    <p>
+        The site you are attempting to access requires you to login with your account.
+        Simply fill out the form below and click <em>Login</em>.
+    </p>
+    <p>
+        <small>
+            This functionality requires you to have cookies enabled.
+            A cookie to prevent fraudulent login attempts has already been set on your machine.
+            When clicking the <em>Login</em> button, a further cookie will be set on your computer to keep track of your login session.
+            If you do not wish to have futher cookie(s) set, do not click Login and do not attempt to access protected sites.
+            See also <a href="/legal/#cookies">Legal Notices</a>.
+        </small>
+    </p>
+</div>
+{{ end }}

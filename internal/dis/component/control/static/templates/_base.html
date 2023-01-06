@@ -9,14 +9,10 @@
 </head>
 
 <body>
+    {{ .BaseContext.DoInitCheck }}
     <header>
         <h1 id="top">{{ template "title" . }}</h1>
-        {{ block "header/time" . }}
-        {{ if .Time }}
-        <small>Generated at <code class="date">{{ .Time.Format "2006-01-02T15:04:05Z07:00" }}</code></small>
-        {{ end }}
-        {{ end }}
-        {{ block "header" . }}header{{ end }}
+        {{ block "header" . }}<!-- no header by default -->{{ end }}
     </header>
     <main>
         <div class="pure-g">
@@ -25,11 +21,8 @@
     </main>
 
     <footer>
-        {{ if .Time }}
-            Generated at <code>{{ .Time }}</code>
-        {{ end }}
-        {{ block "footer" . }}
-            <!-- no footer by default -->
+        {{ block "footer" .BaseContext }}
+            <!-- no footer -->
         {{ end }}
     </footer>
 

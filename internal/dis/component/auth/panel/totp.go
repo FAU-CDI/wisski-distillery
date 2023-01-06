@@ -98,7 +98,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 					FormContext: context,
 				},
 			}
-			panel.Dependencies.Custom.Update(&ctx.userFormContext)
+			panel.Dependencies.Custom.Update(&ctx.userFormContext, r)
 
 			if err == nil && user != nil {
 				ctx.userFormContext.User = &user.User

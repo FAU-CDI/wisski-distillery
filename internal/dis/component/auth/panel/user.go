@@ -28,9 +28,9 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 	userTemplate := panel.Dependencies.Custom.Template(userTemplate)
 	return &httpx.HTMLHandler[routeUserContext]{
 		Handler: func(r *http.Request) (ruc routeUserContext, err error) {
-			panel.Dependencies.Custom.Update(&ruc)
+			panel.Dependencies.Custom.Update(&ruc, r)
 			ruc.AuthUser, err = panel.Dependencies.Auth.UserOf(r)
-			return routeUserContext{}, err
+			return ruc, err
 		},
 		Template: userTemplate,
 	}

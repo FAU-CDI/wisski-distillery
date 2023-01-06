@@ -56,13 +56,13 @@ type legalContext struct {
 	AssetsDisclaimer string
 }
 
-func (legal *Legal) context(r *http.Request) (legalContext, error) {
-	return legalContext{
-		BaseContext:  legal.Dependencies.Custom.New(),
-		LegalNotices: cli.LegalNotices,
+func (legal *Legal) context(r *http.Request) (lc legalContext, err error) {
+	legal.Dependencies.Custom.Update(&lc, r)
 
-		CSRFCookie:       control.CSRFCookie,
-		SessionCookie:    control.SessionCookie,
-		AssetsDisclaimer: static.AssetsDisclaimer,
-	}, nil
+	lc.LegalNotices = cli.LegalNotices
+
+	lc.CSRFCookie = control.CSRFCookie
+	lc.SessionCookie = control.SessionCookie
+	lc.AssetsDisclaimer = static.AssetsDisclaimer
+	return
 }

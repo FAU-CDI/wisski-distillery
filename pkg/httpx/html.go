@@ -3,14 +3,23 @@ package httpx
 import (
 	"html/template"
 	"net/http"
+
+	"github.com/rs/zerolog"
 )
 
 // WriteHTML writes a html response of type T to w.
 // If an error occured, writes an error response instead.
-func WriteHTML[T any](result T, err error, template *template.Template, templateName string, w http.ResponseWriter, r *http.Request) {
+func WriteHTML[T any](result T, err error, template *template.Template, templateName string, w http.ResponseWriter, r *http.Request) (e error) {
+	// log any error that occurs;
+	defer func() {
+		if e != nil {
+			zerolog.Ctx(r.Context()).Err(e).Str("path", r.URL.String()).Msg("error rendering template")
+		}
+	}()
+
 	// intercept any errors
 	if HTMLInterceptor.Intercept(w, r, err) {
-		return
+		return nil
 	}
 
 	// write out the response as html
@@ -23,9 +32,9 @@ func WriteHTML[T any](result T, err error, template *template.Template, template
 
 	// and return the template
 	if templateName != "" {
-		template.ExecuteTemplate(minifier, templateName, result)
+		return template.ExecuteTemplate(minifier, templateName, result)
 	} else {
-		template.Execute(minifier, result)
+		return template.Execute(minifier, result)
 	}
 }
 

@@ -87,7 +87,7 @@ type indexContext struct {
 }
 
 func (admin *Admin) index(r *http.Request) (idx indexContext, err error) {
-	admin.Dependencies.Custom.Update(&idx)
+	admin.Dependencies.Custom.Update(&idx, r)
 	idx.Distillery, idx.Instances, err = admin.Status(r.Context(), true)
 	return
 }
