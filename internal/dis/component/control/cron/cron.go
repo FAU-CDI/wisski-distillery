@@ -94,7 +94,7 @@ func (control *Cron) Once(ctx context.Context) {
 
 // Start invokes all cron jobs regularly, waiting between invocations as specified in configuration.
 //
-// The first run is invoked immediatly.
+// A first run is invoked immediatly.
 // The call to Start returns after the first invocation of all cron tasks.
 //
 // The returned channel is closed once no more cron tasks are active.
@@ -111,11 +111,13 @@ func (control *Cron) Start(ctx context.Context, signal <-chan struct{}) <-chan s
 
 	cleanup := make(chan struct{}) // closed once we have finished running everything
 
-	run() // run tasks immediatly
-
 	// start a new xgoroutine to run cron tasks
 	go func() {
 		defer close(cleanup)
+
+		zerolog.Ctx(ctx).Debug().Msg("Cron() starting first run")
+		run()
+		zerolog.Ctx(ctx).Debug().Msg("Cron() beginnning scheduling")
 
 		timer := timex.NewTimer()
 		for {
