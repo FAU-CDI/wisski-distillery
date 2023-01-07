@@ -55,8 +55,49 @@
 {{ end }}
 
 <div class="pure-u-1">
-    There will be a list of WissKIs you have access to here.
+    <h2>Your WissKIs</h2>
+    <p>
+        This is a page of WissKIs you have access to.
+        Click on the button containing the name to login.
+    </p>
 </div>
-
+<div class="pure-u-1">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered pure-form">
+                <thead>
+                    <tr>
+                        <th>
+                            WissKI Slug
+                        </th>
+                        <th>
+                            Drupal Username
+                        </th>
+                        <th>
+                            Admin
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range $id, $grant := .Grants }}
+                    <tr>
+                        <td>
+                            <a href="{{ $grant.URL }}" class="pure-button" target="_blank" rel="noopener noreferer">
+                                {{ $grant.Slug }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ $grant.DrupalUsername }}
+                        </td>
+                        <td>
+                            {{ $grant.DrupalAdminRole }}
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 {{ end }}

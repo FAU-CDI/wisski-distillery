@@ -36,10 +36,25 @@ var errLoginUnknownError = errors.New("Login: Unknown Error")
 
 // Login generates a login link for the user with the given username
 func (u *Users) Login(ctx context.Context, server *phpx.Server, username string) (dest *url.URL, err error) {
+	return u.LoginWithOpt(ctx, server, username, LoginOptions{
+		Destination:     "/",
+		CreateIfMissing: false,
+		GrantAdminRole:  false,
+	})
+}
+
+type LoginOptions struct {
+	Destination     string
+	CreateIfMissing bool
+	GrantAdminRole  bool
+}
+
+// LoginOrCreate generates a login link for the user with the given username and options
+func (u *Users) LoginWithOpt(ctx context.Context, server *phpx.Server, username string, opts LoginOptions) (dest *url.URL, err error) {
 
 	// generate a (relative) link
 	var path string
-	err = u.Dependencies.PHP.ExecScript(ctx, server, &path, usersPHP, "get_login_link", username)
+	err = u.Dependencies.PHP.ExecScript(ctx, server, &path, usersPHP, "get_login_link", username, opts.Destination, opts.CreateIfMissing, opts.GrantAdminRole)
 
 	// if something went wrong, return
 	if err != nil {

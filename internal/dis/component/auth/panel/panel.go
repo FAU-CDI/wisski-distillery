@@ -6,7 +6,10 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/next"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/julienschmidt/httprouter"
@@ -15,8 +18,11 @@ import (
 type UserPanel struct {
 	component.Base
 	Dependencies struct {
-		Auth   *auth.Auth
-		Custom *custom.Custom
+		Auth      *auth.Auth
+		Custom    *custom.Custom
+		Policy    *policy.Policy
+		Instances *instances.Instances
+		Next      *next.Next
 	}
 }
 
