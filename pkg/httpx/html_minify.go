@@ -1,4 +1,4 @@
-//go:build nominify
+//go:build !nominify
 
 package httpx
 

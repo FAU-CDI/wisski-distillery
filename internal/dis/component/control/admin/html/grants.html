@@ -1,0 +1,135 @@
+{{ template "_base.html" . }}
+{{ define "title" }}Distillery Admin - {{ .Instance.Slug }} - Grants{{ end }}
+
+{{ define "header"}}
+<p>
+    <a class="pure-button" href="/admin/index">Control</a> &gt;
+    <a class="pure-button" href="/admin/instance/{{ .Instance.Slug }}">Instance</a> &gt;
+    <a class="pure-button pure-button-primary" href="/admin/grants/{{ .Instance.Slug }}">Grants</a>
+</p>
+{{ end }}
+
+{{ define "content" }}
+{{ $csrf := .CSRF }}
+{{ $slug := .Instance.Slug }}
+<div class="pure-u-1-1">
+    <h2 id="overview">Grants</h2>
+
+    <p>
+        A grant provides access for a specific distillery user to a specific WissKI instance.
+        Only <em>Distillery Administrators</em> can manage grants.
+    </p>
+
+    <ul>
+        <li>
+            <em>Distillery Users</em> must exist in order to grant them access to a specific instance
+        </li>
+        <li>
+            <em>Drupal Users</em> will be automatically created if they do not exist.
+        </li>
+        <li>
+            If <em>Admin</em> is checked and a user logs in, they will automatically be given the admin role.
+            For security reasons, an admin role is never automatically removed.
+        </li>
+    </ul>
+
+    {{ block "form/message" . }}
+    {{ $E := .Error }}
+    {{ if not (eq $E "") }}
+    <div class="pure-form-group">
+        <p class="error-message">
+            {{ $E }}
+        </p>
+    </div>
+    {{ end }}
+    {{ end }}
+</div>
+<div class="pure-u-1">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered pure-form">
+                <thead>
+                    <tr>
+                        <th>
+                            Distillery Username
+                        </th>
+                        <th>
+                            Drupal Username
+                        </th>
+                        <th>
+                            Roles
+                        </th>
+                        <th>
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range $id, $grant := .Grants }}
+                    <tr>
+                        <td>
+                            {{ $grant.User }}
+                            <input type="hidden" name="distillery-user" value="{{ $grant.User }}" form="update-{{ $id }}">
+                            <input type="hidden" name="distillery-user" value="{{ $grant.User }}" form="delete-{{ $id }}">
+                        </td>
+                        <td>
+                            <input type="text" name="drupal-user" list="drupal-users" value="{{ $grant.DrupalUsername }}" form="update-{{ $id }}">
+                        </td>
+                        <td>
+                            <label for="update={{ $id }}-admin">Admin</label>
+                            <input type="checkbox" name="admin" id="update-{{ $id }}-admin" {{ if $grant.DrupalAdminRole }}checked{{end}} form="update-{{ $id }}">
+                        </td>
+                        <td>
+                            <div class="pure-button-group" role="group">
+                                <form id="update-{{ $id }}" method="POST" action="/admin/grants/" class="pure-form-group" autocomplete="off">
+                                    {{ $csrf }}
+                                    <input type="hidden" name="slug" value="{{ $slug }}">
+                                    <input type="hidden" name="action" value="update">
+                                    <input type="submit" class="pure-button" value="Update">
+                                </form>
+                                <form id="delete-{{ $id }}" method="POST" action="/admin/grants/" class="pure-form-group" autocomplete="off">
+                                    {{ $csrf }}
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="slug" value="{{ $slug }}">
+                                    <input type="submit" class="pure-button pure-button-danger" value="Delete">
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {{ end }}
+                    <tr>
+                        <td>
+                            <input type="text" name="distillery-user" list="distillery-users" placeholder="Distillery User" form="add-grant">
+                        </td>
+                        <td>
+                            <input type="text" name="drupal-user" list="drupal-users" placeholder="Drupal User" form="add-grant">
+                        </td>
+                        <td>
+                            <label form="add-grant-admin">Admin</label>
+                            <input type="checkbox" name="admin" id="add-grant-admin" form="add-grant">
+                        </td>
+                        <td>
+                            <form id="add-grant" method="POST" action="/admin/grants/" class="pure-form-group">
+                                {{ $csrf }}
+                                <input type="hidden" name="action" value="update">
+                                <input type="hidden" name="slug" value="{{ $slug }}">
+                                <input type="submit" class="pure-button" value="Add New">
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<datalist id="distillery-users">
+    {{ range $unused, $user := .Usernames }}
+        <option value="{{ $user }}">
+    {{ end }}
+</datalist>
+<datalist id="drupal-users">
+    {{ range $unused, $drupal := .Drupals }}
+        <option value="{{ $drupal }}">
+    {{ end }}
+</datalist>
+{{ end }}

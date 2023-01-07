@@ -10,7 +10,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/gorilla/csrf"
 	"github.com/gorilla/mux"
 )
 
@@ -30,8 +29,6 @@ type instanceContext struct {
 
 func (admin *Admin) instance(r *http.Request) (is instanceContext, err error) {
 	admin.Dependencies.Custom.Update(&is, r)
-
-	is.CSRF = csrf.TemplateField(r)
 
 	// find the instance itself!
 	instance, err := admin.Dependencies.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])

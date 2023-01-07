@@ -211,3 +211,6 @@ const (
 	PasswordField InputType = "password"
 	CheckboxField InputType = "checkbox"
 )
+
+// CheckboxChecked is the default value of a checked checkbox
+const CheckboxChecked = "on"

@@ -1,14 +1,15 @@
 {{ template "_base.html" . }}
-{{ define "title" }}Distillery Admin - {{ .Info.Slug }}{{ end }}
+{{ define "title" }}Distillery Admin - {{ .Instance.Slug }}{{ end }}
 
 {{ define "header"}}
 <p>
     <a class="pure-button" href="/admin/index">Control</a> &gt;
-    <a class="pure-button pure-button-primary" href="/admin/instance/{{ .Info.Slug }}">Instance</a>
+    <a class="pure-button pure-button-primary" href="/admin/instance/{{ .Instance.Slug }}">Instance</a>
 </p>
 <p>
     <div class="pure-button-group" role="group" aria-label="Actions">
-        <a class="pure-button pure-button-small" href="/admin/ingredients/{{ .Info.Slug }}">Ingredients</a>
+        <a class="pure-button" href="/admin/grants/{{ .Info.Slug }}">Grants</a>
+        <a class="pure-button pure-button-small" href="/admin/ingredients/{{ .Instance.Slug }}">Ingredients</a>
     </div>
 </p>
 {{ end }}
@@ -180,7 +181,8 @@
 
 
 <div class="pure-u-1-1">
-    <h2 id="wisski">(Drupal) Users</h2>
+    <h2 id="wisski">Users (Drupal)</h2>
+    <a class="pure-button" href="/admin/grants/{{ .Info.Slug }}">Manage Grants</a>
 </div>
 
 <div class="pure-u-1">
@@ -256,47 +258,6 @@
                                 <input type="submit" class="pure-button pure-button-action" value="Login in new window">
                                 {{ $csrf }}
                             </form>
-                        </td>
-                    </tr>
-                    {{ end }}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div class="pure-u-1-1">
-    <h2 id="distillery">(Distillery) Users</h2>
-</div>
-
-<div class="pure-u-1">
-    <div class="padding">
-        <div class="overflow">
-            <table class="pure-table pure-table-bordered">
-                <thead>
-                    <tr>
-                        <th>
-                            Distillery User
-                        </th>
-                        <th>
-                            WissKI User
-                        </th>
-                        <th>
-                            Admin
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{ range $index, $grant := .Info.Grants }}
-                    <tr>
-                        <td>
-                            <code>{{ $grant.User }}</code>
-                        </td>
-                        <td>
-                            <code>{{ $grant.DrupalUsername }}</code>
-                        </td>
-                        <td>
-                            <code>{{ $grant.DrupalAdminRole }}</code>
                         </td>
                     </tr>
                     {{ end }}

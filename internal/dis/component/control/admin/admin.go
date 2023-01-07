@@ -6,6 +6,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
@@ -27,6 +28,8 @@ type Admin struct {
 		SnapshotsLog *logger.Logger
 
 		Auth *auth.Auth
+
+		Policy *policy.Policy
 
 		Custom *custom.Custom
 	}
@@ -106,6 +109,16 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	router.Handler(http.MethodGet, route+"instance/:slug", httpx.HTMLHandler[instanceContext]{
 		Handler:  admin.instance,
 		Template: admin.Dependencies.Custom.Template(instanceTemplate),
+	})
+
+	// add a router for the grants pages
+	router.Handler(http.MethodGet, route+"grants/:slug", httpx.HTMLHandler[grantsContext]{
+		Handler:  admin.getGrants,
+		Template: admin.Dependencies.Custom.Template(grantsTemplate),
+	})
+	router.Handler(http.MethodPost, route+"grants/", httpx.HTMLHandler[grantsContext]{
+		Handler:  admin.postGrants,
+		Template: admin.Dependencies.Custom.Template(grantsTemplate),
 	})
 
 	// add a router for the login page

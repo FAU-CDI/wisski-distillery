@@ -63,7 +63,7 @@
                                     </form>
                                     <form action="/admin/users/password" method="POST" class="pure-form pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
-                                        <input type="password" name="password"> &nbsp;
+                                        <input type="password" name="password" autocomplete="new-password"> &nbsp;
                                         <input type="submit" class="pure-button" value="Update Password">
                                         {{ $csrf }}
                                     </form>

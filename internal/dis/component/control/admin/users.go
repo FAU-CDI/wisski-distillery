@@ -11,7 +11,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
 )
 
@@ -32,7 +31,6 @@ type userContext struct {
 func (admin *Admin) users(r *http.Request) (uc userContext, err error) {
 	admin.Dependencies.Custom.Update(&uc, r)
 
-	uc.CSRF = csrf.TemplateField(r)
 	uc.Users, err = admin.Dependencies.Auth.Users(r.Context())
 	return
 }
@@ -70,7 +68,7 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 		RenderTemplateContext: admin.Dependencies.Custom.RenderContext,
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {
-			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == "on"
+			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == httpx.CheckboxChecked
 
 			if cu.User == "" {
 				return cu, errCreateInvalidUsername
