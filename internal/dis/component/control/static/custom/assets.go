@@ -11,8 +11,8 @@ func (custom *Custom) CustomAssetsPath() string {
 	return filepath.Join(custom.Config.DeployRoot, "core", "assets")
 }
 
-func (custom *Custom) FooterPath() string {
-	return filepath.Join(custom.CustomAssetsPath(), "footer.html")
+func (custom *Custom) CustomAssetPath(name string) string {
+	return filepath.Join(custom.CustomAssetsPath(), name)
 }
 
 func (custom *Custom) BackupName() string { return "custom" }

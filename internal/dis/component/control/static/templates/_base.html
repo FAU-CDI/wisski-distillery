@@ -21,8 +21,10 @@
     </main>
 
     <footer>
-        {{ block "footer" .BaseContext }}
-            <!-- no footer -->
+        {{ block "@custom/footer" .BaseContext }}
+            <div style="z-index:10000;position:fixed;top:0;left:0;width:100vh;height:100vw;background:red;text-align:center;padding:10vh 10vw;font-size:xx-large;font-weight:bold">
+                <code>.Custom.Template()</code> not called
+            </div>
         {{ end }}
     </footer>
 
