@@ -65,9 +65,9 @@ func (ds Stack) Update(ctx context.Context, progress io.Writer, start bool) erro
 var errStackUp = errors.New("Stack.Up: Up returned non-zero exit code")
 
 // Up creates and starts the containers in this Stack.
-// It is equivalent to 'docker compose up --remove-orphans --detach' on the shell.
+// It is equivalent to 'docker compose up --force-recreate --remove-orphans --detach' on the shell.
 func (ds Stack) Up(ctx context.Context, progress io.Writer) error {
-	if code := ds.compose(ctx, stream.NonInteractive(progress), "up", "--remove-orphans", "--detach")(); code != 0 {
+	if code := ds.compose(ctx, stream.NonInteractive(progress), "up", "--force-recreate", "--remove-orphans", "--detach")(); code != 0 {
 		return errStackUp
 	}
 	return nil
