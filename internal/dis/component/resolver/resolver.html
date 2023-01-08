@@ -1,0 +1,71 @@
+{{ template "_base.html" . }}
+{{ define "title" }}WissKI Resolver{{ end }}
+
+{{ define "header"}}
+<!-- no header -->
+{{ end }}
+
+{{ define "content" }}
+<div class="pure-u-1">
+    <h1>wdresolve</h1>
+    <p>
+        This page implements a resolver for the WissKI Distillery.
+        It takes a <b>RDF / Triplestore URI</b> that refers to a <b>WissKI Entity</b> and redirects to the page that displays the entity.
+    </p>
+</div>
+<div class="pure-u-1">
+    <h2>Resolve URI</h2>
+    <form action="." method="GET" class="pure-form" autocomplete="off">
+        <label for="uri">Enter A URI To Resolve:</label>
+        <input type="text" id="uri" name="uri" value="">
+        <input type="submit" value="Resolve" class="pure-button pure-button-primary"/>
+
+        <p>
+            You can also resolve a URI by a appending <code>?uri=</code> to the URL of this page, for example <code>{{ .URL }}?uri=graf://dr.acula/12345</code>.
+        </p>
+    </form>
+</div>
+
+{{ if .Prefixes }}
+<div class="pure-u-1">
+    <h2>Known Prefixes</h2>
+    <p>
+        These are for debugging purposes only.
+    </p>
+</div>
+<div class="pure-u-1">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered pure-form">
+                <thead>
+                    <tr>
+                        <th>
+                            Prefix
+                        </th>
+                        <th>
+                            WissKI
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range $unused, $prefix := .Prefixes }}
+                    <tr>
+                        <td>
+                            <code>
+                                {{ (index $prefix 0) }}
+                            </code>
+                        </td>
+                        <td>
+                            <a href="{{ (index $prefix 1) }}" target="_blank" rel="noopener noreferrer" class="pure-button">
+                                {{ (index $prefix 1) }}
+                            </a>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{ end }}
+{{ end }}

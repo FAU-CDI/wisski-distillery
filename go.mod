@@ -3,7 +3,7 @@ module github.com/FAU-CDI/wisski-distillery
 go 1.18
 
 require (
-	github.com/FAU-CDI/wdresolve v0.0.0-20220911200729-e66b93ed2b69
+	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
 	github.com/Showmax/go-fqdn v1.0.0
 	github.com/alessio/shellescape v1.4.1
 	github.com/feiin/sqlstring v0.3.0
@@ -20,7 +20,7 @@ require (
 	github.com/tdewolff/minify v2.3.6+incompatible
 	github.com/tkw1536/goprogram v0.2.4
 	golang.org/x/crypto v0.3.0
-	golang.org/x/exp v0.0.0-20221205204356-47842c84f3db
+	golang.org/x/exp v0.0.0-20230105202349-8879d0199aa3
 	golang.org/x/sync v0.1.0
 	golang.org/x/term v0.3.0
 	gorm.io/driver/mysql v1.4.4
