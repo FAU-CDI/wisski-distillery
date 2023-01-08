@@ -11,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/rs/zerolog"
 )
 
@@ -57,18 +58,18 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 	userCreateTemplate := admin.Dependencies.Custom.Template(userCreateTemplate)
 
 	return &httpx.Form[createUserResult]{
-		Fields: []httpx.Field{
-			{Name: "username", Type: httpx.TextField, Label: "Username"},
-			{Name: "password", Type: httpx.PasswordField, Label: "Password"},
-			{Name: "admin", Type: httpx.CheckboxField, Label: "Distillery Administrator"},
+		Fields: []field.Field{
+			{Name: "username", Type: field.Text, Autocomplete: field.Username, Label: "Username"},
+			{Name: "password", Type: field.Password, Autocomplete: field.NewPassword, Label: "Password"},
+			{Name: "admin", Type: field.Checkbox, Label: "Distillery Administrator"},
 		},
-		FieldTemplate: httpx.PureCSSFieldTemplate,
+		FieldTemplate: field.PureCSSFieldTemplate,
 
 		RenderTemplate:        userCreateTemplate,
 		RenderTemplateContext: admin.Dependencies.Custom.RenderContext,
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {
-			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == httpx.CheckboxChecked
+			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == field.CheckboxChecked
 
 			if cu.User == "" {
 				return cu, errCreateInvalidUsername

@@ -11,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/gorilla/mux"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -116,7 +117,7 @@ func (admin *Admin) postGrants(r *http.Request) (gc grantsContext, err error) {
 		delete         = r.PostFormValue("action") == "delete"
 		distilleryUser = r.PostFormValue("distillery-user")
 		drupalUser     = r.PostFormValue("drupal-user")
-		adminRole      = r.PostFormValue("admin") == httpx.CheckboxChecked
+		adminRole      = r.PostFormValue("admin") == field.CheckboxChecked
 	)
 
 	// set the common fields

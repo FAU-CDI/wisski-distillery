@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 
 	_ "embed"
 )
@@ -20,10 +21,10 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 	totpEnableTemplate := panel.Dependencies.Custom.Template(totpEnableTemplate)
 
 	return &httpx.Form[struct{}]{
-		Fields: []httpx.Field{
-			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
+		Fields: []field.Field{
+			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
 		},
-		FieldTemplate: httpx.PureCSSFieldTemplate,
+		FieldTemplate: field.PureCSSFieldTemplate,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := panel.Dependencies.Auth.UserOf(r)
@@ -78,11 +79,11 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 	totpEnrollTemplate := panel.Dependencies.Custom.Template(totpEnrollTemplate)
 
 	return &httpx.Form[struct{}]{
-		Fields: []httpx.Field{
-			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
-			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Passcode"},
+		Fields: []field.Field{
+			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
+			{Name: "otp", Type: field.Text, Autocomplete: field.OneTimeCode, EmptyOnError: true, Label: "Passcode"},
 		},
-		FieldTemplate: httpx.PureCSSFieldTemplate,
+		FieldTemplate: field.PureCSSFieldTemplate,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := panel.Dependencies.Auth.UserOf(r)
@@ -152,11 +153,11 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 	totpDisableTemplate := panel.Dependencies.Custom.Template(totpDisableTemplate)
 
 	return &httpx.Form[struct{}]{
-		Fields: []httpx.Field{
-			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
-			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Current Passcode"},
+		Fields: []field.Field{
+			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
+			{Name: "otp", Type: field.Text, Autocomplete: field.OneTimeCode, EmptyOnError: true, Label: "Current Passcode"},
 		},
-		FieldTemplate: httpx.PureCSSFieldTemplate,
+		FieldTemplate: field.PureCSSFieldTemplate,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := panel.Dependencies.Auth.UserOf(r)

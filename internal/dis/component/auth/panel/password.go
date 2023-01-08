@@ -9,6 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 )
 
 //go:embed "templates/password.html"
@@ -28,13 +29,13 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 	passwordTemplate := panel.Dependencies.Custom.Template(passwordTemplate)
 
 	return &httpx.Form[struct{}]{
-		Fields: []httpx.Field{
-			{Name: "old", Type: httpx.PasswordField, EmptyOnError: true, Label: "Current Password"},
-			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Current Passcode (optional)"},
-			{Name: "new", Type: httpx.PasswordField, EmptyOnError: true, Label: "New Password"},
-			{Name: "new2", Type: httpx.PasswordField, EmptyOnError: true, Label: "New Password (again)"},
+		Fields: []field.Field{
+			{Name: "old", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
+			{Name: "otp", Type: field.Text, Autocomplete: field.OneTimeCode, EmptyOnError: true, Label: "Current Passcode (optional)"},
+			{Name: "new", Type: field.Password, Autocomplete: field.NewPassword, EmptyOnError: true, Label: "New Password"},
+			{Name: "new2", Type: field.Password, Autocomplete: field.NewPassword, EmptyOnError: true, Label: "New Password (again)"},
 		},
-		FieldTemplate: httpx.PureCSSFieldTemplate,
+		FieldTemplate: field.PureCSSFieldTemplate,
 
 		RenderTemplate:        passwordTemplate,
 		RenderTemplateContext: panel.UserFormContext,

@@ -2,23 +2,18 @@ package httpx
 
 import (
 	"html/template"
-	"io"
 	"net/http"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/gorilla/csrf"
 )
-
-// DefaultFieldTemplate is the default template to render fields.
-var DefaultFieldTemplate = template.Must(template.New("").Parse(`<input type="{{.Type}}" value="{{.Value}}" name="{{.Name}}" placeholder={{.Placeholder}}>`))
-var PureCSSFieldTemplate = template.Must(template.New("").Parse(`
-<div class="pure-control-group"><label for="{{.Name}}">{{.Label}}</label><input type="{{.Type}}" value="{{.Value}}" name="{{.Name}}" id="{{.Name}}" placeholder="{{.Placeholder}}"></div>`))
 
 // Form provides a form that a user can submit via a http POST method call.
 // It implements [http.Handler].
 type Form[D any] struct {
 	// Fields are the fields this form consists of.
-	Fields []Field
+	Fields []field.Field
 
 	// FieldTemplate is an optional template to be executed for each field.
 	// FieldTemplate may be nil; in which case [DefaultFieldTemplate] is used.
@@ -178,39 +173,3 @@ func (form *Form[D]) renderSuccess(data D, values map[string]string, w http.Resp
 	}
 	form.renderForm(err, values, w, r)
 }
-
-// Field represents a field inside a form.
-type Field struct {
-	Name string    // Name is the name of the field
-	Type InputType // Type is the type of the field. It corresponds to the "name" attribute in html.
-
-	Placeholder string // Value for the "placeholder" attribute
-	Label       string // (External) Label for the field. Not used by the default template.
-
-	EmptyOnError bool // indicates if the field should be reset on error
-}
-
-// fieldContext is passed to the template context
-type fieldContext struct {
-	Field
-	Value string
-}
-
-func (field Field) WriteTo(w io.Writer, template *template.Template, value string) {
-	if template == nil {
-		template = DefaultFieldTemplate
-	}
-	template.Execute(w, fieldContext{Field: field, Value: value})
-}
-
-// InputType represents the type of input
-type InputType string
-
-const (
-	TextField     InputType = "text"
-	PasswordField InputType = "password"
-	CheckboxField InputType = "checkbox"
-)
-
-// CheckboxChecked is the default value of a checked checkbox
-const CheckboxChecked = "on"

@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/gorilla/sessions"
 
 	_ "embed"
@@ -114,12 +115,12 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 	loginTemplate := auth.Dependencies.Custom.Template(loginTemplate)
 
 	return &httpx.Form[*AuthUser]{
-		Fields: []httpx.Field{
-			{Name: "username", Type: httpx.TextField, Label: "Username"},
-			{Name: "password", Type: httpx.PasswordField, EmptyOnError: true, Label: "Password"},
-			{Name: "otp", Type: httpx.TextField, EmptyOnError: true, Label: "Passcode (optional)"},
+		Fields: []field.Field{
+			{Name: "username", Type: field.Text, Autocomplete: field.Username, Label: "Username"},
+			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Password"},
+			{Name: "otp", Type: field.Text, Autocomplete: field.OneTimeCode, EmptyOnError: true, Label: "Passcode (optional)"},
 		},
-		FieldTemplate: httpx.PureCSSFieldTemplate,
+		FieldTemplate: field.PureCSSFieldTemplate,
 
 		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
 			if context.Err != nil {
