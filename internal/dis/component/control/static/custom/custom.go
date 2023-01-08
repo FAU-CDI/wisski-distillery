@@ -1,6 +1,8 @@
 package custom
 
-import "github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+import (
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+)
 
 // Custom implements theme and page customization.
 type Custom struct {
@@ -9,3 +11,7 @@ type Custom struct {
 		// nothing yet
 	}
 }
+
+var (
+	_ component.Backupable = (*Custom)(nil)
+)
