@@ -32,8 +32,10 @@ var legalTemplate = static.AssetsLegal.MustParseShared("legal.html", legalTempla
 
 func (legal *Legal) Routes() component.Routes {
 	return component.Routes{
-		Paths: []string{"/legal/"},
-		CSRF:  false,
+		Prefix: "/legal/",
+		Exact:  true,
+
+		CSRF: false,
 	}
 }
 

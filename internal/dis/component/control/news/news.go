@@ -33,8 +33,9 @@ var (
 
 func (*News) Routes() component.Routes {
 	return component.Routes{
-		Paths: []string{"/news/"},
-		CSRF:  false,
+		Prefix: "/news/",
+		Exact:  true,
+		CSRF:   false,
 	}
 }
 
@@ -126,10 +127,6 @@ func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, e
 
 	return httpx.HTMLHandler[newsContext]{
 		Handler: func(r *http.Request) (nc newsContext, err error) {
-			if strings.TrimSuffix(r.URL.Path, "/") != strings.TrimSuffix(path, "/") {
-				return nc, httpx.ErrNotFound
-			}
-
 			news.Dependencies.Custom.Update(&nc, r)
 			nc.Items, err = items, itemsErr
 

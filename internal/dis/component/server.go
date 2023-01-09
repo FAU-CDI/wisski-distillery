@@ -3,6 +3,8 @@ package component
 import (
 	"context"
 	"net/http"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/mux"
 )
 
 // Routeable is a component that is servable
@@ -18,9 +20,18 @@ type Routeable interface {
 
 // Routes represents information about a single Routeable
 type Routes struct {
-	// Paths are the paths handled by this routeable.
-	// Each path is passed to HandleRoute() individually.
-	Paths []string
+	// Prefix is the prefix this pattern handles
+	Prefix string
+
+	// MatchAllDomains indicates that all domains, even the non-default domain, should be matched
+	MatchAllDomains bool
+
+	// Exact indicates that only the exact prefix, as opposed to any sub-paths, are matched.
+	// Trailing '/'s are automatically trimmed, even with an exact match.
+	Exact bool
+
+	// Aliases are the additional prefixes this route handles.
+	Aliases []string
 
 	// CSRF indicates if this route should be protected by CSRF.
 	// CSRF protection is applied prior to any custom decorator being called.
@@ -29,6 +40,22 @@ type Routes struct {
 	// Decorators is a function applied to the handler returned by HandleRoute.
 	// When nil, it is not applied.
 	Decorator func(http.Handler) http.Handler
+}
+
+type RouteContext struct {
+	DefaultDomain bool
+}
+
+// Predicate returns the predicate corresponding to the given route
+func (routes Routes) Predicate(context func(*http.Request) RouteContext) mux.Predicate {
+	if routes.MatchAllDomains {
+		return nil
+	}
+
+	// match only the default domain
+	return func(r *http.Request) bool {
+		return context(r).DefaultDomain
+	}
 }
 
 // Decorate decorates the provided handler with the options specified in this handler.

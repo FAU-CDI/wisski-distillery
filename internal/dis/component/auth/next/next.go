@@ -29,7 +29,7 @@ var (
 
 func (next *Next) Routes() component.Routes {
 	return component.Routes{
-		Paths:     []string{"/next/"},
+		Prefix:    "/next/",
 		Decorator: next.Dependencies.Auth.Require(auth.User),
 	}
 }

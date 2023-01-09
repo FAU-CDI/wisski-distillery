@@ -29,8 +29,9 @@ var (
 
 func (*Home) Routes() component.Routes {
 	return component.Routes{
-		Paths: []string{"/"},
-		CSRF:  false,
+		Prefix:          "/",
+		MatchAllDomains: true,
+		CSRF:            false,
 	}
 }
 

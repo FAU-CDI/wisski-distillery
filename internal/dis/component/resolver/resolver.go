@@ -29,8 +29,6 @@ type Resolver struct {
 
 	prefixes        lazy.Lazy[map[string]string] // cached prefixes (from the server)
 	RefreshInterval time.Duration
-
-	handler lazy.Lazy[wdresolve.ResolveHandler] // handler
 }
 
 var (
@@ -40,8 +38,9 @@ var (
 
 func (resolver *Resolver) Routes() component.Routes {
 	return component.Routes{
-		Paths: []string{"/go/", "/wisski/get/"},
-		CSRF:  false,
+		Prefix:  "/wisski/get/",
+		Aliases: []string{"/go/"},
+		CSRF:    false,
 	}
 }
 
@@ -59,42 +58,42 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 
 	logger := zerolog.Ctx(ctx)
 
+	var p wdresolve.ResolveHandler
 	var err error
-	return resolver.handler.Get(func() (p wdresolve.ResolveHandler) {
-		p.HandleIndex = func(context wdresolve.IndexContext, w http.ResponseWriter, r *http.Request) {
-			ctx := resolverContext{
-				IndexContext: context,
-			}
-			resolver.Dependencies.Custom.Update(&ctx, r)
 
-			httpx.WriteHTML(ctx, nil, resolverTemplate, "", w, r)
+	p.HandleIndex = func(context wdresolve.IndexContext, w http.ResponseWriter, r *http.Request) {
+		ctx := resolverContext{
+			IndexContext: context,
 		}
-		p.TrustXForwardedProto = true
+		resolver.Dependencies.Custom.Update(&ctx, r)
 
-		fallback := &resolvers.Regexp{
-			Data: map[string]string{},
-		}
+		httpx.WriteHTML(ctx, nil, resolverTemplate, "", w, r)
+	}
+	p.TrustXForwardedProto = true
 
-		// handle the default domain name!
-		domainName := resolver.Config.DefaultDomain
-		if domainName != "" {
-			fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domainName))] = fmt.Sprintf("https://$1.%s", domainName)
-			logger.Info().Str("name", domainName).Msg("registering default domain")
-		}
+	fallback := &resolvers.Regexp{
+		Data: map[string]string{},
+	}
 
-		// handle the extra domains!
-		for _, domain := range resolver.Config.SelfExtraDomains {
-			fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
-			logger.Info().Str("name", domainName).Msg("registering legacy domain")
-		}
+	// handle the default domain name!
+	domainName := resolver.Config.DefaultDomain
+	if domainName != "" {
+		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domainName))] = fmt.Sprintf("https://$1.%s", domainName)
+		logger.Info().Str("name", domainName).Msg("registering default domain")
+	}
 
-		// resolve the prefixes
-		p.Resolver = resolvers.InOrder{
-			resolver,
-			fallback,
-		}
-		return p
-	}), err
+	// handle the extra domains!
+	for _, domain := range resolver.Config.SelfExtraDomains {
+		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
+		logger.Info().Str("name", domainName).Msg("registering legacy domain")
+	}
+
+	// resolve the prefixes
+	p.Resolver = resolvers.InOrder{
+		resolver,
+		fallback,
+	}
+	return p, err
 }
 
 func (resolver *Resolver) Target(uri string) string {

@@ -32,7 +32,7 @@ var (
 
 func (panel *UserPanel) Routes() component.Routes {
 	return component.Routes{
-		Paths:     []string{"/user/"},
+		Prefix:    "/user/",
 		CSRF:      true,
 		Decorator: panel.Dependencies.Auth.Require(nil),
 	}

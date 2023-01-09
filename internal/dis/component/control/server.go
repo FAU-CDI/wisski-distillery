@@ -2,10 +2,14 @@ package control
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/mux"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
 )
@@ -15,8 +19,25 @@ import (
 //
 // Logging messages are directed to progress
 func (control *Control) Server(ctx context.Context, progress io.Writer) (http.Handler, error) {
-	// create a new mux
-	mux := http.NewServeMux()
+	logger := zerolog.Ctx(ctx)
+
+	var mux mux.Mux[component.RouteContext]
+	mux.Context = func(r *http.Request) component.RouteContext {
+		slug, ok := control.Still.Config.SlugFromHost(r.Host)
+		return component.RouteContext{
+			DefaultDomain: slug == "" && ok,
+		}
+	}
+	mux.Panic = func(panic any, w http.ResponseWriter, r *http.Request) {
+		// log the panic
+		logger.Error().
+			Str("panic", fmt.Sprint(panic)).
+			Str("path", r.URL.Path).
+			Msg("panic serving handler")
+
+		// and send an internal server error
+		httpx.TextInterceptor.Fallback.ServeHTTP(w, r)
+	}
 
 	// create a csrf protector
 	csrfProtector := control.CSRF()
@@ -24,14 +45,35 @@ func (control *Control) Server(ctx context.Context, progress io.Writer) (http.Ha
 	// iterate over all the handler
 	for _, s := range control.Dependencies.Routeables {
 		routes := s.Routes()
-		zerolog.Ctx(ctx).Info().Str("component", s.Name()).Strs("paths", routes.Paths).Bool("csrf", routes.CSRF).Bool("decorator", routes.Decorator != nil).Msg("mounting route")
+		zerolog.Ctx(ctx).Info().
+			Str("Name", s.Name()).
+			Str("Prefix", routes.Prefix).
+			Strs("Aliases", routes.Aliases).
+			Bool("Exact", routes.Exact).
+			Bool("CSRF", routes.CSRF).
+			Bool("Decorator", routes.Decorator != nil).
+			Bool("MatchAllDomains", routes.MatchAllDomains).
+			Msg("mounting route")
 
-		for _, path := range routes.Paths {
-			handler, err := s.HandleRoute(ctx, path)
-			if err != nil {
-				return nil, err
-			}
-			mux.Handle(path, routes.Decorate(handler, csrfProtector))
+		// call the handler for the route
+		handler, err := s.HandleRoute(ctx, routes.Prefix)
+		if err != nil {
+			zerolog.Ctx(ctx).Err(err).
+				Str("Component", s.Name()).
+				Str("Prefix", routes.Prefix).
+				Msg("error mounting route")
+			continue
+		}
+
+		// decorate the handler
+		handler = routes.Decorate(handler, csrfProtector)
+
+		// determine the predicate
+		predicate := routes.Predicate(mux.ContextOf)
+
+		// and add all the prefixes
+		for _, prefix := range append([]string{routes.Prefix}, routes.Aliases...) {
+			mux.Add(prefix, predicate, routes.Exact, handler)
 		}
 	}
 

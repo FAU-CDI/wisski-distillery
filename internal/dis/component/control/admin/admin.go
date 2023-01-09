@@ -44,7 +44,7 @@ var (
 
 func (admin *Admin) Routes() component.Routes {
 	return component.Routes{
-		Paths:     []string{"/admin/"},
+		Prefix:    "/admin/",
 		CSRF:      true,
 		Decorator: admin.Dependencies.Auth.Require(auth.Admin),
 	}

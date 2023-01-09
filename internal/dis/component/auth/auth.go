@@ -30,8 +30,8 @@ var (
 
 func (auth *Auth) Routes() component.Routes {
 	return component.Routes{
-		Paths: []string{"/auth/"},
-		CSRF:  true,
+		Prefix: "/auth/",
+		CSRF:   true,
 	}
 }
 

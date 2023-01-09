@@ -20,8 +20,9 @@ var (
 
 func (*Static) Routes() component.Routes {
 	return component.Routes{
-		Paths: []string{"/static/"},
-		CSRF:  false,
+		Prefix: "/static/",
+
+		CSRF: false,
 	}
 }
 
