@@ -9,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/lib/collection"
+	"github.com/tkw1536/goprogram/lib/reflectx"
 )
 
 // Logger is responsible for logging backups and snapshots
@@ -16,6 +17,17 @@ type Logger struct {
 	component.Base
 	Dependencies struct {
 		SQL *sql.SQL
+	}
+}
+
+var (
+	_ component.Table = (*Logger)(nil)
+)
+
+func (*Logger) TableInfo() component.TableInfo {
+	return component.TableInfo{
+		Model: reflectx.TypeOf[models.Export](),
+		Name:  models.ExportTable,
 	}
 }
 
@@ -36,7 +48,7 @@ func (log *Logger) For(ctx context.Context, slug string) (exports []models.Expor
 // Log retrieves (and prunes) all entries in the snapshot log.
 func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 	// query the table!
-	table, err := log.Dependencies.SQL.QueryTable(ctx, false, models.ExportTable)
+	table, err := log.Dependencies.SQL.QueryTable(ctx, log)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +80,7 @@ func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 // AddToExportLog adds the provided export to the log.
 func (log *Logger) Add(ctx context.Context, export models.Export) error {
 	// find the table
-	table, err := log.Dependencies.SQL.QueryTable(ctx, false, models.ExportTable)
+	table, err := log.Dependencies.SQL.QueryTable(ctx, log)
 	if err != nil {
 		return err
 	}

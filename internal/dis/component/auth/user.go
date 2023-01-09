@@ -7,20 +7,29 @@ import (
 	"fmt"
 	"image/png"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/pkg/errors"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
+	"github.com/tkw1536/goprogram/lib/reflectx"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // ErrUserNotFound is returned when a user is not found
 var ErrUserNotFound = errors.New("user not found")
 
+func (auth *Auth) TableInfo() component.TableInfo {
+	return component.TableInfo{
+		Name:  models.UserTable,
+		Model: reflectx.TypeOf[models.User](),
+	}
+}
+
 // Users returns all users in the database
 func (auth *Auth) Users(ctx context.Context) (users []*AuthUser, err error) {
 	// query the user table
-	table, err := auth.Dependencies.SQL.QueryTable(ctx, false, models.UserTable)
+	table, err := auth.Dependencies.SQL.QueryTable(ctx, auth)
 	if err != nil {
 		return
 	}
@@ -53,7 +62,10 @@ func (auth *Auth) User(ctx context.Context, name string) (user *AuthUser, err er
 	}
 
 	// return the user
-	table, err := auth.Dependencies.SQL.QueryTable(ctx, false, models.UserTable)
+	table, err := auth.Dependencies.SQL.QueryTable(ctx, auth)
+	if err != nil {
+		return
+	}
 	if err != nil {
 		return
 	}
@@ -81,7 +93,7 @@ func (auth *Auth) User(ctx context.Context, name string) (user *AuthUser, err er
 // The user is not associated to any WissKIs, and has no password set.
 func (auth *Auth) CreateUser(ctx context.Context, name string) (user *AuthUser, err error) {
 	// return the user
-	table, err := auth.Dependencies.SQL.QueryTable(ctx, false, models.UserTable)
+	table, err := auth.Dependencies.SQL.QueryTable(ctx, auth)
 	if err != nil {
 		return
 	}
@@ -267,7 +279,7 @@ func (au *AuthUser) MakeRegular(ctx context.Context) error {
 
 // Save saves the given user in the database
 func (au *AuthUser) Save(ctx context.Context) error {
-	table, err := au.auth.Dependencies.SQL.QueryTable(ctx, false, models.UserTable)
+	table, err := au.auth.Dependencies.SQL.QueryTable(ctx, au.auth)
 	if err != nil {
 		return err
 	}
@@ -276,7 +288,7 @@ func (au *AuthUser) Save(ctx context.Context) error {
 
 // Delete deletes the user from the database
 func (au *AuthUser) Delete(ctx context.Context) error {
-	table, err := au.auth.Dependencies.SQL.QueryTable(ctx, false, models.UserTable)
+	table, err := au.auth.Dependencies.SQL.QueryTable(ctx, au.auth)
 	if err != nil {
 		return err
 	}

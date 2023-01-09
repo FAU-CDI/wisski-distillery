@@ -25,6 +25,7 @@ type Auth struct {
 
 var (
 	_ component.Routeable = (*Auth)(nil)
+	_ component.Table     = (*Auth)(nil)
 )
 
 func (auth *Auth) Routes() component.Routes {

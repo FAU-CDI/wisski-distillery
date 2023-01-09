@@ -5,6 +5,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/tkw1536/goprogram/lib/reflectx"
 )
 
 // Component meta is responsible for managing metadata per WissKI Instance
@@ -20,7 +22,15 @@ type Meta struct {
 
 var (
 	_ component.Provisionable = (*Meta)(nil)
+	_ component.Table         = (*Meta)(nil)
 )
+
+func (*Meta) TableInfo() component.TableInfo {
+	return component.TableInfo{
+		Model: reflectx.TypeOf[models.Metadatum](),
+		Name:  models.MetadataTable,
+	}
+}
 
 // Storage returns a Storage for the instance with the given slug.
 // When slug is nil, returns a global storage.
@@ -40,8 +50,9 @@ func (meta *Meta) Storage(slug string) *Storage {
 
 	// create a new storage
 	meta.sc[slug] = &Storage{
-		Slug: slug,
-		sql:  meta.Dependencies.SQL,
+		Slug:  slug,
+		sql:   meta.Dependencies.SQL,
+		table: meta,
 	}
 	return meta.sc[slug]
 }

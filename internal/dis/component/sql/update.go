@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"reflect"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/sqle"
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
@@ -76,56 +76,24 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 
 	// wait for the database to come up
 	logging.LogMessage(progress, ctx, "Waiting for database update to be complete")
-	sql.WaitQueryTable(ctx)
-
-	tables := []struct {
-		name  string
-		model any
-		table string
-	}{
-		{
-			"instance",
-			&models.Instance{},
-			models.InstanceTable,
-		},
-		{
-			"metadata",
-			&models.Metadatum{},
-			models.MetadataTable,
-		},
-		{
-			"snapshot",
-			&models.Export{},
-			models.ExportTable,
-		},
-		{
-			"lock",
-			&models.Lock{},
-			models.LockTable,
-		},
-		{
-			"users",
-			&models.User{},
-			models.UserTable,
-		},
-		{
-			"grant",
-			&models.Grant{},
-			models.GrantTable,
-		},
+	if err := sql.WaitQueryTable(ctx); err != nil {
+		return err
 	}
 
 	// migrate all of the tables!
 	return logging.LogOperation(func() error {
-		for _, table := range tables {
-			logging.LogMessage(progress, ctx, "migrating %q table", table.name)
-			db, err := sql.QueryTable(ctx, false, table.table)
+		for _, table := range sql.Dependencies.Tables {
+			info := table.TableInfo()
+			logging.LogMessage(progress, ctx, "migrating %q table", table.Name)
+			db, err := sql.queryTable(ctx, false, info.Name)
 			if err != nil {
-				return errSQLUnableToMigrate.WithMessageF(table.name, "unable to access table")
+				return errSQLUnableToMigrate.WithMessageF(table.Name, "unable to access table")
 			}
 
-			if err := db.AutoMigrate(table.model); err != nil {
-				return errSQLUnableToMigrate.WithMessageF(table.name, err)
+			tp := reflect.New(info.Model).Interface()
+
+			if err := db.AutoMigrate(tp); err != nil {
+				return errSQLUnableToMigrate.WithMessageF(table.Name, err)
 			}
 		}
 		return nil

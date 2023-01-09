@@ -12,6 +12,9 @@ import (
 
 type SQL struct {
 	component.Base
+	Dependencies struct {
+		Tables []component.Table
+	}
 
 	ServerURL string // upstream server url
 

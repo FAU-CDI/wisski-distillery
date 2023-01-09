@@ -13,8 +13,11 @@ import (
 type Malt struct {
 	component.Base
 
+	SQL           *sql.SQL           `auto:"true"`
+	InstanceTable *sql.InstanceTable `auto:"true"`
+	LockTable     *sql.LockTable     `auto:"true"`
+
 	TS          *triplestore.Triplestore `auto:"true"`
-	SQL         *sql.SQL                 `auto:"true"`
 	Meta        *meta.Meta               `auto:"true"`
 	ExporterLog *logger.Logger           `auto:"true"`
 	Policy      *policy.Policy           `auto:"true"`

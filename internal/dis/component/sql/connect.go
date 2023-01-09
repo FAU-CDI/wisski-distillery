@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 )
@@ -44,8 +45,13 @@ func (sql *SQL) Exec(query string, args ...interface{}) error {
 // ========== connection via gorm ==========
 //
 
-// QueryTable returns a gorm.DB to connect to the provided distillery database table
-func (sql *SQL) QueryTable(ctx context.Context, silent bool, table string) (*gorm.DB, error) {
+// QueryTable returns a gorm.DB to connect to the provided table of the given model
+func (sql *SQL) QueryTable(ctx context.Context, table component.Table) (*gorm.DB, error) {
+	return sql.queryTable(ctx, false, table.TableInfo().Name)
+}
+
+// queryTable returns a gorm.DB to connect to the provided distillery database table
+func (sql *SQL) queryTable(ctx context.Context, silent bool, table string) (*gorm.DB, error) {
 	conn, err := sql.connect(sql.Config.DistilleryDatabase)
 	if err != nil {
 		return nil, err
@@ -88,7 +94,8 @@ func (sql *SQL) QueryTable(ctx context.Context, silent bool, table string) (*gor
 func (sql *SQL) WaitQueryTable(ctx context.Context) error {
 	// TODO: Establish a convention on when to wait for this!
 	return timex.TickUntilFunc(func(time.Time) bool {
-		_, err := sql.QueryTable(ctx, true, models.InstanceTable)
+		// TODO: Use a different table here
+		_, err := sql.queryTable(ctx, true, models.InstanceTable)
 		return err == nil
 	}, ctx, sql.PollInterval)
 }

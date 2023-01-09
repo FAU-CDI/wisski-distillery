@@ -127,10 +127,14 @@ func (dis *Distillery) allComponents() []initFunc {
 			ts.BaseURL = "http://" + dis.Upstream.Triplestore
 			ts.PollInterval = time.Second
 		}),
+
 		manual(func(sql *sql.SQL) {
 			sql.ServerURL = dis.Upstream.SQL
 			sql.PollInterval = time.Second
 		}),
+		auto[*sql.LockTable],
+		auto[*sql.InstanceTable],
+
 		manual(func(s *solr.Solr) {
 			s.BaseURL = dis.Upstream.Solr
 			s.PollInterval = time.Second

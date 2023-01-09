@@ -22,6 +22,8 @@ type Instances struct {
 	Dependencies struct {
 		Malt *malt.Malt
 		SQL  *sql.SQL
+
+		InstanceTable *sql.InstanceTable
 	}
 }
 
@@ -50,7 +52,7 @@ func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wi
 		return nil, err
 	}
 
-	table, err := sql.QueryTable(ctx, false, models.InstanceTable)
+	table, err := sql.QueryTable(ctx, instances.Dependencies.InstanceTable)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +92,7 @@ func (instances *Instances) Has(ctx context.Context, slug string) (ok bool, err 
 		return false, err
 	}
 
-	table, err := sql.QueryTable(ctx, false, models.InstanceTable)
+	table, err := sql.QueryTable(ctx, instances.Dependencies.InstanceTable)
 	if err != nil {
 		return false, err
 	}
@@ -135,7 +137,7 @@ func (instances *Instances) find(ctx context.Context, order bool, query func(tab
 	}
 
 	// open the bookkeeping table
-	table, err := sql.QueryTable(ctx, false, models.InstanceTable)
+	table, err := sql.QueryTable(ctx, instances.Dependencies.InstanceTable)
 	if err != nil {
 		return nil, err
 	}

@@ -16,7 +16,7 @@ type Locker struct {
 }
 
 var (
-	_ = (ingredient.WissKIFetcher)((*Locker)(nil))
+	_ ingredient.WissKIFetcher = (*Locker)(nil)
 )
 
 var Locked = exit.Error{
@@ -26,7 +26,7 @@ var Locked = exit.Error{
 
 // TryLock attemps to lock this WissKI and returns if it suceeded
 func (lock *Locker) TryLock(ctx context.Context) bool {
-	table, err := lock.Malt.SQL.QueryTable(ctx, true, models.LockTable)
+	table, err := lock.Malt.SQL.QueryTable(ctx, lock.Malt.LockTable)
 	if err != nil {
 		return false
 	}
@@ -41,7 +41,7 @@ func (lock *Locker) TryUnlock(ctx context.Context) bool {
 	ctx, close := cancel.Anyways(ctx, time.Second)
 	defer close()
 
-	table, err := lock.Malt.SQL.QueryTable(ctx, true, models.LockTable)
+	table, err := lock.Malt.SQL.QueryTable(ctx, lock.Malt.LockTable)
 	if err != nil {
 		return false
 	}
