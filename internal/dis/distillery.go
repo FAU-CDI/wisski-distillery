@@ -16,6 +16,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/cron"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/legal"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/news"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
@@ -173,6 +174,7 @@ func (dis *Distillery) allComponents() []initFunc {
 			admin.Analytics = &dis.pool.Analytics
 		}),
 		auto[*legal.Legal],
+		auto[*news.News],
 
 		auto[*static.Static],
 		auto[*custom.Custom],

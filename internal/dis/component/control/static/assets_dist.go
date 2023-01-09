@@ -10,7 +10,7 @@ var AssetsDisclaimer string
 // AssetsHome contains assets for the 'Home' entrypoint.
 var AssetsHome = Assets{
 	Scripts: `<script type="module" src="/static/Home.38d394c2.js"></script><script src="/static/Home.38d394c2.js" nomodule="" defer></script><script type="module" src="/static/Home.38d394c2.js"></script><script src="/static/Home.38d394c2.js" nomodule="" defer></script>`,
-	Styles:  `<link rel="stylesheet" href="/static/Home.4b303448.css"><link rel="stylesheet" href="/static/Home.2353e048.css">`,	
+	Styles:  `<link rel="stylesheet" href="/static/Home.4b303448.css"><link rel="stylesheet" href="/static/Home.f9675eae.css">`,	
 }
 
 // AssetsUser contains assets for the 'User' entrypoint.

@@ -1,0 +1,135 @@
+package news
+
+import (
+	"context"
+	"embed"
+	"html/template"
+	"io/fs"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
+	"github.com/yuin/goldmark"
+	gmmeta "github.com/yuin/goldmark-meta"
+	"github.com/yuin/goldmark/parser"
+	"golang.org/x/exp/slices"
+)
+
+type News struct {
+	component.Base
+	Dependencies struct {
+		Custom *custom.Custom
+	}
+}
+
+var (
+	_ component.Routeable = (*News)(nil)
+)
+
+func (*News) Routes() component.Routes {
+	return component.Routes{
+		Paths: []string{"/news/"},
+		CSRF:  false,
+	}
+}
+
+type Item struct {
+	ID      string
+	Date    time.Time
+	Title   string
+	Content template.HTML
+}
+
+func (item *Item) parse(path string, builder *strings.Builder) error {
+	builder.Reset()
+
+	// open file
+	content, err := fs.ReadFile(newsFS, path)
+	if err != nil {
+		return err
+	}
+
+	// parse and read metadata
+	reader := goldmark.New(goldmark.WithExtensions(
+		gmmeta.Meta,
+	))
+
+	context := parser.NewContext()
+	if err := reader.Convert(content, builder, parser.WithContext(context)); err != nil {
+		return err
+	}
+	meta := gmmeta.Get(context)
+
+	// read title
+	item.Title, _ = meta["title"].(string)
+
+	// read date
+	date, _ := meta["date"].(string)
+	item.Date, err = time.Parse("2006-01-02", date)
+	if err != nil {
+		return err
+	}
+
+	// write content
+	item.Content = template.HTML(builder.String())
+
+	return nil
+}
+
+//go:embed "NEWS/*.md"
+var newsFS embed.FS
+
+var news lazy.Lazy[[]Item]
+
+// Items returns a list of all news items
+func Items() []Item {
+	return news.Get(func() (items []Item) {
+		var builder strings.Builder
+
+		files, err := fs.Glob(newsFS, "NEWS/*.md")
+		if err != nil {
+			panic(err)
+		}
+		items = make([]Item, len(files))
+		for i, file := range files {
+			items[i].ID = file[len("NEWS/") : len(file)-len(".md")]
+			if err := items[i].parse(file, &builder); err != nil {
+				panic(err)
+			}
+		}
+
+		slices.SortFunc(items, func(a, b Item) bool {
+			return !a.Date.Before(b.Date)
+		})
+
+		return
+	})
+}
+
+//go:embed "news.html"
+var newsHTMLStr string
+var newsTemplate = static.AssetsHome.MustParseShared("news.html", newsHTMLStr)
+
+type newsContext struct {
+	custom.BaseContext
+	Items []Item
+}
+
+// HandleRoute returns the handler for the requested path
+func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
+	newsTemplate := news.Dependencies.Custom.Template(newsTemplate)
+
+	return httpx.HTMLHandler[newsContext]{
+		Handler: func(r *http.Request) (nc newsContext, err error) {
+			news.Dependencies.Custom.Update(&nc, r)
+			nc.Items = Items()
+			return
+		},
+		Template: newsTemplate,
+	}, nil
+}

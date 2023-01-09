@@ -1,0 +1,25 @@
+{{ template "_base.html" . }}
+{{ define "title" }}News{{ end }}
+
+{{ define "header"}}
+<p>
+    <a class="pure-button" href="/">Home</a> &gt;
+    <a class="pure-button pure-button-primary" href="/news/">News</a>
+</p>
+{{ end }}
+
+{{ define "content" }}
+
+<div class="pure-u-1">
+    This page contains news items from the distillery.
+</div>
+
+{{range .Items}}
+    <div class="pure-u-1">
+        <h2 id="{{.ID}}">{{.Title}}</h3>
+        <b>{{ .Date.Format "2006-01-02" }}</b>
+        {{ .Content }}
+    </div>
+{{ end }}
+
+{{ end }}
