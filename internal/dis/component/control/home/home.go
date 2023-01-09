@@ -3,12 +3,12 @@ package home
 import (
 	"context"
 	"fmt"
-	"html/template"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
@@ -19,10 +19,8 @@ type Home struct {
 		Custom    *custom.Custom
 	}
 
-	redirect      lazy.Lazy[*Redirect]
-	instanceNames lazy.Lazy[map[string]struct{}]
-	homeBytes     lazy.Lazy[[]byte]
-	homeTemplate  lazy.Lazy[*template.Template]
+	instanceNames lazy.Lazy[map[string]struct{}] // instance names
+	homeInstances lazy.Lazy[[]status.WissKI]     // list of home instances (updated via cron)
 }
 
 var (
@@ -37,31 +35,37 @@ func (*Home) Routes() component.Routes {
 }
 
 func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
-	return home, nil
+	// generate a default handler
+	dflt, err := home.loadRedirect(ctx)
+	if err != nil {
+		return nil, err
+	}
+	dflt.Fallback = home.publicHandler(ctx)
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		slug, ok := home.Config.SlugFromHost(r.Host)
+		switch {
+		case !ok:
+			http.NotFound(w, r)
+		case slug != "":
+			home.serveWissKI(w, slug, r)
+		default:
+			dflt.ServeHTTP(w, r)
+		}
+	}), nil
 }
 
-func (home *Home) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	slug, ok := home.Config.SlugFromHost(r.Host)
-	switch {
-	case !ok:
-		http.NotFound(w, r)
-	case slug != "":
-		home.serveWissKI(w, slug, r)
-	default:
-		home.serveRoot(w, r)
-	}
-}
-
-func (home *Home) serveRoot(w http.ResponseWriter, r *http.Request) {
-	// not the root url => server the fallback
-	if !(r.URL.Path == "" || r.URL.Path == "/") {
-		home.redirect.Get(nil).ServeHTTP(w, r)
-		return
+func (home *Home) instanceMap(ctx context.Context) (map[string]struct{}, error) {
+	wissKIs, err := home.Dependencies.Instances.All(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusAccepted)
-	w.Write(home.homeBytes.Get(nil))
+	names := make(map[string]struct{}, len(wissKIs))
+	for _, w := range wissKIs {
+		names[w.Slug] = struct{}{}
+	}
+	return names, nil
 }
 
 func (home *Home) serveWissKI(w http.ResponseWriter, slug string, r *http.Request) {

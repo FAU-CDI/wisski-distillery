@@ -1,77 +1,43 @@
 package home
 
 import (
-	"bytes"
 	"context"
-	"html/template"
-	"time"
-
 	_ "embed"
+	"net/http"
+	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
-	"golang.org/x/sync/errgroup"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
-func (home *Home) instanceMap(ctx context.Context) (map[string]struct{}, error) {
-	wissKIs, err := home.Dependencies.Instances.All(ctx)
-	if err != nil {
-		return nil, err
-	}
+//go:embed "public.html"
+var publicHTMLStr string
+var publicTemplate = static.AssetsHome.MustParseShared("public.html", publicHTMLStr)
 
-	names := make(map[string]struct{}, len(wissKIs))
-	for _, w := range wissKIs {
-		names[w.Slug] = struct{}{}
-	}
-	return names, nil
-}
-
-//go:embed "home.html"
-var homeHTMLStr string
-var homeTemplate = static.AssetsHome.MustParseShared("home.html", homeHTMLStr)
-
-func (home *Home) homeRender(ctx context.Context) ([]byte, error) {
-	var context homeContext
-	home.Dependencies.Custom.Update(&context, nil)
-
-	// setup a couple of static things
-	context.Time = time.Now().UTC()
-	context.SelfRedirect = home.Config.SelfRedirect.String()
-
-	// find all the WissKIs
-	wissKIs, err := home.Dependencies.Instances.All(ctx)
-	if err != nil {
-		return nil, err
-	}
-	context.Instances = make([]status.WissKI, len(wissKIs))
-
-	// determine their infos
-	var eg errgroup.Group
-	for i, instance := range wissKIs {
-		i := i
-		wissKI := instance
-		eg.Go(func() (err error) {
-			context.Instances[i], err = wissKI.Info().Information(ctx, false)
-			return
-		})
-	}
-	eg.Wait()
-
-	// render the template
-	var buffer bytes.Buffer
-	err = home.homeTemplate.Get(func() *template.Template {
-		return home.Dependencies.Custom.Template(homeTemplate)
-	}).Execute(&buffer, context)
-	return buffer.Bytes(), err
-}
-
-type homeContext struct {
+type publicContext struct {
 	custom.BaseContext
 
-	Instances []status.WissKI
-
-	Time time.Time
-
+	Instances    []status.WissKI
 	SelfRedirect string
+}
+
+func (home *Home) publicHandler(ctx context.Context) http.Handler {
+	return httpx.HTMLHandler[publicContext]{
+		Handler: func(r *http.Request) (pc publicContext, err error) {
+			// only act on the root path!
+			if strings.TrimSuffix(r.URL.Path, "/") != "" {
+				return pc, httpx.ErrNotFound
+			}
+
+			home.Dependencies.Custom.Update(&pc, r)
+
+			pc.Instances = home.homeInstances.Get(nil)
+			pc.SelfRedirect = home.Config.SelfRedirect.String()
+
+			return
+		},
+		Template: home.Dependencies.Custom.Template(publicTemplate),
+	}
 }

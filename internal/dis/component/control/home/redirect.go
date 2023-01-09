@@ -11,7 +11,8 @@ func (home *Home) loadRedirect(ctx context.Context) (redirect Redirect, err erro
 	if redirect.Overrides == nil {
 		redirect.Overrides = make(map[string]string)
 	}
-	redirect.Overrides[""] = home.Config.SelfRedirect.String()
+
+	delete(redirect.Overrides, "") // make sure there is no root redirect
 
 	redirect.Absolute = false
 	redirect.Permanent = false

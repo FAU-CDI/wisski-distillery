@@ -13,7 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
+	"github.com/rs/zerolog"
 	"github.com/yuin/goldmark"
 	gmmeta "github.com/yuin/goldmark-meta"
 	"github.com/yuin/goldmark/parser"
@@ -84,31 +84,28 @@ func (item *Item) parse(path string, builder *strings.Builder) error {
 //go:embed "NEWS/*.md"
 var newsFS embed.FS
 
-var news lazy.Lazy[[]Item]
-
 // Items returns a list of all news items
-func Items() []Item {
-	return news.Get(func() (items []Item) {
-		var builder strings.Builder
+func Items() ([]Item, error) {
+	var builder strings.Builder
 
-		files, err := fs.Glob(newsFS, "NEWS/*.md")
-		if err != nil {
-			panic(err)
+	files, err := fs.Glob(newsFS, "NEWS/*.md")
+	if err != nil {
+		return nil, err
+	}
+
+	items := make([]Item, len(files))
+	for i, file := range files {
+		items[i].ID = file[len("NEWS/") : len(file)-len(".md")]
+		if err := items[i].parse(file, &builder); err != nil {
+			return nil, err
 		}
-		items = make([]Item, len(files))
-		for i, file := range files {
-			items[i].ID = file[len("NEWS/") : len(file)-len(".md")]
-			if err := items[i].parse(file, &builder); err != nil {
-				panic(err)
-			}
-		}
+	}
 
-		slices.SortFunc(items, func(a, b Item) bool {
-			return !a.Date.Before(b.Date)
-		})
-
-		return
+	slices.SortFunc(items, func(a, b Item) bool {
+		return !a.Date.Before(b.Date)
 	})
+
+	return items, nil
 }
 
 //go:embed "news.html"
@@ -122,14 +119,22 @@ type newsContext struct {
 
 // HandleRoute returns the handler for the requested path
 func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
-	newsTemplate := news.Dependencies.Custom.Template(newsTemplate)
+	items, itemsErr := Items()
+	if itemsErr != nil {
+		zerolog.Ctx(ctx).Err(itemsErr).Msg("Unable to load news items")
+	}
 
 	return httpx.HTMLHandler[newsContext]{
 		Handler: func(r *http.Request) (nc newsContext, err error) {
+			if strings.TrimSuffix(r.URL.Path, "/") != strings.TrimSuffix(path, "/") {
+				return nc, httpx.ErrNotFound
+			}
+
 			news.Dependencies.Custom.Update(&nc, r)
-			nc.Items = Items()
+			nc.Items, err = items, itemsErr
+
 			return
 		},
-		Template: newsTemplate,
+		Template: news.Dependencies.Custom.Template(newsTemplate),
 	}, nil
 }

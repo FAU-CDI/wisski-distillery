@@ -183,6 +183,5 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*cron.Cron],
 		auto[*home.UpdateHome],
 		auto[*home.UpdateInstanceList],
-		auto[*home.UpdateRedirect],
 	}
 }

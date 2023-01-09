@@ -20,7 +20,8 @@ var baseContextName = reflectx.TypeOf[BaseContext]().Name()
 // This context should always be initialized using the [custom.Update], [custom.New] or [custom.NewForm] functions.
 // Other invocations might cause an error at runtime.
 type BaseContext struct {
-	inited bool // has this context been inited
+	inited        bool // has this context been inited?
+	requestWasNil bool // was the passed request nil
 
 	GeneratedAt time.Time // time this page was generated at
 
@@ -32,14 +33,19 @@ const (
 	errorPrefix template.HTML = `<div style="z-index:10000;position:fixed;top:0;left:0;width:100vh;height:100vw;background:red;text-align:center;padding:10vh 10vw;font-size:xx-large;font-weight:bold">`
 	errorSuffix template.HTML = "</div>"
 
-	csrfError template.HTML = errorPrefix + "CSRF used but not provided" + errorSuffix
-	initError template.HTML = errorPrefix + "BaseContext not initialized" + errorSuffix
+	csrfError       template.HTML = errorPrefix + "CSRF used but not provided" + errorSuffix
+	initError       template.HTML = errorPrefix + "<code>BaseContext.use()</code> not called" + errorSuffix
+	requestNilError template.HTML = errorPrefix + "<code>BaseContext.use()</code> called with nil request" + errorSuffix
 )
 
 // Use updates this context to use the values from the given base.
+//
+// The given request *must not* be nil.
+//
 // For convenience the passed context is also returned.
 func (tc *BaseContext) use(base component.Base, r *http.Request) *BaseContext {
 	tc.inited = true
+	tc.requestWasNil = r == nil
 
 	tc.GeneratedAt = time.Now().UTC()
 
@@ -55,6 +61,9 @@ func (tc *BaseContext) use(base component.Base, r *http.Request) *BaseContext {
 func (bc BaseContext) DoInitCheck() template.HTML {
 	if !bc.inited {
 		return initError
+	}
+	if bc.requestWasNil {
+		return requestNilError
 	}
 	return ""
 }
