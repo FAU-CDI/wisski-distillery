@@ -12,7 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
-	"github.com/gorilla/mux"
+	"github.com/julienschmidt/httprouter"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
@@ -94,7 +94,8 @@ func (gc *grantsContext) useGrants(r *http.Request, admin *Admin) (err error) {
 }
 
 func (admin *Admin) getGrants(r *http.Request) (gc grantsContext, err error) {
-	if err := gc.use(r, mux.Vars(r)["slug"], admin); err != nil {
+	slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
+	if err := gc.use(r, slug, admin); err != nil {
 		return gc, err
 	}
 

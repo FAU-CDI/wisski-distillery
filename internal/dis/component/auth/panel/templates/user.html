@@ -23,7 +23,7 @@
             {{ if .User.IsTOTPEnabled }}
                 <li>Passcode Enabled: <b>true</b></li>
             {{ else }}
-                <li>Passcode Enabled: <b>false</b> <small>(some actions are disabled)</small></li>
+                <li>Passcode Enabled: <b>false</b>  {{ if .User.IsAdmin }}<small>(some admin actions are disabled)</small>{{ end }}</li>
             {{ end }}
         </ul>
     </p>

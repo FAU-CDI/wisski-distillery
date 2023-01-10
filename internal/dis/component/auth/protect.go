@@ -85,7 +85,7 @@ var Admin Permission = func(user *AuthUser, r *http.Request) (ok Grant, err erro
 	return Bool2Grant(user != nil && user.IsAdmin() && user.IsTOTPEnabled(), "user needs to have admin permissions and passcode enabled"), nil
 }
 
-// User represents a permission that checks if a user has totp enabled.
+// User represents a permission that checks if a user is enabled
 var User Permission = func(user *AuthUser, r *http.Request) (ok Grant, err error) {
-	return Bool2Grant(user != nil && user.IsEnabled() && user.IsTOTPEnabled(), "user needs to have passcode enabled"), nil
+	return Bool2Grant(user != nil && user.IsEnabled(), "user needs to be enabled"), nil
 }

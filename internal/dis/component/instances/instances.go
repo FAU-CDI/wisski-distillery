@@ -47,6 +47,10 @@ func (instances *Instances) use(wisski *wisski.WissKI) {
 // WissKI returns the WissKI with the provided slug, if it exists.
 // It the WissKI does not exist, returns ErrWissKINotFound.
 func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wisski.WissKI, err error) {
+	if slug == "" {
+		return nil, ErrWissKINotFound
+	}
+
 	sql := instances.Dependencies.SQL
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return nil, err
@@ -61,7 +65,7 @@ func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wi
 	wissKI = new(wisski.WissKI)
 
 	// find the instance by slug
-	query := table.Where(&models.Instance{Slug: slug}).Find(&wissKI.Liquid.Instance)
+	query := table.Find(&wissKI.Liquid.Instance, &models.Instance{Slug: slug})
 	switch {
 	case query.Error != nil:
 		return nil, errSQL.WithMessageF(query.Error)

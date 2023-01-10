@@ -11,7 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
-	"github.com/gorilla/mux"
+	"github.com/julienschmidt/httprouter"
 )
 
 //go:embed "html/components.html"
@@ -52,7 +52,8 @@ func (admin *Admin) ingredients(r *http.Request) (cp ingredientsContext, err err
 	admin.Dependencies.Custom.Update(&cp, r)
 
 	// find the instance itself!
-	instance, err := admin.Dependencies.Instances.WissKI(r.Context(), mux.Vars(r)["slug"])
+	slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
+	instance, err := admin.Dependencies.Instances.WissKI(r.Context(), slug)
 	if err == instances.ErrWissKINotFound {
 		return cp, httpx.ErrNotFound
 	}
