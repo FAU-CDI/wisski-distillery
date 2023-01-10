@@ -6,9 +6,11 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image/png"
+	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/pkg/password"
 	"github.com/pkg/errors"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -232,9 +234,49 @@ func (au *AuthUser) UnsetPassword(ctx context.Context) error {
 	return au.Save(ctx)
 }
 
-var ErrNoUser = errors.New("user is nil")
-var ErrUserDisabled = errors.New("user is disabled")
-var ErrUserBlank = errors.New("user has no password set")
+const MinPasswordLength = 8
+
+var (
+	ErrPolicyBlank    = errors.New("password is blank")
+	ErrPolicyTooShort = errors.New(fmt.Sprintf("password is too short: minimum length %d", MinPasswordLength))
+	ErrPolicyKnown    = errors.New("password is on the list of known passwords")
+	ErrPolicyUsername = errors.New("password may not be identical to username")
+)
+
+// CheckPasswordPolicy checks if the given password would pass the password policy.
+//
+// The password policy checks that the password has a minimum length of [MinPasswordLength]
+// and that it is not a common password.
+// It also checks that password and username are not identical.
+func (auth *Auth) CheckPasswordPolicy(candidate string, username string) error {
+	if candidate == "" {
+		return ErrPolicyBlank
+	}
+
+	if strings.EqualFold(candidate, username) {
+		return ErrPolicyUsername
+	}
+
+	if len(candidate) < MinPasswordLength {
+		return ErrPolicyTooShort
+	}
+
+	if err := password.CheckCommonPassword(func(common string) (bool, error) { return common == candidate, nil }); err != nil {
+		return ErrPolicyKnown
+	}
+
+	return nil
+}
+
+func (au *AuthUser) CheckPasswordPolicy(candidate string) error {
+	return au.auth.CheckPasswordPolicy(candidate, au.User.User)
+}
+
+var (
+	ErrNoUser       = errors.New("user is nil")
+	ErrUserDisabled = errors.New("user is disabled")
+	ErrUserBlank    = errors.New("user has no password set")
+)
 
 // CheckPassword checks if this user can login with the provided password.
 // Returns nil on success, an error otherwise.

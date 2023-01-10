@@ -18,7 +18,6 @@ var passwordTemplate = static.AssetsUser.MustParseShared("password.html", passwo
 
 var (
 	errPasswordsNotIdentical = errors.New("passwords are not identical")
-	errPasswordIsEmpty       = errors.New("password is empty")
 	errCredentialsIncorrect  = errors.New("credentials are not correct")
 	errPasswordSetFailure    = errors.New("error saving new password")
 	errTOTPSetFailure        = errors.New("unable to disable totp")
@@ -47,10 +46,6 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 				return struct{}{}, errPasswordsNotIdentical
 			}
 
-			if new == "" {
-				return struct{}{}, errPasswordIsEmpty
-			}
-
 			user, err := panel.Dependencies.Auth.UserOf(r)
 			if err != nil {
 				return struct{}{}, err
@@ -62,6 +57,14 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 					return struct{}{}, errCredentialsIncorrect
 				}
 			}
+
+			{
+				err := user.CheckPasswordPolicy(new)
+				if err != nil {
+					return struct{}{}, err
+				}
+			}
+
 			{
 				err := user.SetPassword(r.Context(), []byte(new))
 				if err != nil {

@@ -14,9 +14,20 @@
 {{ end }}
 
 {{ define "content" }}
+
 <div class="pure-u-1">
     <div class="padding">
         <div class="overflow">
+
+            {{ $E := .Error }}
+            {{ if not (eq $E "") }}
+                <div class="pure-form-group">
+                    <p class="error-message">
+                        {{ $E }}
+                    </p>
+                </div>
+            {{ end }}
+
             <table class="pure-table pure-table-bordered">
                 <thead>
                     <tr>

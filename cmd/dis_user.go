@@ -135,6 +135,11 @@ func (du disUser) runDelete(context wisski_distillery.Context) error {
 	return user.Delete(context.Context)
 }
 
+var errPasswordPolicy = exit.Error{
+	Message:  "password policy failed: %s",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (du disUser) runSetPassword(context wisski_distillery.Context) error {
 	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
 	if err != nil {
@@ -160,8 +165,8 @@ func (du disUser) runSetPassword(context wisski_distillery.Context) error {
 		if passwd != passwd1 {
 			return errPasswordsNotIdentical
 		}
-		if len(passwd) == 0 {
-			return errPasswordsNotIdentical
+		if err := user.CheckPasswordPolicy(passwd); err != nil {
+			return errPasswordPolicy.WithMessageF(err)
 		}
 	}
 

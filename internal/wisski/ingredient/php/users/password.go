@@ -1,16 +1,13 @@
 package users
 
 import (
-	"bufio"
 	"context"
-	"embed"
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
-	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/password"
 )
 
 var errGetValidator = errors.New("GetPasswordValidator: Unknown Error")
@@ -57,14 +54,6 @@ func (pv PasswordValidator) Check(ctx context.Context, password string) bool {
 
 var errPasswordUsername = errors.New("username === password")
 
-type CommonPasswordError struct {
-	Password CommonPassword
-}
-
-func (cpe CommonPasswordError) Error() string {
-	return fmt.Sprintf("%q from %q", cpe.Password.Password, cpe.Password.Source)
-}
-
 func (pv PasswordValidator) CheckDictionary(ctx context.Context, writer io.Writer) error {
 	var counter int
 
@@ -75,7 +64,7 @@ func (pv PasswordValidator) CheckDictionary(ctx context.Context, writer io.Write
 		}
 		return errPasswordUsername
 	}
-	for candidate := range CommonPasswords() {
+	for candidate := range password.CommonPasswords() {
 		if ctx.Err() != nil {
 			continue
 		}
@@ -86,59 +75,9 @@ func (pv PasswordValidator) CheckDictionary(ctx context.Context, writer io.Write
 		}
 
 		if result {
-			return &CommonPasswordError{Password: candidate}
+			return &password.CommonPasswordError{CommonPassword: candidate}
 		}
 	}
 
 	return ctx.Err()
-}
-
-//go:embed passwords
-var passwordsEmbed embed.FS
-
-type CommonPassword struct {
-	Password string
-	Source   string
-}
-
-// CommonPasswords returns a channel of most common passwords
-func CommonPasswords() <-chan CommonPassword {
-	pChan := make(chan CommonPassword, 10)
-	go func() {
-		defer close(pChan)
-
-		fs.WalkDir(passwordsEmbed, ".", func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			// get the full path
-			if d.IsDir() || !strings.HasSuffix(path, ".txt") {
-				return nil
-			}
-
-			// open it
-			file, err := passwordsEmbed.Open(path)
-			if err != nil {
-				return err
-			}
-			defer file.Close()
-
-			// scan it line by line
-			scanner := bufio.NewScanner(file)
-			for scanner.Scan() {
-				line := strings.TrimSpace(scanner.Text())
-				if line == "" || strings.HasPrefix(line, "//") {
-					continue
-				}
-				pChan <- CommonPassword{
-					Password: line,
-					Source:   path,
-				}
-			}
-
-			return scanner.Err()
-		})
-	}()
-	return pChan
 }

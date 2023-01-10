@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"net/url"
 
 	_ "embed"
 
@@ -24,14 +25,15 @@ var userTemplate = static.AssetsAdmin.MustParseShared(
 
 type userContext struct {
 	custom.BaseContext
-	httpx.FormContext
 
+	Error string
 	Users []*auth.AuthUser
 }
 
 func (admin *Admin) users(r *http.Request) (uc userContext, err error) {
 	admin.Dependencies.Custom.Update(&uc, r)
 
+	uc.Error = r.URL.Query().Get("error")
 	uc.Users, err = admin.Dependencies.Auth.Users(r.Context())
 	return
 }
@@ -76,6 +78,12 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 			}
 			if cu.Passsword == "" {
 				return cu, errCreateInvalidPassword
+			}
+
+			// check the password policy
+			err = admin.Dependencies.Auth.CheckPasswordPolicy(cu.Passsword, cu.User)
+			if err != nil {
+				return cu, err
 			}
 
 			return cu, nil
@@ -144,7 +152,7 @@ func (admin *Admin) useraction(ctx context.Context, name string, action func(r *
 
 		if err := action(r, user); err != nil {
 			logger.Err(err).Str("action", name).Msg("failed to act on user")
-			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
+			http.Redirect(w, r, "/admin/users/?error="+url.QueryEscape(err.Error()), http.StatusSeeOther)
 			return
 		}
 
@@ -184,6 +192,11 @@ func (admin *Admin) usersPasswordHandler(ctx context.Context) http.Handler {
 		password := r.PostFormValue("password")
 		if password == "" {
 			return httpx.ErrBadRequest
+		}
+		// check the password policy
+		err := user.CheckPasswordPolicy(password)
+		if err != nil {
+			return err
 		}
 		return user.SetPassword(r.Context(), []byte(password))
 	})
