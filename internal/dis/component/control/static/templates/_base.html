@@ -1,48 +1,50 @@
 <!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
 
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta charset="utf-8">
+        <title>{{ block "title" . }}WissKI Distillery{{ end }}</title>
+        {{ block "styles" . }}styles{{ end }}
+    </head>
 
-    <title>{{ block "title" . }}WissKI Distillery{{ end }}</title>
-    {{ block "styles" . }}styles{{ end }}
-</head>
-
-<body>
-    {{ .BaseContext.DoInitCheck }}
-    <nav class="pure-menu pure-menu-horizontal">
-        <ul class="pure-menu-list">
-            {{ range .BaseContext.Menu }}    
+    <body>
+        {{ .BaseContext.DoInitCheck }}
+        <nav class="pure-menu pure-menu-horizontal">
+            <ul class="pure-menu-list">
+                {{ range .BaseContext.Menu }}
                 <li class="pure-menu-item{{ if .Active }} pure-menu-selected{{ end }}">
                     <a href="{{ .Path }}" class="pure-menu-link">{{ .Title }}</a>
                 </li>
-            {{ end }}
-        </ul>
-    </nav>
-    <nav class="breadcrumbs" role="group" aria-label="Breadcrumbs">
-        {{ range .BaseContext.Crumbs }}    
+                {{ end }}
+            </ul>
+        </nav>
+        <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumbs">
+            {{ range .BaseContext.Crumbs }}
             <a class="{{ if .Active }}active{{ end }}" href="{{ .Path }}">{{ .Title }}</a>
-        {{ end }}
-    </nav>
-    
-    <header>
-        <h1 id="top">{{ template "title" . }}</h1>
-        {{ block "header" . }}<!-- no header by default -->{{ end }}
-    </header>
-    <main>
-        <div class="pure-g">
-            {{ block "content" . }}content{{ end }}
-        </div>
-    </main>
+            {{ end }}
+        </nav>
 
-    <footer>
-        {{ block "@custom/footer" .BaseContext }}
+        <header>
+            <h1 id="top">{{ template "title" . }}</h1>
+            {{ block "header" . }}<!-- no header by default -->{{ end }}
+        </header>
+        <main>
+            <div class="pure-g">
+                {{ block "content" . }}content{{ end }}
+            </div>
+        </main>
+
+        <footer>
+            {{ block "@custom/footer" .BaseContext }}
             <div style="z-index:10000;position:fixed;top:0;left:0;width:100vh;height:100vw;background:red;text-align:center;padding:10vh 10vw;font-size:xx-large;font-weight:bold">
                 <code>.Custom.Template()</code> not called
             </div>
-        {{ end }}
-    </footer>
+            {{ end }}
+        </footer>
 
 
-    {{ block "scripts" . }}scripts{{ end }}
-</body>
+        {{ block "scripts" . }}scripts{{ end }}
+    </body>
+
+</html>
