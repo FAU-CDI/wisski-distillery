@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/gorilla/csrf"
 	"github.com/tkw1536/goprogram/lib/reflectx"
+	"golang.org/x/exp/slices"
 )
 
 // baseContextName is the name of the [BaseContext] type
@@ -24,6 +25,10 @@ type BaseContext struct {
 	requestWasNil bool // was the passed request nil
 
 	GeneratedAt time.Time // time this page was generated at
+
+	// Menu and breadcrumbs
+	Menu   []component.MenuItem
+	Crumbs []component.MenuItem
 
 	CSRF template.HTML // CSRF Field
 }
@@ -43,7 +48,8 @@ const (
 // The given request *must not* be nil.
 //
 // For convenience the passed context is also returned.
-func (tc *BaseContext) use(base component.Base, r *http.Request) *BaseContext {
+func (tc *BaseContext) use(custom *Custom, r *http.Request, crumbs []component.MenuItem) *BaseContext {
+	// tc.custom = custom
 	tc.inited = true
 	tc.requestWasNil = r == nil
 
@@ -55,9 +61,20 @@ func (tc *BaseContext) use(base component.Base, r *http.Request) *BaseContext {
 		tc.CSRF = csrf.TemplateField(r)
 	}
 
+	// build the menu
+	tc.Menu = custom.BuildMenu(r)
+
+	// build the breadcrumbs
+	tc.Crumbs = slices.Clone(crumbs)
+	last := len(tc.Crumbs) - 1
+	for i := range tc.Crumbs {
+		tc.Crumbs[i].Active = i == last
+	}
+
 	return tc
 }
 
+// DoInitCheck is called by the template to check that the BaseContext was initialized properly
 func (bc BaseContext) DoInitCheck() template.HTML {
 	if !bc.inited {
 		return initError
@@ -69,26 +86,21 @@ func (bc BaseContext) DoInitCheck() template.HTML {
 }
 
 // NewForm is like New, but returns a new BaseFormContext
-func (custom *Custom) NewForm(context httpx.FormContext, r *http.Request) (ctx BaseFormContext) {
+func (custom *Custom) NewForm(context httpx.FormContext, r *http.Request, crumbs []component.MenuItem) (ctx BaseFormContext) {
 	ctx.FormContext = context
-	ctx.use(custom.Base, r)
+	ctx.use(custom, r, crumbs)
 	return
-}
-
-// RenderContext is exactly like NewForm, but returns any to be used as httpx.Form.RenderTemplateContext
-func (custom *Custom) RenderContext(ctx httpx.FormContext, r *http.Request) any {
-	return custom.NewForm(ctx, r)
 }
 
 // Update updates an embedded BaseContext field in context.
 //
 // Assumes that context is a pointer to a struct type.
 // If this is not the case, might call panic().
-func (custom *Custom) Update(context any, r *http.Request) *BaseContext {
+func (custom *Custom) Update(context any, r *http.Request, crumbs []component.MenuItem) *BaseContext {
 	ctx := reflect.ValueOf(context).
 		Elem().FieldByName(baseContextName).Addr().
 		Interface().(*BaseContext)
-	ctx.use(custom.Base, r)
+	ctx.use(custom, r, crumbs)
 	return ctx
 }
 

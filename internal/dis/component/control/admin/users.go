@@ -8,6 +8,7 @@ import (
 
 	_ "embed"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
@@ -31,7 +32,10 @@ type userContext struct {
 }
 
 func (admin *Admin) users(r *http.Request) (uc userContext, err error) {
-	admin.Dependencies.Custom.Update(&uc, r)
+	admin.Dependencies.Custom.Update(&uc, r, []component.MenuItem{
+		{Title: "Admin", Path: "/admin/"},
+		{Title: "Users", Path: "/admin/users/"},
+	})
 
 	uc.Error = r.URL.Query().Get("error")
 	uc.Users, err = admin.Dependencies.Auth.Users(r.Context())
@@ -58,6 +62,11 @@ type createUserResult struct {
 
 func (admin *Admin) createUser(ctx context.Context) http.Handler {
 	userCreateTemplate := admin.Dependencies.Custom.Template(userCreateTemplate)
+	crumbs := []component.MenuItem{
+		{Title: "Admin", Path: "/admin/"},
+		{Title: "Users", Path: "/admin/users"},
+		{Title: "Create", Path: "/admin/users/create"},
+	}
 
 	return &httpx.Form[createUserResult]{
 		Fields: []field.Field{
@@ -67,8 +76,10 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: field.PureCSSFieldTemplate,
 
-		RenderTemplate:        userCreateTemplate,
-		RenderTemplateContext: admin.Dependencies.Custom.RenderContext,
+		RenderTemplate: userCreateTemplate,
+		RenderTemplateContext: func(ctx httpx.FormContext, r *http.Request) any {
+			return admin.Dependencies.Custom.NewForm(ctx, r, crumbs)
+		},
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {
 			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == field.CheckboxChecked

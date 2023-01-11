@@ -10,6 +10,21 @@
 
 <body>
     {{ .BaseContext.DoInitCheck }}
+    <nav class="pure-menu pure-menu-horizontal">
+        <ul class="pure-menu-list">
+            {{ range .BaseContext.Menu }}    
+                <li class="pure-menu-item{{ if .Active }} pure-menu-selected{{ end }}">
+                    <a href="{{ .Path }}" class="pure-menu-link">{{ .Title }}</a>
+                </li>
+            {{ end }}
+        </ul>
+    </nav>
+    <nav class="breadcrumbs" role="group" aria-label="Breadcrumbs">
+        {{ range .BaseContext.Crumbs }}    
+            <a class="{{ if .Active }}active{{ end }}" href="{{ .Path }}">{{ .Title }}</a>
+        {{ end }}
+    </nav>
+    
     <header>
         <h1 id="top">{{ template "title" . }}</h1>
         {{ block "header" . }}<!-- no header by default -->{{ end }}

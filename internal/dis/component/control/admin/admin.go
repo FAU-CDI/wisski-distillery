@@ -40,6 +40,7 @@ type Admin struct {
 var (
 	_ component.DistilleryFetcher = (*Admin)(nil)
 	_ component.Routeable         = (*Admin)(nil)
+	_ component.Menuable          = (*Admin)(nil)
 )
 
 func (admin *Admin) Routes() component.Routes {
@@ -47,6 +48,19 @@ func (admin *Admin) Routes() component.Routes {
 		Prefix:    "/admin/",
 		CSRF:      true,
 		Decorator: admin.Dependencies.Auth.Require(auth.Admin),
+	}
+}
+
+func (admin *Admin) Menu(r *http.Request) []component.MenuItem {
+	if !admin.Dependencies.Auth.Has(auth.Admin, r) {
+		return nil
+	}
+	return []component.MenuItem{
+		{
+			Title:    "Admin",
+			Path:     "/admin/",
+			Priority: component.MenuAdmin,
+		},
 	}
 }
 
@@ -62,15 +76,15 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 		}
 	}
 
-	// handle everything
-	router.HandlerFunc(http.MethodGet, route, func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, route+"index", http.StatusTemporaryRedirect)
-	})
-
 	// add a handler for the index page
-	router.Handler(http.MethodGet, route+"index", httpx.HTMLHandler[indexContext]{
+	router.Handler(http.MethodGet, route, httpx.HTMLHandler[indexContext]{
 		Handler:  admin.index,
 		Template: admin.Dependencies.Custom.Template(indexTemplate),
+	})
+
+	// fallback to the "/" page
+	router.HandlerFunc(http.MethodGet, route+"index", func(w http.ResponseWriter, r *http.Request) {
+		http.Redirect(w, r, route, http.StatusTemporaryRedirect)
 	})
 
 	// add a handler for the user page

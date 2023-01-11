@@ -3,8 +3,10 @@ package admin
 import (
 	_ "embed"
 	"fmt"
+	"html/template"
 	"net/http"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -38,7 +40,11 @@ type grantsContext struct {
 }
 
 func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (err error) {
-	admin.Dependencies.Custom.Update(gc, r)
+	admin.Dependencies.Custom.Update(gc, r, []component.MenuItem{
+		{Title: "Admin", Path: "/admin/"},
+		{Title: "Instance", Path: template.URL("/admin/instance/" + slug)},
+		{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")},
+	})
 
 	// find the instance itself
 	gc.instance, err = admin.Dependencies.Instances.WissKI(r.Context(), slug)

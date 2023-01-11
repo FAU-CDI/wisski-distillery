@@ -28,7 +28,7 @@ var (
 
 //go:embed "legal.html"
 var legalTemplateString string
-var legalTemplate = static.AssetsLegal.MustParseShared("legal.html", legalTemplateString)
+var legalTemplate = static.AssetsDefault.MustParseShared("legal.html", legalTemplateString)
 
 func (legal *Legal) Routes() component.Routes {
 	return component.Routes{
@@ -59,7 +59,9 @@ type legalContext struct {
 }
 
 func (legal *Legal) context(r *http.Request) (lc legalContext, err error) {
-	legal.Dependencies.Custom.Update(&lc, r)
+	legal.Dependencies.Custom.Update(&lc, r, []component.MenuItem{
+		{Title: "Legal", Path: "/legal/"},
+	})
 
 	lc.LegalNotices = cli.LegalNotices
 

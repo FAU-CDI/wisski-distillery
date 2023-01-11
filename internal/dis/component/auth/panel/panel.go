@@ -35,6 +35,9 @@ func (panel *UserPanel) Routes() component.Routes {
 		Prefix:    "/user/",
 		CSRF:      true,
 		Decorator: panel.Dependencies.Auth.Require(nil),
+
+		MenuPriority: component.MenuUser,
+		MenuTitle:    "User",
 	}
 }
 
@@ -81,13 +84,20 @@ type userFormContext struct {
 	User *models.User
 }
 
-func (panel *UserPanel) UserFormContext(ctx httpx.FormContext, r *http.Request) any {
-	user, err := panel.Dependencies.Auth.UserOf(r)
-
-	uctx := userFormContext{FormContext: ctx}
-	panel.Dependencies.Custom.Update(&uctx, r)
-	if err == nil {
-		uctx.User = &user.User
+func (panel *UserPanel) UserFormContext(last component.MenuItem) func(ctx httpx.FormContext, r *http.Request) any {
+	crumbs := []component.MenuItem{
+		{Title: "User", Path: "/user/"},
+		last,
 	}
-	return uctx
+	return func(ctx httpx.FormContext, r *http.Request) any {
+		user, err := panel.Dependencies.Auth.UserOf(r)
+
+		uctx := userFormContext{FormContext: ctx}
+		panel.Dependencies.Custom.Update(&uctx, r, crumbs)
+		if err == nil {
+			uctx.User = &user.User
+		}
+		return uctx
+	}
+
 }

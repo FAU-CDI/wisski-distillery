@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -14,7 +15,7 @@ import (
 
 //go:embed "public.html"
 var publicHTMLStr string
-var publicTemplate = static.AssetsHome.MustParseShared("public.html", publicHTMLStr)
+var publicTemplate = static.AssetsDefault.MustParseShared("public.html", publicHTMLStr)
 
 type publicContext struct {
 	custom.BaseContext
@@ -24,6 +25,9 @@ type publicContext struct {
 }
 
 func (home *Home) publicHandler(ctx context.Context) http.Handler {
+	crumbs := []component.MenuItem{
+		{Title: "WissKI Distillery", Path: "/"},
+	}
 	return httpx.HTMLHandler[publicContext]{
 		Handler: func(r *http.Request) (pc publicContext, err error) {
 			// only act on the root path!
@@ -31,7 +35,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 				return pc, httpx.ErrNotFound
 			}
 
-			home.Dependencies.Custom.Update(&pc, r)
+			home.Dependencies.Custom.Update(&pc, r, crumbs)
 
 			pc.Instances = home.homeInstances.Get(nil)
 			pc.SelfRedirect = home.Config.SelfRedirect.String()

@@ -52,7 +52,7 @@ func (mux *Mux[T]) Add(path string, predicate Predicate, exact bool, h http.Hand
 		mux.prefixes = make(map[string][]handler)
 	}
 
-	mPath := normalizePath(path)
+	mPath := NormalizePath(path)
 	mHandler := handler{Predicate: predicate, Handler: h}
 	if exact {
 		mux.exacts[mPath] = append(mux.exacts[mPath], mHandler)
@@ -71,7 +71,7 @@ func (mux *Mux[T]) Match(r *http.Request, prepare bool) (http.Handler, bool) {
 		r = mux.Prepare(r)
 	}
 
-	candidate := normalizePath(r.URL.Path)
+	candidate := NormalizePath(r.URL.Path)
 
 	// match the exact path first
 	for _, h := range mux.exacts[candidate] {

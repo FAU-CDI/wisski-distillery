@@ -80,6 +80,17 @@ func (auth *Auth) Require(perm Permission) func(http.Handler) http.Handler {
 	}
 }
 
+// Has checks if the given request has the given permission.
+// If an error occurs, returns false.
+func (auth *Auth) Has(perm Permission, r *http.Request) bool {
+	user, err := auth.UserOf(r)
+	if err != nil || user == nil {
+		return false
+	}
+	ok, err := perm.Permit(user, r)
+	return err == nil && ok.Granted()
+}
+
 // Admin represents a permission that checks if a user is an administrator and has totp enabled.
 var Admin Permission = func(user *AuthUser, r *http.Request) (ok Grant, err error) {
 	return Bool2Grant(user != nil && user.IsAdmin() && user.IsTOTPEnabled(), "user needs to have admin permissions and passcode enabled"), nil

@@ -41,12 +41,15 @@ func (resolver *Resolver) Routes() component.Routes {
 		Prefix:  "/wisski/get/",
 		Aliases: []string{"/go/"},
 		CSRF:    false,
+
+		MenuTitle:    "Resolver",
+		MenuPriority: component.MenuResolver,
 	}
 }
 
 //go:embed "resolver.html"
 var resolverHTMLStr string
-var resolverTemplate = static.AssetsHome.MustParseShared("resolver.html", resolverHTMLStr)
+var resolverTemplate = static.AssetsDefault.MustParseShared("resolver.html", resolverHTMLStr)
 
 type resolverContext struct {
 	custom.BaseContext
@@ -55,6 +58,9 @@ type resolverContext struct {
 
 func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	resolverTemplate := resolver.Dependencies.Custom.Template(resolverTemplate)
+	crumbs := []component.MenuItem{
+		{Title: "Resolver", Path: "/wisski/get/"},
+	}
 
 	logger := zerolog.Ctx(ctx)
 
@@ -65,7 +71,7 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 		ctx := resolverContext{
 			IndexContext: context,
 		}
-		resolver.Dependencies.Custom.Update(&ctx, r)
+		resolver.Dependencies.Custom.Update(&ctx, r, crumbs)
 
 		httpx.WriteHTML(ctx, nil, resolverTemplate, "", w, r)
 	}

@@ -4,9 +4,9 @@ import (
 	"path"
 )
 
-// normalizePath normalizes the provided path.
+// NormalizePath normalizes the provided path.
 // It ensures that there is both a leading and trailing slash.
-func normalizePath(value string) string {
+func NormalizePath(value string) string {
 	value = path.Clean(value)
 	if value != "/" {
 		value = value + "/"

@@ -26,6 +26,10 @@ type Routes struct {
 	// MatchAllDomains indicates that all domains, even the non-default domain, should be matched
 	MatchAllDomains bool
 
+	// MenuTitle and MenuPriority return the priority and title of this menu item
+	MenuTitle    string
+	MenuPriority MenuPriority
+
 	// Exact indicates that only the exact prefix, as opposed to any sub-paths, are matched.
 	// Trailing '/'s are automatically trimmed, even with an exact match.
 	Exact bool

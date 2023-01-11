@@ -1,15 +1,6 @@
 {{ template "_base.html" . }}
 {{ define "title" }}User{{ end }}
 
-{{ define "header"}}
-<p>
-    <a class="pure-button pure-button-primary" href="/user/">{{ .User.User }}</a>
-</p>
-<p>
-    <a class="pure-button pure-button-small" href="/auth/logout/">Logout</a>
-</p>
-{{ end }}
-
 {{ define "content" }}
 <div class="pure-u-1">
     <p>

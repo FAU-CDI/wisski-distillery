@@ -3,8 +3,10 @@ package auth
 import (
 	"context"
 	"errors"
+	"html/template"
 	"net/http"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -67,6 +69,22 @@ func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
 	}).Get(r, control.SessionCookie)
 }
 
+func (auth *Auth) Menu(r *http.Request) []component.MenuItem {
+
+	user, err := auth.UserOf(r)
+	if user == nil || err != nil {
+		return nil
+	}
+	return []component.MenuItem{
+		{
+			Title:    "Logout",
+			Path:     "/auth/logout",
+			Priority: component.MenuAuth,
+		},
+	}
+
+}
+
 type contextUserKey struct{}
 
 var ctxUserKey = contextUserKey{}
@@ -126,7 +144,9 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			if context.Err != nil {
 				context.Err = errLoginFailed
 			}
-			httpx.WriteHTML(auth.Dependencies.Custom.NewForm(context, r), nil, loginTemplate, "", w, r)
+			httpx.WriteHTML(auth.Dependencies.Custom.NewForm(context, r, []component.MenuItem{
+				{Title: "Login", Path: template.URL(r.URL.RequestURI())},
+			}), nil, loginTemplate, "", w, r)
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {

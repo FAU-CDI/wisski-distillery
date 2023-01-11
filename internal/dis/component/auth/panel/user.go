@@ -7,6 +7,7 @@ import (
 
 	_ "embed"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
@@ -35,9 +36,13 @@ type GrantWithURL struct {
 
 func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 	userTemplate := panel.Dependencies.Custom.Template(userTemplate)
+	crumbs := []component.MenuItem{
+		{Title: "User", Path: "/user/"},
+	}
+
 	return &httpx.HTMLHandler[routeUserContext]{
 		Handler: func(r *http.Request) (ruc routeUserContext, err error) {
-			panel.Dependencies.Custom.Update(&ruc, r)
+			panel.Dependencies.Custom.Update(&ruc, r, crumbs)
 
 			// find the user
 			ruc.AuthUser, err = panel.Dependencies.Auth.UserOf(r)

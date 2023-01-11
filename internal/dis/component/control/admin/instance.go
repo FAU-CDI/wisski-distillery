@@ -2,8 +2,10 @@ package admin
 
 import (
 	_ "embed"
+	"html/template"
 	"net/http"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -28,10 +30,14 @@ type instanceContext struct {
 }
 
 func (admin *Admin) instance(r *http.Request) (is instanceContext, err error) {
-	admin.Dependencies.Custom.Update(&is, r)
+	slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
+
+	admin.Dependencies.Custom.Update(&is, r, []component.MenuItem{
+		{Title: "Admin", Path: "/admin/"},
+		{Title: "Instance", Path: template.URL("/admin/instance/" + slug)},
+	})
 
 	// find the instance itself!
-	slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 	instance, err := admin.Dependencies.Instances.WissKI(r.Context(), slug)
 	if err == instances.ErrWissKINotFound {
 		return is, httpx.ErrNotFound

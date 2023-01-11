@@ -1,15 +1,6 @@
 {{ template "_form.html" . }}
 {{ define "form/title" }}Enable TOTP{{ end }}
 {{ define "form/button" }}Enable{{ end }}
-{{ define "header"}}
-<p>
-    <a class="pure-button" href="/user/">{{ .User.User }}</a> &gt;
-    <a class="pure-button pure-button-primary" href="/user/totp/enable/">Enable TOTP</a>
-</p>
-<p>
-    <a class="pure-button pure-button-small" href="/auth/logout/">Logout</a>
-</p>
-{{ end }}
 {{ define "form/inside" }}
 <div>
     <ul>

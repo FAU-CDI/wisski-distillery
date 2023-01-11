@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -32,7 +33,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 		},
 
 		RenderTemplate:        totpEnableTemplate,
-		RenderTemplateContext: panel.UserFormContext,
+		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Enable TOTP", Path: "/user/totp/enable/"}),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
@@ -77,7 +78,10 @@ type totpEnrollContext struct {
 
 func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 	totpEnrollTemplate := panel.Dependencies.Custom.Template(totpEnrollTemplate)
-
+	crumbs := []component.MenuItem{
+		{Title: "User", Path: "/user/"},
+		{Title: "Enable TOTP", Path: "/user/totp/enable/"},
+	}
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
 			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
@@ -99,7 +103,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 					FormContext: context,
 				},
 			}
-			panel.Dependencies.Custom.Update(&ctx.userFormContext, r)
+			panel.Dependencies.Custom.Update(&ctx.userFormContext, r, crumbs)
 
 			if err == nil && user != nil {
 				ctx.userFormContext.User = &user.User
@@ -164,7 +168,7 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 			return struct{}{}, err == nil && user != nil && !user.IsTOTPEnabled()
 		},
 		RenderTemplate:        totpDisableTemplate,
-		RenderTemplateContext: panel.UserFormContext,
+		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Disable TOTP", Path: "/user/totp/disable/"}),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]

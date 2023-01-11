@@ -36,6 +36,9 @@ func (*News) Routes() component.Routes {
 		Prefix: "/news/",
 		Exact:  true,
 		CSRF:   false,
+
+		MenuTitle:    "News",
+		MenuPriority: component.MenuNews,
 	}
 }
 
@@ -111,7 +114,7 @@ func Items() ([]Item, error) {
 
 //go:embed "news.html"
 var newsHTMLStr string
-var newsTemplate = static.AssetsHome.MustParseShared("news.html", newsHTMLStr)
+var newsTemplate = static.AssetsDefault.MustParseShared("news.html", newsHTMLStr)
 
 type newsContext struct {
 	custom.BaseContext
@@ -120,6 +123,10 @@ type newsContext struct {
 
 // HandleRoute returns the handler for the requested path
 func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
+	crumbs := []component.MenuItem{
+		{Title: "News", Path: "/news/"},
+	}
+
 	items, itemsErr := Items()
 	if itemsErr != nil {
 		zerolog.Ctx(ctx).Err(itemsErr).Msg("Unable to load news items")
@@ -127,7 +134,7 @@ func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, e
 
 	return httpx.HTMLHandler[newsContext]{
 		Handler: func(r *http.Request) (nc newsContext, err error) {
-			news.Dependencies.Custom.Update(&nc, r)
+			news.Dependencies.Custom.Update(&nc, r, crumbs)
 			nc.Items, err = items, itemsErr
 
 			return

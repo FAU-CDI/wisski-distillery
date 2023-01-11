@@ -22,6 +22,7 @@ func (dis *Distillery) init() {
 		lazy.RegisterPoolGroup[component.Cronable](&dis.pool)
 		lazy.RegisterPoolGroup[component.UserDeleteHook](&dis.pool)
 		lazy.RegisterPoolGroup[component.Table](&dis.pool)
+		lazy.RegisterPoolGroup[component.Menuable](&dis.pool)
 	})
 }
 

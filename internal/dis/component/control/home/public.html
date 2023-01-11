@@ -1,16 +1,6 @@
 {{ template "_base.html" . }}
 {{ define "title" }}WissKI Distillery{{ end }}
 
-{{ define "header"}}
-<p>
-    <a class="pure-button pure-button-primary" href="/">Home</a>
-</p>
-<p>
-    <a class="pure-button" href="/news/">News</a>
-</p>
-{{ end }}
-
-
 {{ define "content" }}
 {{ block "@custom/about" . }}
 <div class="pure-u-1">

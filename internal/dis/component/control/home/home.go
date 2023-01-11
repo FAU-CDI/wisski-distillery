@@ -32,6 +32,9 @@ func (*Home) Routes() component.Routes {
 		Prefix:          "/",
 		MatchAllDomains: true,
 		CSRF:            false,
+
+		MenuTitle:    "WissKI Distillery",
+		MenuPriority: component.MenuHome,
 	}
 }
 
