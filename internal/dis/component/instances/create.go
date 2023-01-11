@@ -3,12 +3,16 @@ package instances
 import (
 	"errors"
 	"path/filepath"
+	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/stringparser"
 )
 
-var errInvalidSlug = errors.New("not a valid slug")
+var (
+	errInvalidSlug    = errors.New("not a valid slug")
+	errRestrictedSlug = errors.New("restricted slug")
+)
 
 // Create fills the struct for a new WissKI instance.
 // It validates that slug is a valid name for an instance.
@@ -17,7 +21,7 @@ var errInvalidSlug = errors.New("not a valid slug")
 func (instances *Instances) Create(slug string) (wissKI *wisski.WissKI, err error) {
 
 	// make sure that the slug is valid!
-	slug, err = stringparser.ParseSlug(instances.Environment, slug)
+	slug, err = instances.IsValidSlug(slug)
 	if err != nil {
 		return nil, errInvalidSlug
 	}
@@ -62,4 +66,23 @@ func (instances *Instances) Create(slug string) (wissKI *wisski.WissKI, err erro
 
 	// store the instance in the object and return it!
 	return wissKI, nil
+}
+
+var restrictedSlugs = []string{"www", "admin"}
+
+// IsValidSlug checks if slug represents a valid slug for an instance.
+func (instances *Instances) IsValidSlug(slug string) (string, error) {
+	// check that it is a slug
+	slug, err := stringparser.ParseSlug(instances.Environment, slug)
+	if err != nil {
+		return "", errInvalidSlug
+	}
+	for _, rs := range restrictedSlugs {
+		if strings.EqualFold(rs, slug) {
+			return "", errRestrictedSlug
+		}
+	}
+
+	// return the slug
+	return strings.ToLower(slug), nil
 }
