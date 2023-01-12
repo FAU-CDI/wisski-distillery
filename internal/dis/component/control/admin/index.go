@@ -87,8 +87,14 @@ type indexContext struct {
 }
 
 func (admin *Admin) index(r *http.Request) (idx indexContext, err error) {
-	admin.Dependencies.Custom.Update(&idx, r, []component.MenuItem{
-		{Title: "Admin", Path: "/admin/"},
+	admin.Dependencies.Custom.Update(&idx, r, custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "Admin", Path: "/admin/"},
+		},
+		Actions: []component.MenuItem{
+			{Title: "Users", Path: "/admin/users/"},
+			{Title: "Components", Path: "/admin/components/", Priority: component.SmallButton},
+		},
 	})
 	idx.Distillery, idx.Instances, err = admin.Status(r.Context(), true)
 	return

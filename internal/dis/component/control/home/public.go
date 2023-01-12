@@ -25,8 +25,10 @@ type publicContext struct {
 }
 
 func (home *Home) publicHandler(ctx context.Context) http.Handler {
-	crumbs := []component.MenuItem{
-		{Title: "WissKI Distillery", Path: "/"},
+	gaps := custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "WissKI Distillery", Path: "/"},
+		},
 	}
 	return httpx.HTMLHandler[publicContext]{
 		Handler: func(r *http.Request) (pc publicContext, err error) {
@@ -35,7 +37,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 				return pc, httpx.ErrNotFound
 			}
 
-			home.Dependencies.Custom.Update(&pc, r, crumbs)
+			home.Dependencies.Custom.Update(&pc, r, gaps)
 
 			pc.Instances = home.homeInstances.Get(nil)
 			pc.SelfRedirect = home.Config.SelfRedirect.String()

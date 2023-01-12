@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wdresolve"
 	"github.com/FAU-CDI/wdresolve/resolvers"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -25,6 +26,7 @@ type Resolver struct {
 	Dependencies struct {
 		Instances *instances.Instances
 		Custom    *custom.Custom
+		Auth      *auth.Auth
 	}
 
 	prefixes        lazy.Lazy[map[string]string] // cached prefixes (from the server)
@@ -58,8 +60,10 @@ type resolverContext struct {
 
 func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	resolverTemplate := resolver.Dependencies.Custom.Template(resolverTemplate)
-	crumbs := []component.MenuItem{
-		{Title: "Resolver", Path: "/wisski/get/"},
+	gaps := custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "Resolver", Path: "/wisski/get/"},
+		},
 	}
 
 	logger := zerolog.Ctx(ctx)
@@ -71,7 +75,11 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 		ctx := resolverContext{
 			IndexContext: context,
 		}
-		resolver.Dependencies.Custom.Update(&ctx, r, crumbs)
+		resolver.Dependencies.Custom.Update(&ctx, r, gaps)
+
+		if !resolver.Dependencies.Auth.Has(auth.User, r) {
+			ctx.IndexContext.Prefixes = nil
+		}
 
 		httpx.WriteHTML(ctx, nil, resolverTemplate, "", w, r)
 	}

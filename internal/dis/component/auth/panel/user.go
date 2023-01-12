@@ -36,19 +36,38 @@ type GrantWithURL struct {
 
 func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 	userTemplate := panel.Dependencies.Custom.Template(userTemplate)
-	crumbs := []component.MenuItem{
-		{Title: "User", Path: "/user/"},
+	gaps := custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "User", Path: "/user/"},
+		},
+		Actions: []component.MenuItem{
+			{Title: "Change Password", Path: "/user/password"},
+		},
 	}
 
 	return &httpx.HTMLHandler[routeUserContext]{
 		Handler: func(r *http.Request) (ruc routeUserContext, err error) {
-			panel.Dependencies.Custom.Update(&ruc, r, crumbs)
 
 			// find the user
 			ruc.AuthUser, err = panel.Dependencies.Auth.UserOf(r)
 			if err != nil || ruc.AuthUser == nil {
 				return ruc, err
 			}
+
+			// build the gaps
+			gaps := gaps.Clone()
+			if ruc.AuthUser.IsTOTPEnabled() {
+				gaps.Actions = append(gaps.Actions, component.MenuItem{
+					Title: "Disable Passcode (TOTP)",
+					Path:  "/user/totp/disable/",
+				})
+			} else {
+				gaps.Actions = append(gaps.Actions, component.MenuItem{
+					Title: "Enable Passcode (TOTP)",
+					Path:  "/user/totp/enable/",
+				})
+			}
+			panel.Dependencies.Custom.Update(&ruc, r, gaps)
 
 			// find the grants
 			grants, err := panel.Dependencies.Policy.User(r.Context(), ruc.AuthUser.User.User)

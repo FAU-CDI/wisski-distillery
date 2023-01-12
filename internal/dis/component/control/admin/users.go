@@ -32,9 +32,11 @@ type userContext struct {
 }
 
 func (admin *Admin) users(r *http.Request) (uc userContext, err error) {
-	admin.Dependencies.Custom.Update(&uc, r, []component.MenuItem{
-		{Title: "Admin", Path: "/admin/"},
-		{Title: "Users", Path: "/admin/users/"},
+	admin.Dependencies.Custom.Update(&uc, r, custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "Admin", Path: "/admin/"},
+			{Title: "Users", Path: "/admin/users/"},
+		},
 	})
 
 	uc.Error = r.URL.Query().Get("error")
@@ -62,10 +64,15 @@ type createUserResult struct {
 
 func (admin *Admin) createUser(ctx context.Context) http.Handler {
 	userCreateTemplate := admin.Dependencies.Custom.Template(userCreateTemplate)
-	crumbs := []component.MenuItem{
-		{Title: "Admin", Path: "/admin/"},
-		{Title: "Users", Path: "/admin/users"},
-		{Title: "Create", Path: "/admin/users/create"},
+	gaps := custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "Admin", Path: "/admin/"},
+			{Title: "Users", Path: "/admin/users"},
+			{Title: "Create", Path: "/admin/users/create"},
+		},
+		Actions: []component.MenuItem{
+			{Title: "Create New", Path: "/admin/users/create/"},
+		},
 	}
 
 	return &httpx.Form[createUserResult]{
@@ -78,7 +85,7 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 
 		RenderTemplate: userCreateTemplate,
 		RenderTemplateContext: func(ctx httpx.FormContext, r *http.Request) any {
-			return admin.Dependencies.Custom.NewForm(ctx, r, crumbs)
+			return admin.Dependencies.Custom.NewForm(ctx, r, gaps)
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {

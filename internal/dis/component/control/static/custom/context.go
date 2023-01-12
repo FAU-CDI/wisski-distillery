@@ -27,8 +27,8 @@ type BaseContext struct {
 	GeneratedAt time.Time // time this page was generated at
 
 	// Menu and breadcrumbs
-	Menu   []component.MenuItem
-	Crumbs []component.MenuItem
+	Menu []component.MenuItem
+	BaseContextGaps
 
 	CSRF template.HTML // CSRF Field
 }
@@ -43,12 +43,24 @@ const (
 	requestNilError template.HTML = errorPrefix + "<code>BaseContext.use()</code> called with nil request" + errorSuffix
 )
 
+type BaseContextGaps struct {
+	Crumbs  []component.MenuItem
+	Actions []component.MenuItem
+}
+
+func (bcg BaseContextGaps) Clone() BaseContextGaps {
+	return BaseContextGaps{
+		Crumbs:  slices.Clone(bcg.Crumbs),
+		Actions: slices.Clone(bcg.Actions),
+	}
+}
+
 // Use updates this context to use the values from the given base.
 //
 // The given request *must not* be nil.
 //
 // For convenience the passed context is also returned.
-func (tc *BaseContext) use(custom *Custom, r *http.Request, crumbs []component.MenuItem) *BaseContext {
+func (tc *BaseContext) use(custom *Custom, r *http.Request, gaps BaseContextGaps) *BaseContext {
 	// tc.custom = custom
 	tc.inited = true
 	tc.requestWasNil = r == nil
@@ -65,7 +77,7 @@ func (tc *BaseContext) use(custom *Custom, r *http.Request, crumbs []component.M
 	tc.Menu = custom.BuildMenu(r)
 
 	// build the breadcrumbs
-	tc.Crumbs = slices.Clone(crumbs)
+	tc.BaseContextGaps = gaps.Clone()
 	last := len(tc.Crumbs) - 1
 	for i := range tc.Crumbs {
 		tc.Crumbs[i].Active = i == last
@@ -86,9 +98,9 @@ func (bc BaseContext) DoInitCheck() template.HTML {
 }
 
 // NewForm is like New, but returns a new BaseFormContext
-func (custom *Custom) NewForm(context httpx.FormContext, r *http.Request, crumbs []component.MenuItem) (ctx BaseFormContext) {
+func (custom *Custom) NewForm(context httpx.FormContext, r *http.Request, bcg BaseContextGaps) (ctx BaseFormContext) {
 	ctx.FormContext = context
-	ctx.use(custom, r, crumbs)
+	ctx.use(custom, r, bcg)
 	return
 }
 
@@ -96,11 +108,11 @@ func (custom *Custom) NewForm(context httpx.FormContext, r *http.Request, crumbs
 //
 // Assumes that context is a pointer to a struct type.
 // If this is not the case, might call panic().
-func (custom *Custom) Update(context any, r *http.Request, crumbs []component.MenuItem) *BaseContext {
+func (custom *Custom) Update(context any, r *http.Request, bcg BaseContextGaps) *BaseContext {
 	ctx := reflect.ValueOf(context).
 		Elem().FieldByName(baseContextName).Addr().
 		Interface().(*BaseContext)
-	ctx.use(custom, r, crumbs)
+	ctx.use(custom, r, bcg)
 	return ctx
 }
 

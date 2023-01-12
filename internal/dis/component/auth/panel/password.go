@@ -9,6 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 )
@@ -38,7 +39,7 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		RenderTemplate:        passwordTemplate,
-		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Change Password", Path: "/user/password/"}),
+		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Change Password", Path: "/user/password/"}, custom.BaseContextGaps{}),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			old, passcode, new, new2 := values["old"], values["otp"], values["new"], values["new2"]

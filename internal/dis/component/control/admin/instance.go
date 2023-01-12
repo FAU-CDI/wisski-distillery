@@ -32,9 +32,15 @@ type instanceContext struct {
 func (admin *Admin) instance(r *http.Request) (is instanceContext, err error) {
 	slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 
-	admin.Dependencies.Custom.Update(&is, r, []component.MenuItem{
-		{Title: "Admin", Path: "/admin/"},
-		{Title: "Instance", Path: template.URL("/admin/instance/" + slug)},
+	admin.Dependencies.Custom.Update(&is, r, custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "Admin", Path: "/admin/"},
+			{Title: "Instance", Path: template.URL("/admin/instance/" + slug)},
+		},
+		Actions: []component.MenuItem{
+			{Title: "Grants", Path: template.URL("/admin/grants/" + slug)},
+			{Title: "Ingredients", Path: template.URL("/admin/ingredients/" + slug), Priority: component.SmallButton},
+		},
 	})
 
 	// find the instance itself!

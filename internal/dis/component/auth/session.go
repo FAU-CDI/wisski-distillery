@@ -9,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/gorilla/sessions"
@@ -144,8 +145,10 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			if context.Err != nil {
 				context.Err = errLoginFailed
 			}
-			httpx.WriteHTML(auth.Dependencies.Custom.NewForm(context, r, []component.MenuItem{
-				{Title: "Login", Path: template.URL(r.URL.RequestURI())},
+			httpx.WriteHTML(auth.Dependencies.Custom.NewForm(context, r, custom.BaseContextGaps{
+				Crumbs: []component.MenuItem{
+					{Title: "Login", Path: template.URL(r.URL.RequestURI())},
+				},
 			}), nil, loginTemplate, "", w, r)
 		},
 

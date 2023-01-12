@@ -11,7 +11,7 @@
     <body>
         {{ .BaseContext.DoInitCheck }}
         <nav class="pure-menu pure-menu-horizontal">
-            <ul class="pure-menu-list">
+            <ul class="pure-menu-list" role="menubar">
                 {{ range .BaseContext.Menu }}
                 <li class="pure-menu-item{{ if .Active }} pure-menu-selected{{ end }}">
                     <a href="{{ .Path }}" class="pure-menu-link">{{ .Title }}</a>
@@ -27,7 +27,13 @@
 
         <header>
             <h1 id="top">{{ template "title" . }}</h1>
-            {{ block "header" . }}<!-- no header by default -->{{ end }}
+            {{ if .BaseContext.Actions }}
+                <div class="pure-button-group" role="group" aria-label="Actions">
+                    {{ range .BaseContext.Actions }}
+                        <a href="{{ .Path }}" class="pure-button{{ if eq .Priority -1 }} pure-button-small{{end}}">{{ .Title }}</a>
+                    {{ end }}
+                </div>
+            {{ end }}
         </header>
         <main>
             <div class="pure-g">

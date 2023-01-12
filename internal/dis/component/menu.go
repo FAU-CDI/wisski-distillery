@@ -34,3 +34,7 @@ const (
 	MenuAdmin
 	MenuAuth
 )
+
+const (
+	SmallButton MenuPriority = -1
+)

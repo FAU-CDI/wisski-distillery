@@ -18,14 +18,6 @@
             {{ end }}
         </ul>
     </p>
-    <div class="pure-button-group" role="group" role="Actions">
-        <a class="pure-button" href="/user/password/">Change Password</a>
-        {{ if .User.IsTOTPEnabled }}
-            <a class="pure-button" href="/user/totp/disable/">Disable Passcode (TOTP)</a>
-        {{ else }}
-            <a class="pure-button" href="/user/totp/enable/">Enable Passcode (TOTP)</a>
-        {{ end }}
-    </div>
     <hr /> 
 </div>
 
@@ -34,14 +26,11 @@
     {{ if (not .User.IsTOTPEnabled) }}
     <div>
         <p class="error-message">
-            TOTP is required to access these.
+            You are an administrator, but do not have TOTP enabled.
+            Please turn it on to access the admin page.
         </p>
     </div>
     {{ end }}
-    <div class="pure-button-group" role="group" role="Actions">
-        <a class="pure-button" href="/admin/">Distillery Admin Page</a>
-    </div>
-    <hr />
 </div>
 {{ end }}
 

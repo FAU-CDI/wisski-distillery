@@ -1,15 +1,6 @@
 {{ template "_base.html" . }}
 {{ define "title" }}{{ .Instance.Slug }}{{ end }}
 
-{{ define "header" }}
-<p>
-    <div class="pure-button-group" role="group" aria-label="Actions">
-        <a class="pure-button" href="/admin/grants/{{ .Info.Slug }}">Grants</a>
-        <a class="pure-button pure-button-small" href="/admin/ingredients/{{ .Instance.Slug }}">Ingredients</a>
-    </div>
-</p>
-{{ end }}
-
 {{ define "content" }}
 <div class="pure-u-1-1">
     <h2 id="overview">Info &amp; Status</h2>

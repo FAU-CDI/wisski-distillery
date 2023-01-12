@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 
@@ -33,7 +34,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 		},
 
 		RenderTemplate:        totpEnableTemplate,
-		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Enable TOTP", Path: "/user/totp/enable/"}),
+		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Enable TOTP", Path: "/user/totp/enable/"}, custom.BaseContextGaps{}),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
@@ -78,9 +79,11 @@ type totpEnrollContext struct {
 
 func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 	totpEnrollTemplate := panel.Dependencies.Custom.Template(totpEnrollTemplate)
-	crumbs := []component.MenuItem{
-		{Title: "User", Path: "/user/"},
-		{Title: "Enable TOTP", Path: "/user/totp/enable/"},
+	gaps := custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "User", Path: "/user/"},
+			{Title: "Enable TOTP", Path: "/user/totp/enable/"},
+		},
 	}
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
@@ -103,7 +106,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 					FormContext: context,
 				},
 			}
-			panel.Dependencies.Custom.Update(&ctx.userFormContext, r, crumbs)
+			panel.Dependencies.Custom.Update(&ctx.userFormContext, r, gaps)
 
 			if err == nil && user != nil {
 				ctx.userFormContext.User = &user.User
@@ -168,7 +171,7 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 			return struct{}{}, err == nil && user != nil && !user.IsTOTPEnabled()
 		},
 		RenderTemplate:        totpDisableTemplate,
-		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Disable TOTP", Path: "/user/totp/disable/"}),
+		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Disable TOTP", Path: "/user/totp/disable/"}, custom.BaseContextGaps{}),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]

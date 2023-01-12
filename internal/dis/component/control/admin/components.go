@@ -30,9 +30,11 @@ type componentContext struct {
 }
 
 func (admin *Admin) components(r *http.Request) (cp componentContext, err error) {
-	admin.Dependencies.Custom.Update(&cp, r, []component.MenuItem{
-		{Title: "Admin", Path: "/admin/"},
-		{Title: "Components", Path: "/admin/components/"},
+	admin.Dependencies.Custom.Update(&cp, r, custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "Admin", Path: "/admin/"},
+			{Title: "Components", Path: "/admin/components/"},
+		},
 	})
 
 	cp.Analytics = *admin.Analytics
@@ -56,10 +58,12 @@ type ingredientsContext struct {
 func (admin *Admin) ingredients(r *http.Request) (cp ingredientsContext, err error) {
 	slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 
-	admin.Dependencies.Custom.Update(&cp, r, []component.MenuItem{
-		{Title: "Admin", Path: "/admin/"},
-		{Title: "Instance", Path: template.URL("/admin/instance/" + slug)},
-		{Title: "Ingredients", Path: template.URL("/admin/instance/" + slug + "/ingredients/")},
+	admin.Dependencies.Custom.Update(&cp, r, custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "Admin", Path: "/admin/"},
+			{Title: "Instance", Path: template.URL("/admin/instance/" + slug)},
+			{Title: "Ingredients", Path: template.URL("/admin/instance/" + slug + "/ingredients/")},
+		},
 	})
 
 	// find the instance itself!

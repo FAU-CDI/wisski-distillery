@@ -84,8 +84,8 @@ type userFormContext struct {
 	User *models.User
 }
 
-func (panel *UserPanel) UserFormContext(last component.MenuItem) func(ctx httpx.FormContext, r *http.Request) any {
-	crumbs := []component.MenuItem{
+func (panel *UserPanel) UserFormContext(last component.MenuItem, gaps custom.BaseContextGaps) func(ctx httpx.FormContext, r *http.Request) any {
+	gaps.Crumbs = []component.MenuItem{
 		{Title: "User", Path: "/user/"},
 		last,
 	}
@@ -93,7 +93,7 @@ func (panel *UserPanel) UserFormContext(last component.MenuItem) func(ctx httpx.
 		user, err := panel.Dependencies.Auth.UserOf(r)
 
 		uctx := userFormContext{FormContext: ctx}
-		panel.Dependencies.Custom.Update(&uctx, r, crumbs)
+		panel.Dependencies.Custom.Update(&uctx, r, gaps)
 		if err == nil {
 			uctx.User = &user.User
 		}

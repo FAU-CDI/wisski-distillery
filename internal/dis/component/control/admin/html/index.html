@@ -1,15 +1,6 @@
 {{ template "_base.html" . }}
 {{ define "title" }}Admin{{ end }}
 
-{{ define "header" }}
-<p>
-    <div class="pure-button-group" role="group" aria-label="Actions">
-        <a class="pure-button" href="/admin/users">Users</a>
-        <a class="pure-button pure-button-small" href="/admin/components">Components</a>
-    </div>
-</p>
-{{ end }}
-
 {{ define "content" }}
 <div class="pure-u-1-1">
     <h2 id="overview">Distillery Configuration</h2>

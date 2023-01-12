@@ -59,8 +59,10 @@ type legalContext struct {
 }
 
 func (legal *Legal) context(r *http.Request) (lc legalContext, err error) {
-	legal.Dependencies.Custom.Update(&lc, r, []component.MenuItem{
-		{Title: "Legal", Path: "/legal/"},
+	legal.Dependencies.Custom.Update(&lc, r, custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "Legal", Path: "/legal/"},
+		},
 	})
 
 	lc.LegalNotices = cli.LegalNotices

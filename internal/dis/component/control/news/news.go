@@ -123,8 +123,10 @@ type newsContext struct {
 
 // HandleRoute returns the handler for the requested path
 func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
-	crumbs := []component.MenuItem{
-		{Title: "News", Path: "/news/"},
+	gaps := custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "News", Path: "/news/"},
+		},
 	}
 
 	items, itemsErr := Items()
@@ -134,7 +136,7 @@ func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, e
 
 	return httpx.HTMLHandler[newsContext]{
 		Handler: func(r *http.Request) (nc newsContext, err error) {
-			news.Dependencies.Custom.Update(&nc, r, crumbs)
+			news.Dependencies.Custom.Update(&nc, r, gaps)
 			nc.Items, err = items, itemsErr
 
 			return

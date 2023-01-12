@@ -40,10 +40,12 @@ type grantsContext struct {
 }
 
 func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (err error) {
-	admin.Dependencies.Custom.Update(gc, r, []component.MenuItem{
-		{Title: "Admin", Path: "/admin/"},
-		{Title: "Instance", Path: template.URL("/admin/instance/" + slug)},
-		{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")},
+	admin.Dependencies.Custom.Update(gc, r, custom.BaseContextGaps{
+		Crumbs: []component.MenuItem{
+			{Title: "Admin", Path: "/admin/"},
+			{Title: "Instance", Path: template.URL("/admin/instance/" + slug)},
+			{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")},
+		},
 	})
 
 	// find the instance itself
