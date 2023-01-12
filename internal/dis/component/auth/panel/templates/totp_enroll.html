@@ -7,8 +7,13 @@
         <img src="{{ .TOTPImage }}" alt="TOTP Enrollment Image">
     </a>
     <ul>
-        <li>scan the token above using a <a href="https://en.wikipedia.org/wiki/Time-based_one-time_password">TOTP</a> app on your phone</li>
-        <li>enter your current password and the now generated token to confirm</li>
+        <li>
+            Scan or click the token above to add it to a <a href="https://en.wikipedia.org/wiki/Time-based_one-time_password">TOTP</a> app
+        </li>
+        <li>
+            Alternatively enter the secret <code>{{ .TOTPSecret }}</code> into your app directly
+        </li>
+        <li>Next, enter your current password and the now generated token to confirm</li>
     </ul>
 </div>
 {{ end }}

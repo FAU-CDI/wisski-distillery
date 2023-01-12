@@ -73,8 +73,10 @@ var totpEnrollTemplate = static.AssetsUser.MustParseShared("totp_enroll.html", t
 
 type totpEnrollContext struct {
 	userFormContext
-	TOTPImage template.URL
-	TOTPURL   template.URL
+
+	TOTPSecret string
+	TOTPImage  template.URL
+	TOTPURL    template.URL
 }
 
 func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
@@ -114,6 +116,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 				if err == nil {
 					img, _ := auth.TOTPLink(secret, 500, 500)
 
+					ctx.TOTPSecret = secret.Secret()
 					ctx.TOTPImage = template.URL(img)
 					ctx.TOTPURL = template.URL(secret.URL())
 				}
@@ -190,7 +193,7 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 			{
 				err := user.DisableTOTP(r.Context())
 				if err != nil {
-					return struct{}{}, errTOTPSetFailure
+					return struct{}{}, errTOTPUnsetFailure
 				}
 			}
 

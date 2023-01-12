@@ -22,7 +22,8 @@ var (
 	errPasswordsNotIdentical = errors.New("passwords are not identical")
 	errCredentialsIncorrect  = errors.New("credentials are not correct")
 	errPasswordSetFailure    = errors.New("error saving new password")
-	errTOTPSetFailure        = errors.New("unable to disable totp")
+	errTOTPSetFailure        = errors.New("unable to enable totp")
+	errTOTPUnsetFailure      = errors.New("unable to disable totp")
 	errPasswordSet           = errors.New("password was updated")
 )
 
