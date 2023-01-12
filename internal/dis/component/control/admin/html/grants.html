@@ -1,5 +1,5 @@
 {{ template "_base.html" . }}
-{{ define "title" }}Distillery Admin - {{ .Instance.Slug }} - Grants{{ end }}
+{{ define "title" }}{{ .Instance.Slug }} - Grants{{ end }}
 
 {{ define "content" }}
 {{ $csrf := .CSRF }}
