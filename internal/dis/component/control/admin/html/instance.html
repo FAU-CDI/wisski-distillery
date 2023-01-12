@@ -48,6 +48,15 @@
                         </td>
                         <td>
                             <code>{{ .Info.Running }}</code>
+                            <div class="pure-button-group" role="group">
+                                <button class="remote-action pure-button pure-button-action" data-action="start" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">
+                                    (Re)Start
+                                </button>
+                                <button class="remote-action pure-button pure-button-danger" data-action="stop" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">
+                                    Stop
+                                </button>
+                            </div>
+                            
                         </td>
                     </tr>
                     <tr>

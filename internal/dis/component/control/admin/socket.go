@@ -50,6 +50,16 @@ var socketInstanceActions = map[string]InstanceAction{
 			return instance.Drush().Cron(ctx, str)
 		},
 	},
+	"start": {
+		HandleInteractive: func(ctx context.Context, _ *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
+			return instance.Barrel().Stack().Up(ctx, out)
+		},
+	},
+	"stop": {
+		HandleInteractive: func(ctx context.Context, _ *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
+			return instance.Barrel().Stack().Down(ctx, out)
+		},
+	},
 }
 
 func (admin *Admin) serveSocket(conn httpx.WebSocketConnection) {
