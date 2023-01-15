@@ -1,8 +1,7 @@
 package ssh2
 
 import (
-	"time"
-
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/gliderlabs/ssh"
 )
 
@@ -47,19 +46,17 @@ func getAnyPermission(context ssh.Context) (string, bool) {
 	return "", (false || value[""])
 }
 
-const authDelay = time.Second / 10
-
 func (ssh2 *SSH2) handleAuth(ctx ssh.Context, key ssh.PublicKey) bool {
-	return slowdown(func() (ok bool) {
+	return sshkeys.Slowdown(func() (ok bool) {
 		permissions := make(map[string]bool)
 
 		// grab the global permissions
 		{
-			globalKeys, err := ssh2.GlobalKeys()
+			globalKeys, err := ssh2.Dependencies.Keys.Admin(ctx)
 			if err != nil {
 				return false
 			}
-			permissions[""] = isKey(globalKeys, key)
+			permissions[""] = sshkeys.KeyOneOf(globalKeys, key)
 			ok = permissions[""]
 		}
 
@@ -71,11 +68,11 @@ func (ssh2 *SSH2) handleAuth(ctx ssh.Context, key ssh.PublicKey) bool {
 			}
 
 			for _, instance := range instances {
-				ikeys, err := instance.SSH().Keys()
+				ikeys, err := instance.SSH().Keys(ctx)
 				if err != nil {
 					continue
 				}
-				access := isKey(ikeys, key)
+				access := sshkeys.KeyOneOf(ikeys, key)
 
 				permissions[instance.Slug] = access || permissions[""]
 				ok = ok || access
@@ -84,27 +81,5 @@ func (ssh2 *SSH2) handleAuth(ctx ssh.Context, key ssh.PublicKey) bool {
 
 		setPermissions(ctx, permissions)
 		return
-	}, authDelay)
-}
-
-// slowdown invokes f immediatly, but only returns the result to the caller after at least duration.
-// It can be used to prevent timing attacks
-func slowdown[T any](f func() T, duration time.Duration) T {
-	result := make(chan T, 1)
-	go func() {
-		result <- f()
-	}()
-	time.Sleep(duration)
-	return <-result
-}
-
-// isKey checks if keys contains key in O(len(keys))
-func isKey(keys []ssh.PublicKey, key ssh.PublicKey) bool {
-	var res bool
-	for _, ak := range keys {
-		if ssh.KeysEqual(ak, key) {
-			res = true
-		}
-	}
-	return res
+	})
 }

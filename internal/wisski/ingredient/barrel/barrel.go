@@ -20,7 +20,3 @@ type Barrel struct {
 func (barrel *Barrel) DataPath() string {
 	return filepath.Join(barrel.FilesystemBase, "data")
 }
-
-func (barrel *Barrel) AuthorizedKeysPath() string {
-	return filepath.Join(barrel.DataPath(), "authorized_keys")
-}

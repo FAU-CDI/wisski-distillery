@@ -29,15 +29,10 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 			"VIRTUAL_HOST":  barrel.Domain(),
 			"HTTPS_ENABLED": barrel.Malt.Config.HTTPSEnabledEnv(),
 
-			"DATA_PATH":                   filepath.Join(barrel.FilesystemBase, "data"),
-			"RUNTIME_DIR":                 barrel.Malt.Config.RuntimeDir(),
-			"GLOBAL_AUTHORIZED_KEYS_FILE": barrel.Malt.Config.GlobalAuthorizedKeysFile,
+			"DATA_PATH":   filepath.Join(barrel.FilesystemBase, "data"),
+			"RUNTIME_DIR": barrel.Malt.Config.RuntimeDir(),
 		},
 
 		MakeDirs: []string{"data", ".composer"},
-
-		TouchFiles: []string{
-			filepath.Join("data", "authorized_keys"),
-		},
 	}
 }

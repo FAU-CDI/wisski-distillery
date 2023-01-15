@@ -37,6 +37,9 @@ func (admin *Admin) users(r *http.Request) (uc userContext, err error) {
 			{Title: "Admin", Path: "/admin/"},
 			{Title: "Users", Path: "/admin/users/"},
 		},
+		Actions: []component.MenuItem{
+			{Title: "Create New", Path: "/admin/users/create/"},
+		},
 	})
 
 	uc.Error = r.URL.Query().Get("error")
@@ -69,9 +72,6 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 			{Title: "Admin", Path: "/admin/"},
 			{Title: "Users", Path: "/admin/users"},
 			{Title: "Create", Path: "/admin/users/create"},
-		},
-		Actions: []component.MenuItem{
-			{Title: "Create New", Path: "/admin/users/create/"},
 		},
 	}
 

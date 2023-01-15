@@ -21,7 +21,6 @@ type Template struct {
 	DefaultDomain            string `env:"DEFAULT_DOMAIN"`
 	SelfOverridesFile        string `env:"SELF_OVERRIDES_FILE"`
 	SelfResolverBlockFile    string `env:"SELF_RESOLVER_BLOCK_FILE"`
-	AuthorizedKeys           string `env:"AUTHORIZED_KEYS_FILE"`
 	TriplestoreAdminUser     string `env:"GRAPHDB_ADMIN_USER"`
 	TriplestoreAdminPassword string `env:"GRAPHDB_ADMIN_PASSWORD"`
 	MysqlAdminUsername       string `env:"MYSQL_ADMIN_USER"`
@@ -46,10 +45,6 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 
 	if tpl.SelfResolverBlockFile == "" {
 		tpl.SelfResolverBlockFile = filepath.Join(tpl.DeployRoot, bootstrap.ResolverBlockedTXT)
-	}
-
-	if tpl.AuthorizedKeys == "" {
-		tpl.AuthorizedKeys = filepath.Join(tpl.DeployRoot, bootstrap.AuthorizedKeys)
 	}
 
 	if tpl.TriplestoreAdminUser == "" {

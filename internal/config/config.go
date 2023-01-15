@@ -74,9 +74,6 @@ type Config struct {
 	// Public port to use for the ssh server
 	PublicSSHPort uint16 `env:"SSH_PORT" default:"2222" parser:"port"`
 
-	// A file to be used for global authorized_keys for the ssh server.
-	GlobalAuthorizedKeysFile string `env:"GLOBAL_AUTHORIZED_KEYS_FILE" default:"/var/www/deploy/authorized_keys" parser:"file"`
-
 	// admin credentials for graphdb
 	TriplestoreAdminUser     string `env:"GRAPHDB_ADMIN_USER" default:"admin" parser:"nonempty"`
 	TriplestoreAdminPassword string `env:"GRAPHDB_ADMIN_PASSWORD" default:"" parser:"nonempty"`

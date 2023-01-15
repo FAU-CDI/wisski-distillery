@@ -34,11 +34,3 @@ const ResolverBlockedTXT = "resolver-blocked.txt"
 //
 //go:embed resolver-blocked.txt
 var DefaultResolverBlockedTXT []byte
-
-// AuthorizedKeys contains the default name for the 'global_authorized_keys' file
-const AuthorizedKeys = "authorized_keys"
-
-// DefaultAuthorizedKeys contains a template for a new 'global_authorized_keys' file
-//
-//go:embed global_authorized_keys
-var DefaultAuthorizedKeys []byte

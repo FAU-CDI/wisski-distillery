@@ -49,9 +49,8 @@ func (control *Control) Stack(env environment.Environment) component.StackWithRe
 			"CONFIG_PATH": control.Config.ConfigPath,
 			"DEPLOY_ROOT": control.Config.DeployRoot,
 
-			"GLOBAL_AUTHORIZED_KEYS_FILE": control.Config.GlobalAuthorizedKeysFile,
-			"SELF_OVERRIDES_FILE":         control.Config.SelfOverridesFile,
-			"SELF_RESOLVER_BLOCK_FILE":    control.Config.SelfResolverBlockFile,
+			"SELF_OVERRIDES_FILE":      control.Config.SelfOverridesFile,
+			"SELF_RESOLVER_BLOCK_FILE": control.Config.SelfResolverBlockFile,
 
 			"CUSTOM_ASSETS_PATH": control.Dependencies.Custom.CustomAssetsPath(),
 		},

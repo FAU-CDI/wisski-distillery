@@ -1,13 +1,12 @@
 package liquid
 
 import (
-	"fmt"
 	"net/url"
 )
 
 // Domain returns the full domain name of this WissKI
 func (liquid *Liquid) Domain() string {
-	return fmt.Sprintf("%s.%s", liquid.Slug, liquid.Malt.Config.DefaultDomain)
+	return liquid.Config.HostFromSlug(liquid.Slug)
 }
 
 // URL returns the public URL of this instance

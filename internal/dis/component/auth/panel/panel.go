@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/julienschmidt/httprouter"
@@ -23,6 +24,7 @@ type UserPanel struct {
 		Policy    *policy.Policy
 		Instances *instances.Instances
 		Next      *next.Next
+		Keys      *sshkeys.SSHKeys
 	}
 }
 
@@ -71,6 +73,22 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 		totpdisable := panel.routeTOTPDisable(ctx)
 		router.Handler(http.MethodGet, route+"totp/disable", totpdisable)
 		router.Handler(http.MethodPost, route+"totp/disable", totpdisable)
+	}
+
+	{
+		ssh := panel.sshRoute(ctx)
+		router.Handler(http.MethodGet, route+"ssh", ssh)
+	}
+
+	{
+		add := panel.sshAddRoute(ctx)
+		router.Handler(http.MethodGet, route+"ssh/add", add)
+		router.Handler(http.MethodPost, route+"ssh/add", add)
+	}
+
+	{
+		delete := panel.sshDeleteRoute(ctx)
+		router.Handler(http.MethodPost, route+"ssh/delete", delete)
 	}
 
 	// ensure that the user is logged in!

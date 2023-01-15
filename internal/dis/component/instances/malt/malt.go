@@ -6,6 +6,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 )
 
@@ -21,4 +22,6 @@ type Malt struct {
 	Meta        *meta.Meta               `auto:"true"`
 	ExporterLog *logger.Logger           `auto:"true"`
 	Policy      *policy.Policy           `auto:"true"`
+
+	Keys *sshkeys.SSHKeys `auto:"true"`
 }

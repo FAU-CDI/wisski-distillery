@@ -334,6 +334,7 @@ No technical reasons using `sudo` or switching to `root` is not possible.
 ### Authentication
 
 Authentication is performed using SSH Keys.
+They are associated o distillery user accounts.
 Within each instance, ssh keys can be added to the file `/var/www/.ssh/authorized_keys` using the default OpenSSH `authorized_keys` format.
 
 Furthermore, global ssh Keys (that have access to every instance) can be added to a `GLOBAL_AUTHORIZED_KEYS_FILE`. This is set in the Distillery `.env` file, and defaults to `/distillery/authorized_keys/`.

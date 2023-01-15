@@ -27,4 +27,6 @@ const (
 	Url           InputType = "url"
 	Week          InputType = "week"
 	Datetime      InputType = "datetime"
+
+	Textarea InputType = "textarea" // special
 )

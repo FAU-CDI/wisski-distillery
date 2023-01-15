@@ -1,0 +1,104 @@
+{{ template "_base.html" . }}
+{{ define "title" }}SSH Keys{{ end }}
+
+{{ define "content" }}
+
+<div class="pure-u-1">
+    <p>
+        This page allows you to add, view and remove ssh keys to and from your distillery account.
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <p>
+        This table shows ssh keys currently associated with your account.
+        To add a new key, use the <em>Add New Key</em> button above.
+        To remove an ssh key from your account, simply click the <em>Delete</em> button.
+    </p>
+    <div class="padding">
+        <div class="overflow">
+
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            Comment
+                        </th>
+                        <th>
+                            Signature
+                        </th>
+                        <th>
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ $csrf := .CSRF }}
+                    {{ range .Keys }}
+                        {{ $sig := .SignatureString }}
+                        <tr>
+                            <td>
+                                {{ .Comment }}
+                            </td>
+                            <td>
+                                <code>
+                                    {{ $sig }}
+                                </code>
+                            </td>
+                            <td>
+                                <div class="pure-button-group" role="group">
+                                    <form action="/user/ssh/delete" method="POST" class="pure-form-group">
+                                        <input type="hidden" name="signature" value="{{ $sig }}">
+                                        <input type="submit" class="pure-button pure-button-danger" value="Delete">
+                                        {{ $csrf }}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="pure-u-1">
+    <p>
+        You can use these ssh keys to connect to the distillery via ssh.
+        You can only connect to instances for which you appear as an <em>Administrator</em> on your user page.
+    </p>
+    <p>
+        In the following we will provide instructions on how to connect to your WissKI instance via the distillery server. 
+        In the following we will assume <code>{{ .Slug }}</code> is the name of the WissKI you want to you want to connect to.
+    </p>
+    <p>
+        From a Linux (or Mac, or Windows 11) command line you may use:
+    </p>
+    <code class="copy">
+        ssh -J {{ .Domain }}:{{ .Port }} www-data@{{ .Hostname }}
+    </code>
+    <p>
+        You may also place the following into your <code>$HOME/.ssh/config</code> file:
+    </p>
+    <code class="copy">
+<pre>Host *.{{ .Domain }}
+    ProxyJump {{ .Domain }}.proxy
+    User www-data
+Host {{ .Domain }}.proxy
+    User www-data
+    Hostname {{ .Domain }}
+    Port {{ .Port }}
+</pre>
+    </code>
+
+    <p>
+        and then connect simply via:
+    </p>
+
+    <code>
+        ssh {{ .Hostname }}
+    </code>
+</div>
+</div>
+{{ end }}

@@ -8,9 +8,6 @@ services:
 
     # label it with the current slug
     labels:
-      - "eu.wiss-ki.barrel.slug=${SLUG}"
-      - "eu.wiss-ki.barrel.authfile=/var/www/.ssh/authorized_keys,/var/www/.ssh/global_authorized_keys"
-
       - "traefik.enable=True"
       - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
 
@@ -21,12 +18,10 @@ services:
     
     # volumes that are mounted
     volumes:
-      - ${GLOBAL_AUTHORIZED_KEYS_FILE}:/var/www/.ssh/global_authorized_keys:ro
       - ${DATA_PATH}/.composer:/var/www/.composer
       - ${DATA_PATH}/data:/var/www/data
       - ${DATA_PATH}/home:/var/www/
       - ${DATA_PATH}/hostkeys:/ssh/hostkeys:rw
-      - ${DATA_PATH}/authorized_keys:/var/www/.ssh/authorized_keys
       - ${RUNTIME_DIR}:/runtime:ro
 
 networks:

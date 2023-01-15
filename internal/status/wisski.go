@@ -29,7 +29,7 @@ type WissKI struct {
 	// List of backups made
 	Snapshots []models.Export
 
-	// List of SSH Keys
+	// List of SSH Keys that have access to this server
 	SSHKeys []string
 
 	// WissKI content information

@@ -41,13 +41,14 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 			{Title: "User", Path: "/user/"},
 		},
 		Actions: []component.MenuItem{
-			{Title: "Change Password", Path: "/user/password"},
+			{Title: "Change Password", Path: "/user/password/"},
+			{Title: "*to be replaced*", Path: ""},
+			{Title: "SSH Keys", Path: "/user/ssh/"},
 		},
 	}
 
 	return &httpx.HTMLHandler[routeUserContext]{
 		Handler: func(r *http.Request) (ruc routeUserContext, err error) {
-
 			// find the user
 			ruc.AuthUser, err = panel.Dependencies.Auth.UserOf(r)
 			if err != nil || ruc.AuthUser == nil {
@@ -57,15 +58,15 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 			// build the gaps
 			gaps := gaps.Clone()
 			if ruc.AuthUser.IsTOTPEnabled() {
-				gaps.Actions = append(gaps.Actions, component.MenuItem{
+				gaps.Actions[1] = component.MenuItem{
 					Title: "Disable Passcode (TOTP)",
 					Path:  "/user/totp/disable/",
-				})
+				}
 			} else {
-				gaps.Actions = append(gaps.Actions, component.MenuItem{
+				gaps.Actions[1] = component.MenuItem{
 					Title: "Enable Passcode (TOTP)",
 					Path:  "/user/totp/enable/",
-				})
+				}
 			}
 			panel.Dependencies.Custom.Update(&ruc, r, gaps)
 

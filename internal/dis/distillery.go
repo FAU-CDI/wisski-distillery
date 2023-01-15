@@ -28,6 +28,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/web"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
@@ -80,6 +81,9 @@ func (dis *Distillery) SSH() *ssh2.SSH2 {
 }
 func (dis *Distillery) Auth() *auth.Auth {
 	return export[*auth.Auth](dis)
+}
+func (dis *Distillery) Keys() *sshkeys.SSHKeys {
+	return export[*sshkeys.SSHKeys](dis)
 }
 
 func (dis *Distillery) Cron() *cron.Cron {
@@ -162,6 +166,7 @@ func (dis *Distillery) allComponents() []initFunc {
 
 		// ssh server
 		auto[*ssh2.SSH2],
+		auto[*sshkeys.SSHKeys],
 
 		// Control server
 		auto[*control.Control],

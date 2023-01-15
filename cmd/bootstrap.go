@@ -148,16 +148,6 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 					return err
 				}
 
-				context.Println(tpl.AuthorizedKeys)
-				if err := environment.WriteFile(
-					env,
-					tpl.AuthorizedKeys,
-					bootstrap.DefaultAuthorizedKeys,
-					fs.ModePerm,
-				); err != nil {
-					return err
-				}
-
 				context.Println(tpl.SelfResolverBlockFile)
 				if err := environment.WriteFile(
 					env,

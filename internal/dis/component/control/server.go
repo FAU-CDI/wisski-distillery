@@ -18,17 +18,17 @@ import (
 // The server may spawn background tasks, but these should be terminated once context closes.
 //
 // Logging messages are directed to progress
-func (control *Control) Server(ctx context.Context, progress io.Writer) (http.Handler, error) {
+func (control *Control) Server(ctx context.Context, progress io.Writer) (public http.Handler, internal http.Handler, err error) {
 	logger := zerolog.Ctx(ctx)
 
-	var mux mux.Mux[component.RouteContext]
-	mux.Context = func(r *http.Request) component.RouteContext {
+	var publicM, internalM mux.Mux[component.RouteContext]
+	publicM.Context = func(r *http.Request) component.RouteContext {
 		slug, ok := control.Still.Config.SlugFromHost(r.Host)
 		return component.RouteContext{
 			DefaultDomain: slug == "" && ok,
 		}
 	}
-	mux.Panic = func(panic any, w http.ResponseWriter, r *http.Request) {
+	publicM.Panic = func(panic any, w http.ResponseWriter, r *http.Request) {
 		// log the panic
 		logger.Error().
 			Str("panic", fmt.Sprint(panic)).
@@ -38,6 +38,10 @@ func (control *Control) Server(ctx context.Context, progress io.Writer) (http.Ha
 		// and send an internal server error
 		httpx.TextInterceptor.Fallback.ServeHTTP(w, r)
 	}
+
+	// setup the internal server identically
+	internalM.Panic = publicM.Panic
+	internalM.Context = publicM.Context
 
 	// create a csrf protector
 	csrfProtector := control.CSRF()
@@ -52,6 +56,7 @@ func (control *Control) Server(ctx context.Context, progress io.Writer) (http.Ha
 			Bool("Exact", routes.Exact).
 			Bool("CSRF", routes.CSRF).
 			Bool("Decorator", routes.Decorator != nil).
+			Bool("Internal", routes.Internal).
 			Bool("MatchAllDomains", routes.MatchAllDomains).
 			Msg("mounting route")
 
@@ -69,19 +74,23 @@ func (control *Control) Server(ctx context.Context, progress io.Writer) (http.Ha
 		handler = routes.Decorate(handler, csrfProtector)
 
 		// determine the predicate
-		predicate := routes.Predicate(mux.ContextOf)
+		predicate := routes.Predicate(publicM.ContextOf)
 
 		// and add all the prefixes
 		for _, prefix := range append([]string{routes.Prefix}, routes.Aliases...) {
-			mux.Add(prefix, predicate, routes.Exact, handler)
+			if routes.Internal {
+				internalM.Add(prefix, predicate, routes.Exact, handler)
+			} else {
+				publicM.Add(prefix, predicate, routes.Exact, handler)
+			}
 		}
 	}
 
 	// apply the given context function
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r = r.WithContext(cancel.ValuesOf(r.Context(), ctx))
-		mux.ServeHTTP(w, r)
-	}), nil
+	public = httpx.WithContextWrapper(&publicM, func(rcontext context.Context) context.Context { return cancel.ValuesOf(rcontext, ctx) })
+	internal = httpx.WithContextWrapper(&internalM, func(rcontext context.Context) context.Context { return cancel.ValuesOf(rcontext, ctx) })
+	err = nil
+	return
 }
 
 // CSRF returns a CSRF handler for the given function

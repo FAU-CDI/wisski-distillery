@@ -5,7 +5,6 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -14,9 +13,9 @@ import (
 var Server wisski_distillery.Command = server{}
 
 type server struct {
-	Trigger bool   `short:"t" long:"trigger" description:"instead of running on the existing server, simply trigger a cron run"`
-	Prefix  string `short:"p" long:"prefix" description:"prefix to listen under"`
-	Bind    string `short:"b" long:"bind" description:"address to listen on" default:"127.0.0.1:8888"`
+	Trigger      bool   `short:"t" long:"trigger" description:"instead of running on the existing server, simply trigger a cron run"`
+	Bind         string `short:"b" long:"bind" description:"address to listen on" default:"127.0.0.1:8888"`
+	InternalBind string `short:"i" long:"internal-bind" description:"address to listen on for internal server" default:"127.0.0.1:9999"`
 }
 
 func (s server) Description() wisski_distillery.Description {
@@ -55,35 +54,54 @@ func (s server) Run(context wisski_distillery.Context) error {
 	}
 
 	// and start the server
-	handler, err := dis.Control().Server(context.Context, context.Stderr)
+	public, internal, err := dis.Control().Server(context.Context, context.Stderr)
 	if err != nil {
 		return err
 	}
 
-	zerolog.Ctx(context.Context).Info().Str("bind", s.Bind).Msg("listening")
+	// start the public listener
+	publicS := http.Server{Handler: public}
+	publicC := make(chan error)
+	{
+		zerolog.Ctx(context.Context).Info().Str("bind", s.Bind).Msg("listening public server")
+		publicL, err := dis.Still.Environment.Listen("tcp", s.Bind)
+		if err != nil {
+			return errServerListen.Wrap(err)
+		}
+		defer publicS.Shutdown(context.Context)
+		go func() {
+			publicC <- publicS.Serve(publicL)
+		}()
+	}
 
-	// create a new listener
-	listener, err := dis.Still.Environment.Listen("tcp", s.Bind)
-	if err != nil {
-		return errServerListen.Wrap(err)
+	// start the internal listener
+	internalS := http.Server{Handler: internal}
+	internalC := make(chan error)
+	{
+		zerolog.Ctx(context.Context).Info().Str("bind", s.InternalBind).Msg("listening internal server")
+		internalL, err := dis.Still.Environment.Listen("tcp", s.InternalBind)
+		if err != nil {
+			return errServerListen.Wrap(err)
+		}
+		defer internalS.Shutdown(context.Context)
+		go func() {
+			internalC <- internalS.Serve(internalL)
+		}()
 	}
 
 	go func() {
 		<-context.Context.Done()
-		listener.Close()
+		zerolog.Ctx(context.Context).Info().Msg("shutting down server")
+		publicS.Shutdown(context.Context)
+		internalS.Shutdown(context.Context)
 	}()
 
-	server := http.Server{
-		Handler: http.StripPrefix(s.Prefix, handler),
+	if err2 := <-internalC; err2 != nil {
+		err = err2
 	}
-
-	err, _ = cancel.WithContext(context.Context, func(start func()) error {
-		start()
-		return server.Serve(listener)
-	}, func() {
-		zerolog.Ctx(context.Context).Info().Msg("shutting down server")
-		server.Shutdown(context.Context)
-	})
+	if err1 := <-publicC; err1 != nil {
+		err = err1
+	}
 
 	return errServerListen.Wrap(err)
 }

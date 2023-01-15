@@ -31,9 +31,8 @@ func (ssh *SSH2) Stack(env environment.Environment) component.StackWithResources
 			"CONFIG_PATH": ssh.Config.ConfigPath,
 			"DEPLOY_ROOT": ssh.Config.DeployRoot,
 
-			"GLOBAL_AUTHORIZED_KEYS_FILE": ssh.Config.GlobalAuthorizedKeysFile,
-			"SELF_OVERRIDES_FILE":         ssh.Config.SelfOverridesFile,
-			"SELF_RESOLVER_BLOCK_FILE":    ssh.Config.SelfResolverBlockFile,
+			"SELF_OVERRIDES_FILE":      ssh.Config.SelfOverridesFile,
+			"SELF_RESOLVER_BLOCK_FILE": ssh.Config.SelfResolverBlockFile,
 
 			"SSH_PORT": strconv.FormatUint(uint64(ssh.Config.PublicSSHPort), 10),
 		},

@@ -1,1 +1,1 @@
-// nothing for now
+import "~/src/lib/copy"

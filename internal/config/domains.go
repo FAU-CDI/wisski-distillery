@@ -30,6 +30,15 @@ func (cfg Config) HTTPSEnabledEnv() string {
 	return "false"
 }
 
+// HostFromSlug returns the hostname belonging to a given slug.
+// When the slug is empty, returns the default (top-level) domain.
+func (cfg Config) HostFromSlug(slug string) string {
+	if slug == "" {
+		return cfg.DefaultDomain
+	}
+	return fmt.Sprintf("%s.%s", slug, cfg.DefaultDomain)
+}
+
 // DefaultHostRule returns the default traefik hostname rule for this distillery.
 // This consists of the [DefaultDomain] as well as [ExtraDomains].
 func (cfg Config) DefaultHostRule() string {
@@ -43,6 +52,8 @@ func (cfg Config) DefaultHostRule() string {
 func (cfg Config) SlugFromHost(host string) (slug string, ok bool) {
 	// extract an ':port' that happens to be in the host.
 	domain, _, _ := strings.Cut(host, ":")
+	domain = TrimSuffixFold(domain, ".wisski") // remove optional ".wisski" ending that is used inside docker
+
 	domainL := strings.ToLower(domain)
 
 	// check all the possible domain endings
@@ -58,4 +69,11 @@ func (cfg Config) SlugFromHost(host string) (slug string, ok bool) {
 
 	// no domain found!
 	return "", ok
+}
+
+func TrimSuffixFold(s string, suffix string) string {
+	if len(s) >= len(suffix) && strings.EqualFold(s[len(s)-len(suffix):], suffix) {
+		return s[:len(s)-len(suffix)]
+	}
+	return s
 }

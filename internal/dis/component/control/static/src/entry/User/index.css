@@ -1,1 +1,6 @@
-/* nothing for now */
+/* textarea on the /user/ssh/add form */
+textarea#key {
+    width: 50%;
+    height: 10em;
+    resize: both; 
+}

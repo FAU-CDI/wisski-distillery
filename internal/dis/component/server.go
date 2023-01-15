@@ -26,6 +26,10 @@ type Routes struct {
 	// MatchAllDomains indicates that all domains, even the non-default domain, should be matched
 	MatchAllDomains bool
 
+	// Internal indicates that this route should only answer on the internal server.
+	// Internal implies MatchAllDomains.
+	Internal bool
+
 	// MenuTitle and MenuPriority return the priority and title of this menu item
 	MenuTitle    string
 	MenuPriority MenuPriority
@@ -52,7 +56,7 @@ type RouteContext struct {
 
 // Predicate returns the predicate corresponding to the given route
 func (routes Routes) Predicate(context func(*http.Request) RouteContext) mux.Predicate {
-	if routes.MatchAllDomains {
+	if routes.MatchAllDomains || routes.Internal {
 		return nil
 	}
 
