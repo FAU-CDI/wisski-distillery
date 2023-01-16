@@ -4,43 +4,44 @@
 // It is passed as a *command line literal * directly to 'drush:script'.
 //
 // As such it is preprocessed and shortened.
+// This preprocessing is script-specific, and any changes in here might break that optimization.
 // It should only contain comments at the beginning of each line, and only starting with '//'.
 // See server.go.
+
+// define a json_encode alias, this saves a single character!
+// (we also reuse it in the error string)
+$E = 'json_encode';
 
 // prevent STDIN from being buffered
 stream_set_read_buffer(STDIN,0);
 
-// stop outputting errors when executing
-ob_start(null,0,PHP_OUTPUT_HANDLER_CLEANABLE);
+while(1) {
+	// stop outputting errors when executing
+	ob_start(null,0,PHP_OUTPUT_HANDLER_CLEANABLE);
 
-
-while(1){
 	// read the next line to get an end-of-line marker
-	$marker = fgets(STDIN);
-	if (!$marker) break;
+	$m = fgets(STDIN) or exit(0);
 
 	// accumulate the buffer until the marker is reached
 	// bail out if there is an unexpected end of input
-	$buffer = "";
-	while(1) {
-		$line = fgets(STDIN);
-		if (!$line) break 2;
-		if ($line === $marker) break;
-		$buffer .= $line . "\n";
+	for($b = $l = ""; $l !== $m;) {
+		$b .= $l;
+		$l = fgets(STDIN) or exit(1);
 	}
 
-    // execute it
-	try{
-		$json = json_encode([eval($buffer),""]);
-	}catch(Throwable $t){
-		$json = json_encode([null,(string)$t]);
+	// execute the code, and json_encode it
+	try {
+		$j = $E([eval($b),""]);
+	} catch(Throwable $t) {
+		$j = $E([null,(string)$t]);
 	}
-	if($json===false) {
-		$json = '[null,"Error encoding result"]';
+
+	// if something went wrong, return an error.
+	if($j === false) {
+		$j = '[null,"' . $E . ' Error"]';
 	}
 
     // and write out the result
 	ob_end_clean();
-	fwrite(STDOUT,"$json\n");
-    ob_start(null,0,PHP_OUTPUT_HANDLER_CLEANABLE);
+	fwrite(STDOUT,"$j\n");
 }

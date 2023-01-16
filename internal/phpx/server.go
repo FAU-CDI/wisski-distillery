@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -233,6 +234,8 @@ var serverPHP string
 
 // pre-process the server.php code to make it shorter
 func init() {
+	minifier := regexp.MustCompile(`\s*([=)(.,{}])\s*`)
+
 	// remove the first '<?php' line
 	lines := strings.Split(serverPHP, "\n")[1:]
 	for i, line := range lines {
@@ -244,5 +247,5 @@ func init() {
 		return !strings.HasPrefix(line, "//")
 	})
 
-	serverPHP = strings.Join(lines, "")
+	serverPHP = minifier.ReplaceAllString(strings.Join(lines, ""), "$1")
 }
