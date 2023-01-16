@@ -23,6 +23,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
@@ -119,6 +120,10 @@ func (dis *Distillery) Custom() *custom.Custom {
 	return export[*custom.Custom](dis)
 }
 
+func (dis *Distillery) Purger() *purger.Purger {
+	return export[*purger.Purger](dis)
+}
+
 //
 // All components
 // THESE SHOULD NEVER BE CALLED DIRECTLY
@@ -155,6 +160,9 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*instances.Instances],
 		auto[*meta.Meta],
 		auto[*malt.Malt],
+
+		// Purger
+		auto[*purger.Purger],
 
 		// Snapshots
 		auto[*exporter.Exporter],

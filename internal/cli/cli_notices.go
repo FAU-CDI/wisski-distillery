@@ -1,7 +1,7 @@
 package cli
 
 // ===========================================================================================================
-// This file was generated automatically at 15-01-2023 11:33:49 using gogenlicense.
+// This file was generated automatically at 16-01-2023 17:01:43 using gogenlicense.
 // Do not edit manually, as changes may be overwritten.
 // ===========================================================================================================
 
@@ -2417,7 +2417,7 @@ package cli
 // # Generation
 //
 // This variable and the associated documentation have been automatically generated using the 'gogenlicense' tool.
-// It was last updated at 15-01-2023 11:33:49.
+// It was last updated at 16-01-2023 17:01:43.
 var LegalNotices string
 
 func init() {

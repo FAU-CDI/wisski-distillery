@@ -49,15 +49,39 @@ function makeTextBuffer(target: HTMLElement, scrollContainer: HTMLElement, size:
 const remote_action = document.getElementsByClassName('remote-action')
 Array.from(remote_action).forEach((element) => {
     const action = element.getAttribute('data-action') as string;
-    const reload = element.hasAttribute('data-force-reload');
+    const reload = element.getAttribute('data-force-reload');
     const param = element.getAttribute('data-param') as string | undefined;
+    
+    const confirmElementName = element.getAttribute('data-confirm-param');
+    const confirmElement = (confirmElementName ? document.querySelector(confirmElementName) : null) as HTMLInputElement | null;
+
     const bufferSize = (function () {
         const number = parseInt(element.getAttribute('data-buffer') ?? "", 10) ?? 0;
         return (isFinite(number) && number > 0) ? number : 0;
     })()
 
+    const validate = function() {
+        if (!confirmElement) return true
+        return confirmElement.value === param;
+    }
+
+    if (confirmElement) {
+        const runValidation = () => {
+            if (validate()) {
+                element.removeAttribute('disabled')
+            } else {
+                element.setAttribute('disabled', 'disabled')
+            }
+        }
+        confirmElement.addEventListener('change', runValidation)
+        runValidation()
+    }
+
     element.addEventListener('click', function (ev) {
         ev.preventDefault();
+
+        // do nothing if the validation fails
+        if (!validate()) return;
 
         // create a modal dialog and append it to the body
         const modal = document.createElement("div")
@@ -73,14 +97,18 @@ Array.from(remote_action).forEach((element) => {
         // create a button to eventually close everything
         const button = document.createElement("button")
         button.className = "pure-button pure-button-success"
-        button.append(reload ? "Close & Reload" : "Close")
+        button.append(typeof reload === 'string' ? "Close & Reload" : "Close")
         button.addEventListener('click', function (event) {
             event.preventDefault();
 
-            if (reload) {
-                button.setAttribute('disabled', 'disabled');
+            if (typeof reload === 'string') {
+                button.setAttribute('disabled', 'disabled')
                 target.innerHTML = 'Reloading page ...'
-                location.reload()
+                if (reload === '') {
+                    location.reload()
+                } else {
+                    location.href = reload
+                }
                 return;
             }
 

@@ -22,8 +22,8 @@ type InstanceAction struct {
 
 var socketInstanceActions = map[string]InstanceAction{
 	"snapshot": {
-		HandleInteractive: func(ctx context.Context, info *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
-			return info.Dependencies.Exporter.MakeExport(
+		HandleInteractive: func(ctx context.Context, admin *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
+			return admin.Dependencies.Exporter.MakeExport(
 				ctx,
 				out,
 				exporter.ExportTask{
@@ -58,6 +58,11 @@ var socketInstanceActions = map[string]InstanceAction{
 	"stop": {
 		HandleInteractive: func(ctx context.Context, _ *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
 			return instance.Barrel().Stack().Down(ctx, out)
+		},
+	},
+	"purge": {
+		HandleInteractive: func(ctx context.Context, admin *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
+			return admin.Dependencies.Purger.Purge(ctx, out, instance.Slug)
 		},
 	},
 }

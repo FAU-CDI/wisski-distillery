@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/zerolog"
 
@@ -32,6 +33,8 @@ type Admin struct {
 		Policy *policy.Policy
 
 		Custom *custom.Custom
+
+		Purger *purger.Purger
 	}
 
 	Analytics *lazy.PoolAnalytics

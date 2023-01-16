@@ -14,7 +14,8 @@ type Routeable interface {
 	// Routes returns information about the routes to be handled by this Routeable
 	Routes() Routes
 
-	// HandleRoute returns the handler for the requested path
+	// HandleRoute returns the handler for the requested path.
+	// Context is cancelled once the handler should be closed.
 	HandleRoute(ctx context.Context, path string) (http.Handler, error)
 }
 

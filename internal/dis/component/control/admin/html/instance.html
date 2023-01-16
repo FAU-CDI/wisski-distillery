@@ -40,10 +40,10 @@
                         <td>
                             <code>{{ .Info.Running }}</code>
                             <div class="pure-button-group" role="group">
-                                <button class="remote-action pure-button pure-button-action" data-action="start" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">
+                                <button class="remote-action pure-button pure-button-action" data-action="start" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>
                                     (Re)Start
                                 </button>
-                                <button class="remote-action pure-button pure-button-danger" data-action="stop" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">
+                                <button class="remote-action pure-button pure-button-danger" data-action="stop" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>
                                     Stop
                                 </button>
                             </div>
@@ -144,7 +144,7 @@
                     <tr>
                         <td>
                             Last Rebuild <br>
-                            <button class="remote-action pure-button pure-button-action" data-action="rebuild" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Rebuild</button>
+                            <button class="remote-action pure-button pure-button-action" data-action="rebuild" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>Rebuild</button>
                         </td>
                         <td>
                             <code class="date">{{ .Info.LastRebuild.Format "2006-01-02T15:04:05Z07:00" }}</code>
@@ -153,7 +153,7 @@
                     <tr>
                         <td>
                             Last Cron<br>
-                            <button class="remote-action pure-button pure-button-action" data-action="cron" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Cron</button>
+                            <button class="remote-action pure-button pure-button-action" data-action="cron" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>Cron</button>
                         </td>
                         <td>
                             <code class="date">{{ .Info.LastRebuild.Format "2006-01-02T15:04:05Z07:00" }}</code>
@@ -162,7 +162,7 @@
                     <tr>
                         <td>
                             Last Update <br>
-                            <button class="remote-action pure-button pure-button-action" data-action="update" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Update</button>
+                            <button class="remote-action pure-button pure-button-action" data-action="update" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>Update</button>
                         </td>
                         <td>
                             <code class="date">{{ .Info.LastUpdate.Format "2006-01-02T15:04:05Z07:00" }}</code><br>
@@ -437,7 +437,7 @@
 <div class="pure-u-1-1">
     <h2 id="snapshots">Snapshots</h2>
     <p>
-        <button class="remote-action pure-button pure-button-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload="true">Take a snapshot</button>
+        <button class="remote-action pure-button pure-button-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>Take a snapshot</button>
     </p>
 </div>
 
@@ -466,5 +466,23 @@
             {{ end}}
         </tbody>
     </table>
+</div>
+
+<div class="pure-u-1-1">
+    <h2 id="overview">Dangerous Actions</h2>
+</div>
+
+<div class="pure-u-1 pure-u-xl-2-5">
+    <p>
+        Purging this instance completely removes it from the distillery.
+        Backups containing the instance will remain, but it will not be possible to restore it directly.
+        You must enter the slug <code>{{ .Instance.Slug }}</code> to confirm purging.
+    </p>
+    <form class="pure-form">
+        <fieldset>
+            <input type="text" id="purge-confirm-slug" placeholder="{{ .Instance.Slug }}" />
+            <button class="remote-action pure-button pure-button-danger" data-action="purge" data-param="{{ .Instance.Slug }}" data-confirm-param="#purge-confirm-slug" data-buffer="1000" data-force-reload="/admin/">Purge Instance</button>
+        </fieldset>
+    </form>
 </div>
 {{ end }}

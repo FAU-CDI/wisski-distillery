@@ -3,8 +3,6 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -28,18 +26,8 @@ func (purge) Description() wisski_distillery.Description {
 	}
 }
 
-var errPurgeNoDetails = exit.Error{
-	Message:  "unable to find instance details for purge: %s",
-	ExitCode: exit.ExitGeneric,
-}
-
 var errPurgeNoConfirmation = exit.Error{
 	Message:  "aborting after request was not confirmed. either type `yes` or pass `--yes` on the command line",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errPurgeGeneric = exit.Error{
-	Message:  "unable to purge instance %q: %s",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -57,57 +45,5 @@ func (p purge) Run(context wisski_distillery.Context) error {
 		}
 	}
 
-	// load the instance (first via bookkeeping, then via defaults)
-	logging.LogMessage(context.Stderr, context.Context, "Checking bookkeeping table")
-	instance, err := dis.Instances().WissKI(context.Context, slug)
-	if err == instances.ErrWissKINotFound {
-		context.Println("Not found in bookkeeping table, assuming defaults")
-		instance, err = dis.Instances().Create(slug)
-	}
-	if err != nil {
-		return errPurgeNoDetails.WithMessageF(err)
-	}
-
-	// remove docker stack
-	logging.LogMessage(context.Stderr, context.Context, "Stopping and removing docker container")
-	if err := instance.Barrel().Stack().Down(context.Context, context.Stderr); err != nil {
-		context.EPrintln(err)
-	}
-
-	// remove the filesystem
-	logging.LogMessage(context.Stderr, context.Context, "Removing from filesystem %s", instance.FilesystemBase)
-	if err := dis.Still.Environment.RemoveAll(instance.FilesystemBase); err != nil {
-		context.EPrintln(err)
-	}
-
-	// purge all the instance specific resources
-	if err := logging.LogOperation(func() error {
-		domain := instance.Domain()
-		for _, pc := range dis.Provisionable() {
-			logging.LogMessage(context.Stderr, context.Context, "Purging %s resources", pc.Name())
-			err := pc.Purge(context.Context, instance.Instance, domain)
-			if err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}, context.Stderr, context.Context, "Purging instance-specific resources"); err != nil {
-		return errPurgeGeneric.WithMessageF(slug, err)
-	}
-
-	// remove from bookkeeping
-	logging.LogMessage(context.Stderr, context.Context, "Removing instance from bookkeeping")
-	if err := instance.Bookkeeping().Delete(context.Context); err != nil {
-		context.EPrintln(err)
-	}
-
-	// remove the filesystem
-	logging.LogMessage(context.Stderr, context.Context, "Remove lock data")
-	if instance.Locker().TryUnlock(context.Context) {
-		context.EPrintln("instance was not locked")
-	}
-
-	logging.LogMessage(context.Stderr, context.Context, "Instance %s has been purged", slug)
-	return nil
+	return dis.Purger().Purge(context.Context, context.Stdout, slug)
 }
