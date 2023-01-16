@@ -27,7 +27,7 @@ var (
 var usersPHP string
 
 // All returns all known usernames
-func (u *Users) All(ctx context.Context, server *phpx.Server) (users []status.User, err error) {
+func (u *Users) All(ctx context.Context, server *phpx.Server) (users []status.DrupalUser, err error) {
 	err = u.Dependencies.PHP.ExecScript(ctx, server, &users, usersPHP, "list_users")
 	return
 }

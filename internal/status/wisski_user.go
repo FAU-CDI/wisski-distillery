@@ -2,14 +2,16 @@ package status
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"golang.org/x/exp/slices"
 )
 
-// User represents a WissKI User
-type User struct {
+// DrupalUser represents a WissKI DrupalUser
+type DrupalUser struct {
 	UID     phpx.Integer   `json:"uid,omitempty"`
 	Name    phpx.String    `json:"name,omitempty"`
 	Mail    phpx.String    `json:"mail,omitempty"`
@@ -19,6 +21,41 @@ type User struct {
 	Access  phpx.Timestamp `json:"access,omitempty"`
 	Login   phpx.Timestamp `json:"login,omitempty"`
 	Roles   UserRoles      `json:"roles,omitempty"`
+}
+
+func (du DrupalUser) String() string {
+	var builder strings.Builder
+
+	builder.WriteString("DrupalUser{")
+	defer builder.WriteString("}")
+
+	fmt.Fprintf(&builder, "UID: %d, ", du.UID)
+	fmt.Fprintf(&builder, "Name: %q, ", du.Name)
+
+	if du.Mail != "" {
+		fmt.Fprintf(&builder, "Mail: %q, ", du.Mail)
+	}
+
+	fmt.Fprintf(&builder, "Status: %t, ", du.Status)
+
+	for _, tn := range []struct {
+		Name string
+		Time time.Time
+	}{
+		{"Created", du.Created.Time()},
+		{"Changed", du.Changed.Time()},
+		{"Access", du.Access.Time()},
+		{"Login", du.Login.Time()},
+	} {
+		if tn.Time.IsZero() {
+			continue
+		}
+		fmt.Fprintf(&builder, "%s: %q, ", tn.Name, tn.Time.Format(time.Stamp))
+	}
+
+	fmt.Fprintf(&builder, "Roles: %s", du.Roles)
+
+	return builder.String()
 }
 
 // UserRole represents the role of a user
@@ -32,13 +69,12 @@ const (
 // UserRoles represents a set of user roles for a given user
 type UserRoles map[UserRole]struct{}
 
-// Has checks if the UserRole has the given role
-func (ur UserRoles) Has(role UserRole) (ok bool) {
-	_, ok = ur[role]
-	return
+func (ur UserRoles) String() string {
+	return "[" + ur.string() + "]"
 }
 
-func (ur UserRoles) MarshalJSON() ([]byte, error) {
+// String turns this UserRoles into a string
+func (ur UserRoles) string() string {
 	roles := make([]string, len(ur))
 	i := 0
 	for r := range ur {
@@ -46,8 +82,17 @@ func (ur UserRoles) MarshalJSON() ([]byte, error) {
 		i++
 	}
 	slices.Sort(roles) // for consistent marshaling
+	return strings.Join(roles, ", ")
+}
 
-	return json.Marshal(strings.Join(roles, ", "))
+func (ur UserRoles) MarshalJSON() ([]byte, error) {
+	return json.Marshal(ur.string())
+}
+
+// Has checks if the UserRole has the given role
+func (ur UserRoles) Has(role UserRole) (ok bool) {
+	_, ok = ur[role]
+	return
 }
 
 func (u *UserRoles) UnmarshalJSON(data []byte) error {

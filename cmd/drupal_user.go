@@ -115,12 +115,12 @@ func (du drupalUser) checkCommonPassword(context wisski_distillery.Context, inst
 		return err
 	}
 
-	return status.RunErrorGroup(context.Stderr, status.Group[wstatus.User, error]{
-		PrefixString: func(item wstatus.User, index int) string {
+	return status.RunErrorGroup(context.Stderr, status.Group[wstatus.DrupalUser, error]{
+		PrefixString: func(item wstatus.DrupalUser, index int) string {
 			return fmt.Sprintf("User[%q]: ", item.Name)
 		},
 		PrefixAlign: true,
-		Handler: func(user wstatus.User, index int, writer io.Writer) error {
+		Handler: func(user wstatus.DrupalUser, index int, writer io.Writer) error {
 			pv, err := users.GetPasswordValidator(context.Context, string(user.Name))
 			if err != nil {
 				return err

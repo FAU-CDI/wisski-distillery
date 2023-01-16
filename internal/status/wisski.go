@@ -36,7 +36,7 @@ type WissKI struct {
 	NoPrefixes   bool              // TODO: Move this into the database
 	Prefixes     []string          // list of prefixes
 	Pathbuilders map[string]string // all the pathbuilders
-	Users        []User            // all the known users
+	Users        []DrupalUser      // all the known users
 	Grants       []models.Grant
 }
 
