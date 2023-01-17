@@ -109,6 +109,8 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	router.Handler(http.MethodPost, route+"users/disabletotp", admin.usersDisableTOTPHandler(ctx))
 	router.Handler(http.MethodPost, route+"users/password", admin.usersPasswordHandler(ctx))
 	router.Handler(http.MethodPost, route+"users/toggleadmin", admin.usersToggleAdmin(ctx))
+	router.Handler(http.MethodPost, route+"users/impersonate", admin.usersImpersonateHandler(ctx))
+	router.Handler(http.MethodPost, route+"users/unsetpassword", admin.usersUnsetPasswordHandler(ctx))
 
 	// add a handler for the component page
 	router.Handler(http.MethodGet, route+"components", httpx.HTMLHandler[componentContext]{

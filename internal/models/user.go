@@ -17,6 +17,10 @@ type User struct {
 	Admin   *bool `gorm:"column:admin;not null"`
 }
 
+func (user *User) HasPassword() bool {
+	return len(user.PasswordHash) != 0
+}
+
 func (user *User) IsAdmin() bool {
 	return user.Admin != nil && *user.Admin
 }

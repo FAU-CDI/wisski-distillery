@@ -219,3 +219,40 @@ func (admin *Admin) usersPasswordHandler(ctx context.Context) http.Handler {
 		return user.SetPassword(r.Context(), []byte(password))
 	})
 }
+
+func (admin *Admin) usersUnsetPasswordHandler(ctx context.Context) http.Handler {
+	return admin.useraction(ctx, "unset password", func(r *http.Request, user *auth.AuthUser) error {
+		user.PasswordHash = nil
+		return user.Save(r.Context())
+	})
+}
+
+func (admin *Admin) usersImpersonateHandler(ctx context.Context) http.Handler {
+	logger := zerolog.Ctx(ctx)
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if err := r.ParseForm(); err != nil {
+			logger.Err(err).Str("action", "impersonate").Msg("failed to parse form")
+			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
+			return
+		}
+
+		username := r.PostFormValue("user")
+		user, err := admin.Dependencies.Auth.User(r.Context(), username)
+		if err != nil {
+			logger.Err(err).Str("action", "impersonate").Msg("failed to get user")
+			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
+			return
+		}
+
+		// login the user into the session of the provided user
+		if err := admin.Dependencies.Auth.Login(w, r, user); err != nil {
+			logger.Err(err).Str("action", "impersonate").Msg("failed to login user")
+			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
+			return
+		}
+
+		// and go there
+		http.Redirect(w, r, "/user/", http.StatusSeeOther)
+	})
+}

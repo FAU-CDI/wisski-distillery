@@ -30,6 +30,7 @@ type UserPanel struct {
 
 var (
 	_ component.Routeable = (*UserPanel)(nil)
+	_ component.Menuable  = (*UserPanel)(nil)
 )
 
 func (panel *UserPanel) Routes() component.Routes {
@@ -37,9 +38,18 @@ func (panel *UserPanel) Routes() component.Routes {
 		Prefix:    "/user/",
 		CSRF:      true,
 		Decorator: panel.Dependencies.Auth.Require(nil),
+	}
+}
 
-		MenuPriority: component.MenuUser,
-		MenuTitle:    "User",
+func (panel *UserPanel) Menu(r *http.Request) []component.MenuItem {
+	title := "Login"
+
+	user, err := panel.Dependencies.Auth.UserOf(r)
+	if user != nil && err == nil {
+		title = user.User.User
+	}
+	return []component.MenuItem{
+		{Title: title, Priority: component.MenuUser, Path: "/user/"},
 	}
 }
 

@@ -26,6 +26,9 @@
                             Enabled
                         </th>
                         <th>
+                            Has Password
+                        </th>
+                        <th>
                             Admin
                         </th>
                         <th>
@@ -44,8 +47,10 @@
                                 {{ .User.User }}
                             </td>
                             <td>
-                                {{ .User.IsEnabled }}
-                                
+                                {{ .User.IsEnabled }}       
+                            </td>
+                            <td>
+                                {{ .User.HasPassword }}
                             </td>
                             <td>
                                 {{ .User.IsAdmin }}
@@ -66,6 +71,11 @@
                                         <input type="submit" class="pure-button" value="Update Password">
                                         {{ $csrf }}
                                     </form>
+                                    <form action="/admin/users/unsetpassword" method="POST" class="pure-form-group">
+                                        <input type="hidden" name="user" value="{{ .User.User }}">
+                                        <input type="submit" class="pure-button" value="Unset Password">
+                                        {{ $csrf }}
+                                    </form>
                                     <form action="/admin/users/disable" method="POST" class="pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
                                         <input type="submit" class="pure-button" {{ if (not .User.IsEnabled) }}disabled{{ end }} value="Disable">
@@ -79,6 +89,11 @@
                                     <form action="/admin/users/delete" method="POST" class="pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
                                         <input type="submit" class="pure-button pure-button-danger" value="Delete">
+                                        {{ $csrf }}
+                                    </form>
+                                    <form action="/admin/users/impersonate" method="POST" class="pure-form-group">
+                                        <input type="hidden" name="user" value="{{ .User.User }}">
+                                        <input type="submit" class="pure-button" {{ if (not .User.IsEnabled) }}disabled{{ end }} value="Impersonate">
                                         {{ $csrf }}
                                     </form>
                                 </div>

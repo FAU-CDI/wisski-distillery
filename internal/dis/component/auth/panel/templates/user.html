@@ -1,10 +1,11 @@
 {{ template "_base.html" . }}
-{{ define "title" }}User{{ end }}
+{{ define "title" }}{{ .User.User }}{{ end }}
 
 {{ define "content" }}
 <div class="pure-u-1">
     <p>
         <ul>
+            <li>Username: <code>{{ .User.User }}</code></li>
             {{ if .User.IsAdmin }}
                 <li>Role: <b>Administrator</b></li>
             {{ else }}
