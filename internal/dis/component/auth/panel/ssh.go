@@ -21,8 +21,8 @@ import (
 )
 
 //go:embed "templates/ssh.html"
-var sshTemplateStr string
-var sshTemplate = static.AssetsUser.MustParseShared("ssh.html", sshTemplateStr)
+var sshHTML []byte
+var sshTemplate = custom.Parse[SSHTemplateContext]("ssh.html", sshHTML, static.AssetsUser)
 
 type SSHTemplateContext struct {
 	custom.BaseContext
@@ -37,8 +37,7 @@ type SSHTemplateContext struct {
 }
 
 func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
-	sshTemplate := panel.Dependencies.Custom.Template(sshTemplate)
-	gaps := custom.BaseContextGaps{
+	tpl := sshTemplate.Prepare(panel.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "User", Path: "/user/"},
 			{Title: "SSH Keys", Path: "/user/ssh/"},
@@ -46,48 +45,33 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 		Actions: []component.MenuItem{
 			{Title: "Add New Key", Path: "/user/ssh/add/"},
 		},
-	}
+	})
 
-	return httpx.HTMLHandler[SSHTemplateContext]{
-		Handler: func(r *http.Request) (sc SSHTemplateContext, err error) {
-			panel.Dependencies.Custom.Update(&sc, r, gaps)
+	return tpl.HTMLHandler(func(r *http.Request) (sc SSHTemplateContext, err error) {
+		user, err := panel.Dependencies.Auth.UserOf(r)
+		if err != nil {
+			return sc, err
+		}
 
-			user, err := panel.Dependencies.Auth.UserOf(r)
-			if err != nil {
-				return sc, err
-			}
+		sc.Domain = panel.Config.DefaultDomain
+		sc.Port = panel.Config.PublicSSHPort
 
-			sc.Domain = panel.Config.DefaultDomain
-			sc.Port = panel.Config.PublicSSHPort
+		// pick the first domain that the user has access to as an example
+		grants, err := panel.Dependencies.Policy.User(r.Context(), user.User.User)
+		if err != nil && len(grants) > 0 {
+			sc.Slug = grants[0].Slug
+		} else {
+			sc.Slug = "example"
+		}
+		sc.Hostname = panel.Config.HostFromSlug(sc.Slug)
 
-			// pick the first domain that the user has access to as an example
-			grants, err := panel.Dependencies.Policy.User(r.Context(), user.User.User)
-			if err != nil && len(grants) > 0 {
-				sc.Slug = grants[0].Slug
-			} else {
-				sc.Slug = "example"
-			}
-			sc.Hostname = panel.Config.HostFromSlug(sc.Slug)
+		sc.Keys, err = panel.Dependencies.Keys.Keys(r.Context(), user.User.User)
+		if err != nil {
+			return sc, err
+		}
 
-			sc.Keys, err = panel.Dependencies.Keys.Keys(r.Context(), user.User.User)
-			if err != nil {
-				return sc, err
-			}
-
-			return sc, nil
-		},
-		Template: sshTemplate,
-	}
-}
-
-//go:embed "templates/ssh_add.html"
-var sshAddTemplateStr string
-var sshAddTemplate = static.AssetsUser.MustParseShared("ssh_add.html", sshAddTemplateStr)
-
-type addKeyResult struct {
-	User    *auth.AuthUser
-	Comment string
-	Key     ssh.PublicKey
+		return sc, nil
+	})
 }
 
 var (
@@ -128,15 +112,24 @@ func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
 	})
 }
 
+//go:embed "templates/ssh_add.html"
+var sshAddHTML []byte
+var sshAddTemplate = custom.ParseForm("ssh_add.html", sshAddHTML, static.AssetsUser)
+
+type addKeyResult struct {
+	User    *auth.AuthUser
+	Comment string
+	Key     ssh.PublicKey
+}
+
 func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
-	sshAddTemplate := panel.Dependencies.Custom.Template(sshAddTemplate)
-	gaps := custom.BaseContextGaps{
+	tpl := sshAddTemplate.Prepare(panel.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "User", Path: "/user/"},
 			{Title: "SSH Keys", Path: "/user/ssh/"},
 			{Title: "Add New Key", Path: "/user/ssh/add/"},
 		},
-	}
+	})
 
 	return &httpx.Form[addKeyResult]{
 		Fields: []field.Field{
@@ -145,10 +138,8 @@ func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: field.PureCSSFieldTemplate,
 
-		RenderTemplate: sshAddTemplate,
-		RenderTemplateContext: func(ctx httpx.FormContext, r *http.Request) any {
-			return panel.Dependencies.Custom.NewForm(ctx, r, gaps)
-		},
+		RenderTemplate:        tpl.Template(),
+		RenderTemplateContext: custom.FormTemplateContext(tpl),
 
 		Validate: func(r *http.Request, values map[string]string) (ak addKeyResult, err error) {
 			ak.User, err = panel.Dependencies.Auth.UserOf(r)

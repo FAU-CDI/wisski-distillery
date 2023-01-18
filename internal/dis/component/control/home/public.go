@@ -14,8 +14,8 @@ import (
 )
 
 //go:embed "public.html"
-var publicHTMLStr string
-var publicTemplate = static.AssetsDefault.MustParseShared("public.html", publicHTMLStr)
+var publicHTML []byte
+var publicTemplate = custom.Parse[publicContext]("public.html", publicHTML, static.AssetsDefault)
 
 type publicContext struct {
 	custom.BaseContext
@@ -25,25 +25,20 @@ type publicContext struct {
 }
 
 func (home *Home) publicHandler(ctx context.Context) http.Handler {
-	gaps := custom.BaseContextGaps{
+	tpl := publicTemplate.Prepare(home.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "WissKI Distillery", Path: "/"},
 		},
-	}
-	return httpx.HTMLHandler[publicContext]{
-		Handler: func(r *http.Request) (pc publicContext, err error) {
-			// only act on the root path!
-			if strings.TrimSuffix(r.URL.Path, "/") != "" {
-				return pc, httpx.ErrNotFound
-			}
+	})
+	return tpl.HTMLHandler(func(r *http.Request) (pc publicContext, err error) {
+		// only act on the root path!
+		if strings.TrimSuffix(r.URL.Path, "/") != "" {
+			return pc, httpx.ErrNotFound
+		}
 
-			home.Dependencies.Custom.Update(&pc, r, gaps)
+		pc.Instances = home.homeInstances.Get(nil)
+		pc.SelfRedirect = home.Config.SelfRedirect.String()
 
-			pc.Instances = home.homeInstances.Get(nil)
-			pc.SelfRedirect = home.Config.SelfRedirect.String()
-
-			return
-		},
-		Template: home.Dependencies.Custom.Template(publicTemplate),
-	}
+		return
+	})
 }

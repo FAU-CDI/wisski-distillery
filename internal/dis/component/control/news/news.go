@@ -12,7 +12,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/rs/zerolog"
 	"github.com/yuin/goldmark"
 	gmmeta "github.com/yuin/goldmark-meta"
@@ -113,8 +112,8 @@ func Items() ([]Item, error) {
 }
 
 //go:embed "news.html"
-var newsHTMLStr string
-var newsTemplate = static.AssetsDefault.MustParseShared("news.html", newsHTMLStr)
+var newsHTML []byte
+var newsTemplate = custom.Parse[newsContext]("news.html", newsHTML, static.AssetsDefault)
 
 type newsContext struct {
 	custom.BaseContext
@@ -123,24 +122,19 @@ type newsContext struct {
 
 // HandleRoute returns the handler for the requested path
 func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
-	gaps := custom.BaseContextGaps{
+	tpl := newsTemplate.Prepare(news.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "News", Path: "/news/"},
 		},
-	}
+	})
 
 	items, itemsErr := Items()
 	if itemsErr != nil {
 		zerolog.Ctx(ctx).Err(itemsErr).Msg("Unable to load news items")
 	}
 
-	return httpx.HTMLHandler[newsContext]{
-		Handler: func(r *http.Request) (nc newsContext, err error) {
-			news.Dependencies.Custom.Update(&nc, r, gaps)
-			nc.Items, err = items, itemsErr
-
-			return
-		},
-		Template: news.Dependencies.Custom.Template(newsTemplate),
-	}, nil
+	return tpl.HTMLHandler(func(r *http.Request) (nc newsContext, err error) {
+		nc.Items, err = items, itemsErr
+		return
+	}), nil
 }

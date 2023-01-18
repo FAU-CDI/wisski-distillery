@@ -9,7 +9,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 
 	_ "embed"
 )
@@ -27,26 +26,8 @@ var (
 )
 
 //go:embed "legal.html"
-var legalTemplateString string
-var legalTemplate = static.AssetsDefault.MustParseShared("legal.html", legalTemplateString)
-
-func (legal *Legal) Routes() component.Routes {
-	return component.Routes{
-		Prefix: "/legal/",
-		Exact:  true,
-
-		CSRF: false,
-	}
-}
-
-func (legal *Legal) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
-	legalTemplate := legal.Dependencies.Custom.Template(legalTemplate)
-
-	return httpx.HTMLHandler[legalContext]{
-		Handler:  legal.context,
-		Template: legalTemplate,
-	}, nil
-}
+var legalHTML []byte
+var legalTemplate = custom.Parse[legalContext]("legal.html", legalHTML, static.AssetsDefault)
 
 type legalContext struct {
 	custom.BaseContext
@@ -58,17 +39,29 @@ type legalContext struct {
 	AssetsDisclaimer string
 }
 
-func (legal *Legal) context(r *http.Request) (lc legalContext, err error) {
-	legal.Dependencies.Custom.Update(&lc, r, custom.BaseContextGaps{
+func (legal *Legal) Routes() component.Routes {
+	return component.Routes{
+		Prefix: "/legal/",
+		Exact:  true,
+
+		CSRF: false,
+	}
+}
+
+func (legal *Legal) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
+	tpl := legalTemplate.Prepare(legal.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "Legal", Path: "/legal/"},
 		},
 	})
 
-	lc.LegalNotices = cli.LegalNotices
+	return tpl.HTMLHandler(func(r *http.Request) (lc legalContext, err error) {
+		lc.LegalNotices = cli.LegalNotices
 
-	lc.CSRFCookie = control.CSRFCookie
-	lc.SessionCookie = control.SessionCookie
-	lc.AssetsDisclaimer = static.AssetsDisclaimer
-	return
+		lc.CSRFCookie = control.CSRFCookie
+		lc.SessionCookie = control.SessionCookie
+		lc.AssetsDisclaimer = static.AssetsDisclaimer
+
+		return
+	}), nil
 }

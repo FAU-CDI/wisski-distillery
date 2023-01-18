@@ -15,8 +15,8 @@ import (
 )
 
 //go:embed "templates/password.html"
-var passwordHTMLString string
-var passwordTemplate = static.AssetsUser.MustParseShared("password.html", passwordHTMLString)
+var passwordHTML []byte
+var passwordTemplate = custom.Parse[userFormContext]("password.html", passwordHTML, static.AssetsUser)
 
 var (
 	errPasswordsNotIdentical = errors.New("passwords are not identical")
@@ -28,7 +28,7 @@ var (
 )
 
 func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
-	passwordTemplate := panel.Dependencies.Custom.Template(passwordTemplate)
+	tpl := passwordTemplate.Prepare(panel.Dependencies.Custom)
 
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
@@ -39,8 +39,8 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: field.PureCSSFieldTemplate,
 
-		RenderTemplate:        passwordTemplate,
-		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Change Password", Path: "/user/password/"}, custom.BaseContextGaps{}),
+		RenderTemplate:        tpl.Template(),
+		RenderTemplateContext: panel.UserFormContext2(tpl, component.MenuItem{Title: "Change Password", Path: "/user/password/"}),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			old, passcode, new, new2 := values["old"], values["otp"], values["new"], values["new2"]

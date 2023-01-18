@@ -12,17 +12,13 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
 //go:embed "templates/user.html"
-var userHTMLStr string
-var userTemplate = static.AssetsUser.MustParseShared(
-	"user.html",
-	userHTMLStr,
-)
+var userHTML []byte
+var userTemplate = custom.Parse[userContext]("user.html", userHTML, static.AssetsUser)
 
-type routeUserContext struct {
+type userContext struct {
 	custom.BaseContext
 	*auth.AuthUser
 
@@ -35,8 +31,7 @@ type GrantWithURL struct {
 }
 
 func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
-	userTemplate := panel.Dependencies.Custom.Template(userTemplate)
-	gaps := custom.BaseContextGaps{
+	tpl := userTemplate.Prepare(panel.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "User", Path: "/user/"},
 		},
@@ -45,50 +40,45 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 			{Title: "*to be replaced*", Path: ""},
 			{Title: "SSH Keys", Path: "/user/ssh/"},
 		},
-	}
+	})
 
-	return &httpx.HTMLHandler[routeUserContext]{
-		Handler: func(r *http.Request) (ruc routeUserContext, err error) {
-			// find the user
-			ruc.AuthUser, err = panel.Dependencies.Auth.UserOf(r)
-			if err != nil || ruc.AuthUser == nil {
-				return ruc, err
+	return tpl.HTMLHandlerWithGaps(func(r *http.Request, gaps *custom.BaseContextGaps) (uc userContext, err error) {
+		// find the user
+		uc.AuthUser, err = panel.Dependencies.Auth.UserOf(r)
+		if err != nil || uc.AuthUser == nil {
+			return uc, err
+		}
+
+		// build the gaps
+		if uc.AuthUser.IsTOTPEnabled() {
+			gaps.Actions[1] = component.MenuItem{
+				Title: "Disable Passcode (TOTP)",
+				Path:  "/user/totp/disable/",
 			}
-
-			// build the gaps
-			gaps := gaps.Clone()
-			if ruc.AuthUser.IsTOTPEnabled() {
-				gaps.Actions[1] = component.MenuItem{
-					Title: "Disable Passcode (TOTP)",
-					Path:  "/user/totp/disable/",
-				}
-			} else {
-				gaps.Actions[1] = component.MenuItem{
-					Title: "Enable Passcode (TOTP)",
-					Path:  "/user/totp/enable/",
-				}
+		} else {
+			gaps.Actions[1] = component.MenuItem{
+				Title: "Enable Passcode (TOTP)",
+				Path:  "/user/totp/enable/",
 			}
-			panel.Dependencies.Custom.Update(&ruc, r, gaps)
+		}
 
-			// find the grants
-			grants, err := panel.Dependencies.Policy.User(r.Context(), ruc.AuthUser.User.User)
+		// find the grants
+		grants, err := panel.Dependencies.Policy.User(r.Context(), uc.AuthUser.User.User)
+		if err != nil {
+			return uc, err
+		}
+
+		uc.Grants = make([]GrantWithURL, len(grants))
+		for i, grant := range grants {
+			uc.Grants[i].Grant = grant
+
+			url, err := panel.Dependencies.Next.Next(r.Context(), grant.Slug, "/")
 			if err != nil {
-				return ruc, err
+				return uc, err
 			}
+			uc.Grants[i].URL = template.URL(url)
+		}
 
-			ruc.Grants = make([]GrantWithURL, len(grants))
-			for i, grant := range grants {
-				ruc.Grants[i].Grant = grant
-
-				url, err := panel.Dependencies.Next.Next(r.Context(), grant.Slug, "/")
-				if err != nil {
-					return ruc, err
-				}
-				ruc.Grants[i].URL = template.URL(url)
-			}
-
-			return ruc, err
-		},
-		Template: userTemplate,
-	}
+		return uc, err
+	})
 }

@@ -119,8 +119,8 @@ func (auth *Auth) Logout(w http.ResponseWriter, r *http.Request) error {
 }
 
 //go:embed "login.html"
-var loginHTMLStr string
-var loginTemplate = static.AssetsUser.MustParseShared("login.html", loginHTMLStr)
+var loginHTML []byte
+var loginTemplate = custom.ParseForm("login.html", loginHTML, static.AssetsUser)
 
 var loginResponse = httpx.Response{
 	ContentType: "text/plain",
@@ -131,7 +131,7 @@ var errLoginFailed = errors.New("Login failed")
 
 // authLogin implements a view to login a user
 func (auth *Auth) authLogin(ctx context.Context) http.Handler {
-	loginTemplate := auth.Dependencies.Custom.Template(loginTemplate)
+	tpl := loginTemplate.Prepare(auth.Dependencies.Custom)
 
 	return &httpx.Form[*AuthUser]{
 		Fields: []field.Field{
@@ -145,11 +145,11 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			if context.Err != nil {
 				context.Err = errLoginFailed
 			}
-			httpx.WriteHTML(auth.Dependencies.Custom.NewForm(context, r, custom.BaseContextGaps{
+			tpl.Execute(w, r, custom.BaseFormContext{FormContext: context}, custom.BaseContextGaps{
 				Crumbs: []component.MenuItem{
 					{Title: "Login", Path: template.URL(r.URL.RequestURI())},
 				},
-			}), nil, loginTemplate, "", w, r)
+			})
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {

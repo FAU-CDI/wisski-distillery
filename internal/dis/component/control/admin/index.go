@@ -14,13 +14,6 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-//go:embed "html/index.html"
-var indexTemplateStr string
-var indexTemplate = static.AssetsAdmin.MustParseShared(
-	"index.html",
-	indexTemplateStr,
-)
-
 // Status produces a new observation of the distillery, and a new information of all instances
 // The information on all instances is passed the given quick flag.
 func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target status.Distillery, information []status.WissKI, err error) {
@@ -79,6 +72,16 @@ func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target s
 	return
 }
 
+func (admin *Admin) Fetch(flags component.FetcherFlags, target *status.Distillery) error {
+	target.Time = time.Now().UTC()
+	target.Config = admin.Config
+	return nil
+}
+
+//go:embed "html/index.html"
+var indexHTML []byte
+var indexTemplate = custom.Parse[indexContext]("index.html", indexHTML, static.AssetsAdmin)
+
 type indexContext struct {
 	custom.BaseContext
 
@@ -86,8 +89,8 @@ type indexContext struct {
 	Instances []status.WissKI
 }
 
-func (admin *Admin) index(r *http.Request) (idx indexContext, err error) {
-	admin.Dependencies.Custom.Update(&idx, r, custom.BaseContextGaps{
+func (admin *Admin) index(ctx context.Context) http.Handler {
+	tpl := indexTemplate.Prepare(admin.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "Admin", Path: "/admin/"},
 		},
@@ -96,12 +99,9 @@ func (admin *Admin) index(r *http.Request) (idx indexContext, err error) {
 			{Title: "Components", Path: "/admin/components/", Priority: component.SmallButton},
 		},
 	})
-	idx.Distillery, idx.Instances, err = admin.Status(r.Context(), true)
-	return
-}
 
-func (admin *Admin) Fetch(flags component.FetcherFlags, target *status.Distillery) error {
-	target.Time = time.Now().UTC()
-	target.Config = admin.Config
-	return nil
+	return tpl.HTMLHandlerWithGaps(func(r *http.Request, gaps *custom.BaseContextGaps) (idx indexContext, err error) {
+		idx.Distillery, idx.Instances, err = admin.Status(r.Context(), true)
+		return
+	})
 }

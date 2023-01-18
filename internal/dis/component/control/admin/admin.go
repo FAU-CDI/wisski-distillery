@@ -80,21 +80,16 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	}
 
 	// add a handler for the index page
-	router.Handler(http.MethodGet, route, httpx.HTMLHandler[indexContext]{
-		Handler:  admin.index,
-		Template: admin.Dependencies.Custom.Template(indexTemplate),
-	})
-
-	// fallback to the "/" page
-	router.HandlerFunc(http.MethodGet, route+"index", func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, route, http.StatusTemporaryRedirect)
-	})
+	{
+		index := admin.index(ctx)
+		router.Handler(http.MethodGet, route, index)
+	}
 
 	// add a handler for the user page
-	router.Handler(http.MethodGet, route+"users", httpx.HTMLHandler[userContext]{
-		Handler:  admin.users,
-		Template: admin.Dependencies.Custom.Template(userTemplate),
-	})
+	{
+		users := admin.users(ctx)
+		router.Handler(http.MethodGet, route+"users", users)
+	}
 
 	// add a user create form
 	{
@@ -113,32 +108,28 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	router.Handler(http.MethodPost, route+"users/unsetpassword", admin.usersUnsetPasswordHandler(ctx))
 
 	// add a handler for the component page
-	router.Handler(http.MethodGet, route+"components", httpx.HTMLHandler[componentContext]{
-		Handler:  admin.components,
-		Template: admin.Dependencies.Custom.Template(componentsTemplate),
-	})
+	{
+		components := admin.components(ctx)
+		router.Handler(http.MethodGet, route+"components", components)
+	}
 
-	// add a handler for the component page
-	router.Handler(http.MethodGet, route+"ingredients/:slug", httpx.HTMLHandler[ingredientsContext]{
-		Handler:  admin.ingredients,
-		Template: admin.Dependencies.Custom.Template(ingredientsTemplate),
-	})
+	// add a handler for the ingredients page
+	{
+		ingredients := admin.ingredients(ctx)
+		router.Handler(http.MethodGet, route+"ingredients/:slug", ingredients)
+	}
 
 	// add a handler for the instance page
-	router.Handler(http.MethodGet, route+"instance/:slug", httpx.HTMLHandler[instanceContext]{
-		Handler:  admin.instance,
-		Template: admin.Dependencies.Custom.Template(instanceTemplate),
-	})
+	{
+		instance := admin.instance(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug", instance)
+	}
 
-	// add a router for the grants pages
-	router.Handler(http.MethodGet, route+"grants/:slug", httpx.HTMLHandler[grantsContext]{
-		Handler:  admin.getGrants,
-		Template: admin.Dependencies.Custom.Template(grantsTemplate),
-	})
-	router.Handler(http.MethodPost, route+"grants/", httpx.HTMLHandler[grantsContext]{
-		Handler:  admin.postGrants,
-		Template: admin.Dependencies.Custom.Template(grantsTemplate),
-	})
+	{
+		grants := admin.grants(ctx)
+		router.Handler(http.MethodGet, route+"grants/:slug", grants)
+		router.Handler(http.MethodPost, route+"grants/", grants) // NOTE(twiesing): This path is intentionally different!
+	}
 
 	// add a router for the login page
 	router.Handler(http.MethodPost, route+"login", admin.loginHandler(ctx))

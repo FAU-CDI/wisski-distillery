@@ -112,20 +112,24 @@ type userFormContext struct {
 	User *models.User
 }
 
-func (panel *UserPanel) UserFormContext(last component.MenuItem, gaps custom.BaseContextGaps) func(ctx httpx.FormContext, r *http.Request) any {
-	gaps.Crumbs = []component.MenuItem{
+func (panel *UserPanel) UserFormContext2(tpl *custom.Template[userFormContext], last component.MenuItem, gaps ...custom.BaseContextGaps) func(ctx httpx.FormContext, r *http.Request) any {
+	var g custom.BaseContextGaps
+	if len(gaps) > 1 {
+		panic("UserFormContext2: gaps must be of length 0 or 1")
+	}
+	if len(gaps) == 1 {
+		g = gaps[0]
+	}
+	g.Crumbs = []component.MenuItem{
 		{Title: "User", Path: "/user/"},
 		last,
 	}
-	return func(ctx httpx.FormContext, r *http.Request) any {
-		user, err := panel.Dependencies.Auth.UserOf(r)
 
+	return custom.MappedHandler(tpl, func(ctx httpx.FormContext, r *http.Request) (userFormContext, custom.BaseContextGaps) {
 		uctx := userFormContext{FormContext: ctx}
-		panel.Dependencies.Custom.Update(&uctx, r, gaps)
-		if err == nil {
+		if user, err := panel.Dependencies.Auth.UserOf(r); err == nil {
 			uctx.User = &user.User
 		}
-		return uctx
-	}
-
+		return uctx, g
+	})
 }

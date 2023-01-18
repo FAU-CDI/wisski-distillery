@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"context"
 	"html/template"
 	"net/http"
 
@@ -17,11 +18,8 @@ import (
 )
 
 //go:embed "html/components.html"
-var componentsTemplateString string
-var componentsTemplate = static.AssetsAdmin.MustParseShared(
-	"components.html",
-	componentsTemplateString,
-)
+var componentsHTML []byte
+var componentsTemplate = custom.Parse[componentContext]("components.html", componentsHTML, static.AssetsAdmin)
 
 type componentContext struct {
 	custom.BaseContext
@@ -29,24 +27,23 @@ type componentContext struct {
 	Analytics lazy.PoolAnalytics
 }
 
-func (admin *Admin) components(r *http.Request) (cp componentContext, err error) {
-	admin.Dependencies.Custom.Update(&cp, r, custom.BaseContextGaps{
+func (admin *Admin) components(ctx context.Context) http.Handler {
+	tpl := componentsTemplate.Prepare(admin.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "Admin", Path: "/admin/"},
 			{Title: "Components", Path: "/admin/components/"},
 		},
 	})
 
-	cp.Analytics = *admin.Analytics
-	return
+	return tpl.HTMLHandler(func(r *http.Request) (cp componentContext, err error) {
+		cp.Analytics = *admin.Analytics
+		return
+	})
 }
 
 //go:embed "html/ingredients.html"
-var ingredientsTemplateString string
-var ingredientsTemplate = static.AssetsAdmin.MustParseShared(
-	"ingredients.html",
-	ingredientsTemplateString,
-)
+var ingredientsHTML []byte
+var ingredientsTemplate = custom.Parse[ingredientsContext]("ingredients.html", ingredientsHTML, static.AssetsAdmin)
 
 type ingredientsContext struct {
 	custom.BaseContext
@@ -55,29 +52,34 @@ type ingredientsContext struct {
 	Analytics *lazy.PoolAnalytics
 }
 
-func (admin *Admin) ingredients(r *http.Request) (cp ingredientsContext, err error) {
-	slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
-
-	admin.Dependencies.Custom.Update(&cp, r, custom.BaseContextGaps{
+func (admin *Admin) ingredients(ctx context.Context) http.Handler {
+	tpl := ingredientsTemplate.Prepare(admin.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "Admin", Path: "/admin/"},
-			{Title: "Instance", Path: template.URL("/admin/instance/" + slug)},
-			{Title: "Ingredients", Path: template.URL("/admin/instance/" + slug + "/ingredients/")},
+			{Title: "Instance", Path: "* to be updated *"},
+			{Title: "Ingredients", Path: "* to be updated *"},
 		},
 	})
 
-	// find the instance itself!
-	instance, err := admin.Dependencies.Instances.WissKI(r.Context(), slug)
-	if err == instances.ErrWissKINotFound {
-		return cp, httpx.ErrNotFound
-	}
-	if err != nil {
-		return cp, err
-	}
-	cp.Instance = instance.Instance
+	return tpl.HTMLHandlerWithGaps(func(r *http.Request, gaps *custom.BaseContextGaps) (ic ingredientsContext, err error) {
+		slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 
-	// and get the components
-	cp.Analytics = instance.Info().Analytics
+		gaps.Crumbs[1] = component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}
+		gaps.Crumbs[2] = component.MenuItem{Title: "Ingredients", Path: template.URL("/admin/instance/" + slug + "/ingredients/")}
 
-	return
+		// find the instance itself!
+		instance, err := admin.Dependencies.Instances.WissKI(r.Context(), slug)
+		if err == instances.ErrWissKINotFound {
+			return ic, httpx.ErrNotFound
+		}
+		if err != nil {
+			return ic, err
+		}
+		ic.Instance = instance.Instance
+
+		// and get the components
+		ic.Analytics = instance.Info().Analytics
+
+		return
+	})
 }

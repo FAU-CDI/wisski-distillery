@@ -18,21 +18,18 @@ import (
 )
 
 //go:embed "html/users.html"
-var userTemplateString string
-var userTemplate = static.AssetsAdmin.MustParseShared(
-	"users.html",
-	userTemplateString,
-)
+var usersHTML []byte
+var usersTemplate = custom.Parse[usersContext]("user.html", usersHTML, static.AssetsAdmin)
 
-type userContext struct {
+type usersContext struct {
 	custom.BaseContext
 
 	Error string
 	Users []*auth.AuthUser
 }
 
-func (admin *Admin) users(r *http.Request) (uc userContext, err error) {
-	admin.Dependencies.Custom.Update(&uc, r, custom.BaseContextGaps{
+func (admin *Admin) users(ctx context.Context) http.Handler {
+	tpl := usersTemplate.Prepare(admin.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "Admin", Path: "/admin/"},
 			{Title: "Users", Path: "/admin/users/"},
@@ -42,17 +39,16 @@ func (admin *Admin) users(r *http.Request) (uc userContext, err error) {
 		},
 	})
 
-	uc.Error = r.URL.Query().Get("error")
-	uc.Users, err = admin.Dependencies.Auth.Users(r.Context())
-	return
+	return tpl.HTMLHandler(func(r *http.Request) (uc usersContext, err error) {
+		uc.Error = r.URL.Query().Get("error")
+		uc.Users, err = admin.Dependencies.Auth.Users(r.Context())
+		return
+	})
 }
 
 //go:embed "html/user_create.html"
-var userCreateTemplateString string
-var userCreateTemplate = static.AssetsAdmin.MustParseShared(
-	"user_create.html",
-	userCreateTemplateString,
-)
+var userCreateHTML []byte
+var userCreateTemplate = custom.ParseForm("user_create.html", userCreateHTML, static.AssetsAdmin)
 
 var (
 	errCreateInvalidUsername = errors.New("invalid username")
@@ -66,14 +62,13 @@ type createUserResult struct {
 }
 
 func (admin *Admin) createUser(ctx context.Context) http.Handler {
-	userCreateTemplate := admin.Dependencies.Custom.Template(userCreateTemplate)
-	gaps := custom.BaseContextGaps{
+	tpl := userCreateTemplate.Prepare(admin.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "Admin", Path: "/admin/"},
 			{Title: "Users", Path: "/admin/users"},
 			{Title: "Create", Path: "/admin/users/create"},
 		},
-	}
+	})
 
 	return &httpx.Form[createUserResult]{
 		Fields: []field.Field{
@@ -83,10 +78,8 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: field.PureCSSFieldTemplate,
 
-		RenderTemplate: userCreateTemplate,
-		RenderTemplateContext: func(ctx httpx.FormContext, r *http.Request) any {
-			return admin.Dependencies.Custom.NewForm(ctx, r, gaps)
-		},
+		RenderTemplate:        tpl.Template(),
+		RenderTemplateContext: custom.FormTemplateContext(tpl),
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {
 			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == field.CheckboxChecked

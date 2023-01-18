@@ -48,19 +48,18 @@ type BaseContextGaps struct {
 	Actions []component.MenuItem
 }
 
-func (bcg BaseContextGaps) Clone() BaseContextGaps {
+func (bcg BaseContextGaps) clone() BaseContextGaps {
 	return BaseContextGaps{
 		Crumbs:  slices.Clone(bcg.Crumbs),
 		Actions: slices.Clone(bcg.Actions),
 	}
 }
 
-// Use updates this context to use the values from the given base.
-//
-// The given request *must not* be nil.
-//
-// For convenience the passed context is also returned.
-func (tc *BaseContext) use(custom *Custom, r *http.Request, gaps BaseContextGaps) *BaseContext {
+// update updates an embedded BaseContext field in context.
+func (custom *Custom) update(context any, r *http.Request, bcg BaseContextGaps) *BaseContext {
+	tc := reflect.ValueOf(context).
+		Elem().FieldByName(baseContextName).Addr().
+		Interface().(*BaseContext)
 	// tc.custom = custom
 	tc.inited = true
 	tc.requestWasNil = r == nil
@@ -77,7 +76,7 @@ func (tc *BaseContext) use(custom *Custom, r *http.Request, gaps BaseContextGaps
 	tc.Menu = custom.BuildMenu(r)
 
 	// build the breadcrumbs
-	tc.BaseContextGaps = gaps.Clone()
+	tc.BaseContextGaps = bcg.clone()
 	last := len(tc.Crumbs) - 1
 	for i := range tc.Crumbs {
 		tc.Crumbs[i].Active = i == last
@@ -95,25 +94,6 @@ func (bc BaseContext) DoInitCheck() template.HTML {
 		return requestNilError
 	}
 	return ""
-}
-
-// NewForm is like New, but returns a new BaseFormContext
-func (custom *Custom) NewForm(context httpx.FormContext, r *http.Request, bcg BaseContextGaps) (ctx BaseFormContext) {
-	ctx.FormContext = context
-	ctx.use(custom, r, bcg)
-	return
-}
-
-// Update updates an embedded BaseContext field in context.
-//
-// Assumes that context is a pointer to a struct type.
-// If this is not the case, might call panic().
-func (custom *Custom) Update(context any, r *http.Request, bcg BaseContextGaps) *BaseContext {
-	ctx := reflect.ValueOf(context).
-		Elem().FieldByName(baseContextName).Addr().
-		Interface().(*BaseContext)
-	ctx.use(custom, r, bcg)
-	return ctx
 }
 
 // BaseFormContext combines BaseContext and FormContext

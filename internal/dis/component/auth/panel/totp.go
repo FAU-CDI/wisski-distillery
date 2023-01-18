@@ -16,11 +16,11 @@ import (
 )
 
 //go:embed "templates/totp_enable.html"
-var totpEnableStr string
-var totpEnableTemplate = static.AssetsUser.MustParseShared("totp_enable.html", totpEnableStr)
+var totpEnableHTML []byte
+var totpEnable = custom.Parse[userFormContext]("totp_enable.html", totpEnableHTML, static.AssetsUser)
 
 func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
-	totpEnableTemplate := panel.Dependencies.Custom.Template(totpEnableTemplate)
+	tpl := totpEnable.Prepare(panel.Dependencies.Custom)
 
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
@@ -33,8 +33,8 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 
-		RenderTemplate:        totpEnableTemplate,
-		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Enable TOTP", Path: "/user/totp/enable/"}, custom.BaseContextGaps{}),
+		RenderTemplate:        tpl.Template(),
+		RenderTemplateContext: panel.UserFormContext2(tpl, component.MenuItem{Title: "Enable TOTP", Path: "/user/totp/enable/"}),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
@@ -68,8 +68,8 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 }
 
 //go:embed "templates/totp_enroll.html"
-var totpEnrollStr string
-var totpEnrollTemplate = static.AssetsUser.MustParseShared("totp_enroll.html", totpEnrollStr)
+var totpEnrollHTML []byte
+var totpEnrollTemplate = custom.Parse[totpEnrollContext]("totp_enroll.html", totpEnrollHTML, static.AssetsUser)
 
 type totpEnrollContext struct {
 	userFormContext
@@ -80,13 +80,13 @@ type totpEnrollContext struct {
 }
 
 func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
-	totpEnrollTemplate := panel.Dependencies.Custom.Template(totpEnrollTemplate)
-	gaps := custom.BaseContextGaps{
+	tpl := totpEnrollTemplate.Prepare(panel.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "User", Path: "/user/"},
 			{Title: "Enable TOTP", Path: "/user/totp/enable/"},
 		},
-	}
+	})
+
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
 			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
@@ -108,7 +108,6 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 					FormContext: context,
 				},
 			}
-			panel.Dependencies.Custom.Update(&ctx.userFormContext, r, gaps)
 
 			if err == nil && user != nil {
 				ctx.userFormContext.User = &user.User
@@ -121,7 +120,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 					ctx.TOTPURL = template.URL(secret.URL())
 				}
 			}
-			httpx.WriteHTML(ctx, nil, totpEnrollTemplate, "", w, r)
+			tpl.Execute(w, r, ctx)
 		},
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
@@ -156,11 +155,11 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 }
 
 //go:embed "templates/totp_disable.html"
-var totpDisableStr string
-var totpDisableTemplate = static.AssetsUser.MustParseShared("totp_disable.html", totpDisableStr)
+var totpDisableHTML []byte
+var totpDisableTemplate = custom.Parse[userFormContext]("totp_disable.html", totpDisableHTML, static.AssetsUser)
 
 func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
-	totpDisableTemplate := panel.Dependencies.Custom.Template(totpDisableTemplate)
+	tpl := totpDisableTemplate.Prepare(panel.Dependencies.Custom)
 
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
@@ -173,8 +172,8 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 			user, err := panel.Dependencies.Auth.UserOf(r)
 			return struct{}{}, err == nil && user != nil && !user.IsTOTPEnabled()
 		},
-		RenderTemplate:        totpDisableTemplate,
-		RenderTemplateContext: panel.UserFormContext(component.MenuItem{Title: "Disable TOTP", Path: "/user/totp/disable/"}, custom.BaseContextGaps{}),
+		RenderTemplate:        tpl.Template(),
+		RenderTemplateContext: panel.UserFormContext2(tpl, component.MenuItem{Title: "Disable TOTP", Path: "/user/totp/disable/"}),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]

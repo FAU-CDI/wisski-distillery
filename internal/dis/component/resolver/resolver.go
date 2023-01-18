@@ -14,7 +14,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/rs/zerolog"
 
@@ -50,8 +49,8 @@ func (resolver *Resolver) Routes() component.Routes {
 }
 
 //go:embed "resolver.html"
-var resolverHTMLStr string
-var resolverTemplate = static.AssetsDefault.MustParseShared("resolver.html", resolverHTMLStr)
+var resolverHTML []byte
+var resolverTemplate = custom.Parse[resolverContext]("resolver.html", resolverHTML, static.AssetsDefault)
 
 type resolverContext struct {
 	custom.BaseContext
@@ -59,13 +58,11 @@ type resolverContext struct {
 }
 
 func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
-	resolverTemplate := resolver.Dependencies.Custom.Template(resolverTemplate)
-	gaps := custom.BaseContextGaps{
+	tpl := resolverTemplate.Prepare(resolver.Dependencies.Custom, custom.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "Resolver", Path: "/wisski/get/"},
 		},
-	}
-
+	})
 	logger := zerolog.Ctx(ctx)
 
 	var p wdresolve.ResolveHandler
@@ -75,13 +72,11 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 		ctx := resolverContext{
 			IndexContext: context,
 		}
-		resolver.Dependencies.Custom.Update(&ctx, r, gaps)
-
 		if !resolver.Dependencies.Auth.Has(auth.User, r) {
 			ctx.IndexContext.Prefixes = nil
 		}
 
-		httpx.WriteHTML(ctx, nil, resolverTemplate, "", w, r)
+		tpl.Execute(w, r, ctx)
 	}
 	p.TrustXForwardedProto = true
 
