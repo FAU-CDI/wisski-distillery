@@ -9,17 +9,17 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
 //go:embed "templates/user.html"
 var userHTML []byte
-var userTemplate = custom.Parse[userContext]("user.html", userHTML, static.AssetsUser)
+var userTemplate = templates.Parse[userContext]("user.html", userHTML, assets.AssetsUser)
 
 type userContext struct {
-	custom.BaseContext
+	templates.BaseContext
 	*auth.AuthUser
 
 	Grants []GrantWithURL
@@ -31,7 +31,7 @@ type GrantWithURL struct {
 }
 
 func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
-	tpl := userTemplate.Prepare(panel.Dependencies.Custom, custom.BaseContextGaps{
+	tpl := userTemplate.Prepare(panel.Dependencies.Templating, templates.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "User", Path: "/user/"},
 		},
@@ -42,7 +42,7 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 		},
 	})
 
-	return tpl.HTMLHandlerWithGaps(func(r *http.Request, gaps *custom.BaseContextGaps) (uc userContext, err error) {
+	return tpl.HTMLHandlerWithGaps(func(r *http.Request, gaps *templates.BaseContextGaps) (uc userContext, err error) {
 		// find the user
 		uc.AuthUser, err = panel.Dependencies.Auth.UserOf(r)
 		if err != nil || uc.AuthUser == nil {

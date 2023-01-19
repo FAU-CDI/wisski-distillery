@@ -11,9 +11,9 @@ import (
 	"github.com/FAU-CDI/wdresolve/resolvers"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/rs/zerolog"
 
@@ -23,9 +23,9 @@ import (
 type Resolver struct {
 	component.Base
 	Dependencies struct {
-		Instances *instances.Instances
-		Custom    *custom.Custom
-		Auth      *auth.Auth
+		Instances  *instances.Instances
+		Templating *templates.Templating
+		Auth       *auth.Auth
 	}
 
 	prefixes        lazy.Lazy[map[string]string] // cached prefixes (from the server)
@@ -50,15 +50,15 @@ func (resolver *Resolver) Routes() component.Routes {
 
 //go:embed "resolver.html"
 var resolverHTML []byte
-var resolverTemplate = custom.Parse[resolverContext]("resolver.html", resolverHTML, static.AssetsDefault)
+var resolverTemplate = templates.Parse[resolverContext]("resolver.html", resolverHTML, assets.AssetsDefault)
 
 type resolverContext struct {
-	custom.BaseContext
+	templates.BaseContext
 	wdresolve.IndexContext
 }
 
 func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
-	tpl := resolverTemplate.Prepare(resolver.Dependencies.Custom, custom.BaseContextGaps{
+	tpl := resolverTemplate.Prepare(resolver.Dependencies.Templating, templates.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "Resolver", Path: "/wisski/get/"},
 		},

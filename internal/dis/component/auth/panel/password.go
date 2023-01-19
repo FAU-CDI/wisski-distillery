@@ -8,15 +8,15 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	templating "github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 )
 
 //go:embed "templates/password.html"
 var passwordHTML []byte
-var passwordTemplate = custom.Parse[userFormContext]("password.html", passwordHTML, static.AssetsUser)
+var passwordTemplate = templating.Parse[userFormContext]("password.html", passwordHTML, assets.AssetsUser)
 
 var (
 	errPasswordsNotIdentical = errors.New("passwords are not identical")
@@ -28,7 +28,7 @@ var (
 )
 
 func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
-	tpl := passwordTemplate.Prepare(panel.Dependencies.Custom)
+	tpl := passwordTemplate.Prepare(panel.Dependencies.Templating)
 
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{

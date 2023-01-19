@@ -7,9 +7,9 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/gorilla/sessions"
@@ -35,7 +35,7 @@ func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, err error) {
 	}
 
 	// try to read the name from the session
-	name, ok := sess.Values[control.SessionUserKey]
+	name, ok := sess.Values[server.SessionUserKey]
 	if !ok {
 		return nil, nil
 	}
@@ -67,7 +67,7 @@ func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, err error) {
 func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
 	return auth.store.Get(func() sessions.Store {
 		return sessions.NewCookieStore([]byte(auth.Config.SessionSecret))
-	}).Get(r, control.SessionCookie)
+	}).Get(r, server.SessionCookie)
 }
 
 func (auth *Auth) Menu(r *http.Request) []component.MenuItem {
@@ -101,7 +101,7 @@ func (auth *Auth) Login(w http.ResponseWriter, r *http.Request, user *AuthUser) 
 	if err != nil {
 		return err
 	}
-	sess.Values[control.SessionUserKey] = user.User.User
+	sess.Values[server.SessionUserKey] = user.User.User
 	return sess.Save(r, w)
 }
 
@@ -120,7 +120,7 @@ func (auth *Auth) Logout(w http.ResponseWriter, r *http.Request) error {
 
 //go:embed "login.html"
 var loginHTML []byte
-var loginTemplate = custom.ParseForm("login.html", loginHTML, static.AssetsUser)
+var loginTemplate = templates.ParseForm("login.html", loginHTML, assets.AssetsUser)
 
 var loginResponse = httpx.Response{
 	ContentType: "text/plain",
@@ -131,7 +131,7 @@ var errLoginFailed = errors.New("Login failed")
 
 // authLogin implements a view to login a user
 func (auth *Auth) authLogin(ctx context.Context) http.Handler {
-	tpl := loginTemplate.Prepare(auth.Dependencies.Custom)
+	tpl := loginTemplate.Prepare(auth.Dependencies.Templating)
 
 	return &httpx.Form[*AuthUser]{
 		Fields: []field.Field{
@@ -145,7 +145,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			if context.Err != nil {
 				context.Err = errLoginFailed
 			}
-			tpl.Execute(w, r, custom.BaseFormContext{FormContext: context}, custom.BaseContextGaps{
+			tpl.Execute(w, r, templates.BaseFormContext{FormContext: context}, templates.BaseContextGaps{
 				Crumbs: []component.MenuItem{
 					{Title: "Login", Path: template.URL(r.URL.RequestURI())},
 				},

@@ -7,8 +7,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
@@ -22,10 +22,10 @@ import (
 
 //go:embed "templates/ssh.html"
 var sshHTML []byte
-var sshTemplate = custom.Parse[SSHTemplateContext]("ssh.html", sshHTML, static.AssetsUser)
+var sshTemplate = templates.Parse[SSHTemplateContext]("ssh.html", sshHTML, assets.AssetsUser)
 
 type SSHTemplateContext struct {
-	custom.BaseContext
+	templates.BaseContext
 
 	Keys []models.Keys
 
@@ -37,7 +37,7 @@ type SSHTemplateContext struct {
 }
 
 func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
-	tpl := sshTemplate.Prepare(panel.Dependencies.Custom, custom.BaseContextGaps{
+	tpl := sshTemplate.Prepare(panel.Dependencies.Templating, templates.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "User", Path: "/user/"},
 			{Title: "SSH Keys", Path: "/user/ssh/"},
@@ -114,7 +114,7 @@ func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
 
 //go:embed "templates/ssh_add.html"
 var sshAddHTML []byte
-var sshAddTemplate = custom.ParseForm("ssh_add.html", sshAddHTML, static.AssetsUser)
+var sshAddTemplate = templates.ParseForm("ssh_add.html", sshAddHTML, assets.AssetsUser)
 
 type addKeyResult struct {
 	User    *auth.AuthUser
@@ -123,7 +123,7 @@ type addKeyResult struct {
 }
 
 func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
-	tpl := sshAddTemplate.Prepare(panel.Dependencies.Custom, custom.BaseContextGaps{
+	tpl := sshAddTemplate.Prepare(panel.Dependencies.Templating, templates.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "User", Path: "/user/"},
 			{Title: "SSH Keys", Path: "/user/ssh/"},
@@ -139,7 +139,7 @@ func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: custom.FormTemplateContext(tpl),
+		RenderTemplateContext: templates.FormTemplateContext(tpl),
 
 		Validate: func(r *http.Request, values map[string]string) (ak addKeyResult, err error) {
 			ak.User, err = panel.Dependencies.Auth.UserOf(r)

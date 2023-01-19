@@ -8,8 +8,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/next"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -19,12 +19,12 @@ import (
 type UserPanel struct {
 	component.Base
 	Dependencies struct {
-		Auth      *auth.Auth
-		Custom    *custom.Custom
-		Policy    *policy.Policy
-		Instances *instances.Instances
-		Next      *next.Next
-		Keys      *sshkeys.SSHKeys
+		Auth       *auth.Auth
+		Templating *templates.Templating
+		Policy     *policy.Policy
+		Instances  *instances.Instances
+		Next       *next.Next
+		Keys       *sshkeys.SSHKeys
 	}
 }
 
@@ -106,14 +106,14 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 }
 
 type userFormContext struct {
-	custom.BaseContext
+	templates.BaseContext
 	httpx.FormContext
 
 	User *models.User
 }
 
-func (panel *UserPanel) UserFormContext2(tpl *custom.Template[userFormContext], last component.MenuItem, gaps ...custom.BaseContextGaps) func(ctx httpx.FormContext, r *http.Request) any {
-	var g custom.BaseContextGaps
+func (panel *UserPanel) UserFormContext2(tpl *templates.Template[userFormContext], last component.MenuItem, gaps ...templates.BaseContextGaps) func(ctx httpx.FormContext, r *http.Request) any {
+	var g templates.BaseContextGaps
 	if len(gaps) > 1 {
 		panic("UserFormContext2: gaps must be of length 0 or 1")
 	}
@@ -125,7 +125,7 @@ func (panel *UserPanel) UserFormContext2(tpl *custom.Template[userFormContext], 
 		last,
 	}
 
-	return custom.MappedHandler(tpl, func(ctx httpx.FormContext, r *http.Request) (userFormContext, custom.BaseContextGaps) {
+	return templates.MappedHandler(tpl, func(ctx httpx.FormContext, r *http.Request) (userFormContext, templates.BaseContextGaps) {
 		uctx := userFormContext{FormContext: ctx}
 		if user, err := panel.Dependencies.Auth.UserOf(r); err == nil {
 			uctx.User = &user.User

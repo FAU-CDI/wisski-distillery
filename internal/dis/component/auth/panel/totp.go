@@ -7,8 +7,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 
@@ -17,10 +17,10 @@ import (
 
 //go:embed "templates/totp_enable.html"
 var totpEnableHTML []byte
-var totpEnable = custom.Parse[userFormContext]("totp_enable.html", totpEnableHTML, static.AssetsUser)
+var totpEnable = templates.Parse[userFormContext]("totp_enable.html", totpEnableHTML, assets.AssetsUser)
 
 func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
-	tpl := totpEnable.Prepare(panel.Dependencies.Custom)
+	tpl := totpEnable.Prepare(panel.Dependencies.Templating)
 
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
@@ -69,7 +69,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 
 //go:embed "templates/totp_enroll.html"
 var totpEnrollHTML []byte
-var totpEnrollTemplate = custom.Parse[totpEnrollContext]("totp_enroll.html", totpEnrollHTML, static.AssetsUser)
+var totpEnrollTemplate = templates.Parse[totpEnrollContext]("totp_enroll.html", totpEnrollHTML, assets.AssetsUser)
 
 type totpEnrollContext struct {
 	userFormContext
@@ -80,7 +80,7 @@ type totpEnrollContext struct {
 }
 
 func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
-	tpl := totpEnrollTemplate.Prepare(panel.Dependencies.Custom, custom.BaseContextGaps{
+	tpl := totpEnrollTemplate.Prepare(panel.Dependencies.Templating, templates.BaseContextGaps{
 		Crumbs: []component.MenuItem{
 			{Title: "User", Path: "/user/"},
 			{Title: "Enable TOTP", Path: "/user/totp/enable/"},
@@ -156,10 +156,10 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 
 //go:embed "templates/totp_disable.html"
 var totpDisableHTML []byte
-var totpDisableTemplate = custom.Parse[userFormContext]("totp_disable.html", totpDisableHTML, static.AssetsUser)
+var totpDisableTemplate = templates.Parse[userFormContext]("totp_disable.html", totpDisableHTML, assets.AssetsUser)
 
 func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
-	tpl := totpDisableTemplate.Prepare(panel.Dependencies.Custom)
+	tpl := totpDisableTemplate.Prepare(panel.Dependencies.Templating)
 
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{

@@ -72,7 +72,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		dis.Instances().Path(),
 		dis.Exporter().StagingPath(),
 		dis.Exporter().ArchivePath(),
-		dis.Custom().CustomAssetsPath(),
+		dis.Templating().CustomAssetsPath(),
 	} {
 		context.Println(d)
 		if err := dis.Still.Environment.MkdirAll(d, environment.DefaultDirPerm); err != nil {

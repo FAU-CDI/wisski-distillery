@@ -11,14 +11,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/next"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/panel"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/admin"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/cron"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/home"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/legal"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/news"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/control/static/custom"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -26,6 +18,14 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/resolver"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/cron"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/home"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/legal"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/news"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
@@ -68,8 +68,8 @@ type Upstream struct {
 // PUBLIC COMPONENT GETTERS
 //
 
-func (dis *Distillery) Control() *control.Control {
-	return export[*control.Control](dis)
+func (dis *Distillery) Control() *server.Server {
+	return export[*server.Server](dis)
 }
 func (dis *Distillery) Resolver() *resolver.Resolver {
 	return export[*resolver.Resolver](dis)
@@ -116,8 +116,8 @@ func (dis *Distillery) Info() *admin.Admin {
 func (dis *Distillery) Policy() *policy.Policy {
 	return export[*policy.Policy](dis)
 }
-func (dis *Distillery) Custom() *custom.Custom {
-	return export[*custom.Custom](dis)
+func (dis *Distillery) Templating() *templates.Templating {
+	return export[*templates.Templating](dis)
 }
 
 func (dis *Distillery) Purger() *purger.Purger {
@@ -177,7 +177,7 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*sshkeys.SSHKeys],
 
 		// Control server
-		auto[*control.Control],
+		auto[*server.Server],
 
 		auto[*home.Home],
 		manual(func(resolver *resolver.Resolver) {
@@ -189,8 +189,8 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*legal.Legal],
 		auto[*news.News],
 
-		auto[*static.Static],
-		auto[*custom.Custom],
+		auto[*assets.Static],
+		auto[*templates.Templating],
 
 		// Cron
 		auto[*cron.Cron],
