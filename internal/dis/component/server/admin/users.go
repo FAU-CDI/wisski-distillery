@@ -11,7 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/rs/zerolog"
@@ -19,25 +19,30 @@ import (
 
 //go:embed "html/users.html"
 var usersHTML []byte
-var usersTemplate = templates.Parse[usersContext]("user.html", usersHTML, assets.AssetsAdmin)
+var usersTemplate = templating.Parse[usersContext](
+	"users.html", usersHTML, nil,
+
+	templating.Title("Users"),
+	templating.Assets(assets.AssetsAdmin),
+)
 
 type usersContext struct {
-	templates.BaseContext
-
+	templating.RuntimeFlags
 	Error string
 	Users []*auth.AuthUser
 }
 
 func (admin *Admin) users(ctx context.Context) http.Handler {
-	tpl := usersTemplate.Prepare(admin.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "Admin", Path: "/admin/"},
-			{Title: "Users", Path: "/admin/users/"},
-		},
-		Actions: []component.MenuItem{
-			{Title: "Create New", Path: "/admin/users/create/"},
-		},
-	})
+	tpl := usersTemplate.Prepare(
+		admin.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "Admin", Path: "/admin/"},
+			component.MenuItem{Title: "Users", Path: "/admin/users/"},
+		),
+		templating.Actions(
+			component.MenuItem{Title: "Create New", Path: "/admin/users/create/"},
+		),
+	)
 
 	return tpl.HTMLHandler(func(r *http.Request) (uc usersContext, err error) {
 		uc.Error = r.URL.Query().Get("error")
@@ -48,7 +53,12 @@ func (admin *Admin) users(ctx context.Context) http.Handler {
 
 //go:embed "html/user_create.html"
 var userCreateHTML []byte
-var userCreateTemplate = templates.ParseForm("user_create.html", userCreateHTML, assets.AssetsAdmin)
+var userCreateTemplate = templating.ParseForm(
+	"user_create.html", userCreateHTML, httpx.FormTemplate,
+
+	templating.Title("Create User"),
+	templating.Assets(assets.AssetsAdmin),
+)
 
 var (
 	errCreateInvalidUsername = errors.New("invalid username")
@@ -62,13 +72,14 @@ type createUserResult struct {
 }
 
 func (admin *Admin) createUser(ctx context.Context) http.Handler {
-	tpl := userCreateTemplate.Prepare(admin.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "Admin", Path: "/admin/"},
-			{Title: "Users", Path: "/admin/users"},
-			{Title: "Create", Path: "/admin/users/create"},
-		},
-	})
+	tpl := userCreateTemplate.Prepare(
+		admin.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "Admin", Path: "/admin/"},
+			component.MenuItem{Title: "Users", Path: "/admin/users"},
+			component.MenuItem{Title: "Create", Path: "/admin/users/create"},
+		),
+	)
 
 	return &httpx.Form[createUserResult]{
 		Fields: []field.Field{
@@ -79,7 +90,7 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: templates.FormTemplateContext(tpl),
+		RenderTemplateContext: templating.FormTemplateContext(tpl),
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {
 			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == field.CheckboxChecked

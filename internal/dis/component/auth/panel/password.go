@@ -9,14 +9,19 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	templating "github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 )
 
 //go:embed "templates/password.html"
 var passwordHTML []byte
-var passwordTemplate = templating.Parse[userFormContext]("password.html", passwordHTML, assets.AssetsUser)
+var passwordTemplate = templating.Parse[userFormContext](
+	"password.html", passwordHTML, httpx.FormTemplate,
+
+	templating.Title("Change Password"),
+	templating.Assets(assets.AssetsUser),
+)
 
 var (
 	errPasswordsNotIdentical = errors.New("passwords are not identical")
@@ -40,7 +45,7 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: panel.UserFormContext2(tpl, component.MenuItem{Title: "Change Password", Path: "/user/password/"}),
+		RenderTemplateContext: panel.UserFormContext(tpl, component.MenuItem{Title: "Change Password", Path: "/user/password/"}),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			old, passcode, new, new2 := values["old"], values["otp"], values["new"], values["new2"]

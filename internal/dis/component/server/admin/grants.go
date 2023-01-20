@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -22,10 +22,14 @@ import (
 
 //go:embed "html/grants.html"
 var grantsHTML []byte
-var grantsTemplate = templates.Parse[grantsContext]("grants.html", grantsHTML, assets.AssetsAdmin)
+var grantsTemplate = templating.Parse[grantsContext](
+	"grants.html", grantsHTML, nil,
+
+	templating.Assets(assets.AssetsAdmin),
+)
 
 type grantsContext struct {
-	templates.BaseContext
+	templating.RuntimeFlags
 
 	Error string
 
@@ -38,40 +42,43 @@ type grantsContext struct {
 }
 
 func (admin *Admin) grants(ctx context.Context) http.Handler {
-	tpl := grantsTemplate.Prepare(admin.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "Admin", Path: "/admin/"},
-			{Title: "Instance", Path: "*to be updated*"},
-			{Title: "Grants", Path: "*to be updated*"},
-		},
-	})
+	tpl := grantsTemplate.Prepare(
+		admin.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "Admin", Path: "/admin/"},
+			component.DummyMenuItem,
+			component.DummyMenuItem,
+		),
+	)
 
-	return tpl.HTMLHandlerWithGaps(func(r *http.Request, gaps *templates.BaseContextGaps) (grantsContext, error) {
+	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (grantsContext, []templating.FlagFunc, error) {
 		if r.Method == http.MethodGet {
-			return admin.getGrants(r, gaps)
+			return admin.getGrants(r)
 		} else {
-			return admin.postGrants(r, gaps)
+			return admin.postGrants(r)
 		}
 	})
 }
 
-func (admin *Admin) getGrants(r *http.Request, gaps *templates.BaseContextGaps) (gc grantsContext, err error) {
+func (admin *Admin) getGrants(r *http.Request) (gc grantsContext, funcs []templating.FlagFunc, err error) {
 	slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
-	if err := gc.use(r, gaps, slug, admin); err != nil {
-		return gc, err
+
+	funcs, err = gc.use(r, slug, admin)
+	if err != nil {
+		return gc, nil, err
 	}
 
 	if err := gc.useGrants(r, admin); err != nil {
-		return gc, err
+		return gc, nil, err
 	}
 
-	return gc, nil
+	return gc, funcs, nil
 }
 
-func (admin *Admin) postGrants(r *http.Request, gaps *templates.BaseContextGaps) (gc grantsContext, err error) {
+func (admin *Admin) postGrants(r *http.Request) (gc grantsContext, funcs []templating.FlagFunc, err error) {
 	// parse the form
 	if err := r.ParseForm(); err != nil {
-		return gc, err
+		return gc, nil, err
 	}
 
 	// read out the form values
@@ -84,15 +91,16 @@ func (admin *Admin) postGrants(r *http.Request, gaps *templates.BaseContextGaps)
 	)
 
 	// set the common fields
-	if err := gc.use(r, gaps, slug, admin); err != nil {
-		return gc, err
+	funcs, err = gc.use(r, slug, admin)
+	if err != nil {
+		return gc, nil, err
 	}
 
 	if delete {
 		// delete the user grant
 		err := admin.Dependencies.Policy.Remove(r.Context(), distilleryUser, slug)
 		if err != nil {
-			return gc, err
+			return gc, nil, err
 		}
 	} else {
 		// update the grant
@@ -110,26 +118,29 @@ func (admin *Admin) postGrants(r *http.Request, gaps *templates.BaseContextGaps)
 
 	// fetch the grants for the instance
 	if err := gc.useGrants(r, admin); err != nil {
-		return gc, err
+		return gc, nil, err
 	}
-	return gc, nil
+	return gc, funcs, nil
 }
 
-func (gc *grantsContext) use(r *http.Request, gaps *templates.BaseContextGaps, slug string, admin *Admin) (err error) {
-	gaps.Crumbs[1] = component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}
-	gaps.Crumbs[2] = component.MenuItem{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")}
-
+func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (funcs []templating.FlagFunc, err error) {
 	// find the instance itself
 	gc.instance, err = admin.Dependencies.Instances.WissKI(r.Context(), slug)
 	if err == instances.ErrWissKINotFound {
-		return httpx.ErrNotFound
+		return nil, httpx.ErrNotFound
 	}
 	if err != nil {
-		return err
+		return nil, err
 	}
 	gc.Instance = gc.instance.Instance
 
-	return nil
+	// replace the functions
+	funcs = []templating.FlagFunc{
+		templating.ReplaceCrumb(1, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
+		templating.ReplaceCrumb(2, component.MenuItem{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")}),
+		templating.Title(gc.Instance.Slug + " - Grants"),
+	}
+	return funcs, nil
 }
 
 func (gc *grantsContext) useGrants(r *http.Request, admin *Admin) (err error) {

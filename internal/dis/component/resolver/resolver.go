@@ -13,7 +13,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
+	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/rs/zerolog"
 
@@ -24,7 +25,7 @@ type Resolver struct {
 	component.Base
 	Dependencies struct {
 		Instances  *instances.Instances
-		Templating *templates.Templating
+		Templating *templating.Templating
 		Auth       *auth.Auth
 	}
 
@@ -50,36 +51,30 @@ func (resolver *Resolver) Routes() component.Routes {
 
 //go:embed "resolver.html"
 var resolverHTML []byte
-var resolverTemplate = templates.Parse[resolverContext]("resolver.html", resolverHTML, assets.AssetsDefault)
+var resolverTemplate = templating.Parse[resolverContext](
+	"resolver.html", resolverHTML, nil,
+
+	templating.Title("Resolver"),
+	templating.Assets(assets.AssetsDefault),
+)
 
 type resolverContext struct {
-	templates.BaseContext
+	templating.RuntimeFlags
 	wdresolve.IndexContext
 }
 
 func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
-	tpl := resolverTemplate.Prepare(resolver.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "Resolver", Path: "/wisski/get/"},
-		},
-	})
+	// get the resolver template
+	tpl := resolverTemplate.Prepare(
+		resolver.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "Resolver", Path: "/wisski/get/"},
+		),
+	)
+	t := tpl.Template()
+
+	// extract a logger and the fallback
 	logger := zerolog.Ctx(ctx)
-
-	var p wdresolve.ResolveHandler
-	var err error
-
-	p.HandleIndex = func(context wdresolve.IndexContext, w http.ResponseWriter, r *http.Request) {
-		ctx := resolverContext{
-			IndexContext: context,
-		}
-		if !resolver.Dependencies.Auth.Has(auth.User, r) {
-			ctx.IndexContext.Prefixes = nil
-		}
-
-		tpl.Execute(w, r, ctx)
-	}
-	p.TrustXForwardedProto = true
-
 	fallback := &resolvers.Regexp{
 		Data: map[string]string{},
 	}
@@ -97,12 +92,26 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 		logger.Info().Str("name", domainName).Msg("registering legacy domain")
 	}
 
-	// resolve the prefixes
-	p.Resolver = resolvers.InOrder{
-		resolver,
-		fallback,
+	p := wdresolve.ResolveHandler{
+		HandleIndex: func(context wdresolve.IndexContext, w http.ResponseWriter, r *http.Request) {
+			ctx := resolverContext{
+				IndexContext: context,
+			}
+			if !resolver.Dependencies.Auth.Has(auth.User, r) {
+				ctx.IndexContext.Prefixes = nil
+			}
+			httpx.WriteHTML(tpl.Context(r, ctx), nil, t, "", w, r)
+		},
+
+		Resolver: resolvers.InOrder{
+			resolver,
+			fallback,
+		},
+
+		TrustXForwardedProto: true,
 	}
-	return p, err
+
+	return p, nil
 }
 
 func (resolver *Resolver) Target(uri string) string {

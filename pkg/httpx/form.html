@@ -1,14 +1,8 @@
-{{ template "_base.html" . }}
-{{ define "title" }}{{ block "form/title" . }}Form{{ end }}{{ end }}
-
-{{ define "content" }}
 <div class="pure-u-1">
     {{ block "form/extra" . }}<!-- no extra -->{{ end }}
 
     <form class="pure-form pure-form-aligned" method="POST">
         <fieldset>
-            <legend>{{ template "form/title" . }}</legend>
-
             {{ block "form/message" . }}
                 {{ $E := .Error }}
                 {{ if not (eq $E "") }}
@@ -26,5 +20,3 @@
         </fieldset>
     </form>
 </div>
-
-{{ end }}

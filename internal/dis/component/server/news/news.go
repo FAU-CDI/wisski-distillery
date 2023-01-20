@@ -11,7 +11,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/rs/zerolog"
 	"github.com/yuin/goldmark"
 	gmmeta "github.com/yuin/goldmark-meta"
@@ -22,7 +22,7 @@ import (
 type News struct {
 	component.Base
 	Dependencies struct {
-		Templating *templates.Templating
+		Templating *templating.Templating
 	}
 }
 
@@ -113,20 +113,26 @@ func Items() ([]Item, error) {
 
 //go:embed "news.html"
 var newsHTML []byte
-var newsTemplate = templates.Parse[newsContext]("news.html", newsHTML, assets.AssetsDefault)
+var newsTemplate = templating.Parse[newsContext](
+	"news.html", newsHTML, nil,
+
+	templating.Title("News"),
+	templating.Assets(assets.AssetsDefault),
+)
 
 type newsContext struct {
-	templates.BaseContext
+	templating.RuntimeFlags
 	Items []Item
 }
 
 // HandleRoute returns the handler for the requested path
 func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
-	tpl := newsTemplate.Prepare(news.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "News", Path: "/news/"},
-		},
-	})
+	tpl := newsTemplate.Prepare(
+		news.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "News", Path: "/news/"},
+		),
+	)
 
 	items, itemsErr := Items()
 	if itemsErr != nil {

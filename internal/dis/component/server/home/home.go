@@ -7,7 +7,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
@@ -15,7 +15,7 @@ import (
 type Home struct {
 	component.Base
 	Dependencies struct {
-		Templating *templates.Templating
+		Templating *templating.Templating
 		Instances  *instances.Instances
 	}
 

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	_ "embed"
+
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/gorilla/csrf"
 )
@@ -173,3 +175,9 @@ func (form *Form[D]) renderSuccess(data D, values map[string]string, w http.Resp
 	}
 	form.renderForm(err, values, w, r)
 }
+
+//go:embed "form.html"
+var formBytes []byte
+
+// FormTeplate is a template to embed a form
+var FormTemplate = template.Must(template.New("form.html").Parse(string(formBytes)))

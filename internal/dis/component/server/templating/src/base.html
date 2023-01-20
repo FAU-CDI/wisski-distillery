@@ -4,15 +4,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta charset="utf-8">
 
-        <title>{{ block "title" . }}WissKI Distillery{{ end }}</title>
-        {{ block "styles" . }}styles{{ end }}
+        <title>{{ .Runtime.Flags.Title }}</title>
+        {{ .Runtime.Flags.Assets.Styles }}
     </head>
 
     <body>
-        {{ .BaseContext.DoInitCheck }}
         <nav class="pure-menu pure-menu-horizontal">
             <ul class="pure-menu-list" role="menubar">
-                {{ range .BaseContext.Menu }}
+                {{ range .Runtime.Menu }}
                 <li class="pure-menu-item{{ if .Active }} pure-menu-selected{{ end }}">
                     <a href="{{ .Path }}" class="pure-menu-link">{{ .Title }}</a>
                 </li>
@@ -20,16 +19,16 @@
             </ul>
         </nav>
         <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumbs">
-            {{ range .BaseContext.Crumbs }}
-            <a class="{{ if .Active }}active{{ end }}" href="{{ .Path }}">{{ .Title }}</a>
+            {{ range .Runtime.Flags.Crumbs }}
+                <a class="{{ if .Active }}active{{ end }}" href="{{ .Path }}">{{ .Title }}</a>
             {{ end }}
         </nav>
 
         <header>
-            <h1 id="top">{{ template "title" . }}</h1>
-            {{ if .BaseContext.Actions }}
+            <h1 id="top">{{ .Runtime.Flags.Title }}</h1>
+            {{ if .Runtime.Flags.Actions }}
                 <div class="pure-button-group" role="group" aria-label="Actions">
-                    {{ range .BaseContext.Actions }}
+                    {{ range .Runtime.Flags.Actions }}
                         <a href="{{ .Path }}" class="pure-button{{ if eq .Priority -1 }} pure-button-small{{end}}">{{ .Title }}</a>
                     {{ end }}
                 </div>
@@ -37,20 +36,16 @@
         </header>
         <main>
             <div class="pure-g">
-                {{ block "content" . }}content{{ end }}
+                {{ .Main }}
             </div>
         </main>
 
         <footer>
-            {{ block "@custom/footer" .BaseContext }}
-            <div style="z-index:10000;position:fixed;top:0;left:0;width:100vh;height:100vw;background:red;text-align:center;padding:10vh 10vw;font-size:xx-large;font-weight:bold">
-                <code>.Templating.Template()</code> not called
-            </div>
-            {{ end }}
+            {{ .Footer }}
         </footer>
 
 
-        {{ block "scripts" . }}scripts{{ end }}
+        {{ .Runtime.Flags.Assets.Scripts }}
     </body>
 
 </html>

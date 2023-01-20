@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/mux"
@@ -22,7 +22,7 @@ type Server struct {
 		Routeables []component.Routeable
 		Cronables  []component.Cronable
 
-		Templating *templates.Templating
+		Templating *templating.Templating
 	}
 }
 

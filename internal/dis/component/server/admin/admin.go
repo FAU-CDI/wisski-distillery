@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/zerolog"
 
@@ -32,7 +32,7 @@ type Admin struct {
 
 		Policy *policy.Policy
 
-		Templating *templates.Templating
+		Templating *templating.Templating
 
 		Purger *purger.Purger
 	}

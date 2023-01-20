@@ -19,6 +19,12 @@ type MenuItem struct {
 	Priority MenuPriority // menu priority
 }
 
+// DummyMenuItem is a dummy menu item
+// It should be replaced before being displayed to the user
+var DummyMenuItem = MenuItem{
+	Title: "* to be replaced *",
+}
+
 func MenuItemSort(a, b MenuItem) bool {
 	return a.Priority < b.Priority
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 
 	_ "embed"
 )
@@ -17,7 +17,7 @@ type Legal struct {
 	component.Base
 	Dependencies struct {
 		Static     *assets.Static
-		Templating *templates.Templating
+		Templating *templating.Templating
 	}
 }
 
@@ -27,10 +27,15 @@ var (
 
 //go:embed "legal.html"
 var legalHTML []byte
-var legalTemplate = templates.Parse[legalContext]("legal.html", legalHTML, assets.AssetsDefault)
+var legalTemplate = templating.Parse[legalContext](
+	"legal.html", legalHTML, nil,
+
+	templating.Title("Legal"),
+	templating.Assets(assets.AssetsDefault),
+)
 
 type legalContext struct {
-	templates.BaseContext
+	templating.RuntimeFlags
 
 	LegalNotices string
 
@@ -49,11 +54,12 @@ func (legal *Legal) Routes() component.Routes {
 }
 
 func (legal *Legal) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
-	tpl := legalTemplate.Prepare(legal.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "Legal", Path: "/legal/"},
-		},
-	})
+	tpl := legalTemplate.Prepare(
+		legal.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "Legal", Path: "/legal/"},
+		),
+	)
 
 	return tpl.HTMLHandler(func(r *http.Request) (lc legalContext, err error) {
 		lc.LegalNotices = cli.LegalNotices

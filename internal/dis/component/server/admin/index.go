@@ -9,7 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"golang.org/x/sync/errgroup"
 )
@@ -80,27 +80,33 @@ func (admin *Admin) Fetch(flags component.FetcherFlags, target *status.Distiller
 
 //go:embed "html/index.html"
 var indexHTML []byte
-var indexTemplate = templates.Parse[indexContext]("index.html", indexHTML, assets.AssetsAdmin)
+var indexTemplate = templating.Parse[indexContext](
+	"index.html", indexHTML, nil,
+
+	templating.Title("Admin"),
+	templating.Assets(assets.AssetsAdmin),
+)
 
 type indexContext struct {
-	templates.BaseContext
+	templating.RuntimeFlags
 
 	status.Distillery
 	Instances []status.WissKI
 }
 
 func (admin *Admin) index(ctx context.Context) http.Handler {
-	tpl := indexTemplate.Prepare(admin.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "Admin", Path: "/admin/"},
-		},
-		Actions: []component.MenuItem{
-			{Title: "Users", Path: "/admin/users/"},
-			{Title: "Components", Path: "/admin/components/", Priority: component.SmallButton},
-		},
-	})
+	tpl := indexTemplate.Prepare(
+		admin.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "Admin", Path: "/admin/"},
+		),
+		templating.Actions(
+			component.MenuItem{Title: "Users", Path: "/admin/users/"},
+			component.MenuItem{Title: "Components", Path: "/admin/components/", Priority: component.SmallButton},
+		),
+	)
 
-	return tpl.HTMLHandlerWithGaps(func(r *http.Request, gaps *templates.BaseContextGaps) (idx indexContext, err error) {
+	return tpl.HTMLHandler(func(r *http.Request) (idx indexContext, err error) {
 		idx.Distillery, idx.Instances, err = admin.Status(r.Context(), true)
 		return
 	})

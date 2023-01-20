@@ -10,16 +10,20 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
 //go:embed "templates/user.html"
 var userHTML []byte
-var userTemplate = templates.Parse[userContext]("user.html", userHTML, assets.AssetsUser)
+var userTemplate = templating.Parse[userContext](
+	"user.html", userHTML, nil,
+
+	templating.Assets(assets.AssetsUser),
+)
 
 type userContext struct {
-	templates.BaseContext
+	templating.RuntimeFlags
 	*auth.AuthUser
 
 	Grants []GrantWithURL
@@ -31,41 +35,47 @@ type GrantWithURL struct {
 }
 
 func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
-	tpl := userTemplate.Prepare(panel.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "User", Path: "/user/"},
-		},
-		Actions: []component.MenuItem{
-			{Title: "Change Password", Path: "/user/password/"},
-			{Title: "*to be replaced*", Path: ""},
-			{Title: "SSH Keys", Path: "/user/ssh/"},
-		},
-	})
+	tpl := userTemplate.Prepare(
+		panel.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "User", Path: "/user/"},
+		),
+		templating.Actions(
+			component.MenuItem{Title: "Change Password", Path: "/user/password/"},
+			component.DummyMenuItem,
+			component.MenuItem{Title: "SSH Keys", Path: "/user/ssh/"},
+		),
+	)
 
-	return tpl.HTMLHandlerWithGaps(func(r *http.Request, gaps *templates.BaseContextGaps) (uc userContext, err error) {
+	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (uc userContext, funcs []templating.FlagFunc, err error) {
 		// find the user
 		uc.AuthUser, err = panel.Dependencies.Auth.UserOf(r)
 		if err != nil || uc.AuthUser == nil {
-			return uc, err
+			return uc, nil, err
 		}
 
-		// build the gaps
+		// replace the totp action in the menu
+		var totpAction component.MenuItem
 		if uc.AuthUser.IsTOTPEnabled() {
-			gaps.Actions[1] = component.MenuItem{
+			totpAction = component.MenuItem{
 				Title: "Disable Passcode (TOTP)",
 				Path:  "/user/totp/disable/",
 			}
 		} else {
-			gaps.Actions[1] = component.MenuItem{
+			totpAction = component.MenuItem{
 				Title: "Enable Passcode (TOTP)",
 				Path:  "/user/totp/enable/",
 			}
+		}
+		funcs = []templating.FlagFunc{
+			templating.ReplaceAction(1, totpAction),
+			templating.Title(uc.AuthUser.User.User),
 		}
 
 		// find the grants
 		grants, err := panel.Dependencies.Policy.User(r.Context(), uc.AuthUser.User.User)
 		if err != nil {
-			return uc, err
+			return uc, nil, err
 		}
 
 		uc.Grants = make([]GrantWithURL, len(grants))
@@ -74,11 +84,11 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 
 			url, err := panel.Dependencies.Next.Next(r.Context(), grant.Slug, "/")
 			if err != nil {
-				return uc, err
+				return uc, nil, err
 			}
 			uc.Grants[i].URL = template.URL(url)
 		}
 
-		return uc, err
+		return uc, funcs, err
 	})
 }

@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/gorilla/sessions"
@@ -120,7 +120,12 @@ func (auth *Auth) Logout(w http.ResponseWriter, r *http.Request) error {
 
 //go:embed "login.html"
 var loginHTML []byte
-var loginTemplate = templates.ParseForm("login.html", loginHTML, assets.AssetsUser)
+var loginTemplate = templating.ParseForm(
+	"login.html", loginHTML, httpx.FormTemplate,
+
+	templating.Title("Login Required"),
+	templating.Assets(assets.AssetsUser),
+)
 
 var loginResponse = httpx.Response{
 	ContentType: "text/plain",
@@ -131,7 +136,15 @@ var errLoginFailed = errors.New("Login failed")
 
 // authLogin implements a view to login a user
 func (auth *Auth) authLogin(ctx context.Context) http.Handler {
-	tpl := loginTemplate.Prepare(auth.Dependencies.Templating)
+	tpl := loginTemplate.Prepare(
+		auth.Dependencies.Templating,
+		func(flags templating.Flags, r *http.Request) templating.Flags {
+			flags.Crumbs = []component.MenuItem{
+				{Title: "Login", Path: template.URL(r.URL.RequestURI())},
+			}
+			return flags
+		},
+	)
 
 	return &httpx.Form[*AuthUser]{
 		Fields: []field.Field{
@@ -141,16 +154,13 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		},
 		FieldTemplate: field.PureCSSFieldTemplate,
 
-		RenderForm: func(context httpx.FormContext, w http.ResponseWriter, r *http.Request) {
-			if context.Err != nil {
-				context.Err = errLoginFailed
+		RenderTemplateContext: func(ctx httpx.FormContext, r *http.Request) any {
+			if ctx.Err != nil {
+				ctx.Err = errLoginFailed
 			}
-			tpl.Execute(w, r, templates.BaseFormContext{FormContext: context}, templates.BaseContextGaps{
-				Crumbs: []component.MenuItem{
-					{Title: "Login", Path: template.URL(r.URL.RequestURI())},
-				},
-			})
+			return tpl.Context(r, templating.NewFormContext(ctx))
 		},
+		RenderTemplate: tpl.Template(),
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {
 			username, password, passcode := values["username"], values["password"], values["otp"]

@@ -8,7 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
@@ -22,10 +22,15 @@ import (
 
 //go:embed "templates/ssh.html"
 var sshHTML []byte
-var sshTemplate = templates.Parse[SSHTemplateContext]("ssh.html", sshHTML, assets.AssetsUser)
+var sshTemplate = templating.Parse[SSHTemplateContext](
+	"ssh.html", sshHTML, nil,
+
+	templating.Title("SSH Keys"),
+	templating.Assets(assets.AssetsUser),
+)
 
 type SSHTemplateContext struct {
-	templates.BaseContext
+	templating.RuntimeFlags
 
 	Keys []models.Keys
 
@@ -37,15 +42,16 @@ type SSHTemplateContext struct {
 }
 
 func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
-	tpl := sshTemplate.Prepare(panel.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "User", Path: "/user/"},
-			{Title: "SSH Keys", Path: "/user/ssh/"},
-		},
-		Actions: []component.MenuItem{
-			{Title: "Add New Key", Path: "/user/ssh/add/"},
-		},
-	})
+	tpl := sshTemplate.Prepare(
+		panel.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "User", Path: "/user/"},
+			component.MenuItem{Title: "SSH Keys", Path: "/user/ssh/"},
+		),
+		templating.Actions(
+			component.MenuItem{Title: "Add New Key", Path: "/user/ssh/add/"},
+		),
+	)
 
 	return tpl.HTMLHandler(func(r *http.Request) (sc SSHTemplateContext, err error) {
 		user, err := panel.Dependencies.Auth.UserOf(r)
@@ -114,7 +120,11 @@ func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
 
 //go:embed "templates/ssh_add.html"
 var sshAddHTML []byte
-var sshAddTemplate = templates.ParseForm("ssh_add.html", sshAddHTML, assets.AssetsUser)
+var sshAddTemplate = templating.ParseForm(
+	"ssh_add.html", sshAddHTML, httpx.FormTemplate,
+	templating.Title("Add SSH Key"),
+	templating.Assets(assets.AssetsUser),
+)
 
 type addKeyResult struct {
 	User    *auth.AuthUser
@@ -123,13 +133,14 @@ type addKeyResult struct {
 }
 
 func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
-	tpl := sshAddTemplate.Prepare(panel.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "User", Path: "/user/"},
-			{Title: "SSH Keys", Path: "/user/ssh/"},
-			{Title: "Add New Key", Path: "/user/ssh/add/"},
-		},
-	})
+	tpl := sshAddTemplate.Prepare(
+		panel.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "User", Path: "/user/"},
+			component.MenuItem{Title: "SSH Keys", Path: "/user/ssh/"},
+			component.MenuItem{Title: "Add New Key", Path: "/user/ssh/add/"},
+		),
+	)
 
 	return &httpx.Form[addKeyResult]{
 		Fields: []field.Field{
@@ -139,7 +150,7 @@ func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: templates.FormTemplateContext(tpl),
+		RenderTemplateContext: templating.FormTemplateContext(tpl),
 
 		Validate: func(r *http.Request, values map[string]string) (ak addKeyResult, err error) {
 			ak.User, err = panel.Dependencies.Auth.UserOf(r)

@@ -3,41 +3,73 @@ package home
 import (
 	"context"
 	_ "embed"
+	"html/template"
 	"net/http"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 )
 
 //go:embed "public.html"
 var publicHTML []byte
-var publicTemplate = templates.Parse[publicContext]("public.html", publicHTML, assets.AssetsDefault)
+var publicTemplate = templating.Parse[publicContext](
+	"public.html", publicHTML, nil,
 
-type publicContext struct {
-	templates.BaseContext
+	templating.Title("WissKI Distillery"),
+	templating.Assets(assets.AssetsDefault),
+)
 
+//go:embed "about.html"
+var aboutHTML string
+var aboutTemplate = template.Must(template.New("about.html").Parse(aboutHTML))
+
+// aboutContext is passed to about.html
+type aboutContext struct {
 	Instances    []status.WissKI
 	SelfRedirect string
 }
 
+// publicCOntext is passed to public.html
+type publicContext struct {
+	templating.RuntimeFlags
+
+	aboutContext
+	About template.HTML
+}
+
 func (home *Home) publicHandler(ctx context.Context) http.Handler {
-	tpl := publicTemplate.Prepare(home.Dependencies.Templating, templates.BaseContextGaps{
-		Crumbs: []component.MenuItem{
-			{Title: "WissKI Distillery", Path: "/"},
-		},
-	})
+
+	tpl := publicTemplate.Prepare(
+		home.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "WissKI Distillery", Path: "/"},
+		),
+	)
+
+	about := home.Dependencies.Templating.GetCustomizable(aboutTemplate)
+
 	return tpl.HTMLHandler(func(r *http.Request) (pc publicContext, err error) {
 		// only act on the root path!
 		if strings.TrimSuffix(r.URL.Path, "/") != "" {
 			return pc, httpx.ErrNotFound
 		}
 
-		pc.Instances = home.homeInstances.Get(nil)
-		pc.SelfRedirect = home.Config.SelfRedirect.String()
+		// prepare about
+		pc.aboutContext.Instances = home.homeInstances.Get(nil)
+		pc.aboutContext.SelfRedirect = home.Config.SelfRedirect.String()
+
+		// render the about template
+		var builder strings.Builder
+		if err := about.Execute(&builder, pc.aboutContext); err != nil {
+			return pc, nil
+		}
+
+		// and return about!
+		pc.About = template.HTML(builder.String())
 
 		return
 	})

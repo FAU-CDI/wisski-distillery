@@ -25,7 +25,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/legal"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/news"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templates"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
@@ -116,8 +116,8 @@ func (dis *Distillery) Info() *admin.Admin {
 func (dis *Distillery) Policy() *policy.Policy {
 	return export[*policy.Policy](dis)
 }
-func (dis *Distillery) Templating() *templates.Templating {
-	return export[*templates.Templating](dis)
+func (dis *Distillery) Templating() *templating.Templating {
+	return export[*templating.Templating](dis)
 }
 
 func (dis *Distillery) Purger() *purger.Purger {
@@ -190,7 +190,7 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*news.News],
 
 		auto[*assets.Static],
-		auto[*templates.Templating],
+		auto[*templating.Templating],
 
 		// Cron
 		auto[*cron.Cron],

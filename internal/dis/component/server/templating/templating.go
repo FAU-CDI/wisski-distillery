@@ -1,4 +1,4 @@
-package templates
+package templating
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
