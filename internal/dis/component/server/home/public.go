@@ -12,6 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 )
 
 //go:embed "public.html"
@@ -58,13 +59,17 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 			return pc, httpx.ErrNotFound
 		}
 
+		// get a builder
+		builder := pools.GetBuilder()
+		defer pools.ReleaseBuilder(builder)
+
 		// prepare about
 		pc.aboutContext.Instances = home.homeInstances.Get(nil)
 		pc.aboutContext.SelfRedirect = home.Config.SelfRedirect.String()
 
 		// render the about template
-		var builder strings.Builder
-		if err := about.Execute(&builder, pc.aboutContext); err != nil {
+
+		if err := about.Execute(builder, pc.aboutContext); err != nil {
 			return pc, nil
 		}
 

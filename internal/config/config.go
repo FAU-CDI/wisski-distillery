@@ -7,8 +7,9 @@ import (
 	"math/rand"
 	"net/url"
 	"reflect"
-	"strings"
 	"time"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 )
 
 // Config represents the configuration of a WissKI Distillery.
@@ -111,7 +112,8 @@ func (config *Config) CSRFSecret() []byte {
 
 // String serializes this configuration into a string
 func (config Config) String() string {
-	values := &strings.Builder{}
+	builder := pools.GetBuilder()
+	defer pools.ReleaseBuilder(builder)
 
 	vConfig := reflect.ValueOf(config)
 	tConfig := vConfig.Type()
@@ -127,8 +129,8 @@ func (config Config) String() string {
 			continue
 		}
 
-		fmt.Fprintf(values, "%s=%v\n", env, vField.Interface())
+		fmt.Fprintf(builder, "%s=%v\n", env, vField.Interface())
 	}
 
-	return values.String()
+	return builder.String()
 }

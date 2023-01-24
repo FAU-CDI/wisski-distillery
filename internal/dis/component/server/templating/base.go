@@ -7,10 +7,10 @@ import (
 	"html/template"
 	"net/http"
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
 )
@@ -159,7 +159,9 @@ func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (te
 	}
 
 	value, err, panicked := func() (value template.HTML, err error, panicked bool) {
-		var builder strings.Builder
+		// get a builder
+		builder := pools.GetBuilder()
+		defer pools.ReleaseBuilder(builder)
 
 		defer func() {
 			if panicked {
@@ -173,7 +175,7 @@ func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (te
 		}()
 
 		panicked = true
-		err = t.Execute(&builder, c)
+		err = t.Execute(builder, c)
 		panicked = false
 
 		if err != nil {

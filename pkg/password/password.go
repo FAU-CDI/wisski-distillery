@@ -4,7 +4,8 @@ package password
 import (
 	"crypto/rand"
 	"math/big"
-	"strings"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 )
 
 // NOTE(twiesing): A bunch of scripts cannot properly handle the extra characters in the password.
@@ -23,7 +24,8 @@ func Password(length int) (string, error) {
 	}
 
 	// create a buffer to write the string to!
-	var password strings.Builder
+	password := pools.GetBuilder()
+	defer pools.ReleaseBuilder(password)
 	password.Grow(length)
 
 	for i := 0; i < length; i++ {

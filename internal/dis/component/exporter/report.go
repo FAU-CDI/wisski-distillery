@@ -4,14 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 )
 
 func (snapshot Snapshot) String() string {
-	var builder strings.Builder
-	snapshot.Report(&builder)
+	builder := pools.GetBuilder()
+	defer pools.ReleaseBuilder(builder)
+
+	snapshot.Report(builder)
 	return builder.String()
 }
 
@@ -63,8 +65,10 @@ func (snapshot Snapshot) Report(w io.Writer) (int, error) {
 
 // Strings turns this backup into a string for the BackupReport.
 func (backup Backup) String() string {
-	var builder strings.Builder
-	backup.Report(&builder)
+	builder := pools.GetBuilder()
+	defer pools.ReleaseBuilder(builder)
+
+	backup.Report(builder)
 	return builder.String()
 }
 

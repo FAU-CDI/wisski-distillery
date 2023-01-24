@@ -12,6 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/rs/zerolog"
 	"github.com/yuin/goldmark"
 	gmmeta "github.com/yuin/goldmark-meta"
@@ -89,7 +90,8 @@ var newsFS embed.FS
 
 // Items returns a list of all news items
 func Items() ([]Item, error) {
-	var builder strings.Builder
+	builder := pools.GetBuilder()
+	defer pools.ReleaseBuilder(builder)
 
 	files, err := fs.Glob(newsFS, "NEWS/*.md")
 	if err != nil {
@@ -99,7 +101,7 @@ func Items() ([]Item, error) {
 	items := make([]Item, len(files))
 	for i, file := range files {
 		items[i].ID = file[len("NEWS/") : len(file)-len(".md")]
-		if err := items[i].parse(file, &builder); err != nil {
+		if err := items[i].parse(file, builder); err != nil {
 			return nil, err
 		}
 	}

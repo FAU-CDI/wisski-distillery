@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"golang.org/x/exp/slices"
 )
 
@@ -24,19 +25,20 @@ type DrupalUser struct {
 }
 
 func (du DrupalUser) String() string {
-	var builder strings.Builder
+	builder := pools.GetBuilder()
+	defer pools.ReleaseBuilder(builder)
 
 	builder.WriteString("DrupalUser{")
 	defer builder.WriteString("}")
 
-	fmt.Fprintf(&builder, "UID: %d, ", du.UID)
-	fmt.Fprintf(&builder, "Name: %q, ", du.Name)
+	fmt.Fprintf(builder, "UID: %d, ", du.UID)
+	fmt.Fprintf(builder, "Name: %q, ", du.Name)
 
 	if du.Mail != "" {
-		fmt.Fprintf(&builder, "Mail: %q, ", du.Mail)
+		fmt.Fprintf(builder, "Mail: %q, ", du.Mail)
 	}
 
-	fmt.Fprintf(&builder, "Status: %t, ", du.Status)
+	fmt.Fprintf(builder, "Status: %t, ", du.Status)
 
 	for _, tn := range []struct {
 		Name string
@@ -50,10 +52,10 @@ func (du DrupalUser) String() string {
 		if tn.Time.IsZero() {
 			continue
 		}
-		fmt.Fprintf(&builder, "%s: %q, ", tn.Name, tn.Time.Format(time.Stamp))
+		fmt.Fprintf(builder, "%s: %q, ", tn.Name, tn.Time.Format(time.Stamp))
 	}
 
-	fmt.Fprintf(&builder, "Roles: %s", du.Roles)
+	fmt.Fprintf(builder, "Roles: %s", du.Roles)
 
 	return builder.String()
 }
