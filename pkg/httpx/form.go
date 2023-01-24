@@ -3,11 +3,11 @@ package httpx
 import (
 	"html/template"
 	"net/http"
-	"strings"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/gorilla/csrf"
 )
 
@@ -28,16 +28,7 @@ type Form[D any] struct {
 	// If skip is true, RenderSuccess is directly called with the given values map.
 	SkipForm func(r *http.Request) (data D, skip bool)
 
-	// RenderForm handles rendering a form into a request.
-	// If RenderForm is nil, RenderTemplate is invoked with an appropriate [FormContext] instance.
-	// Either RenderForm or RenderTemplate must be non-nil.
-	//
-	// template holds pre-rendered html fields.
-	// err is a non-nil error returned from Validate, or the r.ParseForm() method.
-	// It is nil on the initial render.
-	RenderForm func(context FormContext, w http.ResponseWriter, r *http.Request)
-
-	// RenderTemplate represents an optional form to display to the user when RenderForm is nil
+	// RenderTemplate represents the template to render for GET requests.
 	// It is passed the return value of [RenderTemplateContext], or a [FormContext] instance if this does not exist.
 	RenderTemplate *template.Template
 
@@ -53,9 +44,10 @@ type Form[D any] struct {
 	RenderSuccess func(data D, values map[string]string, w http.ResponseWriter, r *http.Request) error
 }
 
-// Template renders this form as a HTML string for insertion into a template.
-func (form *Form[D]) Template(values map[string]string, isError bool) template.HTML {
-	var builder strings.Builder
+// Form renders the gives values into a template html string to be inserted into a template.
+func (form *Form[D]) Form(values map[string]string, isError bool) template.HTML {
+	builder := pools.GetBuilder()
+	defer pools.ReleaseBuilder(builder)
 
 	for _, field := range form.Fields {
 		value := values[field.Name]
@@ -63,7 +55,7 @@ func (form *Form[D]) Template(values map[string]string, isError bool) template.H
 			value = ""
 		}
 
-		field.WriteTo(&builder, form.FieldTemplate, value)
+		field.WriteTo(builder, form.FieldTemplate, value)
 	}
 
 	return template.HTML(builder.String())
@@ -118,23 +110,18 @@ func (form *Form[D]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// renderForm renders the form into a request
+// renderForm renders the form onto the request
 func (form *Form[D]) renderForm(err error, values map[string]string, w http.ResponseWriter, r *http.Request) {
-	template := form.Template(values, err != nil)
+	template := form.Form(values, err != nil)
 	if !form.SkipCSRF {
 		template += csrf.TemplateField(r)
 	}
 
 	ctx := FormContext{Err: err, Form: template}
 
-	if form.RenderForm != nil {
-		form.RenderForm(ctx, w, r)
-		return
-	}
-
 	// must have a form or a RenderForm
 	if form.RenderTemplate == nil {
-		panic("form.RenderForm and form.Form are nil")
+		panic("form.RenderTemplate is nil")
 	}
 
 	// get the template context
