@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"bytes"
 	"context"
 	"encoding/base64"
 	"fmt"
@@ -11,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/pkg/errors"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -186,8 +186,10 @@ func TOTPLink(secret *otp.Key, width, height int) (string, error) {
 	}
 
 	// encode image as base64
-	var buffer bytes.Buffer
-	if err := png.Encode(&buffer, img); err != nil {
+	buffer := pools.GetBuffer()
+	defer pools.ReleaseBuffer(buffer)
+
+	if err := png.Encode(buffer, img); err != nil {
 		return "", err
 	}
 

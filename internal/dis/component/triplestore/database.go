@@ -9,9 +9,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/pkg/errors"
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/rs/zerolog"
 )
 
 type TriplestoreUserPayload struct {
@@ -31,32 +32,38 @@ type TriplestoreUserAppSettings struct {
 //
 // When bodyName is non-empty, expect body to be a byte slice representing a multipart/form-data upload with the given name.
 // When bodyName is empty, simply marshal body as application/json
-func (ts Triplestore) OpenRaw(ctx context.Context, method, url string, body interface{}, bodyName string, accept string) (*http.Response, error) {
-	var reader io.Reader
-
-	var contentType string
+func (ts Triplestore) OpenRaw(ctx context.Context, method, url string, body any, bodyName string, accept string) (*http.Response, error) {
+	var reader io.Reader   // to read the body from
+	var contentType string // content-type of the request being sent
 
 	// for "PUT" and "POST" we setup a body
-	if method == "PUT" || method == "POST" {
+	if method == http.MethodPut || method == http.MethodPost {
 		if bodyName != "" {
-			buffer := &bytes.Buffer{}
-			writer := multipart.NewWriter(buffer)
-			contentType = writer.FormDataContentType()
+			// create a new buffer for the body
+			buffer := pools.GetBuffer()
+			defer pools.ReleaseBuffer(buffer)
 
-			part, err := writer.CreateFormFile(bodyName, "filename.txt")
-			if err != nil {
-				return nil, err
+			// write the file to it
+			writer := multipart.NewWriter(buffer)
+			{
+				part, err := writer.CreateFormFile(bodyName, "filename.txt")
+				if err != nil {
+					return nil, err
+				}
+				io.Copy(part, bytes.NewReader(body.([]byte)))
 			}
-			io.Copy(part, bytes.NewReader(body.([]byte)))
 			writer.Close()
+
+			// use it for the request
 			reader = buffer
+			contentType = writer.FormDataContentType()
 		} else {
-			contentType = "application/json"
 			mbytes, err := json.Marshal(body)
 			if err != nil {
 				return nil, err
 			}
 			reader = bytes.NewReader(mbytes)
+			contentType = "application/json"
 		}
 	}
 
@@ -88,10 +95,9 @@ func (ts Triplestore) OpenRaw(ctx context.Context, method, url string, body inte
 // Wait waits for the connection to the Triplestore to succeed.
 // This is achieved using a polling strategy.
 func (ts Triplestore) Wait(ctx context.Context) error {
-	n := stream.FromNil()
 	return timex.TickUntilFunc(func(time.Time) bool {
 		res, err := ts.OpenRaw(ctx, "GET", "/rest/repositories", nil, "", "")
-		n.EPrintf("[Triplestore.Wait]: %s\n", err)
+		zerolog.Ctx(ctx).Trace().Err(err).Msg("Triplestore wait")
 		if err != nil {
 			return false
 		}

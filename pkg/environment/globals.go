@@ -1,12 +1,12 @@
 package environment
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"io/fs"
 	"os"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/tkw1536/goprogram/stream"
 )
 
@@ -60,8 +60,10 @@ func ReadFile(env Environment, path string) ([]byte, error) {
 	defer file.Close()
 
 	// copy everything into a buffer!
-	var buffer bytes.Buffer
-	if _, err := io.Copy(&buffer, file); err != nil {
+	buffer := pools.GetBuffer()
+	defer pools.ReleaseBuffer(buffer)
+
+	if _, err := io.Copy(buffer, file); err != nil {
 		return nil, err
 	}
 

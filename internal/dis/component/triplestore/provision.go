@@ -9,6 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/errorx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -38,8 +39,9 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 	}
 
 	// prepare the create repo request
-	var createRepo bytes.Buffer
-	err := unpack.WriteTemplate(&createRepo, map[string]string{
+	createRepo := pools.GetBuffer()
+	defer pools.ReleaseBuffer(createRepo)
+	err := unpack.WriteTemplate(createRepo, map[string]string{
 		"GRAPHDB_REPO":    name,
 		"INSTANCE_DOMAIN": domain,
 	}, bytes.NewReader(createRepoTTL))

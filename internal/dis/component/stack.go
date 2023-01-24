@@ -3,7 +3,6 @@ package component
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"io"
 	"io/fs"
@@ -13,6 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
@@ -126,17 +126,18 @@ var errStackPs = errors.New("Stack.Ps: Down returned non-zero exit code")
 // Ps returns the ids of the containers currently running
 func (ds Stack) Ps(ctx context.Context, progress io.Writer) ([]string, error) {
 	// create a buffer
-	var buffer bytes.Buffer
+	buffer := pools.GetBuffer()
+	defer pools.ReleaseBuffer(buffer)
 
 	// read the ids from the command!
-	code := ds.compose(ctx, stream.NewIOStream(&buffer, progress, nil, 0), "ps", "-q")()
+	code := ds.compose(ctx, stream.NewIOStream(buffer, progress, nil, 0), "ps", "-q")()
 	if code != 0 {
 		return nil, errStackPs
 	}
 
 	// scan each of the lines
 	var results []string
-	scanner := bufio.NewScanner(&buffer)
+	scanner := bufio.NewScanner(buffer)
 	for scanner.Scan() {
 		if text := scanner.Text(); text != "" {
 			results = append(results, text)
