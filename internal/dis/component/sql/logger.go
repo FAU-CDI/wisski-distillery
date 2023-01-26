@@ -81,7 +81,7 @@ func (gl *gormLogger) Trace(ctx context.Context, begin time.Time, fc func() (sql
 	case elapsed > gl.SlowThreshold && gl.SlowThreshold != 0 && gl.Level >= logger.Warn:
 		sql, rows := fc()
 		src := utils.FileWithLineNum()
-		gl.NewEvent(ctx, logger.Warn).Str("src", src).Int64("rows", rows).Dur("elapsed", elapsed).Str("sql", sql).Msgf("GORM: Slow SQL >= ", gl.SlowThreshold)
+		gl.NewEvent(ctx, logger.Warn).Str("src", src).Int64("rows", rows).Dur("elapsed", elapsed).Str("sql", sql).Msgf("GORM: Slow SQL >= %d", gl.SlowThreshold)
 	case gl.Level == logger.Info:
 		sql, rows := fc()
 		src := utils.FileWithLineNum()
