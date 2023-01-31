@@ -3,6 +3,7 @@ package templating
 import (
 	"context"
 	_ "embed"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
+	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
 )
@@ -30,8 +32,21 @@ func (tpl *Template[C]) Template() *template.Template {
 	return baseTemplate
 }
 
+// LazyContext is like the lazy context
+func (tpl *Template[C]) LazyContext(r *http.Request, f func() (C, error), funcs ...FlagFunc) (ctx *tContext[C]) {
+	ctx = tpl.context(r, funcs...)
+	ctx.startLazy(f)
+	return ctx
+}
+
 // Context generates the context to pass to an instance of the template returned by Template.
 func (tpl *Template[C]) Context(r *http.Request, c C, funcs ...FlagFunc) (ctx *tContext[C]) {
+	ctx = tpl.context(r, funcs...)
+	ctx.start(c, nil) // setup the request
+	return ctx
+}
+
+func (tpl *Template[C]) context(r *http.Request, funcs ...FlagFunc) (ctx *tContext[C]) {
 	// create a new context
 	ctx = new(tContext[C])
 
@@ -45,16 +60,9 @@ func (tpl *Template[C]) Context(r *http.Request, c C, funcs ...FlagFunc) (ctx *t
 	// generate the rest of the options
 	ctx.Runtime.Flags = ctx.Runtime.Flags.Apply(r, tpl.p.funcs...)
 	ctx.Runtime.Flags = ctx.Runtime.Flags.Apply(r, funcs...)
-
-	// if the context has a runtime flags embed, then set the field properly
-	if tpl.p.hasRuntimeFlagsEmbed {
-		reflect.ValueOf(&c).Elem().
-			FieldByName(runtimeFlagsName).
-			Set(reflect.ValueOf(ctx.Runtime))
-	}
+	ctx.updateEmbedded = tpl.p.hasRuntimeFlagsEmbed
 
 	// the main template
-	ctx.cMain = c
 	ctx.tMain = tpl.p.tpl
 
 	// the footer template
@@ -126,27 +134,113 @@ func (tw *Template[C]) HTMLHandlerWithFlags(f func(r *http.Request) (C, []FlagFu
 // Callers may not retain references beyond the invocation of the template.
 // Callers must not rely on the internal structure of this tContext.
 type tContext[C any] struct {
-	Runtime RuntimeFlags // underlying flags
+	Runtime        RuntimeFlags // underlying flags
+	updateEmbedded bool         // should we automatically update an embedded RuntimeFlags inside the context?
 
 	ctx context.Context // underlying context for render
 
 	// the main template and context
-	tMain *template.Template
-	cMain C
+	eMain    chan error // are we done?
+	cWaiting bool
+	tMain    *template.Template
+	cMain    C
 
 	// the footer template and context
 	tFooter *template.Template
 	cFooter RuntimeFlags
 }
 
+func (ctx *tContext[C]) start(c C, err error) {
+	ctx.cMain = c
+	ctx.eMain = make(chan error, 1)
+	ctx.eMain <- err
+}
+
+func (ctx *tContext[C]) startLazy(f func() (C, error)) {
+	ctx.eMain = make(chan error, 1)
+	go func() {
+		defer close(ctx.eMain)
+
+		// compute the result, storing the error
+		var err error
+		ctx.cMain, err = f()
+		ctx.eMain <- err
+	}()
+}
+
+const mainDelay = time.Second
+
 // Main renders the main template.
 func (ctx *tContext[C]) Main() (template.HTML, error) {
-	return ctx.renderSafe("main", ctx.tMain, ctx.cMain)
+	timer := timex.NewTimer()
+	defer timex.ReleaseTimer(timer)
+
+	timer.Reset(mainDelay)
+	select {
+
+	case err := <-ctx.eMain:
+		// we received the result within the given time
+		// so we can render it immediatly
+		ctx.cWaiting = false
+		return ctx.doMain(err)
+
+	case <-timer.C:
+		// the template is taking longer than expected.
+		// we should display a spinner, and do something later
+		ctx.cWaiting = true
+		return timeWait, nil
+	}
 }
 
 // Footer renders the footer template
 func (ctx *tContext[C]) Footer() (template.HTML, error) {
 	return ctx.renderSafe("footer", ctx.tFooter, ctx.cFooter)
+}
+
+const (
+	timeWait   = "Loading"
+	errUnknown = "An unknown error occured, see the server log for details. "
+)
+
+func (ctx *tContext[C]) doMain(err error) (template.HTML, error) {
+	zerolog.Ctx(ctx.ctx).Info().Msg("doMain")
+	if err != nil {
+		zerolog.Ctx(ctx.ctx).Err(err).Msg("error lazy loading template")
+		return errUnknown, nil
+	}
+
+	// if the context has a runtime flags embed, then set the field properly
+	if ctx.updateEmbedded {
+		reflect.ValueOf(&ctx.cMain).Elem().
+			FieldByName(runtimeFlagsName).
+			Set(reflect.ValueOf(ctx.Runtime))
+	}
+
+	return ctx.renderSafe("main", ctx.tMain, ctx.cMain)
+}
+
+func (ctx *tContext[C]) AfterBody() (template.HTML, error) {
+	zerolog.Ctx(ctx.ctx).Info().Msg("AfterBody()")
+	// everything was done already
+	if !ctx.cWaiting {
+		return "", nil
+	}
+
+	// wait for the result to appear
+	res, err := ctx.doMain(<-ctx.eMain)
+	if err != nil {
+		return "", err
+	}
+
+	str, err := json.Marshal(string(res))
+	if err != nil {
+		return "", err
+	}
+
+	fix := "<script>document.getElementById('main').innerHTML=" + string(str) + "</script>"
+
+	// hook that is called after the body is complete
+	return template.HTML(fix), nil
 }
 
 const renderSafeError = "Error displaying page. See server log for details. "
@@ -170,7 +264,7 @@ func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (te
 					Str("uri", ctx.Runtime.RequestURI).
 					Str("name", name).
 					Str("panic", fmt.Sprint(r)).
-					Msg("templating.Main(): template panic()ed")
+					Msg("renderSafe: template panic()ed")
 			}
 		}()
 

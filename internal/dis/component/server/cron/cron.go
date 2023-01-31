@@ -119,18 +119,18 @@ func (control *Cron) Start(ctx context.Context, signal <-chan struct{}) <-chan s
 		run()
 		zerolog.Ctx(ctx).Debug().Msg("Cron() beginnning scheduling")
 
-		timer := timex.NewTimer()
+		t := timex.NewTimer()
+		defer timex.ReleaseTimer(t)
 		for {
-			timex.StopTimer(timer)
-			timer.Reset(control.Config.CronInterval)
+			timex.StopTimer(t)
+			t.Reset(control.Config.CronInterval)
 
 			select {
-			case <-timer.C:
+			case <-t.C:
 				zerolog.Ctx(ctx).Debug().Msg("Cron() timer fired")
 			case <-signal:
 				zerolog.Ctx(ctx).Debug().Msg("Cron() received signal")
 			case <-ctx.Done():
-				timex.StopTimer(timer)
 				return
 			}
 

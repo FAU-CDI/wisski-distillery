@@ -12,7 +12,7 @@
         <nav class="pure-menu pure-menu-horizontal">
             <ul class="pure-menu-list" role="menubar">
                 {{ range .Runtime.Menu }}
-                <li class="pure-menu-item{{ if .Active }} pure-menu-selected{{ end }}">
+                <li class="pure-menu-item{{ if .Active }} pure-menu-selected{{ end }}" role="menuitem">
                     <a href="{{ .Path }}" class="pure-menu-link">{{ .Title }}</a>
                 </li>
                 {{ end }}
@@ -35,7 +35,7 @@
             {{ end }}
         </header>
         <main>
-            <div class="pure-g">
+            <div class="pure-g" id="main">
                 {{ .Main }}
             </div>
         </main>
@@ -44,7 +44,7 @@
             {{ .Footer }}
         </footer>
 
-
+        {{ .AfterBody }}
         {{ .Runtime.Flags.Assets.Scripts }}
     </body>
 

@@ -3,6 +3,8 @@ package cancel
 import (
 	"context"
 	"time"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 )
 
 // Anyways behaves like context.WithTimeout, except that if the Done() channel of ctx is closed before Anyways is called, the returned context's Done() channel is only closed after timeout.
@@ -22,8 +24,9 @@ func Anyways(ctx context.Context, timeout time.Duration) (context.Context, conte
 	// start waiting for the timer (or the cancel to be called)
 	finish := make(chan struct{})
 	go func() {
-		t := time.NewTimer(timeout)
-		defer t.Stop()
+		t := timex.NewTimer()
+		t.Reset(timeout)
+		defer timex.ReleaseTimer(t)
 
 		defer close(any.done)
 

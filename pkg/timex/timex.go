@@ -3,18 +3,28 @@ package timex
 
 import (
 	"context"
+	"sync"
 	"time"
 )
 
-// NewTimer creates a new timer with undefined interval.
-// The timer is stopped.
-func NewTimer() *time.Timer {
-	timer := time.NewTimer(time.Second)
-	StopTimer(timer)
-	return timer
+var tPool = sync.Pool{
+	New: func() any {
+		timer := time.NewTimer(time.Second)
+		StopTimer(timer)
+		return timer
+	},
 }
 
-// StopTimer stops t and drains the C channel.
+// NewTimer returns an unusued timer from an internal timer pool.
+// The timer is guaranteed to be stopped; meaning a call to timer.Reset() should be made before using it.
+func NewTimer() *time.Timer {
+	return tPool.Get().(*time.Timer)
+}
+
+// StopTimer stops the given timer and drains the underlying channel.
+// This prevents it from firing, until a call to Reset() is made.
+//
+// If the timer is not running, StopTimer does nothing.
 func StopTimer(t *time.Timer) {
 	t.Stop()
 
@@ -23,6 +33,12 @@ func StopTimer(t *time.Timer) {
 	case <-t.C:
 	default:
 	}
+}
+
+// ReleaseTimer stops t and returns it to the pool of timers.
+func ReleaseTimer(t *time.Timer) {
+	StopTimer(t)
+	tPool.Put(t)
 }
 
 // TickContext is like [time.Tick], but closes the returned channel once the context closes.
@@ -34,24 +50,26 @@ func TickContext(c context.Context, d time.Duration) <-chan time.Time {
 		return nil
 	}
 
-	timer := make(chan time.Time, 1)
-	timer <- time.Now()
+	ticker := make(chan time.Time, 1)
+	ticker <- time.Now()
 	go func() {
-		t := time.NewTicker(d)
-		defer t.Stop()
-		defer close(timer)
+		defer close(ticker)
+
+		timer := NewTimer()
+		defer ReleaseTimer(timer)
 
 		for {
+			timer.Reset(d)
+
 			select {
-			case tick := <-t.C:
-				timer <- tick
+			case tick := <-timer.C:
+				ticker <- tick
 			case <-c.Done():
 				return
 			}
 		}
-
 	}()
-	return timer
+	return ticker
 }
 
 // TickUntilFunc invokes f every d until either context is closed, or f returns true.
