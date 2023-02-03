@@ -7,9 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/zerolog"
@@ -24,9 +22,7 @@ type Admin struct {
 	Dependencies struct {
 		Fetchers []component.DistilleryFetcher
 
-		Exporter     *exporter.Exporter
-		Instances    *instances.Instances
-		SnapshotsLog *logger.Logger
+		Instances *instances.Instances
 
 		Auth *auth.Auth
 
@@ -34,7 +30,7 @@ type Admin struct {
 
 		Templating *templating.Templating
 
-		Purger *purger.Purger
+		Sockets *socket.Sockets
 	}
 
 	Analytics *lazy.PoolAnalytics
@@ -75,7 +71,7 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 		handler = &httpx.WebSocket{
 			Context:  ctx,
 			Fallback: router,
-			Handler:  admin.serveSocket,
+			Handler:  admin.Dependencies.Sockets.Serve,
 		}
 	}
 
