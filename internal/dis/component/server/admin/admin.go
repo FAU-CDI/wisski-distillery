@@ -63,6 +63,19 @@ func (admin *Admin) Menu(r *http.Request) []component.MenuItem {
 	}
 }
 
+var (
+	menuAdmin      = component.MenuItem{Title: "Admin", Path: "/admin/"}
+	menuComponents = component.MenuItem{Title: "Components", Path: "/admin/components/", Priority: component.SmallButton}
+
+	menuUsers      = component.MenuItem{Title: "Users", Path: "/admin/users/"}
+	menuUserCreate = component.MenuItem{Title: "Create User", Path: "/admin/users/create/"}
+
+	menuInstances   = component.MenuItem{Title: "Instances", Path: "/admin/instance/"}
+	menuInstance    = component.DummyMenuItem()
+	menuGrants      = component.DummyMenuItem()
+	menuIngredients = component.DummyMenuItem()
+)
+
 func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
 
 	router := httprouter.New()

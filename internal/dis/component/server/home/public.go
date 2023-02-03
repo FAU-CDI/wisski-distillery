@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -47,7 +46,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 	tpl := publicTemplate.Prepare(
 		home.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "WissKI Distillery", Path: "/"},
+			menuHome,
 		),
 	)
 

@@ -38,6 +38,10 @@ func (*Home) Routes() component.Routes {
 	}
 }
 
+var (
+	menuHome = component.MenuItem{Title: "WissKI Distillery", Path: "/"}
+)
+
 func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	// generate a default handler
 	dflt, err := home.loadRedirect(ctx)

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
@@ -45,11 +44,11 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 	tpl := sshTemplate.Prepare(
 		panel.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "User", Path: "/user/"},
-			component.MenuItem{Title: "SSH Keys", Path: "/user/ssh/"},
+			menuUser,
+			menuSSH,
 		),
 		templating.Actions(
-			component.MenuItem{Title: "Add New Key", Path: "/user/ssh/add/"},
+			menuSSHAdd,
 		),
 	)
 
@@ -136,9 +135,9 @@ func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 	tpl := sshAddTemplate.Prepare(
 		panel.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "User", Path: "/user/"},
-			component.MenuItem{Title: "SSH Keys", Path: "/user/ssh/"},
-			component.MenuItem{Title: "Add New Key", Path: "/user/ssh/add/"},
+			menuUser,
+			menuSSH,
+			menuSSHAdd,
 		),
 	)
 

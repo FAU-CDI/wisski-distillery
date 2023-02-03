@@ -41,19 +41,14 @@ type grantsContext struct {
 	Drupals   []string       // unusued drupal usernames
 }
 
-var (
-	instancePageCrumb = component.DummyMenuItem()
-	grantsPageCrumb   = component.DummyMenuItem()
-)
-
 func (admin *Admin) grants(ctx context.Context) http.Handler {
 	tpl := grantsTemplate.Prepare(
 		admin.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "Admin", Path: "/admin/"},
-			component.MenuItem{Title: "Instances", Path: "/admin/instance/"},
-			instancePageCrumb,
-			grantsPageCrumb,
+			menuAdmin,
+			menuInstances,
+			menuInstance,
+			menuGrants,
 		),
 	)
 
@@ -142,8 +137,8 @@ func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (funcs 
 
 	// replace the functions
 	funcs = []templating.FlagFunc{
-		templating.ReplaceCrumb(instancePageCrumb, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
-		templating.ReplaceCrumb(grantsPageCrumb, component.MenuItem{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")}),
+		templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
+		templating.ReplaceCrumb(menuGrants, component.MenuItem{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")}),
 		templating.Title(gc.Instance.Slug + " - Grants"),
 	}
 	return funcs, nil

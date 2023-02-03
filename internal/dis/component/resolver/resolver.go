@@ -63,12 +63,16 @@ type resolverContext struct {
 	wdresolve.IndexContext
 }
 
+var (
+	menuResolver = component.MenuItem{Title: "Resolver", Path: "/wisski/get/"}
+)
+
 func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	// get the resolver template
 	tpl := resolverTemplate.Prepare(
 		resolver.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "Resolver", Path: "/wisski/get/"},
+			menuResolver,
 		),
 	)
 	t := tpl.Template()

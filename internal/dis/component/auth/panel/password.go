@@ -7,7 +7,6 @@ import (
 
 	_ "embed"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
@@ -45,7 +44,7 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: panel.UserFormContext(tpl, component.MenuItem{Title: "Change Password", Path: "/user/password/"}),
+		RenderTemplateContext: panel.UserFormContext(tpl, menuChangePassword),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			old, passcode, new, new2 := values["old"], values["otp"], values["new"], values["new2"]

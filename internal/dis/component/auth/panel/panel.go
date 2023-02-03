@@ -53,6 +53,17 @@ func (panel *UserPanel) Menu(r *http.Request) []component.MenuItem {
 	}
 }
 
+var (
+	menuUser           = component.MenuItem{Title: "User", Path: "/user/"}
+	menuChangePassword = component.MenuItem{Title: "Change Password", Path: "/user/password/"}
+	menuSSH            = component.MenuItem{Title: "SSH Keys", Path: "/user/ssh/"}
+	menuSSHAdd         = component.MenuItem{Title: "Add New Key", Path: "/user/ssh/add/"}
+
+	menuTOTPAction  = component.DummyMenuItem()
+	menuTOTPDisable = component.MenuItem{Title: "Disable Passcode (TOTP)", Path: "/user/totp/disable/"}
+	menuTOTPEnable  = component.MenuItem{Title: "Enable Passcode (TOTP)", Path: "/user/totp/enable/"}
+)
+
 func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	router := httprouter.New()
 
@@ -114,9 +125,10 @@ type userFormContext struct {
 
 func (panel *UserPanel) UserFormContext(tpl *templating.Template[userFormContext], last component.MenuItem, funcs ...templating.FlagFunc) func(ctx httpx.FormContext, r *http.Request) any {
 	funcs = append(funcs, func(flags templating.Flags, r *http.Request) templating.Flags {
-		flags.Crumbs = append(flags.Crumbs, component.MenuItem{})
+		// append the last menu item, and prepend the menuUser one!
+		flags.Crumbs = append(flags.Crumbs, last, last)
 		copy(flags.Crumbs[1:], flags.Crumbs)
-		flags.Crumbs[0] = component.MenuItem{Title: "User", Path: "/user/"}
+		flags.Crumbs[0] = menuUser
 		return flags
 	})
 

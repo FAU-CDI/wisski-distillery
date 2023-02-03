@@ -31,23 +31,17 @@ type instanceContext struct {
 	Info     status.WissKI
 }
 
-var (
-	instancesPageCrumb = component.DummyMenuItem()
-	grantsAction       = component.DummyMenuItem()
-	ingredientsAction  = component.DummyMenuItem()
-)
-
 func (admin *Admin) instance(ctx context.Context) http.Handler {
 	tpl := instanceTemplate.Prepare(
 		admin.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "Admin", Path: "/admin/"},
-			component.MenuItem{Title: "Instances", Path: "/admin/instance/"},
-			instancesPageCrumb,
+			menuAdmin,
+			menuInstances,
+			menuInstance,
 		),
 		templating.Actions(
-			grantsAction,
-			ingredientsAction,
+			menuGrants,
+			menuIngredients,
 		),
 	)
 
@@ -71,9 +65,9 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 		}
 
 		funcs = []templating.FlagFunc{
-			templating.ReplaceCrumb(instancesPageCrumb, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
-			templating.ReplaceAction(grantsAction, component.MenuItem{Title: "Grants", Path: template.URL("/admin/grants/" + slug)}),
-			templating.ReplaceAction(ingredientsAction, component.MenuItem{Title: "Ingredients", Path: template.URL("/admin/ingredients/" + slug), Priority: component.SmallButton}),
+			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
+			templating.ReplaceAction(menuGrants, component.MenuItem{Title: "Grants", Path: template.URL("/admin/grants/" + slug)}),
+			templating.ReplaceAction(menuIngredients, component.MenuItem{Title: "Ingredients", Path: template.URL("/admin/ingredients/" + slug), Priority: component.SmallButton}),
 
 			templating.Title(instance.Slug),
 		}

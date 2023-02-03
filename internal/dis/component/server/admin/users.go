@@ -8,7 +8,6 @@ import (
 
 	_ "embed"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
@@ -36,11 +35,11 @@ func (admin *Admin) users(ctx context.Context) http.Handler {
 	tpl := usersTemplate.Prepare(
 		admin.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "Admin", Path: "/admin/"},
-			component.MenuItem{Title: "Users", Path: "/admin/users/"},
+			menuAdmin,
+			menuUsers,
 		),
 		templating.Actions(
-			component.MenuItem{Title: "Create New", Path: "/admin/users/create/"},
+			menuUserCreate,
 		),
 	)
 
@@ -75,9 +74,9 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 	tpl := userCreateTemplate.Prepare(
 		admin.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "Admin", Path: "/admin/"},
-			component.MenuItem{Title: "Users", Path: "/admin/users"},
-			component.MenuItem{Title: "Create", Path: "/admin/users/create"},
+			menuAdmin,
+			menuUsers,
+			menuUserCreate,
 		),
 	)
 

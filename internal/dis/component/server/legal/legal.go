@@ -53,11 +53,15 @@ func (legal *Legal) Routes() component.Routes {
 	}
 }
 
+var (
+	menuLegal = component.MenuItem{Title: "Legal", Path: "/legal/"}
+)
+
 func (legal *Legal) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	tpl := legalTemplate.Prepare(
 		legal.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "Legal", Path: "/legal/"},
+			menuLegal,
 		),
 	)
 

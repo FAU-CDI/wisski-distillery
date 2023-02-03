@@ -127,12 +127,16 @@ type newsContext struct {
 	Items []Item
 }
 
+var (
+	menuNews = component.MenuItem{Title: "News", Path: "/news/"}
+)
+
 // HandleRoute returns the handler for the requested path
 func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	tpl := newsTemplate.Prepare(
 		news.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "News", Path: "/news/"},
+			menuNews,
 		),
 	)
 

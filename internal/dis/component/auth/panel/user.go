@@ -34,21 +34,17 @@ type GrantWithURL struct {
 	URL template.URL
 }
 
-var (
-	totpActionItem = component.DummyMenuItem()
-)
-
 func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 
 	tpl := userTemplate.Prepare(
 		panel.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "User", Path: "/user/"},
+			menuUser,
 		),
 		templating.Actions(
-			component.MenuItem{Title: "Change Password", Path: "/user/password/"},
-			totpActionItem,
-			component.MenuItem{Title: "SSH Keys", Path: "/user/ssh/"},
+			menuChangePassword,
+			menuTOTPAction,
+			menuSSH,
 		),
 	)
 
@@ -62,18 +58,12 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 		// replace the totp action in the menu
 		var totpAction component.MenuItem
 		if uc.AuthUser.IsTOTPEnabled() {
-			totpAction = component.MenuItem{
-				Title: "Disable Passcode (TOTP)",
-				Path:  "/user/totp/disable/",
-			}
+			totpAction = menuTOTPDisable
 		} else {
-			totpAction = component.MenuItem{
-				Title: "Enable Passcode (TOTP)",
-				Path:  "/user/totp/enable/",
-			}
+			totpAction = menuTOTPEnable
 		}
 		funcs = []templating.FlagFunc{
-			templating.ReplaceAction(totpActionItem, totpAction),
+			templating.ReplaceAction(menuTOTPAction, totpAction),
 			templating.Title(uc.AuthUser.User.User),
 		}
 

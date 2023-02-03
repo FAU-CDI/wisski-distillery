@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
@@ -39,7 +38,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 		},
 
 		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: panel.UserFormContext(tpl, component.MenuItem{Title: "Enable TOTP", Path: "/user/totp/enable/"}),
+		RenderTemplateContext: panel.UserFormContext(tpl, menuTOTPEnable),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
@@ -93,8 +92,8 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 	tpl := totpEnrollTemplate.Prepare(
 		panel.Dependencies.Templating,
 		templating.Crumbs(
-			component.MenuItem{Title: "User", Path: "/user/"},
-			component.MenuItem{Title: "Enable TOTP", Path: "/user/totp/enable/"},
+			menuUser,
+			menuTOTPEnable,
 		),
 	)
 
@@ -189,7 +188,7 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 			return struct{}{}, err == nil && user != nil && !user.IsTOTPEnabled()
 		},
 		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: panel.UserFormContext(tpl, component.MenuItem{Title: "Disable TOTP", Path: "/user/totp/disable/"}),
+		RenderTemplateContext: panel.UserFormContext(tpl, menuTOTPDisable),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]
