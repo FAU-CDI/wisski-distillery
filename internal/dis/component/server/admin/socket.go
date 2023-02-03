@@ -2,7 +2,6 @@ package admin
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io"
 	"time"
@@ -17,9 +16,32 @@ type InstanceAction struct {
 	NumParams int
 
 	HandleInteractive func(ctx context.Context, info *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error
-	HandleResult      func(ctx context.Context, info *Admin, instance *wisski.WissKI, params ...string) (value any, err error)
 }
 
+func (ia *InstanceAction) AsGenericAction() GenericAction {
+	return GenericAction{
+		NumParams: ia.NumParams + 1,
+		HandleInteractive: func(ctx context.Context, info *Admin, out io.Writer, params ...string) error {
+			instance, err := info.Dependencies.Instances.WissKI(ctx, params[0])
+			if err != nil {
+				return err
+			}
+
+			return ia.HandleInteractive(ctx, info, instance, out, params[1:]...)
+		},
+	}
+}
+
+type GenericAction struct {
+	NumParams int
+
+	HandleInteractive func(ctx context.Context, info *Admin, out io.Writer, params ...string) error
+}
+
+// non-instance specific actions
+var genericActions = map[string]GenericAction{}
+
+// socket specific actions
 var socketInstanceActions = map[string]InstanceAction{
 	"snapshot": {
 		HandleInteractive: func(ctx context.Context, admin *Admin, instance *wisski.WissKI, out io.Writer, params ...string) error {
@@ -67,6 +89,14 @@ var socketInstanceActions = map[string]InstanceAction{
 	},
 }
 
+var socketGenericActions = func() map[string]GenericAction {
+	generics := make(map[string]GenericAction, len(socketInstanceActions))
+	for n, a := range socketInstanceActions {
+		generics[n] = a.AsGenericAction()
+	}
+	return generics
+}()
+
 func (admin *Admin) serveSocket(conn httpx.WebSocketConnection) {
 	// read the next message to act on
 	message, ok := <-conn.Read()
@@ -74,31 +104,23 @@ func (admin *Admin) serveSocket(conn httpx.WebSocketConnection) {
 		return
 	}
 
-	// perform an action if it exists!
-	if action, ok := socketInstanceActions[string(message.Bytes)]; ok {
-		admin.handleInstanceAction(conn, action)
+	name := string(message.Bytes)
+
+	// perform a generic action first
+	if action, ok := genericActions[name]; ok {
+		admin.handleGenericAction(conn, action)
 		return
+	}
+
+	// then do the socket actions
+	if action, ok := socketGenericActions[name]; ok {
+		admin.handleGenericAction(conn, action)
 	}
 }
 
 var instanceParamsTimeout = time.Second
 
-func (admin *Admin) handleInstanceAction(conn httpx.WebSocketConnection, action InstanceAction) {
-
-	// read the slug
-	slug, ok := <-conn.Read()
-	if !ok {
-		<-conn.WriteText("Error reading slug")
-		return
-	}
-
-	// resolve the instance
-	instance, err := admin.Dependencies.Instances.WissKI(conn.Context(), string(slug.Bytes))
-	if err != nil {
-		<-conn.WriteText("Instance not found")
-		return
-	}
-
+func (admin *Admin) handleGenericAction(conn httpx.WebSocketConnection, action GenericAction) {
 	// read the parameters
 	params := make([]string, action.NumParams)
 	for i := range params {
@@ -126,28 +148,11 @@ func (admin *Admin) handleInstanceAction(conn httpx.WebSocketConnection, action 
 
 	// handle the interactive action
 	if action.HandleInteractive != nil {
-		err := action.HandleInteractive(conn.Context(), admin, instance, writer, params...)
+		err := action.HandleInteractive(conn.Context(), admin, writer, params...)
 		if err != nil {
 			fmt.Fprintln(writer, err)
 			return
 		}
 		fmt.Fprintln(writer, "done")
 	}
-
-	// handle the result computation
-	if action.HandleResult != nil {
-		result, err := action.HandleResult(conn.Context(), admin, instance, params...)
-		if err != nil {
-			fmt.Fprintln(writer, "false")
-			return
-		}
-		data, err := json.Marshal(result)
-		if err != nil {
-			fmt.Fprintln(writer, "false")
-			return
-		}
-		fmt.Fprintln(writer, "true")
-		fmt.Fprintln(writer, data)
-	}
-
 }
