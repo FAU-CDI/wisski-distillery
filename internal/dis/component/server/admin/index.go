@@ -87,6 +87,15 @@ var indexTemplate = templating.Parse[indexContext](
 	templating.Assets(assets.AssetsAdmin),
 )
 
+//go:embed "html/instances.html"
+var instancesHTML []byte
+var instancesTemplate = templating.Parse[indexContext](
+	"instances.html", instancesHTML, nil,
+
+	templating.Title("Instances"),
+	templating.Assets(assets.AssetsAdmin),
+)
+
 type indexContext struct {
 	templating.RuntimeFlags
 
@@ -102,7 +111,23 @@ func (admin *Admin) index(ctx context.Context) http.Handler {
 		),
 		templating.Actions(
 			component.MenuItem{Title: "Users", Path: "/admin/users/"},
+			component.MenuItem{Title: "Instances", Path: "/admin/instance/"},
 			component.MenuItem{Title: "Components", Path: "/admin/components/", Priority: component.SmallButton},
+		),
+	)
+
+	return tpl.HTMLHandler(func(r *http.Request) (idx indexContext, err error) {
+		idx.Distillery, idx.Instances, err = admin.Status(r.Context(), false)
+		return
+	})
+}
+
+func (admin *Admin) instances(ctx context.Context) http.Handler {
+	tpl := instancesTemplate.Prepare(
+		admin.Dependencies.Templating,
+		templating.Crumbs(
+			component.MenuItem{Title: "Admin", Path: "/admin/"},
+			component.MenuItem{Title: "Instances", Path: "/admin/instance/"},
 		),
 	)
 

@@ -1,0 +1,43 @@
+
+<div class="pure-u-1">
+    <table class="pure-table pure-table-bordered padding">
+        <thead>
+            <tr>
+                <th>Total</th>
+                <th>Running</th>
+                <th>Stopped</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    {{ .TotalCount }}
+                </td>
+                <td>
+                    {{ .RunningCount }}
+                </td>
+                <td>
+                    {{ .StoppedCount }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <span class="hspace"></span>
+</div>
+
+{{range .Instances}}
+<div class="pure-u-1 pure-u-xl-2-3">
+    <div class="wisski {{ if .Running }}running{{ else }}stopped{{ end }}">
+        <h3>
+            {{.Slug}}
+            {{ if not .Running }}&nbsp;<small>not running</small>{{ end }}
+        </h3>
+        <p>
+            <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br>
+
+            <a class="pure-button" href="/admin/instance/{{.Slug}}">Details</a>
+        </p>
+    </div>
+</div>
+{{end}}

@@ -85,6 +85,12 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 		router.Handler(http.MethodGet, route, index)
 	}
 
+	// add a handler for the instances page
+	{
+		instances := admin.instances(ctx)
+		router.Handler(http.MethodGet, route+"instance/", instances)
+	}
+
 	// add a handler for the user page
 	{
 		users := admin.users(ctx)

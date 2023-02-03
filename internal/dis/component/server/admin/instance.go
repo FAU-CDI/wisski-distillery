@@ -36,6 +36,7 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 		admin.Dependencies.Templating,
 		templating.Crumbs(
 			component.MenuItem{Title: "Admin", Path: "/admin/"},
+			component.MenuItem{Title: "Instances", Path: "/admin/instance/"},
 			component.DummyMenuItem,
 		),
 		templating.Actions(
@@ -64,7 +65,7 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 		}
 
 		funcs = []templating.FlagFunc{
-			templating.ReplaceCrumb(1, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
+			templating.ReplaceCrumb(2, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
 			templating.ReplaceAction(0, component.MenuItem{Title: "Grants", Path: template.URL("/admin/grants/" + slug)}),
 			templating.ReplaceAction(1, component.MenuItem{Title: "Ingredients", Path: template.URL("/admin/ingredients/" + slug), Priority: component.SmallButton}),
 

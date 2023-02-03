@@ -46,6 +46,7 @@ func (admin *Admin) grants(ctx context.Context) http.Handler {
 		admin.Dependencies.Templating,
 		templating.Crumbs(
 			component.MenuItem{Title: "Admin", Path: "/admin/"},
+			component.MenuItem{Title: "Instances", Path: "/admin/instance/"},
 			component.DummyMenuItem,
 			component.DummyMenuItem,
 		),
@@ -136,8 +137,8 @@ func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (funcs 
 
 	// replace the functions
 	funcs = []templating.FlagFunc{
-		templating.ReplaceCrumb(1, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
-		templating.ReplaceCrumb(2, component.MenuItem{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")}),
+		templating.ReplaceCrumb(2, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
+		templating.ReplaceCrumb(3, component.MenuItem{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")}),
 		templating.Title(gc.Instance.Slug + " - Grants"),
 	}
 	return funcs, nil
