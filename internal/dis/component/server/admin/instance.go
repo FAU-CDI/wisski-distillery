@@ -68,7 +68,7 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 			templating.ReplaceAction(0, component.MenuItem{Title: "Grants", Path: template.URL("/admin/grants/" + slug)}),
 			templating.ReplaceAction(1, component.MenuItem{Title: "Ingredients", Path: template.URL("/admin/ingredients/" + slug), Priority: component.SmallButton}),
 
-			templating.Title(instance.Name()),
+			templating.Title(instance.Slug),
 		}
 
 		return
