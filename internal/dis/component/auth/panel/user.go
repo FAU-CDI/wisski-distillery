@@ -34,7 +34,12 @@ type GrantWithURL struct {
 	URL template.URL
 }
 
+var (
+	totpActionItem = component.DummyMenuItem()
+)
+
 func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
+
 	tpl := userTemplate.Prepare(
 		panel.Dependencies.Templating,
 		templating.Crumbs(
@@ -42,7 +47,7 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 		),
 		templating.Actions(
 			component.MenuItem{Title: "Change Password", Path: "/user/password/"},
-			component.DummyMenuItem,
+			totpActionItem,
 			component.MenuItem{Title: "SSH Keys", Path: "/user/ssh/"},
 		),
 	)
@@ -68,7 +73,7 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 			}
 		}
 		funcs = []templating.FlagFunc{
-			templating.ReplaceAction(1, totpAction),
+			templating.ReplaceAction(totpActionItem, totpAction),
 			templating.Title(uc.AuthUser.User.User),
 		}
 

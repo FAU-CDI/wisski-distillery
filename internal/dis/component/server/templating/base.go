@@ -203,7 +203,6 @@ const (
 )
 
 func (ctx *tContext[C]) doMain(err error) (template.HTML, error) {
-	zerolog.Ctx(ctx.ctx).Info().Msg("doMain")
 	if err != nil {
 		zerolog.Ctx(ctx.ctx).Err(err).Msg("error lazy loading template")
 		return errUnknown, nil
@@ -220,7 +219,6 @@ func (ctx *tContext[C]) doMain(err error) (template.HTML, error) {
 }
 
 func (ctx *tContext[C]) AfterBody() (template.HTML, error) {
-	zerolog.Ctx(ctx.ctx).Info().Msg("AfterBody()")
 	// everything was done already
 	if !ctx.cWaiting {
 		return "", nil

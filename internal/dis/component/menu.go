@@ -3,6 +3,7 @@ package component
 import (
 	"html/template"
 	"net/http"
+	"sync/atomic"
 )
 
 // Menuable is a component that provides a menu
@@ -16,13 +17,35 @@ type MenuItem struct {
 	Path   template.URL
 	Active bool
 
-	Priority MenuPriority // menu priority
+	Priority MenuPriority
+
+	replaceID uint64 // internal id used to replace an item
 }
 
-// DummyMenuItem is a dummy menu item
-// It should be replaced before being displayed to the user
-var DummyMenuItem = MenuItem{
-	Title: "* to be replaced *",
+var dummyCounter uint64
+
+// DummyMenuItem creates a new Dummy Menu Item to be replaced
+func DummyMenuItem() MenuItem {
+	return MenuItem{
+		replaceID: atomic.AddUint64(&dummyCounter, 1),
+	}
+}
+
+// ReplaceWith replaces this MenuItem with a different MenuItem.
+// This method returns true if an appropriate DummyMenuItem exists.
+func (mi MenuItem) ReplaceWith(new MenuItem, items []MenuItem) bool {
+	if mi.replaceID == 0 {
+		// never replace non-dummy items
+		return false
+	}
+	for i, item := range items {
+		if mi.replaceID == item.replaceID {
+			items[i] = new
+			return true
+		}
+	}
+
+	return false
 }
 
 func MenuItemSort(a, b MenuItem) bool {

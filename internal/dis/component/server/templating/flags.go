@@ -1,12 +1,14 @@
 package templating
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/rs/zerolog"
 	"github.com/tkw1536/goprogram/lib/reflectx"
 	"golang.org/x/exp/slices"
 )
@@ -77,17 +79,21 @@ func Actions(actions ...component.MenuItem) FlagFunc {
 }
 
 // ReplaceAction replaces a specific action
-func ReplaceAction(index int, action component.MenuItem) FlagFunc {
+func ReplaceAction(old component.MenuItem, action component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
-		flags.Actions[index] = action
+		if !old.ReplaceWith(action, flags.Actions) {
+			zerolog.Ctx(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
+		}
 		return flags
 	}
 }
 
 // ReplaceCrumb replaces a specific crum
-func ReplaceCrumb(index int, action component.MenuItem) FlagFunc {
+func ReplaceCrumb(old component.MenuItem, action component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
-		flags.Crumbs[index] = action
+		if !old.ReplaceWith(action, flags.Crumbs) {
+			zerolog.Ctx(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
+		}
 		return flags
 	}
 }

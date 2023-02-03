@@ -47,14 +47,19 @@ func (admin *Admin) components(ctx context.Context) http.Handler {
 	})
 }
 
+var (
+	instanceCrumb    = component.DummyMenuItem()
+	ingredientsCrumb = component.DummyMenuItem()
+)
+
 func (admin *Admin) ingredients(ctx context.Context) http.Handler {
 	tpl := analTemplate.Prepare(
 		admin.Dependencies.Templating,
 		templating.Crumbs(
 			component.MenuItem{Title: "Admin", Path: "/admin/"},
 			component.MenuItem{Title: "Instances", Path: "/admin/instance/"},
-			component.DummyMenuItem,
-			component.DummyMenuItem,
+			instanceCrumb,
+			ingredientsCrumb,
 		),
 	)
 
@@ -70,8 +75,8 @@ func (admin *Admin) ingredients(ctx context.Context) http.Handler {
 			return ac, nil, err
 		}
 		funcs = []templating.FlagFunc{
-			templating.ReplaceCrumb(2, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
-			templating.ReplaceCrumb(3, component.MenuItem{Title: "Ingredients", Path: template.URL("/admin/instance/" + slug + "/ingredients/")}),
+			templating.ReplaceCrumb(instanceCrumb, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
+			templating.ReplaceCrumb(ingredientsCrumb, component.MenuItem{Title: "Ingredients", Path: template.URL("/admin/instance/" + slug + "/ingredients/")}),
 			templating.Title(instance.Name() + " - Ingredients"),
 		}
 
