@@ -30,6 +30,7 @@ var aboutTemplate = template.Must(template.New("about.html").Parse(aboutHTML))
 // aboutContext is passed to about.html
 type aboutContext struct {
 	Instances    []status.WissKI
+	Logo         template.HTML
 	SelfRedirect string
 }
 
@@ -40,6 +41,8 @@ type publicContext struct {
 	aboutContext
 	About template.HTML
 }
+
+const logoHTML = template.HTML(`<img src="/logo.svg" alt="WissKI Distillery Logo" class="biglogo">`)
 
 func (home *Home) publicHandler(ctx context.Context) http.Handler {
 
@@ -63,6 +66,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		defer pools.ReleaseBuilder(builder)
 
 		// prepare about
+		pc.aboutContext.Logo = logoHTML
 		pc.aboutContext.Instances = home.homeInstances.Get(nil)
 		pc.aboutContext.SelfRedirect = home.Config.SelfRedirect.String()
 

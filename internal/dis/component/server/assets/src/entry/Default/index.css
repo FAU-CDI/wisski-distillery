@@ -1,3 +1,30 @@
 a.wisskilink {
     color: blue !important;
 }
+
+img.biglogo {
+    display: block;
+
+    width: 80vw;
+    height: 80vw;
+}
+
+@media screen and (min-width: 600px) {
+    img.biglogo {
+        float: right;
+
+        /* set a reasonable size */
+        width: 33vw;
+        height: 33vw;
+
+        /* but don't overdo it */
+        max-width: 20em;
+        max-height: 20em;
+
+
+        /* place image next to the image, overlapping the crumbs bar */
+        position: relative;
+        top: -9em;
+        margin-bottom: -9em;
+    }
+}

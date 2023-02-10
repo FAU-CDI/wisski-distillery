@@ -42,3 +42,13 @@ func MinifyHTML(source []byte) []byte {
 	}
 	return result
 }
+
+// MinifySVG minifies the svg source.
+// If an error occurs, returns the minified source instead.
+func MinifySVG(source []byte) []byte {
+	result, err := minifier.Bytes("image/svg+xml", source)
+	if err != nil {
+		return source
+	}
+	return result
+}

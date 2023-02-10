@@ -25,6 +25,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/cron"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/legal"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/logo"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/news"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
@@ -192,6 +193,7 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*news.News],
 
 		auto[*assets.Static],
+		auto[*logo.Logo],
 		auto[*templating.Templating],
 
 		// Cron

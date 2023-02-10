@@ -25,3 +25,7 @@ func (noop) Close() error {
 func MinifyHTML(source []byte) []byte {
 	return source
 }
+
+func MinifySVG(source []byte) []byte {
+	return source
+}

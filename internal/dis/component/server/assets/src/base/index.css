@@ -14,6 +14,16 @@ nav.pure-menu, nav.breadcrumbs {
     border-bottom: 1px solid black;
 }
 
+nav.pure-menu :has(img.logo) {
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-right: 0;
+}
+nav.pure-menu img.logo {
+    height: 2.5em;
+    width: 2.5em;
+}
+
 nav.breadcrumbs {
     padding-left: 1em;
     font-size: small;
