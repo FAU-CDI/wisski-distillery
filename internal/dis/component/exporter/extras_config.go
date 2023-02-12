@@ -38,8 +38,8 @@ func (control *Config) Backup(scontext component.StagingContext) error {
 func (control *Config) backupFiles() []string {
 	return []string{
 		control.Config.ConfigPath,
-		control.Config.ExecutablePath(),
-		control.Config.SelfOverridesFile,
-		control.Config.SelfResolverBlockFile,
+		control.Config.Paths.ExecutablePath(),
+		control.Config.Paths.OverridesJSON,
+		control.Config.Paths.ResolverBlocks,
 	}
 }

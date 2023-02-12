@@ -55,7 +55,7 @@ func (next *Next) getInstance(r *http.Request) (wisski *wisski.WissKI, path stri
 	}
 
 	// find the slug
-	slug, ok := next.Config.SlugFromHost(url.Host)
+	slug, ok := next.Config.HTTP.SlugFromHost(url.Host)
 	if slug == "" || !ok {
 		return nil, "", httpx.ErrBadRequest
 	}

@@ -21,6 +21,5 @@ func (c cfg) Description() wisski_distillery.Description {
 }
 
 func (cfg) Run(context wisski_distillery.Context) error {
-	context.Printf("%#v", context.Environment.Config)
-	return nil
+	return context.Environment.Config.Marshal(context.Stdout)
 }

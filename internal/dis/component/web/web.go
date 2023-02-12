@@ -20,7 +20,7 @@ var (
 )
 
 func (web *Web) Path() string {
-	return filepath.Join(web.Still.Config.DeployRoot, "core", "web")
+	return filepath.Join(web.Still.Config.Paths.Root, "core", "web")
 }
 
 func (*Web) Context(parent component.InstallationContext) component.InstallationContext {
@@ -28,7 +28,7 @@ func (*Web) Context(parent component.InstallationContext) component.Installation
 }
 
 func (web Web) Stack(env environment.Environment) component.StackWithResources {
-	if web.Config.HTTPSEnabled() {
+	if web.Config.HTTP.HTTPSEnabled() {
 		return web.stackHTTPS(env)
 	} else {
 		return web.stackHTTP(env)
@@ -46,8 +46,8 @@ func (web *Web) stackHTTPS(env environment.Environment) component.StackWithResou
 		EnvPath:     "web.env",
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": web.Config.DockerNetworkName,
-			"CERT_EMAIL":          web.Config.CertbotEmail,
+			"DOCKER_NETWORK_NAME": web.Config.Docker.Network,
+			"CERT_EMAIL":          web.Config.HTTP.CertbotEmail,
 		},
 		TouchFilesPerm: 0600,
 		TouchFiles:     []string{"acme.json"},
@@ -65,8 +65,8 @@ func (web *Web) stackHTTP(env environment.Environment) component.StackWithResour
 		EnvPath:     "web.env",
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": web.Config.DockerNetworkName,
-			"CERT_EMAIL":          web.Config.CertbotEmail,
+			"DOCKER_NETWORK_NAME": web.Config.Docker.Network,
+			"CERT_EMAIL":          web.Config.HTTP.CertbotEmail,
 		},
 	})
 }

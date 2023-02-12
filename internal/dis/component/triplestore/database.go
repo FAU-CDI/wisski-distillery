@@ -86,7 +86,7 @@ func (ts Triplestore) OpenRaw(ctx context.Context, method, url string, body any,
 	if contentType != "" {
 		req.Header.Set("Content-Type", contentType)
 	}
-	req.SetBasicAuth(ts.Config.TriplestoreAdminUser, ts.Config.TriplestoreAdminPassword)
+	req.SetBasicAuth(ts.Config.TS.AdminUsername, ts.Config.TS.AdminPassword)
 
 	// and send it
 	return client.Do(req)

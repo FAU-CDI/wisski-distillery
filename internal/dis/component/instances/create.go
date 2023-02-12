@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/pkg/stringparser"
 )
 
 var (
@@ -37,8 +37,8 @@ func (instances *Instances) Create(slug string) (wissKI *wisski.WissKI, err erro
 
 	// sql
 
-	wissKI.Liquid.Instance.SqlDatabase = instances.Config.MysqlDatabasePrefix + slug
-	wissKI.Liquid.Instance.SqlUsername = instances.Config.MysqlUserPrefix + slug
+	wissKI.Liquid.Instance.SqlDatabase = instances.Config.SQL.DataPrefix + slug
+	wissKI.Liquid.Instance.SqlUsername = instances.Config.SQL.UserPrefix + slug
 
 	wissKI.Liquid.Instance.SqlPassword, err = instances.Config.NewPassword()
 	if err != nil {
@@ -47,8 +47,8 @@ func (instances *Instances) Create(slug string) (wissKI *wisski.WissKI, err erro
 
 	// triplestore
 
-	wissKI.Liquid.Instance.GraphDBRepository = instances.Config.GraphDBRepoPrefix + slug
-	wissKI.Liquid.Instance.GraphDBUsername = instances.Config.GraphDBUserPrefix + slug
+	wissKI.Liquid.Instance.GraphDBRepository = instances.Config.TS.DataPrefix + slug
+	wissKI.Liquid.Instance.GraphDBUsername = instances.Config.TS.UserPrefix + slug
 
 	wissKI.Liquid.Instance.GraphDBPassword, err = instances.Config.NewPassword()
 	if err != nil {
@@ -73,7 +73,7 @@ var restrictedSlugs = []string{"www", "admin"}
 // IsValidSlug checks if slug represents a valid slug for an instance.
 func (instances *Instances) IsValidSlug(slug string) (string, error) {
 	// check that it is a slug
-	slug, err := stringparser.ParseSlug(instances.Environment, slug)
+	err := validators.ValidateSlug(&slug, "")
 	if err != nil {
 		return "", errInvalidSlug
 	}
@@ -84,5 +84,5 @@ func (instances *Instances) IsValidSlug(slug string) (string, error) {
 	}
 
 	// return the slug
-	return strings.ToLower(slug), nil
+	return slug, nil
 }

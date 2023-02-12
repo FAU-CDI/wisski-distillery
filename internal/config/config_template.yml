@@ -1,0 +1,83 @@
+paths:
+    # Several files are required to manage the system
+    # On top of this all real-system space will be created under this directory.  
+    root: ${DEPLOY_ROOT}
+
+    # You can override individual URLS in the homepage. 
+    # Do this by adding URLs (without trailing '/'s) into a JSON file.
+    # This is the path to that file.
+    overrides: ${SELF_OVERRIDES_FILE}
+
+    # You can block specific prefixes within Triplestore from showing up in the global resolver.
+    # Do this by adding one prefix per line in this file.
+    # Lines starting with '#' and blank lines are ignored.
+    blocks: ${SELF_RESOLVER_BLOCK_FILE}
+
+http:
+  # Each created Drupal Instance corresponds to a single domain name. 
+  # These domain names should either be a complete domain name or a sub-domain of a default domain. 
+  # This setting configures the default domain-name to create subdomains of. 
+  domain: ${DEFAULT_DOMAIN}
+
+  # By default, only the 'domain' domain above is caught.
+  # To catch additional domains, add them here
+  domains: []
+
+  # The system can support setting up certificate(s) automatically. 
+  # It can be enabled by setting an email for certbot certificates. 
+  # This email address can be configured here. 
+  certbot_email: ""
+
+# By default, the default domain redirects to the distillery repository. 
+# If you want to change this, set an alternate domain name here. 
+home: ""
+
+docker:
+  # The name of the (global) docker network to run the distillery services in.
+  network: ${DOCKER_NETWORK_NAME}
+
+# Configuration of the sql backend
+sql:
+  # username and password for the sql administrative user.
+  # this user is automatically created.
+  username: ${MYSQL_ADMIN_USER}
+  password: ${MYSQL_ADMIN_PASSWORD}
+
+  # prefixes for the data and users to be created and managed
+  # one of these is created per WissKI instance.
+  user_prefix: "mysql-factory-"
+  data_prefix: "mysql-factory-"
+
+  # database used for internal configuration
+  database: "distillery"
+
+# configuration of the triplestore backend
+triplestore:
+  # admin user and password of the graphdb interface
+  # this will be created automatically.
+  username: ${GRAPHDB_ADMIN_USER}
+  password: ${GRAPHDB_ADMIN_PASSWORD}
+
+  # prefixes for the users and repositories to be created
+  user_prefix: "graphdb-factory-" 
+  data_prefix: "graphdb-factory-"
+
+# The maximum agefor backups to be kept. 
+# Backups older than this will be removed when a new backup is made.
+# The default here is 720hours (== 30 days)
+age: '720h'
+
+
+# Various components use password-based-authentication. 
+# These passwords are generated automatically. 
+# This variable can be used to determine their length. 
+password_length: 64
+
+# the port to use for the ssh server
+ssh_port: 2222
+
+# The secret for sessions (for login etc)
+session_secret: ${SESSION_SECRET}
+
+# the interval to run cron in
+cron_interval: "10m"

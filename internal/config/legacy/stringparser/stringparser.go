@@ -1,4 +1,5 @@
-// Package stringparser provides Parser
+// Package stringparser provides Parser.
+// It is deprecated and will be removed in a future release.
 package stringparser
 
 import (

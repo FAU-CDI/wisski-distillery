@@ -23,14 +23,14 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 		EnvPath:     filepath.Join("barrel.env"),
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": barrel.Malt.Config.DockerNetworkName,
+			"DOCKER_NETWORK_NAME": barrel.Malt.Config.Docker.Network,
 
 			"SLUG":          barrel.Slug,
 			"VIRTUAL_HOST":  barrel.Domain(),
-			"HTTPS_ENABLED": barrel.Malt.Config.HTTPSEnabledEnv(),
+			"HTTPS_ENABLED": barrel.Malt.Config.HTTP.HTTPSEnabledEnv(),
 
 			"DATA_PATH":   filepath.Join(barrel.FilesystemBase, "data"),
-			"RUNTIME_DIR": barrel.Malt.Config.RuntimeDir(),
+			"RUNTIME_DIR": barrel.Malt.Config.Paths.RuntimeDir(),
 		},
 
 		MakeDirs: []string{"data", ".composer"},

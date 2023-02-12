@@ -11,7 +11,7 @@ import (
 )
 
 func (ssh SSH2) Path() string {
-	return filepath.Join(ssh.Still.Config.DeployRoot, "core", "ssh2")
+	return filepath.Join(ssh.Still.Config.Paths.Root, "core", "ssh2")
 }
 
 //go:embed all:ssh2 ssh2.env
@@ -24,15 +24,15 @@ func (ssh *SSH2) Stack(env environment.Environment) component.StackWithResources
 		EnvPath:     "ssh2.env",
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": ssh.Config.DockerNetworkName,
-			"HOST_RULE":           ssh.Config.DefaultHostRule(),
-			"HTTPS_ENABLED":       ssh.Config.HTTPSEnabledEnv(),
+			"DOCKER_NETWORK_NAME": ssh.Config.Docker.Network,
+			"HOST_RULE":           ssh.Config.HTTP.DefaultHostRule(),
+			"HTTPS_ENABLED":       ssh.Config.HTTP.HTTPSEnabledEnv(),
 
 			"CONFIG_PATH": ssh.Config.ConfigPath,
-			"DEPLOY_ROOT": ssh.Config.DeployRoot,
+			"DEPLOY_ROOT": ssh.Config.Paths.Root,
 
-			"SELF_OVERRIDES_FILE":      ssh.Config.SelfOverridesFile,
-			"SELF_RESOLVER_BLOCK_FILE": ssh.Config.SelfResolverBlockFile,
+			"SELF_OVERRIDES_FILE":      ssh.Config.Paths.OverridesJSON,
+			"SELF_RESOLVER_BLOCK_FILE": ssh.Config.Paths.ResolverBlocks,
 
 			"SSH_PORT": strconv.FormatUint(uint64(ssh.Config.PublicSSHPort), 10),
 		},
@@ -44,6 +44,6 @@ func (ssh *SSH2) Stack(env environment.Environment) component.StackWithResources
 
 func (ssh SSH2) Context(parent component.InstallationContext) component.InstallationContext {
 	return component.InstallationContext{
-		bootstrap.Executable: ssh.Config.CurrentExecutable(ssh.Environment), // TODO: Does this make sense?
+		bootstrap.Executable: ssh.Config.Paths.CurrentExecutable(ssh.Environment), // TODO: Does this make sense?
 	}
 }

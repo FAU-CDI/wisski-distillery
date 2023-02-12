@@ -15,7 +15,7 @@ const Executable = "wdcli"
 
 // ConfigFile is the name of the config file.
 // It should be located inside the deployment directory.
-const ConfigFile = ".env"
+const ConfigFile = "distillery.yaml"
 
 // OverridesJSON is the name of the json overrides file.
 // It should be located inside the deployment directory.

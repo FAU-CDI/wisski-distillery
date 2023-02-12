@@ -72,8 +72,8 @@ func NewProgram() Program {
 
 			// when not running inside docker and we need a distillery
 			// then we should warn if we are not using the distillery executable.
-			if dis := context.Environment; !context.Args.Flags.InternalInDocker && context.Description.Requirements.NeedsDistillery && !dis.Config.UsingDistilleryExecutable(dis.Environment) {
-				context.EPrintf(warnNoDeployWdcli, bootstrap.Executable, dis.Config.ExecutablePath())
+			if dis := context.Environment; !context.Args.Flags.InternalInDocker && context.Description.Requirements.NeedsDistillery && !dis.Config.Paths.UsingDistilleryExecutable(dis.Environment) {
+				context.EPrintf(warnNoDeployWdcli, bootstrap.Executable, dis.Config.Paths.ExecutablePath())
 			}
 
 			return nil

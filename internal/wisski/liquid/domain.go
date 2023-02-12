@@ -6,7 +6,7 @@ import (
 
 // Domain returns the full domain name of this WissKI
 func (liquid *Liquid) Domain() string {
-	return liquid.Config.HostFromSlug(liquid.Slug)
+	return liquid.Config.HTTP.HostFromSlug(liquid.Slug)
 }
 
 // URL returns the public URL of this instance
@@ -18,7 +18,7 @@ func (liquid *Liquid) URL() *url.URL {
 	}
 
 	// use http or https scheme depending on if the distillery has it enabled
-	if liquid.Malt.Config.HTTPSEnabled() {
+	if liquid.Malt.Config.HTTP.HTTPSEnabled() {
 		url.Scheme = "https"
 	} else {
 		url.Scheme = "http"

@@ -30,11 +30,11 @@ func (reserve *Reserve) Stack() component.StackWithResources {
 		EnvPath:     filepath.Join("reserve.env"),
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": reserve.Malt.Config.DockerNetworkName,
+			"DOCKER_NETWORK_NAME": reserve.Malt.Config.Docker.Network,
 
 			"SLUG":          reserve.Slug,
 			"VIRTUAL_HOST":  reserve.Domain(),
-			"HTTPS_ENABLED": reserve.Malt.Config.HTTPSEnabledEnv(),
+			"HTTPS_ENABLED": reserve.Malt.Config.HTTP.HTTPSEnabledEnv(),
 		},
 	}
 }

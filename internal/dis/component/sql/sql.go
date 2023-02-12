@@ -31,7 +31,7 @@ var (
 )
 
 func (sql *SQL) Path() string {
-	return filepath.Join(sql.Still.Config.DeployRoot, "core", "sql")
+	return filepath.Join(sql.Still.Config.Paths.Root, "core", "sql")
 }
 
 func (*SQL) Context(parent component.InstallationContext) component.InstallationContext {
@@ -49,8 +49,8 @@ func (sql *SQL) Stack(env environment.Environment) component.StackWithResources 
 
 		EnvPath: "sql.env",
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": sql.Config.DockerNetworkName,
-			"HTTPS_ENABLED":       sql.Config.HTTPSEnabledEnv(),
+			"DOCKER_NETWORK_NAME": sql.Config.Docker.Network,
+			"HTTPS_ENABLED":       sql.Config.HTTP.HTTPSEnabledEnv(),
 		},
 
 		MakeDirsPerm: environment.DefaultDirPerm,

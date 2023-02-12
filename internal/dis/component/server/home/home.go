@@ -51,7 +51,7 @@ func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, 
 	dflt.Fallback = home.publicHandler(ctx)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		slug, ok := home.Config.SlugFromHost(r.Host)
+		slug, ok := home.Config.HTTP.SlugFromHost(r.Host)
 		switch {
 		case !ok:
 			http.NotFound(w, r)

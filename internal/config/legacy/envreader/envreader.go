@@ -1,4 +1,5 @@
-// Package envreader
+// Package envreader provides Scanner.
+// It is deprecated and will be removed in a future release.
 package envreader
 
 import (
@@ -14,7 +15,9 @@ import (
 // Reads may be internally buffered.
 //
 // An environment variable is of the form:
-//   KEY=VALUE
+//
+//	KEY=VALUE
+//
 // on a separate line.
 // Keys and values are case-sensitive and may contain anything except for newline characters.
 // Spaces around key and value are trimmed using [strings.TrimSpace].
@@ -26,14 +29,14 @@ import (
 //
 // A typical use-case of a scanner is as follows:
 //
-//  scanner := NewScanner(r)
-//  for scanner.Scan() {
-//      // process any data ....
-//      fmt.Println(scanner.Data())
-//  }
-//  if err := scanner.Err(); err != nil {
-//    	// handle errors
-//  }
+//	scanner := NewScanner(r)
+//	for scanner.Scan() {
+//	    // process any data ....
+//	    fmt.Println(scanner.Data())
+//	}
+//	if err := scanner.Err(); err != nil {
+//	  	// handle errors
+//	}
 //
 // For the common use case of reading a set of distinct keys from a file see [ReadAll].
 type Scanner struct {
@@ -100,6 +103,7 @@ func (scanner Scanner) Err() error {
 // ReadAll creates a new [Scanner], and then reads all key/value pairs from r.
 // If a key occurs more than once, only the last value is set in the returned map.
 func ReadAll(r io.Reader) (values map[string]string, err error) {
+	// TODO: This is no longer used
 	scanner := NewScanner(r)
 
 	// read and store all values

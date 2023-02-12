@@ -12,7 +12,7 @@ import (
 // ShouldPrune determines if a file with the provided modification time should be
 // removed from the export log.
 func (exporter *Exporter) ShouldPrune(modtime time.Time) bool {
-	return time.Since(modtime) > time.Duration(exporter.Config.MaxBackupAge)*24*time.Hour
+	return time.Since(modtime) > exporter.Config.MaxBackupAge
 }
 
 // Prune prunes all old exports

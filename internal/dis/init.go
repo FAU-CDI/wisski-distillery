@@ -15,7 +15,7 @@ var errNoConfigFile = exit.Error{
 
 var errOpenConfig = exit.Error{
 	ExitCode: exit.ExitGeneralArguments,
-	Message:  "error loading configuration file: %s",
+	Message:  "error loading configuration file: %q",
 }
 
 // NewDistillery creates a new distillery from the provided flags

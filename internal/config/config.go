@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"hash/fnv"
 	"math/rand"
-	"net/url"
 	"reflect"
 	"time"
 
@@ -19,80 +18,33 @@ import (
 // Config contains many methods that do not require any interaction with any running components.
 // Methods that require running components are instead store inside the [Distillery] or an appropriate [Component].
 type Config struct {
-	// Several docker-compose files are created to manage global services and the system itself.
-	// On top of this all real-system space will be created under this directory.
-	DeployRoot string `env:"DEPLOY_ROOT" default:"/var/www/deploy" parser:"abspath"`
+	Paths  PathsConfig  `yaml:"paths" recurse:"true"`
+	HTTP   HTTPConfig   `yaml:"http" recurse:"true"`
+	Theme  ThemeConfig  `yaml:"theme" recurse:"true"`
+	Docker DockerConfig `yaml:"docker" recurse:"true"`
 
-	// Each created Drupal Instance corresponds to a single domain name.
-	// These domain names should either be a complete domain name or a sub-domain of a default domain.
-	// This setting configures the default domain-name to create subdomains of.
-	DefaultDomain string `env:"DEFAULT_DOMAIN" default:"localhost.kwarc.info" parser:"domain"`
-
-	// By default, the default domain redirects to the distillery repository.
-	// If you want to change this, set an alternate domain name here.
-	SelfRedirect *url.URL `env:"SELF_REDIRECT" default:"https://github.com/FAU-CDI/wisski-distillery" parser:"https_url"`
-
-	// By default, only the 'self' domain above is caught.
-	// To catch additional domains, add them here (comma seperated)
-	SelfExtraDomains []string `env:"SELF_EXTRA_DOMAINS" default:"" parser:"domains"`
-
-	// You can override individual URLS in the homepage
-	// Do this by adding URLs (without trailing '/'s) into a JSON file
-	SelfOverridesFile string `env:"SELF_OVERRIDES_FILE" default:"" parser:"file"`
-
-	// You can block specific prefixes from being picked up by the resolver.
-	// Do this by adding one prefix per file.
-	SelfResolverBlockFile string `env:"SELF_RESOLVER_BLOCK_FILE" default:"" parser:"file"`
-
-	// The system can support setting up certificate(s) automatically.
-	// It can be enabled by setting an email for certbot certificates.
-	// This email address can be configured here.
-	CertbotEmail string `env:"CERTBOT_EMAIL" default:"" parser:"email"`
+	SQL SQLConfig `yaml:"sql" recurse:"true"`
+	TS  TSConfig  `yaml:"triplestore" recurse:"true"`
 
 	// Maximum age for backup in days
-	MaxBackupAge int `env:"MAX_BACKUP_AGE" default:"" parser:"number"`
-
-	// Each Drupal instance requires a corresponding system user, database users and databases.
-	// These are also set by the appropriate domain name.
-	// To differentiate them from other users of the system, these names can be prefixed.
-	// The prefix to use can be configured here.
-	// When changing these please consider that no system user may exist that has the same name as a mysql user.
-	// This is a MariaDB restriction.
-	MysqlUserPrefix     string `env:"MYSQL_USER_PREFIX" default:"mysql-factory-" parser:"slug"`
-	MysqlDatabasePrefix string `env:"MYSQL_DATABASE_PREFIX" default:"mysql-factory-" parser:"slug"`
-	GraphDBUserPrefix   string `env:"GRAPHDB_USER_PREFIX" default:"mysql-factory-" parser:"slug"`
-	GraphDBRepoPrefix   string `env:"GRAPHDB_REPO_PREFIX" default:"mysql-factory-" parser:"slug"`
-
-	// In addition to the filesystem the WissKI distillery requires a single SQL table.
-	// It uses this database to store a list of installed things.
-	DistilleryDatabase string `env:"DISTILLERY_BOOKKEEPING_DATABASE" default:"distillery" parser:"slug"`
+	MaxBackupAge time.Duration `yaml:"age" validate:"duration"`
 
 	// Various components use password-based-authentication.
 	// These passwords are generated automatically.
 	// This variable can be used to determine their length.
-	PasswordLength int `env:"PASSWORD_LENGTH" default:"64" parser:"number"`
+	PasswordLength int `yaml:"password_length" default:"64" validate:"positive"`
 
 	// Public port to use for the ssh server
-	PublicSSHPort uint16 `env:"SSH_PORT" default:"2222" parser:"port"`
+	PublicSSHPort uint16 `yaml:"ssh_port" default:"2222" validate:"port"`
 
-	// admin credentials for graphdb
-	TriplestoreAdminUser     string `env:"GRAPHDB_ADMIN_USER" default:"admin" parser:"nonempty"`
-	TriplestoreAdminPassword string `env:"GRAPHDB_ADMIN_PASSWORD" default:"" parser:"nonempty"`
-
-	// admin credentials for the Mysql database
-	MysqlAdminUser     string `env:"MYSQL_ADMIN_USER" default:"admin" parser:"nonempty"`
-	MysqlAdminPassword string `env:"MYSQL_ADMIN_PASSWORD" default:"" parser:"nonempty"`
 	// session secret holds the secret for login
-	SessionSecret string `env:"SESSION_SECRET" default:"" parser:"nonempty"`
-
-	// name of docker network to use
-	DockerNetworkName string `env:"DOCKER_NETWORK_NAME" default:"distillery" parser:"nonempty"`
+	SessionSecret string `yaml:"session_secret" default:"" validate:"nonempty"`
 
 	// interval to trigger distillery cron tasks in
-	CronInterval time.Duration `env:"CRON_INTERVAL" default:"10m" parser:"duration"`
+	CronInterval time.Duration `env:"cron_interval" default:"10m" validate:"duration"`
 
 	// ConfigPath is the path this configuration was loaded from (if any)
-	ConfigPath string
+	ConfigPath string `yaml:"-"`
 }
 
 // CSRFSecret return the csrfSecret derived from the session secret

@@ -52,7 +52,7 @@ func (sql *SQL) QueryTable(ctx context.Context, table component.Table) (*gorm.DB
 
 // queryTable returns a gorm.DB to connect to the provided distillery database table
 func (sql *SQL) queryTable(ctx context.Context, silent bool, table string) (*gorm.DB, error) {
-	conn, err := sql.connect(sql.Config.DistilleryDatabase)
+	conn, err := sql.connect(sql.Config.SQL.Database)
 	if err != nil {
 		return nil, err
 	}
@@ -117,8 +117,8 @@ func (ssql *SQL) connect(database string) (*sql.DB, error) {
 
 // dsn returns a dsn fof connecting to the database
 func (sql *SQL) dsn(database string) string {
-	user := sql.Config.MysqlAdminUser
-	pass := sql.Config.MysqlAdminPassword
+	user := sql.Config.SQL.AdminUsername
+	pass := sql.Config.SQL.AdminPassword
 	network := sql.network()
 	server := sql.ServerURL
 

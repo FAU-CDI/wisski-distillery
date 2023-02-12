@@ -54,8 +54,8 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 		}
 		logging.LogMessage(progress, ctx, "Creating administrative user")
 		{
-			username := sql.Config.MysqlAdminUser
-			password := sql.Config.MysqlAdminPassword
+			username := sql.Config.SQL.AdminUsername
+			password := sql.Config.SQL.AdminPassword
 			if err := sql.CreateSuperuser(ctx, username, password, true); err != nil {
 				return errSQLUnableToCreateUser
 			}
@@ -65,10 +65,10 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	// create the admin user
 	logging.LogMessage(progress, ctx, "Creating sql database")
 	{
-		if !sqle.IsSafeDatabaseLiteral(sql.Config.DistilleryDatabase) {
+		if !sqle.IsSafeDatabaseLiteral(sql.Config.SQL.Database) {
 			return errSQLUnsafeDatabaseName
 		}
-		createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`;", sql.Config.DistilleryDatabase)
+		createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`;", sql.Config.SQL.Database)
 		if err := sql.Exec(createDBSQL); err != nil {
 			return err
 		}

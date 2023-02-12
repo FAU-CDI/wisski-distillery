@@ -84,14 +84,14 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 	}
 
 	// handle the default domain name!
-	domainName := resolver.Config.DefaultDomain
+	domainName := resolver.Config.HTTP.PrimaryDomain
 	if domainName != "" {
 		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domainName))] = fmt.Sprintf("https://$1.%s", domainName)
 		logger.Info().Str("name", domainName).Msg("registering default domain")
 	}
 
 	// handle the extra domains!
-	for _, domain := range resolver.Config.SelfExtraDomains {
+	for _, domain := range resolver.Config.HTTP.ExtraDomains {
 		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
 		logger.Info().Str("name", domainName).Msg("registering legacy domain")
 	}

@@ -82,7 +82,7 @@ func (wisski *Prefixes) database(ctx context.Context, server *phpx.Server) (pref
 func (prefixes *Prefixes) blocked() ([]string, error) {
 	// open the resolver block file
 	// TODO: move this to the distillery
-	file, err := prefixes.Malt.Environment.Open(prefixes.Malt.Config.SelfResolverBlockFile)
+	file, err := prefixes.Malt.Environment.Open(prefixes.Malt.Config.Paths.ResolverBlocks)
 	if err != nil {
 		return nil, err
 	}

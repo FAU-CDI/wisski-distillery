@@ -36,14 +36,15 @@ func (ssh2 *SSH2) handleDirectTCP(srv *ssh.Server, conn *gossh.ServerConn, newCh
 		return
 	}
 
-	slug, ok := ssh2.Config.SlugFromHost(d.DestAddr)
+	slug, ok := ssh2.Config.HTTP.SlugFromHost(d.DestAddr)
 	if !ok || d.DestPort != 22 || !hasPermission(ctx, slug) {
 		newChan.Reject(gossh.Prohibited, "permission denied")
 		return
 	}
 
 	// TODO: move this into an instance function somewhere
-	dest := net.JoinHostPort(slug+"."+ssh2.Config.DefaultDomain+".wisski", "22")
+	// NOTE(twiesing): This should be moved
+	dest := net.JoinHostPort(slug+"."+ssh2.Config.HTTP.PrimaryDomain+".wisski", "22")
 
 	var dialer net.Dialer
 	dconn, err := dialer.DialContext(ctx, "tcp", dest)

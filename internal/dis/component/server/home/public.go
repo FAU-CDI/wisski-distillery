@@ -68,7 +68,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		// prepare about
 		pc.aboutContext.Logo = logoHTML
 		pc.aboutContext.Instances = home.homeInstances.Get(nil)
-		pc.aboutContext.SelfRedirect = home.Config.SelfRedirect.String()
+		pc.aboutContext.SelfRedirect = home.Config.Theme.SelfRedirect.String()
 
 		// render the about template
 

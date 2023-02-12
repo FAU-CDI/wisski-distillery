@@ -20,8 +20,8 @@ func (ts Triplestore) Update(ctx context.Context, progress io.Writer) error {
 
 	logging.LogMessage(progress, ctx, "Resetting admin user password")
 	{
-		res, err := ts.OpenRaw(ctx, "PUT", "/rest/security/users/"+ts.Config.TriplestoreAdminUser, TriplestoreUserPayload{
-			Password: ts.Config.TriplestoreAdminPassword,
+		res, err := ts.OpenRaw(ctx, "PUT", "/rest/security/users/"+ts.Config.TS.AdminUsername, TriplestoreUserPayload{
+			Password: ts.Config.TS.AdminPassword,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
 				DefaultVisGraphSchema: true,

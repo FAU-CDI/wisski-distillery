@@ -11,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/hostname"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
+	"gopkg.in/yaml.v3"
 
 	_ "embed"
 )
@@ -87,7 +88,7 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	return nil
 }
 
-//go:embed config_template
+//go:embed config_template.yml
 var templateBytes []byte
 
 // MarshalTo marshals this template into dst
@@ -100,10 +101,15 @@ func (tpl Template) MarshalTo(dst io.Writer) error {
 		field := tplType.Field(i)
 
 		key := field.Tag.Get("env")
-		value := tplVal.FieldByName(field.Name).String()
+		value := tplVal.FieldByName(field.Name).Interface()
 
-		context[key] = value
+		bytes, err := yaml.Marshal(value)
+		if err != nil {
+			return err
+		}
+		context[key] = string(bytes)
 	}
 
+	// TODO: CONFIG: Update template writing
 	return unpack.WriteTemplate(dst, context, bytes.NewReader(templateBytes))
 }

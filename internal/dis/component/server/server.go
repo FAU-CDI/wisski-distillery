@@ -39,7 +39,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 
 	var publicM, internalM mux.Mux[component.RouteContext]
 	publicM.Context = func(r *http.Request) component.RouteContext {
-		slug, ok := server.Still.Config.SlugFromHost(r.Host)
+		slug, ok := server.Still.Config.HTTP.SlugFromHost(r.Host)
 		return component.RouteContext{
 			DefaultDomain: slug == "" && ok,
 		}
@@ -112,7 +112,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 // CSRF returns a CSRF handler for the given function
 func (server *Server) csrf() func(http.Handler) http.Handler {
 	var opts []csrf.Option
-	if !server.Config.HTTPSEnabled() {
+	if !server.Config.HTTP.HTTPSEnabled() {
 		opts = append(opts, csrf.Secure(false))
 	}
 	opts = append(opts, csrf.SameSite(csrf.SameSiteStrictMode))

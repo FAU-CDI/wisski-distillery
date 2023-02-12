@@ -68,7 +68,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	// create all the other directories
 	logging.LogMessage(context.Stderr, context.Context, "Ensuring distillery installation directories exist")
 	for _, d := range []string{
-		dis.Config.DeployRoot,
+		dis.Config.Paths.Root,
 		dis.Instances().Path(),
 		dis.Exporter().StagingPath(),
 		dis.Exporter().ArchivePath(),
@@ -102,7 +102,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	}
 
 	logging.LogMessage(context.Stderr, context.Context, "Checking that 'docker' is installed")
-	if err := si.mustExec(context, "", "docker", "--version", dis.Config.DockerNetworkName); err != nil {
+	if err := si.mustExec(context, "", "docker", "--version"); err != nil {
 		return err
 	}
 
@@ -114,7 +114,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	// create the docker network
 	// TODO: Use docker API for this
 	logging.LogMessage(context.Stderr, context.Context, "Updating Docker Configuration")
-	si.mustExec(context, "", "docker", "network", "create", dis.Config.DockerNetworkName)
+	si.mustExec(context, "", "docker", "network", "create", dis.Config.Docker.Network)
 
 	// install and update the various stacks!
 	ctx := component.InstallationContext{
@@ -193,7 +193,7 @@ var errMustExecFailed = exit.Error{
 func (si systemupdate) mustExec(context wisski_distillery.Context, workdir string, exe string, argv ...string) error {
 	dis := context.Environment
 	if workdir == "" {
-		workdir = dis.Config.DeployRoot
+		workdir = dis.Config.Paths.Root
 	}
 	code := dis.Still.Environment.Exec(context.Context, context.IOStream, workdir, exe, argv...)()
 	if code != 0 {

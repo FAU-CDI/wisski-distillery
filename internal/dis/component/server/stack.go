@@ -13,7 +13,7 @@ import (
 )
 
 func (control Server) Path() string {
-	return filepath.Join(control.Still.Config.DeployRoot, "core", "dis")
+	return filepath.Join(control.Still.Config.Paths.Root, "core", "dis")
 }
 
 //go:embed all:server server.env
@@ -26,15 +26,15 @@ func (server *Server) Stack(env environment.Environment) component.StackWithReso
 		EnvPath:     "server.env",
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": server.Config.DockerNetworkName,
-			"HOST_RULE":           server.Config.DefaultHostRule(),
-			"HTTPS_ENABLED":       server.Config.HTTPSEnabledEnv(),
+			"DOCKER_NETWORK_NAME": server.Config.Docker.Network,
+			"HOST_RULE":           server.Config.HTTP.DefaultHostRule(),
+			"HTTPS_ENABLED":       server.Config.HTTP.HTTPSEnabledEnv(),
 
 			"CONFIG_PATH": server.Config.ConfigPath,
-			"DEPLOY_ROOT": server.Config.DeployRoot,
+			"DEPLOY_ROOT": server.Config.Paths.Root,
 
-			"SELF_OVERRIDES_FILE":      server.Config.SelfOverridesFile,
-			"SELF_RESOLVER_BLOCK_FILE": server.Config.SelfResolverBlockFile,
+			"SELF_OVERRIDES_FILE":      server.Config.Paths.OverridesJSON,
+			"SELF_RESOLVER_BLOCK_FILE": server.Config.Paths.ResolverBlocks,
 
 			"CUSTOM_ASSETS_PATH": server.Dependencies.Templating.CustomAssetsPath(),
 		},
@@ -50,6 +50,6 @@ func (server *Server) Trigger(ctx context.Context, env environment.Environment) 
 
 func (server *Server) Context(parent component.InstallationContext) component.InstallationContext {
 	return component.InstallationContext{
-		bootstrap.Executable: server.Config.CurrentExecutable(server.Environment), // TODO: Does this make sense?
+		bootstrap.Executable: server.Config.Paths.CurrentExecutable(server.Environment), // TODO: Does this make sense?
 	}
 }

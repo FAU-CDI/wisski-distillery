@@ -18,7 +18,7 @@ func (home *Home) loadRedirect(ctx context.Context) (redirect Redirect, err erro
 	redirect.Permanent = false
 
 	// load the overrides file
-	overrides, err := home.Environment.Open(home.Config.SelfOverridesFile)
+	overrides, err := home.Environment.Open(home.Config.Paths.OverridesJSON)
 	if err != nil {
 		return redirect, err
 	}

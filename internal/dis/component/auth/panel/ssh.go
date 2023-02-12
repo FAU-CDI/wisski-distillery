@@ -58,7 +58,7 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 			return sc, err
 		}
 
-		sc.Domain = panel.Config.DefaultDomain
+		sc.Domain = panel.Config.HTTP.PrimaryDomain
 		sc.Port = panel.Config.PublicSSHPort
 
 		// pick the first domain that the user has access to as an example
@@ -68,7 +68,7 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 		} else {
 			sc.Slug = "example"
 		}
-		sc.Hostname = panel.Config.HostFromSlug(sc.Slug)
+		sc.Hostname = panel.Config.HTTP.HostFromSlug(sc.Slug)
 
 		sc.Keys, err = panel.Dependencies.Keys.Keys(r.Context(), user.User.User)
 		if err != nil {

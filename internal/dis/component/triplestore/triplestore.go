@@ -25,7 +25,7 @@ var (
 )
 
 func (ts *Triplestore) Path() string {
-	return filepath.Join(ts.Still.Config.DeployRoot, "core", "triplestore")
+	return filepath.Join(ts.Still.Config.Paths.Root, "core", "triplestore")
 }
 
 func (Triplestore) Context(parent component.InstallationContext) component.InstallationContext {
@@ -45,7 +45,7 @@ func (ts *Triplestore) Stack(env environment.Environment) component.StackWithRes
 
 		EnvPath: "triplestore.env",
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": ts.Config.DockerNetworkName,
+			"DOCKER_NETWORK_NAME": ts.Config.Docker.Network,
 		},
 
 		MakeDirs: []string{
