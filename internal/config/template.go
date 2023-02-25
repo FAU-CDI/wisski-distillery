@@ -1,19 +1,13 @@
 package config
 
 import (
-	"bytes"
-	"io"
 	"path/filepath"
-	"reflect"
+	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/hostname"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
-	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
-	"gopkg.in/yaml.v3"
-
-	_ "embed"
 )
 
 // Template is a template for the configuration file
@@ -88,28 +82,47 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	return nil
 }
 
-//go:embed config_template.yml
-var templateBytes []byte
+// Generate generates a configuration file for this configuration
+func (tpl Template) Generate() Config {
+	return Config{
+		Paths: PathsConfig{
+			Root:           tpl.DeployRoot,
+			OverridesJSON:  tpl.SelfOverridesFile,
+			ResolverBlocks: tpl.SelfResolverBlockFile,
+		},
+		HTTP: HTTPConfig{
+			PrimaryDomain: tpl.DefaultDomain,
+			ExtraDomains:  []string{},
+		},
+		Docker: DockerConfig{
+			tpl.DockerNetworkName,
+		},
+		SQL: SQLConfig{
+			DatabaseConfig: DatabaseConfig{
+				AdminUsername: tpl.MysqlAdminUsername,
+				AdminPassword: tpl.MysqlAdminPassword,
 
-// MarshalTo marshals this template into dst
-func (tpl Template) MarshalTo(dst io.Writer) error {
-	tplVal := reflect.ValueOf(tpl)
-	tplType := reflect.TypeOf(tpl)
+				UserPrefix: "mysql-factory-",
+				DataPrefix: "mysql-factory-",
+			},
 
-	context := make(map[string]string, tplType.NumField())
-	for i := 0; i < tplType.NumField(); i++ {
-		field := tplType.Field(i)
+			Database: "distillery",
+		},
+		TS: TSConfig{
+			DatabaseConfig: DatabaseConfig{
+				AdminUsername: tpl.TriplestoreAdminUser,
+				AdminPassword: tpl.TriplestoreAdminPassword,
 
-		key := field.Tag.Get("env")
-		value := tplVal.FieldByName(field.Name).Interface()
+				UserPrefix: "graphdb-factory-",
+				DataPrefix: "graphdb-factory-",
+			},
+		},
+		MaxBackupAge:   30 * 24 * time.Hour, // 1 month
+		PasswordLength: 64,
 
-		bytes, err := yaml.Marshal(value)
-		if err != nil {
-			return err
-		}
-		context[key] = string(bytes)
+		PublicSSHPort: 2222,
+
+		SessionSecret: tpl.SessionSecret,
+		CronInterval:  10 * time.Minute,
 	}
-
-	// TODO: CONFIG: Update template writing
-	return unpack.WriteTemplate(dst, context, bytes.NewReader(templateBytes))
 }

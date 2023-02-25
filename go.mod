@@ -15,15 +15,16 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.4.0
-	github.com/rs/zerolog v1.28.0
+	github.com/rs/zerolog v1.29.0
 	github.com/tdewolff/minify v2.3.6+incompatible
 	github.com/tkw1536/goprogram v0.2.4
+	github.com/tkw1536/pkglib v0.0.0-20230225192547-93a1aa42a292
 	github.com/yuin/goldmark v1.4.13
 	github.com/yuin/goldmark-meta v1.1.0
 	golang.org/x/crypto v0.3.0
-	golang.org/x/exp v0.0.0-20230105202349-8879d0199aa3
+	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
 	golang.org/x/sync v0.1.0
-	golang.org/x/term v0.3.0
+	golang.org/x/term v0.5.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.4.4
 	gorm.io/gorm v1.24.2
@@ -41,7 +42,7 @@ require (
 	github.com/mattn/go-isatty v0.0.16 // indirect
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
 	github.com/tdewolff/test v1.0.7 // indirect
-	golang.org/x/sys v0.3.0 // indirect
+	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/tools v0.4.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )

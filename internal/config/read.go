@@ -21,7 +21,12 @@ func (config *Config) Unmarshal(env environment.Environment, src io.Reader) erro
 		}
 	}
 
-	// do the validator
+	// TODO: should this be done seperatly?
+	return config.Validate(env)
+}
+
+// Validate validates this configuration file and sets appropriate defaults
+func (config *Config) Validate(env environment.Environment) error {
 	return validator.Validate(config, validators.New(env))
 }
 

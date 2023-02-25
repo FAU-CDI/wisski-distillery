@@ -9,6 +9,10 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
+	"github.com/tkw1536/pkglib/yamlx"
+	"gopkg.in/yaml.v3"
+
+	_ "embed"
 )
 
 // Config represents the configuration of a WissKI Distillery.
@@ -41,10 +45,45 @@ type Config struct {
 	SessionSecret string `yaml:"session_secret" default:"" validate:"nonempty"`
 
 	// interval to trigger distillery cron tasks in
-	CronInterval time.Duration `env:"cron_interval" default:"10m" validate:"duration"`
+	CronInterval time.Duration `yaml:"cron_interval" default:"10m" validate:"duration"`
 
 	// ConfigPath is the path this configuration was loaded from (if any)
 	ConfigPath string `yaml:"-"`
+}
+
+//go:embed config.yml
+var configBytes []byte
+
+// Marshal marshals this configuration in nicely formatted form.
+// Where possible, this will provided yaml comments.
+//
+// Previous may optionally provide the bytes of a previous configuration file to replace settings in.
+// The previous yaml file must be a valid configuration yaml, meaning all fields should be set.
+// When previous is of length 0, the default configuration yaml will be used instead.
+func Marshal(config *Config, previous []byte) ([]byte, error) {
+	if len(previous) == 0 {
+		previous = configBytes
+	}
+
+	// load the template yaml
+	template := new(yaml.Node)
+	if err := yaml.Unmarshal(previous, template); err != nil {
+		return nil, err
+	}
+
+	// load the config yaml
+	cfg, err := yamlx.Marshal(config)
+	if err != nil {
+		return nil, err
+	}
+
+	// transplant the configuration yaml into the template
+	if err := yamlx.Transplant(template, cfg); err != nil {
+		return nil, err
+	}
+
+	// marshal it again as a set of bytes
+	return yaml.Marshal(template)
 }
 
 // CSRFSecret return the csrfSecret derived from the session secret

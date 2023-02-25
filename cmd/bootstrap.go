@@ -96,7 +96,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	// TODO: Should we read an existing configuration file?
 	wdcliPath := filepath.Join(root, bootstrap.Executable)
-	envPath := filepath.Join(root, bootstrap.ConfigFile)
+	cfgPath := filepath.Join(root, bootstrap.ConfigFile)
 
 	// setup a new template for the configuration file!
 	var tpl config.Template
@@ -123,25 +123,16 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	{
-		if !fsx.IsFile(env, envPath) {
+		if !fsx.IsFile(env, cfgPath) {
+			// generate the configuration from the template
+			cfg := tpl.Generate()
+
+			// write out all the extra config files
 			if err := logging.LogOperation(func() error {
-				env, err := env.Create(envPath, environment.DefaultFilePerm)
-				if err != nil {
-					return err
-				}
-				defer env.Close()
-
-				return tpl.MarshalTo(env)
-			}, context.Stderr, context.Context, "Installing configuration file"); err != nil {
-				return errBootstrapWriteConfig.WithMessageF(err)
-			}
-
-			if err := logging.LogOperation(func() error {
-
 				context.Println(tpl.SelfOverridesFile)
 				if err := environment.WriteFile(
 					env,
-					tpl.SelfOverridesFile,
+					cfg.Paths.OverridesJSON,
 					bootstrap.DefaultOverridesJSON,
 					fs.ModePerm,
 				); err != nil {
@@ -151,7 +142,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 				context.Println(tpl.SelfResolverBlockFile)
 				if err := environment.WriteFile(
 					env,
-					tpl.SelfResolverBlockFile,
+					cfg.Paths.ResolverBlocks,
 					bootstrap.DefaultResolverBlockedTXT,
 					fs.ModePerm,
 				); err != nil {
@@ -159,8 +150,34 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 				}
 
 				return nil
-			}, context.Stderr, context.Context, "Creating additional config files"); err != nil {
+			}, context.Stderr, context.Context, "Creating custom config files"); err != nil {
 				return errBootstrapCreateFile.WithMessageF(err)
+			}
+
+			// Validate configuration file!
+			if err := cfg.Validate(env); err != nil {
+				return err
+			}
+
+			// and marshal it out!
+			if err := logging.LogOperation(func() error {
+				configYML, err := env.Create(cfgPath, environment.DefaultFilePerm)
+				if err != nil {
+					return err
+				}
+				defer configYML.Close()
+
+				bytes, err := config.Marshal(&cfg, nil)
+				if err != nil {
+					return err
+				}
+
+				{
+					_, err := configYML.Write(bytes)
+					return err
+				}
+			}, context.Stderr, context.Context, "Installing primary configuration file"); err != nil {
+				return errBootstrapWriteConfig.WithMessageF(err)
 			}
 		}
 
@@ -168,7 +185,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	// re-read the configuration and print it!
 	logging.LogMessage(context.Stderr, context.Context, "Configuration is now complete")
-	f, err := env.Open(envPath)
+	f, err := env.Open(cfgPath)
 	if err != nil {
 		return errBootstrapOpenConfig.WithMessageF(err)
 	}
@@ -182,7 +199,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	// Tell the user how to proceed
 	logging.LogMessage(context.Stderr, context.Context, "Bootstrap is complete")
-	context.Printf("Adjust the configuration file at %s\n", envPath)
+	context.Printf("Adjust the configuration file at %s\n", cfgPath)
 	context.Printf("Then make sure 'docker compose' is installed.\n")
 	context.Printf("Finally grab a GraphDB zipped source file and run:\n")
 	context.Printf("%s system_update /path/to/graphdb.zip\n", wdcliPath)

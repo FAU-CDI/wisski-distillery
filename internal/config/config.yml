@@ -1,17 +1,19 @@
 paths:
-    # Several files are required to manage the system
-    # On top of this all real-system space will be created under this directory.  
-    root: ${DEPLOY_ROOT}
+    # A WissKI Distillery needs to store a lot of data on disk.
+    # This setting defines a root folder all of these will be placed in.
+    # On top of this all real-system space will be created under this directory
+    root: ""
 
-    # You can override individual URLS in the homepage. 
-    # Do this by adding URLs (without trailing '/'s) into a JSON file.
-    # This is the path to that file.
-    overrides: ${SELF_OVERRIDES_FILE}
+    # Individual paths on the root domain can be overwritten.
+    # This can be achieved by adding URLs (without trailing '/'s) into a JSON file.
+    # This setting defines the path to that file.
+    overrides: ""
 
     # You can block specific prefixes within Triplestore from showing up in the global resolver.
     # Do this by adding one prefix per line in this file.
     # Lines starting with '#' and blank lines are ignored.
-    blocks: ${SELF_RESOLVER_BLOCK_FILE}
+    # This setting defines the path to that file.
+    blocks: ""
 
 http:
   # Each created Drupal Instance corresponds to a single domain name. 
@@ -30,7 +32,8 @@ http:
 
 # By default, the default domain redirects to the distillery repository. 
 # If you want to change this, set an alternate domain name here. 
-home: ""
+theme:
+  home: ""
 
 docker:
   # The name of the (global) docker network to run the distillery services in.

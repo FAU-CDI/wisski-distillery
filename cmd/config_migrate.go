@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"bytes"
+	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -44,21 +44,23 @@ func (c cfgMigrate) Run(context wisski_distillery.Context) error {
 	// then marshal, and re-read
 
 	var cfg config.Config
-	{
-		var mconfig config.Config
-		var output bytes.Buffer
-
-		if err := legacy.Migrate(&mconfig, env, file); err != nil {
-			return err
-		}
-		if err := mconfig.Marshal(&output); err != nil {
-			return err
-		}
-		if err := cfg.Unmarshal(env, &output); err != nil {
-			return err
-		}
+	// migrate the legacy config
+	if err := legacy.Migrate(&cfg, env, file); err != nil {
+		return err
 	}
 
-	// do a final marshal
-	return cfg.Marshal(context.Stdout)
+	// validate it!
+	if err := cfg.Validate(env); err != nil {
+		return err
+	}
+
+	// marshal the config
+	bytes, err := config.Marshal(&cfg, nil)
+	if err != nil {
+		return err
+	}
+
+	// and print it!
+	fmt.Println(string(bytes))
+	return nil
 }

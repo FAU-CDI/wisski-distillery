@@ -8,7 +8,7 @@ type DatabaseConfig struct {
 
 	// Prefix for new users and data setss
 	UserPrefix string `yaml:"user_prefix" default:"wisski-distillery-" validate:"slug"`
-	DataPrefix string `yaml:"fragment_prefix" default:"wisski-distillery-" validate:"slug"`
+	DataPrefix string `yaml:"data_prefix" default:"wisski-distillery-" validate:"slug"`
 }
 
 type SQLConfig struct {
