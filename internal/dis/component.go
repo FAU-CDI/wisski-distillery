@@ -2,8 +2,8 @@ package dis
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/tkw1536/pkglib/collection"
+	"github.com/tkw1536/pkglib/lifetime"
 )
 
 //
@@ -11,18 +11,19 @@ import (
 //
 
 func (dis *Distillery) init() {
-	dis.poolInit.Do(func() {
-		dis.pool.Init = component.Init
-		lazy.RegisterPoolGroup[component.Backupable](&dis.pool)
-		lazy.RegisterPoolGroup[component.Snapshotable](&dis.pool)
-		lazy.RegisterPoolGroup[component.DistilleryFetcher](&dis.pool)
-		lazy.RegisterPoolGroup[component.Installable](&dis.pool)
-		lazy.RegisterPoolGroup[component.Provisionable](&dis.pool)
-		lazy.RegisterPoolGroup[component.Routeable](&dis.pool)
-		lazy.RegisterPoolGroup[component.Cronable](&dis.pool)
-		lazy.RegisterPoolGroup[component.UserDeleteHook](&dis.pool)
-		lazy.RegisterPoolGroup[component.Table](&dis.pool)
-		lazy.RegisterPoolGroup[component.Menuable](&dis.pool)
+	dis.lifetimeInit.Do(func() {
+		dis.lifetime.Init = component.Init
+
+		lifetime.RegisterGroup[component.Backupable](&dis.lifetime)
+		lifetime.RegisterGroup[component.Snapshotable](&dis.lifetime)
+		lifetime.RegisterGroup[component.DistilleryFetcher](&dis.lifetime)
+		lifetime.RegisterGroup[component.Installable](&dis.lifetime)
+		lifetime.RegisterGroup[component.Provisionable](&dis.lifetime)
+		lifetime.RegisterGroup[component.Routeable](&dis.lifetime)
+		lifetime.RegisterGroup[component.Cronable](&dis.lifetime)
+		lifetime.RegisterGroup[component.UserDeleteHook](&dis.lifetime)
+		lifetime.RegisterGroup[component.Table](&dis.lifetime)
+		lifetime.RegisterGroup[component.Menuable](&dis.lifetime)
 	})
 }
 
@@ -33,13 +34,13 @@ func (dis *Distillery) init() {
 // manual initializes a component from the provided distillery.
 func manual[C component.Component](init func(component C)) initFunc {
 	return func(context ctx) component.Component {
-		return lazy.Make(context, init)
+		return lifetime.Make(context, init)
 	}
 }
 
 // use is like r, but does not provided additional initialization
 func auto[C component.Component](context ctx) component.Component {
-	return lazy.Make[component.Component, C](context, nil)
+	return lifetime.Make[component.Component, C](context, nil)
 }
 
 // register returns all components of the distillery
@@ -53,7 +54,7 @@ func (dis *Distillery) register(context ctx) []component.Component {
 }
 
 // ctx is a context for component initialization
-type ctx = *lazy.PoolContext[component.Component]
+type ctx = *lifetime.InjectorContext[component.Component]
 
 //
 //  ==== export ====
@@ -62,12 +63,12 @@ type ctx = *lazy.PoolContext[component.Component]
 // export is a convenience function to export a single component
 func export[C component.Component](dis *Distillery) C {
 	dis.init()
-	return lazy.ExportComponent[component.Component, component.Still, C](&dis.pool, dis.Still, dis.register)
+	return lifetime.ExportComponent[component.Component, component.Still, C](&dis.lifetime, dis.Still, dis.register)
 }
 
 func exportAll[C component.Component](dis *Distillery) []C {
 	dis.init()
-	return lazy.ExportComponents[component.Component, component.Still, C](&dis.pool, dis.Still, dis.register)
+	return lifetime.ExportComponents[component.Component, component.Still, C](&dis.lifetime, dis.Still, dis.register)
 }
 
 type initFunc = func(context ctx) component.Component

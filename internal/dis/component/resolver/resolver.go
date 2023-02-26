@@ -15,8 +15,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/rs/zerolog"
+	"github.com/tkw1536/pkglib/lazy"
 
 	_ "embed"
 )

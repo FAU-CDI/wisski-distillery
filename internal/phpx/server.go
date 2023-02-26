@@ -11,10 +11,10 @@ import (
 
 	_ "embed"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/tkw1536/goprogram/stream"
 	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/contextx"
+	"github.com/tkw1536/pkglib/lazy"
 	"github.com/tkw1536/pkglib/nobufio"
 )
 

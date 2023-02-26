@@ -11,10 +11,10 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/zerolog"
+	"github.com/tkw1536/pkglib/lifetime"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 )
 
 type Admin struct {
@@ -33,7 +33,7 @@ type Admin struct {
 		Sockets *socket.Sockets
 	}
 
-	Analytics *lazy.PoolAnalytics
+	Analytics *lifetime.Analytics
 }
 
 var (

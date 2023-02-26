@@ -9,7 +9,7 @@ import (
 
 // Ingredients represent a part of a WissKI instance.
 // An Ingredient should be implemented as a pointer to a struct.
-// Every ingredient must embed [Base] and should be initialized using [Init] inside a [lazy.Pool].
+// Every ingredient must embed [Base] and should be initialized using [Init] inside a [lifetime.Lifetime].
 //
 // By convention these are defined within their corresponding subpackage.
 // This subpackage also contains all required resources.
@@ -35,7 +35,7 @@ func (cb *Base) getBase() *Base {
 }
 
 // Init initializes a new Ingredient.
-// Init is only intended to be used within a lazy.Pool[Ingredient,*Liquid].
+// Init is only intended to be used within a lifetime.Lifetime[Ingredient,*Liquid].
 func Init(ingredient Ingredient, liquid *liquid.Liquid) Ingredient {
 	base := ingredient.getBase() // pointer to a struct
 	base.Liquid = liquid

@@ -7,7 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
+	"github.com/tkw1536/pkglib/lifetime"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -18,7 +18,7 @@ type Info struct {
 		Fetchers []ingredient.WissKIFetcher
 	}
 
-	Analytics *lazy.PoolAnalytics
+	Analytics *lifetime.Analytics
 }
 
 var (

@@ -11,7 +11,7 @@ import (
 
 // Components represents a logical subsystem of the distillery.
 // A Component should be implemented as a pointer to a struct.
-// Every component must embed [Base] and should be initialized using [Init] inside a [lazy.Pool].
+// Every component must embed [Base] and should be initialized using [Init] inside a [lifetime.Lifetime].
 //
 // By convention these are defined within their corresponding subpackage.
 // This subpackage also contains all required resources.
@@ -41,7 +41,7 @@ func (cb *Base) getBase() *Base {
 }
 
 // Init initialzes a new componeont Component with the provided still.
-// Init is only initended to be used within a lazy.Pool[Component,Still].
+// Init is only initended to be used within a lifetime.Lifetime[Component,Still].
 func Init(component Component, core Still) Component {
 	base := component.getBase() // pointer to a struct
 	base.Still = core

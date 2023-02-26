@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/gorilla/websocket"
+	"github.com/tkw1536/pkglib/lazy"
 )
 
 // WebSocket implements serving a WebSocket

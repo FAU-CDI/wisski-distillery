@@ -18,7 +18,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/users"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/reserve"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/liquid"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
+	"github.com/tkw1536/pkglib/lifetime"
 )
 
 // WissKI represents a single WissKI Instance.
@@ -26,8 +26,8 @@ import (
 type WissKI struct {
 	liquid.Liquid
 
-	poolInit sync.Once
-	pool     lazy.Pool[ingredient.Ingredient, *liquid.Liquid]
+	lifetimeInit sync.Once
+	lifetime     lifetime.Lifetime[ingredient.Ingredient, *liquid.Liquid]
 }
 
 //
@@ -110,7 +110,7 @@ func (wisski *WissKI) allIngredients() []initFunc {
 
 		// info
 		manual(func(info *info.Info) {
-			info.Analytics = &wisski.pool.Analytics
+			info.Analytics = &wisski.lifetime.Analytics
 		}),
 		auto[*barrel.LastRebuildFetcher],
 		auto[*barrel.RunningFetcher],

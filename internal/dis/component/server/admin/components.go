@@ -12,8 +12,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
 	"github.com/julienschmidt/httprouter"
+	"github.com/tkw1536/pkglib/lifetime"
 )
 
 //go:embed "html/anal.html"
@@ -27,7 +27,7 @@ var analTemplate = templating.Parse[analContext](
 type analContext struct {
 	templating.RuntimeFlags
 
-	Analytics lazy.PoolAnalytics
+	Analytics lifetime.Analytics
 }
 
 func (admin *Admin) components(ctx context.Context) http.Handler {

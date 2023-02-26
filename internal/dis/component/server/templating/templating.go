@@ -2,7 +2,7 @@ package templating
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
+	"github.com/tkw1536/pkglib/lazy"
 )
 
 // Templating implements templating customization

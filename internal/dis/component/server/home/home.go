@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
+	"github.com/tkw1536/pkglib/lazy"
 )
 
 type Home struct {

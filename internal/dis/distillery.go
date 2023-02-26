@@ -34,7 +34,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/web"
-	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
+	"github.com/tkw1536/pkglib/lifetime"
 )
 
 // Distillery represents a WissKI Distillery
@@ -54,9 +54,9 @@ type Distillery struct {
 	// But for now this will just hold upstream configuration.
 	Upstream Upstream
 
-	// pool holds all components
-	pool     lazy.Pool[component.Component, component.Still]
-	poolInit sync.Once
+	// lifetime holds all components
+	lifetime     lifetime.Lifetime[component.Component, component.Still]
+	lifetimeInit sync.Once
 }
 
 // Upstream contains the configuration for accessing remote configuration.
@@ -186,7 +186,7 @@ func (dis *Distillery) allComponents() []initFunc {
 			resolver.RefreshInterval = time.Minute
 		}),
 		manual(func(admin *admin.Admin) {
-			admin.Analytics = &dis.pool.Analytics
+			admin.Analytics = &dis.lifetime.Analytics
 		}),
 		auto[*socket.Sockets],
 		auto[*legal.Legal],
