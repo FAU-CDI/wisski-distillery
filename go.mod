@@ -9,12 +9,10 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/sessions v1.2.1
-	github.com/gorilla/websocket v1.5.0
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.4.0
 	github.com/rs/zerolog v1.29.0
-	github.com/tdewolff/minify v2.3.6+incompatible
 	github.com/tkw1536/goprogram v0.3.0
 	github.com/tkw1536/pkglib v0.0.0-20230225192547-93a1aa42a292
 	github.com/yuin/goldmark v1.5.4
@@ -34,12 +32,14 @@ require (
 	github.com/boombuler/barcode v1.0.1 // indirect
 	github.com/feiin/sqlstring v0.3.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/gosuri/uilive v0.0.4 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/tdewolff/minify v2.3.6+incompatible // indirect
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect

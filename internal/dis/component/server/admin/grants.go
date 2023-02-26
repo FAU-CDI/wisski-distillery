@@ -13,8 +13,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
+	"github.com/tkw1536/pkglib/httpx"
+	"github.com/tkw1536/pkglib/httpx/field"
+
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"

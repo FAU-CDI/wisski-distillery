@@ -12,8 +12,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/julienschmidt/httprouter"
+	"github.com/tkw1536/pkglib/httpx"
 )
 
 type UserPanel struct {

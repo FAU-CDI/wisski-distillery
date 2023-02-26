@@ -14,7 +14,7 @@ import (
 	"github.com/tkw1536/pkglib/lifetime"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/tkw1536/pkglib/httpx"
 )
 
 type Admin struct {

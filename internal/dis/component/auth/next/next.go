@@ -11,7 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/users"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/tkw1536/pkglib/httpx"
 )
 
 type Next struct {

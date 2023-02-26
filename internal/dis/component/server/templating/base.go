@@ -10,9 +10,9 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
+	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/pools"
 	"github.com/tkw1536/pkglib/timex"
 )

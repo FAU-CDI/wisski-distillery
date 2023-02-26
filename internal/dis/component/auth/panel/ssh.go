@@ -9,10 +9,10 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
 	"github.com/gliderlabs/ssh"
 	"github.com/rs/zerolog"
+	"github.com/tkw1536/pkglib/httpx"
+	"github.com/tkw1536/pkglib/httpx/field"
 
 	gossh "golang.org/x/crypto/ssh"
 

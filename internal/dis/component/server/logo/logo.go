@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/tkw1536/pkglib/httpx"
 
 	_ "embed"
 )
@@ -41,8 +41,8 @@ var faviconRoute = httpx.Response{
 
 var logoSVGRoute = httpx.Response{
 	ContentType: "image/svg+xml",
-	Body:        httpx.MinifySVG(logoSVG),
-}
+	Body:        logoSVG,
+}.Minify()
 
 func (*Logo) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

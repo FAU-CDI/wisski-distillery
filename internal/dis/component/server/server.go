@@ -9,9 +9,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/tkw1536/pkglib/contextx"
+	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/mux"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
 )

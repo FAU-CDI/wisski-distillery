@@ -5,15 +5,15 @@ import (
 	"html/template"
 	"net/http"
 
-	_ "embed"
-
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
 	"github.com/julienschmidt/httprouter"
+	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/lifetime"
+
+	_ "embed"
 )
 
 //go:embed "html/anal.html"

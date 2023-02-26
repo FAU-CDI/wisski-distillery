@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
+	"github.com/tkw1536/pkglib/httpx"
 )
 
 // Protect returns a new handler which requires a user to be logged in and pass the perm function.
