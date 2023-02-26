@@ -1,184 +1,4 @@
 <div class="pure-u-1-1">
-    <h2 id="overview">Distillery Configuration</h2>
-</div>
-<div class="pure-u-1 pure-u-xl-1-3">
-    <div class="padding">
-        <div class="overflow">
-            <table class="pure-table pure-table-bordered">
-                <thead>
-                    <tr>
-                        <th colspan="2">
-                            Domains
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            Primary
-                        </td>
-                        <td>
-                            <code>{{.Config.DefaultDomain}}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Extra
-                        </td>
-                        <td>
-                            {{ range .Config.SelfExtraDomains }}
-                            <code>{{.}}</code><br />
-                            {{ end }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Email <small>(HTTPS)</small>
-                        </td>
-                        <td>
-                            <code>{{.Config.CertbotEmail}}</code>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-<div class="pure-u-1 pure-u-xl-1-3">
-    <div class="padding">
-        <div class="overflow">
-            <table class="pure-table pure-table-bordered">
-                <thead>
-                    <tr>
-                        <th colspan="2">
-                            Database Settings
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            MySQL User Prefix
-                        </td>
-                        <td>
-                            <code>{{.Config.MysqlUserPrefix}}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            MySQL Database Prefix
-                        </td>
-                        <td>
-                            <code>{{.Config.MysqlDatabasePrefix}}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            GraphDB User Prefix
-                        </td>
-                        <td>
-                            <code>{{.Config.GraphDBUserPrefix}}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            GraphDB Database Prefix
-                        </td>
-                        <td>
-                            <code>{{.Config.GraphDBRepoPrefix}}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Bookkeeping Database
-                        </td>
-                        <td>
-                            <code>{{.Config.DistilleryDatabase}}</code>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-<div class="pure-u-1 pure-u-xl-1-3">
-    <div class="padding">
-        <div class="overflow">
-            <table class="pure-table pure-table-bordered">
-                <thead>
-                    <tr>
-                        <th colspan="2">
-                            Directory Settings
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr>
-                        <td>
-                            <code>root</code>
-                        </td>
-                        <td>
-                            <code>{{.Config.Paths.Root}}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <code>config</code>
-                        </td>
-                        <td>
-                            <code>{{.Config.ConfigPath}}</code>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-<div class="pure-u-1 pure-u-xl-2-5">
-    <div class="padding">
-        <div class="overflow">
-            <table class="pure-table pure-table-bordered">
-                <thead>
-                    <tr>
-                        <th colspan="2">
-                            Misc Settings
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    <tr>
-                        <td>
-                            Homepage
-                        </td>
-                        <td>
-                            <a href="{{.Config.SelfRedirect}}" target="_blank" rel="noopener noreferrer">{{.Config.SelfRedirect}}</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Docker Network Name
-                        </td>
-                        <td>
-                            <code>{{.Config.Docker.Network}}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Backup Age
-                        </td>
-                        <td>
-                            <code>{{.Config.MaxBackupAge}}</code> Day(s)
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div class="pure-u-1-1">
     <h2 id="backups">Backups</h2>
     <p>
         <button class="remote-action pure-button pure-button-action" data-action="backup" data-buffer="1000" data-force-reload>Make a Backup</button>
@@ -210,4 +30,14 @@
             {{ end}}
         </tbody>
     </table>
+</div>
+
+<div class="pure-u-1-1">
+    <h2 id="overview">Distillery Configuration</h2>
+</div>
+
+<div class="pure-u-1-1">
+    <code>
+        <pre>{{ .Config.MarshalSensitive }}</pre>
+    </code>
 </div>

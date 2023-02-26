@@ -4,7 +4,7 @@ type DatabaseConfig struct {
 	// Credentials for the admin user.
 	// Is automatically created if it does not exist.
 	AdminUsername string `yaml:"username" default:"admin" validate:"nonempty"`
-	AdminPassword string `yaml:"password" validate:"nonempty"`
+	AdminPassword string `yaml:"password" validate:"nonempty"  sensitive:"****"`
 
 	// Prefix for new users and data setss
 	UserPrefix string `yaml:"user_prefix" default:"wisski-distillery-" validate:"slug"`

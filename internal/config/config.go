@@ -2,13 +2,12 @@
 package config
 
 import (
-	"fmt"
 	"hash/fnv"
 	"math/rand"
 	"reflect"
 	"time"
 
-	"github.com/tkw1536/pkglib/pools"
+	"github.com/tkw1536/pkglib/reflectx"
 	"github.com/tkw1536/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
 
@@ -42,13 +41,41 @@ type Config struct {
 	PublicSSHPort uint16 `yaml:"ssh_port" default:"2222" validate:"port"`
 
 	// session secret holds the secret for login
-	SessionSecret string `yaml:"session_secret" validate:"nonempty"`
+	SessionSecret string `yaml:"session_secret" validate:"nonempty" sensitive:"true"`
 
 	// interval to trigger distillery cron tasks in
 	CronInterval time.Duration `yaml:"cron_interval" default:"10m" validate:"duration"`
 
 	// ConfigPath is the path this configuration was loaded from (if any)
 	ConfigPath string `yaml:"-"`
+}
+
+func zeroSensitive(v reflect.Value) {
+	reflectx.IterateFields(v.Type(), func(field reflect.StructField, index int) (stop bool) {
+		// if we set the recurse tag, recurse into it
+		if _, ok := field.Tag.Lookup("recurse"); ok {
+			zeroSensitive(v.FieldByName(field.Name))
+		}
+
+		// if the field is sensitive, set the zero value!
+		if _, ok := field.Tag.Lookup("sensitive"); ok {
+			v.FieldByName(field.Name).Set(reflect.Zero(field.Type))
+		}
+		return false
+	})
+}
+
+func (config Config) MarshalSensitive() string {
+	// zero out all the sensitive fields
+	zeroSensitive(reflect.ValueOf(&config).Elem())
+
+	// marshal the result
+	result, err := Marshal(&config, nil)
+	if err != nil {
+		return ""
+	}
+
+	return string(result)
 }
 
 //go:embed config.yml
@@ -99,29 +126,4 @@ func (config *Config) CSRFSecret() []byte {
 	secret := make([]byte, 32)
 	rand.Read(secret)
 	return secret
-}
-
-// String serializes this configuration into a string
-func (config Config) String() string {
-	builder := pools.GetBuilder()
-	defer pools.ReleaseBuilder(builder)
-
-	vConfig := reflect.ValueOf(config)
-	tConfig := vConfig.Type()
-
-	// iterate over the types
-	numValues := tConfig.NumField()
-	for i := 0; i < numValues; i++ {
-		tField := tConfig.Field(i)
-		vField := vConfig.FieldByName(tField.Name)
-
-		env := tField.Tag.Get("env")
-		if env == "" {
-			continue
-		}
-
-		fmt.Fprintf(builder, "%s=%v\n", env, vField.Interface())
-	}
-
-	return builder.String()
 }
