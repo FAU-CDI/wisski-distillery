@@ -1,13 +1,15 @@
 package config
 
 import (
+	"crypto/rand"
 	"path/filepath"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
+	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
-	"github.com/FAU-CDI/wisski-distillery/pkg/password"
 	"github.com/tkw1536/pkglib/hostname"
+	"github.com/tkw1536/pkglib/password"
 )
 
 // Template is a template for the configuration file
@@ -47,7 +49,7 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	}
 
 	if tpl.TriplestoreAdminPassword == "" {
-		tpl.TriplestoreAdminPassword, err = password.Password(64)
+		tpl.TriplestoreAdminPassword, err = password.Generate(rand.Reader, 64, passwordx.Charset)
 		if err != nil {
 			return err
 		}
@@ -58,14 +60,14 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	}
 
 	if tpl.MysqlAdminPassword == "" {
-		tpl.MysqlAdminPassword, err = password.Password(64)
+		tpl.MysqlAdminPassword, err = password.Generate(rand.Reader, 64, passwordx.Charset)
 		if err != nil {
 			return err
 		}
 	}
 
 	if tpl.DockerNetworkName == "" {
-		tpl.DockerNetworkName, err = password.Password(10)
+		tpl.DockerNetworkName, err = password.Generate(rand.Reader, 10, passwordx.Charset)
 		if err != nil {
 			return err
 		}
@@ -73,7 +75,7 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	}
 
 	if tpl.SessionSecret == "" {
-		tpl.SessionSecret, err = password.Password(100)
+		tpl.SessionSecret, err = password.Generate(rand.Reader, 100, passwordx.Charset)
 		if err != nil {
 			return err
 		}

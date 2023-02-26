@@ -1,18 +1,19 @@
 package exporter
 
 import (
+	"crypto/rand"
 	"fmt"
 	"path/filepath"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
+	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/password"
+	"github.com/tkw1536/pkglib/password"
 )
 
 // Exporter manages snapshots and backups
@@ -59,7 +60,7 @@ func (dis *Exporter) NewArchivePath(prefix string) (path string) {
 // newSnapshot name returns a new basename for a snapshot with the provided prefix.
 // The name is guaranteed to be unique within this process.
 func (*Exporter) newSnapshotName(prefix string) string {
-	suffix, _ := password.Password(10) // silently ignore any errors!
+	suffix, _ := password.Generate(rand.Reader, 10, passwordx.Snapshot) // silently ignore any errors!
 	if prefix == "" {
 		prefix = "backup"
 	} else {

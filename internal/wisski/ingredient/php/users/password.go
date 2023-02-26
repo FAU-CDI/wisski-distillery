@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/password"
+	"github.com/tkw1536/pkglib/password"
 )
 
 var errGetValidator = errors.New("GetPasswordValidator: Unknown Error")
@@ -64,7 +65,7 @@ func (pv PasswordValidator) CheckDictionary(ctx context.Context, writer io.Write
 		}
 		return errPasswordUsername
 	}
-	for candidate := range password.CommonPasswords() {
+	for candidate := range password.Passwords(passwordx.Sources...) {
 		if ctx.Err() != nil {
 			continue
 		}

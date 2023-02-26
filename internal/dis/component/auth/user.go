@@ -9,10 +9,11 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/password"
+	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
 	"github.com/pkg/errors"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
+	"github.com/tkw1536/pkglib/password"
 	"github.com/tkw1536/pkglib/pools"
 	"github.com/tkw1536/pkglib/reflectx"
 	"golang.org/x/crypto/bcrypt"
@@ -263,7 +264,7 @@ func (auth *Auth) CheckPasswordPolicy(candidate string, username string) error {
 		return ErrPolicyTooShort
 	}
 
-	if err := password.CheckCommonPassword(func(common string) (bool, error) { return common == candidate, nil }); err != nil {
+	if err := password.CheckCommonPassword(func(common string) (bool, error) { return common == candidate, nil }, passwordx.Sources...); err != nil {
 		return ErrPolicyKnown
 	}
 
