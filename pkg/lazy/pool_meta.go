@@ -3,8 +3,8 @@ package lazy
 import (
 	"reflect"
 
-	"github.com/tkw1536/goprogram/lib/collection"
-	"github.com/tkw1536/goprogram/lib/reflectx"
+	"github.com/tkw1536/pkglib/collection"
+	"github.com/tkw1536/pkglib/reflectx"
 )
 
 // getMeta gets the component belonging to a component type

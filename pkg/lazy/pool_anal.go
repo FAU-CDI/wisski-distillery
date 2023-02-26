@@ -3,7 +3,7 @@ package lazy
 import (
 	"reflect"
 
-	"github.com/tkw1536/goprogram/lib/collection"
+	"github.com/tkw1536/pkglib/collection"
 	"golang.org/x/exp/slices"
 )
 

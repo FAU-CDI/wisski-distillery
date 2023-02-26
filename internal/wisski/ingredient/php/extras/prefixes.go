@@ -12,7 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
-	"github.com/tkw1536/goprogram/lib/collection"
+	"github.com/tkw1536/pkglib/collection"
 
 	_ "embed"
 )

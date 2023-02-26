@@ -8,10 +8,10 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errorx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/errorx"
+	"github.com/tkw1536/pkglib/pools"
 )
 
 var errTripleStoreFailedRepository = exit.Error{

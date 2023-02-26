@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"math/big"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
+	"github.com/tkw1536/pkglib/pools"
 )
 
 // NOTE(twiesing): A bunch of scripts cannot properly handle the extra characters in the password.

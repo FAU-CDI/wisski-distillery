@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/rs/zerolog"
+	"github.com/tkw1536/pkglib/timex"
 )
 
 type Cron struct {

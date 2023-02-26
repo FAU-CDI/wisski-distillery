@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
+	"github.com/tkw1536/pkglib/pools"
 	"golang.org/x/exp/slices"
 )
 

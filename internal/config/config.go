@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
+	"github.com/tkw1536/pkglib/pools"
 	"github.com/tkw1536/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
 

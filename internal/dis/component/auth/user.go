@@ -10,11 +10,11 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/pkg/errors"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
-	"github.com/tkw1536/goprogram/lib/reflectx"
+	"github.com/tkw1536/pkglib/pools"
+	"github.com/tkw1536/pkglib/reflectx"
 	"golang.org/x/crypto/bcrypt"
 )
 

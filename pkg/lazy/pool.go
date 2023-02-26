@@ -3,7 +3,7 @@ package lazy
 import (
 	"reflect"
 
-	"github.com/tkw1536/goprogram/lib/reflectx"
+	"github.com/tkw1536/pkglib/reflectx"
 )
 
 // Pool represents a pool of laziliy initialized and potentially referencing Component instances.

@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/rs/zerolog"
-	"github.com/tkw1536/goprogram/lib/reflectx"
+	"github.com/tkw1536/pkglib/reflectx"
 	"golang.org/x/exp/slices"
 )
 

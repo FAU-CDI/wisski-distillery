@@ -5,7 +5,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
-	"github.com/FAU-CDI/wisski-distillery/pkg/validator"
+	"github.com/tkw1536/pkglib/validator"
 	"gopkg.in/yaml.v3"
 )
 

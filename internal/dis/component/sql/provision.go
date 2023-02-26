@@ -5,8 +5,8 @@ import (
 	"errors"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errorx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/sqle"
+	"github.com/tkw1536/pkglib/errorx"
+	"github.com/tkw1536/pkglib/sqlx"
 )
 
 var errProvisionInvalidDatabaseParams = errors.New("Provision: Invalid parameters")
@@ -36,7 +36,7 @@ func (sql *SQL) CreateDatabase(ctx context.Context, name, user, password string)
 	// Apparently it's a "feature", see https://github.com/go-sql-driver/mysql/issues/398#issuecomment-169951763.
 
 	// quick and dirty check to make sure that all the names won't sql inject.
-	if !sqle.IsSafeDatabaseLiteral(name) || !sqle.IsSafeDatabaseSingleQuote(user) || !sqle.IsSafeDatabaseSingleQuote(password) {
+	if !sqlx.IsSafeDatabaseLiteral(name) || !sqlx.IsSafeDatabaseSingleQuote(user) || !sqlx.IsSafeDatabaseSingleQuote(password) {
 		return errProvisionInvalidDatabaseParams
 	}
 
@@ -71,7 +71,7 @@ func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allo
 	// (2) The underlying driver doesn't support "GRANT ALL PRIVILEGES"
 	// See also [sql.Provision].
 
-	if !sqle.IsSafeDatabaseSingleQuote(user) || !sqle.IsSafeDatabaseSingleQuote(password) {
+	if !sqlx.IsSafeDatabaseSingleQuote(user) || !sqlx.IsSafeDatabaseSingleQuote(password) {
 		return errProvisionInvalidDatabaseParams
 	}
 
@@ -97,7 +97,7 @@ var errPurgeUser = errors.New("PurgeUser: Failed to drop user")
 
 // SQLPurgeUser deletes the specified user from the database
 func (sql *SQL) PurgeUser(ctx context.Context, user string) error {
-	if !sqle.IsSafeDatabaseSingleQuote(user) {
+	if !sqlx.IsSafeDatabaseSingleQuote(user) {
 		return errPurgeUser
 	}
 
@@ -114,7 +114,7 @@ var errSQLPurgeDB = errors.New("unable to drop database: unsafe database name")
 
 // SQLPurgeDatabase deletes the specified db from the database
 func (sql *SQL) PurgeDatabase(db string) error {
-	if !sqle.IsSafeDatabaseLiteral(db) {
+	if !sqlx.IsSafeDatabaseLiteral(db) {
 		return errSQLPurgeDB
 	}
 	return sql.Exec("DROP DATABASE IF EXISTS `" + db + "`")

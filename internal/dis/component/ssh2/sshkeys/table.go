@@ -6,7 +6,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/gliderlabs/ssh"
-	"github.com/tkw1536/goprogram/lib/reflectx"
+	"github.com/tkw1536/pkglib/reflectx"
 )
 
 func (ssh2 *SSHKeys) TableInfo() component.TableInfo {

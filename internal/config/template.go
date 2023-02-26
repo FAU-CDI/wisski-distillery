@@ -6,8 +6,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
-	"github.com/FAU-CDI/wisski-distillery/pkg/hostname"
 	"github.com/FAU-CDI/wisski-distillery/pkg/password"
+	"github.com/tkw1536/pkglib/hostname"
 )
 
 // Template is a template for the configuration file
@@ -31,7 +31,7 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	}
 
 	if tpl.DefaultDomain == "" {
-		tpl.DefaultDomain = hostname.FQDN(env)
+		tpl.DefaultDomain = hostname.FQDN() // TODO: Make this environment specific
 	}
 
 	if tpl.SelfOverridesFile == "" {

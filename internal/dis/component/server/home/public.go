@@ -11,7 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
+	"github.com/tkw1536/pkglib/pools"
 )
 
 //go:embed "public.html"

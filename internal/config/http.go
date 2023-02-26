@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tkw1536/goprogram/lib/collection"
+	"github.com/tkw1536/pkglib/collection"
 )
 
 type HTTPConfig struct {

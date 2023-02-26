@@ -6,8 +6,8 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/tkw1536/pkglib/contextx"
 )
 
 var ErrCopySameFile = errors.New("src and dst must be different")
@@ -47,7 +47,7 @@ func CopyFile(ctx context.Context, env environment.Environment, dst, src string)
 	defer dstFile.Close()
 
 	// and do the copy!
-	_, err = cancel.Copy(ctx, dstFile, srcFile)
+	_, err = contextx.Copy(ctx, dstFile, srcFile)
 	return err
 }
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/mux"
+	"github.com/tkw1536/pkglib/mux"
 )
 
 // Routeable is a component that is servable

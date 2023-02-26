@@ -4,7 +4,7 @@ import (
 	"html/template"
 	"reflect"
 
-	"github.com/tkw1536/goprogram/lib/reflectx"
+	"github.com/tkw1536/pkglib/reflectx"
 	"golang.org/x/exp/slices"
 )
 

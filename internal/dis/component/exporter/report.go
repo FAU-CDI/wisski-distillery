@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/countwriter"
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
+	"github.com/tkw1536/pkglib/pools"
+	"github.com/tkw1536/pkglib/sequence"
 )
 
 func (snapshot Snapshot) String() string {
@@ -19,7 +19,7 @@ func (snapshot Snapshot) String() string {
 
 // Report writes a report from snapshot into w
 func (snapshot Snapshot) Report(w io.Writer) (int, error) {
-	ww := countwriter.NewCountWriter(w)
+	ww := &sequence.Writer{Writer: w}
 
 	encoder := json.NewEncoder(ww)
 	encoder.SetIndent("", "  ")
@@ -74,7 +74,7 @@ func (backup Backup) String() string {
 
 // Report formats a report for this backup, and writes it into Writer.
 func (backup Backup) Report(w io.Writer) (int, error) {
-	cw := countwriter.NewCountWriter(w)
+	cw := &sequence.Writer{Writer: w}
 
 	encoder := json.NewEncoder(cw)
 	encoder.SetIndent("", "  ")

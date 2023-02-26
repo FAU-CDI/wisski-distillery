@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
-	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
+	"github.com/tkw1536/pkglib/pools"
+	"github.com/tkw1536/pkglib/timex"
 )
 
 //go:embed "src/base.html"

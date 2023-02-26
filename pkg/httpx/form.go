@@ -7,8 +7,8 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx/field"
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/gorilla/csrf"
+	"github.com/tkw1536/pkglib/pools"
 )
 
 // Form provides a form that a user can submit via a http POST method call.

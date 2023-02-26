@@ -12,10 +12,10 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/pools"
 )
 
 // Stack represents a 'docker compose' stack living in a specific directory

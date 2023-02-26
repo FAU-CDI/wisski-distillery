@@ -12,8 +12,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/lib/collection"
 	"github.com/tkw1536/goprogram/status"
+	"github.com/tkw1536/pkglib/collection"
 	"golang.org/x/exp/slices"
 )
 

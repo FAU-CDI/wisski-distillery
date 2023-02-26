@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/mux"
+	"github.com/tkw1536/pkglib/mux"
 	"golang.org/x/exp/slices"
 )
 

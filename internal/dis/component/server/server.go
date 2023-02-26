@@ -8,9 +8,10 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
-	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
+	"github.com/tkw1536/pkglib/contextx"
+	"github.com/tkw1536/pkglib/mux"
+
 	"github.com/FAU-CDI/wisski-distillery/pkg/httpx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/mux"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
 )
@@ -103,8 +104,8 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 	}
 
 	// apply the given context function
-	public = httpx.WithContextWrapper(&publicM, func(rcontext context.Context) context.Context { return cancel.ValuesOf(rcontext, ctx) })
-	internal = httpx.WithContextWrapper(&internalM, func(rcontext context.Context) context.Context { return cancel.ValuesOf(rcontext, ctx) })
+	public = httpx.WithContextWrapper(&publicM, func(rcontext context.Context) context.Context { return contextx.WithValuesOf(rcontext, ctx) })
+	internal = httpx.WithContextWrapper(&internalM, func(rcontext context.Context) context.Context { return contextx.WithValuesOf(rcontext, ctx) })
 	err = nil
 	return
 }

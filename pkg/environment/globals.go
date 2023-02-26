@@ -6,8 +6,8 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/pools"
 	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/pools"
 )
 
 // ExecCommandError is returned by Exec when a command could not be executed.

@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/rs/zerolog"
+	"github.com/tkw1536/pkglib/timex"
 )
 
 const HTMLFlushInterval = time.Second / 10

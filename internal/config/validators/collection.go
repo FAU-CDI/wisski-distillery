@@ -2,7 +2,7 @@ package validators
 
 import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
-	"github.com/FAU-CDI/wisski-distillery/pkg/validator"
+	"github.com/tkw1536/pkglib/validator"
 )
 
 // New creates a new set of standard validators for the configuration

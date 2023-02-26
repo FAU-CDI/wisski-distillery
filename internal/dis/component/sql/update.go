@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/FAU-CDI/wisski-distillery/pkg/sqle"
-	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/sqlx"
+	"github.com/tkw1536/pkglib/timex"
 )
 
 // Shell runs a mysql shell with the provided databases.
@@ -65,7 +65,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	// create the admin user
 	logging.LogMessage(progress, ctx, "Creating sql database")
 	{
-		if !sqle.IsSafeDatabaseLiteral(sql.Config.SQL.Database) {
+		if !sqlx.IsSafeDatabaseLiteral(sql.Config.SQL.Database) {
 			return errSQLUnsafeDatabaseName
 		}
 		createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`;", sql.Config.SQL.Database)

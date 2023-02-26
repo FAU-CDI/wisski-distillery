@@ -11,11 +11,11 @@ import (
 
 	_ "embed"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/cancel"
 	"github.com/FAU-CDI/wisski-distillery/pkg/lazy"
-	"github.com/tkw1536/goprogram/lib/collection"
-	"github.com/tkw1536/goprogram/lib/nobufio"
 	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/collection"
+	"github.com/tkw1536/pkglib/contextx"
+	"github.com/tkw1536/pkglib/nobufio"
 )
 
 // Server represents a server that executes PHP code.
@@ -117,7 +117,7 @@ func (server *Server) MarshalEval(ctx context.Context, value any, code string) e
 	// find a delimiter for the code, and then send
 	io.WriteString(server.in, input)
 
-	data, err, _ := cancel.WithContext2(ctx, func(start func()) (string, error) {
+	data, err, _ := contextx.Run2(ctx, func(start func()) (string, error) {
 		return nobufio.ReadLine(server.out)
 	}, func() {
 		server.cancel()

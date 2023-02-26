@@ -16,7 +16,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/timex"
+	"github.com/tkw1536/pkglib/timex"
 )
 
 //

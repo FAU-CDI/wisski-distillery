@@ -8,8 +8,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
-	"github.com/tkw1536/goprogram/lib/collection"
-	"github.com/tkw1536/goprogram/lib/reflectx"
+	"github.com/tkw1536/pkglib/collection"
+	"github.com/tkw1536/pkglib/reflectx"
 )
 
 // Logger is responsible for logging backups and snapshots
