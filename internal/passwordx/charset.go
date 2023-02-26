@@ -2,8 +2,12 @@ package passwordx
 
 import "github.com/tkw1536/pkglib/password"
 
-// Charset is a Charset safe for usage within the distillery
-const Charset = password.DefaultCharSet
+// Safe is a charset used for generating passwords that can be safely passed without having to be escaped.
+const Safe = password.DefaultCharSet
 
-// Snapshot is a charset to be used to generate snapshot ids
-const Snapshot = password.DefaultCharSet
+// Printable is a charset that contains all printable ascii characters
+const Printable = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
+
+// Identifier is a charset to be used to generate unique identifiers.
+// These are typically used for snapshots and names.
+const Identifier = password.DefaultCharSet

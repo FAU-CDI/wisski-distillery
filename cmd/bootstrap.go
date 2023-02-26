@@ -100,7 +100,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	// setup a new template for the configuration file!
 	var tpl config.Template
-	tpl.DeployRoot = bs.Directory
+	tpl.RootPath = bs.Directory
 	tpl.DefaultDomain = bs.Hostname
 
 	// and use thge defaults
@@ -129,7 +129,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 			// write out all the extra config files
 			if err := logging.LogOperation(func() error {
-				context.Println(tpl.SelfOverridesFile)
+				context.Println(cfg.Paths.OverridesJSON)
 				if err := environment.WriteFile(
 					env,
 					cfg.Paths.OverridesJSON,
@@ -139,7 +139,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 					return err
 				}
 
-				context.Println(tpl.SelfResolverBlockFile)
+				context.Println(cfg.Paths.ResolverBlocks)
 				if err := environment.WriteFile(
 					env,
 					cfg.Paths.ResolverBlocks,

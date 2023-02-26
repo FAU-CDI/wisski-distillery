@@ -60,7 +60,7 @@ func (dis *Exporter) NewArchivePath(prefix string) (path string) {
 // newSnapshot name returns a new basename for a snapshot with the provided prefix.
 // The name is guaranteed to be unique within this process.
 func (*Exporter) newSnapshotName(prefix string) string {
-	suffix, _ := password.Generate(rand.Reader, 10, passwordx.Snapshot) // silently ignore any errors!
+	suffix, _ := password.Generate(rand.Reader, 10, passwordx.Identifier) // silently ignore any errors!
 	if prefix == "" {
 		prefix = "backup"
 	} else {

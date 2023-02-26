@@ -12,62 +12,55 @@ import (
 	"github.com/tkw1536/pkglib/password"
 )
 
-// Template is a template for the configuration file
+// Template is used to generate a configuration file.
 type Template struct {
-	DeployRoot               string `env:"DEPLOY_ROOT"`
-	DefaultDomain            string `env:"DEFAULT_DOMAIN"`
-	SelfOverridesFile        string `env:"SELF_OVERRIDES_FILE"`
-	SelfResolverBlockFile    string `env:"SELF_RESOLVER_BLOCK_FILE"`
-	TriplestoreAdminUser     string `env:"GRAPHDB_ADMIN_USER"`
-	TriplestoreAdminPassword string `env:"GRAPHDB_ADMIN_PASSWORD"`
-	MysqlAdminUsername       string `env:"MYSQL_ADMIN_USER"`
-	MysqlAdminPassword       string `env:"MYSQL_ADMIN_PASSWORD"`
-	DockerNetworkName        string `env:"DOCKER_NETWORK_NAME"`
-	SessionSecret            string `env:"SESSION_SECRET"`
+	RootPath      string
+	DefaultDomain string
+
+	TSAdminUser     string
+	TSAdminPassword string
+
+	SQLAdminUsername string
+	SQLAdminPassword string
+
+	DockerNetworkName string
+	SessionSecret     string
 }
 
 // SetDefaults sets defaults on the template
 func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
-	if tpl.DeployRoot == "" {
-		tpl.DeployRoot = bootstrap.BaseDirectoryDefault
+	if tpl.RootPath == "" {
+		tpl.RootPath = bootstrap.BaseDirectoryDefault
 	}
 
 	if tpl.DefaultDomain == "" {
 		tpl.DefaultDomain = hostname.FQDN() // TODO: Make this environment specific
 	}
 
-	if tpl.SelfOverridesFile == "" {
-		tpl.SelfOverridesFile = filepath.Join(tpl.DeployRoot, bootstrap.OverridesJSON)
+	if tpl.TSAdminUser == "" {
+		tpl.TSAdminUser = "admin"
 	}
 
-	if tpl.SelfResolverBlockFile == "" {
-		tpl.SelfResolverBlockFile = filepath.Join(tpl.DeployRoot, bootstrap.ResolverBlockedTXT)
-	}
-
-	if tpl.TriplestoreAdminUser == "" {
-		tpl.TriplestoreAdminUser = "admin"
-	}
-
-	if tpl.TriplestoreAdminPassword == "" {
-		tpl.TriplestoreAdminPassword, err = password.Generate(rand.Reader, 64, passwordx.Charset)
+	if tpl.TSAdminPassword == "" {
+		tpl.TSAdminPassword, err = password.Generate(rand.Reader, 64, passwordx.Safe)
 		if err != nil {
 			return err
 		}
 	}
 
-	if tpl.MysqlAdminUsername == "" {
-		tpl.MysqlAdminUsername = "admin"
+	if tpl.SQLAdminUsername == "" {
+		tpl.SQLAdminUsername = "admin"
 	}
 
-	if tpl.MysqlAdminPassword == "" {
-		tpl.MysqlAdminPassword, err = password.Generate(rand.Reader, 64, passwordx.Charset)
+	if tpl.SQLAdminPassword == "" {
+		tpl.SQLAdminPassword, err = password.Generate(rand.Reader, 64, passwordx.Safe)
 		if err != nil {
 			return err
 		}
 	}
 
 	if tpl.DockerNetworkName == "" {
-		tpl.DockerNetworkName, err = password.Generate(rand.Reader, 10, passwordx.Charset)
+		tpl.DockerNetworkName, err = password.Generate(rand.Reader, 10, passwordx.Identifier)
 		if err != nil {
 			return err
 		}
@@ -75,7 +68,7 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 	}
 
 	if tpl.SessionSecret == "" {
-		tpl.SessionSecret, err = password.Generate(rand.Reader, 100, passwordx.Charset)
+		tpl.SessionSecret, err = password.Generate(rand.Reader, 100, passwordx.Printable)
 		if err != nil {
 			return err
 		}
@@ -88,9 +81,9 @@ func (tpl *Template) SetDefaults(env environment.Environment) (err error) {
 func (tpl Template) Generate() Config {
 	return Config{
 		Paths: PathsConfig{
-			Root:           tpl.DeployRoot,
-			OverridesJSON:  tpl.SelfOverridesFile,
-			ResolverBlocks: tpl.SelfResolverBlockFile,
+			Root:           tpl.RootPath,
+			OverridesJSON:  filepath.Join(tpl.RootPath, bootstrap.OverridesJSON),
+			ResolverBlocks: filepath.Join(tpl.RootPath, bootstrap.ResolverBlockedTXT),
 		},
 		HTTP: HTTPConfig{
 			PrimaryDomain: tpl.DefaultDomain,
@@ -101,8 +94,8 @@ func (tpl Template) Generate() Config {
 		},
 		SQL: SQLConfig{
 			DatabaseConfig: DatabaseConfig{
-				AdminUsername: tpl.MysqlAdminUsername,
-				AdminPassword: tpl.MysqlAdminPassword,
+				AdminUsername: tpl.SQLAdminUsername,
+				AdminPassword: tpl.SQLAdminPassword,
 
 				UserPrefix: "mysql-factory-",
 				DataPrefix: "mysql-factory-",
@@ -112,8 +105,8 @@ func (tpl Template) Generate() Config {
 		},
 		TS: TSConfig{
 			DatabaseConfig: DatabaseConfig{
-				AdminUsername: tpl.TriplestoreAdminUser,
-				AdminPassword: tpl.TriplestoreAdminPassword,
+				AdminUsername: tpl.TSAdminUser,
+				AdminPassword: tpl.TSAdminPassword,
 
 				UserPrefix: "graphdb-factory-",
 				DataPrefix: "graphdb-factory-",

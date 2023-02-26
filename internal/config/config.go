@@ -42,7 +42,7 @@ type Config struct {
 	PublicSSHPort uint16 `yaml:"ssh_port" default:"2222" validate:"port"`
 
 	// session secret holds the secret for login
-	SessionSecret string `yaml:"session_secret" default:"" validate:"nonempty"`
+	SessionSecret string `yaml:"session_secret" validate:"nonempty"`
 
 	// interval to trigger distillery cron tasks in
 	CronInterval time.Duration `yaml:"cron_interval" default:"10m" validate:"duration"`
