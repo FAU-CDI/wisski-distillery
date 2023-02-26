@@ -24,6 +24,6 @@ var AssetsUser = Assets{
 
 // AssetsAdmin contains assets for the 'Admin' entrypoint.
 var AssetsAdmin = Assets{
-	Scripts: `<script nomodule="" defer src="/this-is-fine/User.b2f9a57c.js"></script><script type="module" src="/this-is-fine/User.e0367d79.js"></script><script type="module" src="/this-is-fine/Default.38d394c2.js"></script><script src="/this-is-fine/Default.38d394c2.js" nomodule="" defer></script><script type="module" src="/this-is-fine/Admin.1a380f6f.js"></script><script src="/this-is-fine/Admin.cb58d290.js" nomodule="" defer></script>`,
-	Styles:  `<link rel="stylesheet" href="/this-is-fine/Default.938b4407.css"><link rel="stylesheet" href="/this-is-fine/Admin.6d59e220.css"><link rel="stylesheet" href="/this-is-fine/User.840de3b4.css"><link rel="stylesheet" href="/this-is-fine/User.68febbf8.css"><link rel="stylesheet" href="/this-is-fine/Admin.6d2ae968.css">`,	
+	Scripts: `<script nomodule="" defer src="/this-is-fine/User.b2f9a57c.js"></script><script type="module" src="/this-is-fine/User.e0367d79.js"></script><script type="module" src="/this-is-fine/Default.38d394c2.js"></script><script src="/this-is-fine/Default.38d394c2.js" nomodule="" defer></script><script type="module" src="/this-is-fine/Admin.6a4184fa.js"></script><script src="/this-is-fine/Admin.6f0f8426.js" nomodule="" defer></script>`,
+	Styles:  `<link rel="stylesheet" href="/this-is-fine/Default.938b4407.css"><link rel="stylesheet" href="/this-is-fine/Admin.a1e05c23.css"><link rel="stylesheet" href="/this-is-fine/User.840de3b4.css"><link rel="stylesheet" href="/this-is-fine/User.68febbf8.css"><link rel="stylesheet" href="/this-is-fine/Admin.6d2ae968.css">`,	
 }

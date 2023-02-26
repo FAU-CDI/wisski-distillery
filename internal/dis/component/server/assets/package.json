@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "dayjs": "^1.11.5",
+    "highlight.js": "^11.7.0",
     "latex.css": "^1.8.0",
     "node-html-parser": "^6.1.1",
     "parcel": "^2.7.0",
