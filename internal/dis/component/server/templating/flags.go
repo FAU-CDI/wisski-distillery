@@ -31,7 +31,6 @@ func (flags Flags) Apply(r *http.Request, funcs ...FlagFunc) Flags {
 }
 
 // RuntimeFlags are passed to the template at runtime.
-// Any context may e
 type RuntimeFlags struct {
 	Flags
 

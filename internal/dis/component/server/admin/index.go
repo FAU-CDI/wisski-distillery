@@ -130,6 +130,9 @@ func (admin *Admin) instances(ctx context.Context) http.Handler {
 			menuAdmin,
 			menuInstances,
 		),
+		templating.Actions(
+			menuProvision,
+		),
 	)
 
 	return tpl.HTMLHandler(func(r *http.Request) (idx indexContext, err error) {

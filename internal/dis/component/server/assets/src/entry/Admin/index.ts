@@ -1,5 +1,9 @@
-import "~/src/lib/remote"
+// setup highlighting
 import "~/src/lib/highlight"
+
+// setup remote actions
+import setup from "~/src/lib/remote"
+setup();
 
 // include the user styles!
 import "../User/index.ts"

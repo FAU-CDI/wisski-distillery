@@ -70,7 +70,9 @@ var (
 	menuUsers      = component.MenuItem{Title: "Users", Path: "/admin/users/"}
 	menuUserCreate = component.MenuItem{Title: "Create User", Path: "/admin/users/create/"}
 
-	menuInstances   = component.MenuItem{Title: "Instances", Path: "/admin/instance/"}
+	menuProvision = component.MenuItem{Title: "Provision", Path: "/admin/instances/provision/"}
+
+	menuInstances   = component.MenuItem{Title: "Instances", Path: "/admin/instances/"}
 	menuInstance    = component.DummyMenuItem()
 	menuGrants      = component.DummyMenuItem()
 	menuIngredients = component.DummyMenuItem()
@@ -94,10 +96,13 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 		router.Handler(http.MethodGet, route, index)
 	}
 
-	// add a handler for the instances page
+	// add a handler for the instances (and provision) page
 	{
 		instances := admin.instances(ctx)
-		router.Handler(http.MethodGet, route+"instance/", instances)
+		router.Handler(http.MethodGet, route+"instances/", instances)
+
+		provision := admin.instanceProvision(ctx)
+		router.Handler(http.MethodGet, route+"instances/provision", provision)
 	}
 
 	// add a handler for the user page

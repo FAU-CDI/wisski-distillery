@@ -46,163 +46,128 @@ function makeTextBuffer(target: HTMLElement, scrollContainer: HTMLElement, size:
     return println;
 }
 
-const remote_action = document.getElementsByClassName('remote-action')
-Array.from(remote_action).forEach((element) => {
-    const action = element.getAttribute('data-action') as string;
-    const reload = element.getAttribute('data-force-reload');
-    const param = element.getAttribute('data-param') as string | undefined;
+export default function setup() {
+    const remote_action = document.getElementsByClassName('remote-action')
+    Array.from(remote_action).forEach((element) => {
+        const action = element.getAttribute('data-action') as string;
+        const reload = element.getAttribute('data-force-reload');
+        const param = element.getAttribute('data-param') as string | undefined;
+        
+        const confirmElementName = element.getAttribute('data-confirm-param');
+        const confirmElement = (confirmElementName ? document.querySelector(confirmElementName) : null) as HTMLInputElement | null;
     
-    const confirmElementName = element.getAttribute('data-confirm-param');
-    const confirmElement = (confirmElementName ? document.querySelector(confirmElementName) : null) as HTMLInputElement | null;
-
-    const bufferSize = (function () {
-        const number = parseInt(element.getAttribute('data-buffer') ?? "", 10) ?? 0;
-        return (isFinite(number) && number > 0) ? number : 0;
-    })()
-
-    const validate = function() {
-        if (!confirmElement) return true
-        return confirmElement.value === param;
-    }
-
-    if (confirmElement) {
-        const runValidation = () => {
-            if (validate()) {
-                element.removeAttribute('disabled')
-            } else {
-                element.setAttribute('disabled', 'disabled')
-            }
+        const bufferSize = (function () {
+            const number = parseInt(element.getAttribute('data-buffer') ?? "", 10) ?? 0;
+            return (isFinite(number) && number > 0) ? number : 0;
+        })()
+    
+        const validate = function() {
+            if (!confirmElement) return true
+            return confirmElement.value === param;
         }
-        confirmElement.addEventListener('change', runValidation)
-        runValidation()
-    }
-
-    element.addEventListener('click', function (ev) {
-        ev.preventDefault();
-
-        // do nothing if the validation fails
-        if (!validate()) return;
-
-        // create a modal dialog and append it to the body
-        const modal = document.createElement("div")
-        modal.className = "modal-terminal"
-        document.body.append(modal)
-
-        // create a <pre> to write stuff into
-        const target = document.createElement("pre")
-        const println = makeTextBuffer(target, modal, bufferSize)
-        modal.append(target)
-
-        
-        // create a button to eventually close everything
-        const button = document.createElement("button")
-        button.className = "pure-button pure-button-success"
-        button.append(typeof reload === 'string' ? "Close & Reload" : "Close")
-        button.addEventListener('click', function (event) {
-            event.preventDefault();
-
-            if (typeof reload === 'string') {
-                button.setAttribute('disabled', 'disabled')
-                target.innerHTML = 'Reloading page ...'
-                if (reload === '') {
-                    location.reload()
+    
+        if (confirmElement) {
+            const runValidation = () => {
+                if (validate()) {
+                    element.removeAttribute('disabled')
                 } else {
-                    location.href = reload
+                    element.setAttribute('disabled', 'disabled')
                 }
-                return;
             }
-
-            modal.parentNode?.removeChild(modal);
-        })
-        
-        const onbeforeunload = window.onbeforeunload;
-        window.onbeforeunload = () => "A remote session is in progress. Are you sure you want to leave?";
-
-        // when closing, add a button to the modal!
-        let didClose = false
-        const close = function () {
-            if (didClose) return
-            didClose = true
-
-            window.onbeforeunload = onbeforeunload;
-            modal.append(button)
-            // DEBUG: print terminal stats!
-            // const quota = (println.paintedFrames / (println.missedFrames + println.paintedFrames)) * 100
-            // println(`Terminal: painted=${println.paintedFrames} missed=${println.missedFrames} (${quota}%)`, true)
+            confirmElement.addEventListener('change', runValidation)
+            runValidation()
         }
 
-        println("Connecting ...", true)
-
-        // connect to the socket and send the action
-        connectSocket((socket) => {
-            println("Connected", true)
-            socket.send(action);
-            if (typeof param === 'string') {
-                socket.send(param);
+        let onClose: (success: boolean) => void | null;
+        if (typeof reload === 'string') {
+            onClose = () => {
+                if (reload === '') location.reload();
+                else location.href = reload;
             }
-        }, (data) => {
-            println(data);
-        }).then(() => {
-            println("Connection closed.", true)
-            close();
-        }).catch(() => {
-            println("Connection errored.", true)
-            close();
-        });
-    });
-})
-
-const remote_link = document.getElementsByClassName('remote-link')
-Array.from(remote_link).forEach((element) => {
-    const action = element.getAttribute('data-action') as string;
-    const param = element.getAttribute('data-params') as string | undefined;
-    const params = param?.split(" ");
-
-    element.addEventListener('click', function (ev) {
-        ev.preventDefault();
-
-        getValue(action, params).then(v => {
-            window.open(v);
-        }).catch(e => {
-            console.error(e);
-        })
-    });
-})
-
-async function getValue(action: string, params?: Array<string>): Promise<any> {
-    return new Promise((rs, rj) => {
-        let buffer = "";
-        var resolve = function() {
-            const index = buffer.indexOf('\n')
-            if (index < 0) {
-                rj("invalid buffer");
-                return
-            }
-            
-            // check that the server sent back true
-            const ok = buffer.substring(0, index) === 'true';
-            if(!ok) {
-                rj(buffer);
-                return
-            }
-
-            // parse the rest as json
-            const value = JSON.parse(buffer.substring(index+1))
-            rs(value);
         }
+    
+        element.addEventListener('click', function (ev) {
+            ev.preventDefault();
+    
+            // do nothing if the validation fails
+            if (!validate()) return;
 
-        connectSocket((socket) => {
-            socket.send(action);
-            if (params) {
-                params.forEach(p => socket.send(p))
-            }
-        }, (data) => {
-            buffer += data + "\n";
-        }).then(() => {
-            resolve();
-        }).catch(() => {
-            buffer = "false\n";
-            resolve();
+            // create a modal dialog
+            const params = (typeof param === 'string') ? [param] : [];
+            createModal(action, params, {
+                onClose: onClose, 
+                bufferSize: bufferSize,
+            });
         });
     })
+}
+
+
+type ModalOptions = {
+    bufferSize: number;
+    onClose: (success: boolean) => void 
+}
+export function createModal(action: string, params: string[], opts: Partial<ModalOptions>) {
+    // create a modal dialog and append it to the body
+    const modal = document.createElement("div")
+    modal.className = "modal-terminal"
+    document.body.append(modal)
+
+    // create a <pre> to write stuff into
+    const target = document.createElement("pre")
+    const println = makeTextBuffer(target, modal, opts.bufferSize ?? 1000)
+    modal.append(target)
+    
+    // create a button to eventually close everything
+    const button = document.createElement("button")
+    button.className = "pure-button pure-button-success"
+    button.append(typeof opts?.onClose === 'function' ? "Close & Finish" : "Close")
+    let success = false;
+    button.addEventListener('click', function (event) {
+        event.preventDefault();
+
+        if (typeof opts?.onClose === 'function') {
+            button.setAttribute('disabled', 'disabled')
+            target.innerHTML = 'Finishing up ...'
+            opts.onClose(success)
+            return;
+        }
+
+        modal.parentNode?.removeChild(modal);
+    })
+    
+    const onbeforeunload = window.onbeforeunload;
+    window.onbeforeunload = () => "A remote session is in progress. Are you sure you want to leave?";
+
+    // when closing, add a button to the modal!
+    let didClose = false
+    const close = function () {
+        if (didClose) return
+        didClose = true
+
+        window.onbeforeunload = onbeforeunload;
+        modal.append(button)
+        // DEBUG: print terminal stats!
+        // const quota = (println.paintedFrames / (println.missedFrames + println.paintedFrames)) * 100
+        // println(`Terminal: painted=${println.paintedFrames} missed=${println.missedFrames} (${quota}%)`, true)
+    }
+
+    println("Connecting ...", true)
+
+    // connect to the socket and send the action
+    connectSocket((socket) => {
+        println("Connected", true)
+        socket.send(action)
+        params.forEach(p => socket.send(p))
+    }, (data) => {
+        println(data);
+    }).then(() => {
+        success = true
+        println("Connection closed.", true)
+        close();
+    }).catch(() => {
+        success = false
+        println("Connection errored.", true)
+        close();
+    });
 }

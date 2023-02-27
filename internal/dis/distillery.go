@@ -17,6 +17,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/provision"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/resolver"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin"
@@ -102,15 +103,15 @@ func (dis *Distillery) Instances() *instances.Instances {
 func (dis *Distillery) Exporter() *exporter.Exporter {
 	return export[*exporter.Exporter](dis)
 }
+func (dis *Distillery) Provision() *provision.Provision {
+	return export[*provision.Provision](dis)
+}
 
 func (dis *Distillery) Installable() []component.Installable {
 	return exportAll[component.Installable](dis)
 }
 func (dis *Distillery) Updatable() []component.Updatable {
 	return exportAll[component.Updatable](dis)
-}
-func (dis *Distillery) Provisionable() []component.Provisionable {
-	return exportAll[component.Provisionable](dis)
 }
 func (dis *Distillery) Info() *admin.Admin {
 	return export[*admin.Admin](dis)
@@ -162,6 +163,7 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*instances.Instances],
 		auto[*meta.Meta],
 		auto[*malt.Malt],
+		auto[*provision.Provision],
 
 		// Purger
 		auto[*purger.Purger],

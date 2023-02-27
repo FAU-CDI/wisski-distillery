@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/provision"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/pkglib/httpx"
@@ -19,6 +20,7 @@ type Sockets struct {
 	component.Base
 
 	Dependencies struct {
+		Provision *provision.Provision
 		Instances *instances.Instances
 		Exporter  *exporter.Exporter
 		Purger    *purger.Purger
