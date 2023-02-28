@@ -1,5 +1,6 @@
 import "./index.css"
-import connectSocket from './socket';
+import connectSocket from './socket'
+import { Mutex } from 'async-mutex'
 
 type Println = ((line: string, flush?: boolean) => void) & {
     paintedFrames: number;
@@ -122,14 +123,14 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
     const button = document.createElement("button")
     button.className = "pure-button pure-button-success"
     button.append(typeof opts?.onClose === 'function' ? "Close & Finish" : "Close")
-    let success = false;
+    let result = {success: false, error: "unknown error"};
     button.addEventListener('click', function (event) {
         event.preventDefault();
 
         if (typeof opts?.onClose === 'function') {
             button.setAttribute('disabled', 'disabled')
             target.innerHTML = 'Finishing up ...'
-            opts.onClose(success)
+            opts.onClose(result.success)
             return;
         }
 
@@ -154,20 +155,38 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
 
     println("Connecting ...", true)
 
+    const mutex = new Mutex();
+
     // connect to the socket and send the action
     connectSocket((socket) => {
         println("Connected", true)
         socket.send(action)
         params.forEach(p => socket.send(p))
     }, (data) => {
-        println(data);
+        mutex.runExclusive(async () => {
+            if (data instanceof Blob) {
+                result = JSON.parse(await data.text());
+                return
+            }
+
+            println(data);
+        })
     }).then(() => {
-        success = true
-        println("Connection closed.", true)
-        close();
+        mutex.runExclusive(async () => {
+            if(result.success) {
+                println("Process finished successfully. ")
+            } else {
+                println("Process failed: " + result.error)
+            }
+            println("Connection closed. ", true)
+            close();
+        })
     }).catch(() => {
-        success = false
-        println("Connection errored.", true)
-        close();
+        mutex.runExclusive(async () => {
+            println("Connection errored. ", true)
+            result = { success: false, error: "connection errored" }
+
+            close();
+        })
     });
 }

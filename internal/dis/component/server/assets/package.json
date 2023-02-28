@@ -4,6 +4,7 @@
   "license": "AGPL-3.0-only",
   "private": true,
   "dependencies": {
+    "async-mutex": "^0.4.0",
     "dayjs": "^1.11.5",
     "highlight.js": "^11.7.0",
     "latex.css": "^1.8.0",

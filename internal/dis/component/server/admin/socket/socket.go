@@ -2,7 +2,8 @@ package socket
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
+	"errors"
 	"io"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/provision"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/gorilla/websocket"
 	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/pkglib/httpx"
 )
@@ -51,20 +53,52 @@ func (socket *Sockets) Serve(conn httpx.WebSocketConnection) {
 
 var instanceParamsTimeout = time.Second
 
-func (socket *Sockets) Handle(conn httpx.WebSocketConnection, action SocketAction) {
+type actionResult struct {
+	Success bool   `json:"success"`
+	Error   string `json:"error,omitempty"`
+}
+
+func (*Sockets) reportErrorToClient(conn httpx.WebSocketConnection, err error) {
+	// create an action result
+	var result actionResult
+	if err == nil {
+		result.Success = true
+	} else {
+		result.Success = false
+		result.Error = err.Error()
+	}
+
+	// marshal the result, ignoring any error silently
+	data, err := json.Marshal(result)
+	if err != nil {
+		return
+	}
+
+	// and send it as a binary message to the client
+	<-conn.Write(httpx.WebSocketMessage{Type: websocket.BinaryMessage, Bytes: data})
+}
+
+var errInsufficientParams = errors.New("insufficient parameters")
+var errParameterTimeout = errors.New("timed out reading parameters")
+
+func (socket *Sockets) Handle(conn httpx.WebSocketConnection, action SocketAction) (err error) {
+	// report the error to the client
+	defer func() {
+		// NOTE: the closure is needed here!
+		socket.reportErrorToClient(conn, err)
+	}()
+
 	// read the parameters
 	params := make([]string, action.NumParams)
 	for i := range params {
 		select {
 		case message, ok := <-conn.Read():
 			if !ok {
-				<-conn.WriteText("Insufficient parameters")
-				return
+				return errInsufficientParams
 			}
 			params[i] = string(message.Bytes)
 		case <-time.After(instanceParamsTimeout):
-			<-conn.WriteText("Timed out reading parameters")
-			return
+			return errParameterTimeout
 		}
 	}
 
@@ -78,14 +112,7 @@ func (socket *Sockets) Handle(conn httpx.WebSocketConnection, action SocketActio
 	defer writer.Close()
 
 	// handle the interactive action
-	if action.HandleInteractive != nil {
-		err := action.HandleInteractive(conn.Context(), socket, writer, params...)
-		if err != nil {
-			fmt.Fprintln(writer, err)
-			return
-		}
-		fmt.Fprintln(writer, "done")
-	}
+	return action.HandleInteractive(conn.Context(), socket, writer, params...)
 }
 
 // IAction is like SocketAction, but takes the slug of an instance (runnning or not) as the first parameter
