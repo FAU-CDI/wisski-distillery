@@ -1,6 +1,5 @@
 import "./index.css"
-import connectSocket from './socket'
-import { Mutex } from 'async-mutex'
+import callServerAction, { ResultMessage } from './proto'
 
 type Println = ((line: string, flush?: boolean) => void) & {
     paintedFrames: number;
@@ -120,15 +119,16 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
     modal.append(target)
     
     // create a button to eventually close everything
-    const button = document.createElement("button")
-    button.className = "pure-button pure-button-success"
-    button.append(typeof opts?.onClose === 'function' ? "Close & Finish" : "Close")
+    const finishButton = document.createElement("button")
+    finishButton.className = "pure-button pure-button-success"
+    finishButton.append(typeof opts?.onClose === 'function' ? "Close & Finish" : "Close")
+
     let result = {success: false, error: "unknown error"};
-    button.addEventListener('click', function (event) {
+    finishButton.addEventListener('click', (event) => {
         event.preventDefault();
 
         if (typeof opts?.onClose === 'function') {
-            button.setAttribute('disabled', 'disabled')
+            finishButton.setAttribute('disabled', 'disabled')
             target.innerHTML = 'Finishing up ...'
             opts.onClose(result.success)
             return;
@@ -136,18 +136,28 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
 
         modal.parentNode?.removeChild(modal);
     })
+
+    const cancelButton = document.createElement("button")
+    cancelButton.className = "pure-button pure-button-danger"
+    cancelButton.setAttribute("disabled", "disabled")
+    cancelButton.append("Cancel")
+    modal.append(cancelButton)
     
     const onbeforeunload = window.onbeforeunload;
     window.onbeforeunload = () => "A remote session is in progress. Are you sure you want to leave?";
 
     // when closing, add a button to the modal!
-    let didClose = false
-    const close = function () {
-        if (didClose) return
-        didClose = true
+    const close = (result: ResultMessage) => {
+        if (result.success) {
+            println('Process completed successfully. ', true);
+        } else {
+            println('Process reported error: ' + result.message, true);
+        }
 
         window.onbeforeunload = onbeforeunload;
-        modal.append(button)
+
+        modal.removeChild(cancelButton)
+        modal.append(finishButton)
         // DEBUG: print terminal stats!
         // const quota = (println.paintedFrames / (println.missedFrames + println.paintedFrames)) * 100
         // println(`Terminal: painted=${println.paintedFrames} missed=${println.missedFrames} (${quota}%)`, true)
@@ -155,38 +165,28 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
 
     println("Connecting ...", true)
 
-    const mutex = new Mutex();
 
     // connect to the socket and send the action
-    connectSocket((socket) => {
-        println("Connected", true)
-        socket.send(action)
-        params.forEach(p => socket.send(p))
-    }, (data) => {
-        mutex.runExclusive(async () => {
-            if (data instanceof Blob) {
-                result = JSON.parse(await data.text());
-                return
-            }
+    callServerAction(
+        {
+            'name': action,
+            'params': params,
+        },
+        (
+            send: (text: string) => void,
+            cancel: () => void,
+        ) => {
+            cancelButton.removeAttribute("disabled")
+            cancelButton.addEventListener("click", (event) => {
+                event.preventDefault()
 
-            println(data);
-        })
-    }).then(() => {
-        mutex.runExclusive(async () => {
-            if(result.success) {
-                println("Process finished successfully. ")
-            } else {
-                println("Process failed: " + result.error)
-            }
-            println("Connection closed. ", true)
-            close();
-        })
-    }).catch(() => {
-        mutex.runExclusive(async () => {
-            println("Connection errored. ", true)
-            result = { success: false, error: "connection errored" }
-
-            close();
-        })
-    });
+                cancel()
+            })
+            println("Connected", true)
+        },
+        println
+    ).then(close)
+    .catch(() => {
+        close({ 'success': false, 'message': "connection closed unexpectedly" })
+    })
 }
