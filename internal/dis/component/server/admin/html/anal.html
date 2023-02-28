@@ -2,7 +2,7 @@
     <h2 id="structs">Structs</h2>
 </div>
 
-{{ range $name, $comp := .Components }}
+{{ range $name, $comp := .Analytics.Components }}
 <div class="pure-u-1-1" id="{{ $name }}">
     <div class="padding">
         <div class="overflow">
@@ -94,7 +94,7 @@
     <h2 id="interfaces">Interfaces</h2>
 </div>
 
-{{ range $name, $group := .Groups }}
+{{ range $name, $group := .Analytics.Groups }}
 <div class="pure-u-1-1" id="{{ $name }}">
     <div class="padding">
 
