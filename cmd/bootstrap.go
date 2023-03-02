@@ -72,7 +72,7 @@ var errBootstrapCreateFile = exit.Error{
 func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	// installation environment is the native environment!
 	// TODO: Should this be configurable?
-	env := new(environment.Native)
+	var env environment.Environment
 
 	root := bs.Directory
 
@@ -86,7 +86,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	{
 		logging.LogMessage(context.Stderr, context.Context, "Creating root deployment directory")
-		if err := env.MkdirAll(root, environment.DefaultDirPerm); err != nil {
+		if err := fsx.MkdirAll(root, fsx.DefaultDirPerm); err != nil {
 			return errBootstrapFailedToCreateDirectory.WithMessageF(root)
 		}
 		if err := cli.WriteBaseDirectory(env, root); err != nil {
@@ -116,7 +116,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
 
-		err = fsx.CopyFile(context.Context, env, wdcliPath, exe)
+		err = fsx.CopyFile(context.Context, wdcliPath, exe)
 		if err != nil && err != fsx.ErrCopySameFile {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
@@ -124,15 +124,14 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	{
-		if !fsx.IsFile(env, cfgPath) {
+		if !fsx.IsFile(cfgPath) {
 			// generate the configuration from the template
 			cfg := tpl.Generate()
 
 			// write out all the extra config files
 			if err := logging.LogOperation(func() error {
 				context.Println(cfg.Paths.OverridesJSON)
-				if err := environment.WriteFile(
-					env,
+				if err := fsx.WriteFile(
 					cfg.Paths.OverridesJSON,
 					bootstrap.DefaultOverridesJSON,
 					fs.ModePerm,
@@ -141,8 +140,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 				}
 
 				context.Println(cfg.Paths.ResolverBlocks)
-				if err := environment.WriteFile(
-					env,
+				if err := fsx.WriteFile(
 					cfg.Paths.ResolverBlocks,
 					bootstrap.DefaultResolverBlockedTXT,
 					fs.ModePerm,
@@ -162,7 +160,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 			// and marshal it out!
 			if err := logging.LogOperation(func() error {
-				configYML, err := env.Create(cfgPath, environment.DefaultFilePerm)
+				configYML, err := fsx.Create(cfgPath, fsx.DefaultFilePerm)
 				if err != nil {
 					return err
 				}

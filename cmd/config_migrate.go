@@ -32,7 +32,7 @@ func (cfgMigrate) Description() wisski_distillery.Description {
 
 func (c cfgMigrate) Run(context wisski_distillery.Context) error {
 	// migration environment is the native environment!
-	env := new(environment.Native)
+	var env environment.Environment
 
 	// open the legacy file
 	file, err := os.Open(c.Positionals.Input)

@@ -8,7 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
 	"github.com/tkw1536/goprogram/status"
@@ -74,7 +74,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 
 	// create the staging directory
 	logging.LogMessage(progress, ctx, "Creating staging directory")
-	err = exporter.Environment.Mkdir(stagingDir, environment.DefaultDirPerm)
+	err = fsx.Mkdir(stagingDir, fsx.DefaultDirPerm)
 	if !os.IsExist(err) && err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		logging.ProgressF(progress, ctx, reportPath)
 
 		// create the path
-		report, err := exporter.Environment.Create(reportPath, environment.DefaultFilePerm)
+		report, err := fsx.Create(reportPath, fsx.DefaultFilePerm)
 		if err != nil {
 			return err
 		}

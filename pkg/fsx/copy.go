@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/pkglib/contextx"
 )
 
@@ -16,16 +15,14 @@ var ErrCopySameFile = errors.New("src and dst must be different")
 // CopyFile copies a file from src to dst.
 // When src points to a symbolic link, will copy the symbolic link.
 //
-// When dst and src are the same file, returns ErrCopySameFile.
+// When dst and src are the same file, returns [ErrCopySameFile].
 // When ctx is closed, the file is not copied.
-//
-// Ignores the umask.
-func CopyFile(ctx context.Context, env environment.Environment, dst, src string) error {
+func CopyFile(ctx context.Context, dst, src string) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
 
-	if SameFile(env, src, dst) {
+	if SameFile(src, dst) {
 		return ErrCopySameFile
 	}
 
@@ -56,13 +53,13 @@ func CopyFile(ctx context.Context, env environment.Environment, dst, src string)
 
 // CopyLink copies a link from src to dst.
 // If dst already exists, it is deleted and then re-created.
-func CopyLink(ctx context.Context, env environment.Environment, dst, src string) error {
+func CopyLink(ctx context.Context, dst, src string) error {
 	if err := ctx.Err(); err != nil {
 		return err
 	}
 
 	// if they're the same file that is an error
-	if SameFile(env, dst, src) {
+	if SameFile(dst, src) {
 		return ErrCopySameFile
 	}
 
@@ -73,7 +70,7 @@ func CopyLink(ctx context.Context, env environment.Environment, dst, src string)
 	}
 
 	// delete it if it already exists
-	if Exists(env, dst) {
+	if Exists(dst) {
 		if err := os.Remove(dst); err != nil {
 			return err
 		}
@@ -92,12 +89,12 @@ var ErrDstFile = errors.New("dst is a file")
 // When a directory already exists, additional files are not deleted.
 //
 // onCopy, when not nil, is called for each file or directory being copied.
-func CopyDirectory(ctx context.Context, env environment.Environment, dst, src string, onCopy func(dst, src string)) error {
+func CopyDirectory(ctx context.Context, dst, src string, onCopy func(dst, src string)) error {
 	// sanity checks
-	if SameFile(env, src, dst) {
+	if SameFile(src, dst) {
 		return ErrCopySameFile
 	}
-	if IsFile(env, dst) {
+	if IsFile(dst) {
 		return ErrDstFile
 	}
 
@@ -133,18 +130,18 @@ func CopyDirectory(ctx context.Context, env environment.Environment, dst, src st
 
 		// if we have a symbolic link, copy the link!
 		if info.Mode()&fs.ModeSymlink != 0 {
-			return CopyLink(ctx, env, dst, path)
+			return CopyLink(ctx, dst, path)
 		}
 
 		// if we got a file, we should copy it normally
 		if !d.IsDir() {
-			return CopyFile(ctx, env, dst, path)
+			return CopyFile(ctx, dst, path)
 		}
 
 		// create the directory, but ignore an error if the directory already exists.
 		// this is so that we can copy one tree into another tree.
 		err = Mkdir(dst, info.Mode())
-		if os.IsExist(err) && IsDirectory(env, dst) {
+		if os.IsExist(err) && IsDirectory(dst) {
 			err = nil
 		}
 

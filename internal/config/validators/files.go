@@ -10,7 +10,7 @@ func ValidateFile(env environment.Environment, path *string, dflt string) error 
 	if *path == "" {
 		*path = dflt
 	}
-	if !fsx.IsFile(env, *path) {
+	if !fsx.IsFile(*path) {
 		return errors.Errorf("%q does not exist or is not a file", *path)
 	}
 	return nil
@@ -20,7 +20,7 @@ func ValidateDirectory(env environment.Environment, path *string, dflt string) e
 	if *path == "" {
 		*path = dflt
 	}
-	if !fsx.IsDirectory(env, *path) {
+	if !fsx.IsDirectory(*path) {
 		return errors.Errorf("%q does not exist or is not a directory", *path)
 	}
 	return nil

@@ -5,8 +5,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -23,9 +21,6 @@ var errOpenConfig = exit.Error{
 // NewDistillery creates a new distillery from the provided flags
 func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (dis *Distillery, err error) {
 	dis = &Distillery{
-		Still: component.Still{
-			Environment: new(environment.Native),
-		},
 		Upstream: Upstream{
 			SQL:         "127.0.0.1:3306",
 			Triplestore: "127.0.0.1:7200",

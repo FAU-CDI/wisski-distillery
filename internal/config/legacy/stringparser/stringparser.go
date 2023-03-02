@@ -24,7 +24,7 @@ type Parser[T any] func(env environment.Environment, s string) (T, error)
 
 // ParseAbspath checks that s is an absolute path and returns it as-is
 func ParseAbspath(env environment.Environment, s string) (string, error) {
-	if !fsx.IsDirectory(env, s) {
+	if !fsx.IsDirectory(s) {
 		return "", errors.Errorf("%q does not exist or is not a directory", s)
 	}
 	return s, nil
@@ -32,7 +32,7 @@ func ParseAbspath(env environment.Environment, s string) (string, error) {
 
 // ParseFile checks that s is a valid file and returns it as-is
 func ParseFile(env environment.Environment, s string) (string, error) {
-	if !fsx.IsFile(env, s) {
+	if !fsx.IsFile(s) {
 		return "", errors.Errorf("%q does not exist or is not a regular file", s)
 	}
 	return s, nil

@@ -268,7 +268,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 		// copy over file from context
 		logging.ProgressF(progress, ctx, "[copy]    %s (from %s)\n", dst, src)
-		if err := fsx.CopyFile(ctx, env, dst, src); err != nil {
+		if err := fsx.CopyFile(ctx, dst, src); err != nil {
 			return errors.Wrapf(err, "Unable to copy file %s", src)
 		}
 	}

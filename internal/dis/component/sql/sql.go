@@ -7,6 +7,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/pkglib/lazy"
 )
 
@@ -53,7 +54,7 @@ func (sql *SQL) Stack(env environment.Environment) component.StackWithResources 
 			"HTTPS_ENABLED":       sql.Config.HTTP.HTTPSEnabledEnv(),
 		},
 
-		MakeDirsPerm: environment.DefaultDirPerm,
+		MakeDirsPerm: fsx.DefaultDirPerm,
 		MakeDirs: []string{
 			"data",
 			"imports",

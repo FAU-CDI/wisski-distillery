@@ -12,7 +12,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/pkglib/password"
 )
@@ -51,7 +50,7 @@ func (dis *Exporter) ArchivePath() string {
 // The path is guaranteed to not exist.
 func (dis *Exporter) NewArchivePath(prefix string) (path string) {
 	// TODO: Consider moving these into a subdirectory with the provided prefix.
-	for path == "" || fsx.Exists(dis.Environment, path) {
+	for path == "" || fsx.Exists(path) {
 		name := dis.newSnapshotName(prefix) + ".tar.gz"
 		path = filepath.Join(dis.ArchivePath(), name)
 	}
@@ -75,7 +74,7 @@ func (*Exporter) newSnapshotName(prefix string) string {
 func (dis *Exporter) NewStagingDir(prefix string) (path string, err error) {
 	for path == "" || os.IsExist(err) {
 		path = filepath.Join(dis.StagingPath(), dis.newSnapshotName(prefix))
-		err = dis.Still.Environment.Mkdir(path, environment.DefaultFilePerm)
+		err = fsx.Mkdir(path, fsx.DefaultFilePerm)
 	}
 	if err != nil {
 		path = ""

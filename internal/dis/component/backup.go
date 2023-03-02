@@ -147,7 +147,7 @@ func (sc *stagingContext) CopyFile(dst, src string) error {
 		return err
 	}
 	sc.sendPath(dst)
-	return fsx.CopyFile(sc.ctx, sc.env, dstPath, src)
+	return fsx.CopyFile(sc.ctx, dstPath, src)
 }
 
 func (sc *stagingContext) CopyDirectory(dst, src string) error {
@@ -160,7 +160,7 @@ func (sc *stagingContext) CopyDirectory(dst, src string) error {
 		return err
 	}
 
-	return fsx.CopyDirectory(sc.ctx, sc.env, dstPath, src, func(dst, src string) {
+	return fsx.CopyDirectory(sc.ctx, dstPath, src, func(dst, src string) {
 		sc.sendPath(dst)
 	})
 }

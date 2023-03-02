@@ -10,7 +10,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/gliderlabs/ssh"
 
@@ -119,7 +119,7 @@ func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostK
 	}
 
 	// generate and write private key as PEM
-	privateKeyFile, err := ssh2.Environment.Create(path, environment.DefaultFilePerm)
+	privateKeyFile, err := fsx.Create(path, fsx.DefaultFilePerm)
 	if err != nil {
 		return err
 	}

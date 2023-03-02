@@ -8,7 +8,6 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -47,7 +46,7 @@ var errNoGraphDBZip = exit.Error{
 
 func (s systemupdate) AfterParse() error {
 	// TODO: Use a generic environment here!
-	if !fsx.IsFile(new(environment.Native), s.Positionals.GraphdbZip) {
+	if !fsx.IsFile(s.Positionals.GraphdbZip) {
 		return errNoGraphDBZip.WithMessageF(s.Positionals.GraphdbZip)
 	}
 	return nil
@@ -76,7 +75,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		dis.Templating().CustomAssetsPath(),
 	} {
 		context.Println(d)
-		if err := dis.Still.Environment.MkdirAll(d, environment.DefaultDirPerm); err != nil {
+		if err := fsx.MkdirAll(d, fsx.DefaultDirPerm); err != nil {
 			return errBoostrapFailedToCreateDirectory.WithMessageF(d, err)
 		}
 	}

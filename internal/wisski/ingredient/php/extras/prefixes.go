@@ -34,7 +34,7 @@ var (
 // NoPrefix checks if this WissKI instance is excluded from generating prefixes.
 // TODO: Move this to the database!
 func (prefixes *Prefixes) NoPrefix() bool {
-	return fsx.IsFile(prefixes.Malt.Environment, filepath.Join(prefixes.FilesystemBase, "prefixes.skip"))
+	return fsx.IsFile(filepath.Join(prefixes.FilesystemBase, "prefixes.skip"))
 }
 
 //go:embed prefixes.php
@@ -120,7 +120,7 @@ func hasAnyPrefix(candidate string, prefixes []string) bool {
 
 func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 	path := filepath.Join(wisski.FilesystemBase, "prefixes")
-	if !fsx.IsFile(wisski.Malt.Environment, path) {
+	if !fsx.IsFile(path) {
 		return nil, nil
 	}
 

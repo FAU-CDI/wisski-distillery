@@ -39,14 +39,14 @@ func (pcfg PathsConfig) UsingDistilleryExecutable(env environment.Environment) b
 	if err != nil {
 		return false
 	}
-	return fsx.SameFile(env, exe, pcfg.ExecutablePath())
+	return fsx.SameFile(exe, pcfg.ExecutablePath())
 }
 
 // CurrentExecutable returns the path to the current executable being used.
 // When it does not exist, falls back to the default executable.
 func (pcfg PathsConfig) CurrentExecutable(env environment.Environment) string {
 	exe, err := os.Executable()
-	if err != nil || !fsx.IsFile(env, exe) {
+	if err != nil || !fsx.IsFile(exe) {
 		return pcfg.ExecutablePath()
 	}
 	return exe

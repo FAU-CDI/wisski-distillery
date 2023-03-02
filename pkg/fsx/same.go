@@ -3,17 +3,15 @@ package fsx
 import (
 	"os"
 	"path/filepath"
-
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // SameFile checks if path1 and path2 refer to the same file.
-// If both files exist, they are compared using [env.SameFile].
+// If both files exist, they are compared using [os.SameFile].
 // If both files do not exist, the paths are first compared syntactically and then via recursion on [filepath.Dir].
-func SameFile(env environment.Environment, path1, path2 string) bool {
+func SameFile(path1, path2 string) bool {
 
 	// initial attempt: check if directly
-	same, certain := couldBeSameFile(env, path1, path2)
+	same, certain := couldBeSameFile(path1, path2)
 	if certain {
 		return same
 	}
@@ -30,19 +28,19 @@ func SameFile(env environment.Environment, path1, path2 string) bool {
 
 	// compare the base names!
 	{
-		same, _ := couldBeSameFile(env, d1, d2)
+		same, _ := couldBeSameFile(d1, d2)
 		return same
 	}
 }
 
 // couldBeSameFile checks if path1 might be the same as path2.
 //
-// If both files exist, compares using [env.SameFile].
+// If both files exist, compares using [os.SameFile].
 // Otherwise compares absolute paths using string comparison.
 //
 // same indicates if they might be the same file.
 // authorative indiciates if the result is authorative.
-func couldBeSameFile(env environment.Environment, path1, path2 string) (same, authorative bool) {
+func couldBeSameFile(path1, path2 string) (same, authorative bool) {
 	{
 		// stat both files
 		info1, err1 := os.Stat(path1)
