@@ -6,7 +6,6 @@ require (
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
 	github.com/alessio/shellescape v1.4.1
 	github.com/gliderlabs/ssh v0.3.5
-	github.com/go-sql-driver/mysql v1.7.0
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/sessions v1.2.1
 	github.com/gorilla/websocket v1.5.0
@@ -32,6 +31,7 @@ require (
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/boombuler/barcode v1.0.1 // indirect
 	github.com/feiin/sqlstring v0.3.0 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gosuri/uilive v0.0.4 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect

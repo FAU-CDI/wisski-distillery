@@ -4,11 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"net"
-	"sync/atomic"
 	"time"
-
-	mysqldriver "github.com/go-sql-driver/mysql"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -119,25 +115,8 @@ func (ssql *SQL) connect(database string) (*sql.DB, error) {
 func (sql *SQL) dsn(database string) string {
 	user := sql.Config.SQL.AdminUsername
 	pass := sql.Config.SQL.AdminPassword
-	network := sql.network()
+	network := "tcp"
 	server := sql.ServerURL
 
 	return fmt.Sprintf("%s:%s@%s(%s)/%s?charset=utf8&parseTime=True&loc=Local", user, pass, network, server, database)
-}
-
-var proxyNameCounter uint64
-
-// network returns the network to use to connect to the database
-func (sql *SQL) network() string {
-	return sql.lazyNetwork.Get(func() (name string) {
-		network := "tcp"
-
-		// register a new DialContext function to use the environment.
-		// this seems like a bit of a hack, but it works for now.
-		name = fmt.Sprintf("sql-network-%d", atomic.AddUint64(&proxyNameCounter, 1))
-		mysqldriver.RegisterDialContext(name, func(ctx context.Context, addr string) (net.Conn, error) {
-			return sql.Still.Environment.DialContext(ctx, network, addr)
-		})
-		return
-	})
 }

@@ -1,10 +1,8 @@
 package environment
 
 import (
-	"context"
 	"io"
 	"io/fs"
-	"net"
 	"time"
 )
 
@@ -38,9 +36,6 @@ type Environment interface {
 	WalkDir(root string, fn fs.WalkDirFunc) error
 
 	Abs(path string) (string, error)
-
-	Listen(network, address string) (net.Listener, error)
-	DialContext(context context.Context, network, address string) (net.Conn, error)
 }
 
 type WritableFile interface {

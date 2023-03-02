@@ -70,7 +70,6 @@ func (ts Triplestore) OpenRaw(ctx context.Context, method, url string, body any,
 	// create the request object
 	client := &http.Client{
 		Transport: &http.Transport{
-			DialContext:       ts.Environment.DialContext,
 			DisableKeepAlives: true,
 		},
 	}

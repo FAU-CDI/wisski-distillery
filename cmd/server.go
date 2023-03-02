@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"net"
 	"net/http"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
@@ -64,7 +65,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 	publicC := make(chan error)
 	{
 		zerolog.Ctx(context.Context).Info().Str("bind", s.Bind).Msg("listening public server")
-		publicL, err := dis.Still.Environment.Listen("tcp", s.Bind)
+		publicL, err := net.Listen("tcp", s.Bind)
 		if err != nil {
 			return errServerListen.Wrap(err)
 		}
@@ -79,7 +80,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 	internalC := make(chan error)
 	{
 		zerolog.Ctx(context.Context).Info().Str("bind", s.InternalBind).Msg("listening internal server")
-		internalL, err := dis.Still.Environment.Listen("tcp", s.InternalBind)
+		internalL, err := net.Listen("tcp", s.InternalBind)
 		if err != nil {
 			return errServerListen.Wrap(err)
 		}

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"net"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
@@ -39,7 +41,7 @@ func (s ssh) Run(context wisski_distillery.Context) error {
 	context.Printf("Listening on %s\n", s.Bind)
 
 	// make a new listener
-	listener, err := dis.Still.Environment.Listen("tcp", s.Bind)
+	listener, err := net.Listen("tcp", s.Bind)
 	if err != nil {
 		return errServerListen.Wrap(err)
 	}
