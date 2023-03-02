@@ -2,7 +2,9 @@ package exporter
 
 import (
 	"context"
+	"errors"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -75,7 +77,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	// create the staging directory
 	logging.LogMessage(progress, ctx, "Creating staging directory")
 	err = fsx.Mkdir(stagingDir, fsx.DefaultDirPerm)
-	if !os.IsExist(err) && err != nil {
+	if !errors.Is(err, fs.ErrExist) && err != nil {
 		return err
 	}
 

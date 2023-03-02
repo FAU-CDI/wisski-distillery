@@ -1,6 +1,8 @@
 package fsx
 
 import (
+	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
 )
@@ -60,7 +62,7 @@ func couldBeSameFile(path1, path2 string) (same, authorative bool) {
 		}
 
 		// only 1 file does not exist => they could be different
-		if os.IsNotExist(err1) != os.IsNotExist(err2) {
+		if errors.Is(err1, fs.ErrNotExist) != errors.Is(err2, fs.ErrNotExist) {
 			return
 		}
 	}

@@ -2,6 +2,8 @@ package logger
 
 import (
 	"context"
+	"errors"
+	"io/fs"
 	"os"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -63,7 +65,7 @@ func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 	// partition out the exports that have been deleted!
 	parts := collection.Partition(exports, func(s models.Export) bool {
 		_, err := os.Stat(s.Path)
-		return !os.IsNotExist(err)
+		return !errors.Is(err, fs.ErrNotExist)
 	})
 
 	// go and delete them!

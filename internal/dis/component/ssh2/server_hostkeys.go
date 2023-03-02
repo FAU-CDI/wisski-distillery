@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"io"
+	"io/fs"
 	"os"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
@@ -65,7 +66,7 @@ func (ssh2 *SSH2) UseOrMakeHostKey(progress io.Writer, ctx context.Context, serv
 func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, ctx context.Context, privateKeyPath string, algorithm HostKeyAlgorithm) (key gossh.Signer, err error) {
 	hostKey := NewHostKey(algorithm)
 
-	if _, e := os.Lstat(privateKeyPath); os.IsNotExist(e) { // path doesn't exist => generate a new key there!
+	if _, e := os.Lstat(privateKeyPath); errors.Is(e, fs.ErrNotExist) { // path doesn't exist => generate a new key there!
 		err = ssh2.makeHostKey(progress, ctx, hostKey, privateKeyPath)
 		if err != nil {
 			err = errors.Wrap(err, "Unable to generate new host key")

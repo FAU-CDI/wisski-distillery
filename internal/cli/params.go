@@ -2,6 +2,8 @@ package cli
 
 import (
 	"context"
+	"errors"
+	"io/fs"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -19,9 +21,9 @@ type Params struct {
 // Uses [ReadBaseDirectory] or falls back to [BaseDirectoryDefault].
 func ParamsFromEnv() (params Params, err error) {
 	// try to read the base directory!
-	value, err := ReadBaseDirectory() // TODO: Are we sure about the native environment here?
+	value, err := ReadBaseDirectory()
 	switch {
-	case os.IsNotExist(err):
+	case errors.Is(err, fs.ErrNotExist):
 		params.ConfigPath = bootstrap.BaseDirectoryDefault
 	case err == nil:
 		params.ConfigPath = value

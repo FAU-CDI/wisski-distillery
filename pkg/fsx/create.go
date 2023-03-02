@@ -1,6 +1,7 @@
 package fsx
 
 import (
+	"errors"
 	"io/fs"
 	"os"
 	"time"
@@ -40,7 +41,7 @@ func Touch(path string, perm fs.FileMode) error {
 	}
 	_, err := os.Stat(path)
 	switch {
-	case os.IsNotExist(err):
+	case errors.Is(err, fs.ErrNotExist):
 		f, err := Create(path, perm)
 		if err != nil {
 			return err

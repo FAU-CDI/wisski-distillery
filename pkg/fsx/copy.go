@@ -141,7 +141,7 @@ func CopyDirectory(ctx context.Context, dst, src string, onCopy func(dst, src st
 		// create the directory, but ignore an error if the directory already exists.
 		// this is so that we can copy one tree into another tree.
 		err = Mkdir(dst, info.Mode())
-		if os.IsExist(err) && IsDirectory(dst) {
+		if errors.Is(err, fs.ErrExist) && IsDirectory(dst) {
 			err = nil
 		}
 

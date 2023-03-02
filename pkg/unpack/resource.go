@@ -83,7 +83,7 @@ func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src str
 	// create the destination
 	dstStat, dstErr := os.Stat(dst)
 	switch {
-	case os.IsNotExist(dstErr):
+	case errors.Is(dstErr, fs.ErrNotExist):
 		if err := fsx.MkdirAll(dst, srcInfo.Mode()); err != nil {
 			return errors.Wrapf(err, "Error creating destination directory %s", dst)
 		}
