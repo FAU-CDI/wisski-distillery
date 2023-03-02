@@ -6,6 +6,7 @@ import (
 	"compress/gzip"
 	"io"
 	"io/fs"
+	"os"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
@@ -32,7 +33,7 @@ func Package(env environment.Environment, dst, src string, onCopy func(rel strin
 	defer tarHandle.Close()
 
 	// and walk through it!
-	err = env.WalkDir(src, func(path string, entry fs.DirEntry, err error) error {
+	err = filepath.WalkDir(src, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -75,7 +76,7 @@ func Package(env environment.Environment, dst, src string, onCopy func(rel strin
 		}
 
 		// open the file
-		handle, err := env.Open(path)
+		handle, err := os.Open(path)
 		if err != nil {
 			return err
 		}

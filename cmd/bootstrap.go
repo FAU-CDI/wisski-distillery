@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"io/fs"
+	"os"
 	"path/filepath"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
@@ -110,7 +111,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	{
 		logging.LogMessage(context.Stderr, context.Context, "Copying over wdcli executable")
-		exe, err := env.Executable()
+		exe, err := os.Executable()
 		if err != nil {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
@@ -185,7 +186,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	// re-read the configuration and print it!
 	logging.LogMessage(context.Stderr, context.Context, "Configuration is now complete")
-	f, err := env.Open(cfgPath)
+	f, err := os.Open(cfgPath)
 	if err != nil {
 		return errBootstrapOpenConfig.WithMessageF(err)
 	}

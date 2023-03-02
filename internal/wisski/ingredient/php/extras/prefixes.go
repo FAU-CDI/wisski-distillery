@@ -3,6 +3,7 @@ package extras
 import (
 	"bufio"
 	"context"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -82,7 +83,7 @@ func (wisski *Prefixes) database(ctx context.Context, server *phpx.Server) (pref
 func (prefixes *Prefixes) blocked() ([]string, error) {
 	// open the resolver block file
 	// TODO: move this to the distillery
-	file, err := prefixes.Malt.Environment.Open(prefixes.Malt.Config.Paths.ResolverBlocks)
+	file, err := os.Open(prefixes.Malt.Config.Paths.ResolverBlocks)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +124,7 @@ func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 		return nil, nil
 	}
 
-	file, err := wisski.Malt.Environment.Open(path)
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}

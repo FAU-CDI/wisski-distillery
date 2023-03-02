@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"os"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
@@ -62,7 +63,7 @@ func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 
 	// partition out the exports that have been deleted!
 	parts := collection.Partition(exports, func(s models.Export) bool {
-		_, err := log.Still.Environment.Stat(s.Path)
+		_, err := os.Stat(s.Path)
 		return !environment.IsNotExist(err)
 	})
 

@@ -3,6 +3,7 @@ package exporter
 import (
 	"context"
 	"io"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -20,7 +21,7 @@ func (exporter *Exporter) PruneExports(ctx context.Context, progress io.Writer) 
 	sPath := exporter.ArchivePath()
 
 	// list all the files
-	entries, err := exporter.Still.Environment.ReadDir(sPath)
+	entries, err := os.ReadDir(sPath)
 	if err != nil {
 		return err
 	}
@@ -46,7 +47,7 @@ func (exporter *Exporter) PruneExports(ctx context.Context, progress io.Writer) 
 		path := filepath.Join(sPath, entry.Name())
 		logging.ProgressF(progress, ctx, "Removing %s cause it is older than %d days\n", path, exporter.Config.MaxBackupAge)
 
-		if err := exporter.Still.Environment.Remove(path); err != nil {
+		if err := os.Remove(path); err != nil {
 			return err
 		}
 	}

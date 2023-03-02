@@ -1,6 +1,7 @@
 package fsx
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
@@ -44,13 +45,13 @@ func SameFile(env environment.Environment, path1, path2 string) bool {
 func couldBeSameFile(env environment.Environment, path1, path2 string) (same, authorative bool) {
 	{
 		// stat both files
-		info1, err1 := env.Stat(path1)
-		info2, err2 := env.Stat(path2)
+		info1, err1 := os.Stat(path1)
+		info2, err2 := os.Stat(path2)
 
 		// both files exist => check using env.SameFile
 		// the result is always authorative
 		if err1 == nil && err2 == nil {
-			same = env.SameFile(info1, info2)
+			same = os.SameFile(info1, info2)
 			authorative = true
 			return
 		}
@@ -68,8 +69,8 @@ func couldBeSameFile(env environment.Environment, path1, path2 string) (same, au
 
 	{
 		// resolve paths absolutely
-		rpath1, err1 := env.Abs(path1)
-		rpath2, err2 := env.Abs(path2)
+		rpath1, err1 := filepath.Abs(path1)
+		rpath2, err2 := filepath.Abs(path2)
 
 		// if either path could not be resolved absolutely
 		// fallback to just using clean!

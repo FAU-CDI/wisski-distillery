@@ -8,15 +8,6 @@ import (
 	"github.com/tkw1536/pkglib/pools"
 )
 
-// ExecCommandError is returned by Exec when a command could not be executed.
-// This typically hints that the executable cannot be found, but may have other causes.
-const ExecCommandError = 127
-
-// ExecCommandErrorFunc always returns ExecCommandError.
-func ExecCommandErrorFunc() int {
-	return ExecCommandError
-}
-
 // DefaultFilePerm is the default mode to use for files
 const DefaultFilePerm fs.FileMode = 0666
 
@@ -51,7 +42,7 @@ func WriteFile(env Environment, path string, data []byte, mode fs.FileMode) erro
 // ReadFile is like [os.ReadFile]
 func ReadFile(env Environment, path string) ([]byte, error) {
 	// open the file!
-	file, err := env.Open(path)
+	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,8 @@
 package dis
 
 import (
+	"os"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -39,7 +41,7 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 		dis.Upstream.SQL = "sql:3306"
 		dis.Upstream.Triplestore = "triplestore:7200"
 		dis.Upstream.Solr = "solr:8983"
-		params.ConfigPath = dis.Still.Environment.GetEnv("CONFIG_PATH")
+		params.ConfigPath = os.Getenv("CONFIG_PATH")
 	}
 
 	// if we don't need to load the config, there is nothing to do
@@ -57,7 +59,7 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	}
 
 	// open the config file!
-	f, err := dis.Still.Environment.Open(params.ConfigPath)
+	f, err := os.Open(params.ConfigPath)
 	if err != nil {
 		return nil, errOpenConfig.WithMessageF(err)
 	}

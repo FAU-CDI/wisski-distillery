@@ -173,7 +173,7 @@ func (ds Stack) compose(ctx context.Context, io stream.IOStream, args ...string)
 		var err error
 		ds.DockerExecutable, err = execx.LookPathAbs("docker")
 		if err != nil {
-			return environment.ExecCommandErrorFunc
+			return execx.CommandErrorFunc
 		}
 	}
 	return execx.Exec(ctx, io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...)

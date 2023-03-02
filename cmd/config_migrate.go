@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -34,7 +35,7 @@ func (c cfgMigrate) Run(context wisski_distillery.Context) error {
 	env := new(environment.Native)
 
 	// open the legacy file
-	file, err := env.Open(c.Positionals.Input)
+	file, err := os.Open(c.Positionals.Input)
 	if err != nil {
 		return err
 	}

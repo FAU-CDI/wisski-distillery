@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"io/fs"
+	"os"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
@@ -27,7 +28,7 @@ func CopyFile(ctx context.Context, env environment.Environment, dst, src string)
 	}
 
 	// open the source
-	srcFile, err := env.Open(src)
+	srcFile, err := os.Open(src)
 	if err != nil {
 		return err
 	}
@@ -64,20 +65,20 @@ func CopyLink(ctx context.Context, env environment.Environment, dst, src string)
 	}
 
 	// read the link target
-	target, err := env.Readlink(src)
+	target, err := os.Readlink(src)
 	if err != nil {
 		return err
 	}
 
 	// delete it if it already exists
 	if Exists(env, dst) {
-		if err := env.Remove(dst); err != nil {
+		if err := os.Remove(dst); err != nil {
 			return err
 		}
 	}
 
 	// make the symbolic link!
-	return env.Symlink(target, dst)
+	return os.Symlink(target, dst)
 }
 
 var ErrDstFile = errors.New("dst is a file")
@@ -98,7 +99,7 @@ func CopyDirectory(ctx context.Context, env environment.Environment, dst, src st
 		return ErrDstFile
 	}
 
-	return env.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
+	return filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
 		// someone previously returned an error
 		if err != nil {
 			return err

@@ -3,6 +3,7 @@ package exporter
 import (
 	"context"
 	"io"
+	"os"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -83,7 +84,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	if !task.StagingOnly {
 		defer func() {
 			logging.LogMessage(progress, ctx, "Removing staging directory")
-			exporter.Environment.RemoveAll(stagingDir)
+			os.RemoveAll(stagingDir)
 		}()
 	}
 

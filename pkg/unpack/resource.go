@@ -3,6 +3,7 @@ package unpack
 import (
 	"io"
 	"io/fs"
+	"os"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
@@ -80,7 +81,7 @@ func installResource(env environment.Environment, dst string, src string, fsys f
 
 func installDir(env environment.Environment, dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
 	// create the destination
-	dstStat, dstErr := env.Stat(dst)
+	dstStat, dstErr := os.Stat(dst)
 	switch {
 	case environment.IsNotExist(dstErr):
 		if err := env.MkdirAll(dst, srcInfo.Mode()); err != nil {

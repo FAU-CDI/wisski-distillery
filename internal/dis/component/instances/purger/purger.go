@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -50,7 +51,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 
 	// remove the filesystem
 	logging.LogMessage(out, ctx, "Removing from filesystem %s", instance.FilesystemBase)
-	if err := purger.Environment.RemoveAll(instance.FilesystemBase); err != nil {
+	if err := os.RemoveAll(instance.FilesystemBase); err != nil {
 		fmt.Fprintln(out, err)
 	}
 

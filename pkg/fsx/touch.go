@@ -2,6 +2,7 @@ package fsx
 
 import (
 	"io/fs"
+	"os"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
@@ -16,7 +17,7 @@ func Touch(env environment.Environment, path string, perm fs.FileMode) error {
 	if perm == 0 {
 		perm = environment.DefaultFilePerm
 	}
-	_, err := env.Stat(path)
+	_, err := os.Stat(path)
 	switch {
 	case environment.IsNotExist(err):
 		f, err := env.Create(path, perm)
@@ -29,6 +30,6 @@ func Touch(env environment.Environment, path string, perm fs.FileMode) error {
 		return err
 	default:
 		now := time.Now().Local()
-		return env.Chtimes(path, now, now)
+		return os.Chtimes(path, now, now)
 	}
 }
