@@ -158,9 +158,9 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
 
         modal.removeChild(cancelButton)
         modal.append(finishButton)
-        // DEBUG: print terminal stats!
-        // const quota = (println.paintedFrames / (println.missedFrames + println.paintedFrames)) * 100
-        // println(`Terminal: painted=${println.paintedFrames} missed=${println.missedFrames} (${quota}%)`, true)
+        
+        const quota = (println.paintedFrames / (println.missedFrames + println.paintedFrames)) * 100
+        console.debug(`Terminal: painted=${println.paintedFrames} missed=${println.missedFrames} (${quota}%)`, true)
     }
 
     println("Connecting ...", true)
@@ -180,6 +180,7 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
             cancelButton.addEventListener("click", (event) => {
                 event.preventDefault()
 
+                println("Cancelling", true)
                 cancel()
             })
             println("Connected", true)
