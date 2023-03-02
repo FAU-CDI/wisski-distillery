@@ -6,8 +6,6 @@ import (
 	"io/fs"
 	"net"
 	"time"
-
-	"github.com/tkw1536/goprogram/stream"
 )
 
 // Environment represents an environment that a program can run it.
@@ -43,10 +41,6 @@ type Environment interface {
 
 	Listen(network, address string) (net.Listener, error)
 	DialContext(context context.Context, network, address string) (net.Conn, error)
-
-	Executable() (string, error)
-	Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, argv ...string) func() int
-	LookPathAbs(name string) (string, error)
 }
 
 type WritableFile interface {

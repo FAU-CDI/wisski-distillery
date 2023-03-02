@@ -1,12 +1,10 @@
 package environment
 
 import (
-	"context"
 	"io"
 	"io/fs"
 	"os"
 
-	"github.com/tkw1536/goprogram/stream"
 	"github.com/tkw1536/pkglib/pools"
 )
 
@@ -69,9 +67,4 @@ func ReadFile(env Environment, path string) ([]byte, error) {
 
 	// return the buffer contents!
 	return buffer.Bytes(), nil
-}
-
-// MustExec is like Exec, except that it returns true if the command exited successfully, and else false.
-func MustExec(ctx context.Context, env Environment, io stream.IOStream, workdir string, exe string, argv ...string) bool {
-	return env.Exec(ctx, io, workdir, exe, argv...)() == 0
 }

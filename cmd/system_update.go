@@ -9,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
@@ -195,7 +196,7 @@ func (si systemupdate) mustExec(context wisski_distillery.Context, workdir strin
 	if workdir == "" {
 		workdir = dis.Config.Paths.Root
 	}
-	code := dis.Still.Environment.Exec(context.Context, context.IOStream, workdir, exe, argv...)()
+	code := execx.Exec(context.Context, context.IOStream, workdir, exe, argv...)()
 	if code != 0 {
 		err := errMustExecFailed.WithMessageF(code)
 		err.ExitCode = exit.ExitCode(code)

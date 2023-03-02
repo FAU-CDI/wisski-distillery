@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
@@ -170,12 +171,12 @@ func (ds Stack) Down(ctx context.Context, progress io.Writer) error {
 func (ds Stack) compose(ctx context.Context, io stream.IOStream, args ...string) func() int {
 	if ds.DockerExecutable == "" {
 		var err error
-		ds.DockerExecutable, err = ds.Env.LookPathAbs("docker")
+		ds.DockerExecutable, err = execx.LookPathAbs("docker")
 		if err != nil {
 			return environment.ExecCommandErrorFunc
 		}
 	}
-	return ds.Env.Exec(ctx, io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...)
+	return execx.Exec(ctx, io, ds.Dir, ds.DockerExecutable, append([]string{"compose"}, args...)...)
 }
 
 // StackWithResources represents a Stack that can be automatically installed from a set of resources.

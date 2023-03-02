@@ -1,12 +1,23 @@
-package environment
+// Package execx provides thin wrappers around the os.Exec package.
+package execx
+
+// TODO: Move this to an external package
 
 import (
 	"context"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/goprogram/stream"
 )
+
+// CommandError is returned by Exec when a command could not be executed.
+// This typically hints that the executable cannot be found, but may have other causes.
+const CommandError = 127
+
+// CommandErrorFunc always returns CommandError.
+func CommandErrorFunc() int { return CommandError }
 
 // Exec executes a system command with the specified input/output streams, working directory, and arguments.
 //
@@ -15,7 +26,7 @@ import (
 //
 // If the command executes, the returns the exit code as soon as the process executes.
 // If the command can not be executed, the returned function is [ExecCommandErrorFunc] and returns [ExecCommandError].
-func (*Native) Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, argv ...string) func() int {
+func Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, argv ...string) func() int {
 	// setup the command
 	cmd := exec.Command(exe, argv...)
 	cmd.Dir = workdir
@@ -25,14 +36,14 @@ func (*Native) Exec(ctx context.Context, io stream.IOStream, workdir string, exe
 
 	// context is already cancelled, don't run it!
 	if err := ctx.Err(); err != nil {
-		return ExecCommandErrorFunc
+		return CommandErrorFunc
 	}
 
 	// start the command, but if something happens, return nil
 	err := cmd.Start()
 	zerolog.Ctx(ctx).Debug().Str("exe", exe).Strs("argv", argv).Err(err).Msg("exec.Command.Start")
 	if err != nil {
-		return ExecCommandErrorFunc
+		return CommandErrorFunc
 	}
 
 	waitdone := make(chan struct{}) // closed once Wait() below returns
@@ -65,17 +76,23 @@ func (*Native) Exec(ctx context.Context, io stream.IOStream, workdir string, exe
 		}
 
 		if err != nil {
-			return ExecCommandError
+			return CommandError
 		}
 
 		return 0
 	}
 }
 
-func (n *Native) LookPathAbs(file string) (string, error) {
+// MustExec is like Exec, except that it returns true if the command exited successfully, and else false.
+func MustExec(ctx context.Context, io stream.IOStream, workdir string, exe string, argv ...string) bool {
+	return Exec(ctx, io, workdir, exe, argv...)() == 0
+}
+
+// LookPathAbs looks for the path named "file" and then resolves this path absolutely.
+func LookPathAbs(file string) (string, error) {
 	path, err := exec.LookPath(file)
 	if err != nil {
 		return "", err
 	}
-	return n.Abs(path)
+	return filepath.Abs(path)
 }
