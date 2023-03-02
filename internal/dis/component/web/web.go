@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // Web implements the ingress gateway for the distillery.
@@ -27,11 +26,11 @@ func (*Web) Context(parent component.InstallationContext) component.Installation
 	return parent
 }
 
-func (web Web) Stack(env environment.Environment) component.StackWithResources {
+func (web Web) Stack() component.StackWithResources {
 	if web.Config.HTTP.HTTPSEnabled() {
-		return web.stackHTTPS(env)
+		return web.stackHTTPS()
 	} else {
-		return web.stackHTTP(env)
+		return web.stackHTTP()
 	}
 }
 
@@ -39,8 +38,8 @@ func (web Web) Stack(env environment.Environment) component.StackWithResources {
 //go:embed web.env
 var httpsResources embed.FS
 
-func (web *Web) stackHTTPS(env environment.Environment) component.StackWithResources {
-	return component.MakeStack(web, env, component.StackWithResources{
+func (web *Web) stackHTTPS() component.StackWithResources {
+	return component.MakeStack(web, component.StackWithResources{
 		Resources:   httpsResources,
 		ContextPath: "web-https",
 		EnvPath:     "web.env",
@@ -58,8 +57,8 @@ func (web *Web) stackHTTPS(env environment.Environment) component.StackWithResou
 //go:embed web.env
 var httpResources embed.FS
 
-func (web *Web) stackHTTP(env environment.Environment) component.StackWithResources {
-	return component.MakeStack(web, env, component.StackWithResources{
+func (web *Web) stackHTTP() component.StackWithResources {
+	return component.MakeStack(web, component.StackWithResources{
 		Resources:   httpResources,
 		ContextPath: "web-http",
 		EnvPath:     "web.env",

@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 )
 
@@ -35,7 +34,7 @@ var errReadBaseDirectoryEmpty = errors.New("ReadBaseDirectory: Directory is empt
 // Use [ParamsFromEnv] to initialize parameters completely.
 //
 // It does not perform any reading of files.
-func ReadBaseDirectory(env environment.Environment) (value string, err error) {
+func ReadBaseDirectory() (value string, err error) {
 	// get the path!
 	path, err := MetaConfigPath()
 	if err != nil {
@@ -61,7 +60,7 @@ func ReadBaseDirectory(env environment.Environment) (value string, err error) {
 }
 
 // WriteBaseDirectory writes the base directory to the environment, or returns an error
-func WriteBaseDirectory(env environment.Environment, dir string) error {
+func WriteBaseDirectory(dir string) error {
 	// get the path!
 	path, err := MetaConfigPath()
 	if err != nil {

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 type Solr struct {
@@ -33,8 +32,8 @@ func (*Solr) Context(parent component.InstallationContext) component.Installatio
 //go:embed solr.env
 var resources embed.FS
 
-func (solr *Solr) Stack(env environment.Environment) component.StackWithResources {
-	return component.MakeStack(solr, env, component.StackWithResources{
+func (solr *Solr) Stack() component.StackWithResources {
+	return component.MakeStack(solr, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "solr",
 

@@ -132,7 +132,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 			PrefixAlign: true,
 
 			Handler: func(item component.Installable, index int, writer io.Writer) error {
-				stack := item.Stack(context.Environment.Environment)
+				stack := item.Stack()
 
 				if err := stack.Install(context.Context, writer, item.Context(ctx)); err != nil {
 					return err

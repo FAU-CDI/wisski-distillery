@@ -1,12 +1,11 @@
 package validators
 
 import (
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/pkg/errors"
 )
 
-func ValidateFile(env environment.Environment, path *string, dflt string) error {
+func ValidateFile(path *string, dflt string) error {
 	if *path == "" {
 		*path = dflt
 	}
@@ -16,7 +15,7 @@ func ValidateFile(env environment.Environment, path *string, dflt string) error 
 	return nil
 }
 
-func ValidateDirectory(env environment.Environment, path *string, dflt string) error {
+func ValidateDirectory(path *string, dflt string) error {
 	if *path == "" {
 		*path = dflt
 	}

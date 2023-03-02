@@ -64,6 +64,6 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	dis.Config = &config.Config{
 		ConfigPath: cfg,
 	}
-	err = dis.Config.Unmarshal(dis.Still.Environment, f)
+	err = dis.Config.Unmarshal(f)
 	return
 }

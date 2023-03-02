@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 )
 
@@ -17,7 +16,7 @@ import (
 // If the destination already exists, it is truncated.
 //
 // onCopy, when not nil, is called for each file being copied into the archive.
-func Package(env environment.Environment, dst, src string, onCopy func(rel string, src string)) (count int64, err error) {
+func Package(dst, src string, onCopy func(rel string, src string)) (count int64, err error) {
 	// create the target archive
 	archive, err := fsx.Create(dst, fsx.DefaultFilePerm)
 	if err != nil {

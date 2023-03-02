@@ -19,7 +19,7 @@ import (
 //
 // NOTE(twiesing): This command should not be used to connect to the database or execute queries except in known situations.
 func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) int {
-	return sql.Stack(sql.Environment).Exec(ctx, io, "sql", "mysql", argv...)()
+	return sql.Stack().Exec(ctx, io, "sql", "mysql", argv...)()
 }
 
 // unsafeWaitShell waits for a connection via the database shell to succeed

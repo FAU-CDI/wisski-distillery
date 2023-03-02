@@ -8,7 +8,6 @@ import (
 	"io/fs"
 	"strings"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -202,7 +201,7 @@ parseloop:
 // Any existing file is truncated and overwritten.
 //
 // See [WriteTemplate] for possible errors.
-func InstallTemplate(env environment.Environment, dst string, context map[string]string, src string, fsys fs.FS) error {
+func InstallTemplate(dst string, context map[string]string, src string, fsys fs.FS) error {
 
 	// open the srcFile
 	srcFile, err := fsys.Open(src)

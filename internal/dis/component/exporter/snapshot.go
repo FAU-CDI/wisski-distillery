@@ -124,7 +124,6 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, sna
 				instance.Instance,
 				component.NewStagingContext(
 					ctx,
-					snapshots.Environment,
 					writer,
 					filepath.Join(snapshot.Description.Dest, sc.SnapshotName()),
 					manifest,

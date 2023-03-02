@@ -147,7 +147,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		st.Start()
 		defer st.Stop()
 
-		count, err = targz.Package(exporter.Environment, archivePath, stagingDir, func(dst, src string) {
+		count, err = targz.Package(archivePath, stagingDir, func(dst, src string) {
 			st.Set(0, dst)
 		})
 

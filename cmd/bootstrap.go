@@ -10,7 +10,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
@@ -70,15 +69,11 @@ var errBootstrapCreateFile = exit.Error{
 }
 
 func (bs cBootstrap) Run(context wisski_distillery.Context) error {
-	// installation environment is the native environment!
-	// TODO: Should this be configurable?
-	var env environment.Environment
-
 	root := bs.Directory
 
 	// check that we didn't get a different base directory
 	{
-		got, err := cli.ReadBaseDirectory(env)
+		got, err := cli.ReadBaseDirectory()
 		if err == nil && got != "" && got != root {
 			return errBootstrapDifferent.WithMessageF(got)
 		}
@@ -89,7 +84,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 		if err := fsx.MkdirAll(root, fsx.DefaultDirPerm); err != nil {
 			return errBootstrapFailedToCreateDirectory.WithMessageF(root)
 		}
-		if err := cli.WriteBaseDirectory(env, root); err != nil {
+		if err := cli.WriteBaseDirectory(root); err != nil {
 			return errBootstrapFailedToSaveDirectory.WithMessageF(root)
 		}
 		context.Println(root)
@@ -105,7 +100,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	tpl.DefaultDomain = bs.Hostname
 
 	// and use thge defaults
-	if err := tpl.SetDefaults(env); err != nil {
+	if err := tpl.SetDefaults(); err != nil {
 		return errBootstrapWriteConfig.WithMessageF(err)
 	}
 
@@ -154,7 +149,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 			}
 
 			// Validate configuration file!
-			if err := cfg.Validate(env); err != nil {
+			if err := cfg.Validate(); err != nil {
 				return err
 			}
 
@@ -191,7 +186,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	defer f.Close()
 
 	var cfg config.Config
-	if err := cfg.Unmarshal(env, f); err != nil {
+	if err := cfg.Unmarshal(f); err != nil {
 		return errBootstrapOpenConfig.WithMessageF(err)
 	}
 	context.Println(cfg)

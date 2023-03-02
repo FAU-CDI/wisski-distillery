@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 type Triplestore struct {
@@ -36,8 +35,8 @@ func (Triplestore) Context(parent component.InstallationContext) component.Insta
 //go:embed triplestore.env
 var resources embed.FS
 
-func (ts *Triplestore) Stack(env environment.Environment) component.StackWithResources {
-	return component.MakeStack(ts, env, component.StackWithResources{
+func (ts *Triplestore) Stack() component.StackWithResources {
+	return component.MakeStack(ts, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "triplestore",
 

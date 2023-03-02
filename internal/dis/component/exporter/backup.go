@@ -94,7 +94,6 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 				return bc.Backup(
 					component.NewStagingContext(
 						ctx,
-						exporter.Environment,
 						writer,
 						filepath.Join(backup.Description.Dest, bc.BackupName()),
 						manifest,

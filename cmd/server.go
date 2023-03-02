@@ -39,7 +39,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 
 	// if the caller requested a trigger, just trigger the cron tasks
 	if s.Trigger {
-		return dis.Control().Trigger(context.Context, context.Environment.Environment)
+		return dis.Control().Trigger(context.Context)
 	}
 
 	{

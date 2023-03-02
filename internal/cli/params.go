@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // Params are used to initialize the excutable.
@@ -19,10 +18,8 @@ type Params struct {
 // ParamsFromEnv creates a new set of parameters from the environment.
 // Uses [ReadBaseDirectory] or falls back to [BaseDirectoryDefault].
 func ParamsFromEnv() (params Params, err error) {
-	var native environment.Environment
-
 	// try to read the base directory!
-	value, err := ReadBaseDirectory(native) // TODO: Are we sure about the native environment here?
+	value, err := ReadBaseDirectory() // TODO: Are we sure about the native environment here?
 	switch {
 	case os.IsNotExist(err):
 		params.ConfigPath = bootstrap.BaseDirectoryDefault

@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -27,7 +26,6 @@ import (
 type Stack struct {
 	Dir string // Directory this Stack is located in
 
-	Env              environment.Environment
 	DockerExecutable string // Path to the native docker executable to use
 }
 
@@ -210,11 +208,9 @@ type InstallationContext map[string]string
 // Installation is non-interactive, but will provide debugging output onto io.
 // InstallationContext
 func (is StackWithResources) Install(ctx context.Context, progress io.Writer, context InstallationContext) error {
-	env := is.Stack.Env
 	if is.ContextPath != "" {
 		// setup the base files
 		if err := unpack.InstallDir(
-			env,
 			is.Dir,
 			is.ContextPath,
 			is.Resources,
@@ -231,7 +227,6 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 	if is.EnvPath != "" && is.EnvContext != nil {
 		logging.ProgressF(progress, ctx, "[config]  %s\n", envDest)
 		if err := unpack.InstallTemplate(
-			env,
 			envDest,
 			is.EnvContext,
 			is.EnvPath,

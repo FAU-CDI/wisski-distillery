@@ -15,7 +15,6 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 	return component.StackWithResources{
 		Stack: component.Stack{
 			Dir: barrel.FilesystemBase,
-			Env: barrel.Malt.Environment,
 		},
 
 		Resources:   barrelResources,

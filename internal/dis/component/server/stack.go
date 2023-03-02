@@ -9,7 +9,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 func (control Server) Path() string {
@@ -19,8 +18,8 @@ func (control Server) Path() string {
 //go:embed all:server server.env
 var resources embed.FS
 
-func (server *Server) Stack(env environment.Environment) component.StackWithResources {
-	return component.MakeStack(server, env, component.StackWithResources{
+func (server *Server) Stack() component.StackWithResources {
+	return component.MakeStack(server, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "server",
 		EnvPath:     "server.env",
@@ -44,12 +43,12 @@ func (server *Server) Stack(env environment.Environment) component.StackWithReso
 }
 
 // Trigger triggers the active cron run to immediatly invoke cron.
-func (server *Server) Trigger(ctx context.Context, env environment.Environment) error {
-	return server.Stack(env).Kill(ctx, io.Discard, "control", syscall.SIGHUP)
+func (server *Server) Trigger(ctx context.Context) error {
+	return server.Stack().Kill(ctx, io.Discard, "control", syscall.SIGHUP)
 }
 
 func (server *Server) Context(parent component.InstallationContext) component.InstallationContext {
 	return component.InstallationContext{
-		bootstrap.Executable: server.Config.Paths.CurrentExecutable(server.Environment), // TODO: Does this make sense?
+		bootstrap.Executable: server.Config.Paths.CurrentExecutable(), // TODO: Does this make sense?
 	}
 }

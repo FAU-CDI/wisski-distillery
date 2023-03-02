@@ -7,7 +7,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 func (ssh SSH2) Path() string {
@@ -17,8 +16,8 @@ func (ssh SSH2) Path() string {
 //go:embed all:ssh2 ssh2.env
 var resources embed.FS
 
-func (ssh *SSH2) Stack(env environment.Environment) component.StackWithResources {
-	stt := component.MakeStack(ssh, env, component.StackWithResources{
+func (ssh *SSH2) Stack() component.StackWithResources {
+	stt := component.MakeStack(ssh, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "ssh2",
 		EnvPath:     "ssh2.env",
@@ -44,6 +43,6 @@ func (ssh *SSH2) Stack(env environment.Environment) component.StackWithResources
 
 func (ssh SSH2) Context(parent component.InstallationContext) component.InstallationContext {
 	return component.InstallationContext{
-		bootstrap.Executable: ssh.Config.Paths.CurrentExecutable(ssh.Environment), // TODO: Does this make sense?
+		bootstrap.Executable: ssh.Config.Paths.CurrentExecutable(), // TODO: Does this make sense?
 	}
 }

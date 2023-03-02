@@ -4,14 +4,13 @@ import (
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/pkglib/validator"
 	"gopkg.in/yaml.v3"
 )
 
 // Unmarshal reads configuration from the provided io.Reader, and then validates it.
 // Configuration is read in yaml format.
-func (config *Config) Unmarshal(env environment.Environment, src io.Reader) error {
+func (config *Config) Unmarshal(src io.Reader) error {
 	// read yaml!
 	{
 		decoder := yaml.NewDecoder(src)
@@ -22,12 +21,12 @@ func (config *Config) Unmarshal(env environment.Environment, src io.Reader) erro
 	}
 
 	// TODO: should this be done seperatly?
-	return config.Validate(env)
+	return config.Validate()
 }
 
 // Validate validates this configuration file and sets appropriate defaults
-func (config *Config) Validate(env environment.Environment) error {
-	return validator.Validate(config, validators.New(env))
+func (config *Config) Validate() error {
+	return validator.Validate(config, validators.New())
 }
 
 func (config *Config) Marshal(dest io.Writer) error {

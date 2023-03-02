@@ -12,14 +12,13 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/config/legacy/envreader"
 	"github.com/FAU-CDI/wisski-distillery/internal/config/legacy/stringparser"
 	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/pkg/errors"
 )
 
 // Migrate parses a configuration from an old configuration.
-func Migrate(config *config.Config, env environment.Environment, src io.Reader) error {
+func Migrate(config *config.Config, src io.Reader) error {
 	var legacy Legacy
-	if err := legacy.Unmarshal(env, src); err != nil {
+	if err := legacy.Unmarshal(src); err != nil {
 		return nil
 	}
 	return legacy.Migrate(config)
@@ -104,7 +103,7 @@ func (legacy *Legacy) Migrate(cfg *config.Config) error {
 // When a key is missing, it is set to the default value.
 //
 // See also [stringparser.Parse].
-func (config *Legacy) Unmarshal(env environment.Environment, src io.Reader) error {
+func (config *Legacy) Unmarshal(src io.Reader) error {
 	// read all the values!
 	values, err := envreader.ReadAll(src)
 	if err != nil {
@@ -138,7 +137,7 @@ func (config *Legacy) Unmarshal(env environment.Environment, src io.Reader) erro
 		}
 
 		// parse the value!
-		if err := stringparser.Parse(env, tParser, value, vField); err != nil {
+		if err := stringparser.Parse(tParser, value, vField); err != nil {
 			return errors.Errorf("Legacy.Unmarshal: Setting %q, Parser %q: %s", tEnv, tParser, err)
 		}
 	}

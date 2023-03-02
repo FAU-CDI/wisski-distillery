@@ -63,7 +63,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 		PrefixAlign: true,
 
 		Handler: func(item component.Installable, index int, writer io.Writer) error {
-			return item.Stack(context.Environment.Environment).Up(context.Context, writer)
+			return item.Stack().Up(context.Context, writer)
 		},
 	}, dis.Installable()); err != nil {
 		return err
@@ -127,7 +127,7 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 		PrefixAlign: true,
 
 		Handler: func(item component.Installable, index int, writer io.Writer) error {
-			return item.Stack(context.Environment.Environment).Down(context.Context, writer)
+			return item.Stack().Down(context.Context, writer)
 		},
 	}, dis.Installable()); err != nil {
 		return err

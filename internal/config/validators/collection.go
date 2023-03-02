@@ -1,22 +1,17 @@
 package validators
 
 import (
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/pkglib/validator"
 )
 
 // New creates a new set of standard validators for the configuration
-func New(env environment.Environment) validator.Collection {
+func New() validator.Collection {
 	coll := make(validator.Collection)
 
 	validator.Add(coll, "nonempty", ValidateNonempty)
 
-	validator.Add(coll, "directory", func(value *string, dflt string) error {
-		return ValidateDirectory(env, value, dflt)
-	})
-	validator.Add(coll, "file", func(value *string, dflt string) error {
-		return ValidateFile(env, value, dflt)
-	})
+	validator.Add(coll, "directory", ValidateDirectory)
+	validator.Add(coll, "file", ValidateFile)
 
 	validator.Add(coll, "domain", ValidateDomain)
 	validator.AddSlice(coll, "domains", ",", ValidateDomain)

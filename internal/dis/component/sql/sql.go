@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/pkglib/lazy"
 )
@@ -43,8 +42,8 @@ func (*SQL) Context(parent component.InstallationContext) component.Installation
 //go:embed sql.env
 var resources embed.FS
 
-func (sql *SQL) Stack(env environment.Environment) component.StackWithResources {
-	return component.MakeStack(sql, env, component.StackWithResources{
+func (sql *SQL) Stack() component.StackWithResources {
+	return component.MakeStack(sql, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "sql",
 

@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/pkg/errors"
@@ -66,10 +65,9 @@ type StagingContext interface {
 }
 
 // NewStagingContext returns a new [StagingContext]
-func NewStagingContext(ctx context.Context, env environment.Environment, progress io.Writer, path string, manifest chan<- string) StagingContext {
+func NewStagingContext(ctx context.Context, progress io.Writer, path string, manifest chan<- string) StagingContext {
 	return &stagingContext{
 		ctx:      ctx,
-		env:      env,
 		progress: progress,
 		path:     path,
 		manifest: manifest,
@@ -79,10 +77,9 @@ func NewStagingContext(ctx context.Context, env environment.Environment, progres
 // stagingContext implements [components.StagingContext]
 type stagingContext struct {
 	ctx      context.Context
-	env      environment.Environment // environment
-	progress io.Writer               // writer to direct progress to
-	path     string                  // path to send files to
-	manifest chan<- string           // channel the manifest is sent to
+	progress io.Writer     // writer to direct progress to
+	path     string        // path to send files to
+	manifest chan<- string // channel the manifest is sent to
 }
 
 func (bc *stagingContext) sendPath(path string) {

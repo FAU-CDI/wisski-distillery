@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // Components represents a logical subsystem of the distillery.
@@ -64,6 +63,5 @@ func (cb Base) ID() string {
 // Still represents the central part of a distillery.
 // It is used inside the main distillery struct, as well as every component via [ComponentBase].
 type Still struct {
-	Environment environment.Environment // environment to use for reading / writing to and from the distillery
-	Config      *config.Config          // the configuration of the distillery
+	Config *config.Config // the configuration of the distillery
 }

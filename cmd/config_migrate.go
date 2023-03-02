@@ -8,7 +8,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/config/legacy"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 )
 
 // ConfigMigrate is the config-migrate command
@@ -31,9 +30,6 @@ func (cfgMigrate) Description() wisski_distillery.Description {
 }
 
 func (c cfgMigrate) Run(context wisski_distillery.Context) error {
-	// migration environment is the native environment!
-	var env environment.Environment
-
 	// open the legacy file
 	file, err := os.Open(c.Positionals.Input)
 	if err != nil {
@@ -46,12 +42,12 @@ func (c cfgMigrate) Run(context wisski_distillery.Context) error {
 
 	var cfg config.Config
 	// migrate the legacy config
-	if err := legacy.Migrate(&cfg, env, file); err != nil {
+	if err := legacy.Migrate(&cfg, file); err != nil {
 		return err
 	}
 
 	// validate it!
-	if err := cfg.Validate(env); err != nil {
+	if err := cfg.Validate(); err != nil {
 		return err
 	}
 

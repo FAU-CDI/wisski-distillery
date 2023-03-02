@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 )
 
@@ -34,7 +33,7 @@ func (pcfg PathsConfig) ExecutablePath() string {
 }
 
 // UsingDistilleryExecutable checks if the current process is using the distillery executable
-func (pcfg PathsConfig) UsingDistilleryExecutable(env environment.Environment) bool {
+func (pcfg PathsConfig) UsingDistilleryExecutable() bool {
 	exe, err := os.Executable()
 	if err != nil {
 		return false
@@ -44,7 +43,7 @@ func (pcfg PathsConfig) UsingDistilleryExecutable(env environment.Environment) b
 
 // CurrentExecutable returns the path to the current executable being used.
 // When it does not exist, falls back to the default executable.
-func (pcfg PathsConfig) CurrentExecutable(env environment.Environment) string {
+func (pcfg PathsConfig) CurrentExecutable() string {
 	exe, err := os.Executable()
 	if err != nil || !fsx.IsFile(exe) {
 		return pcfg.ExecutablePath()

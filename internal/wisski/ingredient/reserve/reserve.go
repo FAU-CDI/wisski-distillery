@@ -22,7 +22,6 @@ func (reserve *Reserve) Stack() component.StackWithResources {
 	return component.StackWithResources{
 		Stack: component.Stack{
 			Dir: reserve.FilesystemBase,
-			Env: reserve.Malt.Environment,
 		},
 
 		Resources:   reserveResources,
