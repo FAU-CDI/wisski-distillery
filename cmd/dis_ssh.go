@@ -1,10 +1,11 @@
 package cmd
 
 import (
+	"os"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/goprogram/exit"
 
 	gossh "golang.org/x/crypto/ssh"
@@ -73,7 +74,7 @@ func (ds disSSH) parseOpts(context wisski_distillery.Context) (user *auth.AuthUs
 		return nil, nil, err
 	}
 
-	content, err := environment.ReadFile(context.Environment.Environment, ds.Positionals.Path)
+	content, err := os.ReadFile(ds.Positionals.Path)
 	if err != nil {
 		return nil, nil, err
 	}

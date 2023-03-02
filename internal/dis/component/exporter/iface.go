@@ -75,7 +75,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	// create the staging directory
 	logging.LogMessage(progress, ctx, "Creating staging directory")
 	err = exporter.Environment.Mkdir(stagingDir, environment.DefaultDirPerm)
-	if !environment.IsExist(err) && err != nil {
+	if !os.IsExist(err) && err != nil {
 		return err
 	}
 

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/pkg/errors"
 )
 
@@ -83,8 +84,8 @@ func installDir(env environment.Environment, dst string, srcInfo fs.FileInfo, sr
 	// create the destination
 	dstStat, dstErr := os.Stat(dst)
 	switch {
-	case environment.IsNotExist(dstErr):
-		if err := env.MkdirAll(dst, srcInfo.Mode()); err != nil {
+	case os.IsNotExist(dstErr):
+		if err := fsx.MkdirAll(dst, srcInfo.Mode()); err != nil {
 			return errors.Wrapf(err, "Error creating destination directory %s", dst)
 		}
 	case dstErr != nil:
@@ -121,7 +122,7 @@ func installDir(env environment.Environment, dst string, srcInfo fs.FileInfo, sr
 
 func installFile(env environment.Environment, dst string, srcInfo fs.FileInfo, src fs.File) error {
 	// create the file using the right mode!
-	file, err := env.Create(dst, srcInfo.Mode())
+	file, err := fsx.Create(dst, srcInfo.Mode())
 	if err != nil {
 		return err
 	}

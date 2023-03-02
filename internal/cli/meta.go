@@ -3,12 +3,14 @@ package cli
 import (
 	"errors"
 	"io/fs"
+	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 )
 
 // metaConfigFile is the path to a configuration file that contains the path to the last used wdcli executable.
@@ -41,7 +43,7 @@ func ReadBaseDirectory(env environment.Environment) (value string, err error) {
 	}
 
 	// read the meta config file!
-	contents, err := environment.ReadFile(env, path)
+	contents, err := os.ReadFile(path)
 	if err != nil {
 		return "", err
 	}
@@ -67,5 +69,5 @@ func WriteBaseDirectory(env environment.Environment, dir string) error {
 	}
 
 	// just put the directory inside it!
-	return environment.WriteFile(env, path, []byte(dir), fs.ModePerm)
+	return fsx.WriteFile(path, []byte(dir), fs.ModePerm)
 }

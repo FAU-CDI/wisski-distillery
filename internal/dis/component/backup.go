@@ -126,7 +126,7 @@ func (sc *stagingContext) AddDirectory(path string, op func(context.Context) err
 	}
 
 	// run the make directory
-	if err := sc.env.Mkdir(dst, environment.DefaultDirPerm); err != nil {
+	if err := fsx.Mkdir(dst, fsx.DefaultDirPerm); err != nil {
 		return err
 	}
 
@@ -178,7 +178,7 @@ func (sc *stagingContext) AddFile(path string, op func(ctx context.Context, file
 	}
 
 	// create the file
-	file, err := sc.env.Create(dst, environment.DefaultFilePerm)
+	file, err := fsx.Create(dst, fsx.DefaultFilePerm)
 	if err != nil {
 		return err
 	}

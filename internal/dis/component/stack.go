@@ -248,9 +248,9 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 		logging.ProgressF(progress, ctx, "[make]    %s\n", dst)
 		if is.MakeDirsPerm == fs.FileMode(0) {
-			is.MakeDirsPerm = environment.DefaultDirPerm
+			is.MakeDirsPerm = fsx.DefaultDirPerm
 		}
-		if err := env.MkdirAll(dst, is.MakeDirsPerm); err != nil {
+		if err := fsx.MkdirAll(dst, is.MakeDirsPerm); err != nil {
 			return err
 		}
 	}
@@ -279,7 +279,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		dst := filepath.Join(is.Dir, name)
 
 		logging.ProgressF(progress, ctx, "[touch]   %s\n", dst)
-		if err := fsx.Touch(env, dst, is.TouchFilesPerm); err != nil {
+		if err := fsx.Touch(dst, is.TouchFilesPerm); err != nil {
 			return err
 		}
 	}

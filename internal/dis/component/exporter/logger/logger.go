@@ -8,7 +8,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
 	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/reflectx"
 )
@@ -64,7 +63,7 @@ func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 	// partition out the exports that have been deleted!
 	parts := collection.Partition(exports, func(s models.Export) bool {
 		_, err := os.Stat(s.Path)
-		return !environment.IsNotExist(err)
+		return !os.IsNotExist(err)
 	})
 
 	// go and delete them!

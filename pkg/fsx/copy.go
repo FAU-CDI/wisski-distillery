@@ -18,6 +18,8 @@ var ErrCopySameFile = errors.New("src and dst must be different")
 //
 // When dst and src are the same file, returns ErrCopySameFile.
 // When ctx is closed, the file is not copied.
+//
+// Ignores the umask.
 func CopyFile(ctx context.Context, env environment.Environment, dst, src string) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -41,7 +43,7 @@ func CopyFile(ctx context.Context, env environment.Environment, dst, src string)
 	}
 
 	// open or create the destination
-	dstFile, err := env.Create(dst, srcStat.Mode())
+	dstFile, err := Create(dst, srcStat.Mode())
 	if err != nil {
 		return err
 	}
@@ -141,8 +143,8 @@ func CopyDirectory(ctx context.Context, env environment.Environment, dst, src st
 
 		// create the directory, but ignore an error if the directory already exists.
 		// this is so that we can copy one tree into another tree.
-		err = env.Mkdir(dst, info.Mode())
-		if environment.IsExist(err) && IsDirectory(env, dst) {
+		err = Mkdir(dst, info.Mode())
+		if os.IsExist(err) && IsDirectory(env, dst) {
 			err = nil
 		}
 

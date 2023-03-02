@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
@@ -222,7 +223,7 @@ func InstallTemplate(env environment.Environment, dst string, context map[string
 	}
 
 	// open the destination file
-	file, err := env.Create(dst, srcInfo.Mode())
+	file, err := fsx.Create(dst, srcInfo.Mode())
 	if err != nil {
 		return err
 	}

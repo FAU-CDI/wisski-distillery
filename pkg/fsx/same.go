@@ -62,7 +62,7 @@ func couldBeSameFile(env environment.Environment, path1, path2 string) (same, au
 		}
 
 		// only 1 file does not exist => they could be different
-		if environment.IsNotExist(err1) != environment.IsNotExist(err2) {
+		if os.IsNotExist(err1) != os.IsNotExist(err2) {
 			return
 		}
 	}

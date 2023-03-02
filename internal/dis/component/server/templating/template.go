@@ -3,8 +3,7 @@ package templating
 import (
 	_ "embed"
 	"html/template"
-
-	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"os"
 )
 
 //go:embed "src/footer.html"
@@ -16,7 +15,7 @@ func (tpl *Templating) GetCustomizable(dflt *template.Template) *template.Templa
 	name := dflt.Name()
 
 	custom, err := (func() (*template.Template, error) {
-		data, err := environment.ReadFile(tpl.Environment, tpl.CustomAssetPath(name))
+		data, err := os.ReadFile(tpl.CustomAssetPath(name))
 		if err != nil {
 			return nil, err
 		}

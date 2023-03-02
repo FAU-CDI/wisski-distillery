@@ -3,6 +3,7 @@ package exporter
 import (
 	"crypto/rand"
 	"fmt"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -72,7 +73,7 @@ func (*Exporter) newSnapshotName(prefix string) string {
 // NewStagingDir returns the path to a new snapshot directory.
 // The directory is guaranteed to have been freshly created.
 func (dis *Exporter) NewStagingDir(prefix string) (path string, err error) {
-	for path == "" || environment.IsExist(err) {
+	for path == "" || os.IsExist(err) {
 		path = filepath.Join(dis.StagingPath(), dis.newSnapshotName(prefix))
 		err = dis.Still.Environment.Mkdir(path, environment.DefaultFilePerm)
 	}

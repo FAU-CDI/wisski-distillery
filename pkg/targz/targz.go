@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/environment"
+	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 )
 
 // Package packages the source directory into a 'tar.gz' file into destination.
@@ -18,7 +19,7 @@ import (
 // onCopy, when not nil, is called for each file being copied into the archive.
 func Package(env environment.Environment, dst, src string, onCopy func(rel string, src string)) (count int64, err error) {
 	// create the target archive
-	archive, err := env.Create(dst, environment.DefaultFilePerm)
+	archive, err := fsx.Create(dst, fsx.DefaultFilePerm)
 	if err != nil {
 		return 0, err
 	}
