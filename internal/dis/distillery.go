@@ -74,9 +74,6 @@ type Upstream struct {
 func (dis *Distillery) Control() *server.Server {
 	return export[*server.Server](dis)
 }
-func (dis *Distillery) Resolver() *resolver.Resolver {
-	return export[*resolver.Resolver](dis)
-}
 func (dis *Distillery) SQL() *sql.SQL {
 	return export[*sql.SQL](dis)
 }
@@ -89,13 +86,8 @@ func (dis *Distillery) Auth() *auth.Auth {
 func (dis *Distillery) Keys() *sshkeys.SSHKeys {
 	return export[*sshkeys.SSHKeys](dis)
 }
-
 func (dis *Distillery) Cron() *cron.Cron {
 	return export[*cron.Cron](dis)
-}
-
-func (dis *Distillery) Triplestore() *triplestore.Triplestore {
-	return export[*triplestore.Triplestore](dis)
 }
 func (dis *Distillery) Instances() *instances.Instances {
 	return export[*instances.Instances](dis)
