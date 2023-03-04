@@ -2,7 +2,6 @@
 package component
 
 import (
-	"bufio"
 	"context"
 	"io"
 	"io/fs"
@@ -15,7 +14,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
-	"github.com/tkw1536/pkglib/pools"
 )
 
 // Stack represents a 'docker compose' stack living in a specific directory
@@ -118,36 +116,6 @@ func (ds Stack) Restart(ctx context.Context, progress io.Writer) error {
 		return errStackRestart
 	}
 	return nil
-}
-
-var errStackPs = errors.New("Stack.Ps: Down returned non-zero exit code")
-
-// Ps returns the ids of the containers currently running
-func (ds Stack) Ps(ctx context.Context, progress io.Writer) ([]string, error) {
-	// create a buffer
-	buffer := pools.GetBuffer()
-	defer pools.ReleaseBuffer(buffer)
-
-	// read the ids from the command!
-	code := ds.compose(ctx, stream.NewIOStream(buffer, progress, nil, 0), "ps", "-q")()
-	if code != 0 {
-		return nil, errStackPs
-	}
-
-	// scan each of the lines
-	var results []string
-	scanner := bufio.NewScanner(buffer)
-	for scanner.Scan() {
-		if text := scanner.Text(); text != "" {
-			results = append(results, text)
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, err
-	}
-
-	// return them!
-	return results, nil
 }
 
 var errStackDown = errors.New("Stack.Down: Down returned non-zero exit code")

@@ -62,6 +62,16 @@ var errBootstrapComponent = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
+var errDockerUnreachable = exit.Error{
+	Message:  "unable to reach docker api: %s",
+	ExitCode: exit.ExitGeneric,
+}
+
+var errNetworkCreateFailed = exit.Error{
+	Message:  "unable to create docker network: %s",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (si systemupdate) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
@@ -101,20 +111,37 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		}
 	}
 
-	logging.LogMessage(context.Stderr, context.Context, "Checking that 'docker' is installed")
-	if err := si.mustExec(context, "", "docker", "--version"); err != nil {
-		return err
+	// check that the docker api is available
+	{
+		logging.LogMessage(context.Stderr, context.Context, "Checking that the 'docker' api is reachable")
+		ping, err := dis.Docker().Ping(context.Context)
+		if err != nil {
+			return errDockerUnreachable.WithMessageF(err)
+		}
+		context.Printf("API Version:     %s (experimental: %t)\nBuilder Version: %s\n", ping.APIVersion, ping.Experimental, ping.BuilderVersion)
 	}
 
-	logging.LogMessage(context.Stderr, context.Context, "Checking that 'docker compose' is available")
-	if err := si.mustExec(context, "", "docker", "compose", "version"); err != nil {
-		return err
+	{
+		logging.LogMessage(context.Stderr, context.Context, "Checking that 'docker compose' is available")
+		if err := si.mustExec(context, "", "docker", "compose", "version"); err != nil {
+			return err
+		}
 	}
 
 	// create the docker network
-	// TODO: Use docker API for this
-	logging.LogMessage(context.Stderr, context.Context, "Updating Docker Configuration")
-	si.mustExec(context, "", "docker", "network", "create", dis.Config.Docker.Network)
+	{
+		logging.LogMessage(context.Stderr, context.Context, "Configuring docker networks")
+		name := dis.Config.Docker.Network
+		id, existed, err := dis.Docker().CreateNetwork(context.Context, name)
+		if err != nil {
+			return errNetworkCreateFailed.WithMessageF(err)
+		}
+		if existed {
+			context.Printf("Network %s (id %s) already existed\n", name, id)
+		} else {
+			context.Printf("Network %s (id %s) created\n", name, id)
+		}
+	}
 
 	// install and update the various stacks!
 	ctx := component.InstallationContext{

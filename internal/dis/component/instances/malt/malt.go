@@ -3,6 +3,7 @@ package malt
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
@@ -22,6 +23,8 @@ type Malt struct {
 	Meta        *meta.Meta               `auto:"true"`
 	ExporterLog *logger.Logger           `auto:"true"`
 	Policy      *policy.Policy           `auto:"true"`
+
+	Docker *docker.Docker `auto:"true"`
 
 	Keys *sshkeys.SSHKeys `auto:"true"`
 }
