@@ -121,3 +121,9 @@ func (server *Server) csrf() func(http.Handler) http.Handler {
 	opts = append(opts, csrf.FieldName(CSRFCookieField))
 	return csrf.Protect(server.Config.CSRFSecret(), opts...)
 }
+
+func init() {
+	httpx.InterceptorOnFallback = func(req *http.Request, err error) {
+		zerolog.Ctx(req.Context()).Err(err).Msg("unknown error intercepted")
+	}
+}

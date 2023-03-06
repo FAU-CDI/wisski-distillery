@@ -14,7 +14,7 @@ require (
 	github.com/pquerna/otp v1.4.0
 	github.com/rs/zerolog v1.29.0
 	github.com/tkw1536/goprogram v0.3.0
-	github.com/tkw1536/pkglib v0.0.0-20230225192547-93a1aa42a292
+	github.com/tkw1536/pkglib v0.0.0-20230306213020-a931cd9a13bb
 	github.com/yuin/goldmark v1.5.4
 	github.com/yuin/goldmark-meta v1.1.0
 	golang.org/x/crypto v0.6.0
