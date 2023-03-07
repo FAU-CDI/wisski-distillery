@@ -1,7 +1,9 @@
 package web
 
 import (
+	"bytes"
 	"embed"
+	"io"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -26,46 +28,36 @@ func (*Web) Context(parent component.InstallationContext) component.Installation
 	return parent
 }
 
-func (web Web) Stack() component.StackWithResources {
-	if web.Config.HTTP.HTTPSEnabled() {
-		return web.stackHTTPS()
-	} else {
-		return web.stackHTTP()
+//go:embed web.env
+var webEnv embed.FS
+
+//go:embed docker-compose-http.yml
+var dockerComposeHTTP []byte
+
+//go:embed docker-compose-https.yml
+var dockerComposeHTTPS []byte
+
+func (web *Web) Stack() component.StackWithResources {
+	var stack component.StackWithResources
+	stack.Resources = webEnv
+	stack.EnvPath = "web.env"
+
+	stack.EnvContext = map[string]string{
+		"DOCKER_NETWORK_NAME": web.Config.Docker.Network,
+		"CERT_EMAIL":          web.Config.HTTP.CertbotEmail,
 	}
-}
 
-//go:embed all:web-https
-//go:embed web.env
-var httpsResources embed.FS
+	if web.Config.HTTP.HTTPSEnabled() {
+		stack.ReadComposeFile = func() (io.Reader, error) {
+			return bytes.NewReader(dockerComposeHTTPS), nil
+		}
+		stack.TouchFilesPerm = 0600
+		stack.TouchFiles = []string{"acme.json"}
+	} else {
+		stack.ReadComposeFile = func() (io.Reader, error) {
+			return bytes.NewReader(dockerComposeHTTP), nil
+		}
+	}
 
-func (web *Web) stackHTTPS() component.StackWithResources {
-	return component.MakeStack(web, component.StackWithResources{
-		Resources:   httpsResources,
-		ContextPath: "web-https",
-		EnvPath:     "web.env",
-
-		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": web.Config.Docker.Network,
-			"CERT_EMAIL":          web.Config.HTTP.CertbotEmail,
-		},
-		TouchFilesPerm: 0600,
-		TouchFiles:     []string{"acme.json"},
-	})
-}
-
-//go:embed all:web-http
-//go:embed web.env
-var httpResources embed.FS
-
-func (web *Web) stackHTTP() component.StackWithResources {
-	return component.MakeStack(web, component.StackWithResources{
-		Resources:   httpResources,
-		ContextPath: "web-http",
-		EnvPath:     "web.env",
-
-		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": web.Config.Docker.Network,
-			"CERT_EMAIL":          web.Config.HTTP.CertbotEmail,
-		},
-	})
+	return component.MakeStack(web, stack)
 }

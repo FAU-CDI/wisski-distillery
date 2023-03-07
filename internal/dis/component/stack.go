@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -154,10 +155,13 @@ type StackWithResources struct {
 	//
 	// The Resources holds these, with appropriate resources specified below.
 	// These all refer to paths within the Resource filesystem.
-	Resources   fs.FS
-	ContextPath string            // the 'docker compose' stack context, containing e.g. 'docker-compose.yml'.
-	EnvPath     string            // the '.env' template, will be installed using [unpack.InstallTemplate].
-	EnvContext  map[string]string // context when instantiating the '.env' template
+	Resources fs.FS
+
+	ContextPath     string                    // the 'docker compose' stack context. Can, but does not have to, contain 'docker-compose.yml'
+	ReadComposeFile func() (io.Reader, error) // read the 'docker-compose.yml' (if not contained in context)
+
+	EnvPath    string            // the '.env' template, will be installed using [unpack.InstallTemplate].
+	EnvContext map[string]string // context when instantiating the '.env' template
 
 	CopyContextFiles []string // Files to copy from the installation context
 
@@ -186,6 +190,40 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 				logging.ProgressF(progress, ctx, "[install] %s\n", dst)
 			},
 		); err != nil {
+			return err
+		}
+	}
+
+	// write the docker-compose.yml file
+	if is.ReadComposeFile != nil {
+		err := (func() error {
+			// find the file to install!
+			dst := filepath.Join(is.Dir, "docker-compose.yml")
+			defer logging.ProgressF(progress, ctx, "[install] %s\n", dst)
+
+			// create the file
+			yml, err := fsx.Create(dst, fsx.DefaultFilePerm)
+			if err != nil {
+				return err
+			}
+			defer yml.Close()
+
+			// open the source file from the context
+			src, err := is.ReadComposeFile()
+			if err != nil {
+				return err
+			}
+			if srcc, ok := src.(io.Closer); ok {
+				defer srcc.Close()
+			}
+
+			// copy it over!
+			{
+				_, err := io.Copy(yml, src)
+				return err
+			}
+		})()
+		if err != nil {
 			return err
 		}
 	}
@@ -243,6 +281,15 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 		logging.ProgressF(progress, ctx, "[touch]   %s\n", dst)
 		if err := fsx.Touch(dst, is.TouchFilesPerm); err != nil {
+			return err
+		}
+	}
+
+	// check that the stack can be loaded
+	{
+		logging.ProgressF(progress, ctx, "[checking]")
+		_, err := compose.Open(is.Dir)
+		if err != nil {
 			return err
 		}
 	}

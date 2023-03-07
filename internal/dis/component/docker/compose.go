@@ -2,55 +2,18 @@ package docker
 
 import (
 	"context"
-	"path/filepath"
 
-	"github.com/compose-spec/compose-go/cli"
-	"github.com/compose-spec/compose-go/loader"
-	ctypes "github.com/compose-spec/compose-go/types"
 	"golang.org/x/exp/slices"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 )
 
-// ComposeProject represents a compose project
-type ComposeProject = *ctypes.Project
-
-// LoadComposeProject loads a docker compose project from the given path.
-// The returned name indicates the name, as would be found by the 'docker compose' executable.
-// If the project could not be found, an appropriate error is returned.
-//
-// NOTE: This intentionally omits using any kind of api for docker compose.
-// This saves a *a lot* of dependencies./
-func (docker *Docker) LoadComposeProject(path string) (project ComposeProject, err error) {
-	ppath, err := filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
-
-	opts, err := cli.NewProjectOptions(
-		/* configs = */ nil,
-		cli.WithWorkingDirectory(ppath),
-		cli.WithDefaultConfigPath,
-		cli.WithName(loader.NormalizeProjectName(filepath.Base(ppath))),
-		cli.WithDotEnv,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	proj, err := cli.ProjectFromOptions(opts)
-	if err != nil {
-		return nil, err
-	}
-
-	return proj, nil
-}
-
 // Containers loads the compose project at path, connects to the docker daemon, and then lists all containers belonging to the given services.
 // If services is empty, all containers belonging to any service are returned.
 func (docker *Docker) Containers(ctx context.Context, path string, services ...string) (containers []types.Container, err error) {
-	proj, err := docker.LoadComposeProject(path)
+	proj, err := compose.Open(path)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +39,7 @@ const (
 //
 // services optionally filters the returned containers by the services they belong to.
 // If services is empty, all containers are returned, else containers belonging to any of the services included.
-func (*Docker) containers(ctx context.Context, project ComposeProject, client DockerClient, all bool, services ...string) ([]types.Container, error) {
+func (*Docker) containers(ctx context.Context, project compose.Project, client DockerClient, all bool, services ...string) ([]types.Container, error) {
 	// build filters
 	f := filters.NewArgs(
 		filters.Arg("label", projectLabel+"="+project.Name),
