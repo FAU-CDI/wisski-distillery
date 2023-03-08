@@ -9,6 +9,8 @@ This README contains only technical documentation.
 For members of [FAU Erlangen-Nürnberg](https://www.fau.de/) a cloud offering based on this service known as FAUWissKICloud.
 Please see https://wisski.data.fau.de/ for related documentation. 
 
+** THIS DOCUMENTATION IS ALWAYS OUTDATED **
+
 ## Overview
 
 This project consists of the following:
