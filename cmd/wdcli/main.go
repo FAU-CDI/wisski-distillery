@@ -18,7 +18,6 @@ var wdcli = wisski_distillery.NewProgram()
 func init() {
 	// self commands
 	wdcli.Register(cmd.Config)
-	wdcli.Register(cmd.ConfigMigrate)
 	wdcli.Register(cmd.License)
 
 	// setup commands
