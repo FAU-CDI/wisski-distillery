@@ -7,7 +7,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
-	"github.com/tkw1536/pkglib/lazy"
 )
 
 type SQL struct {
@@ -19,8 +18,6 @@ type SQL struct {
 	ServerURL string // upstream server url
 
 	PollInterval time.Duration // duration to wait for during wait
-
-	lazyNetwork lazy.Lazy[string]
 }
 
 var (

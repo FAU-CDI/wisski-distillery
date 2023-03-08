@@ -23,7 +23,7 @@ func (sql *SQL) Snapshot(wisski models.Instance, scontext component.StagingConte
 
 // SnapshotDB makes a backup of the sql database into dest.
 func (sql *SQL) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Writer, database string) error {
-	code := sql.Stack().Exec(ctx, stream.NonInteractive(progress), "sql", "mysqldump", "--databases", database)()
+	code := sql.Stack().Exec(ctx, stream.NewIOStream(dest, progress, nil, 0), "sql", "mysqldump", "--databases", database)()
 	if code != 0 {
 		return errSQLBackup
 	}
