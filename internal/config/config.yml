@@ -4,8 +4,8 @@ listen:
     ports: null
 
     # The ssh port that is shown to the user in various interfaces.
-    # This port is not automatically included in the ports to listen to.
-    advertise_ssh: null
+    # This port is automatically included in the ports to listen to.
+    ssh: null
 
 paths:
     # A WissKI Distillery needs to store a lot of data on disk.
@@ -78,7 +78,6 @@ triplestore:
 # Backups older than this will be removed when a new backup is made.
 # The default here is 720hours (== 30 days)
 age: null
-
 
 # Various components use password-based-authentication. 
 # These passwords are generated automatically. 

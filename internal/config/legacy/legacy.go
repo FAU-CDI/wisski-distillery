@@ -88,7 +88,7 @@ func (legacy *Legacy) Migrate(cfg *config.Config) error {
 	if legacy.CertbotEmail != "" {
 		cfg.Listen.Ports = append(cfg.Listen.Ports, 443)
 	}
-	cfg.Listen.AdvertisedSSHPort = legacy.PublicSSHPort
+	cfg.Listen.SSHPort = legacy.PublicSSHPort
 	cfg.TS.AdminUsername = legacy.TriplestoreAdminUser
 	cfg.TS.AdminPassword = legacy.TriplestoreAdminPassword
 	cfg.SQL.AdminUsername = legacy.MysqlAdminUser

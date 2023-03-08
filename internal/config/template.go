@@ -80,8 +80,8 @@ func (tpl *Template) SetDefaults() (err error) {
 func (tpl Template) Generate() Config {
 	return Config{
 		Listen: ListenConfig{
-			Ports:             []uint16{80},
-			AdvertisedSSHPort: 80,
+			Ports:   []uint16{80},
+			SSHPort: 80,
 		},
 		Paths: PathsConfig{
 			Root:           tpl.RootPath,
