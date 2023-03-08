@@ -64,7 +64,7 @@ func Assets(Assets assets.Assets) FlagFunc {
 // Crumbs sets the crumbs
 func Crumbs(crumbs ...component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
-		flags.Crumbs = crumbs
+		flags.Crumbs = slices.Clone(crumbs)
 		return flags
 	}
 }
@@ -72,7 +72,7 @@ func Crumbs(crumbs ...component.MenuItem) FlagFunc {
 // Actions sets the actions
 func Actions(actions ...component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
-		flags.Actions = actions
+		flags.Actions = slices.Clone(actions)
 		return flags
 	}
 }
