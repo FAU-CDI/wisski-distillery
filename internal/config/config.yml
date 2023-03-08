@@ -85,9 +85,6 @@ age: null
 # This variable can be used to determine their length. 
 password_length: null
 
-# the port to use for the ssh server
-ssh_port: null
-
 # The secret for sessions (for login etc)
 session_secret: null
 
