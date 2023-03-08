@@ -23,6 +23,14 @@ type HTTPConfig struct {
 	CertbotEmail string `yaml:"certbot_email" validate:"email"`
 }
 
+// TCPMuxCommand generates a command line for the sslh executable.
+func (hcfg HTTPConfig) TCPMuxCommand(addr string, http string, https string, ssh string) string {
+	if hcfg.HTTPSEnabled() {
+		return fmt.Sprintf("-bind %s -http %s -tls %s -rest %s", addr, http, https, ssh)
+	}
+	return fmt.Sprintf("-bind %s -http %s -rest %s", addr, http, ssh)
+}
+
 // HTTPSEnabled returns if the distillery has HTTPS enabled, and false otherwise.
 func (hcfg HTTPConfig) HTTPSEnabled() bool {
 	return hcfg.CertbotEmail != ""

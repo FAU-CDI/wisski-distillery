@@ -1,0 +1,17 @@
+version: "3.7"
+
+services:
+  binder:
+    image: ghcr.io/fau-cdi/tcpmux
+    # dynamically generated
+    command: []
+    # dynamically generated
+    ports: []
+    restart: always
+    networks:
+      - default
+
+networks:
+  default:
+    name: ${DOCKER_NETWORK_NAME}
+    external: true

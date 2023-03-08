@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  reverse-proxy:
+  http:
     image: docker.io/library/traefik:v2.9
     command:
       - "--providers.docker"
@@ -24,10 +24,10 @@ services:
       # - "--api.insecure=true"
       # - "--certificatesresolvers.distillery.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
 
-    ports:
-      - "80:80"
-      - "443:443"
-      # - "127.0.0.1:8888:8080"
+    #ports:
+    #  # - "80:80"
+    #  # - "443:443"
+    #  # - "127.0.0.1:8888:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./acme.json:/acme.json"

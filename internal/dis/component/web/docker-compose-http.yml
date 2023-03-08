@@ -1,7 +1,7 @@
 version: "3.7"
 
 services:
-  reverse-proxy:
+  http:
     image: docker.io/library/traefik:v2.9
     command:
       - "--providers.docker"
@@ -12,9 +12,9 @@ services:
 
       ## for debugging purposes, the following can be enabled.
       # - "--api.insecure=true"
-    ports:
-      - "80:80"
-      # - "127.0.0.1:8888:8080"
+    #ports:
+    #  # - "80:80"
+    #  # - "127.0.0.1:8888:8080"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: always

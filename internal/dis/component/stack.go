@@ -192,6 +192,10 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		); err != nil {
 			return err
 		}
+	} else {
+		if err := fsx.MkdirAll(is.Dir, fsx.DefaultDirPerm); err != nil {
+			return err
+		}
 	}
 
 	// write the docker-compose.yml file

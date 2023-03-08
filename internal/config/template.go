@@ -79,6 +79,10 @@ func (tpl *Template) SetDefaults() (err error) {
 // Generate generates a configuration file for this configuration
 func (tpl Template) Generate() Config {
 	return Config{
+		Listen: ListenConfig{
+			Ports:             []uint16{80},
+			AdvertisedSSHPort: 80,
+		},
 		Paths: PathsConfig{
 			Root:           tpl.RootPath,
 			OverridesJSON:  filepath.Join(tpl.RootPath, bootstrap.OverridesJSON),
@@ -113,8 +117,6 @@ func (tpl Template) Generate() Config {
 		},
 		MaxBackupAge:   30 * 24 * time.Hour, // 1 month
 		PasswordLength: 64,
-
-		PublicSSHPort: 2222,
 
 		SessionSecret: tpl.SessionSecret,
 		CronInterval:  10 * time.Minute,

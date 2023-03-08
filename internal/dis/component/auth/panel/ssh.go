@@ -59,7 +59,7 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 		}
 
 		sc.Domain = panel.Config.HTTP.PrimaryDomain
-		sc.Port = panel.Config.PublicSSHPort
+		sc.Port = panel.Config.Listen.AdvertisedSSHPort
 
 		// pick the first domain that the user has access to as an example
 		grants, err := panel.Dependencies.Policy.User(r.Context(), user.User.User)

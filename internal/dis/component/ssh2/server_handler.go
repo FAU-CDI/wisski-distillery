@@ -82,7 +82,7 @@ func (ssh2 *SSH2) handleConnection(session ssh.Session) {
 		{"${SLUG}", slug},
 		{"${DOMAIN}", ssh2.Config.HTTP.PrimaryDomain},
 		{"${HOSTNAME}", slug + "." + ssh2.Config.HTTP.PrimaryDomain},
-		{"${PORT}", strconv.FormatUint(uint64(ssh2.Config.PublicSSHPort), 10)},
+		{"${PORT}", strconv.FormatUint(uint64(ssh2.Config.Listen.AdvertisedSSHPort), 10)},
 	} {
 		banner = strings.ReplaceAll(banner, oldnew[0], oldnew[1])
 	}

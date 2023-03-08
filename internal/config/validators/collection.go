@@ -21,6 +21,7 @@ func New() validator.Collection {
 
 	validator.Add(coll, "positive", ValidatePositive)
 	validator.Add(coll, "port", ValidatePort)
+	validator.AddSlice(coll, "ports", ",", ValidatePort)
 
 	validator.Add(coll, "duration", ValidateDuration)
 	return coll

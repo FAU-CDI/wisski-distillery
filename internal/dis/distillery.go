@@ -11,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/next"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/panel"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/binder"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
@@ -131,6 +132,7 @@ func (dis *Distillery) Purger() *purger.Purger {
 func (dis *Distillery) allComponents() []initFunc {
 	return []initFunc{
 		auto[*docker.Docker],
+		auto[*binder.Binder],
 		auto[*web.Web],
 
 		manual(func(ts *triplestore.Triplestore) {

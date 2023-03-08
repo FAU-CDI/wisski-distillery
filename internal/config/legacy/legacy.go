@@ -84,7 +84,11 @@ func (legacy *Legacy) Migrate(cfg *config.Config) error {
 	cfg.TS.DataPrefix = legacy.GraphDBRepoPrefix
 	cfg.SQL.Database = legacy.DistilleryDatabase
 	cfg.PasswordLength = legacy.PasswordLength
-	cfg.PublicSSHPort = legacy.PublicSSHPort
+	cfg.Listen.Ports = []uint16{80, legacy.PublicSSHPort}
+	if legacy.CertbotEmail != "" {
+		cfg.Listen.Ports = append(cfg.Listen.Ports, 443)
+	}
+	cfg.Listen.AdvertisedSSHPort = legacy.PublicSSHPort
 	cfg.TS.AdminUsername = legacy.TriplestoreAdminUser
 	cfg.TS.AdminPassword = legacy.TriplestoreAdminPassword
 	cfg.SQL.AdminUsername = legacy.MysqlAdminUser

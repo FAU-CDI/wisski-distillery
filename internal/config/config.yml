@@ -1,3 +1,12 @@
+listen:
+    # A list of ports the distillery should accept traffic on.
+    # Each of these ports accepts http, https and ssh traffic via a multiplexer.
+    ports: null
+
+    # The ssh port that is shown to the user in various interfaces.
+    # This port is not automatically included in the ports to listen to.
+    advertise_ssh: null
+
 paths:
     # A WissKI Distillery needs to store a lot of data on disk.
     # This setting defines a root folder all of these will be placed in.

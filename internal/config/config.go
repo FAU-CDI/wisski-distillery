@@ -21,6 +21,7 @@ import (
 // Config contains many methods that do not require any interaction with any running components.
 // Methods that require running components are instead store inside the [Distillery] or an appropriate [Component].
 type Config struct {
+	Listen ListenConfig `yaml:"listen" recurse:"true"`
 	Paths  PathsConfig  `yaml:"paths" recurse:"true"`
 	HTTP   HTTPConfig   `yaml:"http" recurse:"true"`
 	Theme  ThemeConfig  `yaml:"theme" recurse:"true"`
@@ -36,9 +37,6 @@ type Config struct {
 	// These passwords are generated automatically.
 	// This variable can be used to determine their length.
 	PasswordLength int `yaml:"password_length" default:"64" validate:"positive"`
-
-	// Public port to use for the ssh server
-	PublicSSHPort uint16 `yaml:"ssh_port" default:"2222" validate:"port"`
 
 	// session secret holds the secret for login
 	SessionSecret string `yaml:"session_secret" validate:"nonempty" sensitive:"true"`
