@@ -5,8 +5,8 @@ go 1.18
 require (
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
 	github.com/alessio/shellescape v1.4.1
-	github.com/compose-spec/compose-go v1.9.0
-	github.com/docker/docker v23.0.0+incompatible
+	github.com/compose-spec/compose-go v1.12.0
+	github.com/docker/docker v23.0.1+incompatible
 	github.com/gliderlabs/ssh v0.3.5
 	github.com/gorilla/csrf v1.7.1
 	github.com/gorilla/sessions v1.2.1
@@ -15,25 +15,25 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.4.0
 	github.com/rs/zerolog v1.29.0
-	github.com/tkw1536/goprogram v0.3.2
-	github.com/tkw1536/pkglib v0.0.0-20230309100913-ec9fed77413a
+	github.com/tkw1536/goprogram v0.3.3
+	github.com/tkw1536/pkglib v0.0.0-20230309112229-8571d9173163
 	github.com/yuin/goldmark v1.5.4
 	github.com/yuin/goldmark-meta v1.1.0
-	golang.org/x/crypto v0.3.0
-	golang.org/x/exp v0.0.0-20230224173230-c95f2b4c22f2
+	golang.org/x/crypto v0.7.0
+	golang.org/x/exp v0.0.0-20230307190834-24139beb5833
 	golang.org/x/sync v0.1.0
-	golang.org/x/term v0.5.0
+	golang.org/x/term v0.6.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/gorm v1.24.6
 )
 
 require (
-	github.com/Microsoft/go-winio v0.5.2 // indirect
+	github.com/Microsoft/go-winio v0.6.0 // indirect
 	github.com/Showmax/go-fqdn v1.0.0 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
-	github.com/boombuler/barcode v1.0.1-0.20190219062509-6c824513bacc // indirect
-	github.com/distribution/distribution/v3 v3.0.0-20221201083218-92d136e113cf // indirect
+	github.com/boombuler/barcode v1.0.1 // indirect
+	github.com/distribution/distribution/v3 v3.0.0-20230223072852-e5d5810851d1 // indirect
 	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.5.0 // indirect
@@ -62,9 +62,11 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
-	golang.org/x/net v0.7.0 // indirect
-	golang.org/x/sys v0.5.0 // indirect
+	golang.org/x/mod v0.9.0 // indirect
+	golang.org/x/net v0.8.0 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 	golang.org/x/time v0.1.0 // indirect
+	golang.org/x/tools v0.7.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
