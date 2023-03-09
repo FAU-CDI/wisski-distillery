@@ -5,6 +5,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/collection"
 )
 
@@ -28,7 +29,14 @@ func (info) Description() wisski_distillery.Description {
 	}
 }
 
-func (i info) Run(context wisski_distillery.Context) error {
+var errInfoFailed = exit.Error{
+	Message:  "failed to get info",
+	ExitCode: exit.ExitGeneric,
+}
+
+func (i info) Run(context wisski_distillery.Context) (err error) {
+	defer errInfoFailed.DeferWrap(&err)
+
 	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)
 	if err != nil {
 		return err

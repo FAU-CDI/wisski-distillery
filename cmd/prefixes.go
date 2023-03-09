@@ -30,10 +30,15 @@ var errPrefixesGeneric = exit.Error{
 	Message:  "unable to load prefixes",
 }
 
+var errPrefixesWissKI = exit.Error{
+	Message:  "unable to find WissKI",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (p prefixes) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, p.Positionals.Slug)
 	if err != nil {
-		return err
+		return errPrefixesWissKI.Wrap(err)
 	}
 
 	prefixes, err := instance.Prefixes().All(context.Context, nil)

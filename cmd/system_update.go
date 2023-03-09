@@ -53,26 +53,33 @@ func (s systemupdate) AfterParse() error {
 }
 
 var errBoostrapFailedToCreateDirectory = exit.Error{
-	Message:  "failed to create directory %s: %s",
+	Message:  "failed to create directory %s",
 	ExitCode: exit.ExitGeneric,
 }
 
 var errBootstrapComponent = exit.Error{
-	Message:  "unable to bootstrap %s: %s",
+	Message:  "unable to bootstrap %s",
 	ExitCode: exit.ExitGeneric,
 }
 
 var errDockerUnreachable = exit.Error{
-	Message:  "unable to reach docker api: %s",
+	Message:  "unable to reach docker api",
 	ExitCode: exit.ExitGeneric,
 }
 
 var errNetworkCreateFailed = exit.Error{
-	Message:  "unable to create docker network: %s",
+	Message:  "unable to create docker network",
 	ExitCode: exit.ExitGeneric,
 }
 
-func (si systemupdate) Run(context wisski_distillery.Context) error {
+var errSystemUpdateGeneric = exit.Error{
+	Message:  "generic system update error",
+	ExitCode: exit.ExitGeneric,
+}
+
+func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
+	defer errSystemUpdateGeneric.DeferWrap(&err)
+
 	dis := context.Environment
 
 	// create all the other directories
@@ -86,7 +93,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 	} {
 		context.Println(d)
 		if err := fsx.MkdirAll(d, fsx.DefaultDirPerm); err != nil {
-			return errBoostrapFailedToCreateDirectory.WithMessageF(d, err)
+			return errBoostrapFailedToCreateDirectory.WithMessageF(d).Wrap(err)
 		}
 	}
 
@@ -116,7 +123,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		logging.LogMessage(context.Stderr, context.Context, "Checking that the 'docker' api is reachable")
 		ping, err := dis.Docker().Ping(context.Context)
 		if err != nil {
-			return errDockerUnreachable.WithMessageF(err)
+			return errDockerUnreachable.Wrap(err)
 		}
 		context.Printf("API Version:     %s (experimental: %t)\nBuilder Version: %s\n", ping.APIVersion, ping.Experimental, ping.BuilderVersion)
 	}
@@ -134,7 +141,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 		name := dis.Config.Docker.Network
 		id, existed, err := dis.Docker().CreateNetwork(context.Context, name)
 		if err != nil {
-			return errNetworkCreateFailed.WithMessageF(err)
+			return errNetworkCreateFailed.Wrap(err)
 		}
 		if existed {
 			context.Printf("Network %s (id %s) already existed\n", name, id)
@@ -198,7 +205,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) error {
 				}
 				return item.Update(context.Context, context.Stderr)
 			}, context.Stderr, context.Context, "Updating Component: %s", name); err != nil {
-				return errBootstrapComponent.WithMessageF(name, err)
+				return errBootstrapComponent.WithMessageF(name).Wrap(err)
 			}
 		}
 		return nil

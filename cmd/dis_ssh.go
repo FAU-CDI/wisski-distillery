@@ -21,7 +21,7 @@ type disSSH struct {
 
 	Positionals struct {
 		User string `positional-arg-name:"USER" required:"1-1" description:"distillery username"`
-		Path string `positional-arg-name:"PATH" required:"1-1" description:"Path of key to add"`
+		Path string `positional-arg-name:"PATH" required:"1-1" description:"path of key to add"`
 	} `positional-args:"true"`
 }
 
@@ -53,6 +53,11 @@ func (ds disSSH) AfterParse() error {
 	return nil
 }
 
+var errSSHManageFailed = exit.Error{
+	Message:  "unable to manage ssh keys",
+	ExitCode: exit.ExitCommandArguments,
+}
+
 func (ds disSSH) Run(context wisski_distillery.Context) error {
 	switch {
 	case ds.Add:
@@ -71,12 +76,12 @@ var errNoKey = exit.Error{
 func (ds disSSH) parseOpts(context wisski_distillery.Context) (user *auth.AuthUser, key gossh.PublicKey, err error) {
 	user, err = context.Environment.Auth().User(context.Context, ds.Positionals.User)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errSSHManageFailed.Wrap(err)
 	}
 
 	content, err := os.ReadFile(ds.Positionals.Path)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, errSSHManageFailed.Wrap(err)
 	}
 
 	pk, _, _, _, err := gossh.ParseAuthorizedKey(content)
@@ -93,7 +98,10 @@ func (ds disSSH) runAdd(context wisski_distillery.Context) error {
 		return err
 	}
 
-	return context.Environment.Keys().Add(context.Context, user.User.User, ds.Comment, key)
+	if err := context.Environment.Keys().Add(context.Context, user.User.User, ds.Comment, key); err != nil {
+		return errSSHManageFailed.Wrap(err)
+	}
+	return nil
 }
 
 func (ds disSSH) runRemove(context wisski_distillery.Context) error {
@@ -102,5 +110,8 @@ func (ds disSSH) runRemove(context wisski_distillery.Context) error {
 		return err
 	}
 
-	return context.Environment.Keys().Remove(context.Context, user.User.User, key)
+	if err := context.Environment.Keys().Remove(context.Context, user.User.User, key); err != nil {
+		return errSSHManageFailed.Wrap(err)
+	}
+	return nil
 }

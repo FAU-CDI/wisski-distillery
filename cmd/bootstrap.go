@@ -34,7 +34,7 @@ func (cBootstrap) Description() wisski_distillery.Description {
 }
 
 var errBootstrapDifferent = exit.Error{
-	Message:  "refusing to bootstrap: base directory is already set to %s.",
+	Message:  "refusing to bootstrap: base directory is already set to %s",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -54,17 +54,17 @@ var errBoostrapFailedToCopyExe = exit.Error{
 }
 
 var errBootstrapWriteConfig = exit.Error{
-	Message:  "failed to write configuration file: %s",
+	Message:  "failed to write configuration file",
 	ExitCode: exit.ExitGeneric,
 }
 
 var errBootstrapOpenConfig = exit.Error{
-	Message:  "failed to open configuration file: %s",
+	Message:  "failed to open configuration file",
 	ExitCode: exit.ExitGeneric,
 }
 
 var errBootstrapCreateFile = exit.Error{
-	Message:  "failed to touch configuration file: %s",
+	Message:  "failed to touch configuration file",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -82,10 +82,10 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	{
 		logging.LogMessage(context.Stderr, context.Context, "Creating root deployment directory")
 		if err := fsx.MkdirAll(root, fsx.DefaultDirPerm); err != nil {
-			return errBootstrapFailedToCreateDirectory.WithMessageF(root)
+			return errBootstrapFailedToCreateDirectory.WithMessageF(root).Wrap(err)
 		}
 		if err := cli.WriteBaseDirectory(root); err != nil {
-			return errBootstrapFailedToSaveDirectory.WithMessageF(root)
+			return errBootstrapFailedToSaveDirectory.WithMessageF(root).Wrap(err)
 		}
 		context.Println(root)
 	}
@@ -101,7 +101,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	// and use thge defaults
 	if err := tpl.SetDefaults(); err != nil {
-		return errBootstrapWriteConfig.WithMessageF(err)
+		return errBootstrapWriteConfig.Wrap(err)
 	}
 
 	{
@@ -145,7 +145,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 				return nil
 			}, context.Stderr, context.Context, "Creating custom config files"); err != nil {
-				return errBootstrapCreateFile.WithMessageF(err)
+				return errBootstrapCreateFile.Wrap(err)
 			}
 
 			// Validate configuration file!
@@ -171,7 +171,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 					return err
 				}
 			}, context.Stderr, context.Context, "Installing primary configuration file"); err != nil {
-				return errBootstrapWriteConfig.WithMessageF(err)
+				return errBootstrapWriteConfig.Wrap(err)
 			}
 		}
 
@@ -181,13 +181,13 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	logging.LogMessage(context.Stderr, context.Context, "Configuration is now complete")
 	f, err := os.Open(cfgPath)
 	if err != nil {
-		return errBootstrapOpenConfig.WithMessageF(err)
+		return errBootstrapOpenConfig.Wrap(err)
 	}
 	defer f.Close()
 
 	var cfg config.Config
 	if err := cfg.Unmarshal(f); err != nil {
-		return errBootstrapOpenConfig.WithMessageF(err)
+		return errBootstrapOpenConfig.Wrap(err)
 	}
 	context.Println(cfg)
 

@@ -3,6 +3,7 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/tkw1536/goprogram/exit"
 )
 
 // Config is the configuration command
@@ -20,6 +21,14 @@ func (c cfg) Description() wisski_distillery.Description {
 	}
 }
 
+var errMarshalConfig = exit.Error{
+	Message:  "unable to marshal config",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (cfg) Run(context wisski_distillery.Context) error {
-	return context.Environment.Config.Marshal(context.Stdout)
+	if err := context.Environment.Config.Marshal(context.Stdout); err != nil {
+		return errMarshalConfig.Wrap(err)
+	}
+	return nil
 }

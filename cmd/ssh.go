@@ -26,6 +26,11 @@ func (s ssh) Description() wisski_distillery.Description {
 	}
 }
 
+var errSSHServer = exit.Error{
+	ExitCode: exit.ExitGeneric,
+	Message:  "unable to listen server",
+}
+
 var errSSHListen = exit.Error{
 	ExitCode: exit.ExitGeneric,
 	Message:  "unable to listen",
@@ -35,7 +40,7 @@ func (s ssh) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 	server, err := dis.SSH().Server(context.Context, s.PrivateKeyPath, context.Stderr)
 	if err != nil {
-		return err
+		return errSSHServer.Wrap(err)
 	}
 
 	context.Printf("Listening on %s\n", s.Bind)
@@ -43,7 +48,7 @@ func (s ssh) Run(context wisski_distillery.Context) error {
 	// make a new listener
 	listener, err := net.Listen("tcp", s.Bind)
 	if err != nil {
-		return errServerListen.Wrap(err)
+		return errSSHListen.Wrap(err)
 	}
 
 	go func() {

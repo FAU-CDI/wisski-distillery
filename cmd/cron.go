@@ -7,6 +7,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/status"
 )
 
@@ -31,7 +32,14 @@ func (cron) Description() wisski_distillery.Description {
 	}
 }
 
-func (cr cron) Run(context wisski_distillery.Context) error {
+var errCronFailed = exit.Error{
+	Message:  "failed to run cron",
+	ExitCode: exit.ExitGeneric,
+}
+
+func (cr cron) Run(context wisski_distillery.Context) (err error) {
+	defer errCronFailed.DeferWrap(&err)
+
 	// find all the instances!
 	wissKIs, err := context.Environment.Instances().Load(context.Context, cr.Positionals.Slug...)
 	if err != nil {

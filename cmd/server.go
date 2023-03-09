@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/errorx"
 )
 
 // Server is the 'server' command
@@ -34,12 +35,24 @@ var errServerListen = exit.Error{
 	Message:  "unable to listen",
 }
 
+var errServerTrigger = exit.Error{
+	Message:  "failed to trigger",
+	ExitCode: exit.ExitGeneric,
+}
+
+var errServerGeneric = exit.Error{
+	ExitCode: exit.ExitGeneric,
+	Message:  "unable to instantiate server",
+}
+
 func (s server) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
 	// if the caller requested a trigger, just trigger the cron tasks
 	if s.Trigger {
-		return dis.Control().Trigger(context.Context)
+		if err := dis.Control().Trigger(context.Context); err != nil {
+			return errServerTrigger.Wrap(err)
+		}
 	}
 
 	{
@@ -57,7 +70,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 	// and start the server
 	public, internal, err := dis.Control().Server(context.Context, context.Stderr)
 	if err != nil {
-		return err
+		return errServerGeneric.Wrap(err)
 	}
 
 	// start the public listener
@@ -92,17 +105,11 @@ func (s server) Run(context wisski_distillery.Context) error {
 
 	go func() {
 		<-context.Context.Done()
+	
 		zerolog.Ctx(context.Context).Info().Msg("shutting down server")
 		publicS.Shutdown(context.Context)
 		internalS.Shutdown(context.Context)
 	}()
 
-	if err2 := <-internalC; err2 != nil {
-		err = err2
-	}
-	if err1 := <-publicC; err1 != nil {
-		err = err1
-	}
-
-	return errServerListen.Wrap(err)
+	return errServerListen.Wrap(errorx.First(<-internalC, <-publicC, err))
 }

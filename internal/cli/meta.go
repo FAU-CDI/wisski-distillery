@@ -28,7 +28,7 @@ func MetaConfigPath() (string, error) {
 	return filepath.Join(usr.HomeDir, metaConfigFile), nil
 }
 
-var errReadBaseDirectoryEmpty = errors.New("ReadBaseDirectory: Directory is empty")
+var errReadBaseDirectoryEmpty = errors.New("`ReadBaseDirectory': directory is empty")
 
 // ReadBaseDirectory reads the base deployment directory from the environment.
 // Use [ParamsFromEnv] to initialize parameters completely.

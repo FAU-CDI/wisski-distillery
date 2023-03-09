@@ -27,7 +27,7 @@ func (pathbuilders) Description() wisski_distillery.Description {
 }
 
 var errPathbuilders = exit.Error{
-	Message:  "unable to export pathbuilder: %s",
+	Message:  "unable to export pathbuilder",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -36,19 +36,24 @@ var errNoPathbuilder = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
+var errPathbuilderWissKI = exit.Error{
+	Message:  "unable to find WissKI",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (pb pathbuilders) Run(context wisski_distillery.Context) error {
 
 	// get the wisski
 	instance, err := context.Environment.Instances().WissKI(context.Context, pb.Positionals.Slug)
 	if err != nil {
-		return err
+		return errPathbuilderWissKI.Wrap(err)
 	}
 
 	// get all of the pathbuilders
 	if pb.Positionals.Name == "" {
 		names, err := instance.Pathbuilder().All(context.Context, nil)
 		if err != nil {
-			return errPathbuilders.WithMessageF(err)
+			return errPathbuilders.Wrap(err)
 		}
 		for _, name := range names {
 			context.Println(name)

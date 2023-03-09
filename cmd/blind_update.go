@@ -34,11 +34,13 @@ func (blindUpdate) Description() wisski_distillery.Description {
 }
 
 var errBlindUpdateFailed = exit.Error{
-	Message:  "failed to run blind update script for instance %q: exited with code %s",
+	Message:  "failed to run blind update",
 	ExitCode: exit.ExitGeneric,
 }
 
-func (bu blindUpdate) Run(context wisski_distillery.Context) error {
+func (bu blindUpdate) Run(context wisski_distillery.Context) (err error) {
+	defer errBlindUpdateFailed.DeferWrap(&err)
+
 	// find all the instances!
 	wissKIs, err := context.Environment.Instances().Load(context.Context, bu.Positionals.Slug...)
 	if err != nil {

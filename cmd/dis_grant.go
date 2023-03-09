@@ -63,7 +63,14 @@ func (dg disGrant) AfterParse() error {
 	return nil
 }
 
-func (dg disGrant) Run(context wisski_distillery.Context) error {
+var errFailedGrant = exit.Error{
+	Message:  "unable to manage grants",
+	ExitCode: exit.ExitGeneric,
+}
+
+func (dg disGrant) Run(context wisski_distillery.Context) (err error) {
+	defer errFailedGrant.DeferWrap(&err)
+
 	switch {
 	case dg.AddUser:
 		return dg.runAddUser(context)

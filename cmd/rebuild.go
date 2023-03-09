@@ -32,11 +32,13 @@ func (rebuild) Description() wisski_distillery.Description {
 }
 
 var errRebuildFailed = exit.Error{
-	Message:  "failed to run rebuild script for instance %q: exited with code %s",
+	Message:  "failed to run rebuild",
 	ExitCode: exit.ExitGeneric,
 }
 
-func (rb rebuild) Run(context wisski_distillery.Context) error {
+func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
+	defer errRebuildFailed.DeferWrap(&err)
+
 	dis := context.Environment
 
 	// find the instances

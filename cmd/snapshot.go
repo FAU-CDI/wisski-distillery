@@ -35,13 +35,18 @@ var errSnapshotFailed = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
+var errSnapshotWissKI = exit.Error{
+	Message:  "unable to find WissKI",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (sn snapshot) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
 	// find the instance!
 	instance, err := dis.Instances().WissKI(context.Context, sn.Positionals.Slug)
 	if err != nil {
-		return err
+		return errSnapshotWissKI.Wrap(err)
 	}
 
 	// do a snapshot of it!

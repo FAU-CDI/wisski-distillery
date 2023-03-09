@@ -60,7 +60,7 @@ func (sb SQLBit1) Value() (driver.Value, error) {
 	}
 }
 
-var errBadBool = errors.New("SQLBit1: Database does not contain Bit(1)")
+var errBadBool = errors.New("`SQLBit1': database does not contain `Bit(1)'")
 
 func (sb *SQLBit1) Scan(src interface{}) error {
 	if bytes, ok := src.([]byte); ok && len(bytes) == 1 {

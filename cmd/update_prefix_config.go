@@ -35,19 +35,21 @@ var errPrefixUpdateFailed = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (upc updateprefixconfig) Run(context wisski_distillery.Context) error {
+func (upc updateprefixconfig) Run(context wisski_distillery.Context) (err error) {
+	defer errPrefixUpdateFailed.DeferWrap(&err)
+
 	dis := context.Environment
 
 	wissKIs, err := dis.Instances().All(context.Context)
 	if err != nil {
-		return errPrefixUpdateFailed.Wrap(err)
+		return err
 	}
 
 	return status.WriterGroup(context.Stderr, upc.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
 		logging.Progress(writer, context.Context, "reading prefixes")
 		err := instance.Prefixes().Update(context.Context)
 		if err != nil {
-			return errPrefixUpdateFailed.Wrap(err)
+			return err
 		}
 		return nil
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {

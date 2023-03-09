@@ -9,8 +9,8 @@ import (
 	"github.com/tkw1536/pkglib/sqlx"
 )
 
-var errProvisionInvalidDatabaseParams = errors.New("Provision: Invalid parameters")
-var errProvisionInvalidGrant = errors.New("Provision: Grant failed")
+var errProvisionInvalidDatabaseParams = errors.New("`Provision': invalid parameters")
+var errProvisionInvalidGrant = errors.New("`Provision': grant failed")
 
 // Provision provisions sql-specific resource for the given instance
 func (sql *SQL) Provision(ctx context.Context, instance models.Instance, domain string) error {
@@ -58,7 +58,7 @@ func (sql *SQL) CreateDatabase(ctx context.Context, name, user, password string)
 	return nil
 }
 
-var errCreateSuperuserGrant = errors.New("CreateSuperUser: Grant failed")
+var errCreateSuperuserGrant = errors.New("`CreateSuperUser': grant failed")
 
 // CreateSuperuser createsa new user, with the name 'user' and the password 'password'.
 // It then grants this user superuser status in the database.
@@ -93,7 +93,7 @@ func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allo
 	return nil
 }
 
-var errPurgeUser = errors.New("PurgeUser: Failed to drop user")
+var errPurgeUser = errors.New("`PurgeUser': failed to drop user")
 
 // SQLPurgeUser deletes the specified user from the database
 func (sql *SQL) PurgeUser(ctx context.Context, user string) error {

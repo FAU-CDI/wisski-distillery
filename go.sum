@@ -114,10 +114,10 @@ github.com/tdewolff/minify v2.3.6+incompatible/go.mod h1:9Ov578KJUmAWpS6NeZwRZyT
 github.com/tdewolff/parse v2.3.4+incompatible h1:x05/cnGwIMf4ceLuDMBOdQ1qGniMoxpP46ghf0Qzh38=
 github.com/tdewolff/parse v2.3.4+incompatible/go.mod h1:8oBwCsVmUkgHO8M5iCzSIDtpzXOT0WXX9cWhz+bIzJQ=
 github.com/tdewolff/test v1.0.7 h1:8Vs0142DmPFW/bQeHRP3MV19m1gvndjUb1sn8yy74LM=
-github.com/tkw1536/goprogram v0.3.0 h1:bMnr+PMZHRaaw3atIHz2I0/vCdwl2Bx8KaNutTD7psg=
-github.com/tkw1536/goprogram v0.3.0/go.mod h1:lIWTpzLCbji7b9mSU+iPrQYTJOa0DgOE5is8UyW9/n0=
-github.com/tkw1536/pkglib v0.0.0-20230308113336-6db7d9cd2d5a h1:IS5BHeyfagcrOuvPpubc65v/KmZbGhVk8oJ6hze/0nM=
-github.com/tkw1536/pkglib v0.0.0-20230308113336-6db7d9cd2d5a/go.mod h1:R+8tKMAkSXC1+XGzxNUKx2DnPJqObycYeo4PKjWYkMg=
+github.com/tkw1536/goprogram v0.3.2 h1:qEGPVD/x9nmGrCZLqCAJ67coz4UECbtnNXXHVMR+NOs=
+github.com/tkw1536/goprogram v0.3.2/go.mod h1:/R+2nAG7l1nP3ty4axPwycksDg4eU4uBrZp0dsGq4Dw=
+github.com/tkw1536/pkglib v0.0.0-20230309100913-ec9fed77413a h1:j6Z6uDiEyY8a0M+W3QJ0rv7KXoPqBjJ4yRS51RF3d44=
+github.com/tkw1536/pkglib v0.0.0-20230309100913-ec9fed77413a/go.mod h1:R+8tKMAkSXC1+XGzxNUKx2DnPJqObycYeo4PKjWYkMg=
 github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=
 github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb h1:zGWFAtiMcyryUHoUjUJX0/lt1H2+i2Ka2n+D3DImSNo=
 github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=

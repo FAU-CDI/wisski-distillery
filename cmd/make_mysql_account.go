@@ -27,12 +27,17 @@ func (makeMysqlAccount) Description() wisski_distillery.Description {
 
 var errUnableToReadUsername = exit.Error{
 	ExitCode: exit.ExitGeneric,
-	Message:  "unable to read username: %s",
+	Message:  "unable to read username",
 }
 
 var errUnableToReadPassword = exit.Error{
 	ExitCode: exit.ExitGeneric,
-	Message:  "unable to read password: %s",
+	Message:  "unable to read password",
+}
+
+var errUnableToMakeAccount = exit.Error{
+	ExitCode: exit.ExitGeneric,
+	Message:  "unable to create account",
 }
 
 func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
@@ -41,17 +46,17 @@ func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
 	context.Printf("Username>")
 	username, err := context.ReadLine()
 	if err != nil {
-		return errUnableToReadUsername.WithMessageF(err)
+		return errUnableToReadUsername.Wrap(err)
 	}
 
 	context.Printf("Password>")
 	password, err := context.ReadPassword()
 	if err != nil {
-		return errUnableToReadPassword.WithMessageF(err)
+		return errUnableToReadPassword.Wrap(err)
 	}
 
 	if err := dis.SQL().CreateSuperuser(context.Context, username, password, false); err != nil {
-		return err
+		return errUnableToMakeAccount.Wrap(err)
 	}
 
 	return nil

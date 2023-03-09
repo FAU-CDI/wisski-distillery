@@ -3,6 +3,7 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/tkw1536/goprogram/exit"
 )
 
 // Ls is the 'ls' command
@@ -24,10 +25,15 @@ func (ls) Description() wisski_distillery.Description {
 	}
 }
 
+var errLsWissKI = exit.Error{
+	Message:  "unable to get WissKIs",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (l ls) Run(context wisski_distillery.Context) error {
 	instances, err := context.Environment.Instances().Load(context.Context, l.Positionals.Slug...)
 	if err != nil {
-		return err
+		return errLsWissKI.Wrap(err)
 	}
 
 	for _, instance := range instances {

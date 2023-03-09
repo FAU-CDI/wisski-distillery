@@ -36,11 +36,13 @@ var errReserveAlreadyExists = exit.Error{
 }
 
 var errReserveGeneric = exit.Error{
-	Message:  "unable to provision instance %s: %s",
+	Message:  "unable to provision instance",
 	ExitCode: exit.ExitGeneric,
 }
 
-func (r reserve) Run(context wisski_distillery.Context) error {
+func (r reserve) Run(context wisski_distillery.Context) (err error) {
+	defer errReserveGeneric.DeferWrap(&err)
+
 	dis := context.Environment
 	slug := r.Positionals.Slug
 

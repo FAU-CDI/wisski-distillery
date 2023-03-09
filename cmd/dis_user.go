@@ -28,7 +28,7 @@ type disUser struct {
 	DisableTOTP bool `short:"v" long:"disable-totp" description:"disable totp for a user"`
 
 	Positionals struct {
-		User string `positional-arg-name:"USER" description:"username to manage. May be omitted for some actions"`
+		User string `positional-arg-name:"USER" description:"username to manage. may be omitted for some actions"`
 	} `positional-args:"true"`
 }
 
@@ -78,7 +78,14 @@ func (du disUser) AfterParse() error {
 	return nil
 }
 
-func (du disUser) Run(context wisski_distillery.Context) error {
+var errDisUserActionFailed = exit.Error{
+	Message:  "action failed",
+	ExitCode: exit.ExitGeneric,
+}
+
+func (du disUser) Run(context wisski_distillery.Context) (err error) {
+	defer errDisUserActionFailed.DeferWrap(&err)
+
 	switch {
 	case du.InfoUser:
 		return du.runInfo(context)

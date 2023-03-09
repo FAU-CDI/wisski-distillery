@@ -39,10 +39,15 @@ var errSettingSet = exit.Error{
 	Message:  "unable to set setting",
 }
 
+var errSettingWissKI = exit.Error{
+	Message:  "unable to get WissKI",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (ds setting) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, ds.Positionals.Slug)
 	if err != nil {
-		return err
+		return errSettingWissKI.Wrap(err)
 	}
 
 	if ds.Positionals.Value == "" {

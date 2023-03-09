@@ -14,6 +14,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/pkglib/collection"
+	"golang.org/x/exp/slices"
 
 	_ "embed"
 )
@@ -110,7 +111,7 @@ func (prefixes *Prefixes) blocked() ([]string, error) {
 }
 
 func hasAnyPrefix(candidate string, prefixes []string) bool {
-	return collection.Any(
+	return slices.ContainsFunc(
 		prefixes,
 		func(prefix string) bool {
 			return strings.HasPrefix(candidate, prefix)

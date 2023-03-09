@@ -46,7 +46,7 @@ func (b Boolean) MarshalJSON() ([]byte, error) {
 	return []byte("false"), nil
 }
 
-var errNotABoolean = errors.New("Boolean.UnmarshalJSON: Not an integer")
+var errNotABoolean = errors.New("`Boolean': not an integer")
 
 func (b *Boolean) UnmarshalJSON(data []byte) (err error) {
 	return UnmarshalIntermediate(b, func(a any) (Boolean, error) {
@@ -100,7 +100,7 @@ func (s String) MarshalJSON() ([]byte, error) {
 	return json.Marshal(string(s))
 }
 
-var errNotAString = errors.New("String.UnmarshalJSON: Not a string")
+var errNotAString = errors.New("`String': not a string")
 
 func (s *String) UnmarshalJSON(data []byte) (err error) {
 	return UnmarshalIntermediate(s, func(a any) (String, error) {
@@ -148,7 +148,7 @@ func (i Integer) MarshalJSON() ([]byte, error) {
 	return json.Marshal(int64(i))
 }
 
-var errNotAnInteger = errors.New("Integer.UnmarshalJSON: Not an integer")
+var errNotAnInteger = errors.New("`Integer': not an integer")
 
 func (i *Integer) UnmarshalJSON(data []byte) (err error) {
 	return UnmarshalIntermediate(i, func(a any) (Integer, error) {

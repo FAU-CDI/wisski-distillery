@@ -66,7 +66,7 @@ func AllPermissions(clauses ...Permission) Permission {
 	}
 }
 
-var errPermissionPanic = errors.New("permission: panic()")
+var errPermissionPanic = errors.New("permission: `panic()'")
 
 // Permit checks if the given user has this permission.
 func (perm Permission) Permit(user *AuthUser, r *http.Request) (ok Grant, err error) {

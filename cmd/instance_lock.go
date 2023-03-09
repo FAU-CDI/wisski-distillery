@@ -45,10 +45,15 @@ var errNotUnlock = exit.Error{
 	ExitCode: exit.ExitCommandArguments,
 }
 
+var errInstanceLockWissKI = exit.Error{
+	Message:  "unable to get WissKI",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (l instanceLock) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, l.Positionals.Slug)
 	if err != nil {
-		return err
+		return errInstanceLockWissKI.Wrap(err)
 	}
 
 	if l.Unlock {

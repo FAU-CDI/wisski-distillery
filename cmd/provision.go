@@ -28,7 +28,7 @@ func (pv) Description() wisski_distillery.Description {
 }
 
 var errProvisionGeneric = exit.Error{
-	Message:  "unable to provision instance %s: %s",
+	Message:  "unable to provision instance %s",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -39,7 +39,7 @@ func (p pv) Run(context wisski_distillery.Context) error {
 		Slug: p.Positionals.Slug,
 	})
 	if err != nil {
-		return errProvisionGeneric.WithMessageF(p.Positionals.Slug, err)
+		return errProvisionGeneric.WithMessageF(p.Positionals.Slug).Wrap(err)
 	}
 
 	// and we're done!

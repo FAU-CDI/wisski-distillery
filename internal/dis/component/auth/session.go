@@ -128,12 +128,7 @@ var loginTemplate = templating.ParseForm(
 	templating.Assets(assets.AssetsUser),
 )
 
-var loginResponse = httpx.Response{
-	ContentType: "text/plain",
-	Body:        []byte("user is signed in"),
-}
-
-var errLoginFailed = errors.New("Login failed")
+var errLoginFailed = errors.New("login failed")
 
 // authLogin implements a view to login a user
 func (auth *Auth) authLogin(ctx context.Context) http.Handler {

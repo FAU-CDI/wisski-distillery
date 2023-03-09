@@ -3,6 +3,7 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/tkw1536/goprogram/exit"
 )
 
 // InstancePause is the 'instance_pause' command
@@ -33,10 +34,15 @@ func (i instancepause) AfterParse() error {
 	return nil
 }
 
+var errInstancePauseWissKI = exit.Error{
+	Message:  "unable to get WissKI",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (i instancepause) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)
 	if err != nil {
-		return err
+		return errInstancePauseWissKI.Wrap(err)
 	}
 
 	if i.Stop {

@@ -11,7 +11,7 @@ import (
 	"github.com/tkw1536/pkglib/password"
 )
 
-var errGetValidator = errors.New("GetPasswordValidator: Unknown Error")
+var errGetValidator = errors.New("`GetPasswordValidator': unknown error")
 
 func (u *Users) GetPasswordValidator(ctx context.Context, username string) (pv PasswordValidator, err error) {
 	server := u.Dependencies.PHP.NewServer()
@@ -53,7 +53,7 @@ func (pv PasswordValidator) Check(ctx context.Context, password string) bool {
 	return bool(result)
 }
 
-var errPasswordUsername = errors.New("username === password")
+var errPasswordUsername = errors.New("username equals password")
 
 func (pv PasswordValidator) CheckDictionary(ctx context.Context, writer io.Writer) error {
 	var counter int

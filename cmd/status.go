@@ -5,6 +5,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/tkw1536/goprogram/exit"
 )
 
 // Info is then 'info' command
@@ -24,10 +25,15 @@ func (cStatus) Description() wisski_distillery.Description {
 	}
 }
 
+var errStatusGeneric = exit.Error{
+	ExitCode: exit.ExitGeneric,
+	Message:  "unable to get status",
+}
+
 func (s cStatus) Run(context wisski_distillery.Context) error {
 	status, _, err := context.Environment.Info().Status(context.Context, true)
 	if err != nil {
-		return err
+		return errStatusGeneric.Wrap(err)
 	}
 
 	if s.JSON {

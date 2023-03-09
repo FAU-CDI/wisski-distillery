@@ -32,15 +32,15 @@ func (shell) Description() wisski_distillery.Description {
 	}
 }
 
-var errShell = exit.Error{
-	Message:  "unable to start shell: %s",
+var errShellWissKI = exit.Error{
+	Message:  "unable to find WissKI",
 	ExitCode: exit.ExitGeneric,
 }
 
 func (sh shell) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, sh.Positionals.Slug)
 	if err != nil {
-		return err
+		return errShellWissKI.Wrap(err)
 	}
 
 	code := instance.Barrel().Shell(context.Context, context.IOStream, sh.Positionals.Args...)()

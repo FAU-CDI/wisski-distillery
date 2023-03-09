@@ -9,7 +9,7 @@ import (
 	"github.com/tkw1536/goprogram/stream"
 )
 
-var errSQLBackup = errors.New("SQLBackup: Mysqldump returned non-zero exit code")
+var errSQLBackup = errors.New("`SQLBackup': mysqldump returned non-zero exit code")
 
 func (*SQL) BackupName() string {
 	return "sql.sql"

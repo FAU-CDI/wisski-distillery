@@ -33,7 +33,7 @@ func (systempause) Description() wisski_distillery.Description {
 }
 
 var errStopStartExcluded = exit.Error{
-	Message:  "exactly one of `--stop` and `--start` must be provied",
+	Message:  "exactly one of `--stop` and `--start` must be provided",
 	ExitCode: exit.ExitCommandArguments,
 }
 
@@ -44,7 +44,14 @@ func (s systempause) AfterParse() error {
 	return nil
 }
 
-func (sp systempause) Run(context wisski_distillery.Context) error {
+var errPauseGeneric = exit.Error{
+	ExitCode: exit.ExitGeneric,
+	Message:  "unable to pause or resume system",
+}
+
+func (sp systempause) Run(context wisski_distillery.Context) (err error) {
+	defer errPauseGeneric.DeferWrap(&err)
+
 	if sp.Start {
 		return sp.start(context, context.Environment)
 	} else {

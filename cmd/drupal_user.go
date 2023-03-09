@@ -74,7 +74,14 @@ var errPasswordsNotIdentical = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (du drupalUser) Run(context wisski_distillery.Context) error {
+var errDrupalUserActionFailed = exit.Error{
+	Message:  "action failed",
+	ExitCode: exit.ExitGeneric,
+}
+
+func (du drupalUser) Run(context wisski_distillery.Context) (err error) {
+	defer errDrupalUserActionFailed.DeferWrap(&err)
+
 	instance, err := context.Environment.Instances().WissKI(context.Context, du.Positionals.Slug)
 	if err != nil {
 		return err
@@ -100,11 +107,6 @@ func (du drupalUser) login(context wisski_distillery.Context, instance *wisski.W
 	}
 	context.Println(link)
 	return nil
-}
-
-var errPasswordFound = exit.Error{
-	Message:  "user had a dictionary password",
-	ExitCode: 5,
 }
 
 func (du drupalUser) checkCommonPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {

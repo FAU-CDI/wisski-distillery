@@ -31,6 +31,11 @@ var errPurgeNoConfirmation = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
+var errPurgeFailed = exit.Error{
+	Message:  "failed to run purge",
+	ExitCode: exit.ExitGeneric,
+}
+
 func (p purge) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 	slug := p.Positionals.Slug
@@ -45,5 +50,9 @@ func (p purge) Run(context wisski_distillery.Context) error {
 		}
 	}
 
-	return dis.Purger().Purge(context.Context, context.Stdout, slug)
+	// do the purge!
+	if err := dis.Purger().Purge(context.Context, context.Stdout, slug); err != nil {
+		return errPurgeFailed.Wrap(err)
+	}
+	return nil
 }

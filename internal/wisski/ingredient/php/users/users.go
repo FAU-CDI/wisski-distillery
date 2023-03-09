@@ -32,7 +32,7 @@ func (u *Users) All(ctx context.Context, server *phpx.Server) (users []status.Dr
 	return
 }
 
-var errLoginUnknownError = errors.New("Login: Unknown Error")
+var errLoginUnknownError = errors.New("`Login': unknown error")
 
 // Login generates a login link for the user with the given username
 func (u *Users) Login(ctx context.Context, server *phpx.Server, username string) (dest *url.URL, err error) {
@@ -75,7 +75,7 @@ func (u *Users) LoginWithOpt(ctx context.Context, server *phpx.Server, username 
 	return
 }
 
-var errSetPassword = errors.New("SetPassword: Unknown Error")
+var errSetPassword = errors.New("`SetPassword': unknown error")
 
 // SetPassword sets the password for a given user
 func (u *Users) SetPassword(ctx context.Context, server *phpx.Server, username, password string) error {
