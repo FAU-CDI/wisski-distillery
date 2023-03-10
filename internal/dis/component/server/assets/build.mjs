@@ -11,7 +11,7 @@ import { spawnSync } from 'child_process'
 const ENTRYPOINTS = process.argv.slice(2)
 const ENTRY_DIR = join('.', '.entry-cache') // directory to place entries into
 const DIST_DIR = join('.', 'dist')
-const PUBLIC_DIR = '/this-is-fine/'
+const PUBLIC_DIR = '/⛰/' // mountain's don't move, and neither do static files
 
 const DEST_PACKAGE = process.env.GOPACKAGE ?? 'static'
 const DEST_DISCLAIMER = (() => {
