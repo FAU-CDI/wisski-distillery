@@ -52,7 +52,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 		if err := sql.unsafeWaitShell(ctx); err != nil {
 			return err
 		}
-		logging.LogMessage(progress, ctx, "Creating administrative user")
+		logging.LogMessage(progress, "Creating administrative user")
 		{
 			username := sql.Config.SQL.AdminUsername
 			password := sql.Config.SQL.AdminPassword
@@ -63,7 +63,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	}
 
 	// create the admin user
-	logging.LogMessage(progress, ctx, "Creating sql database")
+	logging.LogMessage(progress, "Creating sql database")
 	{
 		if !sqlx.IsSafeDatabaseLiteral(sql.Config.SQL.Database) {
 			return errSQLUnsafeDatabaseName
@@ -75,7 +75,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	}
 
 	// wait for the database to come up
-	logging.LogMessage(progress, ctx, "Waiting for database update to be complete")
+	logging.LogMessage(progress, "Waiting for database update to be complete")
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	return logging.LogOperation(func() error {
 		for _, table := range sql.Dependencies.Tables {
 			info := table.TableInfo()
-			logging.LogMessage(progress, ctx, "migrating %q table", table.Name)
+			logging.LogMessage(progress, "migrating %q table", table.Name)
 			db, err := sql.queryTable(ctx, false, info.Name)
 			if err != nil {
 				return errSQLUnableToMigrate.WithMessageF(table.Name, "unable to access table")
@@ -97,5 +97,5 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 			}
 		}
 		return nil
-	}, progress, ctx, "migrating database tables")
+	}, progress, "migrating database tables")
 }

@@ -33,7 +33,7 @@ var errPurgeGeneric = exit.Error{
 // Purge permanently purges an instance from the distillery.
 // The instance does not have to exist; in which case the resources are also deleted.
 func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) error {
-	logging.LogMessage(out, ctx, "Checking bookkeeping table")
+	logging.LogMessage(out, "Checking bookkeeping table")
 	instance, err := purger.Dependencies.Instances.WissKI(ctx, slug)
 	if err == instances.ErrWissKINotFound {
 		fmt.Fprintln(out, "Not found in bookkeeping table, assuming defaults")
@@ -44,13 +44,13 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	}
 
 	// remove docker stack
-	logging.LogMessage(out, ctx, "Stopping and removing docker container")
+	logging.LogMessage(out, "Stopping and removing docker container")
 	if err := instance.Barrel().Stack().Down(ctx, out); err != nil {
 		fmt.Fprintln(out, err)
 	}
 
 	// remove the filesystem
-	logging.LogMessage(out, ctx, "Removing from filesystem %s", instance.FilesystemBase)
+	logging.LogMessage(out, "Removing from filesystem %s", instance.FilesystemBase)
 	if err := os.RemoveAll(instance.FilesystemBase); err != nil {
 		fmt.Fprintln(out, err)
 	}
@@ -59,7 +59,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
 		for _, pc := range purger.Dependencies.Provisionable {
-			logging.LogMessage(out, ctx, "Purging %s resources", pc.Name())
+			logging.LogMessage(out, "Purging %s resources", pc.Name())
 			err := pc.Purge(ctx, instance.Instance, domain)
 			if err != nil {
 				return err
@@ -67,18 +67,18 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 		}
 
 		return nil
-	}, out, ctx, "Purging instance-specific resources"); err != nil {
+	}, out, "Purging instance-specific resources"); err != nil {
 		return errPurgeGeneric.WithMessageF(slug, err)
 	}
 
 	// remove from bookkeeping
-	logging.LogMessage(out, ctx, "Removing instance from bookkeeping")
+	logging.LogMessage(out, "Removing instance from bookkeeping")
 	if err := instance.Bookkeeping().Delete(ctx); err != nil {
 		fmt.Fprintln(out, err)
 	}
 
 	// remove the filesystem
-	logging.LogMessage(out, ctx, "Remove lock data")
+	logging.LogMessage(out, "Remove lock data")
 	if instance.Locker().TryUnlock(ctx) {
 		fmt.Fprintln(out, "instance was not locked")
 	}

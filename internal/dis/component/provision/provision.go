@@ -30,7 +30,7 @@ var ErrInstanceAlreadyExists = errors.New("instance with provided slug already e
 // Provision provisions a new docker compose instance.
 func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags ProvisionFlags) (*wisski.WissKI, error) {
 	// check that it doesn't already exist
-	logging.LogMessage(progress, ctx, "Provisioning new WissKI instance %s", flags.Slug)
+	logging.LogMessage(progress, "Provisioning new WissKI instance %s", flags.Slug)
 	if exists, err := pv.Dependencies.Instances.Has(ctx, flags.Slug); err != nil || exists {
 		return nil, ErrInstanceAlreadyExists
 	}
@@ -42,7 +42,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Pr
 	}
 
 	// check that the base directory does not exist
-	logging.LogMessage(progress, ctx, "Checking that base directory %s does not exist", instance.FilesystemBase)
+	logging.LogMessage(progress, "Checking that base directory %s does not exist", instance.FilesystemBase)
 	if fsx.IsDirectory(instance.FilesystemBase) {
 		return nil, ErrInstanceAlreadyExists
 	}
@@ -54,7 +54,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Pr
 		}
 
 		return nil
-	}, progress, ctx, "Updating bookkeeping database"); err != nil {
+	}, progress, "Updating bookkeeping database"); err != nil {
 		return nil, err
 	}
 
@@ -62,7 +62,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Pr
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
 		for _, pc := range pv.Dependencies.Provisionable {
-			logging.LogMessage(progress, ctx, "Provisioning %s resources", pc.Name())
+			logging.LogMessage(progress, "Provisioning %s resources", pc.Name())
 			err := pc.Provision(ctx, instance.Instance, domain)
 			if err != nil {
 				return err
@@ -70,19 +70,19 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Pr
 		}
 
 		return nil
-	}, progress, ctx, "Provisioning instance-specific resources"); err != nil {
+	}, progress, "Provisioning instance-specific resources"); err != nil {
 		return nil, err
 	}
 
 	// run the provision script
 	if err := logging.LogOperation(func() error {
 		return instance.Provisioner().Provision(ctx, progress)
-	}, progress, ctx, "Running setup scripts"); err != nil {
+	}, progress, "Running setup scripts"); err != nil {
 		return nil, err
 	}
 
 	// start the container!
-	logging.LogMessage(progress, ctx, "Starting Container")
+	logging.LogMessage(progress, "Starting Container")
 	if err := instance.Barrel().Stack().Up(ctx, progress); err != nil {
 		return nil, err
 	}

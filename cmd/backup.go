@@ -42,7 +42,7 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 	if !bk.NoPrune {
 		defer logging.LogOperation(func() error {
 			return dis.Exporter().PruneExports(context.Context, context.Stderr)
-		}, context.Stderr, context.Context, "Pruning old backups")
+		}, context.Stderr, "Pruning old backups")
 	}
 
 	// do the handling

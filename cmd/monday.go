@@ -37,36 +37,36 @@ func (monday monday) AfterParse() error {
 func (monday monday) Run(context wisski_distillery.Context) error {
 	if err := logging.LogOperation(func() error {
 		return context.Exec("backup")
-	}, context.Stderr, context.Context, "Running backup"); err != nil {
+	}, context.Stderr, "Running backup"); err != nil {
 		return err
 	}
 
 	if err := logging.LogOperation(func() error {
 		return context.Exec("system_update", monday.Positionals.GraphdbZip)
-	}, context.Stderr, context.Context, "Running system_update"); err != nil {
+	}, context.Stderr, "Running system_update"); err != nil {
 		return err
 	}
 
 	if err := logging.LogOperation(func() error {
 		return context.Exec("rebuild")
-	}, context.Stderr, context.Context, "Running rebuild"); err != nil {
+	}, context.Stderr, "Running rebuild"); err != nil {
 		return err
 	}
 
 	if err := logging.LogOperation(func() error {
 		return context.Exec("update_prefix_config")
-	}, context.Stderr, context.Context, "Running update_prefix_config"); err != nil {
+	}, context.Stderr, "Running update_prefix_config"); err != nil {
 		return err
 	}
 
 	if monday.UpdateInstances {
 		if err := logging.LogOperation(func() error {
 			return context.Exec("blind_update")
-		}, context.Stderr, context.Context, "Running blind_update"); err != nil {
+		}, context.Stderr, "Running blind_update"); err != nil {
 			return err
 		}
 	}
 
-	logging.LogMessage(context.Stderr, context.Context, "Done, have a great week!")
+	logging.LogMessage(context.Stderr, "Done, have a great week!")
 	return nil
 }

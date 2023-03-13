@@ -1,7 +1,6 @@
 package logging
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"strings"
@@ -10,8 +9,8 @@ import (
 )
 
 // LogOperation logs a message that is displayed to the user, and then increases the log indent level.
-func LogOperation(operation func() error, progress io.Writer, ctx context.Context, format string, args ...interface{}) error {
-	logOperation(progress, ctx, getIndent(progress), format, args...)
+func LogOperation(operation func() error, progress io.Writer, format string, args ...interface{}) error {
+	logOperation(progress, getIndent(progress), format, args...)
 	incIndent(progress)
 	defer decIndent(progress)
 
@@ -19,11 +18,11 @@ func LogOperation(operation func() error, progress io.Writer, ctx context.Contex
 }
 
 // LogMessage logs a message that is displayed to the user
-func LogMessage(progress io.Writer, ctx context.Context, format string, args ...interface{}) (int, error) {
-	return logOperation(progress, ctx, getIndent(progress), format, args...)
+func LogMessage(progress io.Writer, format string, args ...interface{}) (int, error) {
+	return logOperation(progress, getIndent(progress), format, args...)
 }
 
-func logOperation(progress io.Writer, ctx context.Context, indent int, format string, args ...interface{}) (int, error) {
+func logOperation(progress io.Writer, indent int, format string, args ...interface{}) (int, error) {
 	message := "\033[1m" + strings.Repeat(" ", indent+1) + "=> " + format + "\033[0m\n"
 	if !streamIsTerminal(progress) {
 		message = " => " + format + "\n"

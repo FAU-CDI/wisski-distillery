@@ -43,7 +43,7 @@ func (p pv) Run(context wisski_distillery.Context) error {
 	}
 
 	// and we're done!
-	logging.LogMessage(context.Stderr, context.Context, "Instance has been provisioned")
+	logging.LogMessage(context.Stderr, "Instance has been provisioned")
 	context.Printf("URL:      %s\n", instance.URL().String())
 	context.Printf("Username: %s\n", instance.DrupalUsername)
 	context.Printf("Password: %s\n", instance.DrupalPassword)
