@@ -65,24 +65,6 @@ func getKey(writer io.Writer, key any) (value any, ok bool) {
 	return
 }
 
-func setKey(writer io.Writer, key, value any) bool {
-	uid, ok := id(writer)
-	if !ok {
-		return false
-	}
-
-	writerDataMutex.Lock()
-	defer writerDataMutex.Unlock()
-
-	values, ok := writerDataData[uid]
-	if !ok {
-		values = make(map[any]any)
-		writerDataData[uid] = values
-	}
-	values[key] = value
-	return true
-}
-
 func upsetKey(writer io.Writer, key any, update func(value any, fresh bool) any) (any, bool) {
 	uid, ok := id(writer)
 	if !ok {

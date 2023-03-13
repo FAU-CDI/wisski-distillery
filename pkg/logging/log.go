@@ -5,27 +5,9 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"time"
 
-	"github.com/rs/zerolog"
 	"golang.org/x/term"
 )
-
-func Log[T any](operation func() T, name string, context context.Context) (res T) {
-	var took time.Duration
-
-	logger := zerolog.Ctx(context)
-	logger.Log().Msg(name)
-	defer func() {
-		logger.Log().Dur("took", took).Msg(name)
-	}()
-
-	start := time.Now()
-	res = operation()
-	took = time.Since(start)
-
-	return
-}
 
 // LogOperation logs a message that is displayed to the user, and then increases the log indent level.
 func LogOperation(operation func() error, progress io.Writer, ctx context.Context, format string, args ...interface{}) error {
