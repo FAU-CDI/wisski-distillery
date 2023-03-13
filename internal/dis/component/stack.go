@@ -3,6 +3,7 @@ package component
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -11,7 +12,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/pkg/errors"
 	"github.com/tkw1536/goprogram/stream"
@@ -187,7 +187,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 			is.ContextPath,
 			is.Resources,
 			func(dst, src string) {
-				logging.ProgressF(progress, ctx, "[install] %s\n", dst)
+				fmt.Fprintf(progress, "[install] %s\n", dst)
 			},
 		); err != nil {
 			return err
@@ -203,7 +203,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		err := (func() error {
 			// find the file to install!
 			dst := filepath.Join(is.Dir, "docker-compose.yml")
-			defer logging.ProgressF(progress, ctx, "[install] %s\n", dst)
+			defer fmt.Fprintf(progress, "[install] %s\n", dst)
 
 			// create the file
 			yml, err := fsx.Create(dst, fsx.DefaultFilePerm)
@@ -235,7 +235,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 	// configure .env
 	envDest := filepath.Join(is.Dir, ".env")
 	if is.EnvPath != "" && is.EnvContext != nil {
-		logging.ProgressF(progress, ctx, "[config]  %s\n", envDest)
+		fmt.Fprintf(progress, "[config]  %s\n", envDest)
 		if err := unpack.InstallTemplate(
 			envDest,
 			is.EnvContext,
@@ -251,7 +251,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		// find the destination!
 		dst := filepath.Join(is.Dir, name)
 
-		logging.ProgressF(progress, ctx, "[make]    %s\n", dst)
+		fmt.Fprintf(progress, "[make]    %s\n", dst)
 		if is.MakeDirsPerm == fs.FileMode(0) {
 			is.MakeDirsPerm = fsx.DefaultDirPerm
 		}
@@ -272,7 +272,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		dst := filepath.Join(is.Dir, name)
 
 		// copy over file from context
-		logging.ProgressF(progress, ctx, "[copy]    %s (from %s)\n", dst, src)
+		fmt.Fprintf(progress, "[copy]    %s (from %s)\n", dst, src)
 		if err := fsx.CopyFile(ctx, dst, src); err != nil {
 			return errors.Wrapf(err, "Unable to copy file %s", src)
 		}
@@ -283,7 +283,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		// find the destination!
 		dst := filepath.Join(is.Dir, name)
 
-		logging.ProgressF(progress, ctx, "[touch]   %s\n", dst)
+		fmt.Fprintf(progress, "[touch]   %s\n", dst)
 		if err := fsx.Touch(dst, is.TouchFilesPerm); err != nil {
 			return err
 		}
@@ -291,7 +291,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 	// check that the stack can be loaded
 	{
-		logging.ProgressF(progress, ctx, "[checking]")
+		fmt.Fprintln(progress, "[checking]")
 		_, err := compose.Open(is.Dir)
 		if err != nil {
 			return err

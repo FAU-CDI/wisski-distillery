@@ -7,12 +7,12 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/gliderlabs/ssh"
 
 	"github.com/pkg/errors"
@@ -82,7 +82,7 @@ func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, ctx context.Context, pri
 
 // loadHostKey loadsa host key
 func (ssh2 *SSH2) loadHostKey(progress io.Writer, ctx context.Context, key HostKey, path string) (err error) {
-	logging.ProgressF(progress, ctx, "Loading hostkey (algorithm %s) from %q", key.Algorithm(), path)
+	fmt.Fprintf(progress, "Loading hostkey (algorithm %s) from %q\n", key.Algorithm(), path)
 
 	// read all the bytes from the file
 	privateKeyBytes, err := os.ReadFile(path)
@@ -108,7 +108,7 @@ func (ssh2 *SSH2) loadHostKey(progress io.Writer, ctx context.Context, key HostK
 
 // makeHostKey makes a new host key
 func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostKey, path string) error {
-	logging.ProgressF(progress, ctx, "Writing hostkey (algorithm %s) to %q", key.Algorithm(), path)
+	fmt.Fprintf(progress, "Writing hostkey (algorithm %s) to %q\n", key.Algorithm(), path)
 
 	if err := key.Generate(ctx, 0, nil); err != nil {
 		return errors.Wrap(err, "Failed to generate key")

@@ -49,8 +49,8 @@ func (snapshots *Exporter) NewSnapshot(ctx context.Context, instance *wisski.Wis
 	logging.LogMessage(progress, ctx, "Locking instance")
 	if !instance.Locker().TryLock(ctx) {
 		err := locker.Locked
-		logging.ProgressF(progress, ctx, "%v", err)
-		logging.LogMessage(progress, ctx, "Aborting snapshot creation")
+		fmt.Fprintln(progress, err)
+		fmt.Fprintln(progress, "Aborting snapshot creation")
 
 		return Snapshot{
 			ErrPanic: err,

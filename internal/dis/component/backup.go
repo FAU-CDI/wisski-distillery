@@ -7,7 +7,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/pkg/errors"
 )
 
@@ -90,7 +89,7 @@ func (bc *stagingContext) sendPath(path string) {
 		return
 	}
 
-	logging.Progress(bc.progress, bc.ctx, dst)
+	io.WriteString(bc.progress, dst)
 	bc.manifest <- dst
 }
 

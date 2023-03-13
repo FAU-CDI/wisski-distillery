@@ -3,6 +3,7 @@ package exporter
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -71,8 +72,8 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	if !task.StagingOnly && archivePath == "" {
 		archivePath = exporter.NewArchivePath(Slug)
 	}
-	logging.ProgressF(progress, ctx, "Staging Directory: %s\n", stagingDir)
-	logging.ProgressF(progress, ctx, "Archive Path:      %s\n", archivePath)
+	fmt.Fprintf(progress, "Staging Directory: %s\n", stagingDir)
+	fmt.Fprintf(progress, "Archive Path:      %s\n", archivePath)
 
 	// create the staging directory
 	logging.LogMessage(progress, ctx, "Creating staging directory")
@@ -111,7 +112,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 
 		// find the report path
 		reportPath := filepath.Join(stagingDir, "report.txt")
-		logging.ProgressF(progress, ctx, reportPath)
+		fmt.Fprintln(progress, reportPath)
 
 		// create the path
 		report, err := fsx.Create(reportPath, fsx.DefaultFilePerm)
@@ -129,21 +130,21 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	// if we only requested staging
 	// all that is left is to write the log entry
 	if task.StagingOnly {
-		logging.LogMessage(progress, ctx, "Writing Log Entry")
+		fmt.Fprintln(progress, "Writing Log Entry")
 
 		// write out the log entry
 		entry.Path = stagingDir
 		entry.Packed = false
 		exporter.Dependencies.ExporterLogger.Add(ctx, entry)
 
-		logging.ProgressF(progress, ctx, "Wrote %s\n", stagingDir)
+		fmt.Fprintf(progress, "Wrote %s\n", stagingDir)
 		return nil
 	}
 
 	// package everything up as an archive!
 	if err := logging.LogOperation(func() error {
 		var count int64
-		defer func() { logging.ProgressF(progress, ctx, "Wrote %d byte(s) to %s\n", count, archivePath) }()
+		defer func() { fmt.Fprintf(progress, "Wrote %d byte(s) to %s\n", count, archivePath) }()
 
 		st := status.NewWithCompat(progress, 1)
 		st.Start()

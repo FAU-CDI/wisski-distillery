@@ -3,9 +3,9 @@ package instances
 import (
 	"context"
 	"embed"
+	"fmt"
 	"io"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -23,7 +23,7 @@ var runtimeResources embed.FS
 // Update installs or updates runtime components needed by this component.
 func (instances *Instances) Update(ctx context.Context, progress io.Writer) error {
 	err := unpack.InstallDir(instances.Config.Paths.RuntimeDir(), "runtime", runtimeResources, func(dst, src string) {
-		logging.ProgressF(progress, ctx, "[copy]  %s\n", dst)
+		fmt.Fprintln(progress, ctx, "[copy]  %s\n", dst)
 	})
 	if err != nil {
 		return errBootstrapFailedRuntime.Wrap(err)

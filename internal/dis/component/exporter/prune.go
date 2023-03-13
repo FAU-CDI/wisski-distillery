@@ -2,12 +2,11 @@ package exporter
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
-
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 )
 
 // ShouldPrune determines if a file with the provided modification time should be
@@ -45,7 +44,7 @@ func (exporter *Exporter) PruneExports(ctx context.Context, progress io.Writer) 
 
 		// assemble path, and then remove the file!
 		path := filepath.Join(sPath, entry.Name())
-		logging.ProgressF(progress, ctx, "Removing %s cause it is older than %d days\n", path, exporter.Config.MaxBackupAge)
+		fmt.Fprintf(progress, "Removing %s cause it is older than %d days\n", path, exporter.Config.MaxBackupAge)
 
 		if err := os.Remove(path); err != nil {
 			return err

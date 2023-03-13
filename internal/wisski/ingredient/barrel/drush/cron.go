@@ -2,6 +2,7 @@ package drush
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"io"
@@ -9,7 +10,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/stream"
 )
@@ -23,7 +23,7 @@ func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 	code := drush.Dependencies.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/cron.sh")()
 	if code != 0 {
 		// keep going, because we want to run as many crons as possible
-		logging.ProgressF(progress, ctx, "%v", errCronFailed.WithMessageF(drush.Slug, code))
+		fmt.Fprintf(progress, "%v", errCronFailed.WithMessageF(drush.Slug, code))
 	}
 
 	return nil

@@ -18,16 +18,6 @@ func LogOperation(operation func() error, progress io.Writer, ctx context.Contex
 	return operation()
 }
 
-// Progress writes a progress message to the given progress writer.
-func Progress(progress io.Writer, ctx context.Context, message string) {
-	io.WriteString(progress, message)
-}
-
-// ProgressF is like progress, but uses fmt.Sprintf()
-func ProgressF(progress io.Writer, ctx context.Context, format string, args ...interface{}) {
-	Progress(progress, ctx, fmt.Sprintf(format, args...))
-}
-
 // LogMessage logs a message that is displayed to the user
 func LogMessage(progress io.Writer, ctx context.Context, format string, args ...interface{}) (int, error) {
 	return logOperation(progress, ctx, getIndent(progress), format, args...)
