@@ -39,7 +39,7 @@ func (solr *Solr) Stack() component.StackWithResources {
 
 		EnvPath: "solr.env",
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": solr.Config.Docker.Network,
+			"DOCKER_NETWORK_NAME": solr.Config.Docker.Network(),
 		},
 
 		MakeDirs: []string{

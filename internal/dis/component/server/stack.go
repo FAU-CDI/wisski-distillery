@@ -25,7 +25,7 @@ func (server *Server) Stack() component.StackWithResources {
 		EnvPath:     "server.env",
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": server.Config.Docker.Network,
+			"DOCKER_NETWORK_NAME": server.Config.Docker.Network(),
 			"HOST_RULE":           server.Config.HTTP.DefaultHostRule(),
 			"HTTPS_ENABLED":       server.Config.HTTP.HTTPSEnabledEnv(),
 

@@ -44,7 +44,7 @@ func (ts *Triplestore) Stack() component.StackWithResources {
 
 		EnvPath: "triplestore.env",
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": ts.Config.Docker.Network,
+			"DOCKER_NETWORK_NAME": ts.Config.Docker.Network(),
 		},
 
 		MakeDirs: []string{

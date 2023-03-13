@@ -135,18 +135,20 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 		}
 	}
 
-	// create the docker network
+	// create the docker networks
 	{
 		logging.LogMessage(context.Stderr, context.Context, "Configuring docker networks")
-		name := dis.Config.Docker.Network
-		id, existed, err := dis.Docker().CreateNetwork(context.Context, name)
-		if err != nil {
-			return errNetworkCreateFailed.Wrap(err)
-		}
-		if existed {
-			context.Printf("Network %s (id %s) already existed\n", name, id)
-		} else {
-			context.Printf("Network %s (id %s) created\n", name, id)
+
+		for _, name := range dis.Config.Docker.Networks() {
+			id, existed, err := dis.Docker().CreateNetwork(context.Context, name)
+			if err != nil {
+				return errNetworkCreateFailed.Wrap(err)
+			}
+			if existed {
+				context.Printf("Network %s (id %s) already existed\n", name, id)
+			} else {
+				context.Printf("Network %s (id %s) created\n", name, id)
+			}
 		}
 	}
 

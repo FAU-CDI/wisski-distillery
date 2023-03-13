@@ -82,7 +82,7 @@ func (binder *Binder) Stack() component.StackWithResources {
 		},
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": binder.Config.Docker.Network,
+			"DOCKER_NETWORK_NAME": binder.Config.Docker.Network(),
 		},
 	})
 }

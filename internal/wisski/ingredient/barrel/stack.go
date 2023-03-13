@@ -22,7 +22,7 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 		EnvPath:     filepath.Join("barrel.env"),
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": barrel.Malt.Config.Docker.Network,
+			"DOCKER_NETWORK_NAME": barrel.Malt.Config.Docker.Network(),
 
 			"SLUG":          barrel.Slug,
 			"VIRTUAL_HOST":  barrel.Domain(),

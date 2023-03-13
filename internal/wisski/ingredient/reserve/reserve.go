@@ -29,7 +29,7 @@ func (reserve *Reserve) Stack() component.StackWithResources {
 		EnvPath:     filepath.Join("reserve.env"),
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": reserve.Malt.Config.Docker.Network,
+			"DOCKER_NETWORK_NAME": reserve.Malt.Config.Docker.Network(),
 
 			"SLUG":          reserve.Slug,
 			"VIRTUAL_HOST":  reserve.Domain(),

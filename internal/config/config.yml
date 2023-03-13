@@ -45,7 +45,8 @@ theme:
   home: null
 
 docker:
-  # The name of the (global) docker network to run the distillery services in.
+  # The distillery uses several global docker networks.
+  # This determines the prefix to use for those networks.
   network: null
 
 # Configuration of the sql backend

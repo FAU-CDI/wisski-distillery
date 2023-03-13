@@ -43,7 +43,7 @@ func (web *Web) Stack() component.StackWithResources {
 	stack.EnvPath = "web.env"
 
 	stack.EnvContext = map[string]string{
-		"DOCKER_NETWORK_NAME": web.Config.Docker.Network,
+		"DOCKER_NETWORK_NAME": web.Config.Docker.Network(),
 		"CERT_EMAIL":          web.Config.HTTP.CertbotEmail,
 	}
 

@@ -46,7 +46,7 @@ func (sql *SQL) Stack() component.StackWithResources {
 
 		EnvPath: "sql.env",
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": sql.Config.Docker.Network,
+			"DOCKER_NETWORK_NAME": sql.Config.Docker.Network(),
 			"HTTPS_ENABLED":       sql.Config.HTTP.HTTPSEnabledEnv(),
 		},
 

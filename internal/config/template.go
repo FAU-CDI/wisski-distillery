@@ -22,8 +22,8 @@ type Template struct {
 	SQLAdminUsername string
 	SQLAdminPassword string
 
-	DockerNetworkName string
-	SessionSecret     string
+	DockerNetworkPrefix string
+	SessionSecret       string
 }
 
 // SetDefaults sets defaults on the template
@@ -58,12 +58,12 @@ func (tpl *Template) SetDefaults() (err error) {
 		}
 	}
 
-	if tpl.DockerNetworkName == "" {
-		tpl.DockerNetworkName, err = password.Generate(rand.Reader, 10, passwordx.Identifier)
+	if tpl.DockerNetworkPrefix == "" {
+		tpl.DockerNetworkPrefix, err = password.Generate(rand.Reader, 10, passwordx.Identifier)
 		if err != nil {
 			return err
 		}
-		tpl.DockerNetworkName = `distillery-` + tpl.DockerNetworkName
+		tpl.DockerNetworkPrefix = `distillery-` + tpl.DockerNetworkPrefix
 	}
 
 	if tpl.SessionSecret == "" {
@@ -93,7 +93,7 @@ func (tpl Template) Generate() Config {
 			ExtraDomains:  []string{},
 		},
 		Docker: DockerConfig{
-			tpl.DockerNetworkName,
+			NetworkPrefix: tpl.DockerNetworkPrefix,
 		},
 		SQL: SQLConfig{
 			DatabaseConfig: DatabaseConfig{
