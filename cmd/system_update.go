@@ -214,7 +214,6 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 	}, context.Stderr, "Performing Component Updates"); err != nil {
 		return err
 	}
-	// TODO: Register cronjob in /etc/cron.d!
 
 	logging.LogMessage(context.Stderr, "System has been updated")
 	return nil
