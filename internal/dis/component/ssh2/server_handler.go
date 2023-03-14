@@ -64,7 +64,7 @@ Hostname should be
 
 ${DOMAIN}
 
-and the port "2222". The proxy type should be "SSH to proxy and use
+and the port "${PORT}". The proxy type should be "SSH to proxy and use
 port forwarding". Then you may enter the hostname 
 
 www-data@${HOSTNAME}
