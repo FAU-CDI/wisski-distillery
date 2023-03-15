@@ -6,7 +6,7 @@ import (
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/stream"
 )
 
 var errSQLBackup = errors.New("`SQLBackup': mysqldump returned non-zero exit code")

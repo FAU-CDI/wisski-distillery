@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
-	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/pkglib/httpx"
+	"github.com/tkw1536/pkglib/status"
 )
 
 // ActionMap handles a set of WebSocket actions

@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/status"
+	"github.com/tkw1536/pkglib/status"
 )
 
 // Cron is the 'cron' command

@@ -12,8 +12,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/pkglib/collection"
+	"github.com/tkw1536/pkglib/status"
 	"golang.org/x/exp/slices"
 )
 
@@ -113,7 +113,7 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, sna
 
 	results := make(map[string]error, len(comps))
 
-	errors := status.Group[component.Snapshotable, error]{
+	errors, _ := status.Group[component.Snapshotable, error]{
 		PrefixString: func(item component.Snapshotable, index int) string {
 			return fmt.Sprintf("[snapshot %q]: ", item.Name())
 		},

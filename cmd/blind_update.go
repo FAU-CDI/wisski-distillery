@@ -8,8 +8,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/status"
 	"github.com/tkw1536/pkglib/collection"
+	"github.com/tkw1536/pkglib/status"
 )
 
 // BlindUpdate is the 'blind_update' command

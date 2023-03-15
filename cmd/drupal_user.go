@@ -9,7 +9,7 @@ import (
 	wstatus "github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/status"
+	"github.com/tkw1536/pkglib/status"
 )
 
 // DrupalUser is the 'drupal_user' setting

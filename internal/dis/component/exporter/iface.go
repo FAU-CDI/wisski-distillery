@@ -14,7 +14,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
-	"github.com/tkw1536/goprogram/status"
+	"github.com/tkw1536/pkglib/status"
 )
 
 // ExportTask describes a task that makes either a [Backup] or a [Snapshot].

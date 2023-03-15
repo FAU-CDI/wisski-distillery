@@ -12,7 +12,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/status"
+	"github.com/tkw1536/pkglib/status"
 	"golang.org/x/exp/slices"
 )
 
@@ -84,7 +84,7 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 		st.Start()
 		defer st.Stop()
 
-		errors := status.Group[component.Backupable, error]{
+		errors, _ := status.Group[component.Backupable, error]{
 			PrefixString: func(item component.Backupable, index int) string {
 				return fmt.Sprintf("[backup %q]: ", item.Name())
 			},
@@ -131,7 +131,7 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 		}
 
 		// make a backup of the snapshots
-		backup.InstanceSnapshots = status.Group[*wisski.WissKI, Snapshot]{
+		backup.InstanceSnapshots, _ = status.Group[*wisski.WissKI, Snapshot]{
 			PrefixString: func(item *wisski.WissKI, index int) string {
 				return fmt.Sprintf("[snapshot %q]: ", item.Slug)
 			},

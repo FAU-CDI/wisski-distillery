@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/cmd"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/stream"
 )
 
 var wdcli = wisski_distillery.NewProgram()
@@ -95,7 +95,7 @@ func main() {
 	// we don't need to even bother with the rest of the program
 	// just immediatly return a custom error message.
 	if len(os.Args) == 1 {
-		streams.Die(errNoArgumentsProvided)
+		exit.Die(streams, errNoArgumentsProvided)
 		errNoArgumentsProvided.Return()
 		return
 	}
@@ -105,7 +105,7 @@ func main() {
 	err := func() error {
 		params, err := cli.ParamsFromEnv()
 		if err != nil {
-			return streams.Die(err)
+			return exit.Die(streams, err)
 		}
 
 		return wdcli.Main(streams, params, os.Args[1:])

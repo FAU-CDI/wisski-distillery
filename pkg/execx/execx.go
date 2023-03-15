@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/rs/zerolog"
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/stream"
 )
 
 // CommandError is returned by Exec when a command could not be executed.

@@ -3,7 +3,7 @@ package barrel
 import (
 	"context"
 
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/stream"
 )
 
 // Shell executes a shell command inside the instance.

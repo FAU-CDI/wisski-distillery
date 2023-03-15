@@ -6,7 +6,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/alessio/shellescape"
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/stream"
 )
 
 // NewServer returns a new server that can execute code within this distillery.

@@ -10,8 +10,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/stream"
 	"github.com/tkw1536/pkglib/sqlx"
+	"github.com/tkw1536/pkglib/stream"
 	"github.com/tkw1536/pkglib/timex"
 )
 

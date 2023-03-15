@@ -11,11 +11,11 @@ import (
 
 	_ "embed"
 
-	"github.com/tkw1536/goprogram/stream"
 	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/lazy"
 	"github.com/tkw1536/pkglib/nobufio"
+	"github.com/tkw1536/pkglib/stream"
 )
 
 // Server represents a server that executes PHP code.

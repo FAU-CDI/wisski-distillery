@@ -14,7 +14,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/pkg/errors"
-	"github.com/tkw1536/goprogram/stream"
+	"github.com/tkw1536/pkglib/stream"
 )
 
 // Stack represents a 'docker compose' stack living in a specific directory
