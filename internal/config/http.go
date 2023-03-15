@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/tkw1536/pkglib/collection"
@@ -21,6 +22,20 @@ type HTTPConfig struct {
 	// It can be enabled by setting an email for certbot certificates.
 	// This email address can be configured here.
 	CertbotEmail string `yaml:"certbot_email" validate:"email"`
+}
+
+// JoinPath returns the root public url joined with the provided parts.
+func (hcfg HTTPConfig) JoinPath(elem ...string) *url.URL {
+	u := url.URL{
+		Scheme: "http",
+		Host:   hcfg.PrimaryDomain,
+		Path:   "/",
+	}
+	if hcfg.HTTPSEnabled() {
+		u.Scheme = "https"
+	}
+
+	return u.JoinPath(elem...)
 }
 
 // TCPMuxCommand generates a command line for the sslh executable.

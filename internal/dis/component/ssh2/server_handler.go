@@ -26,50 +26,13 @@ You've successfully authenticated, but we don't provide shell access to
 the main server. You may use this connection as part of a proxy jump to
 connect to your WissKI Instance.
 
-In the following we will provide instructions on how to connect to your
-distillery instance via this server. We will assume
-
-${SLUG}
-
-is the name of the WissKI you want to you want to connect to.
-
-From a linux (or mac, or windows 11) command line you may use: 
+To connect to a WissKI named ${SLUG} you may use:
 
 ssh -J ${DOMAIN}:${PORT} www-data@${HOSTNAME}
 
-You may also place the following into your $HOME/.ssh/config file:
+For more details see:
 
-Host *.${DOMAIN}
-  ProxyJump ${DOMAIN}.proxy
-  User www-data
-Host ${DOMAIN}.proxy
-  User www-data
-  Hostname ${DOMAIN}
-  Port ${PORT}
-
-and then connect simply via:
-
-ssh ${HOSTNAME}
-
-On windows you should use the "ssh" executable from the command line if
-available. 
-
-If you must, you can also use Putty. 
-
-THIS IS NOT RECOMMENDED AND NOT OFFICIALLY SUPPORTED
-
-First make sure your SSH Key is configured under Connection > Auth > 
-Credentials. Then configure a proxy under Connection > Proxy. The Proxy 
-Hostname should be
-
-${DOMAIN}
-
-and the port "${PORT}". The proxy type should be "SSH to proxy and use
-port forwarding". Then you may enter the hostname 
-
-www-data@${HOSTNAME}
-
-with port 22. 
+${HELP_URL}
 
 Press CTRL-C to close this connection.
 `
@@ -80,9 +43,12 @@ func (ssh2 *SSH2) handleConnection(session ssh.Session) {
 	banner := welcomeMessage
 	for _, oldnew := range [][2]string{
 		{"${SLUG}", slug},
-		{"${DOMAIN}", ssh2.Config.HTTP.PrimaryDomain},
 		{"${HOSTNAME}", slug + "." + ssh2.Config.HTTP.PrimaryDomain},
+
+		{"${DOMAIN}", ssh2.Config.HTTP.PrimaryDomain},
 		{"${PORT}", strconv.FormatUint(uint64(ssh2.Config.Listen.SSHPort), 10)},
+
+		{"${HELP_URL}", ssh2.Config.HTTP.JoinPath("user", "ssh").String()},
 	} {
 		banner = strings.ReplaceAll(banner, oldnew[0], oldnew[1])
 	}
