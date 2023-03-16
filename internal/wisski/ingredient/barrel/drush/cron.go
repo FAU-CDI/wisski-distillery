@@ -15,7 +15,7 @@ import (
 )
 
 var errCronFailed = exit.Error{
-	Message:  "failed to run cron script for instance %q: exited with code %s",
+	Message:  "failed to run cron script for instance %q: exited with code %d",
 	ExitCode: exit.ExitGeneric,
 }
 
