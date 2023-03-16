@@ -14,7 +14,7 @@ import (
 )
 
 var errBlindUpdateFailed = exit.Error{
-	Message:  "failed to run blind update script for instance %q: exited with code %s",
+	Message:  "failed to run blind update script for instance %q: exited with code %d",
 	ExitCode: exit.ExitGeneric,
 }
 

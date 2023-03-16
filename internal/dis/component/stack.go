@@ -77,8 +77,8 @@ func (ds Stack) Up(ctx context.Context, progress io.Writer) error {
 // It returns the exit code of the process.
 func (ds Stack) Exec(ctx context.Context, io stream.IOStream, service, executable string, args ...string) func() int {
 	compose := []string{"exec"}
-	if io.StdinIsATerminal() {
-		compose = append(compose, "-ti")
+	if !io.StdinIsATerminal() {
+		compose = append(compose, "-T")
 	}
 
 	compose = append(compose, service)
