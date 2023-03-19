@@ -115,8 +115,8 @@ github.com/tdewolff/parse v2.3.4+incompatible/go.mod h1:8oBwCsVmUkgHO8M5iCzSIDtp
 github.com/tdewolff/test v1.0.7 h1:8Vs0142DmPFW/bQeHRP3MV19m1gvndjUb1sn8yy74LM=
 github.com/tkw1536/goprogram v0.3.5 h1:S0axKo3R/vGa4zhYqYDKAZEPhAfwUSSeMtVwnAu4sNY=
 github.com/tkw1536/goprogram v0.3.5/go.mod h1:pYr4dMHOSVurbPQ4KTR0ett8XWNISbsRS6zlh9Nsxa8=
-github.com/tkw1536/pkglib v0.0.0-20230316111730-af32f59c9194 h1:IRgZUQaQc/p2yTPT1eUL/aeib3POEClM4UqejtOGA3M=
-github.com/tkw1536/pkglib v0.0.0-20230316111730-af32f59c9194/go.mod h1:RjPEyRcq+g1GMd3D/o7d9WCtVNXY4QZyFRs9hLlZbew=
+github.com/tkw1536/pkglib v0.0.0-20230319133918-3edc36187874 h1:BrsHJnkecpO1OOXiuFcJG2t4EiaLhhMdLMrfPldYWl4=
+github.com/tkw1536/pkglib v0.0.0-20230319133918-3edc36187874/go.mod h1:RjPEyRcq+g1GMd3D/o7d9WCtVNXY4QZyFRs9hLlZbew=
 github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=
 github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb h1:zGWFAtiMcyryUHoUjUJX0/lt1H2+i2Ka2n+D3DImSNo=
 github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=

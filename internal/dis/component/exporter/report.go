@@ -13,12 +13,15 @@ func (snapshot Snapshot) String() string {
 	builder := pools.GetBuilder()
 	defer pools.ReleaseBuilder(builder)
 
-	snapshot.Report(builder)
+	snapshot.ReportPlain(builder)
 	return builder.String()
 }
 
-// Report writes a report from snapshot into w
-func (snapshot Snapshot) Report(w io.Writer) (int, error) {
+func (snapshot Snapshot) ReportMachine(w io.Writer) error {
+	return json.NewEncoder(w).Encode(snapshot)
+}
+
+func (snapshot Snapshot) ReportPlain(w io.Writer) error {
 	ww := &sequence.Writer{Writer: w}
 
 	encoder := json.NewEncoder(ww)
@@ -46,8 +49,7 @@ func (snapshot Snapshot) Report(w io.Writer) (int, error) {
 	fmt.Fprintf(ww, "Start:       %s\n", snapshot.ErrStart)
 	fmt.Fprintf(ww, "Stop:        %s\n", snapshot.ErrStop)
 
-	fmt.Fprintf(ww, "Whitebox:    %s\n", snapshot.ErrWhitebox)
-	fmt.Fprintf(ww, "Blackbox:    %s\n", snapshot.ErrBlackbox)
+	fmt.Fprintf(ww, "Errors:    %s\n", snapshot.Errors)
 
 	io.WriteString(ww, "\n")
 
@@ -60,7 +62,8 @@ func (snapshot Snapshot) Report(w io.Writer) (int, error) {
 
 	io.WriteString(ww, "======= End Snapshot Report "+snapshot.Instance.Slug+"=======\n")
 
-	return ww.Sum()
+	_, err := ww.Sum()
+	return err
 }
 
 // Strings turns this backup into a string for the BackupReport.
@@ -68,12 +71,16 @@ func (backup Backup) String() string {
 	builder := pools.GetBuilder()
 	defer pools.ReleaseBuilder(builder)
 
-	backup.Report(builder)
+	backup.ReportPlain(builder)
 	return builder.String()
 }
 
+func (backup Backup) ReportMachine(w io.Writer) error {
+	return json.NewEncoder(w).Encode(backup)
+}
+
 // Report formats a report for this backup, and writes it into Writer.
-func (backup Backup) Report(w io.Writer) (int, error) {
+func (backup Backup) ReportPlain(w io.Writer) error {
 	cw := &sequence.Writer{Writer: w}
 
 	encoder := json.NewEncoder(cw)
@@ -110,5 +117,6 @@ func (backup Backup) Report(w io.Writer) (int, error) {
 
 	io.WriteString(cw, "\n")
 
-	return cw.Sum()
+	_, err := cw.Sum()
+	return err
 }

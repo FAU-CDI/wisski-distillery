@@ -9,11 +9,13 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
+	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/status"
 )
 
@@ -28,6 +30,11 @@ type ExportTask struct {
 	// To generated an unpacked directory, set [StagingOnly] to true.
 	StagingOnly bool
 
+	// Parts explicitly lists parts to include inside the snapshot.
+	// If non-empty, only include parts with the specified names.
+	// if empty, include all possible components.
+	Parts []string
+
 	// Instance is the instance to generate a snapshot of.
 	// To generate a backup, leave this to be nil.
 	Instance *wisski.WissKI
@@ -41,12 +48,26 @@ type ExportTask struct {
 // export is implemented by [Backup] and [Snapshot]
 type export interface {
 	LogEntry() models.Export
-	Report(w io.Writer) (int, error)
+	// ReportPlain writes a plaintext report summary into w
+	ReportPlain(w io.Writer) error
+	// ReportMachine writes a machine readable report summary into w
+	ReportMachine(w io.Writer) error
 }
+
+// Parts lists all available snapshot parts
+func (exporter *Exporter) Parts() []string {
+	return collection.MapSlice(exporter.Dependencies.Snapshotable, func(c component.Snapshotable) string { return c.SnapshotName() })
+}
+
+const (
+	ReportPlainPath   = "README.txt"
+	ReportMachinePath = "report.json"
+)
 
 // MakeExport performs an export task as described by flags.
 // Output is directed to the provided io.
 func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, task ExportTask) (err error) {
+
 	// extract parameters
 	Title := "Backup"
 	Slug := ""
@@ -110,21 +131,37 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		// create a log entry
 		entry = sl.LogEntry()
 
-		// find the report path
-		reportPath := filepath.Join(stagingDir, "report.txt")
-		fmt.Fprintln(progress, reportPath)
-
-		// create the path
-		report, err := fsx.Create(reportPath, fsx.DefaultFilePerm)
-		if err != nil {
-			return err
-		}
-
-		// and write out the report
+		// write the machine report
 		{
-			_, err := sl.Report(report)
-			return err
+			reportPath := filepath.Join(stagingDir, ReportMachinePath)
+			fmt.Fprintln(progress, reportPath)
+
+			report, err := fsx.Create(reportPath, fsx.DefaultFilePerm)
+			if err != nil {
+				return err
+			}
+
+			if err := sl.ReportMachine(report); err != nil {
+				return err
+			}
 		}
+
+		// write the plaintext report
+		{
+			reportPath := filepath.Join(stagingDir, ReportPlainPath)
+			fmt.Fprintln(progress, reportPath)
+
+			report, err := fsx.Create(reportPath, fsx.DefaultFilePerm)
+			if err != nil {
+				return err
+			}
+
+			if err := sl.ReportPlain(report); err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}, progress, "Generating %s", Title)
 
 	// if we only requested staging
