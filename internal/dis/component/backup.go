@@ -89,7 +89,7 @@ func (bc *stagingContext) sendPath(path string) {
 		return
 	}
 
-	io.WriteString(bc.progress, dst)
+	io.WriteString(bc.progress, dst+"\n")
 	bc.manifest <- dst
 }
 
