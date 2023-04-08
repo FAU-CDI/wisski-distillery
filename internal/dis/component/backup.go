@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/pkg/errors"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
 // Backupable represents a component with a Backup method
@@ -122,7 +122,7 @@ func (sc *stagingContext) AddDirectory(path string, op func(context.Context) err
 	}
 
 	// run the make directory
-	if err := fsx.Mkdir(dst, fsx.DefaultDirPerm); err != nil {
+	if err := umaskfree.Mkdir(dst, umaskfree.DefaultDirPerm); err != nil {
 		return err
 	}
 
@@ -143,7 +143,7 @@ func (sc *stagingContext) CopyFile(dst, src string) error {
 		return err
 	}
 	sc.sendPath(dst)
-	return fsx.CopyFile(sc.ctx, dstPath, src)
+	return umaskfree.CopyFile(sc.ctx, dstPath, src)
 }
 
 func (sc *stagingContext) CopyDirectory(dst, src string) error {
@@ -156,7 +156,7 @@ func (sc *stagingContext) CopyDirectory(dst, src string) error {
 		return err
 	}
 
-	return fsx.CopyDirectory(sc.ctx, dstPath, src, func(dst, src string) {
+	return umaskfree.CopyDirectory(sc.ctx, dstPath, src, func(dst, src string) {
 		sc.sendPath(dst)
 	})
 }
@@ -174,7 +174,7 @@ func (sc *stagingContext) AddFile(path string, op func(ctx context.Context, file
 	}
 
 	// create the file
-	file, err := fsx.Create(dst, fsx.DefaultFilePerm)
+	file, err := umaskfree.Create(dst, umaskfree.DefaultFilePerm)
 	if err != nil {
 		return err
 	}

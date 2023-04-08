@@ -9,10 +9,11 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
+	"github.com/tkw1536/pkglib/fsx"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/status"
 )
 
@@ -46,7 +47,7 @@ var errNoGraphDBZip = exit.Error{
 
 func (s systemupdate) AfterParse() error {
 	// TODO: Use a generic environment here!
-	if !fsx.IsFile(s.Positionals.GraphdbZip) {
+	if !fsx.IsRegular(s.Positionals.GraphdbZip) {
 		return errNoGraphDBZip.WithMessageF(s.Positionals.GraphdbZip)
 	}
 	return nil
@@ -92,7 +93,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 		dis.Templating().CustomAssetsPath(),
 	} {
 		context.Println(d)
-		if err := fsx.MkdirAll(d, fsx.DefaultDirPerm); err != nil {
+		if err := umaskfree.MkdirAll(d, umaskfree.DefaultDirPerm); err != nil {
 			return errBoostrapFailedToCreateDirectory.WithMessageF(d).Wrap(err)
 		}
 	}

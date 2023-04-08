@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/tkw1536/pkglib/fsx"
 )
 
 type PathsConfig struct {
@@ -38,14 +38,14 @@ func (pcfg PathsConfig) UsingDistilleryExecutable() bool {
 	if err != nil {
 		return false
 	}
-	return fsx.SameFile(exe, pcfg.ExecutablePath())
+	return fsx.Same(exe, pcfg.ExecutablePath())
 }
 
 // CurrentExecutable returns the path to the current executable being used.
 // When it does not exist, falls back to the default executable.
 func (pcfg PathsConfig) CurrentExecutable() string {
 	exe, err := os.Executable()
-	if err != nil || !fsx.IsFile(exe) {
+	if err != nil || !fsx.IsRegular(exe) {
 		return pcfg.ExecutablePath()
 	}
 	return exe

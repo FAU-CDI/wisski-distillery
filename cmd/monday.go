@@ -3,8 +3,8 @@ package cmd
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/pkglib/fsx"
 )
 
 // Monday is the 'monday' command
@@ -28,7 +28,7 @@ func (monday) Description() wisski_distillery.Description {
 }
 
 func (monday monday) AfterParse() error {
-	if !fsx.IsFile(monday.Positionals.GraphdbZip) {
+	if !fsx.IsRegular(monday.Positionals.GraphdbZip) {
 		return errNoGraphDBZip.WithMessageF(monday.Positionals.GraphdbZip)
 	}
 	return nil

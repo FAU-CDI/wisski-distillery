@@ -9,7 +9,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
 // Package packages the source directory into a 'tar.gz' file into destination.
@@ -18,7 +18,7 @@ import (
 // onCopy, when not nil, is called for each file being copied into the archive.
 func Package(dst, src string, onCopy func(rel string, src string)) (count int64, err error) {
 	// create the target archive
-	archive, err := fsx.Create(dst, fsx.DefaultFilePerm)
+	archive, err := umaskfree.Create(dst, umaskfree.DefaultFilePerm)
 	if err != nil {
 		return 0, err
 	}

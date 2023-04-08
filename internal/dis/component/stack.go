@@ -11,9 +11,9 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/pkg/errors"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/stream"
 )
 
@@ -193,7 +193,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 			return err
 		}
 	} else {
-		if err := fsx.MkdirAll(is.Dir, fsx.DefaultDirPerm); err != nil {
+		if err := umaskfree.MkdirAll(is.Dir, umaskfree.DefaultDirPerm); err != nil {
 			return err
 		}
 	}
@@ -206,7 +206,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 			defer fmt.Fprintf(progress, "[install] %s\n", dst)
 
 			// create the file
-			yml, err := fsx.Create(dst, fsx.DefaultFilePerm)
+			yml, err := umaskfree.Create(dst, umaskfree.DefaultFilePerm)
 			if err != nil {
 				return err
 			}
@@ -253,9 +253,9 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 		fmt.Fprintf(progress, "[make]    %s\n", dst)
 		if is.MakeDirsPerm == fs.FileMode(0) {
-			is.MakeDirsPerm = fsx.DefaultDirPerm
+			is.MakeDirsPerm = umaskfree.DefaultDirPerm
 		}
-		if err := fsx.MkdirAll(dst, is.MakeDirsPerm); err != nil {
+		if err := umaskfree.MkdirAll(dst, is.MakeDirsPerm); err != nil {
 			return err
 		}
 	}
@@ -273,7 +273,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 		// copy over file from context
 		fmt.Fprintf(progress, "[copy]    %s (from %s)\n", dst, src)
-		if err := fsx.CopyFile(ctx, dst, src); err != nil {
+		if err := umaskfree.CopyFile(ctx, dst, src); err != nil {
 			return errors.Wrapf(err, "Unable to copy file %s", src)
 		}
 	}
@@ -284,7 +284,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		dst := filepath.Join(is.Dir, name)
 
 		fmt.Fprintf(progress, "[touch]   %s\n", dst)
-		if err := fsx.Touch(dst, is.TouchFilesPerm); err != nil {
+		if err := umaskfree.Touch(dst, is.TouchFilesPerm); err != nil {
 			return err
 		}
 	}

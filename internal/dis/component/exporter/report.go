@@ -4,16 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strings"
 
-	"github.com/tkw1536/pkglib/pools"
 	"github.com/tkw1536/pkglib/sequence"
 )
 
 func (snapshot Snapshot) String() string {
-	builder := pools.GetBuilder()
-	defer pools.ReleaseBuilder(builder)
+	var builder strings.Builder
 
-	snapshot.ReportPlain(builder)
+	snapshot.ReportPlain(&builder)
 	return builder.String()
 }
 
@@ -68,10 +67,8 @@ func (snapshot Snapshot) ReportPlain(w io.Writer) error {
 
 // Strings turns this backup into a string for the BackupReport.
 func (backup Backup) String() string {
-	builder := pools.GetBuilder()
-	defer pools.ReleaseBuilder(builder)
-
-	backup.ReportPlain(builder)
+	var builder strings.Builder
+	backup.ReportPlain(&builder)
 	return builder.String()
 }
 

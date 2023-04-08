@@ -11,7 +11,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/errorx"
-	"github.com/tkw1536/pkglib/pools"
 )
 
 var errTripleStoreFailedRepository = exit.Error{
@@ -39,9 +38,9 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 	}
 
 	// prepare the create repo request
-	createRepo := pools.GetBuffer()
-	defer pools.ReleaseBuffer(createRepo)
-	err := unpack.WriteTemplate(createRepo, map[string]string{
+	var createRepo bytes.Buffer
+
+	err := unpack.WriteTemplate(&createRepo, map[string]string{
 		"GRAPHDB_REPO":    name,
 		"INSTANCE_DOMAIN": domain,
 	}, bytes.NewReader(createRepoTTL))

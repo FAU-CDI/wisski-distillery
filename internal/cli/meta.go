@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
 // metaConfigFile is the path to a configuration file that contains the path to the last used wdcli executable.
@@ -68,5 +68,5 @@ func WriteBaseDirectory(dir string) error {
 	}
 
 	// just put the directory inside it!
-	return fsx.WriteFile(path, []byte(dir), fs.ModePerm)
+	return umaskfree.WriteFile(path, []byte(dir), fs.ModePerm)
 }

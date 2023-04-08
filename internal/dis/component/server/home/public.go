@@ -11,7 +11,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/pools"
 )
 
 //go:embed "public.html"
@@ -62,8 +61,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		}
 
 		// get a builder
-		builder := pools.GetBuilder()
-		defer pools.ReleaseBuilder(builder)
+		var builder strings.Builder
 
 		// prepare about
 		pc.aboutContext.Logo = logoHTML
@@ -72,7 +70,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 
 		// render the about template
 
-		if err := about.Execute(builder, pc.aboutContext); err != nil {
+		if err := about.Execute(&builder, pc.aboutContext); err != nil {
 			return pc, nil
 		}
 

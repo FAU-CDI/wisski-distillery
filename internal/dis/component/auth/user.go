@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"fmt"
@@ -14,7 +15,6 @@ import (
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/tkw1536/pkglib/password"
-	"github.com/tkw1536/pkglib/pools"
 	"github.com/tkw1536/pkglib/reflectx"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -187,10 +187,9 @@ func TOTPLink(secret *otp.Key, width, height int) (string, error) {
 	}
 
 	// encode image as base64
-	buffer := pools.GetBuffer()
-	defer pools.ReleaseBuffer(buffer)
+	var buffer bytes.Buffer
 
-	if err := png.Encode(buffer, img); err != nil {
+	if err := png.Encode(&buffer, img); err != nil {
 		return "", err
 	}
 

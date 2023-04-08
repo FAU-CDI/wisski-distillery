@@ -12,10 +12,10 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
 	"github.com/tkw1536/pkglib/collection"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/status"
 )
 
@@ -98,7 +98,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 
 	// create the staging directory
 	logging.LogMessage(progress, "Creating staging directory")
-	err = fsx.Mkdir(stagingDir, fsx.DefaultDirPerm)
+	err = umaskfree.Mkdir(stagingDir, umaskfree.DefaultDirPerm)
 	if !errors.Is(err, fs.ErrExist) && err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 			reportPath := filepath.Join(stagingDir, ReportMachinePath)
 			fmt.Fprintln(progress, reportPath)
 
-			report, err := fsx.Create(reportPath, fsx.DefaultFilePerm)
+			report, err := umaskfree.Create(reportPath, umaskfree.DefaultFilePerm)
 			if err != nil {
 				return err
 			}
@@ -151,7 +151,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 			reportPath := filepath.Join(stagingDir, ReportPlainPath)
 			fmt.Fprintln(progress, reportPath)
 
-			report, err := fsx.Create(reportPath, fsx.DefaultFilePerm)
+			report, err := umaskfree.Create(reportPath, umaskfree.DefaultFilePerm)
 			if err != nil {
 				return err
 			}

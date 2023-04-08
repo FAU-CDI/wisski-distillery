@@ -11,7 +11,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
-	"github.com/tkw1536/pkglib/pools"
 	"github.com/tkw1536/pkglib/timex"
 )
 
@@ -39,12 +38,10 @@ func (ts Triplestore) OpenRaw(ctx context.Context, method, url string, body any,
 	// for "PUT" and "POST" we setup a body
 	if method == http.MethodPut || method == http.MethodPost {
 		if bodyName != "" {
-			// create a new buffer for the body
-			buffer := pools.GetBuffer()
-			defer pools.ReleaseBuffer(buffer)
+			var buffer bytes.Buffer
 
 			// write the file to it
-			writer := multipart.NewWriter(buffer)
+			writer := multipart.NewWriter(&buffer)
 			{
 				part, err := writer.CreateFormFile(bodyName, "filename.txt")
 				if err != nil {
@@ -55,7 +52,7 @@ func (ts Triplestore) OpenRaw(ctx context.Context, method, url string, body any,
 			writer.Close()
 
 			// use it for the request
-			reader = buffer
+			reader = &buffer
 			contentType = writer.FormDataContentType()
 		} else {
 			mbytes, err := json.Marshal(body)

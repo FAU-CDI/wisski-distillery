@@ -12,8 +12,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/tkw1536/pkglib/collection"
+	"github.com/tkw1536/pkglib/fsx"
 	"golang.org/x/exp/slices"
 
 	_ "embed"
@@ -35,7 +35,7 @@ var (
 // NoPrefix checks if this WissKI instance is excluded from generating prefixes.
 // TODO: Move this to the database!
 func (prefixes *Prefixes) NoPrefix() bool {
-	return fsx.IsFile(filepath.Join(prefixes.FilesystemBase, "prefixes.skip"))
+	return fsx.IsRegular(filepath.Join(prefixes.FilesystemBase, "prefixes.skip"))
 }
 
 //go:embed prefixes.php
@@ -121,7 +121,7 @@ func hasAnyPrefix(candidate string, prefixes []string) bool {
 
 func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 	path := filepath.Join(wisski.FilesystemBase, "prefixes")
-	if !fsx.IsFile(path) {
+	if !fsx.IsRegular(path) {
 		return nil, nil
 	}
 

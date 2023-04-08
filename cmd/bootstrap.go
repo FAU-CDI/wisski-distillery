@@ -10,9 +10,10 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/fsx"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
 // Bootstrap is the 'bootstrap' command
@@ -81,7 +82,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	{
 		logging.LogMessage(context.Stderr, "Creating root deployment directory")
-		if err := fsx.MkdirAll(root, fsx.DefaultDirPerm); err != nil {
+		if err := umaskfree.MkdirAll(root, umaskfree.DefaultDirPerm); err != nil {
 			return errBootstrapFailedToCreateDirectory.WithMessageF(root).Wrap(err)
 		}
 		if err := cli.WriteBaseDirectory(root); err != nil {
@@ -111,22 +112,22 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
 
-		err = fsx.CopyFile(context.Context, wdcliPath, exe)
-		if err != nil && err != fsx.ErrCopySameFile {
+		err = umaskfree.CopyFile(context.Context, wdcliPath, exe)
+		if err != nil && err != umaskfree.ErrCopySameFile {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
 		context.Println(wdcliPath)
 	}
 
 	{
-		if !fsx.IsFile(cfgPath) {
+		if !fsx.IsRegular(cfgPath) {
 			// generate the configuration from the template
 			cfg := tpl.Generate()
 
 			// write out all the extra config files
 			if err := logging.LogOperation(func() error {
 				context.Println(cfg.Paths.OverridesJSON)
-				if err := fsx.WriteFile(
+				if err := umaskfree.WriteFile(
 					cfg.Paths.OverridesJSON,
 					bootstrap.DefaultOverridesJSON,
 					fs.ModePerm,
@@ -135,7 +136,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 				}
 
 				context.Println(cfg.Paths.ResolverBlocks)
-				if err := fsx.WriteFile(
+				if err := umaskfree.WriteFile(
 					cfg.Paths.ResolverBlocks,
 					bootstrap.DefaultResolverBlockedTXT,
 					fs.ModePerm,
@@ -155,7 +156,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 			// and marshal it out!
 			if err := logging.LogOperation(func() error {
-				configYML, err := fsx.Create(cfgPath, fsx.DefaultFilePerm)
+				configYML, err := umaskfree.Create(cfgPath, umaskfree.DefaultFilePerm)
 				if err != nil {
 					return err
 				}

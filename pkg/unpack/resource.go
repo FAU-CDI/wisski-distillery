@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/pkg/errors"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
 var errExpectedFileButGotDirectory = errors.New("expected a file, but got a directory")
@@ -84,7 +84,7 @@ func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src str
 	dstStat, dstErr := os.Stat(dst)
 	switch {
 	case errors.Is(dstErr, fs.ErrNotExist):
-		if err := fsx.MkdirAll(dst, srcInfo.Mode()); err != nil {
+		if err := umaskfree.MkdirAll(dst, srcInfo.Mode()); err != nil {
 			return errors.Wrapf(err, "Error creating destination directory %s", dst)
 		}
 	case dstErr != nil:
@@ -120,7 +120,7 @@ func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src str
 
 func installFile(dst string, srcInfo fs.FileInfo, src fs.File) error {
 	// create the file using the right mode!
-	file, err := fsx.Create(dst, srcInfo.Mode())
+	file, err := umaskfree.Create(dst, srcInfo.Mode())
 	if err != nil {
 		return err
 	}

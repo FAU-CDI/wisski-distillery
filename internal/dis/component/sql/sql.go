@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
 type SQL struct {
@@ -50,7 +50,7 @@ func (sql *SQL) Stack() component.StackWithResources {
 			"HTTPS_ENABLED":       sql.Config.HTTP.HTTPSEnabledEnv(),
 		},
 
-		MakeDirsPerm: fsx.DefaultDirPerm,
+		MakeDirsPerm: umaskfree.DefaultDirPerm,
 		MakeDirs: []string{
 			"data",
 			"imports",

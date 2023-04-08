@@ -8,7 +8,7 @@ import (
 	"io/fs"
 	"strings"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
@@ -222,7 +222,7 @@ func InstallTemplate(dst string, context map[string]string, src string, fsys fs.
 	}
 
 	// open the destination file
-	file, err := fsx.Create(dst, srcInfo.Mode())
+	file, err := umaskfree.Create(dst, srcInfo.Mode())
 	if err != nil {
 		return err
 	}

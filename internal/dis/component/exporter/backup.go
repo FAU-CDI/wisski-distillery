@@ -10,8 +10,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/status"
 	"golang.org/x/exp/slices"
 )
@@ -118,7 +118,7 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 		defer st.Stop()
 
 		instancesBackupDir := filepath.Join(backup.Description.Dest, "instances")
-		if err := fsx.Mkdir(instancesBackupDir, fsx.DefaultDirPerm); err != nil {
+		if err := umaskfree.Mkdir(instancesBackupDir, umaskfree.DefaultDirPerm); err != nil {
 			backup.InstanceListErr = err
 			return nil
 		}
@@ -139,7 +139,7 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 
 			Handler: func(instance *wisski.WissKI, index int, writer io.Writer) Snapshot {
 				dir := filepath.Join(instancesBackupDir, instance.Slug)
-				if err := fsx.Mkdir(dir, fsx.DefaultDirPerm); err != nil {
+				if err := umaskfree.Mkdir(dir, umaskfree.DefaultDirPerm); err != nil {
 					return Snapshot{
 						ErrPanic: err,
 					}

@@ -12,8 +12,8 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
 	"github.com/gliderlabs/ssh"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 
 	"github.com/pkg/errors"
 	gossh "golang.org/x/crypto/ssh"
@@ -120,7 +120,7 @@ func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostK
 	}
 
 	// generate and write private key as PEM
-	privateKeyFile, err := fsx.Create(path, fsx.DefaultFilePerm)
+	privateKeyFile, err := umaskfree.Create(path, umaskfree.DefaultFilePerm)
 	if err != nil {
 		return err
 	}

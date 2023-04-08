@@ -13,7 +13,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/fsx"
+	"github.com/tkw1536/pkglib/fsx"
+	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/password"
 )
 
@@ -75,7 +76,7 @@ func (*Exporter) newSnapshotName(prefix string) string {
 func (dis *Exporter) NewStagingDir(prefix string) (path string, err error) {
 	for path == "" || errors.Is(err, fs.ErrExist) {
 		path = filepath.Join(dis.StagingPath(), dis.newSnapshotName(prefix))
-		err = fsx.Mkdir(path, fsx.DefaultFilePerm)
+		err = umaskfree.Mkdir(path, umaskfree.DefaultFilePerm)
 	}
 	if err != nil {
 		path = ""
