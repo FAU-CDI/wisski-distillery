@@ -28,7 +28,11 @@ func (monday) Description() wisski_distillery.Description {
 }
 
 func (monday monday) AfterParse() error {
-	if !fsx.IsRegular(monday.Positionals.GraphdbZip) {
+	isFile, err := fsx.IsRegular(monday.Positionals.GraphdbZip, false)
+	if err != nil {
+		return err
+	}
+	if !isFile {
 		return errNoGraphDBZip.WithMessageF(monday.Positionals.GraphdbZip)
 	}
 	return nil

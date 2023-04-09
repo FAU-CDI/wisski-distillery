@@ -120,7 +120,11 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	{
-		if !fsx.IsRegular(cfgPath) {
+		isFile, err := fsx.IsRegular(cfgPath, false)
+		if err != nil {
+			return errBootstrapWriteConfig.Wrap(err)
+		}
+		if !isFile {
 			// generate the configuration from the template
 			cfg := tpl.Generate()
 

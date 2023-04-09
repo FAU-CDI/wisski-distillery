@@ -35,7 +35,9 @@ var (
 // NoPrefix checks if this WissKI instance is excluded from generating prefixes.
 // TODO: Move this to the database!
 func (prefixes *Prefixes) NoPrefix() bool {
-	return fsx.IsRegular(filepath.Join(prefixes.FilesystemBase, "prefixes.skip"))
+	// FIXME: Ignoring error here!
+	exists, _ := fsx.IsRegular(filepath.Join(prefixes.FilesystemBase, "prefixes.skip"), false)
+	return exists
 }
 
 //go:embed prefixes.php
@@ -121,16 +123,26 @@ func hasAnyPrefix(candidate string, prefixes []string) bool {
 
 func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 	path := filepath.Join(wisski.FilesystemBase, "prefixes")
-	if !fsx.IsRegular(path) {
-		return nil, nil
+
+	// check that the prefixes path exists
+	{
+		isFile, err := fsx.IsRegular(path, true)
+		if err != nil {
+			return nil, err
+		}
+		if !isFile {
+			return nil, nil
+		}
 	}
 
+	// open the file
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
 	}
 	defer file.Close()
 
+	// scan each line
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())

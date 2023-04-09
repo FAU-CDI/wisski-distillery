@@ -42,9 +42,15 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Pr
 	}
 
 	// check that the base directory does not exist
-	logging.LogMessage(progress, "Checking that base directory %s does not exist", instance.FilesystemBase)
-	if fsx.IsDirectory(instance.FilesystemBase) {
-		return nil, ErrInstanceAlreadyExists
+	{
+		logging.LogMessage(progress, "Checking that base directory %s does not exist", instance.FilesystemBase)
+		exists, err := fsx.Exists(instance.FilesystemBase)
+		if err != nil {
+			return nil, err
+		}
+		if exists {
+			return nil, ErrInstanceAlreadyExists
+		}
 	}
 
 	// Store in the instances table!

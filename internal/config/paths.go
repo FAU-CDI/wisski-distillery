@@ -45,8 +45,12 @@ func (pcfg PathsConfig) UsingDistilleryExecutable() bool {
 // When it does not exist, falls back to the default executable.
 func (pcfg PathsConfig) CurrentExecutable() string {
 	exe, err := os.Executable()
-	if err != nil || !fsx.IsRegular(exe) {
-		return pcfg.ExecutablePath()
+	if err == nil {
+		isFile, err := fsx.IsRegular(exe, true)
+		if err == nil && isFile {
+			return exe
+		}
 	}
-	return exe
+
+	return pcfg.ExecutablePath()
 }

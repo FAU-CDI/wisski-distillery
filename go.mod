@@ -16,13 +16,13 @@ require (
 	github.com/pquerna/otp v1.4.0
 	github.com/rs/zerolog v1.29.0
 	github.com/tkw1536/goprogram v0.3.5
-	github.com/tkw1536/pkglib v0.0.0-20230408192227-70bc76c31830
+	github.com/tkw1536/pkglib v0.0.0-20230409110642-5f57240e294b
 	github.com/yuin/goldmark v1.5.4
 	github.com/yuin/goldmark-meta v1.1.0
-	golang.org/x/crypto v0.7.0
-	golang.org/x/exp v0.0.0-20230307190834-24139beb5833
+	golang.org/x/crypto v0.8.0
+	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/sync v0.1.0
-	golang.org/x/term v0.6.0
+	golang.org/x/term v0.7.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.4.7
 	gorm.io/gorm v1.24.6
@@ -48,7 +48,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
+	github.com/mattn/go-isatty v0.0.18 // indirect
 	github.com/mattn/go-shellwords v1.0.12 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/moby/term v0.0.0-20221128092401-c43b287e0e0f // indirect
@@ -63,8 +63,8 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	golang.org/x/mod v0.9.0 // indirect
-	golang.org/x/net v0.8.0 // indirect
-	golang.org/x/sys v0.6.0 // indirect
+	golang.org/x/net v0.9.0 // indirect
+	golang.org/x/sys v0.7.0 // indirect
 	golang.org/x/time v0.1.0 // indirect
 	golang.org/x/tools v0.7.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect

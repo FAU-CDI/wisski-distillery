@@ -51,12 +51,17 @@ func (dis *Exporter) ArchivePath() string {
 // NewArchivePath returns the path to a new archive with the provided prefix.
 // The path is guaranteed to not exist.
 func (dis *Exporter) NewArchivePath(prefix string) (path string) {
-	// TODO: Consider moving these into a subdirectory with the provided prefix.
-	for path == "" || fsx.Exists(path) {
+	for {
 		name := dis.newSnapshotName(prefix) + ".tar.gz"
 		path = filepath.Join(dis.ArchivePath(), name)
+
+		// Only return if the path does not exist
+		// FIXME: ignoring the error here
+		exists, _ := fsx.Exists(path)
+		if !exists {
+			return path
+		}
 	}
-	return
 }
 
 // newSnapshot name returns a new basename for a snapshot with the provided prefix.

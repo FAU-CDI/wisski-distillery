@@ -59,9 +59,15 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 	}
 
 	// check that the base directory does not exist
-	logging.LogMessage(context.Stderr, "Checking that base directory %s does not exist", instance.FilesystemBase)
-	if fsx.IsDirectory(instance.FilesystemBase) {
-		return errReserveAlreadyExists.WithMessageF(slug)
+	{
+		logging.LogMessage(context.Stderr, "Checking that base directory %s does not exist", instance.FilesystemBase)
+		exists, err := fsx.Exists(instance.FilesystemBase)
+		if err != nil {
+			return errProvisionGeneric.Wrap(err)
+		}
+		if exists {
+			return errReserveAlreadyExists.WithMessageF(slug)
+		}
 	}
 
 	// setup docker stack
