@@ -25,7 +25,8 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 			"DOCKER_NETWORK_NAME": barrel.Malt.Config.Docker.Network(),
 
 			"SLUG":          barrel.Slug,
-			"VIRTUAL_HOST":  barrel.Domain(),
+			"HOST_RULE":     barrel.HostRule(),
+			"HOSTNAME":      barrel.Hostname(),
 			"HTTPS_ENABLED": barrel.Malt.Config.HTTP.HTTPSEnabledEnv(),
 
 			"DATA_PATH":   filepath.Join(barrel.FilesystemBase, "data"),

@@ -4,14 +4,14 @@ services:
   barrel:
     build: .
     restart: always
-    hostname: ${VIRTUAL_HOST}.wisski
+    hostname: ${HOSTNAME}
 
     # label it with the current slug
     labels:
       - "traefik.enable=True"
       - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
 
-      - "traefik.http.routers.wisski_${SLUG}.rule=Host(`${VIRTUAL_HOST}`)"
+      - "traefik.http.routers.wisski_${SLUG}.rule=${HOST_RULE}"
       - "traefik.http.routers.wisski_${SLUG}.tls=${HTTPS_ENABLED}"
       - "traefik.http.routers.wisski_${SLUG}.tls.certresolver=distillery"
       - "traefik.http.services.wisski_${SLUG}.loadbalancer.server.port=8080"

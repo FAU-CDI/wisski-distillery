@@ -2,11 +2,22 @@ package liquid
 
 import (
 	"net/url"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/config"
 )
 
 // Domain returns the full domain name of this WissKI
 func (liquid *Liquid) Domain() string {
 	return liquid.Config.HTTP.HostFromSlug(liquid.Slug)
+}
+
+func (liquid *Liquid) Hostname() string {
+	return liquid.Domain() + ".wisski"
+}
+
+// HostRule returns a host rule for this wisski
+func (liquid *Liquid) HostRule() string {
+	return config.MakeHostRule(liquid.Domain())
 }
 
 // URL returns the public URL of this instance

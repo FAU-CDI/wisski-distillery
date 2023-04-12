@@ -11,7 +11,7 @@ services:
       - "traefik.enable=True"
       - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
 
-      - "traefik.http.routers.reserve_${SLUG}.rule=Host(`${VIRTUAL_HOST}`)"
+      - "traefik.http.routers.reserve_${SLUG}.rule=${HOST_RULE}"
       - "traefik.http.routers.reserve_${SLUG}.tls=${HTTPS_ENABLED}"
       - "traefik.http.routers.reserve_${SLUG}.tls.certresolver=distillery"
       - "traefik.http.services.reserve_${SLUG}.loadbalancer.server.port=8043"

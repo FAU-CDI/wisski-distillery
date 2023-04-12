@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/tkw1536/pkglib/collection"
+	"golang.org/x/net/idna"
 )
 
 type HTTPConfig struct {
@@ -80,10 +80,7 @@ func (hcfg HTTPConfig) Domains(sub string) []string {
 // HostRule returns a HostRule for the provided subdomain.
 // See Domains() for usage of sub.
 func (hcfg HTTPConfig) HostRule(sub string) string {
-	quoted := collection.MapSlice(hcfg.Domains(sub), func(name string) string {
-		return "`" + name + "`"
-	})
-	return fmt.Sprintf("Host(%s)", strings.Join(quoted, ","))
+	return MakeHostRule(hcfg.Domains(sub)...)
 }
 
 // HTTPSEnabledEnv returns "true" if https is enabled, and "false" otherwise.
@@ -140,4 +137,37 @@ func TrimSuffixFold(s string, suffix string) string {
 // This consists of the [DefaultDomain] as well as [ExtraDomains].
 func (cfg HTTPConfig) DefaultHostRule() string {
 	return cfg.HostRule("")
+}
+
+// MakeHostRule builds a new Host() rule string to be used by traefik.
+func MakeHostRule(hosts ...string) string {
+	var builder strings.Builder
+
+	first := true
+	for _, host := range hosts {
+		// HACK HACK HACK: Very minimal domain validation to prevent validation.
+		// Just skip everything that isn't a domain.
+		if strings.Contains(host, "`") {
+			continue
+		}
+
+		if first {
+			builder.WriteString("||Host(`")
+		} else {
+			builder.WriteString("Host(`")
+		}
+
+		// domain should be punycode!
+		domain, err := idna.ToASCII(host)
+		if err != nil {
+			domain = host
+		}
+
+		builder.WriteString(domain)
+		builder.WriteString("`)")
+
+		first = false
+	}
+
+	return builder.String()
 }

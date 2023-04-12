@@ -32,7 +32,8 @@ func (reserve *Reserve) Stack() component.StackWithResources {
 			"DOCKER_NETWORK_NAME": reserve.Malt.Config.Docker.Network(),
 
 			"SLUG":          reserve.Slug,
-			"VIRTUAL_HOST":  reserve.Domain(),
+			"HOST_RULE":     reserve.HostRule(),
+			"HOSTNAME":      reserve.Hostname(),
 			"HTTPS_ENABLED": reserve.Malt.Config.HTTP.HTTPSEnabledEnv(),
 		},
 	}
