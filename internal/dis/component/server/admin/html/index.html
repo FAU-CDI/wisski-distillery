@@ -41,3 +41,40 @@
         <code class="language-yaml">{{ .Config.MarshalSensitive }}</code>
     </pre>
 </div>
+
+<div class="pure-u-1-1">
+    <h2 id="overview">Distillery Passwords</h2>
+    <table class="pure-table pure-table-bordered padding">
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Username</th>
+                <th>Password</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    SQL
+                </td>
+                <td>
+                    <code class="copy">{{ .Config.SQL.AdminUsername }}</code>
+                </td>
+                <td>
+                    <span data-reveal="{{ .Config.SQL.AdminPassword }}"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Triplestore
+                </td>
+                <td>
+                    <code class="copy">{{ .Config.TS.AdminUsername }}</code>
+                </td>
+                <td>
+                    <span data-reveal="{{ .Config.TS.AdminPassword }}"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

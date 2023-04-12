@@ -84,7 +84,7 @@
                             SQL DB
                         </td>
                         <td>
-                            <code>{{ .Instance.SqlDatabase }}</code>
+                            <code class="copy">{{ .Instance.SqlDatabase }}</code>
                         </td>
                     </tr>
                     <tr>
@@ -92,7 +92,15 @@
                             SQL User
                         </td>
                         <td>
-                            <code>{{ .Instance.SqlUsername }}</code>
+                            <code class="copy">{{ .Instance.SqlUsername }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            SQL Password
+                        </td>
+                        <td>
+                            <span data-reveal="{{ .Instance.SqlPassword }}"></span>
                         </td>
                     </tr>
                     <tr>
@@ -100,7 +108,7 @@
                             TS Repo
                         </td>
                         <td>
-                            <code>{{ .Instance.GraphDBRepository }}</code>
+                            <code class="copy">{{ .Instance.GraphDBRepository }}</code>
                         </td>
                     </tr>
                     <tr>
@@ -108,7 +116,16 @@
                             TS User
                         </td>
                         <td>
-                            <code>{{ .Instance.GraphDBUsername }}</code>
+                            <code class="copy">{{ .Instance.GraphDBUsername }}</code>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            TS Password
+                        </td>
+                        <td>
+                            <span data-reveal="{{ .Instance.GraphDBPassword }}"></span>
                         </td>
                     </tr>
                 </tbody>
