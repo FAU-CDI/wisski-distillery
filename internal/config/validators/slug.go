@@ -20,5 +20,8 @@ func ValidateSlug(s *string, dflt string) error {
 	if !regexpSlug.MatchString(*s) {
 		return ErrInvalidSlug
 	}
+	if strings.HasSuffix(*s, "_") {
+		return ErrInvalidSlug
+	}
 	return nil
 }

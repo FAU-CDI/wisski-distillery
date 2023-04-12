@@ -15,7 +15,7 @@ type HTTPConfig struct {
 	PrimaryDomain string `yaml:"domain" default:"localhost.kwarc.info" validate:"domain"`
 
 	// By default, only the 'self' domain above is caught.
-	// To catch additional domains, add them here (comma seperated)
+	// To catch additional domains, add them here (comma separated)
 	ExtraDomains []string `yaml:"domains" validate:"domains"`
 
 	// The system can support setting up certificate(s) automatically.
@@ -49,6 +49,41 @@ func (hcfg HTTPConfig) TCPMuxCommand(addr string, http string, https string, ssh
 // HTTPSEnabled returns if the distillery has HTTPS enabled, and false otherwise.
 func (hcfg HTTPConfig) HTTPSEnabled() bool {
 	return hcfg.CertbotEmail != ""
+}
+
+type SpecialDomain string
+
+var (
+	TriplestoreDomain SpecialDomain = "ts"
+)
+
+func (hcfg HTTPConfig) SpecialDomain(domain SpecialDomain) string {
+	return fmt.Sprintf("%s.%s", string(domain)+"_", hcfg.PrimaryDomain)
+}
+
+// Domains adds the given subdomain to the primary and alias domains.
+// If sub is empty, returns only the domains.
+//
+// sub is not otherwise validated, and should be normalized by the caller.
+func (hcfg HTTPConfig) Domains(sub string) []string {
+	domains := append([]string{hcfg.PrimaryDomain}, hcfg.ExtraDomains...)
+	if sub == "" {
+		return domains
+	}
+
+	for i, d := range domains {
+		domains[i] = sub + "." + d
+	}
+	return domains
+}
+
+// HostRule returns a HostRule for the provided subdomain.
+// See Domains() for usage of sub.
+func (hcfg HTTPConfig) HostRule(sub string) string {
+	quoted := collection.MapSlice(hcfg.Domains(sub), func(name string) string {
+		return "`" + name + "`"
+	})
+	return fmt.Sprintf("Host(%s)", strings.Join(quoted, ","))
 }
 
 // HTTPSEnabledEnv returns "true" if https is enabled, and "false" otherwise.
@@ -101,17 +136,8 @@ func TrimSuffixFold(s string, suffix string) string {
 	return s
 }
 
-// HostRule returns a traefik rule for the given names
-// TODO: Move this over!
-func HostRule(names ...string) string {
-	quoted := collection.MapSlice(names, func(name string) string {
-		return "`" + name + "`"
-	})
-	return fmt.Sprintf("Host(%s)", strings.Join(quoted, ","))
-}
-
 // DefaultHostRule returns the default traefik hostname rule for this distillery.
 // This consists of the [DefaultDomain] as well as [ExtraDomains].
 func (cfg HTTPConfig) DefaultHostRule() string {
-	return HostRule(append([]string{cfg.PrimaryDomain}, cfg.ExtraDomains...)...)
+	return cfg.HostRule("")
 }
