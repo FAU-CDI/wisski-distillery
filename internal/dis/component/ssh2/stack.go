@@ -8,7 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
-func (ssh SSH2) Path() string {
+func (ssh *SSH2) Path() string {
 	return filepath.Join(ssh.Still.Config.Paths.Root, "core", "ssh2")
 }
 
@@ -36,7 +36,7 @@ func (ssh *SSH2) Stack() component.StackWithResources {
 	})
 }
 
-func (ssh SSH2) Context(parent component.InstallationContext) component.InstallationContext {
+func (ssh *SSH2) Context(parent component.InstallationContext) component.InstallationContext {
 	return component.InstallationContext{
 		bootstrap.Executable: ssh.Config.Paths.CurrentExecutable(), // TODO: Does this make sense?
 	}

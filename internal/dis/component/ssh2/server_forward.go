@@ -1,9 +1,11 @@
 package ssh2
 
 import (
+	"fmt"
 	"io"
 	"net"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/gliderlabs/ssh"
 	gossh "golang.org/x/crypto/ssh"
 )
@@ -17,7 +19,7 @@ type localForwardChannelData struct {
 	OriginPort uint32
 }
 
-// seetupForwardHandler sets up the forwarding handler for the ssh server
+// setupForwardHandler sets up the forwarding handler for the ssh server
 func (ssh2 *SSH2) setupForwardHandler(server *ssh.Server) {
 	if server.ChannelHandlers == nil {
 		server.ChannelHandlers = make(map[string]ssh.ChannelHandler)
@@ -28,6 +30,62 @@ func (ssh2 *SSH2) setupForwardHandler(server *ssh.Server) {
 	server.ChannelHandlers["direct-tcpip"] = ssh2.handleDirectTCP
 }
 
+type Intercept struct {
+	Description string
+	Match       component.HostPort
+	Dest        component.HostPort
+}
+
+// ExamplePort returns a local port that can be forwarded to without root rights
+func (i Intercept) ExamplePort() uint32 {
+	if i.Match.Port < 100 {
+		return i.Match.Port * 101
+	}
+	if i.Match.Port < 1024 {
+		return i.Match.Port * 1001
+	}
+	return i.Match.Port
+}
+func (i Intercept) Intercept(req component.HostPort) (intercepted bool, ok bool, dest component.HostPort, rejectReason string) {
+	if req.Host != i.Match.Host {
+		return false, ok, dest, rejectReason
+	}
+
+	if req.Port != i.Match.Port {
+		return true, false, dest, fmt.Sprintf("%s listens on port %d", i.Description, i.Match.Port)
+	}
+	return true, true, i.Dest, ""
+}
+
+func (ssh2 *SSH2) Intercepts() []Intercept {
+	return ssh2.interceptsC.Get(func() []Intercept {
+		return []Intercept{
+			{Description: "Triplestore", Match: component.HostPort{Host: "triplestore", Port: 7200}, Dest: ssh2.Upstream.Triplestore},
+			{Description: "SQL", Match: component.HostPort{Host: "sql", Port: 3306}, Dest: ssh2.Upstream.SQL},
+			{Description: "PHPMyAdmin", Match: component.HostPort{Host: "phpmyadmin", Port: 80}, Dest: component.HostPort{Host: "phpmyadmin", Port: 80}},
+		}
+	})
+}
+
+func (ssh2 *SSH2) getForwardDest(req component.HostPort, ctx ssh.Context) (ok bool, dest component.HostPort, rejectReason string) {
+	// check all the intercepts first
+	for _, i := range ssh2.Intercepts() {
+		intercepted, ok, dest, rejectReason := i.Intercept(req)
+		if !intercepted {
+			continue
+		}
+		return ok, dest, rejectReason
+	}
+
+	// then check the instances
+	slug, ok := ssh2.Config.HTTP.SlugFromHost(req.Host)
+	if !ok || req.Port != 22 || !hasPermission(ctx, slug) {
+		return false, dest, "permission denied"
+	}
+
+	return true, component.HostPort{Host: slug + "." + ssh2.Config.HTTP.PrimaryDomain + ".wisski", Port: 22}, ""
+}
+
 // handleDirectTCP handles a direct tcp connection for the server
 func (ssh2 *SSH2) handleDirectTCP(srv *ssh.Server, conn *gossh.ServerConn, newChan gossh.NewChannel, ctx ssh.Context) {
 	d := localForwardChannelData{}
@@ -36,18 +94,14 @@ func (ssh2 *SSH2) handleDirectTCP(srv *ssh.Server, conn *gossh.ServerConn, newCh
 		return
 	}
 
-	slug, ok := ssh2.Config.HTTP.SlugFromHost(d.DestAddr)
-	if !ok || d.DestPort != 22 || !hasPermission(ctx, slug) {
-		newChan.Reject(gossh.Prohibited, "permission denied")
+	ok, dest, rejectReason := ssh2.getForwardDest(component.HostPort{Host: d.DestAddr, Port: d.DestPort}, ctx)
+	if !ok {
+		newChan.Reject(gossh.Prohibited, rejectReason)
 		return
 	}
 
-	// TODO: move this into an instance function somewhere
-	// NOTE(twiesing): This should be moved
-	dest := net.JoinHostPort(slug+"."+ssh2.Config.HTTP.PrimaryDomain+".wisski", "22")
-
 	var dialer net.Dialer
-	dconn, err := dialer.DialContext(ctx, "tcp", dest)
+	dconn, err := dialer.DialContext(ctx, "tcp", dest.String())
 	if err != nil {
 		newChan.Reject(gossh.ConnectionFailed, err.Error())
 		return

@@ -50,23 +50,9 @@ type Distillery struct {
 	// Where interactive progress is displayed
 	Progress io.Writer
 
-	// Upstream holds information to connect to the various running
-	// distillery components.
-	//
-	// NOTE(twiesing): This is intended to eventually allow full remote management of the distillery.
-	// But for now this will just hold upstream configuration.
-	Upstream Upstream
-
 	// lifetime holds all components
 	lifetime     lifetime.Lifetime[component.Component, component.Still]
 	lifetimeInit sync.Once
-}
-
-// Upstream contains the configuration for accessing remote configuration.
-type Upstream struct {
-	SQL         string
-	Triplestore string
-	Solr        string
 }
 
 //
@@ -136,19 +122,19 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*web.Web],
 
 		manual(func(ts *triplestore.Triplestore) {
-			ts.BaseURL = "http://" + dis.Upstream.Triplestore
+			ts.BaseURL = "http://" + dis.Upstream.TriplestoreAddr()
 			ts.PollInterval = time.Second
 		}),
 
 		manual(func(sql *sql.SQL) {
-			sql.ServerURL = dis.Upstream.SQL
+			sql.ServerURL = dis.Upstream.SQLAddr()
 			sql.PollInterval = time.Second
 		}),
 		auto[*sql.LockTable],
 		auto[*sql.InstanceTable],
 
 		manual(func(s *solr.Solr) {
-			s.BaseURL = dis.Upstream.Solr
+			s.BaseURL = dis.Upstream.SolrAddr()
 			s.PollInterval = time.Second
 		}),
 

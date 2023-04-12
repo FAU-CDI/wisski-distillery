@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/julienschmidt/httprouter"
@@ -25,6 +26,7 @@ type UserPanel struct {
 		Instances  *instances.Instances
 		Next       *next.Next
 		Keys       *sshkeys.SSHKeys
+		SSH2       *ssh2.SSH2
 	}
 }
 

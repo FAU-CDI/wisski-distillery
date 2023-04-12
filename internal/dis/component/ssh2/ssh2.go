@@ -6,6 +6,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
+	"github.com/tkw1536/pkglib/lazy"
 )
 
 type SSH2 struct {
@@ -16,6 +17,8 @@ type SSH2 struct {
 		Auth      *auth.Auth
 		Keys      *sshkeys.SSHKeys
 	}
+
+	interceptsC lazy.Lazy[[]Intercept]
 }
 
 var (

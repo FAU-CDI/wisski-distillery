@@ -2,7 +2,9 @@
 package component
 
 import (
+	"net"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
@@ -63,5 +65,34 @@ func (cb Base) ID() string {
 // Still represents the central part of a distillery.
 // It is used inside the main distillery struct, as well as every component via [ComponentBase].
 type Still struct {
-	Config *config.Config // the configuration of the distillery
+	Config   *config.Config // the configuration of the distillery
+	Upstream Upstream
+}
+
+// Upstream contains the configuration for accessing remote configuration.
+type Upstream struct {
+	SQL         HostPort
+	Triplestore HostPort
+	Solr        HostPort
+}
+
+func (us Upstream) SQLAddr() string {
+	return us.SQL.String()
+}
+
+func (us Upstream) TriplestoreAddr() string {
+	return us.Triplestore.String()
+}
+
+func (us Upstream) SolrAddr() string {
+	return us.Solr.String()
+}
+
+type HostPort struct {
+	Host string
+	Port uint32
+}
+
+func (hp HostPort) String() string {
+	return net.JoinHostPort(hp.Host, strconv.Itoa(int(hp.Port)))
 }

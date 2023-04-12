@@ -5,6 +5,7 @@
 </div>
 
 <div class="pure-u-1">
+    <h2>My SSH Keys</h2>
     <p>
         This table shows ssh keys currently associated with your account.
         To add a new key, use the <em>Add New Key</em> button above.
@@ -57,8 +58,8 @@
     </div>
 </div>
 
-
-<div class="pure-u-1">
+<div class="pure-u-1-2">
+    <h2 id="configuring-ssh-access">Configuring SSH Access</h2>
     <p>
         You can use these ssh keys to connect to the distillery via ssh.
         You can only connect to instances for which you appear as an <em>Administrator</em> on your user page.
@@ -95,4 +96,46 @@ Host {{ .Domain }}.proxy
         ssh {{ .Hostname }}
     </code>
 </div>
+
+<div class="pure-u-1-2">
+    <h2 id="accessing-services">Accessing Services</h2>
+
+    <p>
+        You can access the services powering the distillery if you have ssh access.
+            To access a service, simply use ssh port forwarding, and then access them under <code>localhost</code>.
+            Port forwarding is accomplished by appending  <code>-L localport:service:serverport</code> to your ssh command line.
+    </p>
+    <p>
+        For example to connect to the triplestore, you can use:
+    </p>
+    <code class="copy">
+        <pre>
+ssh -p {{ .Port }} {{ .Domain }} -L 7200:triplestore:7200
+</pre>
+    </code>
+    <p>
+        and then go to <a target="_blank" rel="noopener noreferrer" href="http://127.0.0.1:7200/">http://127.0.0.1:7200/</a>.
+    </p>
+
+    <p>
+        Note that you can add port forwards both when connecting to the top-level distillery ssh server as well as any instance - the syntax is identical.
+        You can also add multiple forwards at the same time, by adding multiple <code>-L</code> arguments. 
+    </p>
+    
+    <p>
+        The complete list of services you can access are:
+        <ul>
+            {{ range .Services }}
+            <li>
+                <b>{{ .Description }}</b>, use <code class="copy">-L {{.ExamplePort}}:{{ .Match.Host }}:{{.Match.Port}}</code> and access at <code>127.0.0.1:{{.ExamplePort}}</code>
+            </li>
+            {{ end }}
+        </ul>
+    </p>
+
+    <p>
+        Depending on the service you may need an additional password.
+        Distillery administrators can reveal these passwords in the admin interface.
+        Furthermore instance-specific passwords can typically be found in the <em>Drupal Configuration</em>, system-wide passwords in the <em>Distillery Configuration</em>.
+    </p>
 </div>

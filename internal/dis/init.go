@@ -5,6 +5,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -20,22 +21,21 @@ var errOpenConfig = exit.Error{
 
 // NewDistillery creates a new distillery from the provided flags
 func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (dis *Distillery, err error) {
-	dis = &Distillery{
-		Upstream: Upstream{
-			SQL:         "127.0.0.1:3306",
-			Triplestore: "127.0.0.1:7200",
-			Solr:        "127.0.0.1:8983",
-		},
+	dis = new(Distillery)
+	dis.Still.Upstream = component.Upstream{
+		SQL:         component.HostPort{Host: "127.0.0.1", Port: 3306},
+		Triplestore: component.HostPort{Host: "127.0.0.1", Port: 7200},
+		Solr:        component.HostPort{Host: "127.0.0.1", Port: 8983},
 	}
 
 	// we are within the docker
 	//
-	// so setup the ports to connect everything to peroperly.
+	// so setup the ports to connect everything to properly.
 	// also override some of the parameters for the environment.
 	if flags.InternalInDocker {
-		dis.Upstream.SQL = "sql:3306"
-		dis.Upstream.Triplestore = "triplestore:7200"
-		dis.Upstream.Solr = "solr:8983"
+		dis.Still.Upstream.SQL = component.HostPort{Host: "sql", Port: 3306}
+		dis.Still.Upstream.Triplestore = component.HostPort{Host: "triplestore", Port: 7200}
+		dis.Still.Upstream.Solr = component.HostPort{Host: "solr", Port: 8983}
 		params.ConfigPath = os.Getenv("CONFIG_PATH")
 	}
 

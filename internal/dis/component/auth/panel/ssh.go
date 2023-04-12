@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/gliderlabs/ssh"
 	"github.com/rs/zerolog"
@@ -38,6 +39,9 @@ type SSHTemplateContext struct {
 
 	Slug     string // slug of the wisski
 	Hostname string // hostname of an example wisski
+
+	// Services are the special services reachable via ssh
+	Services []ssh2.Intercept
 }
 
 func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
@@ -74,6 +78,8 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 		if err != nil {
 			return sc, err
 		}
+
+		sc.Services = panel.Dependencies.SSH2.Intercepts()
 
 		return sc, nil
 	})
