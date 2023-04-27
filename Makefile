@@ -1,4 +1,7 @@
-.PHONY: clean all deps
+.PHONY: clean all deps live
+
+live:
+	sudo CGO_ENABLED=0 go run ./cmd/wdcli $(ARGS)
 
 all: wdcli
 

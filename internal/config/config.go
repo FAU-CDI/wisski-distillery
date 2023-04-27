@@ -80,7 +80,7 @@ func (config Config) MarshalSensitive() string {
 var configBytes []byte
 
 // Marshal marshals this configuration in nicely formatted form.
-// Where possible, this will provided yaml comments.
+// Where possible, this will maintain yaml comments.
 //
 // Previous may optionally provide the bytes of a previous configuration file to replace settings in.
 // The previous yaml file must be a valid configuration yaml, meaning all fields should be set.
@@ -103,7 +103,7 @@ func Marshal(config *Config, previous []byte) ([]byte, error) {
 	}
 
 	// transplant the configuration yaml into the template
-	if err := yamlx.Transplant(template, cfg); err != nil {
+	if err := yamlx.Transplant(template, cfg, true); err != nil {
 		return nil, err
 	}
 

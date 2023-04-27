@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -18,7 +19,6 @@ var publicHTML []byte
 var publicTemplate = templating.Parse[publicContext](
 	"public.html", publicHTML, nil,
 
-	templating.Title("WissKI Distillery"),
 	templating.Assets(assets.AssetsDefault),
 )
 
@@ -49,11 +49,14 @@ type publicContext struct {
 const logoHTML = template.HTML(`<img src="/logo.svg" alt="WissKI Distillery Logo" class="biglogo">`)
 
 func (home *Home) publicHandler(ctx context.Context) http.Handler {
+	title := home.Config.Home.Title
 
 	tpl := publicTemplate.Prepare(
 		home.Dependencies.Templating,
+		// set title and menu item
+		templating.Title(title),
 		templating.Crumbs(
-			menuHome,
+			component.MenuItem{Title: title, Path: "/"},
 		),
 	)
 

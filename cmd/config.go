@@ -9,7 +9,9 @@ import (
 // Config is the configuration command
 var Config wisski_distillery.Command = cfg{}
 
-type cfg struct{}
+type cfg struct {
+	Human bool `long:"human" description:"Print configuration in human-readable format"`
+}
 
 func (c cfg) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
@@ -26,7 +28,12 @@ var errMarshalConfig = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (cfg) Run(context wisski_distillery.Context) error {
+func (cfg cfg) Run(context wisski_distillery.Context) error {
+	if cfg.Human {
+		human := context.Environment.Config.MarshalSensitive()
+		context.Println(human)
+		return nil
+	}
 	if err := context.Environment.Config.Marshal(context.Stdout); err != nil {
 		return errMarshalConfig.Wrap(err)
 	}

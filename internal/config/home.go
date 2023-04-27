@@ -4,6 +4,7 @@ import "github.com/FAU-CDI/wisski-distillery/internal/config/validators"
 
 // HomeConfig determines options for the homepage of the distillery
 type HomeConfig struct {
+	Title        string          `yaml:"title" default:"WissKI Distillery" validate:"nonempty"`
 	SelfRedirect *validators.URL `yaml:"redirect" default:"https://github.com/FAU-CDI/wisski-distillery" validate:"https"`
 	List         HomeListConfig  `yaml:"list" recurse:"true"`
 }

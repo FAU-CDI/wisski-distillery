@@ -41,9 +41,13 @@ http:
 
 # Configuration for the (public) homepage of the distillery.
 home:
+  # the title of the distillery to be set
+  title: null
+
   # the url to redirect to for more information about this instance of the distillery.
   # to be configured by default.
   redirect: null
+
   
   # configure the list of systems on the homepage.
   list:

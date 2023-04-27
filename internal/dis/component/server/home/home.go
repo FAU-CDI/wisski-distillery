@@ -29,20 +29,16 @@ var (
 	_ component.Routeable = (*Home)(nil)
 )
 
-func (*Home) Routes() component.Routes {
+func (home *Home) Routes() component.Routes {
 	return component.Routes{
 		Prefix:          "/",
 		MatchAllDomains: true,
 		CSRF:            false,
 
-		MenuTitle:    "WissKI Distillery",
+		MenuTitle:    home.Config.Home.Title,
 		MenuPriority: component.MenuHome,
 	}
 }
-
-var (
-	menuHome = component.MenuItem{Title: "WissKI Distillery", Path: "/"}
-)
 
 func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	// generate a default handler
