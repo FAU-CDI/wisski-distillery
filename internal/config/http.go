@@ -152,9 +152,9 @@ func MakeHostRule(hosts ...string) string {
 		}
 
 		if first {
-			builder.WriteString("||Host(`")
-		} else {
 			builder.WriteString("Host(`")
+		} else {
+			builder.WriteString("||Host(`")
 		}
 
 		// domain should be punycode!
