@@ -28,7 +28,8 @@ var aboutTemplate = template.Must(template.New("about.html").Parse(aboutHTML))
 
 // aboutContext is passed to about.html
 type aboutContext struct {
-	Instances    []status.WissKI
+	Instances    []status.WissKI // list of WissKI Instancaes
+	SignedIn     bool            // is there a signed in user?
 	Logo         template.HTML
 	SelfRedirect string
 }
@@ -38,6 +39,10 @@ type publicContext struct {
 	templating.RuntimeFlags
 
 	aboutContext
+
+	ListEnabled bool   // is the list of instances enabled?
+	ListTitle   string // what is the title of the list of instances?
+
 	About template.HTML
 }
 
@@ -66,7 +71,11 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		// prepare about
 		pc.aboutContext.Logo = logoHTML
 		pc.aboutContext.Instances = home.homeInstances.Get(nil)
-		pc.aboutContext.SelfRedirect = home.Config.Theme.SelfRedirect.String()
+		pc.aboutContext.SelfRedirect = home.Config.Home.SelfRedirect.String()
+		{
+			user, _ := home.Dependencies.Auth.UserOf(r)
+			pc.aboutContext.SignedIn = user != nil
+		}
 
 		// render the about template
 
@@ -76,6 +85,17 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 
 		// and return about!
 		pc.About = template.HTML(builder.String())
+
+		// user is not signed in!
+
+		if pc.aboutContext.SignedIn {
+			pc.ListEnabled = home.Config.Home.List.Private.Value
+		} else {
+			pc.ListEnabled = home.Config.Home.List.Public.Value
+		}
+
+		// title of the list
+		pc.ListTitle = home.Config.Home.List.Title
 
 		return
 	})

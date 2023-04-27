@@ -10,6 +10,8 @@ func New() validator.Collection {
 
 	validator.Add(coll, "nonempty", ValidateNonempty)
 
+	validator.Add(coll, "bool", ValidateBool)
+
 	validator.Add(coll, "directory", ValidateDirectory)
 	validator.Add(coll, "file", ValidateFile)
 

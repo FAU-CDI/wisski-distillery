@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -17,6 +18,7 @@ type Home struct {
 	Dependencies struct {
 		Templating *templating.Templating
 		Instances  *instances.Instances
+		Auth       *auth.Auth
 	}
 
 	instanceNames lazy.Lazy[map[string]struct{}] // instance names

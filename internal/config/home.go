@@ -2,9 +2,17 @@ package config
 
 import "github.com/FAU-CDI/wisski-distillery/internal/config/validators"
 
-// ThemeConfig determines theming options
-type ThemeConfig struct {
-	// By default, the default domain redirects to the distillery repository.
-	// If you want to change this, set an alternate domain name here.
-	SelfRedirect *validators.URL `yaml:"home" default:"https://github.com/FAU-CDI/wisski-distillery" validate:"https"`
+// HomeConfig determines options for the homepage of the distillery
+type HomeConfig struct {
+	SelfRedirect *validators.URL `yaml:"redirect" default:"https://github.com/FAU-CDI/wisski-distillery" validate:"https"`
+	List         HomeListConfig  `yaml:"list" recurse:"true"`
+}
+
+type HomeListConfig struct {
+	// Is the list enabled for public visits?
+	Public validators.NullableBool `yaml:"public" default:"true" validate:"bool"`
+	// Is the list enabled for signed-in visits?
+	Private validators.NullableBool `yaml:"private" default:"true" validate:"bool"`
+	// Title of the list whenever it is shown
+	Title string `yaml:"title" default:"WissKIs on this Distillery" validate:"nonempty"`
 }

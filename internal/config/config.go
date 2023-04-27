@@ -24,7 +24,7 @@ type Config struct {
 	Listen ListenConfig `yaml:"listen" recurse:"true"`
 	Paths  PathsConfig  `yaml:"paths" recurse:"true"`
 	HTTP   HTTPConfig   `yaml:"http" recurse:"true"`
-	Theme  ThemeConfig  `yaml:"theme" recurse:"true"`
+	Home   HomeConfig   `yaml:"home" recurse:"true"`
 	Docker DockerConfig `yaml:"docker" recurse:"true"`
 
 	SQL SQLConfig `yaml:"sql" recurse:"true"`

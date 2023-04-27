@@ -59,6 +59,12 @@ var errUserIsNotRoot = exit.Error{
 	Message:  "this command has to be executed as root. the current user is not root",
 }
 
+// an error when cgo is enabled
+var errCGoEnabled = exit.Error{
+	ExitCode: exit.ExitGeneralArguments,
+	Message:  "this command has to be executed as root. the current user is not root",
+}
+
 const warnNoDeployWdcli = "Warning: Not using %q executable at %q. This might leave the distillery in an inconsistent state. \n"
 
 func NewProgram() Program {
