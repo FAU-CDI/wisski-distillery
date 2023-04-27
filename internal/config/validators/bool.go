@@ -21,7 +21,7 @@ func (nb *NullableBool) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-func (nb *NullableBool) MarshalYAML() (interface{}, error) {
+func (nb NullableBool) MarshalYAML() (interface{}, error) {
 	if nb.Null {
 		return nil, nil
 	}
