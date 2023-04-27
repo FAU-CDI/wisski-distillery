@@ -4,7 +4,7 @@ all: wdcli
 
 wdcli:
 	go generate ./internal/dis/component/control/static/
-	go build -o ./wdcli ./cmd/wdcli
+	CGO_ENABLED=0 go build -o ./wdcli ./cmd/wdcli
 
 deps: internal/dis/component/server/assets/node_modules
 

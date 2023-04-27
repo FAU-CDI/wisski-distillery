@@ -58,7 +58,7 @@ To bootstrap a new distillery instance, the `wdcli bootstrap` command can be use
 First copy the executable onto the server, using a command similar as:
 
 ```bash
-GOOS=linux GOARCH=amd64 go build -o wdcli ./cmd/wdcli && scp ./wdcli distillery.example.com:
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o wdcli ./cmd/wdcli && scp ./wdcli distillery.example.com:
 ```
 
 Next, access the server and run the `bootstrap` command:

@@ -9,6 +9,9 @@ import (
 type Requirements struct {
 	// Do we need an installed distillery?
 	NeedsDistillery bool
+
+	// Automatically fail when cgo is enabled?
+	FailOnCgo bool
 }
 
 // AllowsFlag checks if the provided flag may be passed to fullfill this requirement

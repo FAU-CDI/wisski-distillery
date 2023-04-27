@@ -12,6 +12,7 @@ import (
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/goprogram"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/cgo"
 )
 
 // these define the ggman-specific program types
@@ -59,12 +60,7 @@ var errUserIsNotRoot = exit.Error{
 	Message:  "this command has to be executed as root. the current user is not root",
 }
 
-// an error when cgo is enabled
-var errCGoEnabled = exit.Error{
-	ExitCode: exit.ExitGeneralArguments,
-	Message:  "this command has to be executed as root. the current user is not root",
-}
-
+const warnCGoEnabled = "Warning: This executable has been built with cgo enabled. This means certain commands may not work. \n"
 const warnNoDeployWdcli = "Warning: Not using %q executable at %q. This might leave the distillery in an inconsistent state. \n"
 
 func NewProgram() Program {
@@ -74,6 +70,11 @@ func NewProgram() Program {
 			usr, err := user.Current()
 			if err != nil || usr.Uid != "0" || usr.Gid != "0" {
 				return errUserIsNotRoot
+			}
+
+			// warn about cgo!
+			if cgo.Enabled {
+				context.Printf(warnCGoEnabled)
 			}
 
 			// when not running inside docker and we need a distillery

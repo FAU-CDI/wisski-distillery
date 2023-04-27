@@ -7,6 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/cgo"
 )
 
 var errNoConfigFile = exit.Error{
@@ -19,8 +20,20 @@ var errOpenConfig = exit.Error{
 	Message:  "error loading configuration file: %q",
 }
 
+// An error to be returned when cgo is enabled unexpectedly.
+var CGoEnabled = exit.Error{
+	ExitCode: exit.ExitGeneralArguments,
+	Message:  "this functionality is only available when cgo support is disabled. Set `CGO_ENABLED=0' at build time and try again",
+}
+
 // NewDistillery creates a new distillery from the provided flags
 func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (dis *Distillery, err error) {
+	// check cgo support to prevent weird error messages
+	// this has to happen either when we are inside docker, or when explicity requested by the command.
+	if cgo.Enabled && (flags.InternalInDocker || req.FailOnCgo) {
+		return nil, CGoEnabled
+	}
+
 	dis = new(Distillery)
 	dis.Still.Upstream = component.Upstream{
 		SQL:         component.HostPort{Host: "127.0.0.1", Port: 3306},

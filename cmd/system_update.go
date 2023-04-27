@@ -31,6 +31,7 @@ func (systemupdate) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
+			FailOnCgo:       true,
 		},
 		ParserConfig: parser.Config{
 			IncludeUnknown: true,
