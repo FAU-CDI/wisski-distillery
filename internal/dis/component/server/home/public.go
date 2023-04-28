@@ -29,7 +29,6 @@ var aboutTemplate = template.Must(template.New("about.html").Parse(aboutHTML))
 // aboutContext is passed to about.html
 type aboutContext struct {
 	Instances    []status.WissKI // list of WissKI Instancaes
-	SignedIn     bool            // is there a signed in user?
 	Logo         template.HTML
 	SelfRedirect string
 }
@@ -47,6 +46,23 @@ type publicContext struct {
 }
 
 const logoHTML = template.HTML(`<img src="/logo.svg" alt="WissKI Distillery Logo" class="biglogo">`)
+
+// ShouldShowList determines if the given request should show a WissKI list
+func (home *Home) ShouldShowList(r *http.Request) bool {
+	allowPrivate := home.Config.Home.List.Private.Value
+	allowPublic := home.Config.Home.List.Public.Value
+
+	if allowPrivate == allowPublic {
+		return allowPrivate
+	}
+
+	user, _ := home.Dependencies.Auth.UserOf(r)
+	if user == nil {
+		return allowPublic
+	} else {
+		return allowPrivate
+	}
+}
 
 func (home *Home) publicHandler(ctx context.Context) http.Handler {
 	title := home.Config.Home.Title
@@ -75,10 +91,6 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		pc.aboutContext.Logo = logoHTML
 		pc.aboutContext.Instances = home.homeInstances.Get(nil)
 		pc.aboutContext.SelfRedirect = home.Config.Home.SelfRedirect.String()
-		{
-			user, _ := home.Dependencies.Auth.UserOf(r)
-			pc.aboutContext.SignedIn = user != nil
-		}
 
 		// render the about template
 
@@ -89,13 +101,8 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		// and return about!
 		pc.About = template.HTML(builder.String())
 
-		// user is not signed in!
-
-		if pc.aboutContext.SignedIn {
-			pc.ListEnabled = home.Config.Home.List.Private.Value
-		} else {
-			pc.ListEnabled = home.Config.Home.List.Public.Value
-		}
+		// check if we should show the list of WissKIs
+		pc.ListEnabled = home.ShouldShowList(r)
 
 		// title of the list
 		pc.ListTitle = home.Config.Home.List.Title

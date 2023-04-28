@@ -39,6 +39,10 @@ http:
   # This email address can be configured here. 
   certbot_email: null
 
+  # Enable or Disable the HTTP API.
+  # In the future, it will be enabled by default, but at this point it is not.
+  api: null
+
 # Configuration for the (public) homepage of the distillery.
 home:
   # the title of the distillery to be set

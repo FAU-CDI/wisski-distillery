@@ -8,13 +8,13 @@ import (
 
 // NullableBool represents a bool that can be null
 type NullableBool struct {
-	Null, Value bool
+	Set, Value bool
 }
 
 func (nb *NullableBool) UnmarshalYAML(value *yaml.Node) error {
-	nb.Null = false
+	nb.Set = true
 	if err := value.Decode(&nb.Value); err != nil {
-		nb.Null = true
+		nb.Set = false
 		nb.Value = false
 	}
 
@@ -22,19 +22,19 @@ func (nb *NullableBool) UnmarshalYAML(value *yaml.Node) error {
 }
 
 func (nb NullableBool) MarshalYAML() (interface{}, error) {
-	if nb.Null {
+	if !nb.Set {
 		return nil, nil
 	}
 	return nb.Value, nil
 }
 
 func ValidateBool(value *NullableBool, dflt string) (err error) {
-	if value.Null {
+	if !value.Set {
 		res, err := strconv.ParseBool(dflt)
 		if err != nil {
 			return err
 		}
-		value.Null = false
+		value.Set = true
 		value.Value = res
 	}
 	return err

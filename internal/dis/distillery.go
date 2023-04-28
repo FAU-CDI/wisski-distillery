@@ -187,5 +187,9 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*cron.Cron],
 		auto[*home.UpdateHome],
 		auto[*home.UpdateInstanceList],
+
+		// API
+		auto[*home.API],
+		auto[*news.API],
 	}
 }

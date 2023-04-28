@@ -79,6 +79,13 @@ type BundleStatistics struct {
 	TotalMainBundles int `json:"totalMainBundles"`
 }
 
+func (bs BundleStatistics) TotalCount() (total int) {
+	for _, bundle := range bs.Bundles {
+		total += bundle.Count
+	}
+	return
+}
+
 type LastEdit struct {
 	Time  time.Time
 	Valid bool
@@ -101,10 +108,7 @@ func (bs BundleStatistics) LastEdit() (le LastEdit) {
 }
 
 func (bs BundleStatistics) Summary() string {
-	var totalCount int
-	for _, bundle := range bs.Bundles {
-		totalCount += bundle.Count
-	}
+	totalCount := bs.TotalCount()
 	if totalCount == 0 {
 		return ""
 	}

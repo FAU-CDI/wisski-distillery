@@ -117,6 +117,8 @@ github.com/tkw1536/goprogram v0.3.5 h1:S0axKo3R/vGa4zhYqYDKAZEPhAfwUSSeMtVwnAu4s
 github.com/tkw1536/goprogram v0.3.5/go.mod h1:pYr4dMHOSVurbPQ4KTR0ett8XWNISbsRS6zlh9Nsxa8=
 github.com/tkw1536/pkglib v0.0.0-20230427125619-a4a18a5b7d15 h1:sVy3pSreMY5obUOGz2jCaPYbXh+5vklqMJrZZsrII+0=
 github.com/tkw1536/pkglib v0.0.0-20230427125619-a4a18a5b7d15/go.mod h1:0A1B9Cc5+yJXR3eeB14CqD4dFSbEjjWRo5Pr9M3XYuI=
+github.com/tkw1536/pkglib v0.0.0-20230428081457-cc953b972cee h1:UmnHJnYpOon95zBUzzGteSkTAO6VSHacSbjFEKjEqo0=
+github.com/tkw1536/pkglib v0.0.0-20230428081457-cc953b972cee/go.mod h1:0A1B9Cc5+yJXR3eeB14CqD4dFSbEjjWRo5Pr9M3XYuI=
 github.com/xeipuuv/gojsonpointer v0.0.0-20180127040702-4e3ac2762d5f/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=
 github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb h1:zGWFAtiMcyryUHoUjUJX0/lt1H2+i2Ka2n+D3DImSNo=
 github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb/go.mod h1:N2zxlSyiKSe5eX1tZViRH5QA0qijqEDrYZiPEAiq3wU=
