@@ -15,9 +15,8 @@ import (
 	_ "embed"
 
 	"github.com/tkw1536/pkglib/collection"
-	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/lazy"
-	"github.com/tkw1536/pkglib/nobufio"
+	"github.com/tkw1536/pkglib/status"
 	"github.com/tkw1536/pkglib/stream"
 )
 
@@ -38,8 +37,8 @@ type Server struct {
 	err  lazy.Lazy[error]
 
 	// input / output for underlying executor
-	in  io.WriteCloser
-	out io.Reader
+	in    io.WriteCloser // input sent to the server
+	lines chan string
 
 	m sync.Mutex // prevents concurrent access on any of the methods
 
@@ -55,39 +54,44 @@ func (server *Server) prepare() error {
 			server.err.Set(ServerError{errInit, err})
 			return
 		}
-		or, ow, err := os.Pipe()
-		if err != nil {
-			ir.Close()
-			iw.Close()
-
-			server.err.Set(ServerError{errInit, err})
-			return
-		}
 
 		// create a context to close the server
 		context, cancel := context.WithCancel(server.Context)
 		server.cancel = cancel
+
+		// store server props
+		server.in = iw
+		server.c = context
+
+		server.lines = make(chan string, 1)
+		lb := status.LineBuffer{
+			Line: func(line string) {
+				select {
+				case server.lines <- line:
+				default:
+				}
+			},
+			CloseLine: func() {
+				close(server.lines)
+			},
+			FlushLineOnClose: true,
+		}
 
 		// start the shell process, which will close everything once done
 		go func() {
 			defer func() {
 				ir.Close()
 				iw.Close()
-				or.Close()
-				ow.Close()
+				lb.Close()
 
 				server.cancel()
 			}()
 
-			// start the server
-			io := stream.NewIOStream(ow, nil, ir, 0)
+			// start the actual server
+			io := stream.NewIOStream(&lb, nil, ir, 0)
 			err := server.Executor.Spawn(server.c, io, serverPHP)
 			server.err.Set(ServerError{errClosed, err})
 		}()
-
-		server.in = iw
-		server.out = or
-		server.c = context
 	})
 
 	return server.err.Get(nil)
@@ -119,14 +123,17 @@ func (server *Server) MarshalEval(ctx context.Context, value any, code string) e
 		return ServerError{Message: errSend, Err: err}
 	}
 
-	// read the response
-	data, err, _ := contextx.Run2(ctx, func(start func()) (string, error) {
-		return nobufio.ReadLine(server.out)
-	}, func() {
-		server.cancel()
-	})
-	if err != nil {
-		return ServerError{Message: errReceive, Err: err}
+	var data string
+	var ok bool
+
+	// read the next line from the server script
+	select {
+	case data, ok = <-server.lines:
+	case <-server.c.Done():
+	}
+
+	if !ok {
+		return ServerError{Message: errReceive, Err: io.EOF}
 	}
 
 	// decode the response
