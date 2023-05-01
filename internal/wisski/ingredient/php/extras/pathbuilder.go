@@ -56,6 +56,6 @@ func (pathbuilder *Pathbuilder) Fetch(flags ingredient.FetcherFlags, info *statu
 		return
 	}
 
-	info.Pathbuilders, _ = pathbuilder.GetAll(flags.Context, flags.Server)
+	info.Pathbuilders, err = pathbuilder.GetAll(flags.Context, flags.Server)
 	return
 }

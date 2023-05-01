@@ -6,6 +6,7 @@ import "fmt"
 const (
 	errInit    = "Server initialization failed"
 	errClosed  = "Server closed"
+	errSend    = "Failed to encode request"
 	errReceive = "Failed to decode response"
 )
 

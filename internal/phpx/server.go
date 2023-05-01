@@ -1,7 +1,10 @@
 package phpx
 
 import (
+	"bytes"
+	"compress/flate"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"io"
 	"os"
@@ -102,10 +105,6 @@ func (server *Server) MarshalEval(ctx context.Context, value any, code string) e
 		return err
 	}
 
-	// input to be sent to the server
-	delim := findDelimiter(code)
-	input := delim + "\n" + code + "\n" + delim + "\n"
-
 	server.m.Lock()
 	defer server.m.Unlock()
 
@@ -114,9 +113,13 @@ func (server *Server) MarshalEval(ctx context.Context, value any, code string) e
 		return ServerError{Message: errClosed}
 	}
 
-	// find a delimiter for the code, and then send
-	io.WriteString(server.in, input)
+	// encode a message to the server!
+	if err := server.encode(server.in, code); err != nil {
+		server.cancel()
+		return ServerError{Message: errSend, Err: err}
+	}
 
+	// read the response
 	data, err, _ := contextx.Run2(ctx, func(start func()) (string, error) {
 		return nobufio.ReadLine(server.out)
 	}, func() {
@@ -126,9 +129,9 @@ func (server *Server) MarshalEval(ctx context.Context, value any, code string) e
 		return ServerError{Message: errReceive, Err: err}
 	}
 
-	// read whatever we received
+	// decode the response
 	var received [2]json.RawMessage
-	if err := json.Unmarshal([]byte(data), &received); err != nil {
+	if err := server.decode(&received, []byte(data)); err != nil {
 		return ServerError{Message: errReceive, Err: err}
 	}
 
@@ -145,6 +148,59 @@ func (server *Server) MarshalEval(ctx context.Context, value any, code string) e
 
 	// read the actual result!
 	return json.Unmarshal(received[0], value)
+}
+
+// Decode decodes a message received from the server.
+// The message is assumed to be encoded by server.php.
+//
+// This function does the following:
+// - decode base64 (opposite of php's "base64_encode")
+// - inflate (opposite of php's "gzdeflate")
+// - decode json (opposite of php's "json_encode")
+func (*Server) decode(dest *[2]json.RawMessage, message []byte) error {
+	// decode base64
+	raw := base64.NewDecoder(base64.StdEncoding, bytes.NewReader(message))
+
+	// unpack gzip
+	unpacker := flate.NewReader(raw)
+	defer unpacker.Close()
+
+	// and read the value
+	decoder := json.NewDecoder(unpacker)
+	return decoder.Decode(dest)
+}
+
+// Encode encodes and writes a message for the server into dest.
+// The message is assumed to be received by server.php.
+//
+// This function does the following:
+// - inflate (opposite of php's "gzdeflate")
+// - encode base64 (opposite of php's "base64_decode")
+func (*Server) encode(dest io.WriteCloser, code string) (err error) {
+
+	// write a final newline at the end!
+	defer func() {
+		if err != nil {
+			return
+		}
+		_, err = dest.Write([]byte("\n"))
+	}()
+
+	// base64 encode all the things!
+	encoder := base64.NewEncoder(base64.StdEncoding, dest)
+	defer encoder.Close()
+
+	// compress all the things!
+	compressor, err := flate.NewWriter(encoder, 9)
+	if err != nil {
+		return err
+	}
+	defer compressor.Close()
+
+	// do the write!
+	_, err = compressor.Write([]byte(code))
+
+	return
 }
 
 // Eval is like [MarshalEval], but returns the value as an any
@@ -188,27 +244,6 @@ func (server *Server) MarshalCall(ctx context.Context, value any, function strin
 func (server *Server) Call(ctx context.Context, function string, args ...any) (value any, err error) {
 	err = server.MarshalCall(ctx, &value, function, args...)
 	return
-}
-
-const delimiterRune = 'F' // press to pay respect
-
-// findDelimiter finds a delimiter that does not occur in the input string
-func findDelimiter(input string) string {
-	// find the longest sequence of delimiter rune
-	var current, longest int
-	for _, r := range input {
-		if r == delimiterRune {
-			current++
-		} else {
-			current = 0
-		}
-
-		if current > longest {
-			longest = current
-		}
-	}
-	// and then return it multipled longer than that
-	return strings.Repeat(string(delimiterRune), longest+1)
 }
 
 // Close closes this server and prevents any further code from being run.
