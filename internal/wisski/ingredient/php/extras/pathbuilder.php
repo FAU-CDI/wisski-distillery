@@ -39,11 +39,21 @@ function entity_to_xml($pathbuilderEntity) {
     // Get the paths.
     $paths = $pathbuilderEntity->getPbPaths();
 
+    // find out all the WisskiPathEntitys to load
+    $pathEntityIDs = [];
+    foreach ($paths as $key => $path) {
+      $pathEntityIDs[] = $path['id'];
+    }
+    array_unique($pathEntityIDs);
+
+    // load the pathbuilder entities
+    $pathEntities = WisskiPathEntity::loadMultiple($pathEntityIDs);
+
     // Iterate over every path.
     foreach ($paths as $key => $path) {
       $pathbuilder = $pathbuilderEntity->getPbPath($path['id']);
       $pathChild = $xmlTree->addChild("path");
-      $pathObject = WisskiPathEntity::load($path['id']);
+      $pathObject = $pathEntities[$path['id']];
 
       foreach ($pathbuilder as $subkey => $value) {
         if (in_array($subkey, ['relativepath'])) {
