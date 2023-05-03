@@ -5,17 +5,19 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/tkw1536/pkglib/httpx"
 )
 
-// Protect returns a new handler which requires a user to be logged in and pass the perm function.
+// Protect returns a new handler which requires a user to be logged in and have the provided scope and
 //
 // If an unauthenticated user attempts to access the returned handler, they are redirected to the login endpoint.
-// If an authenticated user is missing permissions, a Forbidden response is called.
+// If an authenticated user is missing the given scope, a Forbidden response is called.
 // If an authenticated calls the endpoint, and they have the given permissions, the original handler is called.
-func (auth *Auth) Protect(handler http.Handler, perm Permission) http.Handler {
+func (auth *Auth) Protect(handler http.Handler, scope component.Scope, param func(*http.Request) string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var grant Grant
+		var forbiddenMessage string
+		var paramValue string
 
 		// load the user in the session
 		user, err := auth.UserOf(r)
@@ -38,15 +40,20 @@ func (auth *Auth) Protect(handler http.Handler, perm Permission) http.Handler {
 			return
 		}
 
+		// check if we need to load the parameter
+		if param != nil {
+			paramValue = param(r)
+		}
+
+		// check if we have the actual scope
 		{
-			var err error
-			// call the permission check
-			grant, err = perm.Permit(user, r)
+			err = auth.CheckScope(paramValue, scope, r)
+			if ade, ok := err.(component.AccessDeniedError); ok {
+				forbiddenMessage = ade.Error()
+				goto forbidden
+			}
 			if err != nil {
 				goto err
-			}
-			if !grant.Granted() {
-				goto forbidden
 			}
 		}
 
@@ -56,14 +63,10 @@ func (auth *Auth) Protect(handler http.Handler, perm Permission) http.Handler {
 		return
 	forbidden:
 		{
-			message := "Forbidden"
-			if grant != nil {
-				message = grant.Denied()
-			}
 			httpx.Response{
 				ContentType: "text/plain",
 				StatusCode:  http.StatusForbidden,
-				Body:        []byte(message),
+				Body:        []byte(forbiddenMessage),
 			}.ServeHTTP(w, r)
 			return
 		}
@@ -72,31 +75,9 @@ func (auth *Auth) Protect(handler http.Handler, perm Permission) http.Handler {
 	})
 }
 
-// Require returns a slice containing one decorator that acts like Protect(perm) on every request.
-// It returns
-func (auth *Auth) Require(perm Permission) func(http.Handler) http.Handler {
+// Require returns a slice containing one decorator that acts like Protect(scope,param) on every request.
+func (auth *Auth) Require(scope component.Scope, param func(*http.Request) string) func(http.Handler) http.Handler {
 	return func(h http.Handler) http.Handler {
-		return auth.Protect(h, perm)
+		return auth.Protect(h, scope, param)
 	}
-}
-
-// Has checks if the given request has the given permission.
-// If an error occurs, returns false.
-func (auth *Auth) Has(perm Permission, r *http.Request) bool {
-	user, err := auth.UserOf(r)
-	if err != nil || user == nil {
-		return false
-	}
-	ok, err := perm.Permit(user, r)
-	return err == nil && ok.Granted()
-}
-
-// Admin represents a permission that checks if a user is an administrator and has totp enabled.
-var Admin Permission = func(user *AuthUser, r *http.Request) (ok Grant, err error) {
-	return Bool2Grant(user != nil && user.IsAdmin() && user.IsTOTPEnabled(), "user needs to have admin permissions and passcode enabled"), nil
-}
-
-// User represents a permission that checks if a user is enabled
-var User Permission = func(user *AuthUser, r *http.Request) (ok Grant, err error) {
-	return Bool2Grant(user != nil && user.IsEnabled(), "user needs to be enabled"), nil
 }

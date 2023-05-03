@@ -101,7 +101,8 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 			ctx := resolverContext{
 				IndexContext: context,
 			}
-			if !resolver.Dependencies.Auth.Has(auth.User, r) {
+
+			if resolver.Dependencies.Auth.CheckScope("", component.ScopeUserLoggedIn, r) != nil {
 				ctx.IndexContext.Prefixes = nil
 			}
 			httpx.WriteHTML(tpl.Context(r, ctx), nil, t, "", w, r)

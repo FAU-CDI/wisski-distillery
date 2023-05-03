@@ -11,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/next"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/panel"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/binder"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
@@ -143,6 +144,10 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*policy.Policy],
 		auto[*panel.UserPanel],
 		auto[*next.Next],
+
+		//scopes
+		auto[*scopes.UserLoggedIn],
+		auto[*scopes.AdminLoggedIn],
 
 		// instances
 		auto[*instances.Instances],

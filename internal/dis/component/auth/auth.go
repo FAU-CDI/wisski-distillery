@@ -18,9 +18,13 @@ type Auth struct {
 		SQL             *sql.SQL
 		UserDeleteHooks []component.UserDeleteHook
 		Templating      *templating.Templating
+		ScopeProviders  []component.ScopeProvider
 	}
 
 	store lazy.Lazy[sessions.Store]
+
+	scopeInfos lazy.Lazy[[]component.ScopeInfo]
+	scopeIndex lazy.Lazy[map[component.Scope]int]
 }
 
 var (

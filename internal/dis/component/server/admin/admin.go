@@ -46,12 +46,12 @@ func (admin *Admin) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/admin/",
 		CSRF:      true,
-		Decorator: admin.Dependencies.Auth.Require(auth.Admin),
+		Decorator: admin.Dependencies.Auth.Require(component.ScopeAdminLoggedIn, nil),
 	}
 }
 
 func (admin *Admin) Menu(r *http.Request) []component.MenuItem {
-	if !admin.Dependencies.Auth.Has(auth.Admin, r) {
+	if admin.Dependencies.Auth.CheckScope("", component.ScopeAdminLoggedIn, r) != nil {
 		return nil
 	}
 	return []component.MenuItem{

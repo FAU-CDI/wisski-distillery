@@ -24,6 +24,7 @@ func (dis *Distillery) init() {
 		lifetime.RegisterGroup[component.UserDeleteHook](&dis.lifetime)
 		lifetime.RegisterGroup[component.Table](&dis.lifetime)
 		lifetime.RegisterGroup[component.Menuable](&dis.lifetime)
+		lifetime.RegisterGroup[component.ScopeProvider](&dis.lifetime)
 	})
 }
 
