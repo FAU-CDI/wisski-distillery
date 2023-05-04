@@ -9,6 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -26,12 +27,17 @@ type userContext struct {
 	templating.RuntimeFlags
 	*auth.AuthUser
 
-	Grants []GrantWithURL
+	ShowAdminURLs bool
+	Grants        []GrantWithURL
 }
 
 type GrantWithURL struct {
 	models.Grant
 	URL template.URL
+}
+
+func (g GrantWithURL) AdminURL() template.URL {
+	return template.URL("/admin/instance/" + g.Slug)
 }
 
 func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
@@ -54,6 +60,8 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 		if err != nil || uc.AuthUser == nil {
 			return uc, nil, err
 		}
+
+		uc.ShowAdminURLs = panel.Dependencies.Auth.CheckScope("", scopes.ScopeAdminLoggedIn, r) == nil
 
 		// replace the totp action in the menu
 		var totpAction component.MenuItem

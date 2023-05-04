@@ -31,6 +31,7 @@
 </div>
 {{ end }}
 
+{{ $showAdminURLs := .ShowAdminURLs }}
 <div class="pure-u-1">
     <h2>Your WissKIs</h2>
     <p>
@@ -53,6 +54,11 @@
                         <th>
                             Admin
                         </th>
+                        {{ if $showAdminURLs }}
+                            <th>
+                                Distillery Admin Link
+                            </th>
+                        {{ end }}
                     </tr>
                 </thead>
                 <tbody>
@@ -69,6 +75,13 @@
                         <td>
                             {{ $grant.DrupalAdminRole }}
                         </td>
+                        {{ if $showAdminURLs }}
+                            <td>
+                                <a href="{{ $grant.AdminURL }}" class="pure-button" target="_blank" rel="noopener noreferer">
+                                    {{ $grant.AdminURL }}
+                                </a>
+                            </td>
+                        {{ end }}
                     </tr>
                     {{ end }}
                 </tbody>
