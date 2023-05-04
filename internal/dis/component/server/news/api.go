@@ -2,15 +2,19 @@ package news
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/tkw1536/pkglib/httpx"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/api"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 )
 
 type API struct {
 	component.Base
+	Dependencies struct {
+		Auth *auth.Auth
+	}
 }
 
 var (
@@ -19,25 +23,21 @@ var (
 
 func (api *API) Routes() component.Routes {
 	return component.Routes{
-		Prefix:    "/api/v1/news/",
-		Exact:     true,
-		Decorator: api.Config.HTTP.APIDecorator("GET"),
+		Prefix: "/api/v1/news/",
+		Exact:  true,
 	}
 }
 
-func (api *API) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
-	items, err := Items()
-	if err != nil {
-		return nil, err
-	}
+func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
+	return &api.Handler[[]Item]{
+		Config: a.Config,
+		Auth:   a.Dependencies.Auth,
 
-	data, err := json.Marshal(items)
-	if err != nil {
-		return nil, err
-	}
+		Methods: []string{"GET"},
 
-	return httpx.Response{
-		ContentType: "application/json",
-		Body:        data,
+		Scope: scopes.ScopeListNews,
+		Handler: func(s string, r *http.Request) ([]Item, error) {
+			return Items()
+		},
 	}, nil
 }

@@ -18,9 +18,13 @@ var (
 	_ component.ScopeProvider = (*UserLoggedIn)(nil)
 )
 
+const (
+	ScopeUserLoggedIn Scope = "login.user"
+)
+
 func (*UserLoggedIn) Scope() component.ScopeInfo {
 	return component.ScopeInfo{
-		Scope:       component.ScopeUserLoggedIn,
+		Scope:       ScopeUserLoggedIn,
 		Description: "session has an associated user",
 		TakesParam:  false,
 	}

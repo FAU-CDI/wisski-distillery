@@ -7,6 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/julienschmidt/httprouter"
@@ -46,12 +47,12 @@ func (admin *Admin) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/admin/",
 		CSRF:      true,
-		Decorator: admin.Dependencies.Auth.Require(component.ScopeAdminLoggedIn, nil),
+		Decorator: admin.Dependencies.Auth.Require(scopes.ScopeAdminLoggedIn, nil),
 	}
 }
 
 func (admin *Admin) Menu(r *http.Request) []component.MenuItem {
-	if admin.Dependencies.Auth.CheckScope("", component.ScopeAdminLoggedIn, r) != nil {
+	if admin.Dependencies.Auth.CheckScope("", scopes.ScopeAdminLoggedIn, r) != nil {
 		return nil
 	}
 	return []component.MenuItem{

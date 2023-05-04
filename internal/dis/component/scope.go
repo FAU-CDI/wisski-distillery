@@ -51,11 +51,6 @@ func (scope ScopeInfo) CheckError(err error) error {
 	return CheckError{Scope: scope.Scope, Err: err}
 }
 
-const (
-	ScopeUserLoggedIn  Scope = "login.user"
-	ScopeAdminLoggedIn Scope = "login.admin"
-)
-
 // ScopeProvider is a component that can check a specific scope
 type ScopeProvider interface {
 	Component

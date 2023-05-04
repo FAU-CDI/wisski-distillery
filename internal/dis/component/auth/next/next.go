@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/users"
@@ -30,7 +31,7 @@ var (
 func (next *Next) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/next/",
-		Decorator: next.Dependencies.Auth.Require(component.ScopeUserLoggedIn, nil),
+		Decorator: next.Dependencies.Auth.Require(scopes.ScopeUserLoggedIn, nil),
 	}
 }
 

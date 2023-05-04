@@ -47,23 +47,6 @@ type publicContext struct {
 
 const logoHTML = template.HTML(`<img src="/logo.svg" alt="WissKI Distillery Logo" class="biglogo">`)
 
-// ShouldShowList determines if the given request should show a WissKI list
-func (home *Home) ShouldShowList(r *http.Request) bool {
-	allowPrivate := home.Config.Home.List.Private.Value
-	allowPublic := home.Config.Home.List.Public.Value
-
-	if allowPrivate == allowPublic {
-		return allowPrivate
-	}
-
-	user, _ := home.Dependencies.Auth.UserOf(r)
-	if user == nil {
-		return allowPublic
-	} else {
-		return allowPrivate
-	}
-}
-
 func (home *Home) publicHandler(ctx context.Context) http.Handler {
 	title := home.Config.Home.Title
 
@@ -89,7 +72,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 
 		// prepare about
 		pc.aboutContext.Logo = logoHTML
-		pc.aboutContext.Instances = home.homeInstances.Get(nil)
+		pc.aboutContext.Instances = home.Dependencies.ListInstances.Infos()
 		pc.aboutContext.SelfRedirect = home.Config.Home.SelfRedirect.String()
 
 		// render the about template
@@ -102,7 +85,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		pc.About = template.HTML(builder.String())
 
 		// check if we should show the list of WissKIs
-		pc.ListEnabled = home.ShouldShowList(r)
+		pc.ListEnabled = home.Dependencies.ListInstances.ShouldShowList(r)
 
 		// title of the list
 		pc.ListTitle = home.Config.Home.List.Title

@@ -18,9 +18,13 @@ var (
 	_ component.ScopeProvider = (*UserLoggedIn)(nil)
 )
 
+const (
+	ScopeAdminLoggedIn Scope = "login.admin"
+)
+
 func (*AdminLoggedIn) Scope() component.ScopeInfo {
 	return component.ScopeInfo{
-		Scope:         component.ScopeAdminLoggedIn,
+		Scope:         ScopeAdminLoggedIn,
 		Description:   "session has a signed in admin",
 		DeniedMessage: "user must be signed into an admin account with TOTP enabled",
 		TakesParam:    false,

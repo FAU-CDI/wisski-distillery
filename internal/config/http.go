@@ -2,12 +2,10 @@ package config
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
-	"github.com/tkw1536/pkglib/httpx"
 	"golang.org/x/net/idna"
 )
 
@@ -29,26 +27,6 @@ type HTTPConfig struct {
 	// API determines if the API is enabled.
 	// In a future version of the distillery, it will be enabled by default.
 	API validators.NullableBool `yaml:"api" validate:"bool" default:"false"`
-}
-
-var apiNotEnabled = httpx.Response{
-	StatusCode: http.StatusForbidden,
-	Body:       []byte(`{"message":"API is not enabled"}`),
-}
-
-func (hcfg HTTPConfig) APIDecorator(methods ...string) func(http.Handler) http.Handler {
-	methods = append(methods, "OPTIONS") // always permit the options method!
-
-	if !hcfg.API.Value {
-		return func(http.Handler) http.Handler {
-			return httpx.PermitMethods(apiNotEnabled, methods...)
-		}
-	}
-
-	// permit only the specified methods
-	return func(h http.Handler) http.Handler {
-		return httpx.PermitMethods(h, methods...)
-	}
 }
 
 // JoinPath returns the root public url joined with the provided parts.

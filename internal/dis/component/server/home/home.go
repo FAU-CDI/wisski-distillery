@@ -6,23 +6,16 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/list"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
-	"github.com/FAU-CDI/wisski-distillery/internal/status"
-	"github.com/tkw1536/pkglib/lazy"
 )
 
 type Home struct {
 	component.Base
 	Dependencies struct {
-		Templating *templating.Templating
-		Instances  *instances.Instances
-		Auth       *auth.Auth
+		ListInstances *list.ListInstances
+		Templating    *templating.Templating
 	}
-
-	instanceNames lazy.Lazy[map[string]struct{}] // instance names
-	homeInstances lazy.Lazy[[]status.WissKI]     // list of home instances (updated via cron)
 }
 
 var (
@@ -61,21 +54,8 @@ func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, 
 	}), nil
 }
 
-func (home *Home) instanceMap(ctx context.Context) (map[string]struct{}, error) {
-	wissKIs, err := home.Dependencies.Instances.All(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	names := make(map[string]struct{}, len(wissKIs))
-	for _, w := range wissKIs {
-		names[w.Slug] = struct{}{}
-	}
-	return names, nil
-}
-
 func (home *Home) serveWissKI(w http.ResponseWriter, slug string, r *http.Request) {
-	if _, ok := home.instanceNames.Get(nil)[slug]; !ok {
+	if _, ok := home.Dependencies.ListInstances.Names()[slug]; !ok {
 		// Get(nil) guaranteed to work by precondition
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "WissKI %q not found\n", slug)

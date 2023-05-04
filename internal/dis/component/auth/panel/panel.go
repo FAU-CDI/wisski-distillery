@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/next"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
@@ -39,7 +40,7 @@ func (panel *UserPanel) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/user/",
 		CSRF:      true,
-		Decorator: panel.Dependencies.Auth.Require(component.ScopeUserLoggedIn, nil),
+		Decorator: panel.Dependencies.Auth.Require(scopes.ScopeUserLoggedIn, nil),
 	}
 }
 
@@ -115,7 +116,7 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 	}
 
 	// ensure that the user is logged in!
-	return panel.Dependencies.Auth.Protect(router, component.ScopeUserLoggedIn, nil), nil
+	return panel.Dependencies.Auth.Protect(router, scopes.ScopeUserLoggedIn, nil), nil
 }
 
 type userFormContext struct {

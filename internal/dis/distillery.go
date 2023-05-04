@@ -29,6 +29,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/cron"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/legal"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/list"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/logo"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/news"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
@@ -148,6 +149,8 @@ func (dis *Distillery) allComponents() []initFunc {
 		//scopes
 		auto[*scopes.UserLoggedIn],
 		auto[*scopes.AdminLoggedIn],
+		auto[*scopes.ListInstancesScope],
+		auto[*scopes.ListNewsScope],
 
 		// instances
 		auto[*instances.Instances],
@@ -174,6 +177,7 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*server.Server],
 
 		auto[*home.Home],
+		auto[*list.ListInstances],
 		manual(func(resolver *resolver.Resolver) {
 			resolver.RefreshInterval = time.Minute
 		}),
@@ -190,11 +194,9 @@ func (dis *Distillery) allComponents() []initFunc {
 
 		// Cron
 		auto[*cron.Cron],
-		auto[*home.UpdateHome],
-		auto[*home.UpdateInstanceList],
 
 		// API
-		auto[*home.API],
+		auto[*list.API],
 		auto[*news.API],
 	}
 }
