@@ -76,7 +76,7 @@ func (policy *Policy) User(ctx context.Context, username string) (grants []model
 	}
 
 	// find the grants
-	err = table.Find(&grants, models.Grant{User: username}).Order("slug asc").Error
+	err = table.Find(&grants, models.Grant{User: username}).Order("Slug asc").Error
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +96,7 @@ func (policy *Policy) Instance(ctx context.Context, slug string) (grants []model
 	}
 
 	// find the grants
-	err = table.Find(&grants, models.Grant{Slug: slug}).Order("user asc").Error
+	err = table.Find(&grants, models.Grant{Slug: slug}).Order("User asc").Error
 	if err != nil {
 		return nil, err
 	}
