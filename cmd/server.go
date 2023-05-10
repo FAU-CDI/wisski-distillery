@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"net"
 	"net/http"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/errorx"
 )
 
 // Server is the 'server' command
@@ -105,11 +105,11 @@ func (s server) Run(context wisski_distillery.Context) error {
 
 	go func() {
 		<-context.Context.Done()
-	
+
 		zerolog.Ctx(context.Context).Info().Msg("shutting down server")
 		publicS.Shutdown(context.Context)
 		internalS.Shutdown(context.Context)
 	}()
 
-	return errServerListen.Wrap(errorx.First(<-internalC, <-publicC, err))
+	return errServerListen.Wrap(errors.Join(<-internalC, <-publicC, err))
 }

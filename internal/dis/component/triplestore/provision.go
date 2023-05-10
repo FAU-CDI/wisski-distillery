@@ -3,6 +3,7 @@ package triplestore
 import (
 	"bytes"
 	"context"
+	"errors"
 	"net/http"
 
 	_ "embed"
@@ -10,7 +11,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/errorx"
 )
 
 var errTripleStoreFailedRepository = exit.Error{
@@ -26,7 +26,7 @@ func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, 
 }
 
 func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, domain string) error {
-	return errorx.First(
+	return errors.Join(
 		ts.PurgeRepo(ctx, instance.GraphDBRepository),
 		ts.PurgeUser(ctx, instance.GraphDBUsername),
 	)
