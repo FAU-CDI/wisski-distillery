@@ -11,7 +11,7 @@ import (
 func (ts *Triplestore) BackupName() string { return "triplestore" }
 
 // Backup makes a backup of all Triplestore repositories databases into the path dest.
-func (ts *Triplestore) Backup(scontext component.StagingContext) error {
+func (ts *Triplestore) Backup(scontext *component.StagingContext) error {
 	return scontext.AddDirectory("", func(ctx context.Context) error {
 		// list all the directories
 		repos, err := ts.listRepositories(ctx)

@@ -20,7 +20,7 @@ func (*Config) BackupName() string {
 	return "config"
 }
 
-func (control *Config) Backup(scontext component.StagingContext) error {
+func (control *Config) Backup(scontext *component.StagingContext) error {
 	files := control.backupFiles()
 
 	return scontext.AddDirectory("", func(ctx context.Context) error {

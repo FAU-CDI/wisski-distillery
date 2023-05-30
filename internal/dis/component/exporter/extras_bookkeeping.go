@@ -24,7 +24,7 @@ func (Bookkeeping) SnapshotNeedsRunning() bool { return false }
 func (Bookkeeping) SnapshotName() string { return "bookkeeping.txt" }
 
 // Snapshot creates a snapshot of this instance
-func (*Bookkeeping) Snapshot(wisski models.Instance, scontext component.StagingContext) error {
+func (*Bookkeeping) Snapshot(wisski models.Instance, scontext *component.StagingContext) error {
 	return scontext.AddFile(".", func(ctx context.Context, file io.Writer) error {
 		_, err := fmt.Fprintf(file, "%#v\n", wisski)
 		return err

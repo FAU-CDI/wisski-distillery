@@ -13,7 +13,7 @@ func (*SQL) SnapshotNeedsRunning() bool { return false }
 
 func (*SQL) SnapshotName() string { return "sql" }
 
-func (sql *SQL) Snapshot(wisski models.Instance, scontext component.StagingContext) error {
+func (sql *SQL) Snapshot(wisski models.Instance, scontext *component.StagingContext) error {
 	return scontext.AddDirectory(".", func(ctx context.Context) error {
 		return scontext.AddFile(wisski.SqlDatabase+".sql", func(ctx context.Context, file io.Writer) error {
 			return sql.SnapshotDB(ctx, scontext.Progress(), file, wisski.SqlDatabase)

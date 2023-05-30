@@ -117,19 +117,19 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	// and retain a log entry
 	var entry models.Export
 	logging.LogOperation(func() error {
-		var sl export
+		var export export
 		if task.Instance == nil {
 			task.BackupDescription.Dest = stagingDir
 			backup := exporter.NewBackup(ctx, progress, task.BackupDescription)
-			sl = &backup
+			export = &backup
 		} else {
 			task.SnapshotDescription.Dest = stagingDir
 			snapshot := exporter.NewSnapshot(ctx, task.Instance, progress, task.SnapshotDescription)
-			sl = &snapshot
+			export = &snapshot
 		}
 
 		// create a log entry
-		entry = sl.LogEntry()
+		entry = export.LogEntry()
 
 		// write the machine report
 		{
@@ -141,7 +141,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 				return err
 			}
 
-			if err := sl.ReportMachine(report); err != nil {
+			if err := export.ReportMachine(report); err != nil {
 				return err
 			}
 		}
@@ -156,7 +156,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 				return err
 			}
 
-			if err := sl.ReportPlain(report); err != nil {
+			if err := export.ReportPlain(report); err != nil {
 				return err
 			}
 		}

@@ -45,8 +45,8 @@ func (snapshot Snapshot) ReportPlain(w io.Writer) error {
 
 	io.WriteString(ww, "======= Errors =======\n")
 	fmt.Fprintf(ww, "Panic:       %v\n", snapshot.ErrPanic)
-	fmt.Fprintf(ww, "Start:       %s\n", snapshot.ErrStart)
-	fmt.Fprintf(ww, "Stop:        %s\n", snapshot.ErrStop)
+	fmt.Fprintf(ww, "Start:       %v\n", snapshot.ErrStart)
+	fmt.Fprintf(ww, "Stop:        %v\n", snapshot.ErrStop)
 
 	fmt.Fprintf(ww, "Errors:    %s\n", snapshot.Errors)
 

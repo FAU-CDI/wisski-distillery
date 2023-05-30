@@ -24,7 +24,7 @@ func (Pathbuilders) SnapshotNeedsRunning() bool { return true }
 
 func (Pathbuilders) SnapshotName() string { return "pathbuilders" }
 
-func (pbs *Pathbuilders) Snapshot(wisski models.Instance, scontext component.StagingContext) error {
+func (pbs *Pathbuilders) Snapshot(wisski models.Instance, scontext *component.StagingContext) error {
 	return scontext.AddDirectory(".", func(ctx context.Context) error {
 		builders, err := pbs.Dependencies.Instances.Instance(ctx, wisski).Pathbuilder().GetAll(ctx, nil)
 		if err != nil {

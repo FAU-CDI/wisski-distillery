@@ -17,6 +17,6 @@ func (tpl *Templating) CustomAssetPath(name string) string {
 
 func (tpl *Templating) BackupName() string { return "custom" }
 
-func (tpl *Templating) Backup(context component.StagingContext) error {
+func (tpl *Templating) Backup(context *component.StagingContext) error {
 	return context.CopyDirectory("", tpl.CustomAssetsPath())
 }

@@ -21,6 +21,6 @@ func (Filesystem) SnapshotNeedsRunning() bool { return false }
 func (Filesystem) SnapshotName() string { return "data" }
 
 // Snapshot creates a snapshot of this instance
-func (*Filesystem) Snapshot(wisski models.Instance, context component.StagingContext) error {
+func (*Filesystem) Snapshot(wisski models.Instance, context *component.StagingContext) error {
 	return context.CopyDirectory(".", wisski.FilesystemBase)
 }

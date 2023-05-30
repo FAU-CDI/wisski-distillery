@@ -2,6 +2,7 @@ package component
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"path/filepath"
 
@@ -18,7 +19,7 @@ type Backupable interface {
 	BackupName() string
 
 	// Backup backs up this component into the destination path path
-	Backup(context StagingContext) error
+	Backup(context *StagingContext) error
 }
 
 // Snapshotable represents a component with a Snapshot method.
@@ -32,40 +33,12 @@ type Snapshotable interface {
 	SnapshotName() string
 
 	// Snapshot snapshots a part of the instance
-	Snapshot(wisski models.Instance, context StagingContext) error
-}
-
-// StagingContext represents a context for [Backupable] and [Snapshotable]
-type StagingContext interface {
-	// Progress returns a writer to write progress information to.
-	Progress() io.Writer
-
-	// Name creates a new directory inside the destination.
-	// Passing the empty path creates the destination as a directory.
-	//
-	// It then allows op to fill the file.
-	AddDirectory(path string, op func(context.Context) error) error
-
-	// CopyFile copies a file from src to dst.
-	CopyFile(dst, src string) error
-
-	// CopyDirectory copies a directory from src to dst.
-	CopyDirectory(dst, src string) error
-
-	// AddFile creates a new file at the provided path inside the destination.
-	// Passing the empty path creates the destination as a file.
-	//
-	// It then allows op to write to the file.
-	//
-	// The op function must not retain file.
-	// The underlying file does not need to be closed.
-	// AddFile will not return before op has returned.
-	AddFile(path string, op func(ctx context.Context, file io.Writer) error) error
+	Snapshot(wisski models.Instance, context *StagingContext) error
 }
 
 // NewStagingContext returns a new [StagingContext]
-func NewStagingContext(ctx context.Context, progress io.Writer, path string, manifest chan<- string) StagingContext {
-	return &stagingContext{
+func NewStagingContext(ctx context.Context, progress io.Writer, path string, manifest chan<- string) *StagingContext {
+	return &StagingContext{
 		ctx:      ctx,
 		progress: progress,
 		path:     path,
@@ -73,33 +46,46 @@ func NewStagingContext(ctx context.Context, progress io.Writer, path string, man
 	}
 }
 
-// stagingContext implements [components.StagingContext]
-type stagingContext struct {
+// StagingContext is a context used for [Backupable] and [Snapshotable]
+type StagingContext struct {
 	ctx      context.Context
 	progress io.Writer     // writer to direct progress to
 	path     string        // path to send files to
 	manifest chan<- string // channel the manifest is sent to
 }
 
-func (bc *stagingContext) sendPath(path string) {
-	// resolve the path, or bail out!
-	// TODO: Use the relative path here!
-	dst, err := bc.resolve(path)
-	if err != nil {
-		return
+func (bc *StagingContext) sendPath(path string) {
+	// ensure path is absolute!
+	if !filepath.IsAbs(path) {
+		var err error
+		path, err = bc.resolve(path)
+		if err != nil {
+			fmt.Fprintf(bc.progress, "path resolve error: %s", err)
+			return
+		}
 	}
 
-	io.WriteString(bc.progress, dst+"\n")
-	bc.manifest <- dst
+	// use the relative path for logging
+	rel, err := bc.relativize(path)
+	if err == nil {
+		io.WriteString(bc.progress, rel+"\n")
+	}
+
+	// send the absolute path
+	bc.manifest <- path
 }
 
-func (bc *stagingContext) Progress() io.Writer {
+// Progress returns a writer to write progress information to.
+func (bc *StagingContext) Progress() io.Writer {
 	return bc.progress
 }
 
-var errResolveAbsolute = errors.New("resolve: path must be relative")
+var (
+	errResolveAbsolute  = errors.New("resolve: path must be relative")
+	errRelativeRelative = errors.New("relativize: path already relative")
+)
 
-func (bc *stagingContext) resolve(path string) (dest string, err error) {
+func (bc *StagingContext) resolve(path string) (dest string, err error) {
 	if path == "" {
 		return bc.path, nil
 	}
@@ -109,7 +95,19 @@ func (bc *stagingContext) resolve(path string) (dest string, err error) {
 	return filepath.Join(bc.path, path), nil
 }
 
-func (sc *stagingContext) AddDirectory(path string, op func(context.Context) error) error {
+func (bc *StagingContext) relativize(path string) (dest string, err error) {
+	if !filepath.IsAbs(path) {
+		return "", errRelativeRelative
+	}
+
+	return filepath.Rel(bc.path, path)
+}
+
+// AddDirectory creates a new directory inside the destination.
+// Passing the empty path creates the destination as a directory.
+//
+// It then allows op to fill the file.
+func (sc *StagingContext) AddDirectory(path string, op func(context.Context) error) error {
 	// check if we are already done
 	if err, ok := sc.ctxdone(); ok {
 		return err
@@ -133,7 +131,8 @@ func (sc *stagingContext) AddDirectory(path string, op func(context.Context) err
 	return op(sc.ctx)
 }
 
-func (sc *stagingContext) CopyFile(dst, src string) error {
+// CopyFile copies a file from src to dst.
+func (sc *StagingContext) CopyFile(dst, src string) error {
 	if err, ok := sc.ctxdone(); ok {
 		return err
 	}
@@ -146,7 +145,8 @@ func (sc *stagingContext) CopyFile(dst, src string) error {
 	return umaskfree.CopyFile(sc.ctx, dstPath, src)
 }
 
-func (sc *stagingContext) CopyDirectory(dst, src string) error {
+// CopyDirectory copies a directory from src to dst.
+func (sc *StagingContext) CopyDirectory(dst, src string) error {
 	if err, ok := sc.ctxdone(); ok {
 		return err
 	}
@@ -161,7 +161,15 @@ func (sc *stagingContext) CopyDirectory(dst, src string) error {
 	})
 }
 
-func (sc *stagingContext) AddFile(path string, op func(ctx context.Context, file io.Writer) error) error {
+// AddFile creates a new file at the provided path inside the destination.
+// Passing the empty path creates the destination as a file.
+//
+// It then allows op to write to the file.
+//
+// The op function must not retain file.
+// The underlying file does not need to be closed.
+// AddFile will not return before op has returned.
+func (sc *StagingContext) AddFile(path string, op func(ctx context.Context, file io.Writer) error) error {
 	// check if we're already done
 	if err, ok := sc.ctxdone(); ok {
 		return err
@@ -187,7 +195,7 @@ func (sc *stagingContext) AddFile(path string, op func(ctx context.Context, file
 	return op(sc.ctx, file)
 }
 
-func (sc *stagingContext) ctxdone() (err error, done bool) {
+func (sc *StagingContext) ctxdone() (err error, done bool) {
 	err = sc.ctx.Err()
 	done = (err != nil)
 	return
