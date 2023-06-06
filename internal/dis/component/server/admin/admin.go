@@ -47,7 +47,7 @@ func (admin *Admin) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/admin/",
 		CSRF:      true,
-		Decorator: admin.Dependencies.Auth.Require(scopes.ScopeAdminLoggedIn, nil),
+		Decorator: admin.Dependencies.Auth.Require(false, scopes.ScopeAdminLoggedIn, nil),
 	}
 }
 

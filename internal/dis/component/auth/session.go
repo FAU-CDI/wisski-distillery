@@ -18,12 +18,42 @@ import (
 	_ "embed"
 )
 
-// UserOf returns the user logged into the given request.
-// If there is no user associated with the given user, user and error will be nil.
+// UserOf returns the user logged into the provided request.
+// token indicates if the user used a token to authenticate, or a browser session was used.
+// A token takes priority over a user in a session.
+//
+// If there is no user associated with the given request, user and error are nil, and token is false.
+// An invalid session, expired token, or disabled user all result in user = nil.
 //
 // When no UserOf exists in the given session returns nil.
-// An invalid session (for a UserOf)
-func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, err error) {
+func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, token bool, err error) {
+	// check the user from the token first
+	{
+		user, err := auth.UserOfToken(r)
+		if user != nil && err == nil {
+			return user, true, nil
+		}
+	}
+
+	// fallback to using session
+	{
+		user, err := auth.UserOfSession(r)
+		return user, false, err
+	}
+}
+
+// UserOfToken returns the user associated with the token in request.
+func (auth *Auth) UserOfToken(r *http.Request) (user *AuthUser, err error) {
+	// get the token object
+	token, err := auth.Dependencies.Tokens.TokenOf(r)
+	if token == nil {
+		return nil, err
+	}
+	return auth.checkUser(r.Context(), token.User)
+}
+
+// UserOfSession returns the user of the session associated with r.
+func (auth *Auth) UserOfSession(r *http.Request) (user *AuthUser, err error) {
 	ctx := r.Context()
 	if user, ok := ctx.Value(ctxUserKey).(*AuthUser); ok && user != nil {
 		return user, nil
@@ -44,9 +74,12 @@ func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, err error) {
 	if !ok || nameS == "" {
 		return nil, nil
 	}
+	return auth.checkUser(ctx, nameS)
+}
 
+func (auth *Auth) checkUser(ctx context.Context, name string) (user *AuthUser, err error) {
 	// fetch the user, check if they still exist
-	user, err = auth.User(ctx, nameS)
+	user, err = auth.User(ctx, name)
 	if err == ErrUserNotFound {
 		return nil, nil
 	}
@@ -55,7 +88,7 @@ func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, err error) {
 	}
 
 	// user isn't enabled
-	if !user.IsEnabled() {
+	if user == nil || !user.IsEnabled() {
 		return nil, nil
 	}
 
@@ -73,7 +106,7 @@ func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
 
 func (auth *Auth) Menu(r *http.Request) []component.MenuItem {
 
-	user, err := auth.UserOf(r)
+	user, err := auth.UserOfSession(r)
 	if user == nil || err != nil {
 		return nil
 	}
@@ -176,7 +209,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		},
 
 		SkipForm: func(r *http.Request) (user *AuthUser, skip bool) {
-			user, err := auth.UserOf(r)
+			user, err := auth.UserOfSession(r)
 			return user, err == nil && user != nil
 		},
 

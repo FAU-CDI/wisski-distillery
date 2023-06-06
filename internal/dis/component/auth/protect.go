@@ -9,20 +9,28 @@ import (
 	"github.com/tkw1536/pkglib/httpx"
 )
 
-// Protect returns a new handler which requires a user to be logged in and have the provided scope and
+// Protect returns a new handler which requires a user to be logged in and have the provided scope.
+//
+// AllowToken determines if a token is allowed instead of a user session.
 //
 // If an unauthenticated user attempts to access the returned handler, they are redirected to the login endpoint.
 // If an authenticated user is missing the given scope, a Forbidden response is called.
 // If an authenticated calls the endpoint, and they have the given permissions, the original handler is called.
-func (auth *Auth) Protect(handler http.Handler, scope component.Scope, param func(*http.Request) string) http.Handler {
+func (auth *Auth) Protect(handler http.Handler, AllowToken bool, scope component.Scope, param func(*http.Request) string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var forbiddenMessage string
 		var paramValue string
 
 		// load the user in the session
-		user, err := auth.UserOf(r)
+		// TODO<tokens>: Check if API access is allowed
+		user, token, err := auth.UserOf(r)
 		if err != nil {
 			goto err
+		}
+
+		// token was set, but not allowed!
+		if token && !AllowToken {
+			goto forbidden
 		}
 
 		// if there is no user in the session, they need to login first!
@@ -75,9 +83,10 @@ func (auth *Auth) Protect(handler http.Handler, scope component.Scope, param fun
 	})
 }
 
-// Require returns a slice containing one decorator that acts like Protect(scope,param) on every request.
-func (auth *Auth) Require(scope component.Scope, param func(*http.Request) string) func(http.Handler) http.Handler {
+// Require returns a slice containing one decorator that acts like auth.Protect(allowToken,scope,param) on every request.
+func (auth *Auth) Require(allowToken bool, scope component.Scope, param func(*http.Request) string) func(http.Handler) http.Handler {
+	// TODO: Work on this stuff
 	return func(h http.Handler) http.Handler {
-		return auth.Protect(h, scope, param)
+		return auth.Protect(h, allowToken, scope, param)
 	}
 }

@@ -158,7 +158,7 @@ func (admin *Admin) useraction(ctx context.Context, name string, action func(r *
 			return
 		}
 
-		me, err := admin.Dependencies.Auth.UserOf(r)
+		me, err := admin.Dependencies.Auth.UserOfSession(r)
 		if err != nil {
 			logger.Err(err).Str("action", name).Msg("failed to get current user")
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)

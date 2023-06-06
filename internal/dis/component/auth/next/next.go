@@ -31,7 +31,7 @@ var (
 func (next *Next) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/next/",
-		Decorator: next.Dependencies.Auth.Require(scopes.ScopeUserLoggedIn, nil),
+		Decorator: next.Dependencies.Auth.Require(true, scopes.ScopeUserLoggedIn, nil),
 	}
 }
 
@@ -80,7 +80,7 @@ func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, e
 		}
 
 		// get the user
-		user, err := next.Dependencies.Auth.UserOf(r)
+		user, _, err := next.Dependencies.Auth.UserOf(r)
 		if err != nil {
 			return "", 0, err
 		}

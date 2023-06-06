@@ -57,7 +57,7 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 	)
 
 	return tpl.HTMLHandler(func(r *http.Request) (sc SSHTemplateContext, err error) {
-		user, err := panel.Dependencies.Auth.UserOf(r)
+		user, err := panel.Dependencies.Auth.UserOfSession(r)
 		if err != nil {
 			return sc, err
 		}
@@ -89,6 +89,7 @@ var (
 	errInvalidUser = errors.New("invalid user")
 	errKeyParse    = errors.New("unable to parse ssh key")
 	errAddKey      = errors.New("unable to add key")
+	errAddToken    = errors.New("unable to add token")
 )
 
 func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
@@ -99,7 +100,7 @@ func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
-		user, err := panel.Dependencies.Auth.UserOf(r)
+		user, err := panel.Dependencies.Auth.UserOfSession(r)
 		if err != nil {
 			logger.Err(err).Str("action", "delete ssh key").Msg("failed to get current user")
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
@@ -119,7 +120,7 @@ func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
 			return
 		}
 
-		http.Redirect(w, r, "/user/ssh/", http.StatusSeeOther)
+		http.Redirect(w, r, string(menuSSH.Path), http.StatusSeeOther)
 	})
 }
 
@@ -158,7 +159,7 @@ func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 		RenderTemplateContext: templating.FormTemplateContext(tpl),
 
 		Validate: func(r *http.Request, values map[string]string) (ak addKeyResult, err error) {
-			ak.User, err = panel.Dependencies.Auth.UserOf(r)
+			ak.User, err = panel.Dependencies.Auth.UserOfSession(r)
 			if err != nil || ak.User == nil {
 				return ak, errInvalidUser
 			}

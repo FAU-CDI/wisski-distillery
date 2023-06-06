@@ -13,46 +13,62 @@ var (
 	ErrNoParam       = errors.New("scope does not take parameter")
 )
 
-// CheckScope checks if the given session has the given scope.
-// If the user is denied a scope, the error will be of type AccessDeniedError.
-func (auth *Auth) CheckScope(param string, scope component.Scope, r *http.Request) error {
-	// get all the infos about all of the scopes
-	infos := auth.scopeInfos.Get(func() []component.ScopeInfo {
-		infos := make([]component.ScopeInfo, len(auth.Dependencies.ScopeProviders))
-		for i, p := range auth.Dependencies.ScopeProviders {
-			infos[i] = p.Scope()
+// Scopes returns a map of all available scopes
+func (auth *Auth) Scopes() map[component.Scope]component.ScopeInfo {
+	scopes := auth.getScopeMap()
+	mp := make(map[component.Scope]component.ScopeInfo, len(scopes))
+	for scope, entry := range scopes {
+		mp[scope] = entry.Info
+	}
+	return mp
+}
+
+// getScopeMap return a (cached version of) all scopes
+func (auth *Auth) getScopeMap() map[component.Scope]scopeMapEntry {
+	return auth.scopeMap.Get(func() map[component.Scope]scopeMapEntry {
+		mp := make(map[component.Scope]scopeMapEntry, len(auth.Dependencies.ScopeProviders))
+		for _, p := range auth.Dependencies.ScopeProviders {
+			info := p.Scope()
+			mp[info.Scope] = scopeMapEntry{
+				Provider: p,
+				Info:     info,
+			}
 		}
-		return infos
+		return mp
 	})
+}
 
-	// find where in teh list of parameters it is!
-	index, ok := auth.scopeIndex.Get(func() map[component.Scope]int {
-		m := make(map[component.Scope]int, len(infos))
-		for idx, i := range infos {
-			m[i.Scope] = idx
-		}
-		return m
-	})[scope]
+// CheckScope checks if the given request is associated with the given request.
+// A request can be one of two types:
+// - A signed in user with an implicitly associated set of scopes
+// - A session authorized with a token only
+// If the request is denied a scope, the error will be of type AccessDeniedError.
+func (auth *Auth) CheckScope(param string, scope component.Scope, r *http.Request) error {
+	// the empty scope is always permitted implicitly
+	if scope == "" {
+		return nil
+	}
 
+	entry, ok := auth.getScopeMap()[scope]
 	if !ok {
 		return ErrUnknownScope
 	}
 
 	// check that we take a parameter
-	if infos[index].TakesParam && param == "" {
+	if entry.Info.TakesParam && param == "" {
 		return ErrParamRequired
 	}
-	if !infos[index].TakesParam && param != "" {
+	if !entry.Info.TakesParam && param != "" {
 		return ErrNoParam
 	}
 
 	// call the checker and return an error
-	ok, err := auth.Dependencies.ScopeProviders[index].HasScope(param, r)
+	ok, err := entry.Provider.HasScope(param, r)
 	if err != nil {
-		return infos[index].CheckError(err)
+		return entry.Info.CheckError(err)
 	}
 	if ok {
 		return nil
 	}
-	return infos[index].DeniedError()
+	return entry.Info.DeniedError()
 }

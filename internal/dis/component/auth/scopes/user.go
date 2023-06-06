@@ -31,6 +31,6 @@ func (*UserLoggedIn) Scope() component.ScopeInfo {
 }
 
 func (iu *UserLoggedIn) HasScope(param string, r *http.Request) (bool, error) {
-	user, err := iu.Dependencies.Auth.UserOf(r)
+	user, _, err := iu.Dependencies.Auth.UserOf(r)
 	return user != nil, err
 }

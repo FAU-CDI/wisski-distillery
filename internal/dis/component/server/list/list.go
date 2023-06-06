@@ -42,7 +42,7 @@ func (li *ListInstances) ShouldShowList(r *http.Request) bool {
 		return allowPrivate
 	}
 
-	user, _ := li.Dependencies.Auth.UserOf(r)
+	user, _, _ := li.Dependencies.Auth.UserOf(r)
 	if user == nil {
 		return allowPublic
 	} else {

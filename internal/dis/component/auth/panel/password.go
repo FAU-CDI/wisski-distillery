@@ -53,7 +53,7 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 				return struct{}{}, errPasswordsNotIdentical
 			}
 
-			user, err := panel.Dependencies.Auth.UserOf(r)
+			user, err := panel.Dependencies.Auth.UserOfSession(r)
 			if err != nil {
 				return struct{}{}, err
 			}

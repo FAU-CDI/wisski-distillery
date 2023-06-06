@@ -1,0 +1,56 @@
+<div class="pure-u-1">
+    <p>
+        This page allows you to add, view and remove tokens from your distillery account.
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <h2>My Tokens</h2>
+    <p>
+        This table shows tokens currently associated with your account.
+        Tokens can be used to access the API programatically.
+    </p>
+    <div class="padding">
+        <div class="overflow">
+
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            Token
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                        <th>
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ $csrf := .CSRF }}
+                    {{ range .Tokens }}
+                        <tr>
+                            <td>
+                                <code class="copy">{{ .Token }}</code>
+                            </td>
+                            <td>
+                                {{ .Description }}
+                            </td>
+                            <td>
+                                <div class="pure-button-group" role="group">
+                                    <form action="/user/tokens/delete" method="POST" class="pure-form-group">
+                                        <input type="hidden" name="token" value="{{ .Token }}">
+                                        <input type="submit" class="pure-button pure-button-danger" value="Delete">
+                                        {{ $csrf }}
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

@@ -8,10 +8,12 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/api"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/next"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/panel"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/tokens"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/binder"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
@@ -145,6 +147,7 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*policy.Policy],
 		auto[*panel.UserPanel],
 		auto[*next.Next],
+		auto[*tokens.Tokens],
 
 		//scopes
 		auto[*scopes.UserLoggedIn],
@@ -196,6 +199,8 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*cron.Cron],
 
 		// API
+		auto[*api.API],
+		auto[*list.API],
 		auto[*list.API],
 		auto[*news.API],
 	}

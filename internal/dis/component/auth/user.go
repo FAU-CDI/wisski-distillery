@@ -25,7 +25,7 @@ var ErrUserNotFound = errors.New("user not found")
 func (auth *Auth) TableInfo() component.TableInfo {
 	return component.TableInfo{
 		Name:  models.UserTable,
-		Model: reflectx.TypeOf[models.User](),
+		Model: reflectx.MakeType[models.User](),
 	}
 }
 

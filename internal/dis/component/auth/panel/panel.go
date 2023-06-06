@@ -9,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/next"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/tokens"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
@@ -24,6 +25,7 @@ type UserPanel struct {
 		Auth       *auth.Auth
 		Templating *templating.Templating
 		Policy     *policy.Policy
+		Tokens     *tokens.Tokens
 		Instances  *instances.Instances
 		Next       *next.Next
 		Keys       *sshkeys.SSHKeys
@@ -40,14 +42,14 @@ func (panel *UserPanel) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/user/",
 		CSRF:      true,
-		Decorator: panel.Dependencies.Auth.Require(scopes.ScopeUserLoggedIn, nil),
+		Decorator: panel.Dependencies.Auth.Require(false, scopes.ScopeUserLoggedIn, nil),
 	}
 }
 
 func (panel *UserPanel) Menu(r *http.Request) []component.MenuItem {
 	title := "Login"
 
-	user, err := panel.Dependencies.Auth.UserOf(r)
+	user, err := panel.Dependencies.Auth.UserOfSession(r)
 	if user != nil && err == nil {
 		title = user.User.User
 	}
@@ -61,6 +63,9 @@ var (
 	menuChangePassword = component.MenuItem{Title: "Change Password", Path: "/user/password/"}
 	menuSSH            = component.MenuItem{Title: "SSH Keys", Path: "/user/ssh/"}
 	menuSSHAdd         = component.MenuItem{Title: "Add New Key", Path: "/user/ssh/add/"}
+
+	menuTokens    = component.MenuItem{Title: "Tokens", Path: "/user/tokens/"}
+	menuTokensAdd = component.MenuItem{Title: "Add New Token", Path: "/user/tokens/add/"}
 
 	menuTOTPAction  = component.DummyMenuItem()
 	menuTOTPDisable = component.MenuItem{Title: "Disable Passcode (TOTP)", Path: "/user/totp/disable/"}
@@ -115,8 +120,24 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 		router.Handler(http.MethodPost, route+"ssh/delete", delete)
 	}
 
+	{
+		tokens := panel.tokensRoute(ctx)
+		router.Handler(http.MethodGet, route+"tokens", tokens)
+	}
+
+	{
+		add := panel.tokensAddRoute(ctx)
+		router.Handler(http.MethodGet, route+"tokens/add", add)
+		router.Handler(http.MethodPost, route+"tokens/add", add)
+	}
+
+	{
+		delete := panel.tokensDeleteRoute(ctx)
+		router.Handler(http.MethodPost, route+"tokens/delete", delete)
+	}
+
 	// ensure that the user is logged in!
-	return panel.Dependencies.Auth.Protect(router, scopes.ScopeUserLoggedIn, nil), nil
+	return panel.Dependencies.Auth.Protect(router, false, scopes.ScopeUserLoggedIn, nil), nil
 }
 
 type userFormContext struct {
@@ -137,7 +158,7 @@ func (panel *UserPanel) UserFormContext(tpl *templating.Template[userFormContext
 
 	return func(ctx httpx.FormContext, r *http.Request) any {
 		uctx := userFormContext{FormContext: ctx}
-		if user, err := panel.Dependencies.Auth.UserOf(r); err == nil {
+		if user, err := panel.Dependencies.Auth.UserOfSession(r); err == nil {
 			uctx.User = &user.User
 		}
 		return tpl.Context(r, uctx, funcs...)

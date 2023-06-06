@@ -33,7 +33,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
-			user, err := panel.Dependencies.Auth.UserOf(r)
+			user, err := panel.Dependencies.Auth.UserOfSession(r)
 			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 
@@ -43,7 +43,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
 
-			user, err := panel.Dependencies.Auth.UserOf(r)
+			user, err := panel.Dependencies.Auth.UserOfSession(r)
 			if err != nil {
 				return struct{}{}, err
 			}
@@ -105,11 +105,11 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
-			user, err := panel.Dependencies.Auth.UserOf(r)
+			user, err := panel.Dependencies.Auth.UserOfSession(r)
 			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 		RenderTemplateContext: func(context httpx.FormContext, r *http.Request) any {
-			user, err := panel.Dependencies.Auth.UserOf(r)
+			user, err := panel.Dependencies.Auth.UserOfSession(r)
 
 			ctx := totpEnrollContext{
 				userFormContext: userFormContext{
@@ -136,7 +136,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]
 
-			user, err := panel.Dependencies.Auth.UserOf(r)
+			user, err := panel.Dependencies.Auth.UserOfSession(r)
 			if err != nil {
 				return struct{}{}, err
 			}
@@ -184,7 +184,7 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
-			user, err := panel.Dependencies.Auth.UserOf(r)
+			user, err := panel.Dependencies.Auth.UserOfSession(r)
 			return struct{}{}, err == nil && user != nil && !user.IsTOTPEnabled()
 		},
 		RenderTemplate:        tpl.Template(),
@@ -193,7 +193,7 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]
 
-			user, err := panel.Dependencies.Auth.UserOf(r)
+			user, err := panel.Dependencies.Auth.UserOfSession(r)
 			if err != nil {
 				return struct{}{}, err
 			}

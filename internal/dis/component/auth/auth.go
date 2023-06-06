@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/tokens"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/gorilla/sessions"
@@ -19,12 +20,17 @@ type Auth struct {
 		UserDeleteHooks []component.UserDeleteHook
 		Templating      *templating.Templating
 		ScopeProviders  []component.ScopeProvider
+		Tokens          *tokens.Tokens
 	}
 
 	store lazy.Lazy[sessions.Store]
 
-	scopeInfos lazy.Lazy[[]component.ScopeInfo]
-	scopeIndex lazy.Lazy[map[component.Scope]int]
+	scopeMap lazy.Lazy[map[component.Scope]scopeMapEntry]
+}
+
+type scopeMapEntry struct {
+	Provider component.ScopeProvider
+	Info     component.ScopeInfo
 }
 
 var (

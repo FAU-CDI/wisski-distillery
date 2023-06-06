@@ -51,12 +51,13 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 			menuChangePassword,
 			menuTOTPAction,
 			menuSSH,
+			menuTokens,
 		),
 	)
 
 	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (uc userContext, funcs []templating.FlagFunc, err error) {
 		// find the user
-		uc.AuthUser, err = panel.Dependencies.Auth.UserOf(r)
+		uc.AuthUser, err = panel.Dependencies.Auth.UserOfSession(r)
 		if err != nil || uc.AuthUser == nil {
 			return uc, nil, err
 		}
