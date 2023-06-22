@@ -86,6 +86,10 @@ func (wisski *WissKI) SSH() *ssh.SSH {
 	return export[*ssh.SSH](wisski)
 }
 
+func (wisski *WissKI) Blocks() *extras.Blocks {
+	return export[*extras.Blocks](wisski)
+}
+
 //
 // All components
 // THESE SHOULD NEVER BE CALLED DIRECTLY
@@ -105,6 +109,7 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		auto[*extras.Settings],
 		auto[*extras.Pathbuilder],
 		auto[*extras.Stats],
+		auto[*extras.Blocks],
 		auto[*users.Users],
 		auto[*users.UserPolicy],
 

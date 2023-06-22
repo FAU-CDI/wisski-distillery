@@ -68,6 +68,8 @@ func init() {
 
 	// status
 	wdcli.Register(cmd.Status)
+
+	wdcli.Register(cmd.MakeBlock)
 }
 
 // an error when no arguments are provided.
