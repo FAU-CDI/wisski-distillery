@@ -17,7 +17,7 @@ Typically each request takes only a second to execute.
 NOTE: These routes will be documented using a Swagger / OpenAPI definition in the future. 
 All routes can be found under `/api/v1/http/`
 
-- `/api/v1/auth`: Returns user information
+- `/api/v1/auth`: Returns api session information
 - `/api/v1/systems`: Returns a (publically visible) list of systems 
 - `/api/v1/news`: Returns JSON containing all news items
 

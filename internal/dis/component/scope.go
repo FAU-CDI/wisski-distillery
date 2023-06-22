@@ -1,8 +1,11 @@
 package component
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
 // Scope represents a single permit by a session to perform some action.
@@ -58,6 +61,36 @@ type ScopeProvider interface {
 	// Scopes returns information about the scope
 	Scope() ScopeInfo
 
-	// Check checks if the given session has access to the given scope
+	// Check checks if the given session has access to the given scope.
 	HasScope(param string, r *http.Request) (bool, error)
+	// TODO: move this to a session
+}
+
+// SessionInfo provides information about the current session.
+type SessionInfo struct {
+	// User is the current user associated with the session.
+	User *models.User
+
+	// Token indicates if the user was authenticated with a Token
+	Token bool
+}
+
+func (si SessionInfo) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		User  string `json:"user"`
+		Token bool   `json:"token"`
+	}{User: si.Username(), Token: si.Token})
+}
+
+// Username reports the username associated with this session
+func (si SessionInfo) Username() string {
+	if si.User == nil {
+		return ""
+	}
+	return si.User.User
+}
+
+// Anonymous reports if this Session is associated with a user account
+func (si SessionInfo) Anonymous() bool {
+	return si.Username() != ""
 }

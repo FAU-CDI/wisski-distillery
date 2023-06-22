@@ -32,6 +32,6 @@ func (*AdminLoggedIn) Scope() component.ScopeInfo {
 }
 
 func (al *AdminLoggedIn) HasScope(param string, r *http.Request) (bool, error) {
-	user, _, err := al.Dependencies.Auth.UserOf(r)
+	user, _, err := al.Dependencies.Auth.SessionOf(r)
 	return user != nil && user.IsAdmin() && user.IsTOTPEnabled(), err
 }

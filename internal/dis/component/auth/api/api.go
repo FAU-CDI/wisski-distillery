@@ -44,7 +44,7 @@ func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error
 
 		Handler: func(s string, r *http.Request) (ai AuthInfo, err error) {
 			var user *auth.AuthUser
-			user, ai.Token, err = a.Dependencies.Auth.UserOf(r)
+			user, err = a.Dependencies.Auth.SessionOf(r)
 			if user != nil {
 				ai.User = user.User.User
 			}

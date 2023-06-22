@@ -80,7 +80,7 @@ func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, e
 		}
 
 		// get the user
-		user, _, err := next.Dependencies.Auth.UserOf(r)
+		user, _, err := next.Dependencies.Auth.SessionOf(r)
 		if err != nil {
 			return "", 0, err
 		}

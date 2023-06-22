@@ -23,7 +23,7 @@ func (auth *Auth) Protect(handler http.Handler, AllowToken bool, scope component
 
 		// load the user in the session
 		// TODO<tokens>: Check if API access is allowed
-		user, token, err := auth.UserOf(r)
+		user, token, err := auth.SessionOf(r)
 		if err != nil {
 			goto err
 		}

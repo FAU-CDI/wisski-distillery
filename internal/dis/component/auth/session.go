@@ -18,27 +18,30 @@ import (
 	_ "embed"
 )
 
-// UserOf returns the user logged into the provided request.
+// SessionOf returns the session and user logged into the provided request.
 // token indicates if the user used a token to authenticate, or a browser session was used.
 // A token takes priority over a user in a session.
 //
 // If there is no user associated with the given request, user and error are nil, and token is false.
 // An invalid session, expired token, or disabled user all result in user = nil.
 //
-// When no UserOf exists in the given session returns nil.
-func (auth *Auth) UserOf(r *http.Request) (user *AuthUser, token bool, err error) {
+// When no SessionOf exists in the given session returns nil.
+func (auth *Auth) SessionOf(r *http.Request) (session component.SessionInfo, user *AuthUser, err error) {
 	// check the user from the token first
 	{
 		user, err := auth.UserOfToken(r)
 		if user != nil && err == nil {
-			return user, true, nil
+			return component.SessionInfo{User: &user.User, Token: true}, user, nil
 		}
 	}
 
 	// fallback to using session
 	{
 		user, err := auth.UserOfSession(r)
-		return user, false, err
+		if err != nil {
+			return component.SessionInfo{}, nil, err
+		}
+		return component.SessionInfo{User: &user.User, Token: false}, user, nil
 	}
 }
 

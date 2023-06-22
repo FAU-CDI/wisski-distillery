@@ -7,14 +7,14 @@ const UserTable = "users"
 type User struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 
-	User         string `gorm:"column:user;not null;unique"` // name of the user
-	PasswordHash []byte `gorm:"column:password"`             // password of the user, hashed
+	User string `gorm:"column:user;not null;unique"` // name of the user
 
-	TOTPEnabled *bool  `gorm:"column:totpenabled"` // is totp enabled for the user
-	TOTPURL     string `gorm:"column:totp"`        // the totp of the user
+	PasswordHash []byte `gorm:"column:password" json:"-"`    // password of the user, hashed
+	TOTPEnabled  *bool  `gorm:"column:totpenabled" json:"-"` // is totp enabled for the user
+	TOTPURL      string `gorm:"column:totp" json:"-"`        // the totp of the user
 
-	Enabled *bool `gorm:"enabled;not null"`
-	Admin   *bool `gorm:"column:admin;not null"`
+	Enabled *bool `gorm:"enabled;not null" json:"enabled"`
+	Admin   *bool `gorm:"column:admin;not null" json:"admin"`
 }
 
 func (user *User) HasPassword() bool {
