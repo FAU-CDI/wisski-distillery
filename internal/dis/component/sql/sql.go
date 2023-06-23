@@ -25,6 +25,7 @@ var (
 	_ component.Snapshotable  = (*SQL)(nil)
 	_ component.Installable   = (*SQL)(nil)
 	_ component.Provisionable = (*SQL)(nil)
+	_ component.Updatable     = (*SQL)(nil)
 )
 
 func (sql *SQL) Path() string {

@@ -19,14 +19,36 @@ import (
 //
 // NOTE(twiesing): This command should not be used to connect to the database or execute queries except in known situations.
 func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) int {
-	return sql.Stack().Exec(ctx, io, "sql", "mysql", argv...)()
+	return sql.Stack().Exec(ctx, io, "sql", "mariadb", argv...)()
 }
 
+var errSQLNotFound = errors.New("internal error: unsafeWaitShell: sql client not found")
+
 // unsafeWaitShell waits for a connection via the database shell to succeed
-func (sql *SQL) unsafeWaitShell(ctx context.Context) error {
-	n := stream.FromNil()
+func (sql *SQL) unsafeWaitShell(ctx context.Context) (err error) {
+	defer func() {
+		// catch the errSQLNotFound
+		r := recover()
+		if r == nil {
+			return
+		}
+
+		// other panic => keep panicking
+		if r != errSQLNotFound {
+			panic(r)
+		}
+
+		err = errSQLNotFound
+	}()
+
 	return timex.TickUntilFunc(func(time.Time) bool {
-		code := sql.Shell(ctx, n, "-e", "select 1;")
+		code := sql.Shell(ctx, stream.FromNil(), "-e", "select 1;")
+
+		// special case: executable was not found in the docker container.
+		// so bail out immediately; as there is no hope of recovery.
+		if code == 127 || code == 126 {
+			panic(errSQLNotFound)
+		}
 		return code == 0
 	}, ctx, sql.PollInterval)
 }

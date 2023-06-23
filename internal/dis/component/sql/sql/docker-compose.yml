@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
     sql:
-        image: mariadb
+        image: mariadb:11.0
         volumes:
             - "./data/:/var/lib/mysql"
             - "./imports/:/imports/"
