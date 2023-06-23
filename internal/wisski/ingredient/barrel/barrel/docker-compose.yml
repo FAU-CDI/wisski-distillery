@@ -4,7 +4,7 @@ services:
   barrel:
     build: .
     restart: always
-    hostname: ${HOSTNAME}
+    hostname: ${WISSKI_HOSTNAME}
 
     # label it with the current slug
     labels:
