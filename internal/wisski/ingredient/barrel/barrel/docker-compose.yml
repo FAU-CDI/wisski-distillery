@@ -14,7 +14,17 @@ services:
       - "traefik.http.routers.wisski_${SLUG}.rule=${HOST_RULE}"
       - "traefik.http.routers.wisski_${SLUG}.tls=${HTTPS_ENABLED}"
       - "traefik.http.routers.wisski_${SLUG}.tls.certresolver=distillery"
+      - "traefik.http.routers.wisski_${SLUG}.middlewares=wisski_${SLUG}_hmid@docker"
+
       - "traefik.http.services.wisski_${SLUG}.loadbalancer.server.port=8080"
+
+      # Remove all of the custom headers that display which server powers us.
+      # Only hackers need to know this.
+      - "traefik.http.middlewares.wisski_${SLUG}_hmid.headers.customresponseheaders.x-drupal-cache="
+      - "traefik.http.middlewares.wisski_${SLUG}_hmid.headers.customresponseheaders.x-drupal-dynamic-cache="
+      - "traefik.http.middlewares.wisski_${SLUG}_hmid.headers.customresponseheaders.x-generator="
+      - "traefik.http.middlewares.wisski_${SLUG}_hmid.headers.customresponseheaders.x-powered-by="
+      - "traefik.http.middlewares.wisski_${SLUG}_hmid.headers.customresponseheaders.Server="
     
     # volumes that are mounted
     volumes:
