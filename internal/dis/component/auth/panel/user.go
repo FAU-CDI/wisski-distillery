@@ -62,7 +62,7 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 			return uc, nil, err
 		}
 
-		uc.ShowAdminURLs = panel.Dependencies.Auth.CheckScope("", scopes.ScopeAdminLoggedIn, r) == nil
+		uc.ShowAdminURLs = panel.Dependencies.Auth.CheckScope("", scopes.ScopeUserAdmin, r) == nil
 
 		// replace the totp action in the menu
 		var totpAction component.MenuItem

@@ -22,14 +22,14 @@ func (auth *Auth) Protect(handler http.Handler, AllowToken bool, scope component
 		var paramValue string
 
 		// load the user in the session
-		// TODO<tokens>: Check if API access is allowed
-		user, token, err := auth.SessionOf(r)
+		// TODO: In a future version of sessions, check if token has the permitted scope.
+		session, user, err := auth.SessionOf(r)
 		if err != nil {
 			goto err
 		}
 
 		// token was set, but not allowed!
-		if token && !AllowToken {
+		if session.Token && !AllowToken {
 			goto forbidden
 		}
 

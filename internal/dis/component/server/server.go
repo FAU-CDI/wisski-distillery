@@ -45,10 +45,11 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 			DefaultDomain: slug == "" && ok,
 		}
 	}
-	publicM.Panic = func(panic any, w http.ResponseWriter, r *http.Request) {
+	publicM.Panic = func(p any, stack []byte, w http.ResponseWriter, r *http.Request) {
 		// log the panic
 		logger.Error().
-			Str("panic", fmt.Sprint(panic)).
+			Str("panic", fmt.Sprint(p)).
+			Str("stack", string(stack)).
 			Str("path", r.URL.Path).
 			Msg("panic serving handler")
 

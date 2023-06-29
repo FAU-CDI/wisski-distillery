@@ -19,18 +19,18 @@ var (
 )
 
 const (
-	ScopeUserLoggedIn Scope = "login.user"
+	ScopeUserValid Scope = "user.valid"
 )
 
 func (*UserLoggedIn) Scope() component.ScopeInfo {
 	return component.ScopeInfo{
-		Scope:       ScopeUserLoggedIn,
-		Description: "session has an associated user",
+		Scope:       ScopeUserValid,
+		Description: "session must have a valid user",
 		TakesParam:  false,
 	}
 }
 
 func (iu *UserLoggedIn) HasScope(param string, r *http.Request) (bool, error) {
-	user, _, err := iu.Dependencies.Auth.SessionOf(r)
+	_, user, err := iu.Dependencies.Auth.SessionOf(r)
 	return user != nil, err
 }

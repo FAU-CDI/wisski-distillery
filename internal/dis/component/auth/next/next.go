@@ -31,7 +31,7 @@ var (
 func (next *Next) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/next/",
-		Decorator: next.Dependencies.Auth.Require(true, scopes.ScopeUserLoggedIn, nil),
+		Decorator: next.Dependencies.Auth.Require(true, scopes.ScopeUserValid, nil),
 	}
 }
 

@@ -21,6 +21,7 @@ All routes can be found under `/api/v1/http/`
 - `/api/v1/systems`: Returns a (publically visible) list of systems 
 - `/api/v1/news`: Returns JSON containing all news items
 
+
 ## Interactive Websocket API
 
 Some API calls require interactivity or provide streaming content to clients.

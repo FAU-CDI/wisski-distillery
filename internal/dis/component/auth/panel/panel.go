@@ -42,7 +42,7 @@ func (panel *UserPanel) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/user/",
 		CSRF:      true,
-		Decorator: panel.Dependencies.Auth.Require(false, scopes.ScopeUserLoggedIn, nil),
+		Decorator: panel.Dependencies.Auth.Require(false, scopes.ScopeUserValid, nil),
 	}
 }
 
@@ -137,7 +137,7 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 	}
 
 	// ensure that the user is logged in!
-	return panel.Dependencies.Auth.Protect(router, false, scopes.ScopeUserLoggedIn, nil), nil
+	return panel.Dependencies.Auth.Protect(router, false, scopes.ScopeUserValid, nil), nil
 }
 
 type userFormContext struct {

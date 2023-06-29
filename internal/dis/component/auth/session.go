@@ -41,11 +41,15 @@ func (auth *Auth) SessionOf(r *http.Request) (session component.SessionInfo, use
 		if err != nil {
 			return component.SessionInfo{}, nil, err
 		}
+		if user == nil {
+			return component.SessionInfo{}, nil, nil
+		}
 		return component.SessionInfo{User: &user.User, Token: false}, user, nil
 	}
 }
 
 // UserOfToken returns the user associated with the token in request.
+// To check the user of a token or session, use SessionOf.
 func (auth *Auth) UserOfToken(r *http.Request) (user *AuthUser, err error) {
 	// get the token object
 	token, err := auth.Dependencies.Tokens.TokenOf(r)

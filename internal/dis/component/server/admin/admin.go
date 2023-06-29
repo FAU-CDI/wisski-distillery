@@ -47,12 +47,12 @@ func (admin *Admin) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/admin/",
 		CSRF:      true,
-		Decorator: admin.Dependencies.Auth.Require(false, scopes.ScopeAdminLoggedIn, nil),
+		Decorator: admin.Dependencies.Auth.Require(false, scopes.ScopeUserAdmin, nil),
 	}
 }
 
 func (admin *Admin) Menu(r *http.Request) []component.MenuItem {
-	if admin.Dependencies.Auth.CheckScope("", scopes.ScopeAdminLoggedIn, r) != nil {
+	if admin.Dependencies.Auth.CheckScope("", scopes.ScopeUserAdmin, r) != nil {
 		return nil
 	}
 	return []component.MenuItem{

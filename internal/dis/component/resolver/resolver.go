@@ -103,7 +103,7 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 				IndexContext: context,
 			}
 
-			if resolver.Dependencies.Auth.CheckScope("", scopes.ScopeUserLoggedIn, r) != nil {
+			if resolver.Dependencies.Auth.CheckScope("", scopes.ScopeUserValid, r) != nil {
 				ctx.IndexContext.Prefixes = nil
 			}
 			httpx.WriteHTML(tpl.Context(r, ctx), nil, t, "", w, r)

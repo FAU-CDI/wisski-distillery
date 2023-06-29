@@ -19,19 +19,19 @@ var (
 )
 
 const (
-	ScopeAdminLoggedIn Scope = "login.admin"
+	ScopeUserAdmin Scope = "user.admin"
 )
 
 func (*AdminLoggedIn) Scope() component.ScopeInfo {
 	return component.ScopeInfo{
-		Scope:         ScopeAdminLoggedIn,
-		Description:   "session has a signed in admin",
-		DeniedMessage: "user must be signed into an admin account with TOTP enabled",
+		Scope:         ScopeUserAdmin,
+		Description:   "session must have a valid admin",
+		DeniedMessage: "user must have an admin account with TOTP enabled",
 		TakesParam:    false,
 	}
 }
 
 func (al *AdminLoggedIn) HasScope(param string, r *http.Request) (bool, error) {
-	user, _, err := al.Dependencies.Auth.SessionOf(r)
+	_, user, err := al.Dependencies.Auth.SessionOf(r)
 	return user != nil && user.IsAdmin() && user.IsTOTPEnabled(), err
 }
