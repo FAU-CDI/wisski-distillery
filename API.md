@@ -18,8 +18,9 @@ NOTE: These routes will be documented using a Swagger / OpenAPI definition in th
 All routes can be found under `/api/v1/http/`
 
 - `/api/v1/auth`: Returns api session information
-- `/api/v1/systems`: Returns a (publically visible) list of systems 
 - `/api/v1/news`: Returns JSON containing all news items
+- `/api/v1/instances/directory`: Returns a (publically visible) list of systems 
+- `/api/v1/resolve?uri=...`: Resolve a URI
 
 
 ## Interactive Websocket API

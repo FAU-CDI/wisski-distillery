@@ -154,6 +154,7 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*scopes.AdminLoggedIn],
 		auto[*scopes.ListInstancesScope],
 		auto[*scopes.ListNewsScope],
+		auto[*scopes.ResolverScope],
 
 		// instances
 		auto[*instances.Instances],
@@ -203,5 +204,6 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*list.API],
 		auto[*list.API],
 		auto[*news.API],
+		auto[*resolver.API],
 	}
 }

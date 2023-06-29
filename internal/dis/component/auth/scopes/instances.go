@@ -32,7 +32,6 @@ func (*ListInstancesScope) Scope() component.ScopeInfo {
 }
 
 func (lis *ListInstancesScope) HasScope(param string, r *http.Request) (bool, error) {
-	// TODO: at the moment everyone has this permission
-	// this should change in the future!
-	return true, nil
+	_, user, err := lis.Dependencies.Auth.SessionOf(r)
+	return user != nil, err
 }

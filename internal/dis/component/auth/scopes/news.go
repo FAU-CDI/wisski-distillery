@@ -32,6 +32,6 @@ func (*ListNewsScope) Scope() component.ScopeInfo {
 }
 
 func (lns *ListNewsScope) HasScope(param string, r *http.Request) (bool, error) {
-	// TODO: at the moment everyone has this permission
-	return true, nil
+	_, user, err := lns.Dependencies.Auth.SessionOf(r)
+	return user != nil, err
 }

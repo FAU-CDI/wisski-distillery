@@ -63,7 +63,6 @@ type ScopeProvider interface {
 
 	// Check checks if the given session has access to the given scope.
 	HasScope(param string, r *http.Request) (bool, error)
-	// TODO: move this to a session
 }
 
 // SessionInfo provides information about the current session.
