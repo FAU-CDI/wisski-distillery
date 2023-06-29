@@ -1,0 +1,30 @@
+<div class="pure-u-1">
+    <p>
+        A new token has been created.
+        This token will only be shown once.
+        Please make sure to copy it now.
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <p>
+        <span class="copy">{{ .Token.Token }}</span>
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <p>
+        To test this token, you can use curl on the command line:
+    </p>
+    <code class="copy">
+        curl -H "Authorization: Bearer <b>{{ .Token.Token }}</b>" {{ .Domain }}api/v1/auth
+    </code>
+    <p>
+        You should receive a response with <code>token: true</code> inside of it.
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <a href="/user/tokens/" class="pure-button">Back To Token List</a>
+</div>
+

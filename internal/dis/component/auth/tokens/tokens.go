@@ -113,7 +113,16 @@ func (tok *Tokens) Add(ctx context.Context, user string, description string, sco
 	}
 	mk.SetScopes(scopes)
 
-	// generate a new random password
+	// generate a new id for the token
+	{
+		var err error
+		mk.TokenID, err = NewToken()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// generate the actual token
 	var err error
 	mk.Token, err = NewToken()
 	if err != nil {
@@ -136,7 +145,7 @@ func (tok *Tokens) Add(ctx context.Context, user string, description string, sco
 }
 
 // Remove removes a token with the given token from the user
-func (tok *Tokens) Remove(ctx context.Context, user, token string) error {
+func (tok *Tokens) Remove(ctx context.Context, user, id string) error {
 	// get the table
 	table, err := tok.table(ctx)
 	if err != nil {
@@ -144,5 +153,5 @@ func (tok *Tokens) Remove(ctx context.Context, user, token string) error {
 	}
 
 	// and do the delete
-	return table.Where("user = ? AND token = ?", user, token).Delete(&models.Token{}).Error
+	return table.Where("user = ? AND id = ?", user, id).Delete(&models.Token{}).Error
 }

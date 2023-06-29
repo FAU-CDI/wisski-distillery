@@ -41,18 +41,22 @@ func (g GrantWithURL) AdminURL() template.URL {
 }
 
 func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
+	actions := []component.MenuItem{
+		menuChangePassword,
+		menuTOTPAction,
+		menuSSH,
+	}
+
+	if panel.Config.HTTP.API.Value {
+		actions = append(actions, menuTokens)
+	}
 
 	tpl := userTemplate.Prepare(
 		panel.Dependencies.Templating,
 		templating.Crumbs(
 			menuUser,
 		),
-		templating.Actions(
-			menuChangePassword,
-			menuTOTPAction,
-			menuSSH,
-			menuTokens,
-		),
+		templating.Actions(actions...),
 	)
 
 	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (uc userContext, funcs []templating.FlagFunc, err error) {

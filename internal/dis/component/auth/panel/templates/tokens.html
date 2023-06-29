@@ -4,7 +4,7 @@
     </p>
 </div>
 
-<div class="pure-u-1">
+<div class="pure-u-2-3">
     <h2>My Tokens</h2>
     <p>
         This table shows tokens currently associated with your account.
@@ -16,6 +16,9 @@
             <table class="pure-table pure-table-bordered">
                 <thead>
                     <tr>
+                        <th>
+                            ID
+                        </th>
                         <th>
                             Token
                         </th>
@@ -32,7 +35,10 @@
                     {{ range .Tokens }}
                         <tr>
                             <td>
-                                <code class="copy">{{ .Token }}</code>
+                                <code class="copy">{{ .TokenID }}</code>
+                            </td>
+                            <td>
+                                (only shown once)
                             </td>
                             <td>
                                 {{ .Description }}
@@ -40,7 +46,7 @@
                             <td>
                                 <div class="pure-button-group" role="group">
                                     <form action="/user/tokens/delete" method="POST" class="pure-form-group">
-                                        <input type="hidden" name="token" value="{{ .Token }}">
+                                        <input type="hidden" name="id" value="{{ .TokenID }}">
                                         <input type="submit" class="pure-button pure-button-danger" value="Delete">
                                         {{ $csrf }}
                                     </form>
@@ -54,3 +60,14 @@
     </div>
 </div>
 
+<div class="pure-u-1-3">
+    <p>
+        To check if a token is working, you can use something like:
+    </p>
+    <code class="copy">
+        curl -H "Authorization: Bearer <b>&lt;token&gt;</b>" {{ .Domain }}api/v1/auth
+    </code>
+    <p>
+        When using a working token, you should get a response with <code>Token: true</code> in it.
+    </p>
+</div>
