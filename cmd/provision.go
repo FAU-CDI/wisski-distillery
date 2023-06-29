@@ -12,6 +12,7 @@ import (
 var Provision wisski_distillery.Command = pv{}
 
 type pv struct {
+	PHPVersion  string `short:"p" long:"php" description:"specific php version to use for instance. Should be one of '8.0', '8.1'."`
 	Positionals struct {
 		Slug string `positional-arg-name:"slug" required:"1-1" description:"slug of instance to create"`
 	} `positional-args:"true"`
@@ -36,7 +37,8 @@ var errProvisionGeneric = exit.Error{
 
 func (p pv) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Provision().Provision(context.Stderr, context.Context, provision.ProvisionFlags{
-		Slug: p.Positionals.Slug,
+		Slug:       p.Positionals.Slug,
+		PHPVersion: p.PHPVersion,
 	})
 	if err != nil {
 		return errProvisionGeneric.WithMessageF(p.Positionals.Slug).Wrap(err)

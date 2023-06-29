@@ -53,7 +53,7 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 	}
 
 	// make it in-memory
-	instance, err := dis.Instances().Create(slug)
+	instance, err := dis.Instances().Create(slug, "")
 	if err != nil {
 		return errProvisionGeneric.WithMessageF(slug, err)
 	}

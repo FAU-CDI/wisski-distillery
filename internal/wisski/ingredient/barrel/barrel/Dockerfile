@@ -1,4 +1,5 @@
-FROM docker.io/library/php:8.0-apache-bullseye
+ARG BARREL_BASE_IMAGE
+FROM $BARREL_BASE_IMAGE
 ARG COMPOSER_VERSION=2.3.8
 WORKDIR /var/www
 

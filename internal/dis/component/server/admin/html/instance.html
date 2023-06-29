@@ -31,6 +31,18 @@
                     </tr>
                     <tr>
                         <td>
+                            Docker Base Image
+                        </td>
+                        <td>
+                            {{ if  .Instance.DockerBaseImage }}
+                            <code>{{ .Instance.DockerBaseImage }}</code>
+                            {{ else }}
+                            (none)
+                            {{ end }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             Running
                         </td>
                         <td>

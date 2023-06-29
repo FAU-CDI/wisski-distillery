@@ -37,7 +37,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	instance, err := purger.Dependencies.Instances.WissKI(ctx, slug)
 	if err == instances.ErrWissKINotFound {
 		fmt.Fprintln(out, "Not found in bookkeeping table, assuming defaults")
-		instance, err = purger.Dependencies.Instances.Create(slug)
+		instance, err = purger.Dependencies.Instances.Create(slug, "")
 	}
 	if err != nil {
 		return errPurgeNoDetails.WithMessageF(err)

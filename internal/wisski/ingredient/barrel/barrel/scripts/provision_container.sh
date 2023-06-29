@@ -85,6 +85,18 @@ function composer_install_and_enable() {
     done
 }
 
+function try_variants() {
+    for var in "$@"
+    do
+        if composer require --dry-run "$var" > /dev/null 2>&1; then
+            composer require "$var"
+            return 0;
+        fi
+    done
+
+    return 1;
+}
+
 
 # Create a new composer project. 
 log_info " => Creating composer project"
@@ -99,7 +111,7 @@ composer --no-interaction config allow-plugins true
 
 # Install drush so that we can automate a lot of things
 log_info " => Installing 'drush'"
-composer require drush/drush
+try_variants 'drush/drush' 'drush/drush:^12' 'drush/drush:^11' || (echo "No version of Drush is installable" && false)
 
 # Use 'drush' to run the site-installation. 
 # Here we need to use the username, password and database creds we made above. 

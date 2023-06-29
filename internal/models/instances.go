@@ -34,6 +34,9 @@ type Instance struct {
 	// The filesystem path the system can be found under
 	FilesystemBase string `gorm:"column:filesystem_base;not null"`
 
+	// DockerBaseImage is the php base image to use
+	DockerBaseImage string `gorm:"column:docker_base;not_null`
+
 	// SQL Database credentials for the system
 	SqlDatabase string `gorm:"column:sql_database;not null"`
 	SqlUsername string `gorm:"column:sql_user;not null"`

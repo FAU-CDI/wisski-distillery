@@ -14,11 +14,34 @@ var (
 	errRestrictedSlug = errors.New("restricted slug")
 )
 
+const (
+	PHP8         = "8.0"
+	PHP8_IMAGE   = "docker.io/library/php:8.0-apache-bullseye"
+	PHP8_1       = "8.1"
+	PHP8_1_IMAGE = "docker.io/library/php:8.1-apache-bullseye"
+)
+
+var errUnknownPHPVersion = errors.New("unknown php version")
+
+// GetBaseImage returns the php base image to use
+func GetBaseImage(php string) (string, error) {
+	switch php {
+	case "":
+		return PHP8_IMAGE, nil
+	case PHP8:
+		return PHP8_IMAGE, nil
+	case PHP8_1:
+		return PHP8_1_IMAGE, nil
+	default:
+		return "", errUnknownPHPVersion
+	}
+}
+
 // Create fills the struct for a new WissKI instance.
 // It validates that slug is a valid name for an instance.
 //
 // It does not perform any checks if the instance already exists, or does the creation in the database.
-func (instances *Instances) Create(slug string) (wissKI *wisski.WissKI, err error) {
+func (instances *Instances) Create(slug string, phpversion string) (wissKI *wisski.WissKI, err error) {
 
 	// make sure that the slug is valid!
 	slug, err = instances.IsValidSlug(slug)
@@ -60,6 +83,12 @@ func (instances *Instances) Create(slug string) (wissKI *wisski.WissKI, err erro
 	wissKI.Liquid.DrupalUsername = "admin" // TODO: Change this!
 
 	wissKI.Liquid.DrupalPassword, err = instances.Config.NewPassword()
+	if err != nil {
+		return nil, err
+	}
+
+	// docker image
+	wissKI.Liquid.Instance.DockerBaseImage, err = GetBaseImage(phpversion)
 	if err != nil {
 		return nil, err
 	}

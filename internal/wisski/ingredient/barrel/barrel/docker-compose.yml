@@ -2,7 +2,11 @@ version: "3.7"
 
 services:
   barrel:
-    build: .
+    build:
+      context: .
+      args:
+        BARREL_BASE_IMAGE: ${BARREL_BASE_IMAGE}
+    
     restart: always
     hostname: ${WISSKI_HOSTNAME}
 

@@ -22,10 +22,26 @@ type Provision struct {
 
 // ProvisionFlags are flags for a new instance
 type ProvisionFlags struct {
+	// Slug is the slug of the wisski instance
 	Slug string
+
+	// PHP Version to use
+	PHPVersion string
 }
 
 var ErrInstanceAlreadyExists = errors.New("instance with provided slug already exists")
+
+func (pv *Provision) ValidateFlags(flags ProvisionFlags) error {
+	// check the slug
+	if _, err := pv.Dependencies.Instances.IsValidSlug(flags.Slug); err != nil {
+		return err
+	}
+	// check for known php versions
+	if _, err := instances.GetBaseImage(flags.PHPVersion); err != nil {
+		return err
+	}
+	return nil
+}
 
 // Provision provisions a new docker compose instance.
 func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags ProvisionFlags) (*wisski.WissKI, error) {
@@ -36,7 +52,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Pr
 	}
 
 	// make it in-memory
-	instance, err := pv.Dependencies.Instances.Create(flags.Slug)
+	instance, err := pv.Dependencies.Instances.Create(flags.Slug, flags.PHPVersion)
 	if err != nil {
 		return nil, err
 	}
