@@ -126,6 +126,7 @@ drupal/devel:^4.1 devel
 drupal/geofield:^1.40 geofield
 drupal/geofield_map:^2.85 geofield_map
 drupal/imce:^2.4 imce
+drupal/remove_generator:^2.0 remove_generator
 EOF
 
 
