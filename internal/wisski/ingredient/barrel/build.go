@@ -13,7 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 )
 
-// Build builds or rebuilds the barel connected to this instance.
+// Build builds or rebuilds the barrel connected to this instance.
 //
 // It also logs the current time into the metadata belonging to this instance.
 func (barrel *Barrel) Build(ctx context.Context, progress io.Writer, start bool) error {

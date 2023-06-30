@@ -34,11 +34,7 @@
                             Docker Base Image
                         </td>
                         <td>
-                            {{ if  .Instance.DockerBaseImage }}
-                            <code>{{ .Instance.DockerBaseImage }}</code>
-                            {{ else }}
-                            (none)
-                            {{ end }}
+                            <code>{{ .Instance.GetDockerBaseImage }}</code>
                         </td>
                     </tr>
                     <tr>

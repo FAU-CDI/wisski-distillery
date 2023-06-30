@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 )
 
@@ -13,29 +14,6 @@ var (
 	errInvalidSlug    = errors.New("not a valid slug")
 	errRestrictedSlug = errors.New("restricted slug")
 )
-
-const (
-	PHP8         = "8.0"
-	PHP8_IMAGE   = "docker.io/library/php:8.0-apache-bullseye"
-	PHP8_1       = "8.1"
-	PHP8_1_IMAGE = "docker.io/library/php:8.1-apache-bullseye"
-)
-
-var errUnknownPHPVersion = errors.New("unknown php version")
-
-// GetBaseImage returns the php base image to use
-func GetBaseImage(php string) (string, error) {
-	switch php {
-	case "":
-		return PHP8_IMAGE, nil
-	case PHP8:
-		return PHP8_IMAGE, nil
-	case PHP8_1:
-		return PHP8_1_IMAGE, nil
-	default:
-		return "", errUnknownPHPVersion
-	}
-}
 
 // Create fills the struct for a new WissKI instance.
 // It validates that slug is a valid name for an instance.
@@ -88,7 +66,7 @@ func (instances *Instances) Create(slug string, phpversion string) (wissKI *wiss
 	}
 
 	// docker image
-	wissKI.Liquid.Instance.DockerBaseImage, err = GetBaseImage(phpversion)
+	wissKI.Liquid.Instance.DockerBaseImage, err = models.GetBaseImage(phpversion)
 	if err != nil {
 		return nil, err
 	}

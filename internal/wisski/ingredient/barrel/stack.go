@@ -32,7 +32,7 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 			"DATA_PATH":   filepath.Join(barrel.FilesystemBase, "data"),
 			"RUNTIME_DIR": barrel.Malt.Config.Paths.RuntimeDir(),
 
-			"BARREL_BASE_IMAGE": barrel.DockerBaseImage,
+			"BARREL_BASE_IMAGE": barrel.GetDockerBaseImage(),
 		},
 
 		MakeDirs: []string{"data", ".composer"},

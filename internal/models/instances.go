@@ -35,7 +35,7 @@ type Instance struct {
 	FilesystemBase string `gorm:"column:filesystem_base;not null"`
 
 	// DockerBaseImage is the php base image to use
-	DockerBaseImage string `gorm:"column:docker_base;not_null`
+	DockerBaseImage string `gorm:"column:docker_base;not_null"`
 
 	// SQL Database credentials for the system
 	SqlDatabase string `gorm:"column:sql_database;not null"`
@@ -46,6 +46,36 @@ type Instance struct {
 	GraphDBRepository string `gorm:"column:graphdb_repository;not null"`
 	GraphDBUsername   string `gorm:"column:graphdb_user;not null"`
 	GraphDBPassword   string `gorm:"column:graphdb_password;not null"`
+}
+
+const (
+	PHP8         = "8.0"
+	PHP8_IMAGE   = "docker.io/library/php:8.0-apache-bullseye"
+	PHP8_1       = "8.1"
+	PHP8_1_IMAGE = "docker.io/library/php:8.1-apache-bullseye"
+)
+
+var errUnknownPHPVersion = errors.New("unknown php version")
+
+// GetBaseImage returns the php base image to use
+func GetBaseImage(php string) (string, error) {
+	switch php {
+	case "":
+		return PHP8_IMAGE, nil
+	case PHP8:
+		return PHP8_IMAGE, nil
+	case PHP8_1:
+		return PHP8_1_IMAGE, nil
+	default:
+		return "", errUnknownPHPVersion
+	}
+}
+
+func (i Instance) GetDockerBaseImage() string {
+	if i.DockerBaseImage == "" {
+		return PHP8_IMAGE
+	}
+	return i.DockerBaseImage
 }
 
 func (i Instance) IsBlindUpdateEnabled() bool {

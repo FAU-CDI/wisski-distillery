@@ -7,6 +7,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/fsx"
@@ -37,7 +38,7 @@ func (pv *Provision) ValidateFlags(flags ProvisionFlags) error {
 		return err
 	}
 	// check for known php versions
-	if _, err := instances.GetBaseImage(flags.PHPVersion); err != nil {
+	if _, err := models.GetBaseImage(flags.PHPVersion); err != nil {
 		return err
 	}
 	return nil
