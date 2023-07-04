@@ -4,6 +4,7 @@ set -e
 # make a temporary directory and cd into it
 TEMPDIR=$(mktemp -d)
 pushd "$TEMPDIR"
+trap 'popd && rm -rf $TEMPDIR' EXIT
 
 # curl the colorbox zip and unpack it
 curl -L https://github.com/jackmoore/colorbox/archive/master.zip --output master.zip
@@ -17,6 +18,3 @@ rm -rf /var/www/data/project/web/sites/default/libraries/colorbox
 # copy over the new installation
 mv colorbox-master/ /var/www/data/project/web/sites/default/libraries/colorbox
 
-# cleanup
-popd
-rm -rf "$TEMPDIR"
