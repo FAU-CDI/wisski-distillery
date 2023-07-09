@@ -50,7 +50,7 @@ type Instance struct {
 
 // TODO: Cleanup this stuff
 const (
-	PHP_DEFAULT_IMAGE = PHP8_1
+	PHP_DEFAULT_IMAGE = PHP8_1_IMAGE
 	PHP8              = "8.0"
 	PHP8_IMAGE        = "docker.io/library/php:8.0-apache-bullseye"
 	PHP8_1            = "8.1"
