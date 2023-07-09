@@ -6,8 +6,10 @@ import (
 	"io"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/bookkeeping"
 	"github.com/alessio/shellescape"
 	"github.com/tkw1536/pkglib/stream"
 )
@@ -18,8 +20,25 @@ import (
 type Provisioner struct {
 	ingredient.Base
 	Dependencies struct {
-		Barrel *barrel.Barrel
+		Barrel      *barrel.Barrel
+		Bookkeeping *bookkeeping.Bookkeeping
 	}
+}
+
+// ApplyFlags applies flags to an already provisioned instance.
+func (provision *Provisioner) ApplyFlags(ctx context.Context, progress io.Writer, phpversion string) (err error) {
+	// setup the new docker image
+	provision.Instance.DockerBaseImage, err = models.GetBaseImage(phpversion)
+	if err != nil {
+		return err
+	}
+
+	// save in bookkeeping
+	if err := provision.Dependencies.Bookkeeping.Save(ctx); err != nil {
+		return err
+	}
+
+	return provision.Dependencies.Barrel.Build(ctx, progress, true)
 }
 
 // Provision provisions an instance, assuming that the required databases already exist.

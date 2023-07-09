@@ -15,7 +15,8 @@ import (
 var Rebuild wisski_distillery.Command = rebuild{}
 
 type rebuild struct {
-	Parallel    int `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
+	Parallel    int    `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
+	PHPVersion  string `short:"u" long:"php" description:"update to specific php version to use for instance. Should be one of '8.0', '8.1'."`
 	Positionals struct {
 		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instance or instances to run rebuild"`
 	} `positional-args:"true"`
@@ -49,6 +50,12 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 
 	// and do the actual rebuild
 	return status.WriterGroup(context.Stderr, rb.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+		if rb.PHPVersion != "" {
+			if err := instance.Provisioner().ApplyFlags(context.Context, writer, rb.PHPVersion); err != nil {
+				return err
+			}
+		}
+
 		return instance.Barrel().Build(context.Context, writer, true)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)

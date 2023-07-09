@@ -48,11 +48,13 @@ type Instance struct {
 	GraphDBPassword   string `gorm:"column:graphdb_password;not null"`
 }
 
+// TODO: Cleanup this stuff
 const (
-	PHP8         = "8.0"
-	PHP8_IMAGE   = "docker.io/library/php:8.0-apache-bullseye"
-	PHP8_1       = "8.1"
-	PHP8_1_IMAGE = "docker.io/library/php:8.1-apache-bullseye"
+	PHP_DEFAULT_IMAGE = PHP8_1
+	PHP8              = "8.0"
+	PHP8_IMAGE        = "docker.io/library/php:8.0-apache-bullseye"
+	PHP8_1            = "8.1"
+	PHP8_1_IMAGE      = "docker.io/library/php:8.1-apache-bullseye"
 )
 
 var errUnknownPHPVersion = errors.New("unknown php version")
@@ -61,7 +63,7 @@ var errUnknownPHPVersion = errors.New("unknown php version")
 func GetBaseImage(php string) (string, error) {
 	switch php {
 	case "":
-		return PHP8_IMAGE, nil
+		return PHP_DEFAULT_IMAGE, nil
 	case PHP8:
 		return PHP8_IMAGE, nil
 	case PHP8_1:
