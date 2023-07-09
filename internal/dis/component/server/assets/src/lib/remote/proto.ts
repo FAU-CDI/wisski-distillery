@@ -11,12 +11,14 @@ function isResultMessage(value: any): value is ResultMessage {
 
 /**
  * Opens a WebSocket connection and calls a server action
+ * @param endpoint Endpoint to call
  * @param call Function to call
  * @param onOpen callback for once the connection is opened. The send function can be used to send additional text to the server.
  * @param onText called when the connection receives some text
  * @returns a promise that is resolved once the conneciton is closed. Rejected if the connection errors.
  */
 export default async function callServerAction(
+    endpoint: string,
     call: CallMessage,
     onOpen: (send: (text: string) => void, cancel: () => void) => void,
     onText: (text: string) => void,
@@ -24,7 +26,7 @@ export default async function callServerAction(
     return new Promise((rs, rj) => {
         const mutex = new Mutex();
 
-        const socket = new WebSocket(location.href.replace('http', 'ws'));
+        const socket = new WebSocket(endpoint);
 
         let result: ResultMessage;
         socket.onmessage = (msg) => {

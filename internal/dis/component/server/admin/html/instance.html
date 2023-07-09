@@ -91,6 +91,48 @@
                 <thead>
                     <tr>
                         <th colspan="2">
+                            System
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            PHP Version
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.PHP }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Docker Base Image
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.GetDockerBaseImage }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            OPCache Development Config
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.OpCacheDevelopment }}</code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="pure-u-1 pure-u-xl-2-5">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="2">
                             Component Settings
                         </th>
                     </tr>
@@ -182,7 +224,7 @@
                     <tr>
                         <td>
                             Last Rebuild <br>
-                            <button class="remote-action pure-button pure-button-action" data-action="rebuild" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>Rebuild</button>
+                            <a class="pure-button" href="/admin/rebuild/{{ .Info.Slug }}">Rebuild</button>
                         </td>
                         <td>
                             <code class="date">{{ .Info.LastRebuild.Format "2006-01-02T15:04:05Z07:00" }}</code>

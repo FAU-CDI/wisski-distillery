@@ -6,6 +6,9 @@ services:
       context: .
       args:
         BARREL_BASE_IMAGE: ${BARREL_BASE_IMAGE}
+        OPCACHE_MODE: ${OPCACHE_MODE}
+    logging:
+      driver: none
     
     restart: always
     hostname: ${WISSKI_HOSTNAME}
@@ -32,11 +35,10 @@ services:
     
     # volumes that are mounted
     volumes:
-      - ${DATA_PATH}/.composer:/var/www/.composer
-      - ${DATA_PATH}/data:/var/www/data
-      - ${DATA_PATH}/home:/var/www/
+      - ${DATA_PATH}/.composer:/var/www/.composer:rw
+      - ${DATA_PATH}/data:/var/www/data:rw
+      - ${DATA_PATH}/home:/var/www:rw
       - ${DATA_PATH}/hostkeys:/ssh/hostkeys:rw
-      - ${RUNTIME_DIR}:/runtime:ro
 
 networks:
   default:

@@ -75,6 +75,7 @@ var (
 
 	menuInstances   = component.MenuItem{Title: "Instances", Path: "/admin/instances/"}
 	menuInstance    = component.DummyMenuItem()
+	menuRebuild     = component.DummyMenuItem()
 	menuGrants      = component.DummyMenuItem()
 	menuIngredients = component.DummyMenuItem()
 )
@@ -144,6 +145,11 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	{
 		instance := admin.instance(ctx)
 		router.Handler(http.MethodGet, route+"instance/:slug", instance)
+	}
+
+	{
+		rebuild := admin.instanceRebuild(ctx)
+		router.Handler(http.MethodGet, route+"rebuild/:slug", rebuild)
 	}
 
 	{

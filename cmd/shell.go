@@ -5,6 +5,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
 )
@@ -43,12 +44,16 @@ func (sh shell) Run(context wisski_distillery.Context) error {
 		return errShellWissKI.Wrap(err)
 	}
 
-	code := instance.Barrel().Shell(context.Context, context.IOStream, sh.Positionals.Args...)()
-	if code != 0 {
-		return exit.Error{
-			ExitCode: exit.ExitCode(uint8(code)),
-			Message:  fmt.Sprintf("Exit code %d", code),
+	{
+		err := instance.Barrel().Shell(context.Context, context.IOStream, sh.Positionals.Args...)
+		if err != nil {
+			code := err.(barrel.ExitError).Code()
+			return exit.Error{
+				ExitCode: code,
+				Message:  fmt.Sprintf("Exit code %d", code),
+			}
 		}
 	}
+
 	return nil
 }

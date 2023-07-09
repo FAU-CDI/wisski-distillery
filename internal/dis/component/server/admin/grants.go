@@ -139,7 +139,7 @@ func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (funcs 
 	// replace the functions
 	funcs = []templating.FlagFunc{
 		templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
-		templating.ReplaceCrumb(menuGrants, component.MenuItem{Title: "Grants", Path: template.URL("/admin/instance/" + slug + "/grants/")}),
+		templating.ReplaceCrumb(menuGrants, component.MenuItem{Title: "Grants", Path: template.URL("/admin/grants/" + slug)}),
 		templating.Title(gc.Instance.Slug + " - Grants"),
 	}
 	return funcs, nil

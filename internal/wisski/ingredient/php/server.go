@@ -5,7 +5,6 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
-	"github.com/alessio/shellescape"
 	"github.com/tkw1536/pkglib/stream"
 )
 
@@ -21,6 +20,6 @@ func (php *PHP) NewServer() *phpx.Server {
 }
 
 func (php *PHP) spawn(ctx context.Context, str stream.IOStream, code string) error {
-	php.Dependencies.Barrel.Shell(ctx, str, "-c", shellescape.QuoteCommand([]string{"drush", "php:eval", code}))()
+	php.Dependencies.Barrel.ShellScript(ctx, str, "drush", "php:eval", code)
 	return nil
 }

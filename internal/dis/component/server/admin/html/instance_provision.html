@@ -1,11 +1,38 @@
 <div class="pure-u-1-1">
     <form class="pure-form pure-form-aligned" id="provision">
-        <fieldset disabled="disabled">
+        <fieldset>
+            <legend>Main Parameters</legend>
+
             <div class="pure-control-group">
                 <label for="slug">Slug</label>
                 <input name="slug" id="slug" placeholder="" autocomplete="slug">
             </div>
-            <input type="submit" value="Provision" class="pure-button">
         </fieldset>
+        <fieldset>
+            <legend>System Parameters</legend>
+            
+            <div class="pure-control-group">
+                <label for="php">PHP Version</label>
+                <select id="php">
+                    <option value="" selected>Default ({{ .DefaultPHPVersion }})</option>
+                    {{ range .PHPVersions }}
+                        <option value="{{ . }}">{{ . }}</option>
+                    {{ end }}
+                </select>
+            </div>
+            <label for="opcacheDevelopment" class="pure-checkbox">
+                <input type="checkbox" id="opcacheDevelopment" />
+                Opache Development Configuration
+            </label>
+        </fieldset>
+        <fieldset>
+            <legend>Profile</legend>
+
+            <div class="pure-control-group">
+                Not yet available
+            </div>
+        </fieldset>
+
+        <input type="submit" value="Provision" class="pure-button">
     </form>
 </div>

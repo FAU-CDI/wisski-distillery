@@ -6,6 +6,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/status"
@@ -15,9 +16,11 @@ import (
 var Rebuild wisski_distillery.Command = rebuild{}
 
 type rebuild struct {
-	Parallel    int    `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
-	PHPVersion  string `short:"u" long:"php" description:"update to specific php version to use for instance. Should be one of '8.0', '8.1'."`
-	Positionals struct {
+	Parallel int `short:"a" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
+
+	PHPVersion         string `short:"p" long:"php" description:"update to specific php version to use for instance. Should be one of '8.0', '8.1'."`
+	OPCacheDevelopment bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
+	Positionals        struct {
 		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instance or instances to run rebuild"`
 	} `positional-args:"true"`
 }
@@ -50,13 +53,10 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 
 	// and do the actual rebuild
 	return status.WriterGroup(context.Stderr, rb.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
-		if rb.PHPVersion != "" {
-			if err := instance.Provisioner().ApplyFlags(context.Context, writer, rb.PHPVersion); err != nil {
-				return err
-			}
-		}
-
-		return instance.Barrel().Build(context.Context, writer, true)
+		return instance.SystemManager().Apply(context.Context, writer, models.System{
+			PHP:                rb.PHPVersion,
+			OpCacheDevelopment: rb.OPCacheDevelopment,
+		}, true)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)
 	}))

@@ -4,6 +4,5 @@
 # allow the following files:
 !conf/*
 !scripts/*
-!patch/*
 !ssh/*
-!wisskiutils/*
+!php.ini.d/*

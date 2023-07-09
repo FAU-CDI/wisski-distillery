@@ -3,12 +3,14 @@ package provision
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/manager"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/fsx"
 )
@@ -21,39 +23,46 @@ type Provision struct {
 	}
 }
 
-// ProvisionFlags are flags for a new instance
-type ProvisionFlags struct {
+// Flags are flags for a new instance.
+type Flags struct {
+	// NOTE(twiesing): Any changes here should be reflected in instance_provision.html and remote/api.ts.
+
 	// Slug is the slug of the wisski instance
 	Slug string
 
-	// PHP Version to use
-	PHPVersion string
+	// System is information about the system
+	System models.System
+}
+
+// Profile returns the profile belonging to this provision flags.
+func (flags Flags) Profile() manager.Profile {
+	// TODO: Actually do something here
+	return manager.Profile{}
 }
 
 var ErrInstanceAlreadyExists = errors.New("instance with provided slug already exists")
 
-func (pv *Provision) ValidateFlags(flags ProvisionFlags) error {
+func (pv *Provision) Validate(flags Flags) error {
 	// check the slug
 	if _, err := pv.Dependencies.Instances.IsValidSlug(flags.Slug); err != nil {
-		return err
-	}
-	// check for known php versions
-	if _, err := models.GetBaseImage(flags.PHPVersion); err != nil {
 		return err
 	}
 	return nil
 }
 
 // Provision provisions a new docker compose instance.
-func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags ProvisionFlags) (*wisski.WissKI, error) {
+func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Flags) (*wisski.WissKI, error) {
 	// check that it doesn't already exist
 	logging.LogMessage(progress, "Provisioning new WissKI instance %s", flags.Slug)
 	if exists, err := pv.Dependencies.Instances.Has(ctx, flags.Slug); err != nil || exists {
 		return nil, ErrInstanceAlreadyExists
 	}
 
+	// log out what we're doing!
+	fmt.Fprintf(progress, "%#v", flags)
+
 	// make it in-memory
-	instance, err := pv.Dependencies.Instances.Create(flags.Slug, flags.PHPVersion)
+	instance, err := pv.Dependencies.Instances.Create(flags.Slug, flags.System)
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +108,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Pr
 
 	// run the provision script
 	if err := logging.LogOperation(func() error {
-		return instance.Provisioner().Provision(ctx, progress)
+		return instance.Manager().Provision(ctx, progress, flags.System, flags.Profile())
 	}, progress, "Running setup scripts"); err != nil {
 		return nil, err
 	}

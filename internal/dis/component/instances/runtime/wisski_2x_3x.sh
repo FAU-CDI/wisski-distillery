@@ -18,7 +18,6 @@ popd || exit 1
 
 # run the update and clear the cache!
 drush updatedb --yes
-# drush cc
 
 # and reset everything back to normal
 chmod 755 web/sites/default

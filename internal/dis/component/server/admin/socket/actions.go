@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/provision"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 )
 
@@ -28,7 +29,7 @@ func (sockets *Sockets) Actions() ActionMap {
 		}),
 		"provision": sockets.Generic(1, func(ctx context.Context, sockets *Sockets, in io.Reader, out io.Writer, params ...string) error {
 			// read the flags of the instance to be provisioned
-			var flags provision.ProvisionFlags
+			var flags provision.Flags
 			if err := json.Unmarshal([]byte(params[0]), &flags); err != nil {
 				return err
 			}
@@ -63,8 +64,13 @@ func (sockets *Sockets) Actions() ActionMap {
 				},
 			)
 		}),
-		"rebuild": sockets.Instance(0, func(ctx context.Context, _ *Sockets, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-			return instance.Barrel().Build(ctx, out, true)
+		"rebuild": sockets.Instance(1, func(ctx context.Context, _ *Sockets, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
+			// read the flags of the instance to be provisioned
+			var system models.System
+			if err := json.Unmarshal([]byte(params[0]), &system); err != nil {
+				return err
+			}
+			return instance.SystemManager().Apply(ctx, out, system, true)
 		}),
 		"update": sockets.Instance(0, func(ctx context.Context, _ *Sockets, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
 			return instance.Drush().Update(ctx, out)

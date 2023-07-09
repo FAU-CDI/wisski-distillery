@@ -105,7 +105,7 @@ export default function setup() {
 
 type ModalOptions = {
     bufferSize: number;
-    onClose: (success: boolean) => void 
+    onClose: (success: boolean, message?: string) => void 
 }
 export function createModal(action: string, params: string[], opts: Partial<ModalOptions>) {
     // create a modal dialog and append it to the body
@@ -123,14 +123,14 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
     finishButton.className = "pure-button pure-button-success"
     finishButton.append(typeof opts?.onClose === 'function' ? "Close & Finish" : "Close")
 
-    let result = {success: false, error: "unknown error"};
+    let result: ResultMessage = {success: false};
     finishButton.addEventListener('click', (event) => {
         event.preventDefault();
 
         if (typeof opts?.onClose === 'function') {
             finishButton.setAttribute('disabled', 'disabled')
             target.innerHTML = 'Finishing up ...'
-            opts.onClose(result.success)
+            opts.onClose(result.success, result.message)
             return;
         }
 
@@ -147,7 +147,9 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
     window.onbeforeunload = () => "A remote session is in progress. Are you sure you want to leave?";
 
     // when closing, add a button to the modal!
-    const close = (result: ResultMessage) => {
+    const close = (message: ResultMessage) => {
+        result = message
+
         if (result.success) {
             println('Process completed successfully. ', true);
         } else {
@@ -168,6 +170,7 @@ export function createModal(action: string, params: string[], opts: Partial<Moda
 
     // connect to the socket and send the action
     callServerAction(
+        location.href.replace('http', 'ws'),
         {
             'name': action,
             'params': params,

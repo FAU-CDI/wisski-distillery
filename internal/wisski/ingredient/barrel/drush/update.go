@@ -14,15 +14,15 @@ import (
 )
 
 var errBlindUpdateFailed = exit.Error{
-	Message:  "failed to run blind update script for instance %q: exited with code %d",
+	Message:  "failed to run blind update script for instance %q",
 	ExitCode: exit.ExitGeneric,
 }
 
 // Update performs a blind drush update
 func (drush *Drush) Update(ctx context.Context, progress io.Writer) error {
-	code := drush.Dependencies.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/blind_update.sh")()
-	if code != 0 {
-		return errBlindUpdateFailed.WithMessageF(drush.Slug, code)
+	err := drush.Dependencies.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/blind_update.sh")
+	if err != nil {
+		return errBlindUpdateFailed.WithMessageF(drush.Slug).Wrap(err)
 	}
 
 	return drush.setLastUpdate(ctx)

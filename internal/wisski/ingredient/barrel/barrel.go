@@ -1,8 +1,6 @@
 package barrel
 
 import (
-	"path/filepath"
-
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
@@ -17,6 +15,11 @@ type Barrel struct {
 	}
 }
 
-func (barrel *Barrel) DataPath() string {
-	return filepath.Join(barrel.FilesystemBase, "data")
-}
+const (
+	BaseDirectory     = "/var/www/data"
+	ComposerDirectory = BaseDirectory + "/project"
+	WebDirectory      = ComposerDirectory + "/web"
+	OntologyDirectory = SitesDirectory + "/default/files/ontology"
+	SitesDirectory    = WebDirectory + "/sites"
+	WissKIDirectory   = WebDirectory + "/modules/contrib/wisski"
+)

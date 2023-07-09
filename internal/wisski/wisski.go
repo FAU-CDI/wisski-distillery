@@ -6,9 +6,11 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/composer"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/drush"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/provisioner"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/manager"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/ssh"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/system"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/bookkeeping"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/info"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
@@ -46,8 +48,12 @@ func (wisski *WissKI) Barrel() *barrel.Barrel {
 	return export[*barrel.Barrel](wisski)
 }
 
-func (wisski *WissKI) Provisioner() *provisioner.Provisioner {
-	return export[*provisioner.Provisioner](wisski)
+func (wisski *WissKI) Manager() *manager.Manager {
+	return export[*manager.Manager](wisski)
+}
+
+func (wisski *WissKI) SystemManager() *system.SystemManager {
+	return export[*system.SystemManager](wisski)
 }
 
 func (wisski *WissKI) PHP() *php.PHP {
@@ -111,6 +117,7 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		auto[*extras.Stats],
 		auto[*extras.Blocks],
 		auto[*extras.Requirements],
+		auto[*extras.Adapters],
 		auto[*users.Users],
 		auto[*users.UserPolicy],
 
@@ -127,7 +134,9 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		// stacks
 		auto[*barrel.Barrel],
 		auto[*bookkeeping.Bookkeeping],
-		auto[*provisioner.Provisioner],
+		auto[*manager.Manager],
+		auto[*system.SystemManager],
+		auto[*composer.Composer],
 		auto[*drush.Drush],
 
 		auto[*reserve.Reserve],

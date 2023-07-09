@@ -19,7 +19,7 @@ var (
 // It validates that slug is a valid name for an instance.
 //
 // It does not perform any checks if the instance already exists, or does the creation in the database.
-func (instances *Instances) Create(slug string, phpversion string) (wissKI *wisski.WissKI, err error) {
+func (instances *Instances) Create(slug string, system models.System) (wissKI *wisski.WissKI, err error) {
 
 	// make sure that the slug is valid!
 	slug, err = instances.IsValidSlug(slug)
@@ -66,7 +66,7 @@ func (instances *Instances) Create(slug string, phpversion string) (wissKI *wiss
 	}
 
 	// docker image
-	wissKI.Liquid.Instance.DockerBaseImage, err = models.GetBaseImage(phpversion)
+	wissKI.Liquid.Instance.System = system
 	if err != nil {
 		return nil, err
 	}

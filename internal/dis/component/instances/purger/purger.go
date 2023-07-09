@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -37,7 +38,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	instance, err := purger.Dependencies.Instances.WissKI(ctx, slug)
 	if err == instances.ErrWissKINotFound {
 		fmt.Fprintln(out, "Not found in bookkeeping table, assuming defaults")
-		instance, err = purger.Dependencies.Instances.Create(slug, "")
+		instance, err = purger.Dependencies.Instances.Create(slug, models.System{})
 	}
 	if err != nil {
 		return errPurgeNoDetails.WithMessageF(err)

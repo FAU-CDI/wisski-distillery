@@ -10,8 +10,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/stream"
 )
 
 var errCronFailed = exit.Error{
@@ -20,8 +20,9 @@ var errCronFailed = exit.Error{
 }
 
 func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
-	code := drush.Dependencies.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/cron.sh")()
-	if code != 0 {
+	err := drush.Exec(ctx, progress, "core-cron")
+	if err != nil {
+		code := err.(barrel.ExitError).Code
 		// keep going, because we want to run as many crons as possible
 		fmt.Fprintf(progress, "%v", errCronFailed.WithMessageF(drush.Slug, code))
 	}
@@ -31,7 +32,7 @@ func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 
 func (drush *Drush) LastCron(ctx context.Context, server *phpx.Server) (t time.Time, err error) {
 	var timestamp int64
-	err = drush.Dependencies.PHP.EvalCode(ctx, server, &timestamp, `$val = \Drupal::state()->get('system.cron_last'); return $val; `)
+	err = drush.Dependencies.PHP.EvalCode(ctx, server, &timestamp, `return \Drupal::state()->get('system.cron_last');`)
 	if err != nil {
 		return
 	}

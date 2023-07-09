@@ -4,6 +4,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/fsx"
@@ -53,7 +54,7 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 	}
 
 	// make it in-memory
-	instance, err := dis.Instances().Create(slug, "")
+	instance, err := dis.Instances().Create(slug, models.System{})
 	if err != nil {
 		return errProvisionGeneric.WithMessageF(slug, err)
 	}

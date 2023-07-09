@@ -25,6 +25,8 @@ All routes can be found under `/api/v1/http/`
 
 ## Interactive Websocket API
 
+** This is not yet implemented in it's entirety **
+
 Some API calls require interactivity or provide streaming content to clients.
 An example of such an action is creating a new instance.
 The protocol is based on [Websockets](https://websockets.spec.whatwg.org/).

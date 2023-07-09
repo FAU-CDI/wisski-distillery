@@ -33,6 +33,7 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 			"RUNTIME_DIR": barrel.Malt.Config.Paths.RuntimeDir(),
 
 			"BARREL_BASE_IMAGE": barrel.GetDockerBaseImage(),
+			"OPCACHE_MODE":      barrel.OpCacheMode(),
 		},
 
 		MakeDirs: []string{"data", ".composer"},

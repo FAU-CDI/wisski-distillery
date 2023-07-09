@@ -4,6 +4,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/provision"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -12,8 +13,9 @@ import (
 var Provision wisski_distillery.Command = pv{}
 
 type pv struct {
-	PHPVersion  string `short:"p" long:"php" description:"specific php version to use for instance. Should be one of '8.0', '8.1'."`
-	Positionals struct {
+	PHPVersion         string `short:"p" long:"php" description:"specific php version to use for instance. Should be one of '8.0', '8.1'."`
+	OPCacheDevelopment bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
+	Positionals        struct {
 		Slug string `positional-arg-name:"slug" required:"1-1" description:"slug of instance to create"`
 	} `positional-args:"true"`
 }
@@ -36,9 +38,12 @@ var errProvisionGeneric = exit.Error{
 // TODO: AfterParse to check instance!
 
 func (p pv) Run(context wisski_distillery.Context) error {
-	instance, err := context.Environment.Provision().Provision(context.Stderr, context.Context, provision.ProvisionFlags{
-		Slug:       p.Positionals.Slug,
-		PHPVersion: p.PHPVersion,
+	instance, err := context.Environment.Provision().Provision(context.Stderr, context.Context, provision.Flags{
+		Slug: p.Positionals.Slug,
+		System: models.System{
+			PHP:                p.PHPVersion,
+			OpCacheDevelopment: p.OPCacheDevelopment,
+		},
 	})
 	if err != nil {
 		return errProvisionGeneric.WithMessageF(p.Positionals.Slug).Wrap(err)

@@ -1,6 +1,15 @@
-ARG BARREL_BASE_IMAGE
+# ============================
+# WissKI Distillery Dockerfile
+# ============================
+
+# This file is part of the WissKI Distillery and sets up an image
+# to be used for individual WissKIs.
+
+# Start from a base image (configured by the build argument).
+ARG BARREL_BASE_IMAGE=docker.io/library/php:8.1-apache-bullseye
 FROM $BARREL_BASE_IMAGE
-ARG COMPOSER_VERSION=2.3.8
+
+# Setup in /var/www
 WORKDIR /var/www
 
 # install and enable the various required php extensions and dropbear ssh server
@@ -69,38 +78,45 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
 # enable the apache rewrite mod
 RUN a2enmod rewrite
 
-# install composer and add it to path
+
+# Install composer.
+ARG COMPOSER_VERSION=2.3.8
 RUN curl -sS https://getcomposer.org/installer | php -- --version=$COMPOSER_VERSION && \
     mv composer.phar /usr/local/bin/composer
+
+# Add it to the path
 ENV PATH "/usr/local/bin:/var/www/data/project/vendor/bin:$PATH"
 
-# remove default configuration
+# Configure PHP
+ADD php.ini.d/wisski.ini /usr/local/etc/php/conf.d/wisski.ini
+
+# Configure opcache with whatever the user configured
+ARG OPCACHE_MODE=prod
+ADD php.ini.d/opcache-$OPCACHE_MODE.ini /usr/local/etc/php/conf.d/opcache.ini
+
+
+# Configure Apache.
+
+# first remove the default configuration
 RUN rm /etc/apache2/sites-available/*.conf && \
     rm /etc/apache2/sites-enabled/*.conf
 
-ADD patch/easyrdf.patch /patch/easyrdf.patch
-ADD patch/triples.patch /patch/triples.patch
-
-# Add wisski configuration
+# Then add the WissKI site
 ADD conf/ports.conf /etc/apache2/ports.conf
 ADD conf/wisski.conf /etc/apache2/sites-available/wisski.conf
-ADD conf/wisski.ini /usr/local/etc/php/conf.d/wisski.ini
+
+# And enable it
 RUN a2ensite wisski
 
 # volumes for composer
 VOLUME /var/www/.composer
 VOLUME /var/www/data
 
-
 # Add and configure the entrypoint
 ADD scripts/entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT [ "/bin/bash", "/entrypoint.sh" ]
 CMD ["apache2-foreground"]
-
-# Add the provision script and WissKI utils
-ADD scripts/provision_container.sh /provision_container.sh
-ADD wisskiutils/ /wisskiutils
 
 # Add the user_shell.sh
 ADD scripts/user_shell.sh /user_shell.sh

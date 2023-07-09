@@ -88,18 +88,27 @@ func (ds Stack) Exec(ctx context.Context, io stream.IOStream, service, executabl
 	return ds.compose(ctx, io, compose...)
 }
 
+type RunFlags struct {
+	AutoRemove bool
+	Detach     bool
+}
+
 // Run runs a command in a running container with the given executable.
 // It is equivalent to 'docker compose run [--rm] $service $executable $args...'.
 //
 // It returns the exit code of the process.
-func (ds Stack) Run(ctx context.Context, io stream.IOStream, autoRemove bool, service, command string, args ...string) (int, error) {
+func (ds Stack) Run(ctx context.Context, io stream.IOStream, flags RunFlags, service, command string, args ...string) (int, error) {
 	compose := []string{"run"}
-	if autoRemove {
+	if flags.AutoRemove {
 		compose = append(compose, "--rm")
 	}
 	if !io.StdinIsATerminal() {
-		compose = append(compose, "-T")
+		compose = append(compose, "--no-TTY")
 	}
+	if flags.Detach {
+		compose = append(compose, "--detach")
+	}
+
 	compose = append(compose, service, command)
 	compose = append(compose, args...)
 
@@ -125,6 +134,16 @@ var errStackDown = errors.New("Stack.Down: Down returned non-zero exit code")
 // It is equivalent to 'docker compose down -v' on the shell.
 func (ds Stack) Down(ctx context.Context, progress io.Writer) error {
 	code := ds.compose(ctx, stream.NonInteractive(progress), "down", "-v")()
+	if code != 0 {
+		return errStackDown
+	}
+	return nil
+}
+
+// DownAll stops and removes all containers in this Stack, and those not defined in the compose file.
+// It is equivalent to 'docker compose down -v --remove-orphans' on the shell.
+func (ds Stack) DownAll(ctx context.Context, progress io.Writer) error {
+	code := ds.compose(ctx, stream.NonInteractive(progress), "down", "-v", "--remove-orphans")()
 	if code != 0 {
 		return errStackDown
 	}

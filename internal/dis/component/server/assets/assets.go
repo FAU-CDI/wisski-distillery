@@ -21,4 +21,4 @@ type Assets struct {
 	Styles  template.HTML // <link> tags inserted by the asset
 }
 
-//go:generate node build.mjs Default User Admin AdminProvision
+//go:generate node build.mjs Default User Admin AdminProvision AdminRebuild
