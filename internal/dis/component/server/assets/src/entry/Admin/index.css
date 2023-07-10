@@ -19,3 +19,12 @@
 .wisski.stopped {
     background-color: #ff7a7a;
 }
+
+.info-chip {
+    min-width: 75px;
+    height: 15px;
+    border-radius: 5px;
+    display: block;
+    padding: 5px;
+    text-align: center;
+}

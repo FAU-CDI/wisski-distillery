@@ -114,5 +114,10 @@ func (i info) Run(context wisski_distillery.Context) (err error) {
 		context.Printf("- %v\n", grant)
 	}
 
+	context.Printf("Requirements: (count %d)\n", len(info.Requirements))
+	for _, req := range info.Requirements {
+		context.Printf("- %v\n", req)
+	}
+
 	return nil
 }

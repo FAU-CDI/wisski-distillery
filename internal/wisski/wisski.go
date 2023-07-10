@@ -110,6 +110,7 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		auto[*extras.Pathbuilder],
 		auto[*extras.Stats],
 		auto[*extras.Blocks],
+		auto[*extras.Requirements],
 		auto[*users.Users],
 		auto[*users.UserPolicy],
 
