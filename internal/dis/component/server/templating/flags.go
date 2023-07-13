@@ -40,7 +40,7 @@ type RuntimeFlags struct {
 	CSRF        template.HTML        // csrf data (if any)
 }
 
-var runtimeFlagsName = reflectx.TypeOf[RuntimeFlags]().Name()
+var runtimeFlagsName = reflectx.MakeType[RuntimeFlags]().Name()
 
 // Clone clones this flags
 func (flags Flags) Clone() Flags {
