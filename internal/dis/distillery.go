@@ -150,6 +150,7 @@ func (dis *Distillery) allComponents() []initFunc {
 		auto[*tokens.Tokens],
 
 		//scopes
+		auto[*scopes.Never],
 		auto[*scopes.UserLoggedIn],
 		auto[*scopes.AdminLoggedIn],
 		auto[*scopes.ListInstancesScope],

@@ -2,7 +2,7 @@ import { Mutex } from 'async-mutex'
 
 import { runMutexExclusive } from '~/src/lib/discard'
 
-export interface CallMessage { name: string, params?: string[] | null }
+export interface CallMessage { call: string, params?: string[] | null }
 export type ResultMessage = { success: true } | { success: false, message: string }
 export interface SignalMessage { signal: string }
 function isResultMessage (value: any): value is ResultMessage {
@@ -18,8 +18,8 @@ function isResultMessage (value: any): value is ResultMessage {
  * Opens a WebSocket connection and calls a server action
  * @param endpoint Endpoint to call
  * @param call Function to call
- * @param onOpen callback for once the connection is opened. The send function can be used to send additional text to the server.
- * @param onText called when the connection receives some text
+ * @param onOpen callback for once the connection is opened. The send function can be used to send additional text to the server. It should include newlines.
+ * @param onText called when the connection receives some text, including newlines.
  * @returns a promise that is resolved once the conneciton is closed. Rejected if the connection errors.
  */
 export default async function callServerAction (

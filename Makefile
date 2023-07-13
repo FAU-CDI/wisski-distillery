@@ -1,4 +1,4 @@
-.PHONY: clean all deps live tslint
+.PHONY: clean all deps live tslint tsfix
 
 live:
 	sudo CGO_ENABLED=0 go run ./cmd/wdcli $(ARGS)
@@ -11,6 +11,9 @@ wdcli:
 
 tslint:
 	cd internal/dis/component/server/assets/ && yarn ts-standard
+
+tsfix:
+	cd internal/dis/component/server/assets/ && yarn ts-standard --fix
 
 deps: internal/dis/component/server/assets/node_modules
 

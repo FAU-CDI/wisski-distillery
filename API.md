@@ -53,8 +53,8 @@ The server will always send exactly one of these frames before closing the conne
 
 Text frames contain input and output from the underlying process.
 They may be sent at any point after the client sends the initial `CallMessage` and before the final `ResultMessage`.
-Each frame contains data for a single line, not including the line terminators.
-Each input is sent directly to the underlying process.
+Each frame contains text input and output, including line separators.
+Input is sent directly to the underlying process.
 
 ### Supported Websocket Calls
 

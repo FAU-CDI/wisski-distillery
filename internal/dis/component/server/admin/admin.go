@@ -84,14 +84,6 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 
 	router := httprouter.New()
 
-	{
-		handler = &httpx.WebSocket{
-			Context:  ctx,
-			Fallback: router,
-			Handler:  admin.Dependencies.Sockets.Serve,
-		}
-	}
-
 	// add a handler for the index page
 	{
 		index := admin.index(ctx)
@@ -161,7 +153,7 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	// add a router for the login page
 	router.Handler(http.MethodPost, route+"login", admin.loginHandler(ctx))
 
-	return
+	return router, nil
 }
 
 func (admin *Admin) loginHandler(ctx context.Context) http.Handler {

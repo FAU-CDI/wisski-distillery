@@ -9,9 +9,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/gorilla/websocket"
 	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/status"
 )
 
 // ActionMap handles a set of WebSocket actions
@@ -27,7 +29,7 @@ func (err errPanic) Error() string {
 	return fmt.Sprintf("fatal error: %v", err.value)
 }
 
-// Handle handles a new incoming websocket connection.
+// Handle handles a new incoming websocket connection using the given authentication.
 //
 // There are two kinds of messages:
 //
@@ -40,7 +42,7 @@ func (err errPanic) Error() string {
 // Finally it will send a ResultMessage once handling is complete.
 //
 // A corresponding client implementation of this can be found in ..../remote/proto.ts
-func (am ActionMap) Handle(conn httpx.WebSocketConnection) (name string, err error) {
+func (am ActionMap) Handle(auth *auth.Auth, conn httpx.WebSocketConnection) (name string, err error) {
 	var wg sync.WaitGroup
 
 	// once we have finished executing send a binary message (indicating success) to the client.
@@ -123,12 +125,17 @@ func (am ActionMap) Handle(conn httpx.WebSocketConnection) (name string, err err
 
 	// check that the given action exists!
 	// and has the right number of parameters!
-	action, ok := am[call.Name]
+	action, ok := am[call.Call]
 	if !ok || action.Handle == nil {
-		return call.Name, errUnknownAction
+		return call.Call, errUnknownAction
 	}
 	if action.NumParams != len(call.Params) {
-		return call.Name, errIncorrectParams
+		return call.Call, errIncorrectParams
+	}
+
+	// check that we have the given permission
+	if err := auth.CheckScope(action.ScopeParam, action.scope(), conn.Request()); err != nil {
+		return call.Call, err
 	}
 
 	// create a context to be canceled once done
@@ -170,23 +177,33 @@ func (am ActionMap) Handle(conn httpx.WebSocketConnection) (name string, err err
 		}
 	}()
 
-	// create a linebuffer to write the output line by line
-	output := &status.LineBuffer{
-		Line: func(line string) {
-			<-conn.WriteText(line)
-		},
-		FlushLineOnClose: true,
-	}
-	defer output.Close()
+	// write the output to the client as it comes in!
+	// NOTE(twiesing): We may eventually need buffering here ...
+	output := WriteFunc(func(b []byte) (int, error) {
+		<-conn.WriteText(string(b))
+		return len(b), nil
+	})
 
 	// handle the actual
-	return call.Name, action.Handle(ctx, inputR, output, call.Params...)
+	return call.Call, action.Handle(ctx, inputR, output, call.Params...)
+}
+
+// WriteFunc implements io.Writer using a function.
+type WriteFunc func([]byte) (int, error)
+
+func (wf WriteFunc) Write(b []byte) (int, error) {
+	return wf(b)
 }
 
 // Action is something that can be handled via a WebSocket connection.
 type Action struct {
 	// NumPara
 	NumParams int
+
+	// Scope and ScopeParam indicate the scope required by the caller.
+	// TODO(twiesing): Once we actually include scopes, make them dynamic
+	Scope      component.Scope
+	ScopeParam string
 
 	// Handle handles this action.
 	//
@@ -196,9 +213,18 @@ type Action struct {
 	Handle func(ctx context.Context, in io.Reader, out io.Writer, params ...string) error
 }
 
+// scope returns the actual scope required by this action.
+// If the caller did not provide an actual scope, uses ScopeNever
+func (action Action) scope() component.Scope {
+	if action.Scope == "" {
+		return scopes.ScopeNever
+	}
+	return action.Scope
+}
+
 // CallMessage is sent by the client to the server to invoke a remote procedure
 type CallMessage struct {
-	Name   string   `json:"name"`
+	Call   string   `json:"call"`
 	Params []string `json:"params,omitempty"`
 }
 

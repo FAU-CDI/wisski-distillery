@@ -1,36 +1,63 @@
 import './index.css'
 import callServerAction, { ResultMessage } from './proto'
 
-type Println = ((line: string, flush?: boolean) => void) & {
+type Print = ((text: string, flush?: boolean) => void) & {
   paintedFrames: number
   missedFrames: number
+}
+
+const NEW_LINE = '\n'
+const NEW_LINE_LENGTH = NEW_LINE.length
+
+/**
+ * trimLines trims buffer so that it contains as most count lines
+ */
+function trimLines (buffer: string, lines: number): string {
+  if (lines <= 0 || isNaN(lines) || !isFinite(lines)) return buffer
+
+  let count = 0
+  let index = buffer.length
+
+  // while we still have sufficient space
+  while (count < lines) {
+    // get the next start of the line
+    index = buffer.lastIndexOf(NEW_LINE, index - 1)
+    if (index === -1) {
+      return buffer
+    }
+
+    // increase the count
+    count++
+  }
+
+  return buffer.substring(index + NEW_LINE_LENGTH)
 }
 
 /**
  * makeTextBuffer returns a println() function that efficiently writes text into target, and keeps at most size elements in the traceback.
  * scrollContainer is used to scroll on every painted update.
  */
-function makeTextBuffer (target: HTMLElement, scrollContainer: HTMLElement, size: number): Println {
+function makeTextBuffer (target: HTMLElement, scrollContainer: HTMLElement, size: number): Print {
   let lastAnimationFrame: number | null = null // last scheduled animation frame
 
-  const buffer: string[] = [] // the internal buffer of lines
+  // text buffer
+  let buffer: string = ''
   const paint = (): void => {
-    println.paintedFrames++
-    target.innerText = buffer.join('\n')
+    print.paintedFrames++
+    target.innerText = buffer
     scrollContainer.scrollTop = scrollContainer.scrollHeight
     lastAnimationFrame = null
   }
 
-  const println = (line: string, flush?: boolean): void => {
-    // add the line
-    buffer.push(line)
-    if (size !== 0 && buffer.length > size) {
-      buffer.splice(0, buffer.length - size)
-    }
+  const print = (text: string, flush?: boolean): void => {
+    // add text to the buffer and normalize
+    buffer += text.replace(/^\s*[\r\n]/gm, '\r\n')
 
+    // trim the buffer to the specified number of lines
+    buffer = trimLines(buffer, size)
     // and update the browser in the next animation frame
     if (lastAnimationFrame !== null) {
-      println.missedFrames++
+      print.missedFrames++
       window.cancelAnimationFrame(lastAnimationFrame)
     }
 
@@ -40,10 +67,10 @@ function makeTextBuffer (target: HTMLElement, scrollContainer: HTMLElement, size
     // schedule an animation frame
     lastAnimationFrame = window.requestAnimationFrame(paint)
   }
-  println.paintedFrames = 0
-  println.missedFrames = 0
+  print.paintedFrames = 0
+  print.missedFrames = 0
 
-  return println
+  return print
 }
 
 export default function setup (): void {
@@ -131,7 +158,7 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
 
   // create a <pre> to write stuff into
   const target = document.createElement('pre')
-  const println = makeTextBuffer(target, modal, opts.bufferSize ?? 1000)
+  const print = makeTextBuffer(target, modal, opts.bufferSize ?? 1000)
   modal.append(target)
 
   // create a button to eventually close everything
@@ -171,9 +198,9 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
     result = message
 
     if (result.success) {
-      println('Process completed successfully. ', true)
+      print('Process completed successfully.\n', true)
     } else {
-      println('Process reported error: ' + result.message, true)
+      print('Process reported error: ' + result.message + '\n', true)
     }
 
     window.onbeforeunload = onbeforeunload
@@ -181,17 +208,20 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
     modal.removeChild(cancelButton)
     modal.append(finishButton)
 
-    const quota = (println.paintedFrames / (println.missedFrames + println.paintedFrames)) * 100
-    console.debug(`Terminal: painted=${println.paintedFrames} missed=${println.missedFrames} (${quota}%)`, true)
+    const quota = (print.paintedFrames / (print.missedFrames + print.paintedFrames)) * 100
+    console.debug(`Terminal: painted=${print.paintedFrames} missed=${print.missedFrames} (${quota}%)`, true)
   }
 
-  println('Connecting ...', true)
+  print('Connecting ...', true)
+
+  // backendURL is the backend url to connect to
+  const backendURL = location.protocol.replace('http', 'ws') + '//' + location.host + '/api/v1/ws'
 
   // connect to the socket and send the action
   callServerAction(
-    location.href.replace('http', 'ws'),
+    backendURL,
     {
-      name: action,
+      call: action,
       params
     },
     (
@@ -202,12 +232,12 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
       cancelButton.addEventListener('click', (event) => {
         event.preventDefault()
 
-        println('Cancelling', true)
+        print('^C\n', true)
         cancel()
       })
-      println('Connected', true)
+      print(' Connected.\n', true)
     },
-    println
+    print
   ).then(close)
     .catch(() => {
       close({ success: false, message: 'connection closed unexpectedly' })
