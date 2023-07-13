@@ -1,2 +1,2 @@
-import "~/src/lib/copy"
-import "~/src/lib/reveal"
+import '~/src/lib/copy'
+import '~/src/lib/reveal'

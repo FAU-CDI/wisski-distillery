@@ -1,15 +1,15 @@
 // setup highlighting
-import "~/src/lib/highlight"
+import '~/src/lib/highlight'
 
 // setup remote actions
-import setup from "~/src/lib/remote"
-setup();
+import setup from '~/src/lib/remote'
 
 // include the user styles!
-import "../User/index.ts"
-import "../User/index.css"
+import '../User/index.ts'
+import '../User/index.css'
 
 // highlight everything
-import "highlight.js/styles/default.css"
-import highlightJs from "highlight.js"
-highlightJs.highlightAll();
+import 'highlight.js/styles/default.css'
+import highlightJs from 'highlight.js'
+setup()
+highlightJs.highlightAll()

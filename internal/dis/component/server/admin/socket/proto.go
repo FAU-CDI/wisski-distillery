@@ -61,6 +61,9 @@ func (am ActionMap) Handle(conn httpx.WebSocketConnection) (name string, err err
 		} else {
 			result.Success = false
 			result.Message = err.Error()
+			if result.Message == "" {
+				result.Message = "unspecified error"
+			}
 		}
 
 		// encode the result message to json!

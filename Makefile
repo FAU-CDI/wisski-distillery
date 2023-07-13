@@ -1,4 +1,4 @@
-.PHONY: clean all deps live
+.PHONY: clean all deps live tslint
 
 live:
 	sudo CGO_ENABLED=0 go run ./cmd/wdcli $(ARGS)
@@ -8,6 +8,9 @@ all: wdcli
 wdcli:
 	go generate ./internal/dis/component/control/static/
 	CGO_ENABLED=0 go build -o ./wdcli ./cmd/wdcli
+
+tslint:
+	cd internal/dis/component/server/assets/ && yarn ts-standard
 
 deps: internal/dis/component/server/assets/node_modules
 
