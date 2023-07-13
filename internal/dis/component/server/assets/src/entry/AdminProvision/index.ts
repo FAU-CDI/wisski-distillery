@@ -7,12 +7,13 @@ const provision = document.getElementById('provision') as HTMLFormElement
 const slug = document.getElementById('slug') as HTMLInputElement
 const php = document.getElementById('php') as HTMLSelectElement
 const opcacheDevelopment = document.getElementById('opcacheDevelopment') as HTMLInputElement
+const contentSecurityPolicy = document.getElementById('contentsecuritypolicy') as HTMLInputElement
 
 // add an event handler to open the modal form!
 provision.addEventListener('submit', (evt) => {
   evt.preventDefault()
 
-  Provision({ Slug: slug.value, System: { PHP: php.value, OpCacheDevelopment: opcacheDevelopment.checked } })
+  Provision({ Slug: slug.value, System: { PHP: php.value, OpCacheDevelopment: opcacheDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value } })
     .then(slug => {
       location.href = '/admin/instance/' + slug
     })

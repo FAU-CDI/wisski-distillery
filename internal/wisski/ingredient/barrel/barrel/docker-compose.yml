@@ -7,6 +7,8 @@ services:
       args:
         BARREL_BASE_IMAGE: ${BARREL_BASE_IMAGE}
         OPCACHE_MODE: ${OPCACHE_MODE}
+        CONTENT_SECURITY_POLICY: ${CONTENT_SECURITY_POLICY}
+
     logging:
       driver: none
     

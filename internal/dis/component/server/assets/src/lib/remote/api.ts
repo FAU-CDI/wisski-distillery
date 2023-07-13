@@ -12,6 +12,7 @@ interface ProvisionFlags {
 interface System {
   PHP: string
   OpCacheDevelopment: boolean
+  ContentSecurityPolicy: string
 }
 
 /** Rebuild the specified instance */

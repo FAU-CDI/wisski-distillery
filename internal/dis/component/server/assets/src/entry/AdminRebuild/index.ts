@@ -3,16 +3,17 @@ import '../Admin/index.css'
 
 import { Rebuild } from '~/src/lib/remote/api'
 
+const rebuild = document.getElementById('rebuild') as HTMLFormElement
 const slug = document.getElementById('slug') as HTMLInputElement
-const provision = document.getElementById('provision') as HTMLFormElement
 const php = document.getElementById('php') as HTMLSelectElement
 const opcacheDevelopment = document.getElementById('opcacheDevelopment') as HTMLInputElement
+const contentSecurityPolicy = document.getElementById('contentsecuritypolicy') as HTMLInputElement
 
 // add an event handler to open the modal form!
-provision.addEventListener('submit', (evt) => {
+rebuild.addEventListener('submit', (evt) => {
   evt.preventDefault()
 
-  Rebuild(slug.value, { PHP: php.value, OpCacheDevelopment: opcacheDevelopment.checked })
+  Rebuild(slug.value, { PHP: php.value, OpCacheDevelopment: opcacheDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value })
     .then(slug => {
       location.href = '/admin/instance/' + slug
     })
@@ -20,4 +21,4 @@ provision.addEventListener('submit', (evt) => {
 })
 
 // enable the form!
-provision.querySelector('fieldset')?.removeAttribute('disabled')
+rebuild.querySelector('fieldset')?.removeAttribute('disabled')

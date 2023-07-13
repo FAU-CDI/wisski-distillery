@@ -27,12 +27,14 @@ type instanceProvisionContext struct {
 }
 
 type systemParams struct {
-	PHPVersions       []string
-	DefaultPHPVersion string
+	PHPVersions             []string
+	ContentSecurityPolicies []string
+	DefaultPHPVersion       string
 }
 
 func newSystemParams() (sp systemParams) {
 	sp.PHPVersions = models.KnownPHPVersions()
+	sp.ContentSecurityPolicies = models.ContentSecurityPolicyExamples()
 	sp.DefaultPHPVersion = models.DefaultPHPVersion
 	return sp
 }

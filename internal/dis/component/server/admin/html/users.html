@@ -37,7 +37,7 @@
                 <tbody>
                     {{ $csrf := .CSRF }}
                     {{ range .Users }}
-                        <tr {{ if not .User.IsEnabled }}style="color:gray"{{ end }}>
+                        <tr {{ if not .User.IsEnabled }}class="disabled"{{ end }}>
                             <td>
                                 {{ .User.User }}
                             </td>

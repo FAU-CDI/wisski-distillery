@@ -18,9 +18,11 @@ var Rebuild wisski_distillery.Command = rebuild{}
 type rebuild struct {
 	Parallel int `short:"a" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
 
-	PHPVersion         string `short:"p" long:"php" description:"update to specific php version to use for instance. Should be one of '8.0', '8.1'."`
-	OPCacheDevelopment bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
-	Positionals        struct {
+	PHPVersion            string `short:"p" long:"php" description:"update to specific php version to use for instance. Should be one of '8.0', '8.1'."`
+	OPCacheDevelopment    bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
+	ContentSecurityPolicy string `short:"c" long:"content-security-policy" description:"Setup ContentSecurityPolicy"`
+
+	Positionals struct {
 		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instance or instances to run rebuild"`
 	} `positional-args:"true"`
 }
@@ -56,6 +58,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 		return instance.SystemManager().Apply(context.Context, writer, models.System{
 			PHP:                rb.PHPVersion,
 			OpCacheDevelopment: rb.OPCacheDevelopment,
+			ContentSecurityPolicy: rb.ContentSecurityPolicy,
 		}, true)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)

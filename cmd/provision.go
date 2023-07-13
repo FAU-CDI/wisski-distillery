@@ -13,9 +13,10 @@ import (
 var Provision wisski_distillery.Command = pv{}
 
 type pv struct {
-	PHPVersion         string `short:"p" long:"php" description:"specific php version to use for instance. Should be one of '8.0', '8.1'."`
-	OPCacheDevelopment bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
-	Positionals        struct {
+	PHPVersion            string `short:"p" long:"php" description:"specific php version to use for instance. Should be one of '8.0', '8.1'."`
+	OPCacheDevelopment    bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
+	ContentSecurityPolicy string `short:"c" long:"content-security-policy" description:"Setup ContentSecurityPolicy"`
+	Positionals           struct {
 		Slug string `positional-arg-name:"slug" required:"1-1" description:"slug of instance to create"`
 	} `positional-args:"true"`
 }
@@ -41,8 +42,9 @@ func (p pv) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Provision().Provision(context.Stderr, context.Context, provision.Flags{
 		Slug: p.Positionals.Slug,
 		System: models.System{
-			PHP:                p.PHPVersion,
-			OpCacheDevelopment: p.OPCacheDevelopment,
+			PHP:                   p.PHPVersion,
+			OpCacheDevelopment:    p.OPCacheDevelopment,
+			ContentSecurityPolicy: p.ContentSecurityPolicy,
 		},
 	})
 	if err != nil {

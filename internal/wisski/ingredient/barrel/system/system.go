@@ -32,6 +32,8 @@ func (smanager *SystemManager) Apply(ctx context.Context, progress io.Writer, sy
 		return err
 	}
 
+	// TODO: Apply Content-Security-Policy!
+
 	// and rebuild
 	return smanager.Dependencies.Barrel.Build(ctx, progress, start)
 }

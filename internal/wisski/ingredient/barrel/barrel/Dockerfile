@@ -76,7 +76,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     docker-php-source delete
 
 # enable the apache rewrite mod
-RUN a2enmod rewrite
+RUN a2enmod rewrite headers
 
 
 # Install composer.
@@ -94,6 +94,8 @@ ADD php.ini.d/wisski.ini /usr/local/etc/php/conf.d/wisski.ini
 ARG OPCACHE_MODE=prod
 ADD php.ini.d/opcache-$OPCACHE_MODE.ini /usr/local/etc/php/conf.d/opcache.ini
 
+ARG CONTENT_SECURITY_POLICY=
+ENV CONTENT_SECURITY_POLICY=${CONTENT_SECURITY_POLICY}
 
 # Configure Apache.
 
@@ -102,8 +104,8 @@ RUN rm /etc/apache2/sites-available/*.conf && \
     rm /etc/apache2/sites-enabled/*.conf
 
 # Then add the WissKI site
-ADD conf/ports.conf /etc/apache2/ports.conf
-ADD conf/wisski.conf /etc/apache2/sites-available/wisski.conf
+ADD apache.d/conf/ports.conf /etc/apache2/ports.conf
+ADD apache.d/sites-available/wisski.conf /etc/apache2/sites-available/wisski.conf
 
 # And enable it
 RUN a2ensite wisski

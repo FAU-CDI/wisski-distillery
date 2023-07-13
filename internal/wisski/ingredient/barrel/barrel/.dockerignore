@@ -2,7 +2,7 @@
 *
 
 # allow the following files:
-!conf/*
+!apache.d/*
 !scripts/*
 !ssh/*
 !php.ini.d/*

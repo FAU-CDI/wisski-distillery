@@ -59,13 +59,13 @@ type Requirement struct {
 func (req Requirement) Level() template.HTML {
 	switch req.Severity {
 	case -1:
-		return "<span style='background-color: gray; color: #fff;' class='info-chip'>Note</span>"
+		return "<span class='info-chip note'>Note</span>"
 	case 0:
-		return "<span style='background-color: green; color: #fff;' class='info-chip'>Info</span>"
+		return "<span class='info-chip info'>Info</span>"
 	case 1:
-		return "<span style='background-color: yellow; color: #000;' class='info-chip'>Warning</span>"
+		return "<span class='info-chip warning'>Warning</span>"
 	case 2:
-		return "<span style='background-color: red; color: #000;' class='info-chip'>Error</span>"
+		return "<span class='info-chip error'>Error</span>"
 	}
 	return template.HTML(strconv.Itoa(req.Severity))
 }

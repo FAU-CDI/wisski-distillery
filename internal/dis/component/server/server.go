@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/mux"
@@ -107,6 +108,11 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 	// apply the given context function
 	public = httpx.WithContextWrapper(&publicM, func(rcontext context.Context) context.Context { return contextx.WithValuesOf(rcontext, ctx) })
 	internal = httpx.WithContextWrapper(&internalM, func(rcontext context.Context) context.Context { return contextx.WithValuesOf(rcontext, ctx) })
+
+	// Add Content-Security-Policy
+	public = WithCSP(public, models.ContentSecurityPolicyDistilery)
+	internal = WithCSP(internal, models.ContentSecurityPolicyNothing)
+
 	err = nil
 	return
 }
@@ -121,6 +127,17 @@ func (server *Server) csrf() func(http.Handler) http.Handler {
 	opts = append(opts, csrf.CookieName(CSRFCookie))
 	opts = append(opts, csrf.FieldName(CSRFCookieField))
 	return csrf.Protect(server.Config.CSRFSecret(), opts...)
+}
+
+// WithCSP adds a Content-Security-Policy header to every response
+func WithCSP(handler http.Handler, policy string) http.Handler {
+	if policy == "" {
+		return handler
+	}
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Security-Policy", policy)
+		handler.ServeHTTP(w, r)
+	})
 }
 
 func init() {

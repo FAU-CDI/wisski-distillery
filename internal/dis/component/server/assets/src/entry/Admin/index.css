@@ -12,6 +12,8 @@
     bottom: 1em;
 }
 
+/* WissKI Status */
+
 .wisski.running {
     background-color: #9ADA07;
 }
@@ -20,6 +22,16 @@
     background-color: #ff7a7a;
 }
 
+.disabled {
+    color: gray;
+}
+
+.overflow {
+    overflow: auto;
+}
+
+/* Informational Chips */
+
 .info-chip {
     min-width: 75px;
     height: 15px;
@@ -27,4 +39,24 @@
     display: block;
     padding: 5px;
     text-align: center;
+}
+
+.info-chip.note {
+    background-color: gray;
+    color: #fff;
+}
+
+.info-chip.info {
+    background-color: green;
+    color: #fff;
+}
+
+.info-chip.warning {
+    background-color: yellow;
+    color: #000;
+}
+
+.info-chip.error {
+    background-color: red;
+    color: #000;
 }

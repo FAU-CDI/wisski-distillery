@@ -120,6 +120,14 @@
                             <code>{{ .Instance.System.OpCacheDevelopment }}</code>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            Content Security Policy
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.ContentSecurityPolicy }}</code>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -143,7 +151,7 @@
                             Directory
                         </td>
                         <td>
-                            <code style="overflow: auto;">{{ .Instance.FilesystemBase }}</code>
+                            <code class="overflow">{{ .Instance.FilesystemBase }}</code>
                         </td>
                     </tr>
                     <tr>
@@ -351,7 +359,7 @@
                     {{ $slug := .Instance.Slug }}
                     {{ $csrf := .CSRF }}
                     {{ range $index, $user := .Info.Users }}
-                    <tr {{ if not $user.Status }}style="color:gray" aria-disabled="true"{{ end }}>
+                    <tr {{ if not $user.Status }}class="disabled" aria-disabled="true"{{ end }}>
                         <td>
                             <code>{{ $user.UID }}</code>
                         </td>

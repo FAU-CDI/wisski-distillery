@@ -5,7 +5,7 @@
 
             <div class="pure-control-group">
                 <label for="slug">Slug</label>
-                <input name="slug" id="slug" placeholder="" autocomplete="slug">
+                <input name="slug" id="slug" placeholder="">
             </div>
         </fieldset>
         <fieldset>
@@ -24,6 +24,10 @@
                 <input type="checkbox" id="opcacheDevelopment" />
                 Opache Development Configuration
             </label>
+            <div class="pure-control-group">
+                <label for="contentsecuritypolicy">Content Security Policy</label>
+                <input class="pure-input-1" name="contentsecuritypolicy" id="contentsecuritypolicy" list="content-security-policy" placeholder="">
+            </div>
         </fieldset>
         <fieldset>
             <legend>Profile</legend>
@@ -36,3 +40,8 @@
         <input type="submit" value="Provision" class="pure-button">
     </form>
 </div>
+<datalist id="content-security-policy">
+    {{ range .ContentSecurityPolicies }}
+        <option value="{{ . }}">
+    {{ end }}
+</datalist>
