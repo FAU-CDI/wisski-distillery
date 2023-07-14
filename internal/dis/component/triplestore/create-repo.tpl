@@ -1,6 +1,5 @@
 # This file is used to initialize a new GraphDB repository. 
-# In this file the variables ${GRAPHDB_REPO} and ${INSTANCE_DOMAIN} will be replaced. 
-# All other variables will be left untouched. 
+# It is filled at runtime.
 
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix rep: <http://www.openrdf.org/config/repository#>.
@@ -9,8 +8,8 @@
 @prefix owlim: <http://www.ontotext.com/trree/owlim#>.
 
 [] a rep:Repository ;
-    rep:repositoryID "${GRAPHDB_REPO}" ;
-    rdfs:label "${INSTANCE_DOMAIN}" ;
+    rep:repositoryID "{{ .RepositoryID }}" ;
+    rdfs:label "{{ .Label }}" ;
     rep:repositoryImpl [
         rep:repositoryType "graphdb:SailRepository" ;
         sr:sailImpl [
@@ -18,7 +17,7 @@
 
             owlim:owlim-license "" ;
 
-            owlim:base-URL "http://${INSTANCE_DOMAIN}/" ;
+            owlim:base-URL "{{ .BaseURL }}" ;
             owlim:defaultNS "" ;
             owlim:entity-index-size "10000000" ;
             owlim:entity-id-size  "32" ;

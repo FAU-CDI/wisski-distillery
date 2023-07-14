@@ -5,11 +5,11 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"text/template"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -18,8 +18,20 @@ var errTripleStoreFailedRepository = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-//go:embed create-repo.ttl
-var createRepoTTL []byte
+//go:embed create-repo.tpl
+var createRepoTpl string
+
+// Template for creating repositories.
+//
+// NOTE(twiesing): The template is not aware of SparQL syntax, thus this template is very unsafe.
+// And should only be used with KNOWN GOOD input.
+var creteRepoTemplate = template.Must(template.New("create-repo.tpl").Parse(createRepoTpl))
+
+type createRepoContext struct {
+	RepositoryID string
+	Label        string
+	BaseURL      string
+}
 
 func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, domain string) error {
 	return ts.CreateRepository(ctx, instance.GraphDBRepository, domain, instance.GraphDBUsername, instance.GraphDBPassword)
@@ -39,12 +51,11 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 
 	// prepare the create repo request
 	var createRepo bytes.Buffer
-
-	err := unpack.WriteTemplate(&createRepo, map[string]string{
-		"GRAPHDB_REPO":    name,
-		"INSTANCE_DOMAIN": domain,
-	}, bytes.NewReader(createRepoTTL))
-	if err != nil {
+	if err := creteRepoTemplate.Execute(&createRepo, createRepoContext{
+		RepositoryID: name,
+		Label:        domain,
+		BaseURL:      "http://" + domain + "/",
+	}); err != nil {
 		return err
 	}
 
