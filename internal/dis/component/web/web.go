@@ -1,11 +1,10 @@
 package web
 
 import (
-	"bytes"
-	"io"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"gopkg.in/yaml.v3"
 
 	_ "embed"
 )
@@ -44,16 +43,23 @@ func (web *Web) Stack() component.StackWithResources {
 	}
 
 	if web.Config.HTTP.HTTPSEnabled() {
-		stack.ReadComposeFile = func() (io.Reader, error) {
-			return bytes.NewReader(dockerComposeHTTPS), nil
-		}
+		stack.ComposerYML = readYaml(dockerComposeHTTPS)
 		stack.TouchFilesPerm = 0600
 		stack.TouchFiles = []string{"acme.json"}
 	} else {
-		stack.ReadComposeFile = func() (io.Reader, error) {
-			return bytes.NewReader(dockerComposeHTTP), nil
-		}
+		stack.ComposerYML = readYaml(dockerComposeHTTP)
 	}
 
 	return component.MakeStack(web, stack)
+}
+
+func readYaml(bytes []byte) func(*yaml.Node) (*yaml.Node, error) {
+	return func(n *yaml.Node) (*yaml.Node, error) {
+		var node yaml.Node
+		err := yaml.Unmarshal(bytes, &node)
+		if err != nil {
+			return nil, err
+		}
+		return &node, nil
+	}
 }

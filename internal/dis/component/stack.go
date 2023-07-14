@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/stream"
+	"gopkg.in/yaml.v3"
 )
 
 // Stack represents a 'docker compose' stack living in a specific directory
@@ -176,12 +177,10 @@ type StackWithResources struct {
 	// These all refer to paths within the Resource filesystem.
 	Resources fs.FS
 
-	ContextPath string // the 'docker compose' stack context. Can, but does not have to, contain 'docker-compose.yml'
+	ContextPath string // the 'docker compose' stack context. May or may not contain 'docker-compose.yml'
 
-	// TODO: Make this nicer to replace variables
-	ReadComposeFile func() (io.Reader, error) // read the 'docker-compose.yml' (if not contained in context)
+	ComposerYML func(*yaml.Node) (*yaml.Node, error) // update 'docker-compose.yml', if no 'docker-compose.yml' exists, the passed node is nil.
 
-	// EnvPath    string            // the '.env' template, will be installed using [unpack.InstallTemplate]. If empty, use new syntax
 	EnvContext map[string]string // context when instantiating the '.env' template
 
 	CopyContextFiles []string // Files to copy from the installation context
@@ -219,36 +218,12 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		}
 	}
 
-	// write the docker-compose.yml file
-	if is.ReadComposeFile != nil {
-		err := (func() error {
-			// find the file to install!
-			dst := filepath.Join(is.Dir, "docker-compose.yml")
-			defer fmt.Fprintf(progress, "[install] %s\n", dst)
+	// update the docker compose file
+	if is.ComposerYML != nil {
+		dst := filepath.Join(is.Dir, "docker-compose.yml")
+		fmt.Fprintf(progress, "[install] %s\n", dst)
 
-			// create the file
-			yml, err := umaskfree.Create(dst, umaskfree.DefaultFilePerm)
-			if err != nil {
-				return err
-			}
-			defer yml.Close()
-
-			// open the source file from the context
-			src, err := is.ReadComposeFile()
-			if err != nil {
-				return err
-			}
-			if srcc, ok := src.(io.Closer); ok {
-				defer srcc.Close()
-			}
-
-			// copy it over!
-			{
-				_, err := io.Copy(yml, src)
-				return err
-			}
-		})()
-		if err != nil {
+		if err := doComposeFile(dst, is.ComposerYML); err != nil {
 			return err
 		}
 	}
@@ -301,7 +276,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		dst := filepath.Join(is.Dir, name)
 
 		fmt.Fprintf(progress, "[touch]   %s\n", dst)
-		if err := umaskfree.Touch(dst, is.TouchFilesPerm); err != nil {
+		if err := umaskfree.Touch(dst, umaskfree.DefaultFilePerm); err != nil {
 			return err
 		}
 	}
@@ -316,6 +291,59 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 	}
 
 	return nil
+}
+
+// doComposeFile updates the compose file using the update function.
+//
+// If the file at path already exists, calls update with the existing data.
+// if the file at path does not exist, calls update(nil).
+func doComposeFile(path string, update func(node *yaml.Node) (*yaml.Node, error)) error {
+	var mode fs.FileMode
+	var node *yaml.Node
+
+	{
+		stat, err := os.Stat(path)
+		switch {
+		case err == nil:
+			// file exists => use the previous file mode
+			mode = stat.Mode()
+
+			// read the yaml bytes
+			bytes, err := os.ReadFile(path)
+			if err != nil {
+				return errors.Wrap(err, "unable to read existing file")
+			}
+
+			// unmarshal it into a node, or bail out!
+			node = new(yaml.Node)
+			if err := yaml.Unmarshal(bytes, node); err != nil {
+				return errors.Wrap(err, "unable to unmarshal existing file")
+			}
+		case errors.Is(err, fs.ErrNotExist):
+			// file does not exist => use default mode
+			mode = umaskfree.DefaultFilePerm
+
+			// use a nil existing node
+			node = nil
+		default:
+			return err
+		}
+	}
+
+	// update the node
+	node, err := update(node)
+	if err != nil {
+		return errors.Wrap(err, "update function failed")
+	}
+
+	// re-encode the bytes
+	result, err := yaml.Marshal(node)
+	if err != nil {
+		return errors.Wrap(err, "failed to re-marshal")
+	}
+
+	// write the bytes back!
+	return umaskfree.WriteFile(path, result, mode)
 }
 
 // writeEnvFile writes an environment file
