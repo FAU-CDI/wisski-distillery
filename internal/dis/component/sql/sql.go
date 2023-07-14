@@ -37,7 +37,6 @@ func (*SQL) Context(parent component.InstallationContext) component.Installation
 }
 
 //go:embed all:sql
-//go:embed sql.env
 var resources embed.FS
 
 func (sql *SQL) Stack() component.StackWithResources {
@@ -45,7 +44,6 @@ func (sql *SQL) Stack() component.StackWithResources {
 		Resources:   resources,
 		ContextPath: "sql",
 
-		EnvPath: "sql.env",
 		EnvContext: map[string]string{
 			"DOCKER_NETWORK_NAME": sql.Config.Docker.Network(),
 			"HTTPS_ENABLED":       sql.Config.HTTP.HTTPSEnabledEnv(),

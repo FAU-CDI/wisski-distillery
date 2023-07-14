@@ -29,7 +29,6 @@ func (*Solr) Context(parent component.InstallationContext) component.Installatio
 }
 
 //go:embed all:solr
-//go:embed solr.env
 var resources embed.FS
 
 func (solr *Solr) Stack() component.StackWithResources {
@@ -37,7 +36,6 @@ func (solr *Solr) Stack() component.StackWithResources {
 		Resources:   resources,
 		ContextPath: "solr",
 
-		EnvPath: "solr.env",
 		EnvContext: map[string]string{
 			"DOCKER_NETWORK_NAME": solr.Config.Docker.Network(),
 		},

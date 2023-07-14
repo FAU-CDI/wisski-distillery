@@ -14,7 +14,7 @@ type Reserve struct {
 	ingredient.Base
 }
 
-//go:embed all:reserve reserve.env
+//go:embed all:reserve
 var reserveResources embed.FS
 
 // Stack returns a stack representing the reserve instance
@@ -26,14 +26,12 @@ func (reserve *Reserve) Stack() component.StackWithResources {
 
 		Resources:   reserveResources,
 		ContextPath: filepath.Join("reserve"),
-		EnvPath:     filepath.Join("reserve.env"),
 
 		EnvContext: map[string]string{
 			"DOCKER_NETWORK_NAME": reserve.Malt.Config.Docker.Network(),
 
 			"SLUG":          reserve.Slug,
 			"HOST_RULE":     reserve.HostRule(),
-			"HOSTNAME":      reserve.Hostname(),
 			"HTTPS_ENABLED": reserve.Malt.Config.HTTP.HTTPSEnabledEnv(),
 		},
 	}

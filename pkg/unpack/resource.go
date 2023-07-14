@@ -10,7 +10,6 @@ import (
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
-var errExpectedFileButGotDirectory = errors.New("expected a file, but got a directory")
 var errExpectedDirectoryButGotFile = errors.New("expected a directory, but got a file")
 
 // InstallDir installs the directory at src within fsys to dst.

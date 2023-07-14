@@ -2,11 +2,12 @@ package web
 
 import (
 	"bytes"
-	"embed"
 	"io"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+
+	_ "embed"
 )
 
 // Web implements the ingress gateway for the distillery.
@@ -28,9 +29,6 @@ func (*Web) Context(parent component.InstallationContext) component.Installation
 	return parent
 }
 
-//go:embed web.env
-var webEnv embed.FS
-
 //go:embed docker-compose-http.yml
 var dockerComposeHTTP []byte
 
@@ -39,8 +37,6 @@ var dockerComposeHTTPS []byte
 
 func (web *Web) Stack() component.StackWithResources {
 	var stack component.StackWithResources
-	stack.Resources = webEnv
-	stack.EnvPath = "web.env"
 
 	stack.EnvContext = map[string]string{
 		"DOCKER_NETWORK_NAME": web.Config.Docker.Network(),

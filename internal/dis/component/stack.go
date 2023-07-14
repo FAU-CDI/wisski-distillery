@@ -176,10 +176,12 @@ type StackWithResources struct {
 	// These all refer to paths within the Resource filesystem.
 	Resources fs.FS
 
-	ContextPath     string                    // the 'docker compose' stack context. Can, but does not have to, contain 'docker-compose.yml'
+	ContextPath string // the 'docker compose' stack context. Can, but does not have to, contain 'docker-compose.yml'
+
+	// TODO: Make this nicer to replace variables
 	ReadComposeFile func() (io.Reader, error) // read the 'docker-compose.yml' (if not contained in context)
 
-	EnvPath    string            // the '.env' template, will be installed using [unpack.InstallTemplate].
+	// EnvPath    string            // the '.env' template, will be installed using [unpack.InstallTemplate]. If empty, use new syntax
 	EnvContext map[string]string // context when instantiating the '.env' template
 
 	CopyContextFiles []string // Files to copy from the installation context
@@ -253,14 +255,10 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 	// configure .env
 	envDest := filepath.Join(is.Dir, ".env")
-	if is.EnvPath != "" && is.EnvContext != nil {
+	if is.EnvContext != nil {
 		fmt.Fprintf(progress, "[config]  %s\n", envDest)
-		if err := unpack.InstallTemplate(
-			envDest,
-			is.EnvContext,
-			is.EnvPath,
-			is.Resources,
-		); err != nil {
+
+		if err := writeEnvFile(envDest, is.TouchFilesPerm, is.EnvContext); err != nil {
 			return err
 		}
 	}
@@ -317,5 +315,24 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		}
 	}
 
+	return nil
+}
+
+// writeEnvFile writes an environment file
+func writeEnvFile(path string, perm fs.FileMode, variables map[string]string) error {
+	// create the environment file
+	file, err := umaskfree.Create(path, perm)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// write the file!
+	_, err = compose.WriteEnvFile(file, variables)
+	if err != nil {
+		return err
+	}
+
+	// and return nil
 	return nil
 }

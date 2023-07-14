@@ -5,10 +5,8 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"io/fs"
 	"strings"
 
-	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
 )
@@ -195,39 +193,4 @@ parseloop:
 	}
 
 	return nil
-}
-
-// InstallTemplate unpacks the resource located at src in fsys, then processes it as a template, and eventually writes it to dst.
-// Any existing file is truncated and overwritten.
-//
-// See [WriteTemplate] for possible errors.
-func InstallTemplate(dst string, context map[string]string, src string, fsys fs.FS) error {
-
-	// open the srcFile
-	srcFile, err := fsys.Open(src)
-	if err != nil {
-		return err
-	}
-	defer srcFile.Close()
-
-	// stat it
-	srcInfo, err := srcFile.Stat()
-	if err != nil {
-		return err
-	}
-
-	// check if it is a directory
-	if srcInfo.IsDir() {
-		return errExpectedFileButGotDirectory
-	}
-
-	// open the destination file
-	file, err := umaskfree.Create(dst, srcInfo.Mode())
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	// write the file!
-	return WriteTemplate(file, context, srcFile)
 }

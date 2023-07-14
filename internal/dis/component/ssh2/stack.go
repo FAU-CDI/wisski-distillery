@@ -12,14 +12,13 @@ func (ssh *SSH2) Path() string {
 	return filepath.Join(ssh.Still.Config.Paths.Root, "core", "ssh2")
 }
 
-//go:embed all:ssh2 ssh2.env
+//go:embed all:ssh2
 var resources embed.FS
 
 func (ssh *SSH2) Stack() component.StackWithResources {
 	return component.MakeStack(ssh, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "ssh2",
-		EnvPath:     "ssh2.env",
 
 		EnvContext: map[string]string{
 			"DOCKER_NETWORK_NAME": ssh.Config.Docker.Network(),

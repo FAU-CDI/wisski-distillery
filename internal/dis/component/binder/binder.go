@@ -2,13 +2,14 @@ package binder
 
 import (
 	"bytes"
-	"embed"
 	"io"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/tkw1536/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
+
+	_ "embed"
 )
 
 type Binder struct {
@@ -66,13 +67,8 @@ func (binder *Binder) buildYML() ([]byte, error) {
 	return yaml.Marshal(dockerCompose)
 }
 
-//go:embed binder.env
-var resources embed.FS
-
 func (binder *Binder) Stack() component.StackWithResources {
 	return component.MakeStack(binder, component.StackWithResources{
-		Resources: resources,
-		EnvPath:   "binder.env",
 		ReadComposeFile: func() (io.Reader, error) {
 			data, err := binder.buildYML()
 			if err != nil {

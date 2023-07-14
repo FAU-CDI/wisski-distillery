@@ -15,14 +15,13 @@ func (control Server) Path() string {
 	return filepath.Join(control.Still.Config.Paths.Root, "core", "dis")
 }
 
-//go:embed all:server server.env
+//go:embed all:server
 var resources embed.FS
 
 func (server *Server) Stack() component.StackWithResources {
 	return component.MakeStack(server, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "server",
-		EnvPath:     "server.env",
 
 		EnvContext: map[string]string{
 			"DOCKER_NETWORK_NAME": server.Config.Docker.Network(),
