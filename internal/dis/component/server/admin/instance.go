@@ -41,6 +41,7 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 			menuInstance,
 		),
 		templating.Actions(
+			menuRebuild,
 			menuGrants,
 			menuIngredients,
 		),
@@ -67,6 +68,7 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 
 		funcs = []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
+			templating.ReplaceAction(menuRebuild, component.MenuItem{Title: "Rebuild", Path: template.URL("/admin/rebuild/" + slug)}),
 			templating.ReplaceAction(menuGrants, component.MenuItem{Title: "Grants", Path: template.URL("/admin/grants/" + slug)}),
 			templating.ReplaceAction(menuIngredients, component.MenuItem{Title: "Ingredients", Path: template.URL("/admin/ingredients/" + slug), Priority: component.SmallButton}),
 

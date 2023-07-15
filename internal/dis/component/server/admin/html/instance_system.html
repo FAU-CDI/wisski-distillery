@@ -2,49 +2,87 @@
 <div class="pure-u-1-1">
     <form class="pure-form pure-form-aligned" id="system">
         <fieldset>
-            <legend>Main Parameters</legend>
 
+            <div class="pure-controls">
+                <h5>Identity</h5>
+            </div>
+            
             <div class="pure-control-group">
                 <label for="slug">Slug</label>
                 <input name="slug" id="slug" placeholder="" {{ if $rebuild }} readonly="readonly" value="{{ .Slug }}" {{ end }}>
+                <span class="pure-form-message-inline">
+                    The <code>slug</code> is the primary identifier for the system.
+                    It forms part of the domain, and must be unique across this instance of the distillery.
+                    Once set, the <code>slug</code> cannot be changed.
+                </span>
             </div>
-        </fieldset>
-        <fieldset>
-            <legend>System Parameters</legend>
+            
+            <div class="pure-controls">
+                <h5>System Parameters</h5>
+            </div>
 
             <div class="pure-control-group">
                 <label for="php">PHP Version</label>
-                <select id="php">
+                <select class="pure-select" id="php">
                     {{ $PHP := .System.PHP }}
                     <option {{ if $rebuild }}{{ if eq $PHP "" }}selected{{ end }}{{ else }}selected{{ end }}>Default ({{ .DefaultPHPVersion }})</option>
                     {{ range .PHPVersions }}
                     <option {{ if $rebuild }}{{ if eq $PHP . }}selected{{ end }}{{ end }} value="{{ . }}">{{ . }}</option>
                     {{ end }}
                 </select>
+                <span class="pure-form-message-inline">
+                    The version of <a href="https://www.php.net/releases/" target="_blank" rel="noopener noreferer">PHP</a> to use.
+                    The distillery will always pick the latest patch release of the selected minor. 
+                    Note that not all PHP versions work with all WissKI versions.
+                    Changing the PHP version is possible at any time.
+                </span>
             </div>
-            <label for="opcacheDevelopment" class="pure-checkbox">
-                <input {{ if $rebuild }}{{ if .System.OpCacheDevelopment }}checked{{end}}{{end}} type="checkbox" id="opcacheDevelopment" />
-                Opache Development Configuration
-            </label>
-            <div class="pure-control-group" class="pure-input-1">
-                <label for="contentsecuritypolicy">Content Security Policy</label>
-                <input name="contentsecuritypolicy" id="contentsecuritypolicy" list="content-security-policy" {{ if $rebuild }}value="{{ .System.ContentSecurityPolicy }}" {{ end }}>
+            <div class="pure-controls">
+                <label for="opcacheDevelopment" class="pure-checkbox">
+                    <input {{ if $rebuild }}{{ if .System.OpCacheDevelopment }}checked{{end}}{{end}} type="checkbox" id="opcacheDevelopment" />
+                    OPcache Development Configuration
+                </label>
+                <span class="pure-form-message-inline">
+                   Toggle the <a href="https://www.php.net/manual/en/book.opcache.php" target="_blank" rel="noopener noreferer">OPcache</a> configuration.
+                   <br />
+                   By default the distillery enables the <a href="https://www.php.net/manual/en/opcache.installation.php#opcache.installation.recommended" target="_blank" rel="noopener noreferer">recommended settings</a> for production.
+                   When checked a more lenient caching approach intended for development is configured.
+                   This may lead to a decrease in performance.
+                   <br />
+                   Changing the configuration is possible at any time. 
+                </span>
             </div>
-        </fieldset>
-        <fieldset>
-            <legend>Profile</legend>
 
             <div class="pure-control-group">
-                Not yet available
+                <label for="contentsecuritypolicy">Content-Security-Policy</label>
+                <input name="contentsecuritypolicy" id="contentsecuritypolicy" list="content-security-policy" {{ if $rebuild }}value="{{ .System.ContentSecurityPolicy }}" {{ end }}>
+                <span class="pure-form-message-inline">
+                    Set a <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP">Content-Security-Policy</a> header to help to protect against JavaScript injections or unintended use of CDNs.
+                    Leave blank to not set a header.
+                    <br />
+                    Autocomplete will make several suggestions for this field.
+                    Changing the header is possible at any time. 
+                </span>
             </div>
-        </fieldset>
+        
+            {{ if not $rebuild }}
+                <div class="pure-controls">
+                    <h5>Profile</h5>
+                </div>
 
-        <input type="submit" value="{{ if $rebuild }}Rebuild{{ else }}Provision{{ end }}" class="pure-button">
+                <div class="pure-control-group">
+                    In the future, it will be possible to configure the Drupal, WissKI and Module versions here.
+                    But this is not yet implemented.
+                </div>
+            {{ end }}
+        
+            <button type="submit" class="pure-button">{{ if $rebuild }}Rebuild{{ else }}Provision{{ end }}</button>
+        </fieldset>
     </form>
 </div>
 
 <datalist id="content-security-policy">
     {{ range .ContentSecurityPolicies }}
     <option value="{{ . }}">
-        {{ end }}
+    {{ end }}
 </datalist>

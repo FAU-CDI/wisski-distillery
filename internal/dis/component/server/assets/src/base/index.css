@@ -125,6 +125,10 @@ time {
     font-size: 125%;
 }
 
+.pure-select {
+    min-width: 24ch; /* to match <input type="text"> */
+}
+
 .error-message {
     background-color: pink;
     border: 1px solid red;

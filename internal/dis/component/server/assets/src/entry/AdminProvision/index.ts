@@ -3,14 +3,14 @@ import '../Admin/index.css'
 
 import { Provision } from '~/src/lib/remote/api'
 
-const provision = document.getElementById('provision') as HTMLFormElement
+const system = document.getElementById('system') as HTMLFormElement
 const slug = document.getElementById('slug') as HTMLInputElement
 const php = document.getElementById('php') as HTMLSelectElement
 const opcacheDevelopment = document.getElementById('opcacheDevelopment') as HTMLInputElement
 const contentSecurityPolicy = document.getElementById('contentsecuritypolicy') as HTMLInputElement
 
 // add an event handler to open the modal form!
-provision.addEventListener('submit', (evt) => {
+system.addEventListener('submit', (evt) => {
   evt.preventDefault()
 
   Provision({ Slug: slug.value, System: { PHP: php.value, OpCacheDevelopment: opcacheDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value } })
@@ -21,4 +21,4 @@ provision.addEventListener('submit', (evt) => {
 })
 
 // enable the form!
-provision.querySelector('fieldset')?.removeAttribute('disabled')
+system.querySelector('fieldset')?.removeAttribute('disabled')
