@@ -17,27 +17,42 @@ import (
 	_ "embed"
 )
 
-//go:embed "html/instance_rebuild.html"
-var instanceRebuildHTML []byte
-var instanceRebuildTemplate = templating.Parse[instanceRebuildContext](
-	"instance_rebuild.html", instanceRebuildHTML, nil,
-
-	templating.Title("Rebuild Instance"),
-	templating.Assets(assets.AssetsAdminRebuild),
+//go:embed "html/instance_system.html"
+var instanceSystemHTML []byte
+var instanceSystemTemplate = templating.Parse[instanceSystemContext](
+	"instance_system.html", instanceSystemHTML, nil,
 )
 
-type instanceRebuildContext struct {
+// instanceSystemContext is the context for instance_system.html
+type instanceSystemContext struct {
 	templating.RuntimeFlags
 
-	Slug   string
-	System models.System
+	// parameters for completion
+	PHPVersions             []string
+	ContentSecurityPolicies []string
+	DefaultPHPVersion       string
 
-	systemParams
+	// Are we in rebuild mode?
+	Rebuild bool
+	Slug    string
+	System  models.System
+}
+
+// prepare prares the given instanceSystemContent
+func (isc *instanceSystemContext) prepare(rebuild bool) {
+	isc.Rebuild = rebuild
+	isc.PHPVersions = models.KnownPHPVersions()
+	isc.ContentSecurityPolicies = models.ContentSecurityPolicyExamples()
+	isc.DefaultPHPVersion = models.DefaultPHPVersion
 }
 
 func (admin *Admin) instanceRebuild(ctx context.Context) http.Handler {
-	tpl := instanceRebuildTemplate.Prepare(
+	tpl := instanceSystemTemplate.Prepare(
 		admin.Dependencies.Templating,
+
+		templating.Title("Rebuild Instance"),
+		templating.Assets(assets.AssetsAdminRebuild),
+
 		templating.Crumbs(
 			menuAdmin,
 			menuInstances,
@@ -46,20 +61,20 @@ func (admin *Admin) instanceRebuild(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (ib instanceRebuildContext, funcs []templating.FlagFunc, err error) {
+	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (isc instanceSystemContext, funcs []templating.FlagFunc, err error) {
 		slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 
 		var instance *wisski.WissKI
 		instance, err = admin.Dependencies.Instances.WissKI(r.Context(), slug)
 		if err == instances.ErrWissKINotFound {
-			return ib, nil, httpx.ErrNotFound
+			return isc, nil, httpx.ErrNotFound
 		}
 		if err != nil {
-			return ib, nil, err
+			return isc, nil, err
 		}
 
-		ib.Slug = instance.Slug
-		ib.System = instance.System
+		isc.Slug = instance.Slug
+		isc.System = instance.System
 
 		// replace the menu item
 		funcs = []templating.FlagFunc{
@@ -68,7 +83,7 @@ func (admin *Admin) instanceRebuild(ctx context.Context) http.Handler {
 			templating.Title(instance.Slug + " - Rebuild"),
 		}
 
-		ib.systemParams = newSystemParams()
+		isc.prepare(true)
 		return
 	})
 }

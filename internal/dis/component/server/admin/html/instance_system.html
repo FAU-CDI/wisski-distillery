@@ -1,32 +1,34 @@
+{{ $rebuild := .Rebuild }}
 <div class="pure-u-1-1">
-    <form class="pure-form pure-form-aligned" id="provision">
+    <form class="pure-form pure-form-aligned" id="system">
         <fieldset>
             <legend>Main Parameters</legend>
 
             <div class="pure-control-group">
                 <label for="slug">Slug</label>
-                <input name="slug" id="slug" placeholder="">
+                <input name="slug" id="slug" placeholder="" {{ if $rebuild }} readonly="readonly" value="{{ .Slug }}" {{ end }}>
             </div>
         </fieldset>
         <fieldset>
             <legend>System Parameters</legend>
-            
+
             <div class="pure-control-group">
                 <label for="php">PHP Version</label>
                 <select id="php">
-                    <option value="" selected>Default ({{ .DefaultPHPVersion }})</option>
+                    {{ $PHP := .System.PHP }}
+                    <option {{ if $rebuild }}{{ if eq $PHP "" }}selected{{ end }}{{ else }}selected{{ end }}>Default ({{ .DefaultPHPVersion }})</option>
                     {{ range .PHPVersions }}
-                        <option value="{{ . }}">{{ . }}</option>
+                    <option {{ if $rebuild }}{{ if eq $PHP . }}selected{{ end }}{{ end }} value="{{ . }}">{{ . }}</option>
                     {{ end }}
                 </select>
             </div>
             <label for="opcacheDevelopment" class="pure-checkbox">
-                <input type="checkbox" id="opcacheDevelopment" />
+                <input {{ if $rebuild }}{{ if .System.OpCacheDevelopment }}checked{{end}}{{end}} type="checkbox" id="opcacheDevelopment" />
                 Opache Development Configuration
             </label>
-            <div class="pure-control-group">
+            <div class="pure-control-group" class="pure-input-1">
                 <label for="contentsecuritypolicy">Content Security Policy</label>
-                <input class="pure-input-1" name="contentsecuritypolicy" id="contentsecuritypolicy" list="content-security-policy" placeholder="">
+                <input name="contentsecuritypolicy" id="contentsecuritypolicy" list="content-security-policy" {{ if $rebuild }}value="{{ .System.ContentSecurityPolicy }}" {{ end }}>
             </div>
         </fieldset>
         <fieldset>
@@ -37,11 +39,12 @@
             </div>
         </fieldset>
 
-        <input type="submit" value="Provision" class="pure-button">
+        <input type="submit" value="{{ if $rebuild }}Rebuild{{ else }}Provision{{ end }}" class="pure-button">
     </form>
 </div>
+
 <datalist id="content-security-policy">
     {{ range .ContentSecurityPolicies }}
-        <option value="{{ . }}">
-    {{ end }}
+    <option value="{{ . }}">
+        {{ end }}
 </datalist>
