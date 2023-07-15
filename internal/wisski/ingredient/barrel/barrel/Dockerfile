@@ -57,7 +57,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     pecl install xmlrpc-1.0.0RC3 && \
     pecl install ssh2-1.3.1 && \
     pecl install apcu-5.1.21 && \
-    pecl install uploadprogress-2.0.2 && \
     docker-php-ext-enable \
         apcu \
         curl \
@@ -69,7 +68,6 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         pdo_mysql \
         soap \
         ssh2 \
-        uploadprogress \
         xml \
         xmlrpc \
     && \
