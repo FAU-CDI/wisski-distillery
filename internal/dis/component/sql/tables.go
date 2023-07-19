@@ -18,7 +18,7 @@ var (
 
 func (*InstanceTable) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeOf[models.Instance](),
+		Model: reflectx.MakeType[models.Instance](),
 		Name:  models.InstanceTable,
 	}
 }
@@ -33,7 +33,7 @@ var (
 
 func (*LockTable) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeOf[models.Lock](),
+		Model: reflectx.MakeType[models.Lock](),
 		Name:  models.LockTable,
 	}
 }

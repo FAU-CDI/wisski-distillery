@@ -28,7 +28,7 @@ var (
 
 func (*Logger) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeOf[models.Export](),
+		Model: reflectx.MakeType[models.Export](),
 		Name:  models.ExportTable,
 	}
 }

@@ -11,7 +11,7 @@ import (
 
 func (ssh2 *SSHKeys) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeOf[models.Keys](),
+		Model: reflectx.MakeType[models.Keys](),
 		Name:  models.KeysTable,
 	}
 }

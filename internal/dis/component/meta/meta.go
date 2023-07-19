@@ -27,7 +27,7 @@ var (
 
 func (*Meta) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeOf[models.Metadatum](),
+		Model: reflectx.MakeType[models.Metadatum](),
 		Name:  models.MetadataTable,
 	}
 }

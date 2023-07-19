@@ -29,7 +29,7 @@ var (
 func (pol *Policy) TableInfo() component.TableInfo {
 	return component.TableInfo{
 		Name:  models.GrantTable,
-		Model: reflectx.TypeOf[models.Grant](),
+		Model: reflectx.MakeType[models.Grant](),
 	}
 }
 
