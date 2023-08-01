@@ -68,6 +68,10 @@ func (wisski *WissKI) Drush() *drush.Drush {
 	return export[*drush.Drush](wisski)
 }
 
+func (wisski *WissKI) Composer() *composer.Composer {
+	return export[*composer.Composer](wisski)
+}
+
 func (wisski *WissKI) Users() *users.Users {
 	return export[*users.Users](wisski)
 }
@@ -127,7 +131,7 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		}),
 		auto[*barrel.LastRebuildFetcher],
 		auto[*barrel.RunningFetcher],
-		auto[*drush.LastUpdateFetcher],
+		auto[*composer.LastUpdateFetcher],
 		auto[*drush.LastCronFetcher],
 		auto[*info.SnapshotsFetcher],
 

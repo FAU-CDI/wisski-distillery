@@ -1,4 +1,4 @@
-package drush
+package composer
 
 import (
 	"context"
@@ -9,8 +9,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
+	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/stream"
 )
 
 var errBlindUpdateFailed = exit.Error{
@@ -19,18 +19,43 @@ var errBlindUpdateFailed = exit.Error{
 }
 
 // Update performs a blind drush update
-func (drush *Drush) Update(ctx context.Context, progress io.Writer) error {
-	err := drush.Dependencies.Barrel.Shell(ctx, stream.NonInteractive(progress), "/runtime/blind_update.sh")
-	if err != nil {
-		return errBlindUpdateFailed.WithMessageF(drush.Slug).Wrap(err)
+func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err error) {
+	defer errBlindUpdateFailed.WithMessageF(composer.Slug).DeferWrap(&err)
+
+	if err := composer.FixPermission(ctx, progress); err != nil {
+		return err
 	}
 
-	return drush.setLastUpdate(ctx)
+	logging.LogMessage(progress, "Updating Packages")
+	{
+		err := composer.Exec(ctx, progress, "update")
+		if err != nil {
+			return err
+		}
+	}
+
+	logging.LogMessage(progress, "Installing database updates")
+	{
+		err := composer.Dependencies.Drush.Exec(ctx, progress, "-y", "updatedb")
+		if err != nil {
+			return err
+		}
+	}
+
+	logging.LogMessage(progress, "Updating WissKI Packages")
+	{
+		err := composer.Exec(ctx, progress, "update")
+		if err != nil {
+			return err
+		}
+	}
+
+	return composer.setLastUpdate(ctx)
 }
 
 const lastUpdate = mstore.For[int64]("lastUpdate")
 
-func (drush *Drush) LastUpdate(ctx context.Context) (t time.Time, err error) {
+func (drush *Composer) LastUpdate(ctx context.Context) (t time.Time, err error) {
 	epoch, err := lastUpdate.Get(ctx, drush.Dependencies.MStore)
 	if err == meta.ErrMetadatumNotSet {
 		return t, nil
@@ -43,14 +68,14 @@ func (drush *Drush) LastUpdate(ctx context.Context) (t time.Time, err error) {
 	return time.Unix(epoch, 0), nil
 }
 
-func (drush *Drush) setLastUpdate(ctx context.Context) error {
+func (drush *Composer) setLastUpdate(ctx context.Context) error {
 	return lastUpdate.Set(ctx, drush.Dependencies.MStore, time.Now().Unix())
 }
 
 type LastUpdateFetcher struct {
 	ingredient.Base
 	Dependencies struct {
-		Drush *Drush
+		Composer *Composer
 	}
 }
 
@@ -59,6 +84,6 @@ var (
 )
 
 func (lbr *LastUpdateFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.LastUpdate, err = lbr.Dependencies.Drush.LastUpdate(flags.Context)
+	info.LastUpdate, err = lbr.Dependencies.Composer.LastUpdate(flags.Context)
 	return
 }

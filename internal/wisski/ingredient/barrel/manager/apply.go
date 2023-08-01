@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/composer"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/stream"
@@ -166,7 +165,7 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 		// install dependencies in the WissKI directory
 		logging.LogMessage(progress, "Installing WissKI Dependencies")
 		{
-			if err := manager.Dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "composer", "--working-dir", barrel.WissKIDirectory, "install"); err != nil {
+			if err := manager.Dependencies.Composer.ExecWissKI(ctx, progress, "install"); err != nil {
 				return err
 			}
 		}

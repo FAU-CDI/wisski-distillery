@@ -74,7 +74,7 @@ func (sockets *Sockets) Actions() ActionMap {
 			return instance.SystemManager().Apply(ctx, out, system, true)
 		}),
 		"update": sockets.Instance(scopes.ScopeUserAdmin, "", 0, func(ctx context.Context, _ *Sockets, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-			return instance.Drush().Update(ctx, out)
+			return instance.Composer().Update(ctx, out)
 		}),
 		"cron": sockets.Instance(scopes.ScopeUserAdmin, "", 0, func(ctx context.Context, _ *Sockets, instance *wisski.WissKI, in io.Reader, str io.Writer, params ...string) error {
 			return instance.Drush().Cron(ctx, str)

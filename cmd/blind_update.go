@@ -54,7 +54,7 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) (err error) {
 
 	// and do the actual blind_update!
 	return status.WriterGroup(context.Stderr, bu.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
-		return instance.Drush().Update(context.Context, writer)
+		return instance.Composer().Update(context.Context, writer)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("blind_update %q", item.Slug)
 	}))

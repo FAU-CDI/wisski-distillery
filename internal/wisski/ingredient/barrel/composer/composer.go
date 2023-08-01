@@ -7,6 +7,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/drush"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/tkw1536/pkglib/stream"
 )
 
@@ -15,13 +17,25 @@ type Composer struct {
 	ingredient.Base
 	Dependencies struct {
 		Barrel *barrel.Barrel
-		//		PHP    *php.PHP
+		MStore *mstore.MStore
+		Drush  *drush.Drush
 	}
 }
 
-// Exec executes a composer command
+// Exec executes a composer command for the main composer package.
+// Returns an error iff composer does not exit with 0.
 func (composer *Composer) Exec(ctx context.Context, progress io.Writer, command ...string) error {
-	if err := composer.Dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), append([]string{"composer", "--no-interaction", "--working-dir", barrel.ComposerDirectory}, command...)...); err != nil {
+	return composer.exec(ctx, progress, append([]string{"--working-dir", barrel.ComposerDirectory}, command...)...)
+}
+
+// Exec executes a composer command for the wisski directory.
+// Returns an error iff composer does not exit with 0.
+func (composer *Composer) ExecWissKI(ctx context.Context, progress io.Writer, command ...string) error {
+	return composer.exec(ctx, progress, append([]string{"--working-dir", barrel.WissKIDirectory}, command...)...)
+}
+
+func (composer *Composer) exec(ctx context.Context, progress io.Writer, command ...string) error {
+	if err := composer.Dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), append([]string{"composer", "--no-interaction"}, command...)...); err != nil {
 		return err
 	}
 	return nil
@@ -37,7 +51,9 @@ func (composer *Composer) FixPermission(ctx context.Context, progress io.Writer)
 // Install attempts runs 'composer require' with the given arguments
 // Spec is like a specification on the command line.
 func (composer *Composer) Install(ctx context.Context, progress io.Writer, args ...string) error {
-	composer.FixPermission(ctx, progress)
+	if err := composer.FixPermission(ctx, progress); err != nil {
+		return err
+	}
 
 	requires := append([]string{"require"}, args...)
 	if err := composer.Exec(ctx, progress, requires...); err != nil {

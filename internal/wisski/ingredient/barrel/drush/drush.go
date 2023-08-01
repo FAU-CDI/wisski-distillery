@@ -6,7 +6,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/tkw1536/pkglib/stream"
 )
@@ -16,7 +15,6 @@ type Drush struct {
 	ingredient.Base
 	Dependencies struct {
 		Barrel *barrel.Barrel
-		MStore *mstore.MStore
 		PHP    *php.PHP
 	}
 }
