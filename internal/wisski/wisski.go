@@ -122,6 +122,7 @@ func (wisski *WissKI) allIngredients() []initFunc {
 		auto[*extras.Blocks],
 		auto[*extras.Requirements],
 		auto[*extras.Adapters],
+		auto[*extras.Theme],
 		auto[*users.Users],
 		auto[*users.UserPolicy],
 

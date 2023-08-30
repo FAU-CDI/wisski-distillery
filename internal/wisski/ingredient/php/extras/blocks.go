@@ -34,3 +34,8 @@ func (blocks *Blocks) Create(ctx context.Context, server *phpx.Server, block Blo
 	err = blocks.Dependencies.PHP.ExecScript(ctx, server, nil, blocksPHP, "create_basic_block", block.Info, block.Content, block.Region, block.BlockID)
 	return err
 }
+
+func (blocks *Blocks) GetFooterRegion(ctx context.Context, server *phpx.Server) (region string, err error) {
+	err = blocks.Dependencies.PHP.ExecScript(ctx, server, &region, blocksPHP, "get_footer_region")
+	return
+}

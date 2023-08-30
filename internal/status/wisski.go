@@ -29,6 +29,9 @@ type WissKI struct {
 	LastUpdate  time.Time
 	LastCron    time.Time
 
+	// current theme
+	Theme string
+
 	// Statistics of the WissKI
 	Statistics Statistics
 

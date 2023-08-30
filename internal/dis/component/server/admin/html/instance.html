@@ -48,14 +48,6 @@
                     </tr>
                     <tr>
                         <td>
-                            Docker Base Image
-                        </td>
-                        <td>
-                            <code>{{ .Instance.GetDockerBaseImage }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
                             Running
                         </td>
                         <td>
@@ -105,6 +97,56 @@
                         </td>
                         <td>
                             <code>{{ .Instance.System.PHP }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Docker Base Image
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.GetDockerBaseImage }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            OPCache Development Config
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.OpCacheDevelopment }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Content Security Policy
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.ContentSecurityPolicy }}</code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="pure-u-1 pure-u-xl-2-5">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="2">
+                            Drupal Info
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            Theme
+                        </td>
+                        <td>
+                            <code>{{ .Info.Theme }}</code>
                         </td>
                     </tr>
                     <tr>
