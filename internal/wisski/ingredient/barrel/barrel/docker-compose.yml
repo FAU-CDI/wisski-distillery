@@ -37,6 +37,7 @@ services:
     
     # volumes that are mounted
     volumes:
+      - ${RUNTIME_DIR}:/runtime:ro
       - ${DATA_PATH}/.composer:/var/www/.composer:rw
       - ${DATA_PATH}/data:/var/www/data:rw
       - ${DATA_PATH}/home:/var/www:rw
