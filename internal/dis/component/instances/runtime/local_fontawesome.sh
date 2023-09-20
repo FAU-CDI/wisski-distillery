@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+# version of font awesome to install
+FAVERSION="6.4.0"
+
 FAINFO=`drush pm-list --pipe --type=module --filter=id=fontawesome`
 if [[ -z "$FAINFO" ]]; then
     echo "Font Awesome is not installed, aborting"
@@ -13,7 +16,7 @@ pushd "$TEMPDIR"
 trap 'popd && rm -rf $TEMPDIR' EXIT
 
 # curl the colorbox zip and unpack it
-curl -L https://use.fontawesome.com/releases/v6.4.0/fontawesome-free-6.4.0-web.zip --output fontawesome.zip
+curl -L https://use.fontawesome.com/releases/v${FAVERSION}/fontawesome-free-${FAVERSION}-web.zip -o fontawesome.zip
 unzip fontawesome.zip
 
 # Prepare the fontawesome directory
