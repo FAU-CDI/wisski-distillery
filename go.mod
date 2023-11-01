@@ -1,6 +1,6 @@
 module github.com/FAU-CDI/wisski-distillery
 
-go 1.20
+go 1.21.3
 
 require (
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
