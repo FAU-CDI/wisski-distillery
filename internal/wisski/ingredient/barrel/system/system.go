@@ -14,7 +14,7 @@ import (
 // SystemManager applies a specific system configuration
 type SystemManager struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Barrel      *barrel.Barrel
 		Bookkeeping *bookkeeping.Bookkeeping
 		Settings    *extras.Settings
@@ -28,12 +28,12 @@ func (smanager *SystemManager) Apply(ctx context.Context, progress io.Writer, sy
 	smanager.Instance.System = system
 
 	// save in bookkeeping
-	if err := smanager.Dependencies.Bookkeeping.Save(ctx); err != nil {
+	if err := smanager.dependencies.Bookkeeping.Save(ctx); err != nil {
 		return err
 	}
 
 	// TODO: Apply Content-Security-Policy!
 
 	// and rebuild
-	return smanager.Dependencies.Barrel.Build(ctx, progress, start)
+	return smanager.dependencies.Barrel.Build(ctx, progress, start)
 }

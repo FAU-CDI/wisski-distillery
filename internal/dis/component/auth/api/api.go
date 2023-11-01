@@ -10,7 +10,7 @@ import (
 
 type API struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth *auth.Auth
 	}
 }
@@ -38,12 +38,12 @@ type AuthInfo struct {
 func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	return &Handler[AuthInfo]{
 		Config: a.Config,
-		Auth:   a.Dependencies.Auth,
+		Auth:   a.dependencies.Auth,
 
 		Methods: []string{"GET"},
 
 		Handler: func(s string, r *http.Request) (ai AuthInfo, err error) {
-			session, _, err := a.Dependencies.Auth.SessionOf(r)
+			session, _, err := a.dependencies.Auth.SessionOf(r)
 			ai.User = session.Username()
 			ai.Token = session.Token
 			return

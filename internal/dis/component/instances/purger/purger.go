@@ -16,7 +16,7 @@ import (
 // Purger purges instances from the distillery
 type Purger struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Instances     *instances.Instances
 		Provisionable []component.Provisionable
 	}
@@ -35,10 +35,10 @@ var errPurgeGeneric = exit.Error{
 // The instance does not have to exist; in which case the resources are also deleted.
 func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) error {
 	logging.LogMessage(out, "Checking bookkeeping table")
-	instance, err := purger.Dependencies.Instances.WissKI(ctx, slug)
+	instance, err := purger.dependencies.Instances.WissKI(ctx, slug)
 	if err == instances.ErrWissKINotFound {
 		fmt.Fprintln(out, "Not found in bookkeeping table, assuming defaults")
-		instance, err = purger.Dependencies.Instances.Create(slug, models.System{})
+		instance, err = purger.dependencies.Instances.Create(slug, models.System{})
 	}
 	if err != nil {
 		return errPurgeNoDetails.WithMessageF(err)
@@ -59,7 +59,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	// purge all the instance specific resources
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
-		for _, pc := range purger.Dependencies.Provisionable {
+		for _, pc := range purger.dependencies.Provisionable {
 			logging.LogMessage(out, "Purging %s resources", pc.Name())
 			err := pc.Purge(ctx, instance.Instance, domain)
 			if err != nil {

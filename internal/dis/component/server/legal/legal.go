@@ -15,7 +15,7 @@ import (
 
 type Legal struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Static     *assets.Static
 		Templating *templating.Templating
 	}
@@ -59,7 +59,7 @@ var (
 
 func (legal *Legal) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	tpl := legalTemplate.Prepare(
-		legal.Dependencies.Templating,
+		legal.dependencies.Templating,
 		templating.Crumbs(
 			menuLegal,
 		),

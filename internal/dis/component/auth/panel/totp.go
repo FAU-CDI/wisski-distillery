@@ -24,7 +24,7 @@ var totpEnable = templating.Parse[userFormContext](
 )
 
 func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
-	tpl := totpEnable.Prepare(panel.Dependencies.Templating)
+	tpl := totpEnable.Prepare(panel.dependencies.Templating)
 
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
@@ -33,7 +33,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
-			user, err := panel.Dependencies.Auth.UserOfSession(r)
+			user, err := panel.dependencies.Auth.UserOfSession(r)
 			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 
@@ -43,7 +43,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
 
-			user, err := panel.Dependencies.Auth.UserOfSession(r)
+			user, err := panel.dependencies.Auth.UserOfSession(r)
 			if err != nil {
 				return struct{}{}, err
 			}
@@ -90,7 +90,7 @@ type totpEnrollContext struct {
 
 func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 	tpl := totpEnrollTemplate.Prepare(
-		panel.Dependencies.Templating,
+		panel.dependencies.Templating,
 		templating.Crumbs(
 			menuUser,
 			menuTOTPEnable,
@@ -105,11 +105,11 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
-			user, err := panel.Dependencies.Auth.UserOfSession(r)
+			user, err := panel.dependencies.Auth.UserOfSession(r)
 			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 		RenderTemplateContext: func(context httpx.FormContext, r *http.Request) any {
-			user, err := panel.Dependencies.Auth.UserOfSession(r)
+			user, err := panel.dependencies.Auth.UserOfSession(r)
 
 			ctx := totpEnrollContext{
 				userFormContext: userFormContext{
@@ -136,7 +136,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]
 
-			user, err := panel.Dependencies.Auth.UserOfSession(r)
+			user, err := panel.dependencies.Auth.UserOfSession(r)
 			if err != nil {
 				return struct{}{}, err
 			}
@@ -174,7 +174,7 @@ var totpDisableTemplate = templating.Parse[userFormContext](
 )
 
 func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
-	tpl := totpDisableTemplate.Prepare(panel.Dependencies.Templating)
+	tpl := totpDisableTemplate.Prepare(panel.dependencies.Templating)
 
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
@@ -184,7 +184,7 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 		FieldTemplate: field.PureCSSFieldTemplate,
 
 		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
-			user, err := panel.Dependencies.Auth.UserOfSession(r)
+			user, err := panel.dependencies.Auth.UserOfSession(r)
 			return struct{}{}, err == nil && user != nil && !user.IsTOTPEnabled()
 		},
 		RenderTemplate:        tpl.Template(),
@@ -193,7 +193,7 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]
 
-			user, err := panel.Dependencies.Auth.UserOfSession(r)
+			user, err := panel.dependencies.Auth.UserOfSession(r)
 			if err != nil {
 				return struct{}{}, err
 			}

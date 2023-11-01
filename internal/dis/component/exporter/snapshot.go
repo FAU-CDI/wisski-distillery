@@ -113,8 +113,8 @@ func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.Wiss
 // Also sets up snapshot.partsRunning and snapshot.partsStopped.
 // sends a warning about unknown parts into the logger in context.
 func (snapshots *Exporter) resolveParts(ctx context.Context, parts []string, snapshot *Snapshot) {
-	partMap := make(map[string]component.Snapshotable, len(snapshots.Dependencies.Snapshotable))
-	for _, part := range snapshots.Dependencies.Snapshotable {
+	partMap := make(map[string]component.Snapshotable, len(snapshots.dependencies.Snapshotable))
+	for _, part := range snapshots.dependencies.Snapshotable {
 		partMap[part.SnapshotName()] = part
 	}
 

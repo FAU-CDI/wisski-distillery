@@ -11,7 +11,7 @@ import (
 
 type SSHKeys struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		SQL  *sql.SQL
 		Auth *auth.Auth
 	}
@@ -25,7 +25,7 @@ var (
 // Admin returns the set of administrative ssh keys.
 // These are ssh keys associated to distillery admin users.
 func (k *SSHKeys) Admin(ctx context.Context) (keys []ssh.PublicKey, err error) {
-	users, err := k.Dependencies.Auth.Users(ctx)
+	users, err := k.dependencies.Auth.Users(ctx)
 	if err != nil {
 		return nil, err
 	}

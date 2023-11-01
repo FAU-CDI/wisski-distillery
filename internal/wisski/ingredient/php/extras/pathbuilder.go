@@ -13,7 +13,7 @@ import (
 
 type Pathbuilder struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP *php.PHP
 	}
 }
@@ -29,7 +29,7 @@ var pathbuilderPHP string
 //
 // server is the server to fetch the pathbuilders from, any may be nil.
 func (pathbuilder *Pathbuilder) All(ctx context.Context, server *phpx.Server) (ids []string, err error) {
-	err = pathbuilder.Dependencies.PHP.ExecScript(ctx, server, &ids, pathbuilderPHP, "all_list")
+	err = pathbuilder.dependencies.PHP.ExecScript(ctx, server, &ids, pathbuilderPHP, "all_list")
 	slices.Sort(ids)
 	return
 }
@@ -39,7 +39,7 @@ func (pathbuilder *Pathbuilder) All(ctx context.Context, server *phpx.Server) (i
 //
 // server is the server to fetch the pathbuilders from, any may be nil.
 func (pathbuilder *Pathbuilder) Get(ctx context.Context, server *phpx.Server, id string) (xml string, err error) {
-	err = pathbuilder.Dependencies.PHP.ExecScript(ctx, server, &xml, pathbuilderPHP, "one_xml", id)
+	err = pathbuilder.dependencies.PHP.ExecScript(ctx, server, &xml, pathbuilderPHP, "one_xml", id)
 	return
 }
 
@@ -47,7 +47,7 @@ func (pathbuilder *Pathbuilder) Get(ctx context.Context, server *phpx.Server, id
 //
 // server is the server to fetch the pathbuilders from, any may be nil.
 func (pathbuilder *Pathbuilder) GetAll(ctx context.Context, server *phpx.Server) (pathbuilders map[string]string, err error) {
-	err = pathbuilder.Dependencies.PHP.ExecScript(ctx, server, &pathbuilders, pathbuilderPHP, "all_xml")
+	err = pathbuilder.dependencies.PHP.ExecScript(ctx, server, &pathbuilders, pathbuilderPHP, "all_xml")
 	return
 }
 

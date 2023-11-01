@@ -9,7 +9,7 @@ import (
 // Barrel provides access to the underlying Barrel
 type Barrel struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Locker *locker.Locker
 		MStore *mstore.MStore
 	}

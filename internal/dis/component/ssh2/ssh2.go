@@ -11,7 +11,7 @@ import (
 
 type SSH2 struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		SQL       *sql.SQL
 		Instances *instances.Instances
 		Auth      *auth.Auth

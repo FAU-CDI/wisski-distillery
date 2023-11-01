@@ -104,7 +104,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 
 	// migrate all of the tables!
 	return logging.LogOperation(func() error {
-		for _, table := range sql.Dependencies.Tables {
+		for _, table := range sql.dependencies.Tables {
 			info := table.TableInfo()
 			logging.LogMessage(progress, "migrating %q table", table.Name())
 			db, err := sql.queryTable(ctx, false, info.Name)

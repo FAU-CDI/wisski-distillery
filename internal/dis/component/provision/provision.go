@@ -17,7 +17,7 @@ import (
 
 type Provision struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Instances     *instances.Instances
 		Provisionable []component.Provisionable
 	}
@@ -44,7 +44,7 @@ var ErrInstanceAlreadyExists = errors.New("instance with provided slug already e
 
 func (pv *Provision) Validate(flags Flags) error {
 	// check the slug
-	if _, err := pv.Dependencies.Instances.IsValidSlug(flags.Slug); err != nil {
+	if _, err := pv.dependencies.Instances.IsValidSlug(flags.Slug); err != nil {
 		return err
 	}
 	return nil
@@ -54,7 +54,7 @@ func (pv *Provision) Validate(flags Flags) error {
 func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Flags) (*wisski.WissKI, error) {
 	// check that it doesn't already exist
 	logging.LogMessage(progress, "Provisioning new WissKI instance %s", flags.Slug)
-	if exists, err := pv.Dependencies.Instances.Has(ctx, flags.Slug); err != nil || exists {
+	if exists, err := pv.dependencies.Instances.Has(ctx, flags.Slug); err != nil || exists {
 		return nil, ErrInstanceAlreadyExists
 	}
 
@@ -62,7 +62,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 	fmt.Fprintf(progress, "%#v", flags)
 
 	// make it in-memory
-	instance, err := pv.Dependencies.Instances.Create(flags.Slug, flags.System)
+	instance, err := pv.dependencies.Instances.Create(flags.Slug, flags.System)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 	// create all the resources!
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
-		for _, pc := range pv.Dependencies.Provisionable {
+		for _, pc := range pv.dependencies.Provisionable {
 			logging.LogMessage(progress, "Provisioning %s resources", pc.Name())
 			err := pc.Provision(ctx, instance.Instance, domain)
 			if err != nil {

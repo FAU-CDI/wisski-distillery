@@ -12,7 +12,7 @@ import (
 
 type SSH struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Barrel *barrel.Barrel
 	}
 }

@@ -9,7 +9,7 @@ import (
 
 type AdminLoggedIn struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth *auth.Auth
 	}
 }
@@ -32,6 +32,6 @@ func (*AdminLoggedIn) Scope() component.ScopeInfo {
 }
 
 func (al *AdminLoggedIn) HasScope(param string, r *http.Request) (bool, error) {
-	_, user, err := al.Dependencies.Auth.SessionOf(r)
+	_, user, err := al.dependencies.Auth.SessionOf(r)
 	return user != nil && user.IsAdmin() && user.IsTOTPEnabled(), err
 }

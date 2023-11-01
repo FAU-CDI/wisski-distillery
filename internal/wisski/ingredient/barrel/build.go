@@ -17,10 +17,10 @@ import (
 //
 // It also logs the current time into the metadata belonging to this instance.
 func (barrel *Barrel) Build(ctx context.Context, progress io.Writer, start bool) error {
-	if !barrel.Dependencies.Locker.TryLock(ctx) {
+	if !barrel.dependencies.Locker.TryLock(ctx) {
 		return locker.Locked
 	}
-	defer barrel.Dependencies.Locker.Unlock(ctx)
+	defer barrel.dependencies.Locker.Unlock(ctx)
 
 	stack := barrel.Stack()
 
@@ -48,7 +48,7 @@ func (barrel *Barrel) Build(ctx context.Context, progress io.Writer, start bool)
 var lastRebuild = mstore.For[int64]("lastRebuild")
 
 func (barrel Barrel) LastRebuild(ctx context.Context) (t time.Time, err error) {
-	epoch, err := lastRebuild.Get(ctx, barrel.Dependencies.MStore)
+	epoch, err := lastRebuild.Get(ctx, barrel.dependencies.MStore)
 	if err == meta.ErrMetadatumNotSet {
 		return t, nil
 	}
@@ -61,17 +61,17 @@ func (barrel Barrel) LastRebuild(ctx context.Context) (t time.Time, err error) {
 }
 
 func (barrel *Barrel) setLastRebuild(ctx context.Context) error {
-	return lastRebuild.Set(ctx, barrel.Dependencies.MStore, time.Now().Unix())
+	return lastRebuild.Set(ctx, barrel.dependencies.MStore, time.Now().Unix())
 }
 
 type LastRebuildFetcher struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Barrel *Barrel
 	}
 }
 
 func (lbr *LastRebuildFetcher) Fetch(ctx context.Context, flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.LastRebuild, _ = lbr.Dependencies.Barrel.LastRebuild(ctx)
+	info.LastRebuild, _ = lbr.dependencies.Barrel.LastRebuild(ctx)
 	return
 }

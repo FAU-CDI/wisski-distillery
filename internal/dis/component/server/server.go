@@ -20,7 +20,7 @@ import (
 // Server represents the running control server.
 type Server struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Routeables []component.Routeable
 		Cronables  []component.Cronable
 
@@ -66,7 +66,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 	csrfProtector := server.csrf()
 
 	// iterate over all the handler
-	for _, s := range server.Dependencies.Routeables {
+	for _, s := range server.dependencies.Routeables {
 		routes := s.Routes()
 		zerolog.Ctx(ctx).Info().
 			Str("Name", s.Name()).

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -75,7 +76,7 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 	defer done()
 
 	// create a new status display
-	backups := exporter.Dependencies.Backupable
+	backups := exporter.dependencies.Backupable
 	backup.ComponentErrors = make(map[string]error, len(backups))
 
 	// Component backup tasks
@@ -124,7 +125,7 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 		}
 
 		// list all instances
-		wissKIs, err := exporter.Dependencies.Instances.All(ctx)
+		wissKIs, err := exporter.dependencies.Instances.All(ctx)
 		if err != nil {
 			backup.InstanceListErr = err
 			return nil
@@ -159,8 +160,8 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 		}.Use(st, wissKIs)
 
 		// sort the instances
-		slices.SortFunc(backup.InstanceSnapshots, func(a, b Snapshot) bool {
-			return a.Instance.Slug < b.Instance.Slug
+		slices.SortFunc(backup.InstanceSnapshots, func(a, b Snapshot) int {
+			return strings.Compare(a.Instance.Slug, b.Instance.Slug)
 		})
 
 		return nil

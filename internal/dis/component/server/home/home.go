@@ -12,7 +12,7 @@ import (
 
 type Home struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		ListInstances *list.ListInstances
 		Templating    *templating.Templating
 	}
@@ -55,7 +55,7 @@ func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, 
 }
 
 func (home *Home) serveWissKI(w http.ResponseWriter, slug string, r *http.Request) {
-	if _, ok := home.Dependencies.ListInstances.Names()[slug]; !ok {
+	if _, ok := home.dependencies.ListInstances.Names()[slug]; !ok {
 		// Get(nil) guaranteed to work by precondition
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprintf(w, "WissKI %q not found\n", slug)

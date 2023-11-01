@@ -46,7 +46,7 @@ type SSHTemplateContext struct {
 
 func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 	tpl := sshTemplate.Prepare(
-		panel.Dependencies.Templating,
+		panel.dependencies.Templating,
 		templating.Crumbs(
 			menuUser,
 			menuSSH,
@@ -57,7 +57,7 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 	)
 
 	return tpl.HTMLHandler(func(r *http.Request) (sc SSHTemplateContext, err error) {
-		user, err := panel.Dependencies.Auth.UserOfSession(r)
+		user, err := panel.dependencies.Auth.UserOfSession(r)
 		if err != nil {
 			return sc, err
 		}
@@ -66,7 +66,7 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 		sc.Port = panel.Config.Listen.SSHPort
 
 		// pick the first domain that the user has access to as an example
-		grants, err := panel.Dependencies.Policy.User(r.Context(), user.User.User)
+		grants, err := panel.dependencies.Policy.User(r.Context(), user.User.User)
 		if err != nil && len(grants) > 0 {
 			sc.Slug = grants[0].Slug
 		} else {
@@ -74,12 +74,12 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 		}
 		sc.Hostname = panel.Config.HTTP.HostFromSlug(sc.Slug)
 
-		sc.Keys, err = panel.Dependencies.Keys.Keys(r.Context(), user.User.User)
+		sc.Keys, err = panel.dependencies.Keys.Keys(r.Context(), user.User.User)
 		if err != nil {
 			return sc, err
 		}
 
-		sc.Services = panel.Dependencies.SSH2.Intercepts()
+		sc.Services = panel.dependencies.SSH2.Intercepts()
 
 		return sc, nil
 	})
@@ -100,7 +100,7 @@ func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
-		user, err := panel.Dependencies.Auth.UserOfSession(r)
+		user, err := panel.dependencies.Auth.UserOfSession(r)
 		if err != nil {
 			logger.Err(err).Str("action", "delete ssh key").Msg("failed to get current user")
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
@@ -114,7 +114,7 @@ func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
 			return
 		}
 
-		if err := panel.Dependencies.Keys.Remove(r.Context(), user.User.User, key); err != nil {
+		if err := panel.dependencies.Keys.Remove(r.Context(), user.User.User, key); err != nil {
 			logger.Err(err).Str("action", "delete ssh key").Msg("failed to delete key")
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
@@ -140,7 +140,7 @@ type addKeyResult struct {
 
 func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 	tpl := sshAddTemplate.Prepare(
-		panel.Dependencies.Templating,
+		panel.dependencies.Templating,
 		templating.Crumbs(
 			menuUser,
 			menuSSH,
@@ -159,7 +159,7 @@ func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 		RenderTemplateContext: templating.FormTemplateContext(tpl),
 
 		Validate: func(r *http.Request, values map[string]string) (ak addKeyResult, err error) {
-			ak.User, err = panel.Dependencies.Auth.UserOfSession(r)
+			ak.User, err = panel.dependencies.Auth.UserOfSession(r)
 			if err != nil || ak.User == nil {
 				return ak, errInvalidUser
 			}
@@ -181,7 +181,7 @@ func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 
 		RenderSuccess: func(ak addKeyResult, values map[string]string, w http.ResponseWriter, r *http.Request) error {
 			// add the key to the user
-			if err := panel.Dependencies.Keys.Add(r.Context(), ak.User.User.User, ak.Comment, ak.Key); err != nil {
+			if err := panel.dependencies.Keys.Add(r.Context(), ak.User.User.User, ak.Comment, ak.Key); err != nil {
 				return errAddKey
 			}
 			// everything went fine, redirect the user back to the user page!

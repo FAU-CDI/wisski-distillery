@@ -8,7 +8,7 @@ import (
 // Templating implements templating customization
 type Templating struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Routeables []component.Routeable
 		Menuable   []component.Menuable
 	}

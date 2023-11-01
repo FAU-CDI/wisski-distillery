@@ -60,6 +60,29 @@ type Distillery struct {
 }
 
 //
+// INIT & EXPORT
+//
+
+func (dis *Distillery) init() {
+	dis.lifetimeInit.Do(func() {
+		dis.lifetime.Init = func(c component.Component, s component.Still) {
+			component.Init(c, s)
+		}
+		dis.lifetime.Register = dis.allComponents
+	})
+}
+
+func export[C component.Component](dis *Distillery) C {
+	dis.init()
+	return lifetime.Export[C](&dis.lifetime, dis.Still)
+}
+
+func exportAll[C component.Component](dis *Distillery) []C {
+	dis.init()
+	return lifetime.ExportSlice[C](&dis.lifetime, dis.Still)
+}
+
+//
 // PUBLIC COMPONENT GETTERS
 //
 
@@ -119,92 +142,87 @@ func (dis *Distillery) Purger() *purger.Purger {
 // THESE SHOULD NEVER BE CALLED DIRECTLY
 //
 
-func (dis *Distillery) allComponents() []initFunc {
-	return []initFunc{
-		auto[*docker.Docker],
-		auto[*binder.Binder],
-		auto[*web.Web],
+func (dis *Distillery) allComponents(context *lifetime.RegisterContext[component.Component, component.Still]) {
+	lifetime.Place[*docker.Docker](context)
+	lifetime.Place[*binder.Binder](context)
+	lifetime.Place[*web.Web](context)
 
-		manual(func(ts *triplestore.Triplestore) {
-			ts.BaseURL = "http://" + dis.Upstream.TriplestoreAddr()
-			ts.PollInterval = time.Second
-		}),
+	lifetime.Register(context, func(ts *triplestore.Triplestore, _ component.Still) {
+		ts.BaseURL = "http://" + dis.Upstream.TriplestoreAddr()
+		ts.PollInterval = time.Second
+	})
 
-		manual(func(sql *sql.SQL) {
-			sql.ServerURL = dis.Upstream.SQLAddr()
-			sql.PollInterval = time.Second
-		}),
-		auto[*sql.LockTable],
-		auto[*sql.InstanceTable],
+	lifetime.Register(context, func(sql *sql.SQL, _ component.Still) {
+		sql.ServerURL = dis.Upstream.SQLAddr()
+		sql.PollInterval = time.Second
+	})
+	lifetime.Place[*sql.LockTable](context)
+	lifetime.Place[*sql.InstanceTable](context)
 
-		manual(func(s *solr.Solr) {
-			s.BaseURL = dis.Upstream.SolrAddr()
-			s.PollInterval = time.Second
-		}),
+	lifetime.Register(context, func(s *solr.Solr, _ component.Still) {
+		s.BaseURL = dis.Upstream.SolrAddr()
+		s.PollInterval = time.Second
+	})
 
-		// auth
-		auto[*auth.Auth],
-		auto[*policy.Policy],
-		auto[*panel.UserPanel],
-		auto[*next.Next],
-		auto[*tokens.Tokens],
+	// auth
+	lifetime.Place[*auth.Auth](context)
+	lifetime.Place[*policy.Policy](context)
+	lifetime.Place[*panel.UserPanel](context)
+	lifetime.Place[*next.Next](context)
+	lifetime.Place[*tokens.Tokens](context)
 
-		//scopes
-		auto[*scopes.Never],
-		auto[*scopes.UserLoggedIn],
-		auto[*scopes.AdminLoggedIn],
-		auto[*scopes.ListInstancesScope],
-		auto[*scopes.ListNewsScope],
-		auto[*scopes.ResolverScope],
+	//scopes
+	lifetime.Place[*scopes.Never](context)
+	lifetime.Place[*scopes.UserLoggedIn](context)
+	lifetime.Place[*scopes.AdminLoggedIn](context)
+	lifetime.Place[*scopes.ListInstancesScope](context)
+	lifetime.Place[*scopes.ListNewsScope](context)
+	lifetime.Place[*scopes.ResolverScope](context)
 
-		// instances
-		auto[*instances.Instances],
-		auto[*meta.Meta],
-		auto[*malt.Malt],
-		auto[*provision.Provision],
+	// instances
+	lifetime.Place[*instances.Instances](context)
+	lifetime.Place[*meta.Meta](context)
+	lifetime.Place[*malt.Malt](context)
+	lifetime.Place[*provision.Provision](context)
 
-		// Purger
-		auto[*purger.Purger],
+	// Purger
+	lifetime.Place[*purger.Purger](context)
 
-		// Snapshots
-		auto[*exporter.Exporter],
-		auto[*logger.Logger],
-		auto[*exporter.Config],
-		auto[*exporter.Bookkeeping],
-		auto[*exporter.Filesystem],
-		auto[*exporter.Pathbuilders],
+	// Snapshots
+	lifetime.Place[*exporter.Exporter](context)
+	lifetime.Place[*logger.Logger](context)
+	lifetime.Place[*exporter.Config](context)
+	lifetime.Place[*exporter.Bookkeeping](context)
+	lifetime.Place[*exporter.Filesystem](context)
+	lifetime.Place[*exporter.Pathbuilders](context)
 
-		// ssh server
-		auto[*ssh2.SSH2],
-		auto[*sshkeys.SSHKeys],
+	// ssh server
+	lifetime.Place[*ssh2.SSH2](context)
+	lifetime.Place[*sshkeys.SSHKeys](context)
 
-		// Control server
-		auto[*server.Server],
+	// Control server
+	lifetime.Place[*server.Server](context)
 
-		auto[*home.Home],
-		auto[*list.ListInstances],
-		manual(func(resolver *resolver.Resolver) {
-			resolver.RefreshInterval = time.Minute
-		}),
-		manual(func(admin *admin.Admin) {
-			admin.Analytics = &dis.lifetime.Analytics
-		}),
-		auto[*socket.Sockets],
-		auto[*legal.Legal],
-		auto[*news.News],
+	lifetime.Place[*home.Home](context)
+	lifetime.Place[*list.ListInstances](context)
+	lifetime.Register(context, func(resolver *resolver.Resolver, _ component.Still) {
+		resolver.RefreshInterval = time.Minute
+	})
+	lifetime.Place[*admin.Admin](context) // TODO: Remove analytics
+	lifetime.Place[*socket.Sockets](context)
+	lifetime.Place[*legal.Legal](context)
+	lifetime.Place[*news.News](context)
 
-		auto[*assets.Static],
-		auto[*logo.Logo],
-		auto[*templating.Templating],
+	lifetime.Place[*assets.Static](context)
+	lifetime.Place[*logo.Logo](context)
+	lifetime.Place[*templating.Templating](context)
 
-		// Cron
-		auto[*cron.Cron],
+	// Cron
+	lifetime.Place[*cron.Cron](context)
 
-		// API
-		auto[*api.API],
-		auto[*list.API],
-		auto[*list.API],
-		auto[*news.API],
-		auto[*resolver.API],
-	}
+	// API
+	lifetime.Place[*api.API](context)
+	lifetime.Place[*list.API](context)
+	lifetime.Place[*news.API](context)
+	lifetime.Place[*resolver.API](context)
 }

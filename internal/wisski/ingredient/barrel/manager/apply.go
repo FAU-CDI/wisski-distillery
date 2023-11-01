@@ -59,7 +59,7 @@ func (manager *Manager) installModules(ctx context.Context, progress io.Writer, 
 	return logging.LogOperation(func() error {
 		for _, spec := range modules {
 			logging.LogMessage(progress, fmt.Sprintf("Installing %q", spec))
-			err := manager.Dependencies.Composer.Install(ctx, progress, spec)
+			err := manager.dependencies.Composer.Install(ctx, progress, spec)
 			if err != nil {
 				return err
 			}
@@ -67,7 +67,7 @@ func (manager *Manager) installModules(ctx context.Context, progress io.Writer, 
 			if enable {
 				name := composer.ModuleName(spec)
 				logging.LogMessage(progress, fmt.Sprintf("Enabling %q (from spec %q)", name, spec))
-				err := manager.Dependencies.Drush.Enable(ctx, progress, name)
+				err := manager.dependencies.Drush.Enable(ctx, progress, name)
 				if err != nil {
 					return err
 				}
@@ -90,7 +90,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 				{"chmod", "666", "web/sites/default/*settings.php"},
 				{"chmod", "666", "web/sites/default/*services.php"},
 			} {
-				err := manager.Dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
+				err := manager.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
 				if err != nil {
 					return err
 				}
@@ -105,7 +105,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 					{"chmod", "644", "web/sites/default/*settings.php"},
 					{"chmod", "644", "web/sites/default/*services.php"},
 				} {
-					manager.Dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
+					manager.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
 				}
 			}
 		}()
@@ -121,21 +121,21 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 			}
 			args = append(args, "--update-with-dependencies", "--no-update")
 
-			if err := manager.Dependencies.Composer.Install(ctx, progress, args...); err != nil {
+			if err := manager.dependencies.Composer.Install(ctx, progress, args...); err != nil {
 				return err
 			}
 		}
 
 		logging.LogMessage(progress, "Running composer update")
 		{
-			if err := manager.Dependencies.Composer.Exec(ctx, progress, "update"); err != nil {
+			if err := manager.dependencies.Composer.Exec(ctx, progress, "update"); err != nil {
 				return err
 			}
 		}
 
 		logging.LogMessage(progress, "Performing database updates (if any)")
 		{
-			if err := manager.Dependencies.Drush.Exec(ctx, progress, "updatedb", "--yes"); err != nil {
+			if err := manager.dependencies.Drush.Exec(ctx, progress, "updatedb", "--yes"); err != nil {
 				return err
 			}
 		}
@@ -156,7 +156,7 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 				spec += ":" + wisski
 			}
 
-			err := manager.Dependencies.Composer.Install(ctx, progress, spec)
+			err := manager.dependencies.Composer.Install(ctx, progress, spec)
 			if err != nil {
 				return err
 			}
@@ -165,27 +165,27 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 		// install dependencies in the WissKI directory
 		logging.LogMessage(progress, "Installing WissKI Dependencies")
 		{
-			if err := manager.Dependencies.Composer.ExecWissKI(ctx, progress, "install"); err != nil {
+			if err := manager.dependencies.Composer.ExecWissKI(ctx, progress, "install"); err != nil {
 				return err
 			}
 		}
 
 		logging.LogMessage(progress, "Enable Wisski modules")
 		{
-			if err := manager.Dependencies.Drush.Enable(ctx, progress,
+			if err := manager.dependencies.Drush.Enable(ctx, progress,
 				"wisski_core", "wisski_linkblock", "wisski_pathbuilder", "wisski_adapter_sparql11_pb", "wisski_salz",
 			); err != nil {
 				return err
 			}
 
-			if err := manager.Dependencies.Composer.FixPermission(ctx, progress); err != nil {
+			if err := manager.dependencies.Composer.FixPermission(ctx, progress); err != nil {
 				return err
 			}
 		}
 
 		logging.LogMessage(progress, "Performing database updates (if any)")
 		{
-			if err := manager.Dependencies.Drush.Exec(ctx, progress, "updatedb", "--yes"); err != nil {
+			if err := manager.dependencies.Drush.Exec(ctx, progress, "updatedb", "--yes"); err != nil {
 				return err
 			}
 		}

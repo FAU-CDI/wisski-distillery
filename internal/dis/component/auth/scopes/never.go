@@ -9,7 +9,7 @@ import (
 
 type Never struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth *auth.Auth
 	}
 }

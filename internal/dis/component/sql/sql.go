@@ -11,7 +11,7 @@ import (
 
 type SQL struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Tables []component.Table
 	}
 

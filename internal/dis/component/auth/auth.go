@@ -15,7 +15,7 @@ import (
 
 type Auth struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		SQL             *sql.SQL
 		UserDeleteHooks []component.UserDeleteHook
 		Templating      *templating.Templating

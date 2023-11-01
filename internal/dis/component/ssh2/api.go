@@ -19,7 +19,7 @@ func (ssh2 *SSH2) Routes() component.Routes {
 func (ssh2 *SSH2) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// fetch the global keys
-		gkeys, err := ssh2.Dependencies.Keys.Admin(r.Context())
+		gkeys, err := ssh2.dependencies.Keys.Admin(r.Context())
 		if err != nil {
 			httpx.TextInterceptor.Intercept(w, r, err)
 			return
@@ -33,7 +33,7 @@ func (ssh2 *SSH2) HandleRoute(ctx context.Context, path string) (http.Handler, e
 		}
 
 		// fetch the instance
-		instance, err := ssh2.Dependencies.Instances.WissKI(r.Context(), slug)
+		instance, err := ssh2.dependencies.Instances.WissKI(r.Context(), slug)
 		if err != nil {
 			httpx.TextInterceptor.Intercept(w, r, httpx.ErrNotFound)
 			return

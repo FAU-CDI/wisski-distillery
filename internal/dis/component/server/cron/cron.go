@@ -16,7 +16,7 @@ import (
 
 type Cron struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Tasks []component.Cronable
 	}
 }
@@ -52,11 +52,11 @@ func (control *Cron) Listen(ctx context.Context) (<-chan struct{}, func()) {
 // Once should not be called concurrently with Cron.
 func (control *Cron) Once(ctx context.Context) {
 	var wg sync.WaitGroup
-	wg.Add(len(control.Dependencies.Tasks))
+	wg.Add(len(control.dependencies.Tasks))
 
 	zerolog.Ctx(ctx).Info().Time("time", time.Now()).Msg("Starting Cron")
 
-	for _, task := range control.Dependencies.Tasks {
+	for _, task := range control.dependencies.Tasks {
 		go func(task component.Cronable) {
 			defer wg.Done()
 

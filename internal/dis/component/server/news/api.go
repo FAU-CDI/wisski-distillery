@@ -12,7 +12,7 @@ import (
 
 type API struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth *auth.Auth
 	}
 }
@@ -31,7 +31,7 @@ func (api *API) Routes() component.Routes {
 func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	return &api.Handler[[]Item]{
 		Config: a.Config,
-		Auth:   a.Dependencies.Auth,
+		Auth:   a.dependencies.Auth,
 
 		Methods: []string{"GET"},
 

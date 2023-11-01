@@ -24,7 +24,7 @@ import (
 
 type Resolver struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Instances  *instances.Instances
 		Templating *templating.Templating
 		Auth       *auth.Auth
@@ -71,7 +71,7 @@ var (
 func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.Handler, error) {
 	// get the resolver template
 	tpl := resolverTemplate.Prepare(
-		resolver.Dependencies.Templating,
+		resolver.dependencies.Templating,
 		templating.Crumbs(
 			menuResolver,
 		),
@@ -103,7 +103,7 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 				IndexContext: context,
 			}
 
-			if resolver.Dependencies.Auth.CheckScope("", scopes.ScopeUserValid, r) != nil {
+			if resolver.dependencies.Auth.CheckScope("", scopes.ScopeUserValid, r) != nil {
 				ctx.IndexContext.Prefixes = nil
 			}
 			httpx.WriteHTML(tpl.Context(r, ctx), nil, t, "", w, r)

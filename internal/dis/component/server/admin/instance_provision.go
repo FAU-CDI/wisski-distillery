@@ -12,7 +12,7 @@ import (
 
 func (admin *Admin) instanceProvision(ctx context.Context) http.Handler {
 	tpl := instanceSystemTemplate.Prepare(
-		admin.Dependencies.Templating,
+		admin.dependencies.Templating,
 
 		templating.Title("Provision New Instance"),
 		templating.Assets(assets.AssetsAdminProvision),

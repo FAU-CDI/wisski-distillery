@@ -10,19 +10,16 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/rs/zerolog"
-	"github.com/tkw1536/pkglib/lifetime"
 	"github.com/tkw1536/pkglib/sema"
 	"golang.org/x/sync/errgroup"
 )
 
 type Info struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP      *php.PHP
 		Fetchers []ingredient.WissKIFetcher
 	}
-
-	Analytics *lifetime.Analytics
 }
 
 var (
@@ -45,7 +42,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 		Limit: 5,
 		New: func() *phpx.Server {
 			atomic.AddUint64(&serversUsed, 1)
-			return wisski.Dependencies.PHP.NewServer()
+			return wisski.dependencies.PHP.NewServer()
 		},
 		Discard: func(s *phpx.Server) {
 			s.Close()
@@ -55,7 +52,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 
 	// setup a dictionary to record data about how long each operation took.
 	// we use a slice as opposed to a map to avoid having to mutex!
-	fetcherTimes := make([]time.Duration, len(wisski.Dependencies.Fetchers))
+	fetcherTimes := make([]time.Duration, len(wisski.dependencies.Fetchers))
 	recordTime := func(i int) func() {
 		start := time.Now()
 		return func() {
@@ -66,7 +63,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 	start := time.Now()
 	{
 		var group errgroup.Group
-		for i, fetcher := range wisski.Dependencies.Fetchers {
+		for i, fetcher := range wisski.dependencies.Fetchers {
 			fetcher, flags, i := fetcher, flags, i
 			group.Go(func() error {
 				// quick: don't need to create servers
@@ -93,7 +90,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 
 	// get a map of how long each fetcher took
 	times := zerolog.Dict()
-	for i, fetcher := range wisski.Dependencies.Fetchers {
+	for i, fetcher := range wisski.dependencies.Fetchers {
 		tookSum += fetcherTimes[i]
 		times = times.Dur(fetcher.Name(), fetcherTimes[i])
 	}

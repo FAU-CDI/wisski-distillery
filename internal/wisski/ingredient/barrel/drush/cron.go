@@ -32,7 +32,7 @@ func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 
 func (drush *Drush) LastCron(ctx context.Context, server *phpx.Server) (t time.Time, err error) {
 	var timestamp int64
-	err = drush.Dependencies.PHP.EvalCode(ctx, server, &timestamp, `return \Drupal::state()->get('system.cron_last');`)
+	err = drush.dependencies.PHP.EvalCode(ctx, server, &timestamp, `return \Drupal::state()->get('system.cron_last');`)
 	if err != nil {
 		return
 	}
@@ -41,7 +41,7 @@ func (drush *Drush) LastCron(ctx context.Context, server *phpx.Server) (t time.T
 
 type LastCronFetcher struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Drush *Drush
 	}
 }
@@ -55,6 +55,6 @@ func (lbr *LastCronFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Wi
 		return
 	}
 
-	info.LastRebuild, _ = lbr.Dependencies.Drush.LastCron(flags.Context, flags.Server)
+	info.LastRebuild, _ = lbr.dependencies.Drush.LastCron(flags.Context, flags.Server)
 	return
 }

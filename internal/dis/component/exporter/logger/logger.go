@@ -17,7 +17,7 @@ import (
 // Logger is responsible for logging backups and snapshots
 type Logger struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		SQL *sql.SQL
 	}
 }
@@ -28,7 +28,7 @@ var (
 
 func (*Logger) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.MakeType[models.Export](),
+		Model: reflectx.TypeFor[models.Export](),
 		Name:  models.ExportTable,
 	}
 }
@@ -50,7 +50,7 @@ func (log *Logger) For(ctx context.Context, slug string) (exports []models.Expor
 // Log retrieves (and prunes) all entries in the snapshot log.
 func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 	// query the table!
-	table, err := log.Dependencies.SQL.QueryTable(ctx, log)
+	table, err := log.dependencies.SQL.QueryTable(ctx, log)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 // AddToExportLog adds the provided export to the log.
 func (log *Logger) Add(ctx context.Context, export models.Export) error {
 	// find the table
-	table, err := log.Dependencies.SQL.QueryTable(ctx, log)
+	table, err := log.dependencies.SQL.QueryTable(ctx, log)
 	if err != nil {
 		return err
 	}

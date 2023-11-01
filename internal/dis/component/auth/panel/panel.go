@@ -21,7 +21,7 @@ import (
 
 type UserPanel struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth       *auth.Auth
 		Templating *templating.Templating
 		Policy     *policy.Policy
@@ -42,14 +42,14 @@ func (panel *UserPanel) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/user/",
 		CSRF:      true,
-		Decorator: panel.Dependencies.Auth.Require(false, scopes.ScopeUserValid, nil),
+		Decorator: panel.dependencies.Auth.Require(false, scopes.ScopeUserValid, nil),
 	}
 }
 
 func (panel *UserPanel) Menu(r *http.Request) []component.MenuItem {
 	title := "Login"
 
-	user, err := panel.Dependencies.Auth.UserOfSession(r)
+	user, err := panel.dependencies.Auth.UserOfSession(r)
 	if user != nil && err == nil {
 		title = user.User.User
 	}
@@ -137,7 +137,7 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 	}
 
 	// ensure that the user is logged in!
-	return panel.Dependencies.Auth.Protect(router, false, scopes.ScopeUserValid, nil), nil
+	return panel.dependencies.Auth.Protect(router, false, scopes.ScopeUserValid, nil), nil
 }
 
 type userFormContext struct {
@@ -158,7 +158,7 @@ func (panel *UserPanel) UserFormContext(tpl *templating.Template[userFormContext
 
 	return func(ctx httpx.FormContext, r *http.Request) any {
 		uctx := userFormContext{FormContext: ctx}
-		if user, err := panel.Dependencies.Auth.UserOfSession(r); err == nil {
+		if user, err := panel.dependencies.Auth.UserOfSession(r); err == nil {
 			uctx.User = &user.User
 		}
 		return tpl.Context(r, uctx, funcs...)

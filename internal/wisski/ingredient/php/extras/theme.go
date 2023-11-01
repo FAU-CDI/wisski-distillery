@@ -14,7 +14,7 @@ import (
 // Prefixes implements reading and writing prefix
 type Theme struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP *php.PHP
 	}
 }
@@ -24,7 +24,7 @@ var themePHP string
 
 // Get returns the currently active theme
 func (t *Theme) Get(ctx context.Context, server *phpx.Server) (theme string, err error) {
-	err = t.Dependencies.PHP.ExecScript(
+	err = t.dependencies.PHP.ExecScript(
 		ctx, server, &theme, themePHP,
 		"get_active_theme",
 	)

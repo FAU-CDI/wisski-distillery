@@ -12,7 +12,7 @@ import (
 
 type Stats struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP *php.PHP
 	}
 }
@@ -26,7 +26,7 @@ var statsPHP string
 
 // Get fetches all statistics from the server
 func (stats *Stats) Get(ctx context.Context, server *phpx.Server) (data status.Statistics, err error) {
-	err = stats.Dependencies.PHP.ExecScript(ctx, server, &data, statsPHP, "export_statistics")
+	err = stats.dependencies.PHP.ExecScript(ctx, server, &data, statsPHP, "export_statistics")
 	return
 }
 

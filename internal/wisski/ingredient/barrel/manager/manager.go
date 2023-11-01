@@ -13,7 +13,7 @@ import (
 // Manager manages a profile applied to specific WissKI instances.
 type Manager struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Barrel      *barrel.Barrel
 		Bookkeeping *bookkeeping.Bookkeeping
 

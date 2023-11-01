@@ -48,7 +48,7 @@ func (isc *instanceSystemContext) prepare(rebuild bool) {
 
 func (admin *Admin) instanceRebuild(ctx context.Context) http.Handler {
 	tpl := instanceSystemTemplate.Prepare(
-		admin.Dependencies.Templating,
+		admin.dependencies.Templating,
 
 		templating.Title("Rebuild Instance"),
 		templating.Assets(assets.AssetsAdminRebuild),
@@ -65,7 +65,7 @@ func (admin *Admin) instanceRebuild(ctx context.Context) http.Handler {
 		slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 
 		var instance *wisski.WissKI
-		instance, err = admin.Dependencies.Instances.WissKI(r.Context(), slug)
+		instance, err = admin.dependencies.Instances.WissKI(r.Context(), slug)
 		if err == instances.ErrWissKINotFound {
 			return isc, nil, httpx.ErrNotFound
 		}

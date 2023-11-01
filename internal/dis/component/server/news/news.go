@@ -21,7 +21,7 @@ import (
 
 type News struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Templating *templating.Templating
 	}
 }
@@ -104,8 +104,8 @@ func Items() ([]Item, error) {
 		}
 	}
 
-	slices.SortFunc(items, func(a, b Item) bool {
-		return !a.Date.Before(b.Date)
+	slices.SortFunc(items, func(a, b Item) int {
+		return a.Date.Compare(b.Date)
 	})
 
 	return items, nil
@@ -132,7 +132,7 @@ var (
 // HandleRoute returns the handler for the requested path
 func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	tpl := newsTemplate.Prepare(
-		news.Dependencies.Templating,
+		news.dependencies.Templating,
 		templating.Crumbs(
 			menuNews,
 		),

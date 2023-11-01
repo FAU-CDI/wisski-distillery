@@ -27,7 +27,7 @@ func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
 
 	// check that the referenced user exists!
 	{
-		_, err := policy.Dependencies.Auth.User(ctx, grant.User)
+		_, err := policy.dependencies.Auth.User(ctx, grant.User)
 		if err != nil {
 			return err
 		}

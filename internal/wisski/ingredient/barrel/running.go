@@ -18,7 +18,7 @@ func (barrel *Barrel) Running(ctx context.Context) (bool, error) {
 
 type RunningFetcher struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Barrel *Barrel
 	}
 }
@@ -28,6 +28,6 @@ var (
 )
 
 func (rf *RunningFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.Running, err = rf.Dependencies.Barrel.Running(flags.Context)
+	info.Running, err = rf.dependencies.Barrel.Running(flags.Context)
 	return
 }

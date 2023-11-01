@@ -13,7 +13,7 @@ import (
 
 type API struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth     *auth.Auth
 		Resolver *Resolver
 	}
@@ -33,7 +33,7 @@ func (api *API) Routes() component.Routes {
 func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	return &api.Handler[string]{
 		Config: a.Config,
-		Auth:   a.Dependencies.Auth,
+		Auth:   a.dependencies.Auth,
 
 		Methods: []string{"GET"},
 
@@ -43,7 +43,7 @@ func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error
 			if uri == "" {
 				return "", httpx.ErrBadRequest
 			}
-			target := a.Dependencies.Resolver.Target(uri)
+			target := a.dependencies.Resolver.Target(uri)
 			if target == "" {
 				return "", httpx.ErrNotFound
 			}

@@ -14,7 +14,7 @@ import (
 type Policy struct {
 	component.Base
 
-	Dependencies struct {
+	dependencies struct {
 		SQL  *sql.SQL
 		Auth *auth.Auth
 	}
@@ -29,10 +29,10 @@ var (
 func (pol *Policy) TableInfo() component.TableInfo {
 	return component.TableInfo{
 		Name:  models.GrantTable,
-		Model: reflectx.MakeType[models.Grant](),
+		Model: reflectx.TypeFor[models.Grant](),
 	}
 }
 
 func (pol *Policy) table(ctx context.Context) (*gorm.DB, error) {
-	return pol.Dependencies.SQL.QueryTable(ctx, pol)
+	return pol.dependencies.SQL.QueryTable(ctx, pol)
 }

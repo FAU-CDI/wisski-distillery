@@ -51,7 +51,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 	title := home.Config.Home.Title
 
 	tpl := publicTemplate.Prepare(
-		home.Dependencies.Templating,
+		home.dependencies.Templating,
 		// set title and menu item
 		templating.Title(title),
 		templating.Crumbs(
@@ -59,7 +59,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		),
 	)
 
-	about := home.Dependencies.Templating.GetCustomizable(aboutTemplate)
+	about := home.dependencies.Templating.GetCustomizable(aboutTemplate)
 
 	return tpl.HTMLHandler(func(r *http.Request) (pc publicContext, err error) {
 		// only act on the root path!
@@ -72,7 +72,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 
 		// prepare about
 		pc.aboutContext.Logo = logoHTML
-		pc.aboutContext.Instances = home.Dependencies.ListInstances.Infos()
+		pc.aboutContext.Instances = home.dependencies.ListInstances.Infos()
 		pc.aboutContext.SelfRedirect = home.Config.Home.SelfRedirect.String()
 
 		// render the about template
@@ -85,7 +85,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		pc.About = template.HTML(builder.String())
 
 		// check if we should show the list of WissKIs
-		pc.ListEnabled = home.Dependencies.ListInstances.ShouldShowList(r)
+		pc.ListEnabled = home.dependencies.ListInstances.ShouldShowList(r)
 
 		// title of the list
 		pc.ListTitle = home.Config.Home.List.Title

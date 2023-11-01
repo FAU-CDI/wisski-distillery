@@ -33,6 +33,28 @@ type WissKI struct {
 }
 
 //
+//  INIT & EXPORT
+//
+
+func (wisski *WissKI) init() {
+	wisski.lifetimeInit.Do(func() {
+		wisski.lifetime.Init = ingredient.Init
+		wisski.lifetime.Register = wisski.allIngredients
+	})
+}
+
+func export[I ingredient.Ingredient](wisski *WissKI) I {
+	wisski.init()
+	return lifetime.Export[I](&wisski.lifetime, &wisski.Liquid)
+}
+
+//lint:ignore U1000 for future use
+func exportAll[I ingredient.Ingredient](wisski *WissKI) []I {
+	wisski.init()
+	return lifetime.ExportSlice[I](&wisski.lifetime, &wisski.Liquid)
+}
+
+//
 // PUBLIC INGREDIENT GETTERS
 //
 
@@ -105,47 +127,43 @@ func (wisski *WissKI) Blocks() *extras.Blocks {
 // THESE SHOULD NEVER BE CALLED DIRECTLY
 //
 
-func (wisski *WissKI) allIngredients() []initFunc {
-	return []initFunc{
-		// core bits
-		auto[*locker.Locker],
-		manual(func(m *mstore.MStore) {
-			m.Storage = wisski.Malt.Meta.Storage(wisski.Slug)
-		}),
+func (wisski *WissKI) allIngredients(context *lifetime.RegisterContext[ingredient.Ingredient, *liquid.Liquid]) {
+	// core bits
+	lifetime.Place[*locker.Locker](context)
+	lifetime.Register(context, func(m *mstore.MStore, _ *liquid.Liquid) {
+		m.Storage = wisski.Malt.Meta.Storage(wisski.Slug)
+	})
 
-		// php
-		auto[*php.PHP],
-		auto[*extras.Prefixes],
-		auto[*extras.Settings],
-		auto[*extras.Pathbuilder],
-		auto[*extras.Stats],
-		auto[*extras.Blocks],
-		auto[*extras.Requirements],
-		auto[*extras.Adapters],
-		auto[*extras.Theme],
-		auto[*users.Users],
-		auto[*users.UserPolicy],
+	// php
+	lifetime.Place[*php.PHP](context)
+	lifetime.Place[*extras.Prefixes](context)
+	lifetime.Place[*extras.Settings](context)
+	lifetime.Place[*extras.Pathbuilder](context)
+	lifetime.Place[*extras.Stats](context)
+	lifetime.Place[*extras.Blocks](context)
+	lifetime.Place[*extras.Requirements](context)
+	lifetime.Place[*extras.Adapters](context)
+	lifetime.Place[*extras.Theme](context)
+	lifetime.Place[*users.Users](context)
+	lifetime.Place[*users.UserPolicy](context)
 
-		// info
-		manual(func(info *info.Info) {
-			info.Analytics = &wisski.lifetime.Analytics
-		}),
-		auto[*barrel.LastRebuildFetcher],
-		auto[*barrel.RunningFetcher],
-		auto[*composer.LastUpdateFetcher],
-		auto[*drush.LastCronFetcher],
-		auto[*info.SnapshotsFetcher],
+	// info
+	lifetime.Place[*info.Info](context)
+	lifetime.Place[*barrel.LastRebuildFetcher](context)
+	lifetime.Place[*barrel.RunningFetcher](context)
+	lifetime.Place[*composer.LastUpdateFetcher](context)
+	lifetime.Place[*drush.LastCronFetcher](context)
+	lifetime.Place[*info.SnapshotsFetcher](context)
 
-		// stacks
-		auto[*barrel.Barrel],
-		auto[*bookkeeping.Bookkeeping],
-		auto[*manager.Manager],
-		auto[*system.SystemManager],
-		auto[*composer.Composer],
-		auto[*drush.Drush],
+	// stacks
+	lifetime.Place[*barrel.Barrel](context)
+	lifetime.Place[*bookkeeping.Bookkeeping](context)
+	lifetime.Place[*manager.Manager](context)
+	lifetime.Place[*system.SystemManager](context)
+	lifetime.Place[*composer.Composer](context)
+	lifetime.Place[*drush.Drush](context)
 
-		auto[*reserve.Reserve],
+	lifetime.Place[*reserve.Reserve](context)
 
-		auto[*ssh.SSH],
-	}
+	lifetime.Place[*ssh.SSH](context)
 }

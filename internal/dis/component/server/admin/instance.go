@@ -34,7 +34,7 @@ type instanceContext struct {
 
 func (admin *Admin) instance(ctx context.Context) http.Handler {
 	tpl := instanceTemplate.Prepare(
-		admin.Dependencies.Templating,
+		admin.dependencies.Templating,
 		templating.Crumbs(
 			menuAdmin,
 			menuInstances,
@@ -51,7 +51,7 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 		slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 
 		// find the instance itself!
-		instance, err := admin.Dependencies.Instances.WissKI(r.Context(), slug)
+		instance, err := admin.dependencies.Instances.WissKI(r.Context(), slug)
 		if err == instances.ErrWissKINotFound {
 			return ic, nil, httpx.ErrNotFound
 		}
@@ -70,7 +70,6 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
 			templating.ReplaceAction(menuRebuild, component.MenuItem{Title: "Rebuild", Path: template.URL("/admin/rebuild/" + slug)}),
 			templating.ReplaceAction(menuGrants, component.MenuItem{Title: "Grants", Path: template.URL("/admin/grants/" + slug)}),
-			templating.ReplaceAction(menuIngredients, component.MenuItem{Title: "Ingredients", Path: template.URL("/admin/ingredients/" + slug), Priority: component.SmallButton}),
 
 			templating.Title(instance.Slug),
 		}

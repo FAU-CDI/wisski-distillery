@@ -12,7 +12,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/zerolog"
-	"github.com/tkw1536/pkglib/lifetime"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/tkw1536/pkglib/httpx"
@@ -20,7 +19,7 @@ import (
 
 type Admin struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Fetchers []component.DistilleryFetcher
 
 		Instances *instances.Instances
@@ -33,8 +32,6 @@ type Admin struct {
 
 		Sockets *socket.Sockets
 	}
-
-	Analytics *lifetime.Analytics
 }
 
 var (
@@ -47,12 +44,12 @@ func (admin *Admin) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/admin/",
 		CSRF:      true,
-		Decorator: admin.Dependencies.Auth.Require(false, scopes.ScopeUserAdmin, nil),
+		Decorator: admin.dependencies.Auth.Require(false, scopes.ScopeUserAdmin, nil),
 	}
 }
 
 func (admin *Admin) Menu(r *http.Request) []component.MenuItem {
-	if admin.Dependencies.Auth.CheckScope("", scopes.ScopeUserAdmin, r) != nil {
+	if admin.dependencies.Auth.CheckScope("", scopes.ScopeUserAdmin, r) != nil {
 		return nil
 	}
 	return []component.MenuItem{
@@ -65,8 +62,7 @@ func (admin *Admin) Menu(r *http.Request) []component.MenuItem {
 }
 
 var (
-	menuAdmin      = component.MenuItem{Title: "Admin", Path: "/admin/"}
-	menuComponents = component.MenuItem{Title: "Components", Path: "/admin/components/", Priority: component.SmallButton}
+	menuAdmin = component.MenuItem{Title: "Admin", Path: "/admin/"}
 
 	menuUsers      = component.MenuItem{Title: "Users", Path: "/admin/users/"}
 	menuUserCreate = component.MenuItem{Title: "Create User", Path: "/admin/users/create/"}
@@ -121,18 +117,6 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	router.Handler(http.MethodPost, route+"users/impersonate", admin.usersImpersonateHandler(ctx))
 	router.Handler(http.MethodPost, route+"users/unsetpassword", admin.usersUnsetPasswordHandler(ctx))
 
-	// add a handler for the component page
-	{
-		components := admin.components(ctx)
-		router.Handler(http.MethodGet, route+"components", components)
-	}
-
-	// add a handler for the ingredients page
-	{
-		ingredients := admin.ingredients(ctx)
-		router.Handler(http.MethodGet, route+"ingredients/:slug", ingredients)
-	}
-
 	// add a handler for the instance page
 	{
 		instance := admin.instance(ctx)
@@ -167,7 +151,7 @@ func (admin *Admin) loginHandler(ctx context.Context) http.Handler {
 		}
 
 		// get the instance
-		instance, err := admin.Dependencies.Instances.WissKI(r.Context(), r.PostFormValue("slug"))
+		instance, err := admin.dependencies.Instances.WissKI(r.Context(), r.PostFormValue("slug"))
 		if err != nil {
 			return "", 0, httpx.ErrNotFound
 		}

@@ -56,7 +56,7 @@ type export interface {
 
 // Parts lists all available snapshot parts
 func (exporter *Exporter) Parts() []string {
-	return collection.MapSlice(exporter.Dependencies.Snapshotable, func(c component.Snapshotable) string { return c.SnapshotName() })
+	return collection.MapSlice(exporter.dependencies.Snapshotable, func(c component.Snapshotable) string { return c.SnapshotName() })
 }
 
 const (
@@ -172,7 +172,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		// write out the log entry
 		entry.Path = stagingDir
 		entry.Packed = false
-		exporter.Dependencies.ExporterLogger.Add(ctx, entry)
+		exporter.dependencies.ExporterLogger.Add(ctx, entry)
 
 		fmt.Fprintf(progress, "Wrote %s\n", stagingDir)
 		return nil
@@ -200,7 +200,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	logging.LogMessage(progress, "Writing Log Entry")
 	entry.Path = archivePath
 	entry.Packed = true
-	exporter.Dependencies.ExporterLogger.Add(ctx, entry)
+	exporter.dependencies.ExporterLogger.Add(ctx, entry)
 
 	// and we're done!
 	return nil

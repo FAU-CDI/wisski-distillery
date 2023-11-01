@@ -34,7 +34,7 @@ func (server *Server) Stack() component.StackWithResources {
 			"SELF_OVERRIDES_FILE":      server.Config.Paths.OverridesJSON,
 			"SELF_RESOLVER_BLOCK_FILE": server.Config.Paths.ResolverBlocks,
 
-			"CUSTOM_ASSETS_PATH": server.Dependencies.Templating.CustomAssetsPath(),
+			"CUSTOM_ASSETS_PATH": server.dependencies.Templating.CustomAssetsPath(),
 		},
 
 		CopyContextFiles: []string{bootstrap.Executable},

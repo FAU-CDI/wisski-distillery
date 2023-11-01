@@ -13,7 +13,7 @@ import (
 // Prefixes implements reading and writing prefix
 type Adapters struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP *php.PHP
 	}
 }
@@ -33,7 +33,7 @@ type DistilleryAdapter struct {
 }
 
 func (wisski *Adapters) CreateDistilleryAdapter(ctx context.Context, server *phpx.Server, adapter DistilleryAdapter) error {
-	return wisski.Dependencies.PHP.ExecScript(
+	return wisski.dependencies.PHP.ExecScript(
 		ctx, server, nil, adaptersPHP,
 		"create_distillery_adapter",
 		adapter.Label, adapter.MachineName, adapter.Description, adapter.InstanceDomain, adapter.GraphDBRepository, adapter.GraphDBUsername, adapter.GraphDBPassword,

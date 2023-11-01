@@ -26,8 +26,8 @@ func (auth *Auth) Scopes() map[component.Scope]component.ScopeInfo {
 // getScopeMap return a (cached version of) all scopes
 func (auth *Auth) getScopeMap() map[component.Scope]scopeMapEntry {
 	return auth.scopeMap.Get(func() map[component.Scope]scopeMapEntry {
-		mp := make(map[component.Scope]scopeMapEntry, len(auth.Dependencies.ScopeProviders))
-		for _, p := range auth.Dependencies.ScopeProviders {
+		mp := make(map[component.Scope]scopeMapEntry, len(auth.dependencies.ScopeProviders))
+		for _, p := range auth.dependencies.ScopeProviders {
 			info := p.Scope()
 			mp[info.Scope] = scopeMapEntry{
 				Provider: p,

@@ -9,7 +9,7 @@ import (
 
 type ListNewsScope struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth *auth.Auth
 	}
 }
@@ -32,6 +32,6 @@ func (*ListNewsScope) Scope() component.ScopeInfo {
 }
 
 func (lns *ListNewsScope) HasScope(param string, r *http.Request) (bool, error) {
-	_, user, err := lns.Dependencies.Auth.SessionOf(r)
+	_, user, err := lns.dependencies.Auth.SessionOf(r)
 	return user != nil, err
 }

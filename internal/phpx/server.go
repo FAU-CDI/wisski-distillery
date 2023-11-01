@@ -88,7 +88,7 @@ func (server *Server) prepare() error {
 			}()
 
 			// start the actual server
-			io := stream.NewIOStream(&lb, nil, ir, 0)
+			io := stream.NewIOStream(&lb, nil, ir)
 			err := server.Executor.Spawn(server.c, io, serverPHP)
 			server.err.Set(ServerError{errClosed, err})
 		}()

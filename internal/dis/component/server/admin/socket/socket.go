@@ -23,7 +23,7 @@ type Sockets struct {
 
 	actions lazy.Lazy[ActionMap]
 
-	Dependencies struct {
+	dependencies struct {
 		Provision *provision.Provision
 		Instances *instances.Instances
 		Exporter  *exporter.Exporter
@@ -40,7 +40,7 @@ func (socket *Sockets) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/api/v1/ws",
 		Exact:     true,
-		Decorator: socket.Dependencies.Auth.Require(true, scopes.ScopeUserValid, nil),
+		Decorator: socket.dependencies.Auth.Require(true, scopes.ScopeUserValid, nil),
 	}
 }
 
@@ -54,7 +54,7 @@ func (sockets *Sockets) HandleRoute(ctx context.Context, path string) (http.Hand
 // Serve handles a connection to the websocket api
 func (socket *Sockets) Serve(conn httpx.WebSocketConnection) {
 	// handle the websocket connection!
-	name, err := socket.actions.Get(socket.Actions).Handle(socket.Dependencies.Auth, conn)
+	name, err := socket.actions.Get(socket.Actions).Handle(socket.dependencies.Auth, conn)
 	if err != nil {
 		zerolog.Ctx(conn.Context()).Err(err).Str("name", name).Msg("Error handling websocket")
 	}
@@ -80,7 +80,7 @@ func (sockets *Sockets) Instance(scope component.Scope, scopeParam string, numPa
 
 		NumParams: numParams + 1,
 		Handle: func(ctx context.Context, in io.Reader, out io.Writer, params ...string) error {
-			instance, err := sockets.Dependencies.Instances.WissKI(ctx, params[0])
+			instance, err := sockets.dependencies.Instances.WissKI(ctx, params[0])
 			if err != nil {
 				return err
 			}

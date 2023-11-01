@@ -33,7 +33,7 @@ type usersContext struct {
 
 func (admin *Admin) users(ctx context.Context) http.Handler {
 	tpl := usersTemplate.Prepare(
-		admin.Dependencies.Templating,
+		admin.dependencies.Templating,
 		templating.Crumbs(
 			menuAdmin,
 			menuUsers,
@@ -45,7 +45,7 @@ func (admin *Admin) users(ctx context.Context) http.Handler {
 
 	return tpl.HTMLHandler(func(r *http.Request) (uc usersContext, err error) {
 		uc.Error = r.URL.Query().Get("error")
-		uc.Users, err = admin.Dependencies.Auth.Users(r.Context())
+		uc.Users, err = admin.dependencies.Auth.Users(r.Context())
 		return
 	})
 }
@@ -72,7 +72,7 @@ type createUserResult struct {
 
 func (admin *Admin) createUser(ctx context.Context) http.Handler {
 	tpl := userCreateTemplate.Prepare(
-		admin.Dependencies.Templating,
+		admin.dependencies.Templating,
 		templating.Crumbs(
 			menuAdmin,
 			menuUsers,
@@ -102,7 +102,7 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 			}
 
 			// check the password policy
-			err = admin.Dependencies.Auth.CheckPasswordPolicy(cu.Passsword, cu.User)
+			err = admin.dependencies.Auth.CheckPasswordPolicy(cu.Passsword, cu.User)
 			if err != nil {
 				return cu, err
 			}
@@ -112,7 +112,7 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 
 		RenderSuccess: func(cu createUserResult, values map[string]string, w http.ResponseWriter, r *http.Request) error {
 			// create the user
-			user, err := admin.Dependencies.Auth.CreateUser(r.Context(), cu.User)
+			user, err := admin.dependencies.Auth.CreateUser(r.Context(), cu.User)
 			if err != nil {
 				return err
 			}
@@ -151,14 +151,14 @@ func (admin *Admin) useraction(ctx context.Context, name string, action func(r *
 		}
 
 		username := r.PostFormValue("user")
-		user, err := admin.Dependencies.Auth.User(r.Context(), username)
+		user, err := admin.dependencies.Auth.User(r.Context(), username)
 		if err != nil {
 			logger.Err(err).Str("action", name).Msg("failed to get user")
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
 
-		me, err := admin.Dependencies.Auth.UserOfSession(r)
+		me, err := admin.dependencies.Auth.UserOfSession(r)
 		if err != nil {
 			logger.Err(err).Str("action", name).Msg("failed to get current user")
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
@@ -241,7 +241,7 @@ func (admin *Admin) usersImpersonateHandler(ctx context.Context) http.Handler {
 		}
 
 		username := r.PostFormValue("user")
-		user, err := admin.Dependencies.Auth.User(r.Context(), username)
+		user, err := admin.dependencies.Auth.User(r.Context(), username)
 		if err != nil {
 			logger.Err(err).Str("action", "impersonate").Msg("failed to get user")
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
@@ -249,7 +249,7 @@ func (admin *Admin) usersImpersonateHandler(ctx context.Context) http.Handler {
 		}
 
 		// login the user into the session of the provided user
-		if err := admin.Dependencies.Auth.Login(w, r, user); err != nil {
+		if err := admin.dependencies.Auth.Login(w, r, user); err != nil {
 			logger.Err(err).Str("action", "impersonate").Msg("failed to login user")
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return

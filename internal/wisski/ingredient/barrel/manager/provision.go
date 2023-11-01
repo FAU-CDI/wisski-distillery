@@ -23,14 +23,14 @@ import (
 // Provision applies defaults to flags, to ensure some values are set
 func (manager *Manager) Provision(ctx context.Context, progress io.Writer, system models.System, flags Profile) error {
 	// Force building and applying the system!
-	if err := manager.Dependencies.SystemManager.Apply(ctx, progress, system, false); err != nil {
+	if err := manager.dependencies.SystemManager.Apply(ctx, progress, system, false); err != nil {
 		return err
 	}
 
 	// Create the composer directory!
 	logging.LogMessage(progress, "Creating required directories")
 	{
-		code, err := manager.Dependencies.Barrel.Stack().Run(ctx, stream.FromNil(), component.RunFlags{Detach: true, AutoRemove: true}, "barrel", "sudo", "-u", "www-data", "mkdir", "-p", barrel.ComposerDirectory)
+		code, err := manager.dependencies.Barrel.Stack().Run(ctx, stream.FromNil(), component.RunFlags{Detach: true, AutoRemove: true}, "barrel", "sudo", "-u", "www-data", "mkdir", "-p", barrel.ComposerDirectory)
 		if code != 0 {
 			err = barrel.ExitError(code)
 		}
@@ -40,7 +40,7 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 	}
 
 	// start the container, and have it do nothing!
-	code, err := manager.Dependencies.Barrel.Stack().Run(ctx, stream.FromNil(), component.RunFlags{Detach: true, AutoRemove: true}, "barrel", "tail", "-f", "/dev/null")
+	code, err := manager.dependencies.Barrel.Stack().Run(ctx, stream.FromNil(), component.RunFlags{Detach: true, AutoRemove: true}, "barrel", "tail", "-f", "/dev/null")
 	if code != 0 {
 		err = barrel.ExitError(code)
 	}
@@ -54,7 +54,7 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 		defer cancel()
 
 		// stop the container (even if the context was cancelled)
-		manager.Dependencies.Barrel.Stack().DownAll(anyways, progress)
+		manager.dependencies.Barrel.Stack().DownAll(anyways, progress)
 	}()
 
 	// Apply the defaults to the flags
@@ -80,7 +80,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		if flags.Drupal != "" {
 			drupal += ":" + flags.Drupal
 		}
-		err := provision.Dependencies.Composer.Exec(ctx, progress, "create-project", drupal, ".")
+		err := provision.dependencies.Composer.Exec(ctx, progress, "create-project", drupal, ".")
 		if err != nil {
 			return err
 		}
@@ -89,7 +89,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	logging.LogMessage(progress, "Configuring Composer")
 	{
 		// needed for composer > 2.2
-		err := provision.Dependencies.Composer.Exec(ctx, progress, "config", "allow-plugins", "true")
+		err := provision.dependencies.Composer.Exec(ctx, progress, "config", "allow-plugins", "true")
 		if err != nil {
 			return err
 		}
@@ -98,7 +98,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	logging.LogMessage(progress, "Installing drush")
 	{
 		for _, v := range drushVariants {
-			err := provision.Dependencies.Composer.TryInstall(ctx, progress, v)
+			err := provision.dependencies.Composer.TryInstall(ctx, progress, v)
 			if err == composer.ErrNotInstalled {
 				continue
 			}
@@ -115,7 +115,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	// Here we need to use the username, password and database creds we made above.
 	logging.LogMessage(progress, "Running Drupal installation scripts")
 	{
-		if err := provision.Dependencies.Drush.Exec(
+		if err := provision.dependencies.Drush.Exec(
 			ctx, progress,
 			"site-install",
 			"standard", "--yes", "--site-name="+provision.Domain(),
@@ -125,7 +125,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 			return err
 		}
 
-		if err := provision.Dependencies.Composer.FixPermission(ctx, progress); err != nil {
+		if err := provision.dependencies.Composer.FixPermission(ctx, progress); err != nil {
 			return err
 		}
 	}
@@ -133,7 +133,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	// Create directory for ontologies
 	logging.LogMessage(progress, fmt.Sprintf("Creating %q", barrel.OntologyDirectory))
 	{
-		if err := provision.Dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "mkdir", "-p", barrel.OntologyDirectory); err != nil {
+		if err := provision.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "mkdir", "-p", barrel.OntologyDirectory); err != nil {
 			return err
 		}
 	}
@@ -158,7 +158,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	// create the default adapter
 	logging.LogMessage(progress, "Creating default adapter")
 	{
-		if err := provision.Dependencies.Adapters.CreateDistilleryAdapter(ctx, nil, extras.DistilleryAdapter{
+		if err := provision.dependencies.Adapters.CreateDistilleryAdapter(ctx, nil, extras.DistilleryAdapter{
 			Label:             "Default WissKI Distillery Adapter",
 			MachineName:       "default",
 			Description:       "Default Adapter for " + provision.Domain(),
@@ -173,14 +173,14 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 
 	logging.LogMessage(progress, "Updating TRUSTED_HOST_PATTERNS in settings.php")
 	{
-		if err := provision.Dependencies.Settings.SetTrustedDomain(ctx, nil, provision.Domain()); err != nil {
+		if err := provision.dependencies.Settings.SetTrustedDomain(ctx, nil, provision.Domain()); err != nil {
 			return err
 		}
 	}
 
 	logging.LogMessage(progress, "Running initial cron")
 	{
-		if err := provision.Dependencies.Drush.Exec(ctx, progress, "core-cron"); err != nil {
+		if err := provision.dependencies.Drush.Exec(ctx, progress, "core-cron"); err != nil {
 			return err
 		}
 	}

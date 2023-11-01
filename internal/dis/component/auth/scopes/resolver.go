@@ -9,7 +9,7 @@ import (
 
 type ResolverScope struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth *auth.Auth
 	}
 }
@@ -32,6 +32,6 @@ func (*ResolverScope) Scope() component.ScopeInfo {
 }
 
 func (rs *ResolverScope) HasScope(param string, r *http.Request) (bool, error) {
-	_, user, err := rs.Dependencies.Auth.SessionOf(r)
+	_, user, err := rs.dependencies.Auth.SessionOf(r)
 	return user != nil, err
 }

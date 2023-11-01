@@ -52,7 +52,7 @@ func (auth *Auth) SessionOf(r *http.Request) (session component.SessionInfo, use
 // To check the user of a token or session, use SessionOf.
 func (auth *Auth) UserOfToken(r *http.Request) (user *AuthUser, err error) {
 	// get the token object
-	token, err := auth.Dependencies.Tokens.TokenOf(r)
+	token, err := auth.dependencies.Tokens.TokenOf(r)
 	if token == nil {
 		return nil, err
 	}
@@ -173,7 +173,7 @@ var errLoginFailed = errors.New("login failed")
 // authLogin implements a view to login a user
 func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 	tpl := loginTemplate.Prepare(
-		auth.Dependencies.Templating,
+		auth.dependencies.Templating,
 		func(flags templating.Flags, r *http.Request) templating.Flags {
 			flags.Crumbs = []component.MenuItem{
 				{Title: "Login", Path: template.URL(r.URL.RequestURI())},

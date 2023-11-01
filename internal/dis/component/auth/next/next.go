@@ -17,7 +17,7 @@ import (
 
 type Next struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth      *auth.Auth
 		Policy    *policy.Policy
 		Instances *instances.Instances
@@ -31,13 +31,13 @@ var (
 func (next *Next) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/next/",
-		Decorator: next.Dependencies.Auth.Require(true, scopes.ScopeUserValid, nil),
+		Decorator: next.dependencies.Auth.Require(true, scopes.ScopeUserValid, nil),
 	}
 }
 
 // Next returns a url that will forward authorized users to the given slug and path
 func (next *Next) Next(context context.Context, slug, path string) (string, error) {
-	wisski, err := next.Dependencies.Instances.WissKI(context, slug)
+	wisski, err := next.dependencies.Instances.WissKI(context, slug)
 	if err != nil {
 		return "", err
 	}
@@ -62,7 +62,7 @@ func (next *Next) getInstance(r *http.Request) (wisski *wisski.WissKI, path stri
 	}
 
 	// fetch the instance from the database
-	wisski, err = next.Dependencies.Instances.WissKI(r.Context(), slug)
+	wisski, err = next.dependencies.Instances.WissKI(r.Context(), slug)
 	if err != nil {
 		return nil, "", err
 	}
@@ -80,13 +80,13 @@ func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, e
 		}
 
 		// get the user
-		user, _, err := next.Dependencies.Auth.SessionOf(r)
+		user, _, err := next.dependencies.Auth.SessionOf(r)
 		if err != nil {
 			return "", 0, err
 		}
 
 		// check if they have a grant
-		grant, err := next.Dependencies.Policy.Has(r.Context(), user.User.User, instance.Slug)
+		grant, err := next.dependencies.Policy.Has(r.Context(), user.User.User, instance.Slug)
 		if err == policy.ErrNoAccess {
 			return "", 0, httpx.ErrForbidden
 		}

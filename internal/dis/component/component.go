@@ -43,15 +43,13 @@ func (cb *Base) getBase() *Base {
 
 // Init initialzes a new componeont Component with the provided still.
 // Init is only initended to be used within a lifetime.Lifetime[Component,Still].
-func Init(component Component, core Still) Component {
+func Init(component Component, core Still) {
 	base := component.getBase() // pointer to a struct
 	base.Still = core
 
 	tp := reflect.TypeOf(component).Elem()
 	base.name = strings.ToLower(tp.Name())
 	base.id = tp.PkgPath() + "." + tp.Name()
-
-	return component
 }
 
 func (cb Base) Name() string {

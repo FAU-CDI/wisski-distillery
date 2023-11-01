@@ -21,7 +21,7 @@ func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target s
 
 	group.Go(func() error {
 		// list all the instances
-		all, err := admin.Dependencies.Instances.All(ctx)
+		all, err := admin.dependencies.Instances.All(ctx)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target s
 	flags := component.FetcherFlags{
 		Context: ctx,
 	}
-	for _, o := range admin.Dependencies.Fetchers {
+	for _, o := range admin.dependencies.Fetchers {
 		o := o
 		group.Go(func() error {
 			return o.Fetch(flags, &target)
@@ -109,11 +109,10 @@ type indexContext struct {
 
 func (admin *Admin) index(ctx context.Context) http.Handler {
 	tpl := indexTemplate.Prepare(
-		admin.Dependencies.Templating,
+		admin.dependencies.Templating,
 		templating.Actions(
 			menuUsers,
 			menuInstances,
-			menuComponents,
 		),
 	)
 
@@ -125,7 +124,7 @@ func (admin *Admin) index(ctx context.Context) http.Handler {
 
 func (admin *Admin) instances(ctx context.Context) http.Handler {
 	tpl := instancesTemplate.Prepare(
-		admin.Dependencies.Templating,
+		admin.dependencies.Templating,
 		templating.Crumbs(
 			menuAdmin,
 			menuInstances,

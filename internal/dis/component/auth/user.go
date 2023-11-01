@@ -25,14 +25,14 @@ var ErrUserNotFound = errors.New("user not found")
 func (auth *Auth) TableInfo() component.TableInfo {
 	return component.TableInfo{
 		Name:  models.UserTable,
-		Model: reflectx.MakeType[models.User](),
+		Model: reflectx.TypeFor[models.User](),
 	}
 }
 
 // Users returns all users in the database
 func (auth *Auth) Users(ctx context.Context) (users []*AuthUser, err error) {
 	// query the user table
-	table, err := auth.Dependencies.SQL.QueryTable(ctx, auth)
+	table, err := auth.dependencies.SQL.QueryTable(ctx, auth)
 	if err != nil {
 		return
 	}
@@ -65,7 +65,7 @@ func (auth *Auth) User(ctx context.Context, name string) (user *AuthUser, err er
 	}
 
 	// return the user
-	table, err := auth.Dependencies.SQL.QueryTable(ctx, auth)
+	table, err := auth.dependencies.SQL.QueryTable(ctx, auth)
 	if err != nil {
 		return
 	}
@@ -96,7 +96,7 @@ func (auth *Auth) User(ctx context.Context, name string) (user *AuthUser, err er
 // The user is not associated to any WissKIs, and has no password set.
 func (auth *Auth) CreateUser(ctx context.Context, name string) (user *AuthUser, err error) {
 	// return the user
-	table, err := auth.Dependencies.SQL.QueryTable(ctx, auth)
+	table, err := auth.dependencies.SQL.QueryTable(ctx, auth)
 	if err != nil {
 		return
 	}
@@ -323,7 +323,7 @@ func (au *AuthUser) MakeRegular(ctx context.Context) error {
 
 // Save saves the given user in the database
 func (au *AuthUser) Save(ctx context.Context) error {
-	table, err := au.auth.Dependencies.SQL.QueryTable(ctx, au.auth)
+	table, err := au.auth.dependencies.SQL.QueryTable(ctx, au.auth)
 	if err != nil {
 		return err
 	}
@@ -332,13 +332,13 @@ func (au *AuthUser) Save(ctx context.Context) error {
 
 // Delete deletes the user from the database
 func (au *AuthUser) Delete(ctx context.Context) error {
-	table, err := au.auth.Dependencies.SQL.QueryTable(ctx, au.auth)
+	table, err := au.auth.dependencies.SQL.QueryTable(ctx, au.auth)
 	if err != nil {
 		return err
 	}
 
 	// run all the user delete hooks
-	for _, c := range au.auth.Dependencies.UserDeleteHooks {
+	for _, c := range au.auth.dependencies.UserDeleteHooks {
 		if err := c.OnUserDelete(ctx, &au.User); err != nil {
 			return err
 		}

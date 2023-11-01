@@ -36,7 +36,7 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 
 	logging.LogMessage(progress, "Installing database updates")
 	{
-		err := composer.Dependencies.Drush.Exec(ctx, progress, "-y", "updatedb")
+		err := composer.dependencies.Drush.Exec(ctx, progress, "-y", "updatedb")
 		if err != nil {
 			return err
 		}
@@ -56,7 +56,7 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 const lastUpdate = mstore.For[int64]("lastUpdate")
 
 func (drush *Composer) LastUpdate(ctx context.Context) (t time.Time, err error) {
-	epoch, err := lastUpdate.Get(ctx, drush.Dependencies.MStore)
+	epoch, err := lastUpdate.Get(ctx, drush.dependencies.MStore)
 	if err == meta.ErrMetadatumNotSet {
 		return t, nil
 	}
@@ -69,12 +69,12 @@ func (drush *Composer) LastUpdate(ctx context.Context) (t time.Time, err error) 
 }
 
 func (drush *Composer) setLastUpdate(ctx context.Context) error {
-	return lastUpdate.Set(ctx, drush.Dependencies.MStore, time.Now().Unix())
+	return lastUpdate.Set(ctx, drush.dependencies.MStore, time.Now().Unix())
 }
 
 type LastUpdateFetcher struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Composer *Composer
 	}
 }
@@ -84,6 +84,6 @@ var (
 )
 
 func (lbr *LastUpdateFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.LastUpdate, err = lbr.Dependencies.Composer.LastUpdate(flags.Context)
+	info.LastUpdate, err = lbr.dependencies.Composer.LastUpdate(flags.Context)
 	return
 }

@@ -19,7 +19,7 @@ import (
 // Instances manages multiple WissKI Instances.
 type Instances struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Malt *malt.Malt
 		SQL  *sql.SQL
 
@@ -41,7 +41,7 @@ var errSQL = exit.Error{
 
 // use uses the non-nil wisski instance with this instances
 func (instances *Instances) use(wisski *wisski.WissKI) {
-	wisski.Liquid.Malt = instances.Dependencies.Malt
+	wisski.Liquid.Malt = instances.dependencies.Malt
 }
 
 // WissKI returns the WissKI with the provided slug, if it exists.
@@ -51,12 +51,12 @@ func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wi
 		return nil, ErrWissKINotFound
 	}
 
-	sql := instances.Dependencies.SQL
+	sql := instances.dependencies.SQL
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return nil, err
 	}
 
-	table, err := sql.QueryTable(ctx, instances.Dependencies.InstanceTable)
+	table, err := sql.QueryTable(ctx, instances.dependencies.InstanceTable)
 	if err != nil {
 		return nil, err
 	}
@@ -91,12 +91,12 @@ func (instances *Instances) Instance(ctx context.Context, instance models.Instan
 // Has checks if a WissKI with the provided slug exists inside the database.
 // It does not perform any checks on the WissKI itself.
 func (instances *Instances) Has(ctx context.Context, slug string) (ok bool, err error) {
-	sql := instances.Dependencies.SQL
+	sql := instances.dependencies.SQL
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return false, err
 	}
 
-	table, err := sql.QueryTable(ctx, instances.Dependencies.InstanceTable)
+	table, err := sql.QueryTable(ctx, instances.dependencies.InstanceTable)
 	if err != nil {
 		return false, err
 	}
@@ -135,13 +135,13 @@ func (instances *Instances) Load(ctx context.Context, slugs ...string) ([]*wissk
 
 // find finds instances based on the provided query
 func (instances *Instances) find(ctx context.Context, order bool, query func(table *gorm.DB) *gorm.DB) (results []*wisski.WissKI, err error) {
-	sql := instances.Dependencies.SQL
+	sql := instances.dependencies.SQL
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return nil, err
 	}
 
 	// open the bookkeeping table
-	table, err := sql.QueryTable(ctx, instances.Dependencies.InstanceTable)
+	table, err := sql.QueryTable(ctx, instances.dependencies.InstanceTable)
 	if err != nil {
 		return nil, err
 	}

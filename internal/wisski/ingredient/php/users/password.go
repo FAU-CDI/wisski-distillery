@@ -14,10 +14,10 @@ import (
 var errGetValidator = errors.New("`GetPasswordValidator': unknown error")
 
 func (u *Users) GetPasswordValidator(ctx context.Context, username string) (pv PasswordValidator, err error) {
-	server := u.Dependencies.PHP.NewServer()
+	server := u.dependencies.PHP.NewServer()
 
 	var hash string
-	err = u.Dependencies.PHP.ExecScript(ctx, server, &hash, usersPHP, "get_password_hash", username)
+	err = u.dependencies.PHP.ExecScript(ctx, server, &hash, usersPHP, "get_password_hash", username)
 	if err != nil {
 		server.Close()
 		return pv, err

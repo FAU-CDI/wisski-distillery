@@ -12,7 +12,7 @@ import (
 // Component meta is responsible for managing metadata per WissKI Instance
 type Meta struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		SQL *sql.SQL
 	}
 
@@ -27,7 +27,7 @@ var (
 
 func (*Meta) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.MakeType[models.Metadatum](),
+		Model: reflectx.TypeFor[models.Metadatum](),
 		Name:  models.MetadataTable,
 	}
 }
@@ -51,7 +51,7 @@ func (meta *Meta) Storage(slug string) *Storage {
 	// create a new storage
 	meta.sc[slug] = &Storage{
 		Slug:  slug,
-		sql:   meta.Dependencies.SQL,
+		sql:   meta.dependencies.SQL,
 		table: meta,
 	}
 	return meta.sc[slug]

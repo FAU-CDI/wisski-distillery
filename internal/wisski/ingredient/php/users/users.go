@@ -14,7 +14,7 @@ import (
 
 type Users struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP *php.PHP
 	}
 }
@@ -28,7 +28,7 @@ var usersPHP string
 
 // All returns all known usernames
 func (u *Users) All(ctx context.Context, server *phpx.Server) (users []status.DrupalUser, err error) {
-	err = u.Dependencies.PHP.ExecScript(ctx, server, &users, usersPHP, "list_users")
+	err = u.dependencies.PHP.ExecScript(ctx, server, &users, usersPHP, "list_users")
 	return
 }
 
@@ -54,7 +54,7 @@ func (u *Users) LoginWithOpt(ctx context.Context, server *phpx.Server, username 
 
 	// generate a (relative) link
 	var path string
-	err = u.Dependencies.PHP.ExecScript(ctx, server, &path, usersPHP, "get_login_link", username, opts.Destination, opts.CreateIfMissing, opts.GrantAdminRole)
+	err = u.dependencies.PHP.ExecScript(ctx, server, &path, usersPHP, "get_login_link", username, opts.Destination, opts.CreateIfMissing, opts.GrantAdminRole)
 
 	// if something went wrong, return
 	if err != nil {
@@ -80,7 +80,7 @@ var errSetPassword = errors.New("`SetPassword': unknown error")
 // SetPassword sets the password for a given user
 func (u *Users) SetPassword(ctx context.Context, server *phpx.Server, username, password string) error {
 	var ok bool
-	err := u.Dependencies.PHP.ExecScript(ctx, server, &ok, usersPHP, "set_user_password", username, password)
+	err := u.dependencies.PHP.ExecScript(ctx, server, &ok, usersPHP, "set_user_password", username, password)
 	if err != nil {
 		return err
 	}

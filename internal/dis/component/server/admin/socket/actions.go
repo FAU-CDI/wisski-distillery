@@ -17,7 +17,7 @@ func (sockets *Sockets) Actions() ActionMap {
 	return map[string]Action{
 		// generic actions
 		"backup": sockets.Generic(scopes.ScopeUserAdmin, "", 0, func(ctx context.Context, sockets *Sockets, in io.Reader, out io.Writer, params ...string) error {
-			return sockets.Dependencies.Exporter.MakeExport(
+			return sockets.dependencies.Exporter.MakeExport(
 				ctx,
 				out,
 				exporter.ExportTask{
@@ -35,7 +35,7 @@ func (sockets *Sockets) Actions() ActionMap {
 				return err
 			}
 
-			instance, err := sockets.Dependencies.Provision.Provision(
+			instance, err := sockets.dependencies.Provision.Provision(
 				out,
 				ctx,
 				flags,
@@ -54,7 +54,7 @@ func (sockets *Sockets) Actions() ActionMap {
 		// instance-specific actions!
 
 		"snapshot": sockets.Instance(scopes.ScopeUserAdmin, "", 0, func(ctx context.Context, socket *Sockets, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-			return socket.Dependencies.Exporter.MakeExport(
+			return socket.dependencies.Exporter.MakeExport(
 				ctx,
 				out,
 				exporter.ExportTask{
@@ -86,7 +86,7 @@ func (sockets *Sockets) Actions() ActionMap {
 			return instance.Barrel().Stack().Down(ctx, out)
 		}),
 		"purge": sockets.Instance(scopes.ScopeUserAdmin, "", 0, func(ctx context.Context, sockets *Sockets, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-			return sockets.Dependencies.Purger.Purge(ctx, out, instance.Slug)
+			return sockets.dependencies.Purger.Purge(ctx, out, instance.Slug)
 		}),
 		"never": sockets.Generic(scopes.ScopeNever, "", 0, func(ctx context.Context, sockets *Sockets, in io.Reader, out io.Writer, params ...string) error {
 			panic("never called")

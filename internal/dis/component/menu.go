@@ -48,8 +48,8 @@ func (mi MenuItem) ReplaceWith(new MenuItem, items []MenuItem) bool {
 	return false
 }
 
-func MenuItemSort(a, b MenuItem) bool {
-	return a.Priority < b.Priority
+func MenuItemSort(a, b MenuItem) int {
+	return int(a.Priority) - int(b.Priority)
 }
 
 type MenuPriority int

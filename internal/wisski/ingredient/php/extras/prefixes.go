@@ -22,7 +22,7 @@ import (
 // Prefixes implements reading and writing prefix
 type Prefixes struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP    *php.PHP
 		MStore *mstore.MStore
 	}
@@ -63,7 +63,7 @@ func (prefixes *Prefixes) All(ctx context.Context, server *phpx.Server) ([]strin
 
 func (wisski *Prefixes) database(ctx context.Context, server *phpx.Server) (prefixes []string, err error) {
 	// get all the ugly prefixes
-	err = wisski.Dependencies.PHP.ExecScript(ctx, server, &prefixes, listURIPrefixesPHP, "list_prefixes")
+	err = wisski.dependencies.PHP.ExecScript(ctx, server, &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ var prefix = mstore.For[string]("prefix")
 
 // Prefixes returns the cached prefixes from the given instance
 func (wisski *Prefixes) AllCached(ctx context.Context) (results []string, err error) {
-	return prefix.GetAll(ctx, wisski.Dependencies.MStore)
+	return prefix.GetAll(ctx, wisski.dependencies.MStore)
 }
 
 // Update updates the cached prefixes of this instance
@@ -173,7 +173,7 @@ func (wisski *Prefixes) Update(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return prefix.SetAll(ctx, wisski.Dependencies.MStore, prefixes...)
+	return prefix.SetAll(ctx, wisski.dependencies.MStore, prefixes...)
 }
 
 func (prefixes *Prefixes) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {

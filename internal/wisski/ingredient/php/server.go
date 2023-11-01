@@ -20,6 +20,6 @@ func (php *PHP) NewServer() *phpx.Server {
 }
 
 func (php *PHP) spawn(ctx context.Context, str stream.IOStream, code string) error {
-	php.Dependencies.Barrel.ShellScript(ctx, str, "drush", "php:eval", code)
+	php.dependencies.Barrel.ShellScript(ctx, str, "drush", "php:eval", code)
 	return nil
 }

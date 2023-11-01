@@ -17,7 +17,7 @@ import (
 type Tokens struct {
 	component.Base
 
-	Dependencies struct {
+	dependencies struct {
 		SQL *sql.SQL
 	}
 }
@@ -30,12 +30,12 @@ var (
 func (tok *Tokens) TableInfo() component.TableInfo {
 	return component.TableInfo{
 		Name:  models.TokensTable,
-		Model: reflectx.MakeType[models.Token](),
+		Model: reflectx.TypeFor[models.Token](),
 	}
 }
 
 func (tok *Tokens) table(ctx context.Context) (*gorm.DB, error) {
-	return tok.Dependencies.SQL.QueryTable(ctx, tok)
+	return tok.dependencies.SQL.QueryTable(ctx, tok)
 }
 
 func (tok *Tokens) OnUserDelete(ctx context.Context, user *models.User) error {

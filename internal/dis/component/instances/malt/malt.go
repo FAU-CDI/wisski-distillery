@@ -15,16 +15,16 @@ import (
 type Malt struct {
 	component.Base
 
-	SQL           *sql.SQL           `auto:"true"`
-	InstanceTable *sql.InstanceTable `auto:"true"`
-	LockTable     *sql.LockTable     `auto:"true"`
+	SQL           *sql.SQL           `inject:"true"`
+	InstanceTable *sql.InstanceTable `inject:"true"`
+	LockTable     *sql.LockTable     `inject:"true"`
 
-	TS          *triplestore.Triplestore `auto:"true"`
-	Meta        *meta.Meta               `auto:"true"`
-	ExporterLog *logger.Logger           `auto:"true"`
-	Policy      *policy.Policy           `auto:"true"`
+	TS          *triplestore.Triplestore `inject:"true"`
+	Meta        *meta.Meta               `inject:"true"`
+	ExporterLog *logger.Logger           `inject:"true"`
+	Policy      *policy.Policy           `inject:"true"`
 
-	Docker *docker.Docker `auto:"true"`
+	Docker *docker.Docker `inject:"true"`
 
-	Keys *sshkeys.SSHKeys `auto:"true"`
+	Keys *sshkeys.SSHKeys `inject:"true"`
 }

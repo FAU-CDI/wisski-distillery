@@ -21,7 +21,7 @@ import (
 // Exporter manages snapshots and backups
 type Exporter struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		SQL            *sql.SQL
 		Instances      *instances.Instances
 		ExporterLogger *logger.Logger

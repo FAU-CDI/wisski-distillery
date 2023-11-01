@@ -32,7 +32,7 @@ var (
 )
 
 func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
-	tpl := passwordTemplate.Prepare(panel.Dependencies.Templating)
+	tpl := passwordTemplate.Prepare(panel.dependencies.Templating)
 
 	return &httpx.Form[struct{}]{
 		Fields: []field.Field{
@@ -53,7 +53,7 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 				return struct{}{}, errPasswordsNotIdentical
 			}
 
-			user, err := panel.Dependencies.Auth.UserOfSession(r)
+			user, err := panel.dependencies.Auth.UserOfSession(r)
 			if err != nil {
 				return struct{}{}, err
 			}

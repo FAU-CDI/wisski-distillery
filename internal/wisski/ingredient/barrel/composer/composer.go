@@ -15,7 +15,7 @@ import (
 // Drush implements commands related to drush
 type Composer struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Barrel *barrel.Barrel
 		MStore *mstore.MStore
 		Drush  *drush.Drush
@@ -35,7 +35,7 @@ func (composer *Composer) ExecWissKI(ctx context.Context, progress io.Writer, co
 }
 
 func (composer *Composer) exec(ctx context.Context, progress io.Writer, command ...string) error {
-	if err := composer.Dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), append([]string{"composer", "--no-interaction"}, command...)...); err != nil {
+	if err := composer.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), append([]string{"composer", "--no-interaction"}, command...)...); err != nil {
 		return err
 	}
 	return nil
@@ -44,7 +44,7 @@ func (composer *Composer) exec(ctx context.Context, progress io.Writer, command 
 // FixPermissions fixes the permissions of the sites directory.
 // This needs to be run after every installation of a composer module.
 func (composer *Composer) FixPermission(ctx context.Context, progress io.Writer) error {
-	composer.Dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "chmod", "-R", "u+w", barrel.SitesDirectory)
+	composer.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "chmod", "-R", "u+w", barrel.SitesDirectory)
 	return nil
 }
 

@@ -36,11 +36,10 @@ func (cb *Base) getBase() *Base {
 
 // Init initializes a new Ingredient.
 // Init is only intended to be used within a lifetime.Lifetime[Ingredient,*Liquid].
-func Init(ingredient Ingredient, liquid *liquid.Liquid) Ingredient {
+func Init(ingredient Ingredient, liquid *liquid.Liquid) {
 	base := ingredient.getBase() // pointer to a struct
 	base.Liquid = liquid
 	base.name = strings.ToLower(reflect.TypeOf(ingredient).Elem().Name())
-	return ingredient
 }
 
 func (cb Base) Name() string {

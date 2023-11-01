@@ -9,7 +9,7 @@ import (
 
 type UserLoggedIn struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		Auth *auth.Auth
 	}
 }
@@ -31,6 +31,6 @@ func (*UserLoggedIn) Scope() component.ScopeInfo {
 }
 
 func (iu *UserLoggedIn) HasScope(param string, r *http.Request) (bool, error) {
-	_, user, err := iu.Dependencies.Auth.SessionOf(r)
+	_, user, err := iu.dependencies.Auth.SessionOf(r)
 	return user != nil, err
 }

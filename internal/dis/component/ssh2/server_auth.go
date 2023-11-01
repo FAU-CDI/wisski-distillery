@@ -52,7 +52,7 @@ func (ssh2 *SSH2) handleAuth(ctx ssh.Context, key ssh.PublicKey) bool {
 
 		// grab the global permissions
 		{
-			globalKeys, err := ssh2.Dependencies.Keys.Admin(ctx)
+			globalKeys, err := ssh2.dependencies.Keys.Admin(ctx)
 			if err != nil {
 				return false
 			}
@@ -62,7 +62,7 @@ func (ssh2 *SSH2) handleAuth(ctx ssh.Context, key ssh.PublicKey) bool {
 
 		// grab permissions for each instance
 		{
-			instances, err := ssh2.Dependencies.Instances.All(ctx)
+			instances, err := ssh2.dependencies.Instances.All(ctx)
 			if err != nil {
 				return false
 			}

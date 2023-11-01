@@ -13,7 +13,7 @@ import (
 // Drush implements commands related to drush
 type Drush struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		Barrel *barrel.Barrel
 		PHP    *php.PHP
 	}
@@ -26,5 +26,5 @@ func (drush *Drush) Enable(ctx context.Context, progress io.Writer, modules ...s
 
 func (drush *Drush) Exec(ctx context.Context, progress io.Writer, command ...string) error {
 	script := append([]string{"drush"}, command...)
-	return drush.Dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
+	return drush.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
 }

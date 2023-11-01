@@ -18,7 +18,7 @@ func (tpl *Templating) buildMenu(r *http.Request) []component.MenuItem {
 
 	// get the static menu items, and then return all the regular ones
 	var items []component.MenuItem
-	for _, m := range tpl.Dependencies.Menuable {
+	for _, m := range tpl.dependencies.Menuable {
 		items = append(items, m.Menu(r)...)
 	}
 	for i, item := range items {
@@ -31,8 +31,8 @@ func (tpl *Templating) buildMenu(r *http.Request) []component.MenuItem {
 // Menu returns a list of menu items provided by routeables
 func (tpl *Templating) Menu(r *http.Request) []component.MenuItem {
 	return tpl.menu.Get(func() []component.MenuItem {
-		items := make([]component.MenuItem, 0, len(tpl.Dependencies.Routeables))
-		for _, route := range tpl.Dependencies.Routeables {
+		items := make([]component.MenuItem, 0, len(tpl.dependencies.Routeables))
+		for _, route := range tpl.dependencies.Routeables {
 			routes := route.Routes()
 			if routes.MenuTitle == "" {
 				continue

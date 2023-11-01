@@ -2,6 +2,7 @@ package extras
 
 import (
 	"context"
+	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -14,7 +15,7 @@ import (
 
 type Requirements struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP *php.PHP
 	}
 }
@@ -28,28 +29,28 @@ var requirementsPHP string
 
 // Create creates a new block with the given title and html content
 func (requirements *Requirements) Get(ctx context.Context, server *phpx.Server) (data []status.Requirement, err error) {
-	err = requirements.Dependencies.PHP.ExecScript(ctx, server, &data, requirementsPHP, "get_requirements", requirements.URL().String())
+	err = requirements.dependencies.PHP.ExecScript(ctx, server, &data, requirementsPHP, "get_requirements", requirements.URL().String())
 	if err == nil {
 		// sort first by weight, then by id!
-		slices.SortFunc(data, func(a, b status.Requirement) bool {
+		slices.SortFunc(data, func(a, b status.Requirement) int {
 			// compare first by weight
 			if a.Weight < b.Weight {
-				return true
+				return -1
 			}
 			if a.Weight > b.Weight {
-				return false
+				return 1
 			}
 
 			// then by severity
 			if a.Severity < b.Severity {
-				return true
+				return -1
 			}
 			if a.Severity > b.Severity {
-				return false
+				return 1
 			}
 
 			// and finally by id
-			return a.ID < b.ID
+			return strings.Compare(a.ID, b.ID)
 		})
 	}
 	return

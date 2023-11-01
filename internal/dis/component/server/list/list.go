@@ -19,7 +19,7 @@ type ListInstances struct {
 	names lazy.Lazy[map[string]struct{}] // instance names
 	infos lazy.Lazy[[]status.WissKI]     // list of home instances (updated via cron)
 
-	Dependencies struct {
+	dependencies struct {
 		Auth      *auth.Auth
 		Instances *instances.Instances
 	}
@@ -42,7 +42,7 @@ func (li *ListInstances) ShouldShowList(r *http.Request) bool {
 		return allowPrivate
 	}
 
-	_, user, _ := li.Dependencies.Auth.SessionOf(r)
+	_, user, _ := li.dependencies.Auth.SessionOf(r)
 	if user == nil {
 		return allowPublic
 	} else {
@@ -82,7 +82,7 @@ func (li *ListInstances) Cron(ctx context.Context) (err error) {
 
 // getNames returns the names of the given instances
 func (li *ListInstances) getNames(ctx context.Context) (map[string]struct{}, error) {
-	wissKIs, err := li.Dependencies.Instances.All(ctx)
+	wissKIs, err := li.dependencies.Instances.All(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (li *ListInstances) getNames(ctx context.Context) (map[string]struct{}, err
 // getInfos returns the names of the given instances
 func (li *ListInstances) getInfos(ctx context.Context) ([]status.WissKI, error) {
 	// find all the WissKIs
-	wissKIs, err := li.Dependencies.Instances.All(ctx)
+	wissKIs, err := li.dependencies.Instances.All(ctx)
 	if err != nil {
 		return nil, err
 	}

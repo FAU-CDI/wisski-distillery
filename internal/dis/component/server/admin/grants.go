@@ -44,7 +44,7 @@ type grantsContext struct {
 
 func (admin *Admin) grants(ctx context.Context) http.Handler {
 	tpl := grantsTemplate.Prepare(
-		admin.Dependencies.Templating,
+		admin.dependencies.Templating,
 		templating.Crumbs(
 			menuAdmin,
 			menuInstances,
@@ -100,13 +100,13 @@ func (admin *Admin) postGrants(r *http.Request) (gc grantsContext, funcs []templ
 
 	if delete {
 		// delete the user grant
-		err := admin.Dependencies.Policy.Remove(r.Context(), distilleryUser, slug)
+		err := admin.dependencies.Policy.Remove(r.Context(), distilleryUser, slug)
 		if err != nil {
 			return gc, nil, err
 		}
 	} else {
 		// update the grant
-		err := admin.Dependencies.Policy.Set(r.Context(), models.Grant{
+		err := admin.dependencies.Policy.Set(r.Context(), models.Grant{
 			User: distilleryUser,
 			Slug: slug,
 
@@ -127,7 +127,7 @@ func (admin *Admin) postGrants(r *http.Request) (gc grantsContext, funcs []templ
 
 func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (funcs []templating.FlagFunc, err error) {
 	// find the instance itself
-	gc.instance, err = admin.Dependencies.Instances.WissKI(r.Context(), slug)
+	gc.instance, err = admin.dependencies.Instances.WissKI(r.Context(), slug)
 	if err == instances.ErrWissKINotFound {
 		return nil, httpx.ErrNotFound
 	}
@@ -146,12 +146,12 @@ func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (funcs 
 }
 
 func (gc *grantsContext) useGrants(r *http.Request, admin *Admin) (err error) {
-	gc.Grants, err = admin.Dependencies.Policy.Instance(r.Context(), gc.Instance.Slug)
+	gc.Grants, err = admin.dependencies.Policy.Instance(r.Context(), gc.Instance.Slug)
 	if err != nil {
 		return err
 	}
 
-	users, err := admin.Dependencies.Auth.Users(r.Context())
+	users, err := admin.dependencies.Auth.Users(r.Context())
 	if err != nil {
 		return err
 	}

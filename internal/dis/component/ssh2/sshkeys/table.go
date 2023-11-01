@@ -11,7 +11,7 @@ import (
 
 func (ssh2 *SSHKeys) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.MakeType[models.Keys](),
+		Model: reflectx.TypeFor[models.Keys](),
 		Name:  models.KeysTable,
 	}
 }
@@ -24,7 +24,7 @@ func (ssh2 *SSHKeys) Keys(ctx context.Context, user string) ([]models.Keys, erro
 	}
 
 	// get the table
-	table, err := ssh2.Dependencies.SQL.QueryTable(ctx, ssh2)
+	table, err := ssh2.dependencies.SQL.QueryTable(ctx, ssh2)
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (ssh2 *SSHKeys) Keys(ctx context.Context, user string) ([]models.Keys, erro
 func (ssh2 *SSHKeys) Add(ctx context.Context, user string, comment string, key ssh.PublicKey) error {
 	// check that the given user exists
 	{
-		_, err := ssh2.Dependencies.Auth.User(ctx, user)
+		_, err := ssh2.dependencies.Auth.User(ctx, user)
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func (ssh2 *SSHKeys) Add(ctx context.Context, user string, comment string, key s
 	mk.SetPublicKey(key)
 
 	// get the table
-	table, err := ssh2.Dependencies.SQL.QueryTable(ctx, ssh2)
+	table, err := ssh2.dependencies.SQL.QueryTable(ctx, ssh2)
 	if err != nil {
 		return err
 	}
@@ -107,7 +107,7 @@ func (ssh2 *SSHKeys) Remove(ctx context.Context, user string, key ssh.PublicKey)
 	}
 
 	// query the table again
-	table, err := ssh2.Dependencies.SQL.QueryTable(ctx, ssh2)
+	table, err := ssh2.dependencies.SQL.QueryTable(ctx, ssh2)
 	if err != nil {
 		return nil
 	}
@@ -118,7 +118,7 @@ func (ssh2 *SSHKeys) Remove(ctx context.Context, user string, key ssh.PublicKey)
 
 func (ssh2 *SSHKeys) OnUserDelete(ctx context.Context, user *models.User) error {
 	// get the table
-	table, err := ssh2.Dependencies.SQL.QueryTable(ctx, ssh2)
+	table, err := ssh2.dependencies.SQL.QueryTable(ctx, ssh2)
 	if err != nil {
 		return err
 	}

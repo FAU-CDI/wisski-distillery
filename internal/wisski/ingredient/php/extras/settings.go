@@ -12,7 +12,7 @@ import (
 
 type Settings struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP *php.PHP
 	}
 }
@@ -21,7 +21,7 @@ type Settings struct {
 var settingsPHP string
 
 func (settings *Settings) Get(ctx context.Context, server *phpx.Server, key string) (value any, err error) {
-	err = settings.Dependencies.PHP.ExecScript(ctx, server, &value, settingsPHP, "get_setting", key)
+	err = settings.dependencies.PHP.ExecScript(ctx, server, &value, settingsPHP, "get_setting", key)
 	return
 }
 
@@ -29,7 +29,7 @@ var errFailedToSetSetting = errors.New("failed to update setting")
 
 func (settings *Settings) Set(ctx context.Context, server *phpx.Server, key string, value any) error {
 	var ok bool
-	err := settings.Dependencies.PHP.ExecScript(ctx, server, &ok, settingsPHP, "set_setting", key, value)
+	err := settings.dependencies.PHP.ExecScript(ctx, server, &ok, settingsPHP, "set_setting", key, value)
 	if err == nil && !ok {
 		err = errFailedToSetSetting
 	}
@@ -41,7 +41,7 @@ var errFailedToSetTrustedDomain = errors.New("failed to set trusted domain")
 func (settings *Settings) SetTrustedDomain(ctx context.Context, server *phpx.Server, domain string) error {
 	var ok bool
 
-	err := settings.Dependencies.PHP.ExecScript(ctx, server, &ok, settingsPHP, "set_trusted_domain", domain)
+	err := settings.dependencies.PHP.ExecScript(ctx, server, &ok, settingsPHP, "set_trusted_domain", domain)
 	if err == nil && !ok {
 		err = errFailedToSetTrustedDomain
 	}

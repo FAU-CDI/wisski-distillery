@@ -15,7 +15,7 @@ import (
 // API implements an API to list all instances
 type API struct {
 	component.Base
-	Dependencies struct {
+	dependencies struct {
 		ListInstances *ListInstances
 		Auth          *auth.Auth
 	}
@@ -42,15 +42,15 @@ type APISystem struct {
 func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	return &api.Handler[[]APISystem]{
 		Config: a.Config,
-		Auth:   a.Dependencies.Auth,
+		Auth:   a.dependencies.Auth,
 
 		Methods: []string{"GET"},
 		Scope:   scopes.ScopeInstanceDirectory,
 
 		Handler: func(s string, r *http.Request) ([]APISystem, error) {
 			var statuses []status.WissKI
-			if a.Dependencies.ListInstances.ShouldShowList(r) {
-				statuses = a.Dependencies.ListInstances.infos.Get(nil)
+			if a.dependencies.ListInstances.ShouldShowList(r) {
+				statuses = a.dependencies.ListInstances.infos.Get(nil)
 			}
 
 			if len(statuses) == 0 {

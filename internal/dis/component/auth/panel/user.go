@@ -52,7 +52,7 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 	}
 
 	tpl := userTemplate.Prepare(
-		panel.Dependencies.Templating,
+		panel.dependencies.Templating,
 		templating.Crumbs(
 			menuUser,
 		),
@@ -61,12 +61,12 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 
 	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (uc userContext, funcs []templating.FlagFunc, err error) {
 		// find the user
-		uc.AuthUser, err = panel.Dependencies.Auth.UserOfSession(r)
+		uc.AuthUser, err = panel.dependencies.Auth.UserOfSession(r)
 		if err != nil || uc.AuthUser == nil {
 			return uc, nil, err
 		}
 
-		uc.ShowAdminURLs = panel.Dependencies.Auth.CheckScope("", scopes.ScopeUserAdmin, r) == nil
+		uc.ShowAdminURLs = panel.dependencies.Auth.CheckScope("", scopes.ScopeUserAdmin, r) == nil
 
 		// replace the totp action in the menu
 		var totpAction component.MenuItem
@@ -81,7 +81,7 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 		}
 
 		// find the grants
-		grants, err := panel.Dependencies.Policy.User(r.Context(), uc.AuthUser.User.User)
+		grants, err := panel.dependencies.Policy.User(r.Context(), uc.AuthUser.User.User)
 		if err != nil {
 			return uc, nil, err
 		}
@@ -90,7 +90,7 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 		for i, grant := range grants {
 			uc.Grants[i].Grant = grant
 
-			url, err := panel.Dependencies.Next.Next(r.Context(), grant.Slug, "/")
+			url, err := panel.dependencies.Next.Next(r.Context(), grant.Slug, "/")
 			if err != nil {
 				return uc, nil, err
 			}

@@ -13,7 +13,7 @@ import (
 
 type Blocks struct {
 	ingredient.Base
-	Dependencies struct {
+	dependencies struct {
 		PHP *php.PHP
 	}
 }
@@ -31,11 +31,11 @@ type Block struct {
 
 // Create creates a new block with the given title and html content
 func (blocks *Blocks) Create(ctx context.Context, server *phpx.Server, block Block) (err error) {
-	err = blocks.Dependencies.PHP.ExecScript(ctx, server, nil, blocksPHP, "create_basic_block", block.Info, block.Content, block.Region, block.BlockID)
+	err = blocks.dependencies.PHP.ExecScript(ctx, server, nil, blocksPHP, "create_basic_block", block.Info, block.Content, block.Region, block.BlockID)
 	return err
 }
 
 func (blocks *Blocks) GetFooterRegion(ctx context.Context, server *phpx.Server) (region string, err error) {
-	err = blocks.Dependencies.PHP.ExecScript(ctx, server, &region, blocksPHP, "get_footer_region")
+	err = blocks.dependencies.PHP.ExecScript(ctx, server, &region, blocksPHP, "get_footer_region")
 	return
 }
