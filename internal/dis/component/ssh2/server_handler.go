@@ -45,7 +45,7 @@ func (ssh2 *SSH2) handleConnection(session ssh.Session) {
 		{"${SLUG}", slug},
 		{"${HOSTNAME}", slug + "." + ssh2.Config.HTTP.PrimaryDomain},
 
-		{"${DOMAIN}", ssh2.Config.HTTP.PublicTopDomain()},
+		{"${DOMAIN}", ssh2.Config.HTTP.PanelDomain()},
 		{"${PORT}", strconv.FormatUint(uint64(ssh2.Config.Listen.SSHPort), 10)},
 
 		{"${HELP_URL}", ssh2.Config.HTTP.JoinPath("user", "ssh").String()},

@@ -34,8 +34,9 @@ type SSHTemplateContext struct {
 
 	Keys []models.Keys
 
-	Domain string // domain name of the distillery
-	Port   uint16 // public port of the distillery ssh servers
+	Domain      string // domain name of the distillery
+	PanelDomain string // domain name of the panel
+	Port        uint16 // public port of the distillery ssh servers
 
 	Slug     string // slug of the wisski
 	Hostname string // hostname of an example wisski
@@ -62,7 +63,8 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 			return sc, err
 		}
 
-		sc.Domain = panel.Config.HTTP.PublicTopDomain()
+		sc.Domain = panel.Config.HTTP.PrimaryDomain
+		sc.PanelDomain = panel.Config.HTTP.PanelDomain()
 		sc.Port = panel.Config.Listen.SSHPort
 
 		// pick the first domain that the user has access to as an example

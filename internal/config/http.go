@@ -41,7 +41,8 @@ type HTTPConfig struct {
 	PhpMyAdmin validators.NullableBool `yaml:"phpmyadmin" validate:"bool" default:"false"`
 }
 
-func (hcfg HTTPConfig) PublicTopDomain() string {
+// PanelDomain is the domain name where the control panel runs.
+func (hcfg HTTPConfig) PanelDomain() string {
 	// if we have panel domain enabled, then return it
 	if hcfg.Panel.Set && hcfg.Panel.Value {
 		return hcfg.PrimaryDomain
@@ -81,7 +82,7 @@ func (hcfg HTTPConfig) optionalURL(domain string, enabled validators.NullableBoo
 func (hcfg HTTPConfig) JoinPath(elem ...string) *url.URL {
 	u := url.URL{
 		Scheme: "http",
-		Host:   hcfg.PublicTopDomain(),
+		Host:   hcfg.PanelDomain(),
 		Path:   "/",
 	}
 	if hcfg.HTTPSEnabled() {

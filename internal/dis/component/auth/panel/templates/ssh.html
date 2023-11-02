@@ -72,7 +72,7 @@
         From a Linux (or Mac, or Windows 11) command line you may use:
     </p>
     <code class="copy">
-        ssh -J {{ .Domain }}:{{ .Port }} www-data@{{ .Hostname }}
+        ssh -J {{ .PanelDomain }}:{{ .Port }} www-data@{{ .Hostname }}
     </code>
     <p>
         You may also place the following into your <code>$HOME/.ssh/config</code> file:
@@ -83,7 +83,7 @@
     User www-data
 Host {{ .Domain }}.proxy
     User www-data
-    Hostname {{ .Domain }}
+    Hostname {{ .PanelDomain }}
     Port {{ .Port }}
 </pre>
     </code>
@@ -110,7 +110,7 @@ Host {{ .Domain }}.proxy
     </p>
     <code class="copy">
         <pre>
-ssh -p {{ .Port }} {{ .Domain }} -L 7200:triplestore:7200
+ssh -p {{ .Port }} {{ .PanelDomain }} -L 7200:triplestore:7200
 </pre>
     </code>
     <p>
