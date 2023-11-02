@@ -26,7 +26,7 @@ type HTTPConfig struct {
 	CertbotEmail string `yaml:"certbot_email" validate:"email"`
 
 	// Also serve the panel on the toplevel domain.
-	// Note that the panel is *always* servered under the "_panel" domain.
+	// Note that the panel is *always* servered under the "panel" domain.
 	// Disabling this is not recommended.
 	Panel validators.NullableBool `yaml:"panel" validate:"bool" default:"true"`
 
@@ -113,8 +113,16 @@ var (
 	PHPMyAdminDomain  SpecialDomain = "phpmyadmin"
 )
 
+var RestrictedSlugs = []string{
+	"www",
+	"admin",
+	PanelDomain.Domain(),
+	TriplestoreDomain.Domain(),
+	PHPMyAdminDomain.Domain(),
+}
+
 func (sd SpecialDomain) Domain() string {
-	return "_" + string(sd)
+	return string(sd)
 }
 
 // Domains adds the given subdomain to the primary and alias domains.

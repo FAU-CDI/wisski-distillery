@@ -39,7 +39,7 @@ http:
   # This email address can be configured here. 
   certbot_email: null
 
-  # Serve the panel also on the toplevel domain, and not only on the "_panel" domain.
+  # Serve the panel also on the toplevel domain, and not only on the "panel" domain.
   # Enabled by default.
   panel: null
 
@@ -47,7 +47,7 @@ http:
   # In the future, it will be enabled by default, but at this point it is not.
   api: null
 
-  # Enable serving the triplestore webinterface publically under the "_ts" domain
+  # Enable serving the triplestore webinterface publically under the "ts" domain
   ts: null
   
   # Enable serving the phpmyadmin webinterface publically under the "_phymyadmin" domain

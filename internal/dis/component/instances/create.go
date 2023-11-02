@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
@@ -75,8 +76,6 @@ func (instances *Instances) Create(slug string, system models.System) (wissKI *w
 	return wissKI, nil
 }
 
-var restrictedSlugs = []string{"www", "admin"}
-
 // IsValidSlug checks if slug represents a valid slug for an instance.
 func (instances *Instances) IsValidSlug(slug string) (string, error) {
 	// check that it is a slug
@@ -84,7 +83,7 @@ func (instances *Instances) IsValidSlug(slug string) (string, error) {
 	if err != nil {
 		return "", errInvalidSlug
 	}
-	for _, rs := range restrictedSlugs {
+	for _, rs := range config.RestrictedSlugs {
 		if strings.EqualFold(rs, slug) {
 			return "", errRestrictedSlug
 		}
