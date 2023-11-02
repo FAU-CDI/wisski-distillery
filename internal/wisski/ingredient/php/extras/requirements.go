@@ -33,20 +33,20 @@ func (requirements *Requirements) Get(ctx context.Context, server *phpx.Server) 
 	if err == nil {
 		// sort first by weight, then by id!
 		slices.SortFunc(data, func(a, b status.Requirement) int {
-			// compare first by weight
-			if a.Weight < b.Weight {
-				return -1
-			}
-			if a.Weight > b.Weight {
-				return 1
-			}
-
-			// then by severity
+			// compare first by severity
 			if a.Severity < b.Severity {
-				return -1
+				return 1
 			}
 			if a.Severity > b.Severity {
+				return -1
+			}
+
+			// then by weight
+			if a.Weight < b.Weight {
 				return 1
+			}
+			if a.Weight > b.Weight {
+				return -1
 			}
 
 			// and finally by id
