@@ -80,7 +80,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 		zerolog.Ctx(context.Context).Info().Str("bind", s.Bind).Msg("listening public server")
 		publicL, err := net.Listen("tcp", s.Bind)
 		if err != nil {
-			return errServerListen.Wrap(err)
+			return errServerListen.WrapError(err)
 		}
 		defer publicS.Shutdown(context.Context)
 		go func() {
