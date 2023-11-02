@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"html/template"
 	"net/url"
 	"strings"
 
@@ -27,6 +28,38 @@ type HTTPConfig struct {
 	// API determines if the API is enabled.
 	// In a future version of the distillery, it will be enabled by default.
 	API validators.NullableBool `yaml:"api" validate:"bool" default:"false"`
+
+	// TS determintes if the special Triplestore domain is enabled.
+	TS validators.NullableBool `yaml:"ts" validate:"bool" default:"false"`
+
+	// PhpMyAdmin determines if the special PhpMyAdmin domain is enabled.
+	PhpMyAdmin validators.NullableBool `yaml:"phpmyadmin" validate:"bool" default:"false"`
+}
+
+// TSDomain returns the full url to the triplestore, if any
+func (hcfg HTTPConfig) TSURL() template.URL {
+	return hcfg.optionalURL(TriplestoreDomain.Domain(), hcfg.TS)
+}
+
+func (hcfg HTTPConfig) PhpMyAdminURL() template.URL {
+	return hcfg.optionalURL(PHPMyAdminDomain.Domain(), hcfg.PhpMyAdmin)
+}
+
+// optionalURL returns the public-facing url to domain if enabled is true.
+func (hcfg HTTPConfig) optionalURL(domain string, enabled validators.NullableBool) template.URL {
+	if !(enabled.Set && enabled.Value) {
+		return ""
+	}
+
+	u := url.URL{
+		Scheme: "http",
+		Host:   hcfg.Domains(domain)[0],
+		Path:   "/",
+	}
+	if hcfg.HTTPSEnabled() {
+		u.Scheme = "https"
+	}
+	return template.URL(u.String())
 }
 
 // JoinPath returns the root public url joined with the provided parts.
@@ -56,20 +89,24 @@ func (hcfg HTTPConfig) HTTPSEnabled() bool {
 	return hcfg.CertbotEmail != ""
 }
 
+// SpecialDomain represents a reserved domain
 type SpecialDomain string
 
 var (
 	TriplestoreDomain SpecialDomain = "ts"
+	PHPMyAdminDomain  SpecialDomain = "phpmyadmin"
 )
 
-func (hcfg HTTPConfig) SpecialDomain(domain SpecialDomain) string {
-	return fmt.Sprintf("%s.%s", string(domain)+"_", hcfg.PrimaryDomain)
+func (sd SpecialDomain) Domain() string {
+	return "_" + string(sd)
 }
 
 // Domains adds the given subdomain to the primary and alias domains.
 // If sub is empty, returns only the domains.
 //
 // sub is not otherwise validated, and should be normalized by the caller.
+//
+// It is guaranteed that the first domain returned will always be the primary domain.
 func (hcfg HTTPConfig) Domains(sub string) []string {
 	domains := append([]string{hcfg.PrimaryDomain}, hcfg.ExtraDomains...)
 	if sub == "" {

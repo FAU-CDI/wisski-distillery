@@ -29,6 +29,15 @@ services:
             - 127.0.0.1:8080:80
         labels:
             - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
+
+            # expose phpmyadmin (removed when disabled in global config)
+            - "traefik.enable=True"
+
+            - "traefik.http.routers.core_phpmyadmin.rule=${HOST_RULE}"
+            - "traefik.http.routers.core_phpmyadmin.tls=${HTTPS_ENABLED}"
+            - "traefik.http.routers.core_phpmyadmin.tls.certresolver=distillery"
+            
+            - "traefik.http.services.core_phpmyadmin.loadbalancer.server.port=80"
         depends_on:
             - sql
         restart: always

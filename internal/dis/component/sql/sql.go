@@ -5,8 +5,11 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
+	"github.com/tkw1536/pkglib/yamlx"
+	"gopkg.in/yaml.v3"
 )
 
 type SQL struct {
@@ -47,6 +50,23 @@ func (sql *SQL) Stack() component.StackWithResources {
 		EnvContext: map[string]string{
 			"DOCKER_NETWORK_NAME": sql.Config.Docker.Network(),
 			"HTTPS_ENABLED":       sql.Config.HTTP.HTTPSEnabledEnv(),
+			"HOST_RULE":           sql.Config.HTTP.HostRule(config.PHPMyAdminDomain.Domain()),
+		},
+
+		ComposerYML: func(root *yaml.Node) (*yaml.Node, error) {
+			// phpmyadmin is exposed => everything is fine
+			if sql.Config.HTTP.PhpMyAdmin.Set && sql.Config.HTTP.PhpMyAdmin.Value {
+				return root, nil
+			}
+
+			// not exposed => remove the appropriate labels
+			if err := yamlx.ReplaceWith(root, []string{
+				"eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}",
+			}, "services", "phpmyadmin", "labels"); err != nil {
+				return nil, err
+			}
+
+			return root, nil
 		},
 
 		MakeDirsPerm: umaskfree.DefaultDirPerm,

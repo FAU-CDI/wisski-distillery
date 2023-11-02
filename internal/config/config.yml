@@ -43,6 +43,13 @@ http:
   # In the future, it will be enabled by default, but at this point it is not.
   api: null
 
+  # Enable serving the triplestore webinterface publically under the "_ts" domain
+  ts: null
+  
+  # Enable serving the phpmyadmin webinterface publically under the "_phymyadmin" domain
+  phpmyadmin: null
+
+
 # Configuration for the (public) homepage of the distillery.
 home:
   # the title of the distillery to be set

@@ -32,22 +32,14 @@
     </table>
 </div>
 
-<div class="pure-u-1-1">
-    <h2 id="overview">Distillery Configuration</h2>
-</div>
 
 <div class="pure-u-1-1">
-    <pre>
-        <code class="language-yaml">{{ .Config.MarshalSensitive }}</code>
-    </pre>
-</div>
-
-<div class="pure-u-1-1">
-    <h2 id="overview">Distillery Passwords</h2>
+    <h2 id="overview">Distillery Services</h2>
     <table class="pure-table pure-table-bordered padding">
         <thead>
             <tr>
                 <th>Service</th>
+                <th>Interface</th>
                 <th>Username</th>
                 <th>Password</th>
             </tr>
@@ -56,6 +48,14 @@
             <tr>
                 <td>
                     SQL
+                </td>
+                <td>
+                    {{ $pma := .Config.HTTP.PhpMyAdminURL }}
+                    {{ if $pma }}
+                        <a href="{{ $pma }}" class="pure-button pure-button-small" target="_blank" rel="noopener noreferer">PHPMyAdmin</a>
+                    {{ else }}
+                        (accessible via SSH)
+                    {{ end }}
                 </td>
                 <td>
                     <code class="copy">{{ .Config.SQL.AdminUsername }}</code>
@@ -69,6 +69,14 @@
                     Triplestore
                 </td>
                 <td>
+                    {{ $ts := .Config.HTTP.TSURL }}
+                    {{ if $ts }}
+                        <a href="{{ $ts }}" class="pure-button pure-button-small" target="_blank" rel="noopener noreferer">Workbench</a>
+                    {{ else }}
+                        (accessible via SSH)
+                    {{ end }}
+                </td>
+                <td>
                     <code class="copy">{{ .Config.TS.AdminUsername }}</code>
                 </td>
                 <td>
@@ -77,4 +85,14 @@
             </tr>
         </tbody>
     </table>
+</div>
+
+<div class="pure-u-1-1">
+    <h2 id="overview">Distillery Configuration</h2>
+</div>
+
+<div class="pure-u-1-1">
+    <pre>
+        <code class="language-yaml">{{ .Config.MarshalSensitive }}</code>
+    </pre>
 </div>

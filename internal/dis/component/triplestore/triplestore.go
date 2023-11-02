@@ -5,7 +5,10 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/tkw1536/pkglib/yamlx"
+	"gopkg.in/yaml.v3"
 )
 
 type Triplestore struct {
@@ -43,6 +46,24 @@ func (ts *Triplestore) Stack() component.StackWithResources {
 
 		EnvContext: map[string]string{
 			"DOCKER_NETWORK_NAME": ts.Config.Docker.Network(),
+			"HOST_RULE":           ts.Config.HTTP.HostRule(config.TriplestoreDomain.Domain()),
+			"HTTPS_ENABLED":       ts.Config.HTTP.HTTPSEnabledEnv(),
+		},
+
+		ComposerYML: func(root *yaml.Node) (*yaml.Node, error) {
+			// ts is exposed => everything is fine
+			if ts.Config.HTTP.TS.Set && ts.Config.HTTP.TS.Value {
+				return root, nil
+			}
+
+			// not exposed => remove the appropriate labels
+			if err := yamlx.ReplaceWith(root, []string{
+				"eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}",
+			}, "services", "triplestore", "labels"); err != nil {
+				return nil, err
+			}
+
+			return root, nil
 		},
 
 		MakeDirs: []string{

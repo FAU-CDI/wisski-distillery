@@ -51,7 +51,7 @@ EXPOSE 7200
 
 # setup a healthcheck, that checks if the server is up. 
 RUN apt-get update && apt-get install -y curl
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl --fail 127.0.0.1:7200/rest/repositories || exit 1
+# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD curl --fail 127.0.0.1:7200/rest/repositories || exit 1
 
 # Add volumes for data, work and logs as these might be accessible from the outside. 
 # To add your own configuration, manually mount a config file into /opt/graphdb/work

@@ -15,6 +15,19 @@ services:
             GDB_HEAP_SIZE: 16G
         labels:
             - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
+            
+            # expose the triplestore (removed when disabled in global config)
+            - "traefik.enable=True"
+
+            - "traefik.http.routers.core_ts.rule=${HOST_RULE}"
+            - "traefik.http.routers.core_ts.tls=${HTTPS_ENABLED}"
+            - "traefik.http.routers.core_ts.tls.certresolver=distillery"
+            - "traefik.http.routers.core_ts.middlewares=core_ts@docker"
+            
+            - "traefik.http.services.core_ts.loadbalancer.server.port=7200"
+            - "traefik.http.services.core_ts.loadbalancer.passHostHeader=false"
+
+            - "traefik.http.middlewares.core_ts.headers.customRequestHeaders.host=localhost"
 
         restart: always
 
