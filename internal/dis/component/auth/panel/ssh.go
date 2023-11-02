@@ -62,7 +62,7 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 			return sc, err
 		}
 
-		sc.Domain = panel.Config.HTTP.PrimaryDomain
+		sc.Domain = panel.Config.HTTP.PublicTopDomain()
 		sc.Port = panel.Config.Listen.SSHPort
 
 		// pick the first domain that the user has access to as an example

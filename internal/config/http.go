@@ -25,6 +25,11 @@ type HTTPConfig struct {
 	// This email address can be configured here.
 	CertbotEmail string `yaml:"certbot_email" validate:"email"`
 
+	// Also serve the panel on the toplevel domain.
+	// Note that the panel is *always* servered under the "_panel" domain.
+	// Disabling this is not recommended.
+	Panel validators.NullableBool `yaml:"panel" validate:"bool" default:"true"`
+
 	// API determines if the API is enabled.
 	// In a future version of the distillery, it will be enabled by default.
 	API validators.NullableBool `yaml:"api" validate:"bool" default:"false"`
@@ -34,6 +39,16 @@ type HTTPConfig struct {
 
 	// PhpMyAdmin determines if the special PhpMyAdmin domain is enabled.
 	PhpMyAdmin validators.NullableBool `yaml:"phpmyadmin" validate:"bool" default:"false"`
+}
+
+func (hcfg HTTPConfig) PublicTopDomain() string {
+	// if we have panel domain enabled, then return it
+	if hcfg.Panel.Set && hcfg.Panel.Value {
+		return hcfg.PrimaryDomain
+	}
+
+	// else use the domain itself
+	return hcfg.Domains(PanelDomain.Domain())[0]
 }
 
 // TSDomain returns the full url to the triplestore, if any
@@ -66,7 +81,7 @@ func (hcfg HTTPConfig) optionalURL(domain string, enabled validators.NullableBoo
 func (hcfg HTTPConfig) JoinPath(elem ...string) *url.URL {
 	u := url.URL{
 		Scheme: "http",
-		Host:   hcfg.PrimaryDomain,
+		Host:   hcfg.PublicTopDomain(),
 		Path:   "/",
 	}
 	if hcfg.HTTPSEnabled() {
@@ -93,6 +108,7 @@ func (hcfg HTTPConfig) HTTPSEnabled() bool {
 type SpecialDomain string
 
 var (
+	PanelDomain       SpecialDomain = "panel"
 	TriplestoreDomain SpecialDomain = "ts"
 	PHPMyAdminDomain  SpecialDomain = "phpmyadmin"
 )
@@ -168,6 +184,27 @@ func (cfg HTTPConfig) SlugFromHost(host string) (slug string, ok bool) {
 	return "", ok
 }
 
+// NormSlugFromHost is like SlugFromHost, but normalizes the panel host
+func (cfg HTTPConfig) NormSlugFromHost(host string) (string, bool) {
+	// if we didn't get a domain, don't do anything
+	slug, ok := cfg.SlugFromHost(host)
+	if !ok {
+		return "", false
+	}
+
+	// always serve the panel domain
+	if slug == PanelDomain.Domain() {
+		return "", true
+	}
+
+	// if we don't serve the toplevel domain then the toplevel domain is an error.
+	if slug == "" && !(cfg.Panel.Set && cfg.Panel.Value) {
+		return "", false
+	}
+
+	return slug, true
+}
+
 func TrimSuffixFold(s string, suffix string) string {
 	if len(s) >= len(suffix) && strings.EqualFold(s[len(s)-len(suffix):], suffix) {
 		return s[:len(s)-len(suffix)]
@@ -175,10 +212,13 @@ func TrimSuffixFold(s string, suffix string) string {
 	return s
 }
 
-// DefaultHostRule returns the default traefik hostname rule for this distillery.
-// This consists of the [DefaultDomain] as well as [ExtraDomains].
-func (cfg HTTPConfig) DefaultHostRule() string {
-	return cfg.HostRule("")
+// DefaultHostRule returns the host rule for the control panel of this distillery.
+func (cfg HTTPConfig) PanelHostRule() string {
+	all := cfg.Domains(PanelDomain.Domain())
+	if cfg.Panel.Set && cfg.Panel.Value {
+		all = append(all, cfg.Domains("")...)
+	}
+	return MakeHostRule(all...)
 }
 
 // MakeHostRule builds a new Host() rule string to be used by traefik.

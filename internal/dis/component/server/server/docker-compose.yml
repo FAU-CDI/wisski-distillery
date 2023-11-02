@@ -10,14 +10,14 @@ services:
 
       - "traefik.enable=True"
       - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
-      - "traefik.http.routers.control.rule=${HOST_RULE}"
+      - "traefik.http.routers.core_panel.rule=${HOST_RULE}"
 
-      - "traefik.http.routers.fallback.rule=HostRegexp(`{catchall:.*}`)"
-      - "traefik.http.routers.fallback.priority=1"
+      - "traefik.http.routers.core_fallback.rule=HostRegexp(`{catchall:.*}`)"
+      - "traefik.http.routers.core_fallback.priority=1"
 
-      - "traefik.http.routers.control.tls=${HTTPS_ENABLED}"
-      - "traefik.http.routers.control.tls.certresolver=distillery"
-      - "traefik.http.services.control.loadbalancer.server.port=8888"
+      - "traefik.http.routers.core_panel.tls=${HTTPS_ENABLED}"
+      - "traefik.http.routers.core_panel.tls.certresolver=distillery"
+      - "traefik.http.services.core_panel.loadbalancer.server.port=8888"
 
 
     volumes:

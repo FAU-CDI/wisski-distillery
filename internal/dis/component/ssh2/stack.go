@@ -22,7 +22,6 @@ func (ssh *SSH2) Stack() component.StackWithResources {
 
 		EnvContext: map[string]string{
 			"DOCKER_NETWORK_NAME": ssh.Config.Docker.Network(),
-			"HOST_RULE":           ssh.Config.HTTP.DefaultHostRule(),
 
 			"CONFIG_PATH": ssh.Config.ConfigPath,
 			"DEPLOY_ROOT": ssh.Config.Paths.Root,

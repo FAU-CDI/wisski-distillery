@@ -41,7 +41,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 
 	var publicM, internalM mux.Mux[component.RouteContext]
 	publicM.Context = func(r *http.Request) component.RouteContext {
-		slug, ok := server.Still.Config.HTTP.SlugFromHost(r.Host)
+		slug, ok := server.Config.HTTP.NormSlugFromHost(r.Host)
 		return component.RouteContext{
 			DefaultDomain: slug == "" && ok,
 		}
