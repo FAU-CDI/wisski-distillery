@@ -43,7 +43,6 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 		templating.Actions(
 			menuRebuild,
 			menuGrants,
-			menuIngredients,
 		),
 	)
 

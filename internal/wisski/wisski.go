@@ -144,6 +144,7 @@ func (wisski *WissKI) allIngredients(context *lifetime.RegisterContext[ingredien
 	lifetime.Place[*extras.Requirements](context)
 	lifetime.Place[*extras.Adapters](context)
 	lifetime.Place[*extras.Theme](context)
+	lifetime.Place[*extras.Version](context)
 	lifetime.Place[*users.Users](context)
 	lifetime.Place[*users.UserPolicy](context)
 

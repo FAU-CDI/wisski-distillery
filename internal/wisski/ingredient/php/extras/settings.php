@@ -10,7 +10,7 @@ function get_setting($name) {
 /** sets a setting in 'settings.php' */
 function set_setting(string $name, mixed $value): bool {
     // find settings.php
-    $filename = DRUPAL_ROOT . "/" . \Drupal::service("site.path") . "/settings.php";
+    $filename = DRUPAL_ROOT . "/" . \Drupal::getContainer()->getParameter("site.path") . "/settings.php";
 
     // setup user write permissions for the file
     $old = fileperms($filename);

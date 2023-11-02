@@ -6,6 +6,7 @@ import { createModal } from '~/src/lib/remote'
  */
 interface ProvisionFlags {
   Slug: string
+  Flavor?: string
   System: System
 }
 

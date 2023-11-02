@@ -29,8 +29,8 @@ type WissKI struct {
 	LastUpdate  time.Time
 	LastCron    time.Time
 
-	// current theme
-	Theme string
+	DrupalVersion string // current drupal version
+	Theme         string // current default theme
 
 	// Statistics of the WissKI
 	Statistics Statistics

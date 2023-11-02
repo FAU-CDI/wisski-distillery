@@ -71,6 +71,7 @@ func (i info) Run(context wisski_distillery.Context) (err error) {
 	context.Printf("Last Update:          %v\n", info.LastUpdate.String())
 	context.Printf("Last Cron:            %v\n", info.LastCron.String())
 
+	context.Printf("Drupal Version:       %v\n", info.DrupalVersion)
 	context.Printf("Theme:                %v\n", info.Theme)
 
 	context.Printf("Bundles: (count %d)\n", info.Statistics.Bundles.TotalBundles)

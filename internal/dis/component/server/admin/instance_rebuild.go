@@ -36,6 +36,10 @@ type instanceSystemContext struct {
 	Rebuild bool
 	Slug    string
 	System  models.System
+
+	// list of known profiles and their descriptions
+	DefaultProfile string
+	Profiles       map[string]string
 }
 
 // prepare prares the given instanceSystemContent

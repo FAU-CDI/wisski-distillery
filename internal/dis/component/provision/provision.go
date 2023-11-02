@@ -30,28 +30,47 @@ type Flags struct {
 	// Slug is the slug of the wisski instance
 	Slug string
 
+	// Flavor is the name of the profile to use
+	Flavor string `json:",omitempty"`
+
 	// System is information about the system
 	System models.System
 }
 
 // Profile returns the profile belonging to this provision flags.
-func (flags Flags) Profile() manager.Profile {
-	// TODO: Actually do something here
-	return manager.Profile{}
+func (flags Flags) Profile() (profile manager.Profile) {
+	// if no flavor was given, apply the default profile
+	if flags.Flavor == "" {
+		profile.Apply(manager.LoadDefaultProfile())
+		return
+	}
+
+	// load the selector profile!
+	profile.Apply(manager.LoadProfile(flags.Flavor))
+	return
 }
 
 var ErrInstanceAlreadyExists = errors.New("instance with provided slug already exists")
 
-func (pv *Provision) Validate(flags Flags) error {
+func (pv *Provision) validate(flags Flags) error {
 	// check the slug
 	if _, err := pv.dependencies.Instances.IsValidSlug(flags.Slug); err != nil {
 		return err
+	}
+	// check that we know the flavor
+	if flags.Flavor != "" && !manager.HasProfile(flags.Flavor) {
+		return fmt.Errorf("unknown flavor %q", flags.Flavor)
 	}
 	return nil
 }
 
 // Provision provisions a new docker compose instance.
 func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Flags) (*wisski.WissKI, error) {
+	// validate that everything is correct
+	if err := pv.validate(flags); err != nil {
+		return nil, err
+	}
+
 	// check that it doesn't already exist
 	logging.LogMessage(progress, "Provisioning new WissKI instance %s", flags.Slug)
 	if exists, err := pv.dependencies.Instances.Has(ctx, flags.Slug); err != nil || exists {

@@ -69,11 +69,10 @@ var (
 
 	menuProvision = component.MenuItem{Title: "Provision", Path: "/admin/instances/provision/"}
 
-	menuInstances   = component.MenuItem{Title: "Instances", Path: "/admin/instances/"}
-	menuInstance    = component.DummyMenuItem()
-	menuRebuild     = component.DummyMenuItem()
-	menuGrants      = component.DummyMenuItem()
-	menuIngredients = component.DummyMenuItem()
+	menuInstances = component.MenuItem{Title: "Instances", Path: "/admin/instances/"}
+	menuInstance  = component.DummyMenuItem()
+	menuRebuild   = component.DummyMenuItem()
+	menuGrants    = component.DummyMenuItem()
 )
 
 func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {

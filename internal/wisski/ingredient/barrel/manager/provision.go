@@ -57,8 +57,6 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 		manager.dependencies.Barrel.Stack().DownAll(anyways, progress)
 	}()
 
-	// Apply the defaults to the flags
-	flags.ApplyDefaults()
 	return manager.bootstrap(ctx, progress, flags)
 }
 
@@ -71,7 +69,6 @@ var drushVariants = []string{
 // Applies defaults to the flags.
 func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, flags Profile) error {
 	// TODO: Check if we can remove the easyrdf patch!
-
 	flags.ApplyDefaults()
 
 	logging.LogMessage(progress, "Creating Composer Project")

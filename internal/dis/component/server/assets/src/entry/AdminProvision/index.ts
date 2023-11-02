@@ -13,7 +13,14 @@ const contentSecurityPolicy = document.getElementById('contentsecuritypolicy') a
 system.addEventListener('submit', (evt) => {
   evt.preventDefault()
 
-  Provision({ Slug: slug.value, System: { PHP: php.value, OpCacheDevelopment: opcacheDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value } })
+  const flavorElement = document.querySelector('input[name="flavor"]:checked');
+  const flavor = (flavorElement instanceof HTMLInputElement) ? flavorElement.value : "";
+
+  Provision({ 
+    Slug: slug.value, 
+    Flavor: flavor,
+    System: { PHP: php.value, OpCacheDevelopment: opcacheDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value }
+  })
     .then(slug => {
       location.href = '/admin/instance/' + slug
     })

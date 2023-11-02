@@ -93,18 +93,18 @@
                 <tbody>
                     <tr>
                         <td>
-                            PHP Version
-                        </td>
-                        <td>
-                            <code>{{ .Instance.System.PHP }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
                             Docker Base Image
                         </td>
                         <td>
                             <code>{{ .Instance.System.GetDockerBaseImage }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            PHP Version
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.PHP }}</code>
                         </td>
                     </tr>
                     <tr>
@@ -143,34 +143,18 @@
                 <tbody>
                     <tr>
                         <td>
-                            Theme
+                            Drupal Version
+                        </td>
+                        <td>
+                            <code>{{ .Info.DrupalVersion }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Default Theme
                         </td>
                         <td>
                             <code>{{ .Info.Theme }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Docker Base Image
-                        </td>
-                        <td>
-                            <code>{{ .Instance.System.GetDockerBaseImage }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            OPCache Development Config
-                        </td>
-                        <td>
-                            <code>{{ .Instance.System.OpCacheDevelopment }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Content Security Policy
-                        </td>
-                        <td>
-                            <code>{{ .Instance.System.ContentSecurityPolicy }}</code>
                         </td>
                     </tr>
                 </tbody>

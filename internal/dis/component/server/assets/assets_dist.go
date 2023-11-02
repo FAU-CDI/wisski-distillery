@@ -30,7 +30,7 @@ var AssetsAdmin = Assets{
 
 // AssetsAdminProvision contains assets for the 'AdminProvision' entrypoint.
 var AssetsAdminProvision = Assets{
-	Scripts: `<script nomodule defer src="/⛰/User.869c9a74.js"></script><script nomodule defer src="/⛰/Admin.b992cf94.js"></script><script type="module" src="/⛰/User.23a71b44.js"></script><script type="module" src="/⛰/Admin.c0a122d2.js"></script><script type="module" src="/⛰/Default.38d394c2.js"></script><script src="/⛰/Default.38d394c2.js" nomodule defer></script><script type="module" src="/⛰/AdminProvision.7dff6f1a.js"></script><script src="/⛰/AdminProvision.3981a5f2.js" nomodule defer></script>`,
+	Scripts: `<script nomodule defer src="/⛰/User.869c9a74.js"></script><script nomodule defer src="/⛰/Admin.b992cf94.js"></script><script type="module" src="/⛰/User.23a71b44.js"></script><script type="module" src="/⛰/Admin.c0a122d2.js"></script><script type="module" src="/⛰/Default.38d394c2.js"></script><script src="/⛰/Default.38d394c2.js" nomodule defer></script><script type="module" src="/⛰/AdminProvision.5bc6b324.js"></script><script src="/⛰/AdminProvision.53660f24.js" nomodule defer></script>`,
 	Styles:  `<link rel="stylesheet" href="/⛰/Default.a1620182.css"><link rel="stylesheet" href="/⛰/Admin.db3e959a.css"><link rel="stylesheet" href="/⛰/User.68febbf8.css"><link rel="stylesheet" href="/⛰/User.09b09c46.css"><link rel="stylesheet" href="/⛰/Admin.9d294a13.css"><link rel="stylesheet" href="/⛰/AdminProvision.38d394c2.css">`,	
 }
 

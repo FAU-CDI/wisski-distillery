@@ -67,12 +67,23 @@
         
             {{ if not $rebuild }}
                 <div class="pure-controls">
-                    <h5>Profile</h5>
+                    <h5>Flavor</h5>
                 </div>
 
-                <div class="pure-control-group">
-                    In the future, it will be possible to configure the Drupal, WissKI and Module versions here.
-                    But this is not yet implemented.
+                <div class="pure-controls">
+                    <span class="pure-form-message-inline">
+                        Determine the set of module(s) to install for this WissKI. <br />
+                        Changing this after installation may not be possible and in any case requires manual intervention.
+                    </span>
+
+                    {{ $defaultProfile := .DefaultProfile }}
+                    {{ range $name, $description := .Profiles }}
+                        <label for="flavor-{{ $name }}" class="pure-radio">
+                            <input type="radio" id="flavor-{{ $name }}" name="flavor" value="{{ $name }}" {{ if eq $name $defaultProfile }}checked{{ end }} />
+                            <b>{{ $name }}</b>
+                            {{ $description }}
+                        </label>
+                    {{ end }}
                 </div>
             {{ end }}
         
