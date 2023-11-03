@@ -59,7 +59,6 @@ var (
 			Drupal: "^10",
 			WissKI: "",
 			InstallModules: []string{
-
 				"drupal/inline_entity_form:^1.0@RC",
 				"drupal/imagemagick",
 				"drupal/image_effects",
