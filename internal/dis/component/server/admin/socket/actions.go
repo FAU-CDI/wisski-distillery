@@ -88,8 +88,5 @@ func (sockets *Sockets) Actions() ActionMap {
 		"purge": sockets.Instance(scopes.ScopeUserAdmin, "", 0, func(ctx context.Context, sockets *Sockets, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
 			return sockets.dependencies.Purger.Purge(ctx, out, instance.Slug)
 		}),
-		"never": sockets.Generic(scopes.ScopeNever, "", 0, func(ctx context.Context, sockets *Sockets, in io.Reader, out io.Writer, params ...string) error {
-			panic("never called")
-		}),
 	}
 }
