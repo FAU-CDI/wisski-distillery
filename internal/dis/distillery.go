@@ -27,6 +27,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/cron"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/home"
@@ -209,13 +210,24 @@ func (dis *Distillery) allComponents(context *lifetime.RegisterContext[component
 		resolver.RefreshInterval = time.Minute
 	})
 	lifetime.Place[*admin.Admin](context) // TODO: Remove analytics
-	lifetime.Place[*socket.Sockets](context)
 	lifetime.Place[*legal.Legal](context)
 	lifetime.Place[*news.News](context)
 
 	lifetime.Place[*assets.Static](context)
 	lifetime.Place[*logo.Logo](context)
 	lifetime.Place[*templating.Templating](context)
+
+	// Websockets
+	lifetime.Place[*socket.Sockets](context)
+	lifetime.Place[*actions.Backup](context)
+	lifetime.Place[*actions.Provision](context)
+	lifetime.Place[*actions.Snapshot](context)
+	lifetime.Place[*actions.Rebuild](context)
+	lifetime.Place[*actions.Update](context)
+	lifetime.Place[*actions.Cron](context)
+	lifetime.Place[*actions.Start](context)
+	lifetime.Place[*actions.Stop](context)
+	lifetime.Place[*actions.Purge](context)
 
 	// Cron
 	lifetime.Place[*cron.Cron](context)

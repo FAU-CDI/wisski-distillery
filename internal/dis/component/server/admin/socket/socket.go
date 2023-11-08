@@ -12,6 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/provision"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/httpx"
@@ -24,6 +25,9 @@ type Sockets struct {
 	actions lazy.Lazy[ActionMap]
 
 	dependencies struct {
+		Actions  []actions.WebsocketAction
+		IActions []actions.WebsocketInstanceAction
+
 		Provision *provision.Provision
 		Instances *instances.Instances
 		Exporter  *exporter.Exporter

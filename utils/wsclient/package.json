@@ -1,0 +1,16 @@
+{
+  "name": "wsclient",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "author": "Tom Wiesing",
+  "license": "AGPL",
+  "private": true,
+  "devDependencies": {
+    "@types/ws": "^8.5.9",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  }
+}
