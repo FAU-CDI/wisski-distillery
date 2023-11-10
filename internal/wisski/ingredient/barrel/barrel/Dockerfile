@@ -78,7 +78,7 @@ RUN a2enmod rewrite headers
 
 
 # Install composer.
-ARG COMPOSER_VERSION=2.3.8
+ARG COMPOSER_VERSION=2.6.5
 RUN curl -sS https://getcomposer.org/installer | php -- --version=$COMPOSER_VERSION && \
     mv composer.phar /usr/local/bin/composer
 
