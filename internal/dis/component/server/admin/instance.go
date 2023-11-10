@@ -79,6 +79,7 @@ func (admin *Admin) instanceTabs(slug string, active string) templating.FlagFunc
 			{Title: "Overview", Path: template.URL("/admin/instance/" + slug), Active: active == "overview"},
 			{Title: "Rebuild", Path: template.URL("/admin/instance/" + slug + "/rebuild"), Active: active == "rebuild"},
 			{Title: "Users & Grants", Path: template.URL("/admin/instance/" + slug + "/users"), Active: active == "users"},
+			{Title: "Purge", Path: template.URL("/admin/instance/" + slug + "/purge"), Active: active == "purge"},
 
 			// TODO: These still need to be migrated to their own tabs
 			// Then we also need to redo the main page
@@ -90,7 +91,6 @@ func (admin *Admin) instanceTabs(slug string, active string) templating.FlagFunc
 				{Title: "Stats", Path: template.URL("/instance/" + slug + "/stats"), Active: active == "stats"},
 				{Title: "SSH", Path: template.URL("/instance/" + slug + "/ssh"), Active: active == "ssh"},
 				{Title: "Snapshots", Path: template.URL("/instance/" + slug + "/snapshots"), Active: active == "snapshots"},
-				{Title: "Danger Zone", Path: template.URL("/instance/" + slug + "/danger"), Active: active == "danger"},
 			*/
 		}
 		return flags

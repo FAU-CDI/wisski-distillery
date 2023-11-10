@@ -73,6 +73,7 @@ var (
 	menuInstance  = component.DummyMenuItem()
 	menuRebuild   = component.DummyMenuItem()
 	menuGrants    = component.DummyMenuItem()
+	menuPurge     = component.DummyMenuItem()
 )
 
 func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
@@ -131,6 +132,11 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 		iUsers := admin.instanceUsers(ctx)
 		router.Handler(http.MethodGet, route+"instance/:slug/users", iUsers)
 		router.Handler(http.MethodPost, route+"grants/", iUsers) // NOTE(twiesing): This path is intentionally different!
+	}
+
+	{
+		purge := admin.instancePurge(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug/purge", purge)
 	}
 
 	// add a router for the login page

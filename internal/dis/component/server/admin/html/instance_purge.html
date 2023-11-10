@@ -1,0 +1,13 @@
+<div class="pure-u-1-1">
+    <p>
+        Purging this instance completely removes it from the distillery.
+        Backups containing the instance will remain, but it will not be possible to restore it directly.
+        You must enter the slug <code>{{ .Instance.Slug }}</code> to confirm purging.
+    </p>
+    <form class="pure-form">
+        <fieldset>
+            <input type="text" id="purge-confirm-slug" placeholder="{{ .Instance.Slug }}" />
+            <button class="remote-action pure-button pure-button-danger" data-action="purge" data-param="{{ .Instance.Slug }}" data-confirm-param="#purge-confirm-slug" data-buffer="1000" data-force-reload="/admin/">Purge Instance</button>
+        </fieldset>
+    </form>
+</div>
