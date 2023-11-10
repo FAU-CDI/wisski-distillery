@@ -1,5 +1,102 @@
 {{ $csrf := .CSRF }}
 {{ $slug := .Instance.Slug }}
+
+
+<div class="pure-u-1-1">
+    <h2 id="users">Users</h2>
+
+    <p>
+        This page provides a list of users found in this Drupal instance.
+        You can click the login button to authenticate as that user. 
+        <br />
+        Please be aware that these never end an already existing session. 
+        When already logged into drupal, an error message <em>Access denied</em> may appear. 
+        To prevent this, log out of the drupal instance before clicking the button. 
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Active
+                        </th>
+                        <th>
+                            Name
+                        </th>
+                        
+                        <th>
+                            Email
+                        </th>
+                        <th>
+                            Roles
+                        </th>
+                        <th>
+                            Created
+                        </th>
+                        <th>
+                            Last Login
+                        </th>
+                        <th>
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ $slug := .Instance.Slug }}
+                    {{ $csrf := .CSRF }}
+                    {{ range $index, $user := .Users }}
+                    <tr {{ if not $user.Status }}class="disabled" aria-disabled="true"{{ end }}>
+                        <td>
+                            <code>{{ $user.UID }}</code>
+                        </td>
+                        <td>
+                            <code>{{ $user.Status }}</code>
+                        </td>
+                        <td>
+                            <code>{{ $user.Name }}</code>
+                        </td>
+
+                        <td>
+                            {{ if $user.Mail }}
+                                <a href="mailto:{{ $user.Mail }}">{{ $user.Mail }}</a>
+                            {{ end }}
+                        </td>
+                        <td>
+                            {{ range $role, $unuused := $user.Roles }}
+                                <code>
+                                    {{ $role }}
+                                </code>
+                            {{ end }}
+                        </td>
+                        <td>
+                            <code class="date">{{ $user.Created.Time.Format "2006-01-02T15:04:05Z07:00" }}</code>
+                        </td>
+                        <td>
+                            <code class="date">{{ $user.Login.Time.Format "2006-01-02T15:04:05Z07:00" }}</code>
+                        </td>
+                        <td>
+                            <form action="/admin/login" method="POST" target="_blank">
+                                <input type="hidden" name="slug" value="{{ $slug }}">
+                                <input type="hidden" name="user" value="{{ $user.Name }}">
+                                <input type="submit" class="pure-button pure-button-action" value="Login in new window">
+                                {{ $csrf }}
+                            </form>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <div class="pure-u-1-1">
     <h2 id="overview">Grants</h2>
 
@@ -116,7 +213,7 @@
     {{ end }}
 </datalist>
 <datalist id="drupal-users">
-    {{ range $unused, $drupal := .Drupals }}
-        <option value="{{ $drupal }}">
+    {{ range $unused, $user := .Users }}
+        <option value="{{ $user.Name }}">
     {{ end }}
 </datalist>

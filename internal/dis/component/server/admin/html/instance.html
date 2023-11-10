@@ -6,7 +6,6 @@
     <div class="pure-button-group" role="group" aria-label="Table Of Contents">
         <a class="pure-button pure-button-small" href="#overview">Info &amp; Status</a>
         <a class="pure-button pure-button-small" href="#requirements">Drupal Status Report</a>
-        <a class="pure-button pure-button-small" href="#users">Users (Drupal)</a>
         <a class="pure-button pure-button-small" href="#wisski">WissKI Data</a>
         <a class="pure-button pure-button-small" href="#stats">Statistics</a>
         <a class="pure-button pure-button-small" href="#ssh">SSH Keys</a>
@@ -337,93 +336,6 @@
                         </td>
                         <td>
                             {{ $req.Description }}
-                        </td>
-                    </tr>
-                    {{ end }}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div class="pure-u-1-1">
-    <h2 id="users">Users (Drupal)</h2>
-    <a class="pure-button" href="/admin/grants/{{ .Info.Slug }}">Manage Grants</a>
-</div>
-
-<div class="pure-u-1">
-    <div class="padding">
-        <div class="overflow">
-            <table class="pure-table pure-table-bordered">
-                <thead>
-                    <tr>
-                        <th>
-                            ID
-                        </th>
-                        <th>
-                            Active
-                        </th>
-                        <th>
-                            Name
-                        </th>
-                        
-                        <th>
-                            Email
-                        </th>
-                        <th>
-                            Roles
-                        </th>
-                        <th>
-                            Created
-                        </th>
-                        <th>
-                            Last Login
-                        </th>
-                        <th>
-                            Action
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{ $slug := .Instance.Slug }}
-                    {{ $csrf := .CSRF }}
-                    {{ range $index, $user := .Info.Users }}
-                    <tr {{ if not $user.Status }}class="disabled" aria-disabled="true"{{ end }}>
-                        <td>
-                            <code>{{ $user.UID }}</code>
-                        </td>
-                        <td>
-                            <code>{{ $user.Status }}</code>
-                        </td>
-                        <td>
-                            <code>{{ $user.Name }}</code>
-                        </td>
-
-                        <td>
-                            {{ if $user.Mail }}
-                                <a href="mailto:{{ $user.Mail }}">{{ $user.Mail }}</a>
-                            {{ end }}
-                        </td>
-                        <td>
-                            {{ range $role, $unuused := $user.Roles }}
-                                <code>
-                                    {{ $role }}
-                                </code>
-                            {{ end }}
-                        </td>
-                        <td>
-                            <code class="date">{{ $user.Created.Time.Format "2006-01-02T15:04:05Z07:00" }}</code>
-                        </td>
-                        <td>
-                            <code class="date">{{ $user.Login.Time.Format "2006-01-02T15:04:05Z07:00" }}</code>
-                        </td>
-                        <td>
-                            <form action="/admin/login" method="POST" target="_blank">
-                                <input type="hidden" name="slug" value="{{ $slug }}">
-                                <input type="hidden" name="user" value="{{ $user.Name }}">
-                                <input type="submit" class="pure-button pure-button-action" value="Login in new window">
-                                {{ $csrf }}
-                            </form>
                         </td>
                     </tr>
                     {{ end }}

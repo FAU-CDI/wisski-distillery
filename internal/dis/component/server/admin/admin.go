@@ -124,13 +124,13 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 
 	{
 		rebuild := admin.instanceRebuild(ctx)
-		router.Handler(http.MethodGet, route+"rebuild/:slug", rebuild)
+		router.Handler(http.MethodGet, route+"instance/:slug/rebuild", rebuild)
 	}
 
 	{
-		grants := admin.grants(ctx)
-		router.Handler(http.MethodGet, route+"grants/:slug", grants)
-		router.Handler(http.MethodPost, route+"grants/", grants) // NOTE(twiesing): This path is intentionally different!
+		iUsers := admin.instanceUsers(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug/users", iUsers)
+		router.Handler(http.MethodPost, route+"grants/", iUsers) // NOTE(twiesing): This path is intentionally different!
 	}
 
 	// add a router for the login page

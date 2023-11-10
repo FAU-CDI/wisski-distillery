@@ -40,10 +40,6 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 			menuInstances,
 			menuInstance,
 		),
-		templating.Actions(
-			menuRebuild,
-			menuGrants,
-		),
 	)
 
 	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (ic instanceContext, funcs []templating.FlagFunc, err error) {
@@ -67,12 +63,36 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 
 		funcs = []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
-			templating.ReplaceAction(menuRebuild, component.MenuItem{Title: "Rebuild", Path: template.URL("/admin/rebuild/" + slug)}),
-			templating.ReplaceAction(menuGrants, component.MenuItem{Title: "Grants", Path: template.URL("/admin/grants/" + slug)}),
-
 			templating.Title(instance.Slug),
+
+			admin.instanceTabs(slug, "overview"),
 		}
 
 		return
 	})
+}
+
+// instanceTabs
+func (admin *Admin) instanceTabs(slug string, active string) templating.FlagFunc {
+	return func(flags templating.Flags, r *http.Request) templating.Flags {
+		flags.Tabs = []component.MenuItem{
+			{Title: "Overview", Path: template.URL("/admin/instance/" + slug), Active: active == "overview"},
+			{Title: "Rebuild", Path: template.URL("/admin/instance/" + slug + "/rebuild"), Active: active == "rebuild"},
+			{Title: "Users & Grants", Path: template.URL("/admin/instance/" + slug + "/users"), Active: active == "users"},
+
+			// TODO: These still need to be migrated to their own tabs
+			// Then we also need to redo the main page
+			/*
+				{Title: "Status", Path: template.URL("/instance/" + slug + "/status"), Active: active == "status"},
+				{Title: "Database", Path: template.URL("/instance/" + slug + "/database"), Active: active == "database"},
+				{Title: "Drupal", Path: template.URL("/instance/" + slug + "/drupal"), Active: active == "drupal"},
+				{Title: "Users & Grants", Path: template.URL("/instance/" + slug + "/users"), Active: active == "users"},
+				{Title: "Stats", Path: template.URL("/instance/" + slug + "/stats"), Active: active == "stats"},
+				{Title: "SSH", Path: template.URL("/instance/" + slug + "/ssh"), Active: active == "ssh"},
+				{Title: "Snapshots", Path: template.URL("/instance/" + slug + "/snapshots"), Active: active == "snapshots"},
+				{Title: "Danger Zone", Path: template.URL("/instance/" + slug + "/danger"), Active: active == "danger"},
+			*/
+		}
+		return flags
+	}
 }

@@ -83,8 +83,9 @@ func (admin *Admin) instanceRebuild(ctx context.Context) http.Handler {
 		// replace the menu item
 		funcs = []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + instance.Slug)}),
-			templating.ReplaceCrumb(menuRebuild, component.MenuItem{Title: "Rebuild", Path: template.URL("/admin/rebuild/" + instance.Slug)}),
+			templating.ReplaceCrumb(menuRebuild, component.MenuItem{Title: "Rebuild", Path: template.URL("/admin/instance/" + instance.Slug + "/rebuild")}),
 			templating.Title(instance.Slug + " - Rebuild"),
+			admin.instanceTabs(slug, "rebuild"),
 		}
 
 		isc.prepare(true)

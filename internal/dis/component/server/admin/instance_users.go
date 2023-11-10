@@ -12,6 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/httpx/field"
@@ -21,15 +22,15 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-//go:embed "html/grants.html"
-var grantsHTML []byte
-var grantsTemplate = templating.Parse[grantsContext](
-	"grants.html", grantsHTML, nil,
+//go:embed "html/instance_users.html"
+var instanceUsersHTML []byte
+var instanceUsersTemplate = templating.Parse[instanceUsersContext](
+	"instance_users.html", instanceUsersHTML, nil,
 
 	templating.Assets(assets.AssetsAdmin),
 )
 
-type grantsContext struct {
+type instanceUsersContext struct {
 	templating.RuntimeFlags
 
 	Error string
@@ -37,13 +38,14 @@ type grantsContext struct {
 	instance *wisski.WissKI
 	Instance models.Instance // current instance
 
-	Grants    []models.Grant // grants that exist for the user
+	Users []status.DrupalUser // drupal users
+
 	Usernames []string       // unuused distillery usernames
-	Drupals   []string       // unusued drupal usernames
+	Grants    []models.Grant // grants that exist for the user
 }
 
-func (admin *Admin) grants(ctx context.Context) http.Handler {
-	tpl := grantsTemplate.Prepare(
+func (admin *Admin) instanceUsers(ctx context.Context) http.Handler {
+	tpl := instanceUsersTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(
 			menuAdmin,
@@ -53,16 +55,16 @@ func (admin *Admin) grants(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (grantsContext, []templating.FlagFunc, error) {
+	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (instanceUsersContext, []templating.FlagFunc, error) {
 		if r.Method == http.MethodGet {
-			return admin.getGrants(r)
+			return admin.getGrantsUsers(r)
 		} else {
-			return admin.postGrants(r)
+			return admin.postInstanceUsers(r)
 		}
 	})
 }
 
-func (admin *Admin) getGrants(r *http.Request) (gc grantsContext, funcs []templating.FlagFunc, err error) {
+func (admin *Admin) getGrantsUsers(r *http.Request) (gc instanceUsersContext, funcs []templating.FlagFunc, err error) {
 	slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 
 	funcs, err = gc.use(r, slug, admin)
@@ -70,14 +72,14 @@ func (admin *Admin) getGrants(r *http.Request) (gc grantsContext, funcs []templa
 		return gc, nil, err
 	}
 
-	if err := gc.useGrants(r, admin); err != nil {
+	if err := gc.useUsers(r, admin); err != nil {
 		return gc, nil, err
 	}
 
 	return gc, funcs, nil
 }
 
-func (admin *Admin) postGrants(r *http.Request) (gc grantsContext, funcs []templating.FlagFunc, err error) {
+func (admin *Admin) postInstanceUsers(r *http.Request) (gc instanceUsersContext, funcs []templating.FlagFunc, err error) {
 	// parse the form
 	if err := r.ParseForm(); err != nil {
 		return gc, nil, err
@@ -119,13 +121,13 @@ func (admin *Admin) postGrants(r *http.Request) (gc grantsContext, funcs []templ
 	}
 
 	// fetch the grants for the instance
-	if err := gc.useGrants(r, admin); err != nil {
+	if err := gc.useUsers(r, admin); err != nil {
 		return gc, nil, err
 	}
 	return gc, funcs, nil
 }
 
-func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (funcs []templating.FlagFunc, err error) {
+func (gc *instanceUsersContext) use(r *http.Request, slug string, admin *Admin) (funcs []templating.FlagFunc, err error) {
 	// find the instance itself
 	gc.instance, err = admin.dependencies.Instances.WissKI(r.Context(), slug)
 	if err == instances.ErrWissKINotFound {
@@ -139,13 +141,14 @@ func (gc *grantsContext) use(r *http.Request, slug string, admin *Admin) (funcs 
 	// replace the functions
 	funcs = []templating.FlagFunc{
 		templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
-		templating.ReplaceCrumb(menuGrants, component.MenuItem{Title: "Grants", Path: template.URL("/admin/grants/" + slug)}),
-		templating.Title(gc.Instance.Slug + " - Grants"),
+		templating.ReplaceCrumb(menuGrants, component.MenuItem{Title: "Users & Grants", Path: template.URL("/admin/instance/" + slug + "/users")}),
+		templating.Title(gc.Instance.Slug + " - Users & Grants"),
+		admin.instanceTabs(slug, "users"),
 	}
 	return funcs, nil
 }
 
-func (gc *grantsContext) useGrants(r *http.Request, admin *Admin) (err error) {
+func (gc *instanceUsersContext) useUsers(r *http.Request, admin *Admin) (err error) {
 	gc.Grants, err = admin.dependencies.Policy.Instance(r.Context(), gc.Instance.Slug)
 	if err != nil {
 		return err
@@ -169,18 +172,14 @@ func (gc *grantsContext) useGrants(r *http.Request, admin *Admin) (err error) {
 	gc.Usernames = maps.Keys(userNameMap)
 	slices.Sort(gc.Usernames)
 
-	// get the drupal usernames
-	drupals, err := gc.instance.Users().All(r.Context(), nil)
+	// get the drupal user data
+	gc.Users, err = gc.instance.Users().All(r.Context(), nil)
 	if err != nil {
 		return err
 	}
-
-	// and convert them to strings only
-	gc.Drupals = make([]string, len(drupals))
-	for i, drupal := range drupals {
-		gc.Drupals[i] = string(drupal.Name)
-	}
-	slices.Sort(gc.Drupals)
+	slices.SortFunc(gc.Users, func(a, b status.DrupalUser) int {
+		return int(b.UID) - int(a.UID)
+	})
 
 	return nil
 }
