@@ -13,6 +13,7 @@ import (
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/httpx"
+	"github.com/tkw1536/pkglib/httpx/timewrap"
 )
 
 //go:embed "src/base.html"
@@ -44,6 +45,7 @@ func (tpl *Template[C]) context(r *http.Request, funcs ...FlagFunc) (ctx *tConte
 	// setup the basic properties
 	ctx.ctx = r.Context()
 	ctx.Runtime.RequestURI = r.URL.RequestURI()
+	ctx.Runtime.StartedAt = timewrap.Start(r).UTC()
 	ctx.Runtime.GeneratedAt = time.Now().UTC()
 	ctx.Runtime.CSRF = csrf.TemplateField(r)
 	ctx.Runtime.Menu = tpl.templating.buildMenu(r)

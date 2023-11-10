@@ -37,8 +37,19 @@ type RuntimeFlags struct {
 
 	RequestURI  string               // request uri of the current page
 	Menu        []component.MenuItem // menu at the top of the page
+	StartedAt   time.Time            // time the request started to generate
 	GeneratedAt time.Time            // time the underlying data returned
 	CSRF        template.HTML        // csrf data (if any)
+}
+
+// Returns how long this request took to render
+func (rf RuntimeFlags) Took() time.Duration {
+	return time.Since(rf.StartedAt)
+}
+func (rf RuntimeFlags) TookHTML() template.HTML {
+	took := rf.Took()
+
+	return template.HTML(fmt.Sprintf("<time datetime=\"P%.3f\">%s</time>", took.Seconds(), took))
 }
 
 var runtimeFlagsName = reflectx.TypeFor[RuntimeFlags]().Name()

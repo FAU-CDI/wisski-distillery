@@ -11,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/httpx"
+	"github.com/tkw1536/pkglib/httpx/timewrap"
 	"github.com/tkw1536/pkglib/mux"
 
 	"github.com/gorilla/csrf"
@@ -112,6 +113,8 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 	// Add Content-Security-Policy
 	public = WithCSP(public, models.ContentSecurityPolicyDistilery)
 	internal = WithCSP(internal, models.ContentSecurityPolicyNothing)
+
+	public = timewrap.Wrap(public)
 
 	err = nil
 	return
