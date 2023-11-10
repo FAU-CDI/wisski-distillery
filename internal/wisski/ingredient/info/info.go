@@ -27,7 +27,6 @@ var (
 )
 
 // Information fetches information about this WissKI.
-// TODO: Rework this to be able to determine what kind of information is available.
 func (wisski *Info) Information(ctx context.Context, quick bool) (info status.WissKI, err error) {
 	// setup flags
 	flags := ingredient.FetcherFlags{

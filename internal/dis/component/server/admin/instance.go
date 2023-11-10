@@ -56,7 +56,7 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 		ic.Instance = instance.Instance
 
 		// get some more info about the wisski
-		ic.Info, err = instance.Info().Information(r.Context(), false)
+		ic.Info, err = instance.Info().Information(r.Context(), true)
 		if err != nil {
 			return ic, nil, err
 		}
