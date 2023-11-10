@@ -10,7 +10,7 @@
     </head>
 
     <body>
-        <nav class="pure-menu pure-menu-horizontal">
+        <nav class="top-menu pure-menu pure-menu-horizontal">
             <span class="pure-menu-heading" role="banner">
                 <img src="/logo.svg" class="logo" alt="WissKI Distillery Logo">
             </span>
@@ -41,20 +41,20 @@
         </header>
         <main>
             {{ if .Runtime.Flags.Tabs }}
-            <div class="pure-menu tabs-menu">
-                <ul class="pure-menu-list">
-                    {{ range .Runtime.Flags.Tabs }}
-                        <li class="pure-menu-item {{ if .Active }}pure-menu-selected{{ end }}">
-                            <a href="{{ .Path }}" class="pure-menu-link">{{ .Title }}</a>
-                        </li>
-                    {{ end }}
-                </ul>
-            </div>
+                <nav class="tabs-menu pure-menu">
+                    <ul class="pure-menu-list">
+                        {{ range .Runtime.Flags.Tabs }}
+                            <li class="pure-menu-item {{ if .Active }}pure-menu-selected{{ end }}">
+                                <a href="{{ .Path }}" class="pure-menu-link">{{ .Title }}</a>
+                            </li>
+                        {{ end }}
+                    </ul>
+                </nav>
             {{ end }}
             <div class="pure-g" id="main">
                 {{ .Main }}
             </div>
-            </div>
+            <div class="spacer"></div>
         </main>
 
         <footer>
