@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"html/template"
 	"net/http"
+	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
@@ -12,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/pkglib/httpx"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -33,6 +35,8 @@ type instanceDrupalContext struct {
 	DefaultTheme  string
 
 	Requirements []status.Requirement
+
+	LastCron time.Time
 }
 
 func (admin *Admin) instanceDrupal(ctx context.Context) http.Handler {
@@ -55,24 +59,33 @@ func (admin *Admin) instanceDrupal(ctx context.Context) http.Handler {
 			return ctx, nil, httpx.ErrNotFound
 		}
 
-		server := ctx.Instance.PHP().NewServer()
-		defer server.Close()
+		var eg errgroup.Group
 
 		// get the requirements
-		ctx.Requirements, err = ctx.Instance.Requirements().Get(r.Context(), server)
-		if err != nil {
-			return ctx, nil, httpx.ErrInternalServerError
-		}
+		eg.Go(func() (err error) {
+			ctx.Requirements, err = ctx.Instance.Requirements().Get(r.Context(), nil)
+			return
+		})
 
 		// get the drupal version
-		ctx.DrupalVersion, err = ctx.Instance.Version().Get(r.Context(), server)
-		if err != nil {
-			return ctx, nil, httpx.ErrInternalServerError
-		}
+		eg.Go(func() (err error) {
+			ctx.DrupalVersion, err = ctx.Instance.Version().Get(r.Context(), nil)
+			return
+		})
 
 		// get the default theme
-		ctx.DefaultTheme, err = ctx.Instance.Theme().Get(r.Context(), server)
-		if err != nil {
+		eg.Go(func() (err error) {
+			ctx.DefaultTheme, err = ctx.Instance.Theme().Get(r.Context(), nil)
+			return
+		})
+
+		// last time cron was executed
+		eg.Go(func() (err error) {
+			ctx.LastCron, err = ctx.Instance.Drush().LastCron(r.Context(), nil)
+			return
+		})
+
+		if err = eg.Wait(); err != nil {
 			return ctx, nil, httpx.ErrInternalServerError
 		}
 

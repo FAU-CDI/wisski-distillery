@@ -8,15 +8,15 @@ require (
 	github.com/compose-spec/compose-go v1.20.0
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/gliderlabs/ssh v0.3.5
-	github.com/gorilla/csrf v1.7.1
+	github.com/gorilla/csrf v1.7.2
 	github.com/gorilla/sessions v1.2.1
-	github.com/gorilla/websocket v1.5.0
+	github.com/gorilla/websocket v1.5.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.4.0
 	github.com/rs/zerolog v1.31.0
 	github.com/tkw1536/goprogram v0.5.0
-	github.com/tkw1536/pkglib v0.0.0-20231102105724-b30af08a5e61
+	github.com/tkw1536/pkglib v0.0.0-20231110192201-b920fd9f7764
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-meta v1.1.0
 	golang.org/x/crypto v0.14.0
@@ -41,7 +41,7 @@ require (
 	github.com/feiin/sqlstring v0.3.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/gorilla/securecookie v1.1.1 // indirect
+	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gosuri/uilive v0.0.4 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
@@ -64,7 +64,7 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	golang.org/x/mod v0.13.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/sys v0.14.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect

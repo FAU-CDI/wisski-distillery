@@ -143,7 +143,7 @@ func (dis *Distillery) Purger() *purger.Purger {
 // THESE SHOULD NEVER BE CALLED DIRECTLY
 //
 
-func (dis *Distillery) allComponents(context *lifetime.RegisterContext[component.Component, component.Still]) {
+func (dis *Distillery) allComponents(context *lifetime.Registry[component.Component, component.Still]) {
 	lifetime.Place[*docker.Docker](context)
 	lifetime.Place[*binder.Binder](context)
 	lifetime.Place[*web.Web](context)

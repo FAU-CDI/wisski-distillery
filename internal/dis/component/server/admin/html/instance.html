@@ -211,16 +211,7 @@
                     <tr>
                         <td>
                             Last Rebuild <br>
-                            <a class="pure-button" href="/admin/rebuild/{{ .Info.Slug }}">Rebuild</button>
-                        </td>
-                        <td>
-                            <code class="date">{{ .Info.LastRebuild.Format "2006-01-02T15:04:05Z07:00" }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            Last Cron<br>
-                            <button class="remote-action pure-button pure-button-action" data-action="cron" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>Cron</button>
+                            <a class="pure-button" href="/admin/instance/{{ .Info.Slug }}/rebuild">Rebuild</button>
                         </td>
                         <td>
                             <code class="date">{{ .Info.LastRebuild.Format "2006-01-02T15:04:05Z07:00" }}</code>

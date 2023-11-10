@@ -71,7 +71,11 @@ type LastRebuildFetcher struct {
 	}
 }
 
-func (lbr *LastRebuildFetcher) Fetch(ctx context.Context, flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.LastRebuild, _ = lbr.dependencies.Barrel.LastRebuild(ctx)
+var (
+	_ ingredient.WissKIFetcher = (*LastRebuildFetcher)(nil)
+)
+
+func (lbr *LastRebuildFetcher) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
+	info.LastRebuild, _ = lbr.dependencies.Barrel.LastRebuild(flags.Context)
 	return
 }

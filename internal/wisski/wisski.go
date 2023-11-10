@@ -143,7 +143,7 @@ func (wisski *WissKI) Theme() *extras.Theme {
 // THESE SHOULD NEVER BE CALLED DIRECTLY
 //
 
-func (wisski *WissKI) allIngredients(context *lifetime.RegisterContext[ingredient.Ingredient, *liquid.Liquid]) {
+func (wisski *WissKI) allIngredients(context *lifetime.Registry[ingredient.Ingredient, *liquid.Liquid]) {
 	// core bits
 	lifetime.Place[*locker.Locker](context)
 	lifetime.Register(context, func(m *mstore.MStore, _ *liquid.Liquid) {

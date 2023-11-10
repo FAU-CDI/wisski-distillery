@@ -55,6 +55,6 @@ func (lbr *LastCronFetcher) Fetch(flags ingredient.FetcherFlags, info *status.Wi
 		return
 	}
 
-	info.LastRebuild, _ = lbr.dependencies.Drush.LastCron(flags.Context, flags.Server)
+	info.LastCron, _ = lbr.dependencies.Drush.LastCron(flags.Context, flags.Server)
 	return
 }
