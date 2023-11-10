@@ -40,8 +40,20 @@
             {{ end }}
         </header>
         <main>
+            {{ if .Runtime.Flags.Tabs }}
+            <div class="pure-menu tabs-menu">
+                <ul class="pure-menu-list">
+                    {{ range .Runtime.Flags.Tabs }}
+                        <li class="pure-menu-item {{ if .Active }}pure-menu-selected{{ end }}">
+                            <a href="{{ .Path }}" class="pure-menu-link">{{ .Title }}</a>
+                        </li>
+                    {{ end }}
+                </ul>
+            </div>
+            {{ end }}
             <div class="pure-g" id="main">
                 {{ .Main }}
+            </div>
             </div>
         </main>
 

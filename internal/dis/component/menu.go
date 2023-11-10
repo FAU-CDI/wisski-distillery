@@ -12,10 +12,12 @@ type Menuable interface {
 
 	Menu(r *http.Request) []MenuItem
 }
+
+// MenuItem represents an item inside the menu
 type MenuItem struct {
 	Title  string
 	Path   template.URL
-	Active bool
+	Active bool // Active, only used for tabs and crumbs
 
 	Priority MenuPriority
 

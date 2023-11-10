@@ -19,6 +19,7 @@ type Flags struct {
 	assets.Assets        // assets are the assets included in the template
 
 	Crumbs  []component.MenuItem // crumbs are the breadcrumbs leading to a specific action
+	Tabs    []component.MenuItem // tabs are shown above actions, and act as a menu
 	Actions []component.MenuItem // actions are the actions available to a specific thingy
 }
 
@@ -77,6 +78,24 @@ func Actions(actions ...component.MenuItem) FlagFunc {
 	}
 }
 
+// Tabs sets the tabs
+func Tabs(actions ...component.MenuItem) FlagFunc {
+	return func(flags Flags, r *http.Request) Flags {
+		flags.Tabs = slices.Clone(actions)
+		return flags
+	}
+}
+
+// ReplaceCrumb replaces a specific crum
+func ReplaceCrumb(old component.MenuItem, action component.MenuItem) FlagFunc {
+	return func(flags Flags, r *http.Request) Flags {
+		if !old.ReplaceWith(action, flags.Crumbs) {
+			zerolog.Ctx(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
+		}
+		return flags
+	}
+}
+
 // ReplaceAction replaces a specific action
 func ReplaceAction(old component.MenuItem, action component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
@@ -87,11 +106,11 @@ func ReplaceAction(old component.MenuItem, action component.MenuItem) FlagFunc {
 	}
 }
 
-// ReplaceCrumb replaces a specific crum
-func ReplaceCrumb(old component.MenuItem, action component.MenuItem) FlagFunc {
+// ReplaceTab replaces a specific tab
+func ReplaceTab(old component.MenuItem, tab component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
-		if !old.ReplaceWith(action, flags.Crumbs) {
-			zerolog.Ctx(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
+		if !old.ReplaceWith(tab, flags.Tabs) {
+			zerolog.Ctx(r.Context()).Warn().Str("tab", fmt.Sprint(tab)).Str("tabs", fmt.Sprint(flags.Tabs)).Msg("did not replace menu item")
 		}
 		return flags
 	}
