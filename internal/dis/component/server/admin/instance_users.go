@@ -178,7 +178,7 @@ func (gc *instanceUsersContext) useUsers(r *http.Request, admin *Admin) (err err
 		return err
 	}
 	slices.SortFunc(gc.Users, func(a, b status.DrupalUser) int {
-		return int(b.UID) - int(a.UID)
+		return int(a.UID) - int(b.UID)
 	})
 
 	return nil
