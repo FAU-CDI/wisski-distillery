@@ -122,6 +122,22 @@ func (wisski *WissKI) Blocks() *extras.Blocks {
 	return export[*extras.Blocks](wisski)
 }
 
+func (wisski *WissKI) Stats() *extras.Stats {
+	return export[*extras.Stats](wisski)
+}
+
+func (wisski *WissKI) Requirements() *extras.Requirements {
+	return export[*extras.Requirements](wisski)
+}
+
+func (wisski *WissKI) Version() *extras.Version {
+	return export[*extras.Version](wisski)
+}
+
+func (wisski *WissKI) Theme() *extras.Theme {
+	return export[*extras.Theme](wisski)
+}
+
 //
 // All components
 // THESE SHOULD NEVER BE CALLED DIRECTLY

@@ -1,0 +1,94 @@
+<div class="pure-u-1-1">
+    <h2 id="info">Drupal Information</h2>
+</div>
+
+<div class="pure-u-1-1">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="2">
+                            Drupal Info
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            Drupal Version
+                        </td>
+                        <td>
+                            <code>{{ .DrupalVersion }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Default Theme
+                        </td>
+                        <td>
+                            <code>{{ .DefaultTheme }}</code>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="pure-u-1-1">
+    <h2 id="requirements">Status Report</h2>
+    <p>
+        This mirrors the <em>Status Report</em> page found inside drupal.
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            ID
+                        </th>
+                        <th>
+                            Severity
+                        </th>
+                        <th>
+                            Title
+                        </th>
+                        <th>
+                            Value
+                        </th>
+                        <th>
+                            Description
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {{ range $name, $req := .Requirements }}
+                    <tr>
+                        <td>
+                            <code>{{ $req.ID }}</code>
+                        </td>
+                        <td>
+                            {{ $req.Level }}
+                        </td>
+                        <td>
+                            {{ $req.Title }}
+                        </td>
+                        <td>
+                            {{ $req.Value }}
+                        </td>
+                        <td>
+                            {{ $req.Description }}
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

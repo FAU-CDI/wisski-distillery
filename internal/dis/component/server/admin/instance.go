@@ -79,19 +79,12 @@ func (admin *Admin) instanceTabs(slug string, active string) templating.FlagFunc
 			{Title: "Overview", Path: template.URL("/admin/instance/" + slug), Active: active == "overview"},
 			{Title: "Rebuild", Path: template.URL("/admin/instance/" + slug + "/rebuild"), Active: active == "rebuild"},
 			{Title: "Users & Grants", Path: template.URL("/admin/instance/" + slug + "/users"), Active: active == "users"},
+			{Title: "Drupal Status", Path: template.URL("/admin/instance/" + slug + "/drupal"), Active: active == "drupal"},
+			{Title: "WissKI Data", Path: template.URL("/admin/instance/" + slug + "/data"), Active: active == "data"},
+			{Title: "WissKI Stats", Path: template.URL("/admin/instance/" + slug + "/stats"), Active: active == "stats"},
+			{Title: "SSH", Path: template.URL("/admin/instance/" + slug + "/ssh"), Active: active == "ssh"},
 			{Title: "Snapshots", Path: template.URL("/admin/instance/" + slug + "/snapshots"), Active: active == "snapshots"},
 			{Title: "Purge", Path: template.URL("/admin/instance/" + slug + "/purge"), Active: active == "purge"},
-
-			// TODO: These still need to be migrated to their own tabs
-			// Then we also need to redo the main page
-			/*
-				{Title: "Status", Path: template.URL("/instance/" + slug + "/status"), Active: active == "status"},
-				{Title: "Database", Path: template.URL("/instance/" + slug + "/database"), Active: active == "database"},
-				{Title: "Drupal", Path: template.URL("/instance/" + slug + "/drupal"), Active: active == "drupal"},
-				{Title: "Users & Grants", Path: template.URL("/instance/" + slug + "/users"), Active: active == "users"},
-				{Title: "Stats", Path: template.URL("/instance/" + slug + "/stats"), Active: active == "stats"},
-				{Title: "SSH", Path: template.URL("/instance/" + slug + "/ssh"), Active: active == "ssh"},
-			*/
 		}
 		return flags
 	}

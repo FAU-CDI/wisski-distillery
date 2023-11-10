@@ -1,0 +1,61 @@
+
+<div class="pure-u-1-1">
+    <h2 id="wisski">WissKI Data</h2>
+</div>
+
+<div class="pure-u-1 pure-u-xl-1-2">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th colspan="2">
+                            Pathbuilders
+                        </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {{ range $name, $xml := .Pathbuilders }}
+                    <tr>
+                        <td>
+                            <code>{{ $name }}</code>
+                        </td>
+                        <td>
+                            <code class="pathbuilder" data-name="{{ $name }}">{{ $xml }}</code>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="pure-u-1 pure-u-xl-1-2">
+    <div class="padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            URI Prefixes
+
+                            {{ if .NoPrefixes }}
+                            (excluded from resolver)
+                            {{ end }}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range $index, $prefix := .Prefixes }}
+                    <tr>
+                        <td>
+                            <code>{{ $prefix }}</code>
+                        </td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

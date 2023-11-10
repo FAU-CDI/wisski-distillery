@@ -75,6 +75,10 @@ var (
 	menuGrants    = component.DummyMenuItem()
 	menuPurge     = component.DummyMenuItem()
 	menuSnapshots = component.DummyMenuItem()
+	menuSSH       = component.DummyMenuItem()
+	menuStats     = component.DummyMenuItem()
+	menuData      = component.DummyMenuItem()
+	menuDrupal    = component.DummyMenuItem()
 )
 
 func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
@@ -143,6 +147,26 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	{
 		snapshots := admin.instanceSnapshots(ctx)
 		router.Handler(http.MethodGet, route+"instance/:slug/snapshots", snapshots)
+	}
+
+	{
+		ssh := admin.instanceSSH(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug/ssh", ssh)
+	}
+
+	{
+		stats := admin.instanceStats(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug/stats", stats)
+	}
+
+	{
+		data := admin.instanceData(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug/data", data)
+	}
+
+	{
+		drupal := admin.instanceDrupal(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug/drupal", drupal)
 	}
 
 	// add a router for the login page

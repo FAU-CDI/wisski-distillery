@@ -1,0 +1,38 @@
+<div class="pure-u-1-1">
+    <h2>SSH Access</h2>
+    <p>
+       Every WissKI Instance comes with access via SSH.
+       Every distillery user that has administrative access to this instance can access it. 
+       Furthermore, every distillery administrator has access. 
+    </p>
+    <p>
+        To access the ssh server of this instance, use:
+    </p>
+    <code class="copy">
+        <pre>ssh -J {{ .PanelDomain }}:{{ .Port }} www-data@{{ .Hostname }}</pre>
+    </code>
+    <p>
+        For this to work, configure an ssh key on your <a href="/user/ssh">Personal SSH Page</a>.
+    </p>
+</div>
+
+<div class="pure-u-1-1">
+    <h2>SSH Keys</h2>
+    <p>
+       This page lists all SSH Keys that have access to this system. 
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <table class="pure-table pure-table-bordered padding">
+        <tbody>
+            {{ range .SSHKeys }}
+            <tr>
+                <td>
+                    <code>{{ . }}</code>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+</div>
