@@ -1,0 +1,36 @@
+<div class="pure-u-1-1">
+    <p>
+       Taking a snapshot makes a backup of the entire instance, including triplestore and graph database. 
+       Currently snapshot can only be accessed on the server filesystem. 
+    </p>
+    <p>
+        <button class="remote-action pure-button pure-button-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>Take a snapshot</button>
+    </p>
+</div>
+
+<div class="pure-u-1">
+    <table class="pure-table pure-table-bordered padding">
+        <thead>
+            <tr>
+                <th>Path</th>
+                <th>Created</th>
+                <th>Packed</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .Snapshots }}
+            <tr>
+                <td>
+                    <code class="path">{{ .Path }}</code>
+                </td>
+                <td>
+                    <code class="date">{{ .Created.Format "2006-01-02T15:04:05Z07:00" }}</code>
+                </td>
+                <td>
+                    {{ .Packed }}
+                </td>
+            </tr>
+            {{ end}}
+        </tbody>
+    </table>
+</div>

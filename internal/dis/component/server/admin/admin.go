@@ -74,6 +74,7 @@ var (
 	menuRebuild   = component.DummyMenuItem()
 	menuGrants    = component.DummyMenuItem()
 	menuPurge     = component.DummyMenuItem()
+	menuSnapshots = component.DummyMenuItem()
 )
 
 func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
@@ -137,6 +138,11 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	{
 		purge := admin.instancePurge(ctx)
 		router.Handler(http.MethodGet, route+"instance/:slug/purge", purge)
+	}
+
+	{
+		snapshots := admin.instanceSnapshots(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug/snapshots", snapshots)
 	}
 
 	// add a router for the login page

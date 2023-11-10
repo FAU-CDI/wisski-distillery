@@ -9,7 +9,6 @@
         <a class="pure-button pure-button-small" href="#wisski">WissKI Data</a>
         <a class="pure-button pure-button-small" href="#stats">Statistics</a>
         <a class="pure-button pure-button-small" href="#ssh">SSH Keys</a>
-        <a class="pure-button pure-button-small" href="#snapshots">Snapshots</a>
     </div>
 </div>
 
@@ -511,40 +510,6 @@
                 </td>
             </tr>
             {{ end }}
-        </tbody>
-    </table>
-</div>
-
-<div class="pure-u-1-1">
-    <h2 id="snapshots">Snapshots</h2>
-    <p>
-        <button class="remote-action pure-button pure-button-action" data-action="snapshot" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>Take a snapshot</button>
-    </p>
-</div>
-
-<div class="pure-u-1">
-    <table class="pure-table pure-table-bordered padding">
-        <thead>
-            <tr>
-                <th>Path</th>
-                <th>Created</th>
-                <th>Packed</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{ range .Info.Snapshots }}
-            <tr>
-                <td>
-                    <code class="path">{{ .Path }}</code>
-                </td>
-                <td>
-                    <code class="date">{{ .Created.Format "2006-01-02T15:04:05Z07:00" }}</code>
-                </td>
-                <td>
-                    {{ .Packed }}
-                </td>
-            </tr>
-            {{ end}}
         </tbody>
     </table>
 </div>
