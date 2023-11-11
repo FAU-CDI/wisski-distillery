@@ -12,6 +12,12 @@
         <pre>ssh -J {{ .PanelDomain }}:{{ .Port }} www-data@{{ .Hostname }}</pre>
     </code>
     <p>
+        Or, if your <code>.ssh/config</code> is configured appropriately:
+    </p>
+    <code class="copy">
+        <pre>ssh {{ .Hostname }}</pre>
+    </code>
+    <p>
         For this to work, configure an ssh key on your <a href="/user/ssh">Personal SSH Page</a>.
     </p>
 </div>
