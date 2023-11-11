@@ -13,6 +13,7 @@ FROM $BARREL_BASE_IMAGE
 WORKDIR /var/www
 
 # install and enable the various required php extensions and dropbear ssh server
+ARG IIP_SERVER_ENABLED=
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         curl \
         openssh-server \
@@ -32,6 +33,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         unzip \
         vim \
         zip \
+        $([ "$IIP_SERVER_ENABLED" = "1" ] && echo iipimage-server) \
     && \
     docker-php-source extract && \
     mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" && \
@@ -101,11 +103,15 @@ ENV CONTENT_SECURITY_POLICY=${CONTENT_SECURITY_POLICY}
 RUN rm /etc/apache2/sites-available/*.conf && \
     rm /etc/apache2/sites-enabled/*.conf
 
-# Then add the WissKI site
+# Then add all the configs
 ADD apache.d/conf/ports.conf /etc/apache2/ports.conf
 ADD apache.d/sites-available/wisski.conf /etc/apache2/sites-available/wisski.conf
 
-# And enable it
+# this file is technically only needed for iipserv is enabled
+# but we add it in either case, as it's not enabled.
+ADD apache.d/mods-available/iipsrv.conf /etc/apache2/mods-available/iipsrv.conf
+
+# enable it
 RUN a2ensite wisski
 
 # volumes for composer

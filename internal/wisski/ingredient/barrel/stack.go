@@ -32,6 +32,7 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 			"RUNTIME_DIR": barrel.Malt.Config.Paths.RuntimeDir(),
 
 			"BARREL_BASE_IMAGE":       barrel.GetDockerBaseImage(),
+			"IIP_SERVER_ENABLED":      barrel.GetIIPServerEnabled(),
 			"OPCACHE_MODE":            barrel.OpCacheMode(),
 			"CONTENT_SECURITY_POLICY": barrel.ContentSecurityPolicy,
 		},

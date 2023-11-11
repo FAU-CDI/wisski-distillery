@@ -52,6 +52,14 @@ func (system System) GetDockerBaseImage() string {
 	return imagePrefix + version + imageSuffix
 }
 
+// GetIIPServerEnabled returns if the IIPServer was enabled
+func (system System) GetIIPServerEnabled() string {
+	if !system.IIPServer {
+		return ""
+	}
+	return "1"
+}
+
 const (
 	// Content Security Policy used by the internal server
 	ContentSecurityPolicyNothing = "base-uri 'self'; default-src 'none';"

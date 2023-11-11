@@ -8,6 +8,7 @@ services:
         BARREL_BASE_IMAGE: ${BARREL_BASE_IMAGE}
         OPCACHE_MODE: ${OPCACHE_MODE}
         CONTENT_SECURITY_POLICY: ${CONTENT_SECURITY_POLICY}
+        IIP_SERVER_ENABLED: ${IIP_SERVER_ENABLED}
 
     logging:
       driver: none

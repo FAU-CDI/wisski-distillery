@@ -17,6 +17,7 @@ var Provision wisski_distillery.Command = pv{}
 
 type pv struct {
 	PHPVersion            string `short:"p" long:"php" description:"specific php version to use for instance. Should be one of '8.0', '8.1'."`
+	IIPServer             bool   `short:"i" long:"iip-server" description:"enable iip-server inside this instance"`
 	OPCacheDevelopment    bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
 	Flavor                string `short:"f" long:"flavor" description:"Use specific flavor. Use '--list-flavors' to list flavors. "`
 	ListFlavors           bool   `short:"l" long:"list-flavors" description:"List all known flavors"`
@@ -65,6 +66,7 @@ func (p pv) Run(context wisski_distillery.Context) error {
 		Flavor: p.Flavor,
 		System: models.System{
 			PHP:                   p.PHPVersion,
+			IIPServer:             p.IIPServer,
 			OpCacheDevelopment:    p.OPCacheDevelopment,
 			ContentSecurityPolicy: p.ContentSecurityPolicy,
 		},

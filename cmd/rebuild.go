@@ -20,7 +20,9 @@ type rebuild struct {
 
 	System                bool   `short:"s" long:"system-update" description:"Update the system configuration according to other flags"`
 	PHPVersion            string `short:"p" long:"php" description:"update to specific php version to use for instance. Should be one of '8.0', '8.1'."`
+	IIPServer             bool   `short:"i" long:"iip-server" description:"enable iip-server inside this instance"`
 	OPCacheDevelopment    bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
+	Flavor                string `short:"f" long:"flavor" description:"Use specific flavor. Use 'provision --list-flavors' to list flavors. "`
 	ContentSecurityPolicy string `short:"c" long:"content-security-policy" description:"Setup ContentSecurityPolicy"`
 
 	Positionals struct {
@@ -75,6 +77,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 		if rb.System {
 			sys = models.System{
 				PHP:                   rb.PHPVersion,
+				IIPServer:             rb.IIPServer,
 				OpCacheDevelopment:    rb.OPCacheDevelopment,
 				ContentSecurityPolicy: rb.ContentSecurityPolicy,
 			}
