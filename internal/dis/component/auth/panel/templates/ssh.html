@@ -78,7 +78,7 @@
         You may also place the following into your <code>$HOME/.ssh/config</code> file:
     </p>
     <code class="copy">
-<pre>Host *.{{ .Domain }}
+<pre>Host *.{{ .Domain }} !{{ .PanelDomain }}
     ProxyJump {{ .Domain }}.proxy
     User www-data
 Host {{ .Domain }}.proxy
