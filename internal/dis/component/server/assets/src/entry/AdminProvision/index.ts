@@ -8,6 +8,7 @@ const slug = document.getElementById('slug') as HTMLInputElement
 const php = document.getElementById('php') as HTMLSelectElement
 const opcacheDevelopment = document.getElementById('opcacheDevelopment') as HTMLInputElement
 const contentSecurityPolicy = document.getElementById('contentsecuritypolicy') as HTMLInputElement
+const iipserver = document.getElementById('iipserver') as HTMLInputElement
 
 // add an event handler to open the modal form!
 system.addEventListener('submit', (evt) => {
@@ -19,7 +20,7 @@ system.addEventListener('submit', (evt) => {
   Provision({ 
     Slug: slug.value, 
     Flavor: flavor,
-    System: { PHP: php.value, OpCacheDevelopment: opcacheDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value }
+    System: { PHP: php.value, IIPServer: iipserver.checked, OpCacheDevelopment: opcacheDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value }
   })
     .then(slug => {
       location.href = '/admin/instance/' + slug

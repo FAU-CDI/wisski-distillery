@@ -12,6 +12,7 @@ interface ProvisionFlags {
 
 interface System {
   PHP: string
+  IIPServer: boolean
   OpCacheDevelopment: boolean
   ContentSecurityPolicy: string
 }

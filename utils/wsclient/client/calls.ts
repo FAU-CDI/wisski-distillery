@@ -11,6 +11,7 @@ export function Backup(): WebSocketCall {
 type ProvisionParams = {
     Slug: string;
     Flavor?: "Drupal 10" | "Drupal 9",
+    IIPServer?: string,
     System: SystemParams
 }
 

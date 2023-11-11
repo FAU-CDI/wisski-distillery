@@ -4,8 +4,9 @@ package models
 // It is embedded into the instances struct by gorm.
 type System struct {
 	// NOTE(twiesing): Any changes here should be reflected in instance_{provision,rebuild}.html and remote/api.ts.
-	PHP                string `gorm:"column:php;not null"`           // php version to use
-	OpCacheDevelopment bool   `gorm:"column:opcache_devel;not null"` // opcache development
+	PHP                string `gorm:"column:php;not null"`                    // php version to use
+	IIPServer          bool   `gorm:"column:iipimage;not null;default:false"` // should we enable the IIPServer?
+	OpCacheDevelopment bool   `gorm:"column:opcache_devel;not null"`          // opcache development
 
 	ContentSecurityPolicy string `gorm:"column:csp;not null"` // content security policy for the system
 }
