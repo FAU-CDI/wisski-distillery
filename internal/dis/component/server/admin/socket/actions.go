@@ -54,7 +54,7 @@ func (sockets *Sockets) regularAction(a actions.WebsocketAction) (name string, a
 	meta := a.Action()
 
 	return meta.Name, proto.Action{
-		NumParams:  meta.NumParams + 1,
+		NumParams:  meta.NumParams,
 		Scope:      meta.Scope,
 		ScopeParam: meta.ScopeParam,
 
