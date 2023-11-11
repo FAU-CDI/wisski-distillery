@@ -40,11 +40,10 @@
             <div class="pure-controls">
                 <label for="iipserver" class="pure-checkbox">
                     <input {{ if $rebuild }}{{ if .System.IIPServer }}checked{{end}}{{end}} type="checkbox" id="iipserver" />
-                    IIP Image Server (<em>Experimental</em>)
+                    IIP Image Server
                 </label>
                 <span class="pure-form-message-inline">
                    Run an <a href="https://iipimage.sourceforge.io/documentation/server" target="_blank" rel="noopener noreferer">IIPImage server</a> inside this instance.
-                   This is currently <em>experimental</em>. 
                    <br />
                    This can be used for streaming 2D images inside this WissKI, see <a href="https://wiss-ki.eu/documentation/periphal-software/iip-image-server" target="_blank" rel="noopener noreferer">the WissKI Documentation</a> for more details.
                    Please be aware that any installation or configuration steps are performed automatically by the distillery.
