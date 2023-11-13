@@ -95,7 +95,7 @@ const bundler = new Parcel({
   defaultTargetOptions: {
     shouldOptimize: true,
     shouldScopeHoist: true,
-    sourceMaps: false,
+    sourceMaps: true,
     distDir: DIST_DIR,
     publicUrl: PUBLIC_DIR,
     engines: {

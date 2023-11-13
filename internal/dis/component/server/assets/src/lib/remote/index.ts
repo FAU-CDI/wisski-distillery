@@ -1,5 +1,6 @@
 import './index.css'
-import callServerAction, { ResultMessage } from './proto'
+import { Result } from '../apiclient/websocket'
+import LocalCall from './local'
 
 type Print = ((text: string, flush?: boolean) => void) & {
   paintedFrames: number
@@ -166,7 +167,7 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   finishButton.className = 'pure-button pure-button-success'
   finishButton.append(typeof opts?.onClose === 'function' ? 'Close & Finish' : 'Close')
 
-  let result: ResultMessage = { success: false, message: 'Nothing happened' }
+  let result: Result = { success: false, message: 'Nothing happened' }
   finishButton.addEventListener('click', (event) => {
     event.preventDefault()
 
@@ -194,7 +195,7 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   window.onbeforeunload = () => 'A remote session is in progress. Are you sure you want to leave?'
 
   // when closing, add a button to the modal!
-  const close = (message: ResultMessage): void => {
+  const close = (message: Result): void => {
     result = message
 
     if (result.success) {
@@ -214,32 +215,25 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
 
   print('Connecting ...', true)
 
-  // backendURL is the backend url to connect to
-  const backendURL = location.protocol.replace('http', 'ws') + '//' + location.host + '/api/v1/ws'
-
   // connect to the socket and send the action
-  callServerAction(
-    backendURL,
-    {
-      call: action,
-      params
-    },
-    (
-      send: (text: string) => void,
-      cancel: () => void
-    ) => {
-      cancelButton.removeAttribute('disabled')
+  const call = new LocalCall({
+    call: action,
+    params
+  });
+
+  call.beforeCall = function() {
+    cancelButton.removeAttribute('disabled')
       cancelButton.addEventListener('click', (event) => {
         event.preventDefault()
 
         print('^C\n', true)
-        cancel()
+        this.cancel()
       })
       print(' Connected.\n', true)
-    },
-    print
-  ).then(close)
-    .catch(() => {
-      close({ success: false, message: 'connection closed unexpectedly' })
-    })
+  }
+  call.onLogLine = print;
+
+  call.connect()
+    .then((result) => close(result))
+    .catch(() => close({ success: false, message: 'connection closed unexpectedly' }));
 }
