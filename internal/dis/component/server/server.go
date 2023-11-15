@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
@@ -145,6 +146,7 @@ func WithCSP(handler http.Handler, policy string) http.Handler {
 
 func init() {
 	httpx.InterceptorOnFallback = func(req *http.Request, err error) {
-		zerolog.Ctx(req.Context()).Err(err).Msg("unknown error intercepted")
+		stack := debug.Stack()
+		zerolog.Ctx(req.Context()).Err(err).Str("stack", string(stack)).Msg("unknown error intercepted")
 	}
 }

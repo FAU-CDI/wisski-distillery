@@ -86,7 +86,7 @@ func (admin *Admin) instanceDrupal(ctx context.Context) http.Handler {
 		})
 
 		if err = eg.Wait(); err != nil {
-			return ctx, nil, httpx.ErrInternalServerError
+			return ctx, nil, err
 		}
 
 		return ctx, []templating.FlagFunc{

@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"reflect"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -165,6 +166,7 @@ func (ctx *tContext[C]) Footer() (template.HTML, error) {
 }
 
 const renderSafeError = "Error displaying page. See server log for details. "
+const renderPanicError = "Panic displaying page. See server log for details. "
 
 func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (template.HTML, error) {
 
@@ -173,16 +175,19 @@ func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (te
 		return "", err
 	}
 
-	value, err, panicked := func() (value template.HTML, err error, panicked bool) {
+	value, panicked, panik, stack, err := func() (value template.HTML, panicked bool, panik any, stack []byte, err error) {
 		var builder strings.Builder
 
 		defer func() {
 			if panicked {
-				r := recover()
+				panik = recover()
+				stack = debug.Stack()
+
 				zerolog.Ctx(ctx.ctx).Error().
 					Str("uri", ctx.Runtime.RequestURI).
 					Str("name", name).
-					Str("panic", fmt.Sprint(r)).
+					Str("panic", fmt.Sprint(panik)).
+					Str("stack", string(stack)).
 					Msg("renderSafe: template panic()ed")
 			}
 		}()
@@ -198,11 +203,24 @@ func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (te
 				Msg("template errored")
 		}
 
-		return template.HTML(builder.String()), err, false
+		return template.HTML(builder.String()), false, nil, nil, err
 	}()
 
-	if err != nil || panicked {
-		return renderSafeError, httpx.ErrInternalServerError
+	if err != nil {
+		return renderSafeError, err
+	}
+	if panicked {
+		return renderPanicError, panicErr{value: panik, stack: stack}
 	}
 	return value, nil
+}
+
+// panicErr is returned by renderSafe when a panic occurs
+type panicErr struct {
+	value any
+	stack []byte
+}
+
+func (pe panicErr) Error() string {
+	return fmt.Sprintf("panic: %v", pe.value)
 }

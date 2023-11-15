@@ -57,14 +57,14 @@ func (admin *Admin) instanceData(ctx context.Context) http.Handler {
 
 		ctx.Pathbuilders, err = ctx.Instance.Pathbuilder().GetAll(r.Context(), server)
 		if err != nil {
-			return ctx, nil, httpx.ErrInternalServerError
+			return ctx, nil, err
 		}
 
 		prefixes := ctx.Instance.Prefixes()
 		ctx.NoPrefixes = prefixes.NoPrefix()
 		ctx.Prefixes, err = prefixes.All(r.Context(), server)
 		if err != nil {
-			return ctx, nil, httpx.ErrInternalServerError
+			return ctx, nil, err
 		}
 
 		return ctx, []templating.FlagFunc{

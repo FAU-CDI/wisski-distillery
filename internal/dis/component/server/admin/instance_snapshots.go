@@ -53,7 +53,7 @@ func (admin *Admin) instanceSnapshots(ctx context.Context) http.Handler {
 
 		ctx.Snapshots, err = ctx.Instance.Snapshots(r.Context())
 		if err != nil {
-			return ctx, nil, httpx.ErrInternalServerError
+			return ctx, nil, err
 		}
 
 		return ctx, []templating.FlagFunc{

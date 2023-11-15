@@ -62,7 +62,7 @@ func (admin *Admin) instanceSSH(ctx context.Context) http.Handler {
 
 		keys, err := ctx.Instance.SSH().Keys(r.Context())
 		if err != nil {
-			return ctx, nil, httpx.ErrInternalServerError
+			return ctx, nil, err
 		}
 
 		ctx.SSHKeys = make([]string, len(keys))

@@ -54,7 +54,7 @@ func (admin *Admin) instanceStats(ctx context.Context) http.Handler {
 		// read statistics
 		ctx.Statistics, err = ctx.Instance.Stats().Get(r.Context(), nil)
 		if err != nil {
-			return ctx, nil, httpx.ErrInternalServerError
+			return ctx, nil, err
 		}
 
 		return ctx, []templating.FlagFunc{

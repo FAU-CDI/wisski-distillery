@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -36,7 +37,10 @@ func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target s
 				// store the info for this group!
 				group.Go(func() (err error) {
 					information[i], err = instance.Info().Information(ctx, true)
-					return err
+					if err != nil {
+						return fmt.Errorf("instance %q: %w", instance.Slug, err)
+					}
+					return
 				})
 			}
 		}

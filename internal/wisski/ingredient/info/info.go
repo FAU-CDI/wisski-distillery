@@ -2,6 +2,8 @@ package info
 
 import (
 	"context"
+	"fmt"
+	"reflect"
 	"sync/atomic"
 	"time"
 
@@ -68,14 +70,24 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 				// quick: don't need to create servers
 				if flags.Quick {
 					defer recordTime(i)()
-					return fetcher.Fetch(flags, &info)
+
+					err := fetcher.Fetch(flags, &info)
+					if err != nil {
+						return fmt.Errorf("fetcher %s (quick): %w", reflect.TypeOf(fetcher), err)
+					}
+					return nil
 				}
 
 				// complete: need to use a server from the pool
 				return pool.Use(func(s *phpx.Server) error {
 					defer recordTime(i)()
 					flags.Server = s
-					return fetcher.Fetch(flags, &info)
+
+					err := fetcher.Fetch(flags, &info)
+					if err != nil {
+						return fmt.Errorf("fetcher %s (pool): %w", reflect.TypeOf(fetcher), err)
+					}
+					return nil
 				})
 			})
 		}
