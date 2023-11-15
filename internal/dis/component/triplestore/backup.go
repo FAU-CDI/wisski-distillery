@@ -32,7 +32,7 @@ func (ts *Triplestore) Backup(scontext *component.StagingContext) error {
 }
 
 func (ts Triplestore) listRepositories(ctx context.Context) (repos []Repository, err error) {
-	res, err := ts.OpenRaw(ctx, "GET", "/rest/repositories", nil, "", "application/json")
+	res, err := ts.OpenRaw(ctx, "GET", "/rest/repositories", nil, "", "application/json", 0)
 	if err != nil {
 		return nil, err
 	}

@@ -30,7 +30,7 @@ func (ts Triplestore) Update(ctx context.Context, progress io.Writer) error {
 				ExecuteCount:          true,
 			},
 			GrantedAuthorities: []string{"ROLE_ADMIN"},
-		}, "", "")
+		}, "", "", tsTrivialTimeout)
 		if err != nil {
 			return fmt.Errorf("failed to create triplestore user: %s", err)
 		}
@@ -52,7 +52,7 @@ func (ts Triplestore) Update(ctx context.Context, progress io.Writer) error {
 
 	logging.LogMessage(progress, "Enabling Triplestore security")
 	{
-		res, err := ts.OpenRaw(ctx, "POST", "/rest/security", true, "", "")
+		res, err := ts.OpenRaw(ctx, "POST", "/rest/security", true, "", "", tsTrivialTimeout)
 		if err != nil {
 			return fmt.Errorf("failed to enable triplestore security: %s", err)
 		}

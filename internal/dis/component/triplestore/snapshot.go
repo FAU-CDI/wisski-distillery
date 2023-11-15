@@ -27,7 +27,7 @@ var errTSBackupWrongStatusCode = errors.New("Triplestore.Backup: Wrong status co
 
 // SnapshotDB snapshots the provided repository into dst
 func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string) (int64, error) {
-	res, err := ts.OpenRaw(ctx, "GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads")
+	res, err := ts.OpenRaw(ctx, "GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads", 0)
 	if err != nil {
 		return 0, err
 	}

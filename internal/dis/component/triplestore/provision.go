@@ -61,7 +61,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 
 	// do the create!
 	{
-		res, err := ts.OpenRaw(ctx, "POST", "/rest/repositories", createRepo.Bytes(), "config", "")
+		res, err := ts.OpenRaw(ctx, "POST", "/rest/repositories", createRepo.Bytes(), "config", "", tsTrivialTimeout)
 		if err != nil {
 			return errTripleStoreFailedRepository.WithMessageF(err)
 		}
@@ -87,7 +87,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 				"READ_REPO_" + name,
 				"WRITE_REPO_" + name,
 			},
-		}, "", "")
+		}, "", "", tsTrivialTimeout)
 		if err != nil {
 			return errTripleStoreFailedRepository.WithMessageF(err)
 		}
