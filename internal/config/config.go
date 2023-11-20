@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/tkw1536/pkglib/lazy"
 	"github.com/tkw1536/pkglib/reflectx"
 	"github.com/tkw1536/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
@@ -47,9 +46,6 @@ type Config struct {
 
 	// ConfigPath is the path this configuration was loaded from (if any)
 	ConfigPath string `yaml:"-"`
-
-	// csrfSecret holds the cached csrf secret
-	csrfSecret lazy.Lazy[[]byte]
 }
 
 func zeroSensitive(v reflect.Value) {
@@ -117,17 +113,15 @@ func Marshal(config *Config, previous []byte) ([]byte, error) {
 
 // CSRFSecret return the csrfSecret derived from the session secret
 func (config *Config) CSRFSecret() []byte {
-	return config.csrfSecret.Get(func() []byte {
-		// take the hash of the secret
-		h := fnv.New32a()
-		h.Write([]byte(config.SessionSecret))
+	// take the hash of the secret
+	h := fnv.New32a()
+	h.Write([]byte(config.SessionSecret))
 
-		// seed a random number generator
-		rand := rand.New(rand.NewSource(int64(h.Sum32())))
+	// seed a random number generator
+	rand := rand.New(rand.NewSource(int64(h.Sum32())))
 
-		// take a bunch of bytes from it
-		secret := make([]byte, 32)
-		rand.Read(secret)
-		return secret
-	})
+	// take a bunch of bytes from it
+	secret := make([]byte, 32)
+	rand.Read(secret)
+	return secret
 }
