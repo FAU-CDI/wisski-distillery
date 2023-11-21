@@ -124,9 +124,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 // CSRF returns a CSRF handler for the given function
 func (server *Server) csrf() func(http.Handler) http.Handler {
 	var opts []csrf.Option
-	if !server.Config.HTTP.HTTPSEnabled() {
-		opts = append(opts, csrf.Secure(false))
-	}
+	opts = append(opts, csrf.Secure(server.Config.HTTP.HTTPSEnabled()))
 	opts = append(opts, csrf.SameSite(csrf.SameSiteStrictMode))
 	opts = append(opts, csrf.CookieName(CSRFCookie))
 	opts = append(opts, csrf.FieldName(CSRFCookieField))
