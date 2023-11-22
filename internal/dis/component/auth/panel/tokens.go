@@ -11,7 +11,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/field"
+	"github.com/tkw1536/pkglib/httpx/form"
+	"github.com/tkw1536/pkglib/httpx/form/field"
 
 	_ "embed"
 )
@@ -44,7 +45,7 @@ func (panel *UserPanel) tokensRoute(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandler(func(r *http.Request) (tc TokenTemplateContext, err error) {
+	return tpl.HTMLHandler(panel.dependencies.Handling, func(r *http.Request) (tc TokenTemplateContext, err error) {
 		// list the user
 		user, err := panel.dependencies.Auth.UserOfSession(r)
 		if err != nil || user == nil {
@@ -94,7 +95,7 @@ func (panel *UserPanel) tokensDeleteRoute(ctx context.Context) http.Handler {
 //go:embed "templates/tokens_add.html"
 var tokensAddHTML []byte
 var tokensAddTemplate = templating.ParseForm(
-	"tokens_add.html", tokensAddHTML, httpx.FormTemplate,
+	"tokens_add.html", tokensAddHTML, form.FormTemplate,
 	templating.Title("Add Token"),
 	templating.Assets(assets.AssetsUser),
 )
@@ -108,7 +109,7 @@ type addTokenResult struct {
 //go:embed "templates/token_created.html"
 var tokenCreatedHTML []byte
 var tokenCreateTemplate = templating.Parse[TokenCreateContext](
-	"token_created.html", tokenCreatedHTML, httpx.FormTemplate,
+	"token_created.html", tokenCreatedHTML, form.FormTemplate,
 	templating.Title("Add Token"),
 	templating.Assets(assets.AssetsUser),
 )
@@ -139,14 +140,14 @@ func (panel *UserPanel) tokensAddRoute(ctx context.Context) http.Handler {
 		),
 	)
 
-	return &httpx.Form[addTokenResult]{
+	return &form.Form[addTokenResult]{
 		Fields: []field.Field{
 			{Name: "description", Type: field.Text, Label: "Description"},
 		},
-		FieldTemplate: field.PureCSSFieldTemplate,
+		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		RenderTemplate:        tplForm.Template(),
-		RenderTemplateContext: templating.FormTemplateContext(tplForm),
+		Template:        tplForm.Template(),
+		TemplateContext: templating.FormTemplateContext(tplForm),
 
 		Validate: func(r *http.Request, values map[string]string) (at addTokenResult, err error) {
 			at.User, err = panel.dependencies.Auth.UserOfSession(r)
@@ -164,7 +165,7 @@ func (panel *UserPanel) tokensAddRoute(ctx context.Context) http.Handler {
 			return at, nil
 		},
 
-		RenderSuccess: func(at addTokenResult, values map[string]string, w http.ResponseWriter, r *http.Request) error {
+		Success: func(at addTokenResult, values map[string]string, w http.ResponseWriter, r *http.Request) error {
 			// add the key to the user
 			tok, err := panel.dependencies.Tokens.Add(r.Context(), at.User.User.User, at.Description, at.Scopes)
 			if err != nil {
@@ -175,10 +176,16 @@ func (panel *UserPanel) tokensAddRoute(ctx context.Context) http.Handler {
 			}
 
 			// render the created context
-			return httpx.WriteHTML(tplDone.Context(r, TokenCreateContext{
-				Domain: template.URL(panel.Config.HTTP.JoinPath().String()),
-				Token:  tok,
-			}), nil, tplDone.Template(), "", w, r)
+			return panel.dependencies.Handling.WriteHTML(
+				tplDone.Context(r, TokenCreateContext{
+					Domain: template.URL(panel.Config.HTTP.JoinPath().String()),
+					Token:  tok,
+				}),
+				nil,
+				tplDone.Template(),
+				w,
+				r,
+			)
 		},
 	}
 }

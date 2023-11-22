@@ -11,6 +11,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/rs/zerolog"
 	"github.com/yuin/goldmark"
@@ -23,6 +24,7 @@ type News struct {
 	component.Base
 	dependencies struct {
 		Templating *templating.Templating
+		Handling   *handling.Handling
 	}
 }
 
@@ -143,7 +145,7 @@ func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, e
 		zerolog.Ctx(ctx).Err(itemsErr).Msg("Unable to load news items")
 	}
 
-	return tpl.HTMLHandler(func(r *http.Request) (nc newsContext, err error) {
+	return tpl.HTMLHandler(news.dependencies.Handling, func(r *http.Request) (nc newsContext, err error) {
 		nc.Items, err = items, itemsErr
 		return
 	}), nil

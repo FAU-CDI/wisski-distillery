@@ -14,9 +14,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/rs/zerolog"
-	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/lazy"
 
 	_ "embed"
@@ -27,6 +27,7 @@ type Resolver struct {
 	dependencies struct {
 		Instances  *instances.Instances
 		Templating *templating.Templating
+		Handling   *handling.Handling
 		Auth       *auth.Auth
 	}
 
@@ -106,7 +107,7 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 			if resolver.dependencies.Auth.CheckScope("", scopes.ScopeUserValid, r) != nil {
 				ctx.IndexContext.Prefixes = nil
 			}
-			httpx.WriteHTML(tpl.Context(r, ctx), nil, t, "", w, r)
+			resolver.dependencies.Handling.WriteHTML(tpl.Context(r, ctx), nil, t, w, r)
 		},
 
 		Resolver: resolvers.InOrder{

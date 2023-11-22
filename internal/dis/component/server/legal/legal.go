@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 
 	_ "embed"
@@ -18,6 +19,7 @@ type Legal struct {
 	dependencies struct {
 		Static     *assets.Static
 		Templating *templating.Templating
+		Handling   *handling.Handling
 	}
 }
 
@@ -65,7 +67,7 @@ func (legal *Legal) HandleRoute(ctx context.Context, route string) (http.Handler
 		),
 	)
 
-	return tpl.HTMLHandler(func(r *http.Request) (lc legalContext, err error) {
+	return tpl.HTMLHandler(legal.dependencies.Handling, func(r *http.Request) (lc legalContext, err error) {
 		lc.LegalNotices = cli.LegalNotices
 
 		lc.CSRFCookie = server.CSRFCookie

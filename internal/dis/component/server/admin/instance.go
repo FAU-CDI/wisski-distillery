@@ -42,7 +42,7 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (ic instanceContext, funcs []templating.FlagFunc, err error) {
+	return tpl.HTMLHandlerWithFlags(admin.dependencies.Handling, func(r *http.Request) (ic instanceContext, funcs []templating.FlagFunc, err error) {
 		slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 
 		// find the instance itself!

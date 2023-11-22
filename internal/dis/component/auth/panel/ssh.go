@@ -13,7 +13,8 @@ import (
 	"github.com/gliderlabs/ssh"
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/field"
+	"github.com/tkw1536/pkglib/httpx/form"
+	"github.com/tkw1536/pkglib/httpx/form/field"
 
 	gossh "golang.org/x/crypto/ssh"
 
@@ -57,7 +58,7 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandler(func(r *http.Request) (sc SSHTemplateContext, err error) {
+	return tpl.HTMLHandler(panel.dependencies.Handling, func(r *http.Request) (sc SSHTemplateContext, err error) {
 		user, err := panel.dependencies.Auth.UserOfSession(r)
 		if err != nil {
 			return sc, err
@@ -129,7 +130,7 @@ func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
 //go:embed "templates/ssh_add.html"
 var sshAddHTML []byte
 var sshAddTemplate = templating.ParseForm(
-	"ssh_add.html", sshAddHTML, httpx.FormTemplate,
+	"ssh_add.html", sshAddHTML, form.FormTemplate,
 	templating.Title("Add SSH Key"),
 	templating.Assets(assets.AssetsUser),
 )
@@ -150,15 +151,15 @@ func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 		),
 	)
 
-	return &httpx.Form[addKeyResult]{
+	return &form.Form[addKeyResult]{
 		Fields: []field.Field{
 			{Name: "comment", Type: field.Text, Label: "Comment"},
 			{Name: "key", Type: field.Textarea, Label: "Key in authorized_keys format"}, // has hacked css!
 		},
-		FieldTemplate: field.PureCSSFieldTemplate,
+		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: templating.FormTemplateContext(tpl),
+		Template:        tpl.Template(),
+		TemplateContext: templating.FormTemplateContext(tpl),
 
 		Validate: func(r *http.Request, values map[string]string) (ak addKeyResult, err error) {
 			ak.User, err = panel.dependencies.Auth.UserOfSession(r)
@@ -181,7 +182,7 @@ func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
 			return ak, nil
 		},
 
-		RenderSuccess: func(ak addKeyResult, values map[string]string, w http.ResponseWriter, r *http.Request) error {
+		Success: func(ak addKeyResult, values map[string]string, w http.ResponseWriter, r *http.Request) error {
 			// add the key to the user
 			if err := panel.dependencies.Keys.Add(r.Context(), ak.User.User.User, ak.Comment, ak.Key); err != nil {
 				return errAddKey

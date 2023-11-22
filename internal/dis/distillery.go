@@ -30,6 +30,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/cron"
+	handleing "github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/home"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/legal"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/list"
@@ -203,6 +204,7 @@ func (dis *Distillery) allComponents(context *lifetime.Registry[component.Compon
 
 	// Control server
 	lifetime.Place[*server.Server](context)
+	lifetime.Place[*handleing.Handling](context)
 
 	lifetime.Place[*home.Home](context)
 	lifetime.Place[*list.ListInstances](context)

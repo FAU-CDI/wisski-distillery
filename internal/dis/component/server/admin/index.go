@@ -120,7 +120,7 @@ func (admin *Admin) index(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandler(func(r *http.Request) (idx indexContext, err error) {
+	return tpl.HTMLHandler(admin.dependencies.Handling, func(r *http.Request) (idx indexContext, err error) {
 		idx.Distillery, idx.Instances, err = admin.Status(r.Context(), false)
 		return
 	})
@@ -138,7 +138,7 @@ func (admin *Admin) instances(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandler(func(r *http.Request) (idx indexContext, err error) {
+	return tpl.HTMLHandler(admin.dependencies.Handling, func(r *http.Request) (idx indexContext, err error) {
 		idx.Distillery, idx.Instances, err = admin.Status(r.Context(), true)
 		return
 	})

@@ -11,25 +11,29 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/tokens"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/julienschmidt/httprouter"
-	"github.com/tkw1536/pkglib/httpx"
+	"github.com/tkw1536/pkglib/httpx/form"
 )
 
 type UserPanel struct {
 	component.Base
 	dependencies struct {
-		Auth       *auth.Auth
+		Auth *auth.Auth
+
+		Handling   *handling.Handling
 		Templating *templating.Templating
-		Policy     *policy.Policy
-		Tokens     *tokens.Tokens
-		Instances  *instances.Instances
-		Next       *next.Next
-		Keys       *sshkeys.SSHKeys
-		SSH2       *ssh2.SSH2
+
+		Policy    *policy.Policy
+		Tokens    *tokens.Tokens
+		Instances *instances.Instances
+		Next      *next.Next
+		Keys      *sshkeys.SSHKeys
+		SSH2      *ssh2.SSH2
 	}
 }
 
@@ -142,12 +146,12 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 
 type userFormContext struct {
 	templating.RuntimeFlags
-	httpx.FormContext
+	form.FormContext
 
 	User *models.User
 }
 
-func (panel *UserPanel) UserFormContext(tpl *templating.Template[userFormContext], last component.MenuItem, funcs ...templating.FlagFunc) func(ctx httpx.FormContext, r *http.Request) any {
+func (panel *UserPanel) UserFormContext(tpl *templating.Template[userFormContext], last component.MenuItem, funcs ...templating.FlagFunc) func(ctx form.FormContext, r *http.Request) any {
 	funcs = append(funcs, func(flags templating.Flags, r *http.Request) templating.Flags {
 		// append the last menu item, and prepend the menuUser one!
 		flags.Crumbs = append(flags.Crumbs, last, last)
@@ -156,7 +160,7 @@ func (panel *UserPanel) UserFormContext(tpl *templating.Template[userFormContext
 		return flags
 	})
 
-	return func(ctx httpx.FormContext, r *http.Request) any {
+	return func(ctx form.FormContext, r *http.Request) any {
 		uctx := userFormContext{FormContext: ctx}
 		if user, err := panel.dependencies.Auth.UserOfSession(r); err == nil {
 			uctx.User = &user.User

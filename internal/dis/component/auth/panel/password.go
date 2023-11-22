@@ -9,14 +9,14 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
-	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/field"
+	"github.com/tkw1536/pkglib/httpx/form"
+	"github.com/tkw1536/pkglib/httpx/form/field"
 )
 
 //go:embed "templates/password.html"
 var passwordHTML []byte
 var passwordTemplate = templating.Parse[userFormContext](
-	"password.html", passwordHTML, httpx.FormTemplate,
+	"password.html", passwordHTML, form.FormTemplate,
 
 	templating.Title("Change Password"),
 	templating.Assets(assets.AssetsUser),
@@ -34,17 +34,17 @@ var (
 func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 	tpl := passwordTemplate.Prepare(panel.dependencies.Templating)
 
-	return &httpx.Form[struct{}]{
+	return &form.Form[struct{}]{
 		Fields: []field.Field{
 			{Name: "old", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
 			{Name: "otp", Type: field.Text, Autocomplete: field.OneTimeCode, EmptyOnError: true, Label: "Current Passcode (optional)"},
 			{Name: "new", Type: field.Password, Autocomplete: field.NewPassword, EmptyOnError: true, Label: "New Password"},
 			{Name: "new2", Type: field.Password, Autocomplete: field.NewPassword, EmptyOnError: true, Label: "New Password (again)"},
 		},
-		FieldTemplate: field.PureCSSFieldTemplate,
+		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: panel.UserFormContext(tpl, menuChangePassword),
+		Template:        tpl.Template(),
+		TemplateContext: panel.UserFormContext(tpl, menuChangePassword),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			old, passcode, new, new2 := values["old"], values["otp"], values["new"], values["new2"]
@@ -82,7 +82,7 @@ func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
 			return struct{}{}, nil
 		},
 
-		RenderSuccess: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
+		Success: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
 			return errPasswordSet
 		},
 	}

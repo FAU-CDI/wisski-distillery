@@ -39,6 +39,11 @@ http:
   # This email address can be configured here. 
   certbot_email: null
 
+  # Debug determines if error messages should be written as html pages with stack traces to http clients.
+  # This potentially exposes sensitive information and may cause certain API responses to be of content type 'text/html' unexpectedly.
+  # It is not recommended to use this on production systems.
+  debug: null
+
   # Serve the panel also on the toplevel domain, and not only on the "panel" domain.
   # Enabled by default.
   panel: null

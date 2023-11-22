@@ -26,7 +26,7 @@ func (admin *Admin) instanceProvision(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandler(func(r *http.Request) (ipc instanceSystemContext, err error) {
+	return tpl.HTMLHandler(admin.dependencies.Handling, func(r *http.Request) (ipc instanceSystemContext, err error) {
 		ipc.prepare(false)
 		ipc.DefaultProfile = manager.DefaultProfile()
 		ipc.Profiles = collection.MapValues(manager.Profiles(), func(_ string, profile manager.Profile) string { return profile.Description })

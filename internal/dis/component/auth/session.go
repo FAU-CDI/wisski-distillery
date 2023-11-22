@@ -10,8 +10,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
-	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/field"
+	"github.com/tkw1536/pkglib/httpx/form"
+	"github.com/tkw1536/pkglib/httpx/form/field"
 
 	"github.com/gorilla/sessions"
 
@@ -162,7 +162,7 @@ func (auth *Auth) Logout(w http.ResponseWriter, r *http.Request) error {
 //go:embed "login.html"
 var loginHTML []byte
 var loginTemplate = templating.ParseForm(
-	"login.html", loginHTML, httpx.FormTemplate,
+	"login.html", loginHTML, form.FormTemplate,
 
 	templating.Title("Login Required"),
 	templating.Assets(assets.AssetsUser),
@@ -182,21 +182,21 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		},
 	)
 
-	return &httpx.Form[*AuthUser]{
+	return &form.Form[*AuthUser]{
 		Fields: []field.Field{
 			{Name: "username", Type: field.Text, Autocomplete: field.Username, Label: "Username"},
 			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Password"},
 			{Name: "otp", Type: field.Text, Autocomplete: field.OneTimeCode, EmptyOnError: true, Label: "Passcode (optional)"},
 		},
-		FieldTemplate: field.PureCSSFieldTemplate,
+		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		RenderTemplateContext: func(ctx httpx.FormContext, r *http.Request) any {
+		Template: tpl.Template(),
+		TemplateContext: func(ctx form.FormContext, r *http.Request) any {
 			if ctx.Err != nil {
 				ctx.Err = errLoginFailed
 			}
 			return tpl.Context(r, templating.NewFormContext(ctx))
 		},
-		RenderTemplate: tpl.Template(),
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {
 			username, password, passcode := values["username"], values["password"], values["otp"]
@@ -215,12 +215,12 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			return user, nil
 		},
 
-		SkipForm: func(r *http.Request) (user *AuthUser, skip bool) {
+		Skip: func(r *http.Request) (user *AuthUser, skip bool) {
 			user, err := auth.UserOfSession(r)
 			return user, err == nil && user != nil
 		},
 
-		RenderSuccess: func(user *AuthUser, _ map[string]string, w http.ResponseWriter, r *http.Request) error {
+		Success: func(user *AuthUser, _ map[string]string, w http.ResponseWriter, r *http.Request) error {
 			if err := auth.Login(w, r, user); err != nil {
 				return err
 			}

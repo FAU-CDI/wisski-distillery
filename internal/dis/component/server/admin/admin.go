@@ -9,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/julienschmidt/httprouter"
 	"github.com/rs/zerolog"
@@ -20,6 +21,7 @@ import (
 type Admin struct {
 	component.Base
 	dependencies struct {
+		Handling *handling.Handling
 		Fetchers []component.DistilleryFetcher
 
 		Instances *instances.Instances
@@ -178,7 +180,7 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 func (admin *Admin) loginHandler(ctx context.Context) http.Handler {
 	logger := zerolog.Ctx(ctx)
 
-	return httpx.RedirectHandler(func(r *http.Request) (string, int, error) {
+	return admin.dependencies.Handling.Redirect(func(r *http.Request) (string, int, error) {
 		// parse the form
 		if err := r.ParseForm(); err != nil {
 			logger.Err(err).Msg("failed to parse admin login")

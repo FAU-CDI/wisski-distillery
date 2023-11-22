@@ -59,7 +59,7 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 		templating.Actions(actions...),
 	)
 
-	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (uc userContext, funcs []templating.FlagFunc, err error) {
+	return tpl.HTMLHandlerWithFlags(panel.dependencies.Handling, func(r *http.Request) (uc userContext, funcs []templating.FlagFunc, err error) {
 		// find the user
 		uc.AuthUser, err = panel.dependencies.Auth.UserOfSession(r)
 		if err != nil || uc.AuthUser == nil {

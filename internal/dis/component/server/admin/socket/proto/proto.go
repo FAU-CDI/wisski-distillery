@@ -10,8 +10,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/gorilla/websocket"
-	"github.com/tkw1536/pkglib/httpx"
+	"github.com/tkw1536/pkglib/httpx/websocket"
 )
 
 // ActionMap handles a set of WebSocket actions
@@ -40,7 +39,7 @@ func (err errPanic) Error() string {
 // Finally it will send a ResultMessage once handling is complete.
 //
 // A corresponding client implementation of this can be found in ..../remote/proto.ts
-func (am ActionMap) Handle(auth *auth.Auth, conn httpx.WebSocketConnection) (name string, err error) {
+func (am ActionMap) Handle(auth *auth.Auth, conn *websocket.Connection) (name string, err error) {
 	var wg sync.WaitGroup
 
 	// once we have finished executing send a binary message (indicating success) to the client.
@@ -67,7 +66,7 @@ func (am ActionMap) Handle(auth *auth.Auth, conn httpx.WebSocketConnection) (nam
 		}
 
 		// encode the result message to json!
-		var message httpx.WebSocketMessage
+		var message websocket.Message
 		message.Type = websocket.BinaryMessage
 		message.Bytes, err = json.Marshal(result)
 

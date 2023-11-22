@@ -11,7 +11,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/field"
+	"github.com/tkw1536/pkglib/httpx/form"
+	"github.com/tkw1536/pkglib/httpx/form/field"
 
 	_ "embed"
 )
@@ -43,7 +44,7 @@ func (admin *Admin) users(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandler(func(r *http.Request) (uc usersContext, err error) {
+	return tpl.HTMLHandler(admin.dependencies.Handling, func(r *http.Request) (uc usersContext, err error) {
 		uc.Error = r.URL.Query().Get("error")
 		uc.Users, err = admin.dependencies.Auth.Users(r.Context())
 		return
@@ -53,7 +54,7 @@ func (admin *Admin) users(ctx context.Context) http.Handler {
 //go:embed "html/user_create.html"
 var userCreateHTML []byte
 var userCreateTemplate = templating.ParseForm(
-	"user_create.html", userCreateHTML, httpx.FormTemplate,
+	"user_create.html", userCreateHTML, form.FormTemplate,
 
 	templating.Title("Create User"),
 	templating.Assets(assets.AssetsAdmin),
@@ -80,16 +81,16 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 		),
 	)
 
-	return &httpx.Form[createUserResult]{
+	return &form.Form[createUserResult]{
 		Fields: []field.Field{
 			{Name: "username", Type: field.Text, Autocomplete: field.Username, Label: "Username"},
 			{Name: "password", Type: field.Password, Autocomplete: field.NewPassword, Label: "Password"},
 			{Name: "admin", Type: field.Checkbox, Label: "Distillery Administrator"},
 		},
-		FieldTemplate: field.PureCSSFieldTemplate,
+		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: templating.FormTemplateContext(tpl),
+		Template:        tpl.Template(),
+		TemplateContext: templating.FormTemplateContext(tpl),
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {
 			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == field.CheckboxChecked
@@ -110,7 +111,7 @@ func (admin *Admin) createUser(ctx context.Context) http.Handler {
 			return cu, nil
 		},
 
-		RenderSuccess: func(cu createUserResult, values map[string]string, w http.ResponseWriter, r *http.Request) error {
+		Success: func(cu createUserResult, values map[string]string, w http.ResponseWriter, r *http.Request) error {
 			// create the user
 			user, err := admin.dependencies.Auth.CreateUser(r.Context(), cu.User)
 			if err != nil {

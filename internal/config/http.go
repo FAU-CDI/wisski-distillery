@@ -25,6 +25,10 @@ type HTTPConfig struct {
 	// This email address can be configured here.
 	CertbotEmail string `yaml:"certbot_email" validate:"email"`
 
+	// Debug determines if error messages should be written as html pages with stack traces to http clients.
+	// This potentially exposes sensitive information and may cause certain API responses to be of content type 'text/html' unexpectedly.
+	Debug validators.NullableBool `yaml:"debug" validate:"bool" default:"false"`
+
 	// Also serve the panel on the toplevel domain.
 	// Note that the panel is *always* servered under the "panel" domain.
 	// Disabling this is not recommended.

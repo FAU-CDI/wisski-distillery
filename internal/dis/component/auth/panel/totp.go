@@ -8,8 +8,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
-	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/field"
+	"github.com/tkw1536/pkglib/httpx/form"
+	"github.com/tkw1536/pkglib/httpx/form/field"
 
 	_ "embed"
 )
@@ -17,7 +17,7 @@ import (
 //go:embed "templates/totp_enable.html"
 var totpEnableHTML []byte
 var totpEnable = templating.Parse[userFormContext](
-	"totp_enable.html", totpEnableHTML, httpx.FormTemplate,
+	"totp_enable.html", totpEnableHTML, form.FormTemplate,
 
 	templating.Title("Enable TOTP"),
 	templating.Assets(assets.AssetsUser),
@@ -26,19 +26,19 @@ var totpEnable = templating.Parse[userFormContext](
 func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 	tpl := totpEnable.Prepare(panel.dependencies.Templating)
 
-	return &httpx.Form[struct{}]{
+	return &form.Form[struct{}]{
 		Fields: []field.Field{
 			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
 		},
-		FieldTemplate: field.PureCSSFieldTemplate,
+		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
+		Skip: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := panel.dependencies.Auth.UserOfSession(r)
 			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 
-		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: panel.UserFormContext(tpl, menuTOTPEnable),
+		Template:        tpl.Template(),
+		TemplateContext: panel.UserFormContext(tpl, menuTOTPEnable),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
@@ -64,7 +64,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 			return struct{}{}, nil
 		},
 
-		RenderSuccess: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
+		Success: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
 			http.Redirect(w, r, "/user/totp/enroll", http.StatusSeeOther)
 			return nil
 		},
@@ -74,7 +74,7 @@ func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
 //go:embed "templates/totp_enroll.html"
 var totpEnrollHTML []byte
 var totpEnrollTemplate = templating.Parse[totpEnrollContext](
-	"totp_enroll.html", totpEnrollHTML, httpx.FormTemplate,
+	"totp_enroll.html", totpEnrollHTML, form.FormTemplate,
 
 	templating.Title("Enable TOTP"),
 	templating.Assets(assets.AssetsUser),
@@ -97,18 +97,20 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 		),
 	)
 
-	return &httpx.Form[struct{}]{
+	return &form.Form[struct{}]{
 		Fields: []field.Field{
 			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
 			{Name: "otp", Type: field.Text, Autocomplete: field.OneTimeCode, EmptyOnError: true, Label: "Passcode"},
 		},
-		FieldTemplate: field.PureCSSFieldTemplate,
+		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
+		Skip: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := panel.dependencies.Auth.UserOfSession(r)
 			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
-		RenderTemplateContext: func(context httpx.FormContext, r *http.Request) any {
+
+		Template: tpl.Template(),
+		TemplateContext: func(context form.FormContext, r *http.Request) any {
 			user, err := panel.dependencies.Auth.UserOfSession(r)
 
 			ctx := totpEnrollContext{
@@ -131,7 +133,6 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 
 			return tpl.Context(r, ctx)
 		},
-		RenderTemplate: tpl.Template(),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]
@@ -157,7 +158,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 			return struct{}{}, nil
 		},
 
-		RenderSuccess: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
+		Success: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
 			http.Redirect(w, r, "/user/", http.StatusSeeOther)
 			return nil
 		},
@@ -167,7 +168,7 @@ func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
 //go:embed "templates/totp_disable.html"
 var totpDisableHTML []byte
 var totpDisableTemplate = templating.Parse[userFormContext](
-	"totp_disable.html", totpDisableHTML, httpx.FormTemplate,
+	"totp_disable.html", totpDisableHTML, form.FormTemplate,
 
 	templating.Title("Disable TOTP"),
 	templating.Assets(assets.AssetsUser),
@@ -176,19 +177,20 @@ var totpDisableTemplate = templating.Parse[userFormContext](
 func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 	tpl := totpDisableTemplate.Prepare(panel.dependencies.Templating)
 
-	return &httpx.Form[struct{}]{
+	return &form.Form[struct{}]{
 		Fields: []field.Field{
 			{Name: "password", Type: field.Password, Autocomplete: field.CurrentPassword, EmptyOnError: true, Label: "Current Password"},
 			{Name: "otp", Type: field.Text, Autocomplete: field.OneTimeCode, EmptyOnError: true, Label: "Current Passcode"},
 		},
-		FieldTemplate: field.PureCSSFieldTemplate,
+		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		SkipForm: func(r *http.Request) (data struct{}, skip bool) {
+		Skip: func(r *http.Request) (data struct{}, skip bool) {
 			user, err := panel.dependencies.Auth.UserOfSession(r)
 			return struct{}{}, err == nil && user != nil && !user.IsTOTPEnabled()
 		},
-		RenderTemplate:        tpl.Template(),
-		RenderTemplateContext: panel.UserFormContext(tpl, menuTOTPDisable),
+
+		Template:        tpl.Template(),
+		TemplateContext: panel.UserFormContext(tpl, menuTOTPDisable),
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]
@@ -214,7 +216,7 @@ func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
 			return struct{}{}, nil
 		},
 
-		RenderSuccess: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
+		Success: func(_ struct{}, values map[string]string, w http.ResponseWriter, r *http.Request) error {
 			http.Redirect(w, r, "/user/", http.StatusSeeOther)
 			return nil
 		},

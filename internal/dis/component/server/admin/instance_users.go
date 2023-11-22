@@ -15,7 +15,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/field"
+	"github.com/tkw1536/pkglib/httpx/form/field"
 
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/exp/maps"
@@ -55,7 +55,7 @@ func (admin *Admin) instanceUsers(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (instanceUsersContext, []templating.FlagFunc, error) {
+	return tpl.HTMLHandlerWithFlags(admin.dependencies.Handling, func(r *http.Request) (instanceUsersContext, []templating.FlagFunc, error) {
 		if r.Method == http.MethodGet {
 			return admin.getGrantsUsers(r)
 		} else {

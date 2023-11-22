@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/tkw1536/pkglib/mux"
+	"github.com/tkw1536/pkglib/httpx/mux"
 )
 
 // Routeable is a component that is servable
@@ -51,8 +51,27 @@ type Routes struct {
 	Decorator func(http.Handler) http.Handler
 }
 
+type routeContextTyp int
+
+const routeContextKey routeContextTyp = 0
+
+// RouteContext represents the context passed to a given route
 type RouteContext struct {
 	DefaultDomain bool
+}
+
+// WithRouteContext adds the given RouteContext to the context
+func WithRouteContext(parent context.Context, value RouteContext) context.Context {
+	return context.WithValue(parent, routeContextKey, value)
+}
+
+// RouteContextOf returns the route context of the given context
+func RouteContextOf(context context.Context) RouteContext {
+	ctx, ok := context.Value(routeContextKey).(RouteContext)
+	if !ok {
+		return RouteContext{}
+	}
+	return ctx
 }
 
 // Predicate returns the predicate corresponding to the given route

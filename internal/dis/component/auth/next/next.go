@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/users"
 	"github.com/tkw1536/pkglib/httpx"
@@ -21,6 +22,7 @@ type Next struct {
 		Auth      *auth.Auth
 		Policy    *policy.Policy
 		Instances *instances.Instances
+		Handleing *handling.Handling
 	}
 }
 
@@ -72,7 +74,7 @@ func (next *Next) getInstance(r *http.Request) (wisski *wisski.WissKI, path stri
 }
 
 func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
-	return httpx.RedirectHandler(func(r *http.Request) (string, int, error) {
+	return next.dependencies.Handleing.Redirect(func(r *http.Request) (string, int, error) {
 		// get the instance and the path
 		instance, path, err := next.getInstance(r)
 		if err != nil {

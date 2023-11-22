@@ -2,18 +2,17 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
-	"runtime/debug"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/pkglib/contextx"
-	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/timewrap"
-	"github.com/tkw1536/pkglib/mux"
+	"github.com/tkw1536/pkglib/httpx/mux"
+	"github.com/tkw1536/pkglib/httpx/wrap"
+	"github.com/tkw1536/pkglib/recovery"
 
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
@@ -27,6 +26,7 @@ type Server struct {
 		Cronables  []component.Cronable
 
 		Templating *templating.Templating
+		Handleing  *handling.Handling
 	}
 }
 
@@ -39,30 +39,33 @@ var (
 //
 // Logging messages are directed to progress
 func (server *Server) Server(ctx context.Context, progress io.Writer) (public http.Handler, internal http.Handler, err error) {
-	logger := zerolog.Ctx(ctx)
+	interceptor := server.dependencies.Handleing.TextInterceptor()
 
-	var publicM, internalM mux.Mux[component.RouteContext]
-	publicM.Context = func(r *http.Request) component.RouteContext {
-		slug, ok := server.Config.HTTP.NormSlugFromHost(r.Host)
-		return component.RouteContext{
-			DefaultDomain: slug == "" && ok,
-		}
+	// wrapHandler wraps individual handlers for errors
+	wrapHandler := func(h http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// handle any panic()s that occur
+			defer func() {
+				// intercept any panic() that wasn't caught
+				if err := recovery.Recover(recover()); err != nil {
+					interceptor.Intercept(w, r, err)
+				}
+			}()
+
+			// determine if we are on a slug from a host
+			slug, ok := server.Config.HTTP.NormSlugFromHost(r.Host)
+
+			rctx := component.WithRouteContext(r.Context(), component.RouteContext{
+				DefaultDomain: slug == "" && ok,
+			})
+			ctx := contextx.WithValuesOf(rctx, ctx)
+
+			// serve with the next context
+			h.ServeHTTP(w, r.WithContext(ctx))
+		})
 	}
-	publicM.Panic = func(p any, stack []byte, w http.ResponseWriter, r *http.Request) {
-		// log the panic
-		logger.Error().
-			Str("panic", fmt.Sprint(p)).
-			Str("stack", string(stack)).
-			Str("path", r.URL.Path).
-			Msg("panic serving handler")
 
-		// and send an internal server error
-		httpx.TextInterceptor.Fallback.ServeHTTP(w, r)
-	}
-
-	// setup the internal server identically
-	internalM.Panic = publicM.Panic
-	internalM.Context = publicM.Context
+	var publicM, internalM mux.Mux
 
 	// create a csrf protector
 	csrfProtector := server.csrf()
@@ -95,7 +98,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 		handler = routes.Decorate(handler, csrfProtector)
 
 		// determine the predicate
-		predicate := routes.Predicate(publicM.ContextOf)
+		predicate := routes.Predicate(func(r *http.Request) component.RouteContext { return component.RouteContextOf(r.Context()) })
 
 		// and add all the prefixes
 		for _, prefix := range append([]string{routes.Prefix}, routes.Aliases...) {
@@ -107,15 +110,15 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 		}
 	}
 
-	// apply the given context function
-	public = httpx.WithContextWrapper(&publicM, func(rcontext context.Context) context.Context { return contextx.WithValuesOf(rcontext, ctx) })
-	internal = httpx.WithContextWrapper(&internalM, func(rcontext context.Context) context.Context { return contextx.WithValuesOf(rcontext, ctx) })
+	// wrap the handlers
+	public = wrapHandler(&publicM)
+	internal = wrapHandler(&internalM)
 
 	// Add Content-Security-Policy
 	public = WithCSP(public, models.ContentSecurityPolicyDistilery)
 	internal = WithCSP(internal, models.ContentSecurityPolicyNothing)
 
-	public = timewrap.Wrap(public)
+	public = wrap.Time(public)
 
 	err = nil
 	return
@@ -140,11 +143,4 @@ func WithCSP(handler http.Handler, policy string) http.Handler {
 		w.Header().Set("Content-Security-Policy", policy)
 		handler.ServeHTTP(w, r)
 	})
-}
-
-func init() {
-	httpx.InterceptorOnFallback = func(req *http.Request, err error) {
-		stack := debug.Stack()
-		zerolog.Ctx(req.Context()).Err(err).Str("stack", string(stack)).Msg("unknown error intercepted")
-	}
 }

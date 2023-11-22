@@ -21,4 +21,14 @@ type Assets struct {
 	Styles  template.HTML // <link> tags inserted by the asset
 }
 
+var PureCSSFieldTemplate = template.Must(template.New("").Parse(`
+<div class="pure-control-group">
+<label for="{{.Name}}">{{.Label}}</label>
+{{ if (eq .Type "textarea" )}}
+<textarea name="{{.Name}}" id="{{.Name}}" placeholder="{{.Placeholder}}"{{if .Autocomplete }} autocomplete="{{.Autocomplete}}" {{end}}>{{.Value}}</textarea>
+{{ else }}
+<input type="{{.Type}}" value="{{.Value}}" name="{{.Name}}" id="{{.Name}}" placeholder="{{.Placeholder}}"{{if .Autocomplete }} autocomplete="{{.Autocomplete}}" {{end}}>
+{{ end }}
+</div>`))
+
 //go:generate node build.mjs Default User Admin AdminProvision AdminRebuild

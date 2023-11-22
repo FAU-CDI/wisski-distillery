@@ -11,10 +11,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/gorilla/csrf"
 	"github.com/rs/zerolog"
-	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/timewrap"
+	"github.com/tkw1536/pkglib/httpx/content"
+	"github.com/tkw1536/pkglib/httpx/form"
+	"github.com/tkw1536/pkglib/httpx/wrap"
 )
 
 //go:embed "src/base.html"
@@ -46,7 +48,7 @@ func (tpl *Template[C]) context(r *http.Request, funcs ...FlagFunc) (ctx *tConte
 	// setup the basic properties
 	ctx.ctx = r.Context()
 	ctx.Runtime.RequestURI = r.URL.RequestURI()
-	ctx.Runtime.StartedAt = timewrap.Start(r).UTC()
+	ctx.Runtime.StartedAt = wrap.TimeStart(r).UTC()
 	ctx.Runtime.GeneratedAt = time.Now().UTC()
 	ctx.Runtime.CSRF = csrf.TemplateField(r)
 	ctx.Runtime.Menu = tpl.templating.buildMenu(r)
@@ -70,19 +72,19 @@ func (tpl *Template[C]) context(r *http.Request, funcs ...FlagFunc) (ctx *tConte
 var ParseForm = Parse[FormContext]
 
 type FormContext struct {
-	httpx.FormContext
+	form.FormContext
 	RuntimeFlags
 }
 
 // NewFormContext returns a new FormContext from an underlying context
-func NewFormContext(context httpx.FormContext) FormContext {
+func NewFormContext(context form.FormContext) FormContext {
 	return FormContext{FormContext: context}
 }
 
 // FormTemplateContext returns a new handler for a form with the given base context
-func FormTemplateContext(tw *Template[FormContext]) func(ctx httpx.FormContext, r *http.Request) any {
+func FormTemplateContext(tw *Template[FormContext]) func(ctx form.FormContext, r *http.Request) any {
 	// TODO: Is this needed?
-	return func(ctx httpx.FormContext, r *http.Request) any {
+	return func(ctx form.FormContext, r *http.Request) any {
 		return tw.Context(r, FormContext{FormContext: ctx})
 	}
 }
@@ -113,19 +115,21 @@ func (tw *Template[C]) HandlerWithFlags(worker func(r *http.Request) (C, []FlagF
 
 // HTMLHandler creates a new httpx.HTMLHandler that calls tw.Handler(worker) and tw.Template.
 // See also Handler.
-func (tw *Template[C]) HTMLHandler(worker func(r *http.Request) (C, error)) httpx.HTMLHandler[any] {
-	return httpx.HTMLHandler[any]{
-		Handler:  tw.Handler(worker),
-		Template: tw.Template(),
+func (tw *Template[C]) HTMLHandler(handling *handling.Handling, worker func(r *http.Request) (C, error)) content.HTMLHandler[any] {
+	return content.HTMLHandler[any]{
+		Handler:     tw.Handler(worker),
+		Template:    tw.Template(),
+		Interceptor: handling.HTMLInterceptor(),
 	}
 }
 
 // HTMLHandlerWithFlags creates a new httpx.HTMLHandler that calls tw.HandlerWithFlags(worker) and tw.Template.
 // See also HandlerWithFlags.
-func (tw *Template[C]) HTMLHandlerWithFlags(worker func(r *http.Request) (C, []FlagFunc, error)) httpx.HTMLHandler[any] {
-	return httpx.HTMLHandler[any]{
-		Handler:  tw.HandlerWithFlags(worker),
-		Template: tw.Template(),
+func (tw *Template[C]) HTMLHandlerWithFlags(handling *handling.Handling, worker func(r *http.Request) (C, []FlagFunc, error)) content.HTMLHandler[any] {
+	return content.HTMLHandler[any]{
+		Handler:     tw.HandlerWithFlags(worker),
+		Template:    tw.Template(),
+		Interceptor: handling.HTMLInterceptor(),
 	}
 }
 

@@ -61,7 +61,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 
 	about := home.dependencies.Templating.GetCustomizable(aboutTemplate)
 
-	return tpl.HTMLHandler(func(r *http.Request) (pc publicContext, err error) {
+	return tpl.HTMLHandler(home.dependencies.Handling, func(r *http.Request) (pc publicContext, err error) {
 		// only act on the root path!
 		if strings.TrimSuffix(r.URL.Path, "/") != "" {
 			return pc, httpx.ErrNotFound

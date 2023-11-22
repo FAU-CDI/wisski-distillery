@@ -50,7 +50,7 @@ func (admin *Admin) instanceDrupal(ctx context.Context) http.Handler {
 		),
 	)
 
-	return tpl.HTMLHandlerWithFlags(func(r *http.Request) (ctx instanceDrupalContext, funcs []templating.FlagFunc, err error) {
+	return tpl.HTMLHandlerWithFlags(admin.dependencies.Handling, func(r *http.Request) (ctx instanceDrupalContext, funcs []templating.FlagFunc, err error) {
 		slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
 
 		// setup the context with just the instance

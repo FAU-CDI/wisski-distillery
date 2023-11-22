@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/list"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 )
@@ -15,6 +16,7 @@ type Home struct {
 	dependencies struct {
 		ListInstances *list.ListInstances
 		Templating    *templating.Templating
+		Handling      *handling.Handling
 	}
 }
 
