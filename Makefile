@@ -1,13 +1,13 @@
 .PHONY: clean all deps live tslint tsfix
 
 live:
-	sudo CGO_ENABLED=0 go run ./cmd/wdcli $(ARGS)
+	sudo CGO_ENABLED=0 go run -trimpath ./cmd/wdcli $(ARGS)
 
 all: wdcli
 
 wdcli:
 	go generate ./internal/dis/component/control/static/
-	CGO_ENABLED=0 go build -o ./wdcli ./cmd/wdcli
+	CGO_ENABLED=0 go build -trimpath -o ./wdcli ./cmd/wdcli
 
 tslint:
 	cd internal/dis/component/server/assets/ && yarn ts-standard
