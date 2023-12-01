@@ -6,9 +6,11 @@
         float: left;
         min-width: 10em;
         margin: 5px;
-
-        border: 1px solid black;
     }
+}
+
+nav.tabs-menu {
+    border: 1px solid black;
 }
 
 nav.top-menu, nav.breadcrumbs {

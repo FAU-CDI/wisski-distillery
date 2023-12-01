@@ -1,3 +1,20 @@
+@media (min-width: 48em) {
+    .h-md-padding {
+        padding-left: 1em;
+        padding-right: 1em;
+    }
+}
+
+.h-md-padding {
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+.overflow {
+    overflow-x: auto;
+}
+
+
 .overflow table {
     width: 100%;
 }
