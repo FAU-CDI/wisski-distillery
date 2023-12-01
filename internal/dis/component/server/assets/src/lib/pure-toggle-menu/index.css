@@ -1,0 +1,55 @@
+/** hide contents of the menu */
+.pure-toggle-menu.closed .pure-toggle-hide {
+    display: none !important;
+}
+
+/** toggle button itself */
+.pure-toggle-menu .toggle {
+    width: 34px;
+    height: 34px;
+    
+    position: relative;
+    float: right;
+
+    /** matching the margin of the parent */
+    top: 1em;
+    right: .5em;
+}
+
+.pure-toggle-menu .toggle .bar {
+    background-color: #582e2e;
+    display: block;
+    width: 20px;
+    height: 2px;
+    border-radius: 100px;
+
+    position: absolute;
+    top: 18px;
+    right: 7px;
+
+    -webkit-transition: all 0.5s;
+    -moz-transition: all 0.5s;
+    -ms-transition: all 0.5s;
+    transition: all 0.5s;
+}
+
+.pure-toggle-menu .toggle .bar:first-child {
+    -webkit-transform: translateY(-6px);
+    -moz-transform: translateY(-6px);
+    -ms-transform: translateY(-6px);
+    transform: translateY(-6px);
+}
+
+.pure-toggle-menu .toggle.x .bar {
+    -webkit-transform: rotate(45deg);
+    -moz-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.pure-toggle-menu .toggle.x .bar:first-child {
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}

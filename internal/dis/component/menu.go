@@ -18,6 +18,7 @@ type MenuItem struct {
 	Title  string
 	Path   template.URL
 	Active bool // Active, only used for tabs and crumbs
+	Sticky bool // Sticky, and do not collapse when collapsing the menu (ignored for tabs and crumbs)
 
 	Priority MenuPriority
 

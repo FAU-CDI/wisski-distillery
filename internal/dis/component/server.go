@@ -31,8 +31,10 @@ type Routes struct {
 	// Internal implies MatchAllDomains.
 	Internal bool
 
-	// MenuTitle and MenuPriority return the priority and title of this menu item
+	// MenuTitle, MenuSticky and MenuPriority return the priority, sticky and title of this menu item
+	// see MenuItem for details
 	MenuTitle    string
+	MenuSticky   bool
 	MenuPriority MenuPriority
 
 	// Exact indicates that only the exact prefix, as opposed to any sub-paths, are matched.

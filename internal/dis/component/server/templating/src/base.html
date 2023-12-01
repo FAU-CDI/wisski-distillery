@@ -10,19 +10,39 @@
     </head>
 
     <body>
-        <nav class="top-menu pure-menu pure-menu-horizontal">
-            <span class="pure-menu-heading" role="banner">
-                <img src="/logo.svg" class="logo" alt="WissKI Distillery Logo">
-            </span>
+        <nav class="top-menu pure-toggle-menu closed">
+            <div class="pure-u-1 pure-menu pure-menu-horizontal">
+                <span class="pure-menu-heading custom-brand" role="banner">
+                    <img src="/logo.svg" class="logo" alt="WissKI Distillery Logo">
+                </span>
+    
+                <!-- large screen and sticky menu -->
+                <ul class="pure-menu-list" role="menubar">
+                    {{ range $item := .Runtime.Menu }}
+                        <li class="pure-menu-item{{ if $item.Active }} pure-menu-selected{{ end }}{{ if not $item.Sticky }} u-md-show{{ end }}" role="menuitem">
+                            <a href="{{ $item.Path }}" class="pure-menu-link">{{ $item.Title }}</a>
+                        </li>
+                    {{ end }}
+                </ul>
+                
+                <a href="#" class="u-md-hide toggle"><s class="bar"></s><s class="bar"></s></a>
+            </div>
 
-            <ul class="pure-menu-list" role="menubar">
-                {{ range .Runtime.Menu }}
-                <li class="pure-menu-item{{ if .Active }} pure-menu-selected{{ end }}" role="menuitem">
-                    <a href="{{ .Path }}" class="pure-menu-link">{{ .Title }}</a>
-                </li>
-                {{ end }}
-            </ul>
+            <!-- small non-sticky menu -->
+            <div class="pure-menu u-md-hide pure-toggle-hide">
+                <ul class="pure-menu-list">
+                    {{ range $item := .Runtime.Menu }}
+                        {{ if not $item.Sticky }}
+                            <li class="pure-menu-item{{ if $item.Active }} pure-menu-selected{{ end }}" role="menuitem">
+                                <a href="{{ $item.Path }}" class="pure-menu-link">{{ .Title }}</a>
+                            </li>
+                        {{ end }}
+                    {{ end }}
+                </ul>
+            </div>
         </nav>
+
+        
         <nav class="breadcrumbs" role="navigation" aria-label="Breadcrumbs">
             {{ range .Runtime.Flags.Crumbs }}
                 <a class="{{ if .Active }}active{{ end }}" href="{{ .Path }}">{{ .Title }}</a>

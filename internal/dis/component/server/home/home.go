@@ -31,6 +31,7 @@ func (home *Home) Routes() component.Routes {
 		CSRF:            false,
 
 		MenuTitle:    home.Config.Home.Title,
+		MenuSticky:   true,
 		MenuPriority: component.MenuHome,
 	}
 }

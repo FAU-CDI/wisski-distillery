@@ -1,0 +1,2 @@
+!function(){let e="onorientationchange"in window?"orientationchange":"resize";document.querySelectorAll(".pure-toggle-menu").forEach(t=>{let n=t.querySelector(".toggle");if(!n){console.warn("'.pure-toggle-menu' without '.toggle'");return}let o=()=>{t.classList.toggle("closed"),n.classList.toggle("x")};n.addEventListener("click",e=>{e.preventDefault(),o()}),window.addEventListener(e,()=>{t.classList.contains("closed")||o()})})}();
+//# sourceMappingURL=Default.566ff7d3.js.map

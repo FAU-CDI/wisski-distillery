@@ -1,0 +1,7 @@
+.pure-form-group {
+    display: inline;
+}
+
+.pure-select {
+    min-width: 24ch; /* to match <input type="text"> */
+}

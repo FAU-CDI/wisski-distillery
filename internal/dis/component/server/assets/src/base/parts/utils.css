@@ -1,0 +1,23 @@
+.padding {
+    padding: 1em;
+}
+
+.overflow {
+    overflow-x: auto;
+}
+
+div.spacer {
+    clear: both;
+}
+
+.hspace {
+    display: block;
+    height: 1em;
+}
+
+.error-message {
+    background-color: pink;
+    border: 1px solid red;
+    padding: 2px;
+    color: red;
+}

@@ -1,0 +1,21 @@
+
+
+@media (max-width: 47.999em) {
+    .u-md-show {
+        display: none !important;
+    }
+
+    .u-md-hide {
+        display: block;
+    }
+}
+
+@media (min-width: 48em) {
+    .u-md-show {
+        display: block;
+    }
+
+    .u-md-hide {
+        display: none !important;
+    }
+}

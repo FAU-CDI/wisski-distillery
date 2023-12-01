@@ -1,0 +1,34 @@
+/** additional button sizes */
+.pure-button-xsmall {
+    font-size: 70%;
+}
+
+.pure-button-small {
+    font-size: 85%;
+}
+
+.pure-button-large {
+    font-size: 110%;
+}
+
+.pure-button-xlarge {
+    font-size: 125%;
+}
+
+/** additional buttons colors */
+
+.pure-button-action {
+    background-color: rgb(66, 184, 221) !important;
+}
+
+.pure-button-success {
+    background-color: rgb(28, 184, 65) !important;
+}
+
+.pure-button-danger {
+    background: rgb(202, 60, 60) !important;
+}
+
+.pure-button-warning {
+    background: rgb(223, 117, 20) !important;
+}

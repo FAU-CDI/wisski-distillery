@@ -40,6 +40,7 @@ func (tpl *Templating) Menu(r *http.Request) []component.MenuItem {
 			items = append(items, component.MenuItem{
 				Title:    routes.MenuTitle,
 				Priority: routes.MenuPriority,
+				Sticky:   routes.MenuSticky,
 				Path:     template.URL(routes.Prefix),
 			})
 		}

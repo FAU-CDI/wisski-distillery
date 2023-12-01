@@ -1,0 +1,21 @@
+.overflow table {
+    width: 100%;
+}
+
+.overflow table td,
+.overflow table th {
+    padding: .5em .5em;
+}
+
+
+.overflow table td:not(:last-child),
+.overflow table th:not(:last-child) {
+    width: 1px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.overflow table td:last-child,
+.overflow table th:last-child {
+    white-space: nowrap;
+}
