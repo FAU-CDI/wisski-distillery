@@ -5,7 +5,7 @@ go 1.21.3
 require (
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
 	github.com/alessio/shellescape v1.4.2
-	github.com/compose-spec/compose-go v1.20.1
+	github.com/compose-spec/compose-go v1.20.2
 	github.com/docker/docker v24.0.7+incompatible
 	github.com/gliderlabs/ssh v0.3.5
 	github.com/gorilla/csrf v1.7.2
@@ -15,14 +15,14 @@ require (
 	github.com/pquerna/otp v1.4.0
 	github.com/rs/zerolog v1.31.0
 	github.com/tkw1536/goprogram v0.5.0
-	github.com/tkw1536/pkglib v0.0.0-20231122155813-969c635025aa
+	github.com/tkw1536/pkglib v0.0.0-20231127091902-1ede10f3370e
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-meta v1.1.0
-	golang.org/x/crypto v0.15.0
-	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
-	golang.org/x/net v0.18.0
+	golang.org/x/crypto v0.16.0
+	golang.org/x/exp v0.0.0-20231127185646-65229373498e
+	golang.org/x/net v0.19.0
 	golang.org/x/sync v0.5.0
-	golang.org/x/term v0.14.0
+	golang.org/x/term v0.15.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/gorm v1.25.5
@@ -64,10 +64,10 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/sys v0.14.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
-	golang.org/x/tools v0.15.0 // indirect
+	golang.org/x/tools v0.16.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
