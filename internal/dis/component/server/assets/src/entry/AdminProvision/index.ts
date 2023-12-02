@@ -14,11 +14,11 @@ const iipserver = document.getElementById('iipserver') as HTMLInputElement
 system.addEventListener('submit', (evt) => {
   evt.preventDefault()
 
-  const flavorElement = document.querySelector('input[name="flavor"]:checked');
-  const flavor = (flavorElement instanceof HTMLInputElement) ? flavorElement.value : "";
+  const flavorElement = document.querySelector('input[name="flavor"]:checked')
+  const flavor = (flavorElement instanceof HTMLInputElement) ? flavorElement.value : ''
 
-  Provision({ 
-    Slug: slug.value, 
+  Provision({
+    Slug: slug.value,
     Flavor: flavor,
     System: { PHP: php.value, IIPServer: iipserver.checked, OpCacheDevelopment: opcacheDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value }
   })

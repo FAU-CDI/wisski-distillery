@@ -1,16 +1,15 @@
 /** @file implements the websocket protocol used by the distillery */
 
-import { default as WebSocket } from "isomorphic-ws"
-import { Buffer } from "buffer";
+import WebSocket from 'isomorphic-ws'
+import { Buffer } from 'buffer'
 
 /** Call represents a specific WebSocket call */
 export default class Call {
-  constructor(remote: Remote, spec: CallSpec) {
+  constructor (remote: Remote, spec: CallSpec) {
     this.remote = remote
     this.call = spec
   }
 
-  
   public readonly remote: Readonly<Remote>
   public readonly call: Readonly<CallSpec>
 
@@ -36,39 +35,38 @@ export default class Call {
    * Connect to the specified remote endpoint and perform the action
    * @param remote Remote to connect to
    */
-  connect(): Promise<Result> {
+  async connect (): Promise<Result> {
     // ensure that connect is only run once.
     if (this.connected) {
       throw new Error('connect() may only be called once')
     }
     this.connected = true
-    
-    // and do the connection!
-    return new Promise((resolve, reject) => {
 
+    // and do the connection!
+    return await new Promise((resolve, reject) => {
       // create the websocket
-      const ws = new WebSocket(this.remote.url, this.remote.token ? { 'headers': { 'Authorization': 'Bearer ' + this.remote.token } } : undefined)
+      const ws = new WebSocket(this.remote.url, typeof this.remote.token === 'string' ? { headers: { Authorization: 'Bearer ' + this.remote.token } } : undefined)
       this.ws = ws // make it available to other things
-  
+
       // result is a promise, because some APIs in the browser are async
-      let result = Promise.resolve(JSON.stringify({'success': false, 'message': 'Unknown error'}))
+      let result = Promise.resolve(JSON.stringify({ success: false, message: 'Unknown error' }))
 
       ws.onopen = () => {
-        if (this.beforeCall) {
-          this.beforeCall.call(this)
+        if (this.beforeCall != null) {
+          this.beforeCall()
         }
         ws.send(Buffer.from(JSON.stringify(this.call), 'utf8'))
       }
-  
+
       ws.onmessage = ({ data }) => {
         // if this is a string it is a log line
         if (typeof data === 'string') {
-          if (this.onLogLine) {
-            this.onLogLine.call(this, data)
+          if (this.onLogLine != null) {
+            this.onLogLine(data)
           }
           return
         }
-        
+
         // decode the message
         if (data instanceof Blob) {
           result = data.text()
@@ -82,57 +80,58 @@ export default class Call {
         this.close()
 
         // call the handler and reject
-        if (this.onError) {
-          this.onError.call(this, err)
+        if (this.onError != null) {
+          this.onError(err)
         }
         reject(err)
       }
-  
+
       ws.onclose = () => {
         this.close()
-        
+
         // decode the result
         result
           .then(t => JSON.parse(t))
           .then((res) => {
-            if (this.afterCall) {
-              this.afterCall.call(this, res)
+            if (this.afterCall != null) {
+              this.afterCall(res)
             }
             resolve(res)
           })
+          .catch((e) => console.error(e))
       }
     })
   }
 
   /** sendText sends some text to the server requests cancellation of an ongoing operation */
-  sendText(text: string) {
-      const ws = this.ws
-      if (ws == null) {
-        throw new Error('websocket not connected')
-      }
-
-      ws.send(text)
-  }
-
-  /** cancel requests cancellation of an ongoing operation */
-  cancel() {
+  sendText (text: string): void {
     const ws = this.ws
     if (ws == null) {
       throw new Error('websocket not connected')
     }
 
-    ws.send(Buffer.from(JSON.stringify({ signal: 'cancel'}), 'utf8'))
+    ws.send(text)
+  }
+
+  /** cancel requests cancellation of an ongoing operation */
+  cancel (): void {
+    const ws = this.ws
+    if (ws == null) {
+      throw new Error('websocket not connected')
+    }
+
+    ws.send(Buffer.from(JSON.stringify({ signal: 'cancel' }), 'utf8'))
   }
 
   /** close closes this websocket connection */
-  private close() {
+  private close (): void {
     const ws = this.ws
     if (ws == null) {
       throw new Error('websocket not connected')
     }
 
     ws.close()
-    this.ws = null;
+    this.ws = null
   }
 }
 
@@ -142,7 +141,7 @@ export interface Remote {
   token?: string // optional token
 }
 
-/** CallSpec represents the specification for a call*/
+/** CallSpec represents the specification for a call */
 export interface CallSpec {
   call: string
   params: string[]
@@ -150,6 +149,6 @@ export interface CallSpec {
 
 /** the result of a websocket call */
 export interface Result {
-  success: boolean,
-  message: string,
+  success: boolean
+  message: string
 }

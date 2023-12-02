@@ -219,21 +219,21 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   const call = new LocalCall({
     call: action,
     params
-  });
+  })
 
-  call.beforeCall = function() {
+  call.beforeCall = function () {
     cancelButton.removeAttribute('disabled')
-      cancelButton.addEventListener('click', (event) => {
-        event.preventDefault()
+    cancelButton.addEventListener('click', (event) => {
+      event.preventDefault()
 
-        print('^C\n', true)
-        this.cancel()
-      })
-      print(' Connected.\n', true)
+      print('^C\n', true)
+      this.cancel()
+    })
+    print(' Connected.\n', true)
   }
-  call.onLogLine = print;
+  call.onLogLine = print
 
   call.connect()
     .then((result) => close(result))
-    .catch(() => close({ success: false, message: 'connection closed unexpectedly' }));
+    .catch(() => close({ success: false, message: 'connection closed unexpectedly' }))
 }
