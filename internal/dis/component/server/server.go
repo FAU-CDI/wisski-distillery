@@ -129,6 +129,7 @@ func (server *Server) csrf() func(http.Handler) http.Handler {
 	var opts []csrf.Option
 	opts = append(opts, csrf.Secure(server.Config.HTTP.HTTPSEnabled()))
 	opts = append(opts, csrf.SameSite(csrf.SameSiteStrictMode))
+	opts = append(opts, csrf.Path("/"))
 	opts = append(opts, csrf.CookieName(CSRFCookie))
 	opts = append(opts, csrf.FieldName(CSRFCookieField))
 	return csrf.Protect(server.Config.CSRFSecret(), opts...)
