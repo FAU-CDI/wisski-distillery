@@ -14,13 +14,13 @@ import (
 )
 
 var (
-	errLegacyReadParamsTimeout = errors.New("timeout reading the first message")
-	errLegacyUnknownAction     = errors.New("unknown action call")
-	errLegacyIncorrectParams   = errors.New("invalid number of parameters")
+	errReadParamsTimeout = errors.New("timeout reading the first message")
+	errUnknownAction     = errors.New("unknown action call")
+	errIncorrectParams   = errors.New("invalid number of parameters")
 )
 
-// Handle handles the legacy protocol version.
-// This is mostly used for legacy clients.
+// Handle handles the v1 protocol version.
+// It is frozen and should not be changed.
 //
 // There are two kinds of messages:
 //
@@ -33,7 +33,7 @@ var (
 // Finally it will send a ResultMessage once handling is complete.
 //
 // A corresponding client implementation of this can be found in ..../remote/proto.ts
-func (am ActionMap) handleLegacyProtocol(auth *auth.Auth, conn *websocket.Connection) (name string, err error) {
+func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocket.Connection) (name string, err error) {
 	var wg sync.WaitGroup
 
 	// once we have finished executing send a binary message (indicating success) to the client.
@@ -48,7 +48,7 @@ func (am ActionMap) handleLegacyProtocol(auth *auth.Auth, conn *websocket.Connec
 		}
 
 		// generate a result message
-		var result LegacyResultMessage
+		var result ResultMessage
 		if err == nil {
 			result.Success = true
 		} else {
@@ -103,25 +103,25 @@ func (am ActionMap) handleLegacyProtocol(auth *auth.Auth, conn *websocket.Connec
 
 	}()
 
-	var call LegacyCallMessage
+	var call CallMessage
 	select {
 	case buffer := <-binaryMessages:
 		if err := json.Unmarshal(buffer, &call); err != nil {
-			return "", errLegacyUnknownAction
+			return "", errUnknownAction
 		}
 
 	case <-time.After(1 * time.Second):
-		return "", errLegacyReadParamsTimeout
+		return "", errReadParamsTimeout
 	}
 
 	// check that the given action exists!
 	// and has the right number of parameters!
 	action, ok := am[call.Call]
 	if !ok || action.Handle == nil {
-		return call.Call, errLegacyUnknownAction
+		return call.Call, errUnknownAction
 	}
 	if action.NumParams != len(call.Params) {
-		return call.Call, errLegacyIncorrectParams
+		return call.Call, errIncorrectParams
 	}
 
 	// check that we have the given permission
@@ -137,7 +137,7 @@ func (am ActionMap) handleLegacyProtocol(auth *auth.Auth, conn *websocket.Connec
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		var signal LegacySignalMessage
+		var signal SignalMessage
 
 		for binary := range binaryMessages {
 			signal.Signal = ""
@@ -148,7 +148,7 @@ func (am ActionMap) handleLegacyProtocol(auth *auth.Auth, conn *websocket.Connec
 			}
 
 			// if we got a cancel message, do the cancellation!
-			if signal.Signal == LegacySignalCancel {
+			if signal.Signal == SignalCancel {
 				cancel()
 			}
 		}
@@ -179,25 +179,25 @@ func (am ActionMap) handleLegacyProtocol(auth *auth.Auth, conn *websocket.Connec
 	return call.Call, action.Handle(ctx, inputR, output, call.Params...)
 }
 
-// LegacyCallMessage is sent by the client to the server to invoke a remote procedure
-type LegacyCallMessage struct {
+// CallMessage is sent by the client to the server to invoke a remote procedure
+type CallMessage struct {
 	Call   string   `json:"call"`
 	Params []string `json:"params,omitempty"`
 }
 
-// LegacySignalMessage is sent from the client to the server to stop the current procedure
-type LegacySignalMessage struct {
-	Signal LegacySignal `json:"signal"`
+// SignalMessage is sent from the client to the server to stop the current procedure
+type SignalMessage struct {
+	Signal Signal `json:"signal"`
 }
 
-type LegacySignal string
+type Signal string
 
 const (
-	LegacySignalCancel LegacySignal = "cancel"
+	SignalCancel Signal = "cancel"
 )
 
-// LegacyResultMessage is sent by the server to the client to report the success of a remote procedure
-type LegacyResultMessage struct {
+// ResultMessage is sent by the server to the client to report the success of a remote procedure
+type ResultMessage struct {
 	Success bool   `json:"success"`
 	Message string `json:"message,omitempty"`
 }

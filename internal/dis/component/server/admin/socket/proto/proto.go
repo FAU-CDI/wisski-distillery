@@ -21,7 +21,7 @@ func (am ActionMap) Handle(auth *auth.Auth, conn *websocket.Connection) (name st
 	// select based on the negotiated subprotocol
 	switch conn.Subprotocol() {
 	case "":
-		return am.handleLegacyProtocol(auth, conn)
+		return am.handleV1Protocol(auth, conn)
 	default:
 		<-conn.WritePrepared(msgUnknownSubprotocol)
 		return "", errUnknownSubprotocol
