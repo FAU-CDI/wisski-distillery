@@ -79,7 +79,7 @@ func (admin *Admin) instanceTabs(slug string, active string) templating.FlagFunc
 			{Title: "Overview", Path: template.URL("/admin/instance/" + slug), Active: active == "overview"},
 			{Title: "Rebuild", Path: template.URL("/admin/instance/" + slug + "/rebuild"), Active: active == "rebuild"},
 			{Title: "Users & Grants", Path: template.URL("/admin/instance/" + slug + "/users"), Active: active == "users"},
-			{Title: "Drupal Status", Path: template.URL("/admin/instance/" + slug + "/drupal"), Active: active == "drupal"},
+			{Title: "Drupal", Path: template.URL("/admin/instance/" + slug + "/drupal"), Active: active == "drupal"},
 			{Title: "WissKI Data", Path: template.URL("/admin/instance/" + slug + "/data"), Active: active == "data"},
 			{Title: "WissKI Stats", Path: template.URL("/admin/instance/" + slug + "/stats"), Active: active == "stats"},
 			{Title: "SSH", Path: template.URL("/admin/instance/" + slug + "/ssh"), Active: active == "ssh"},

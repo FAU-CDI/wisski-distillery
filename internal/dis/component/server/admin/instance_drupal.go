@@ -91,8 +91,8 @@ func (admin *Admin) instanceDrupal(ctx context.Context) http.Handler {
 
 		return ctx, []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + ctx.Instance.Slug)}),
-			templating.ReplaceCrumb(menuDrupal, component.MenuItem{Title: "Drupal Status", Path: template.URL("/admin/instance/" + ctx.Instance.Slug + "/drupal")}),
-			templating.Title(ctx.Instance.Slug + " - Drupal Status"),
+			templating.ReplaceCrumb(menuDrupal, component.MenuItem{Title: "Drupal", Path: template.URL("/admin/instance/" + ctx.Instance.Slug + "/drupal")}),
+			templating.Title(ctx.Instance.Slug + " - Drupal"),
 			admin.instanceTabs(slug, "drupal"),
 		}, nil
 	})
