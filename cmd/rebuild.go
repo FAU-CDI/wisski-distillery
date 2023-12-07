@@ -19,7 +19,7 @@ type rebuild struct {
 	Parallel int `short:"a" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
 
 	System                bool   `short:"s" long:"system-update" description:"Update the system configuration according to other flags"`
-	PHPVersion            string `short:"p" long:"php" description:"update to specific php version to use for instance. Should be one of '8.0', '8.1'."`
+	PHPVersion            string `short:"p" long:"php" description:"update to specific php version to use for instance. See 'provision --list-php-versions' for available versions. "`
 	IIPServer             bool   `short:"i" long:"iip-server" description:"enable iip-server inside this instance"`
 	OPCacheDevelopment    bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
 	Flavor                string `short:"f" long:"flavor" description:"Use specific flavor. Use 'provision --list-flavors' to list flavors. "`

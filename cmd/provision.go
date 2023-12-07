@@ -16,7 +16,8 @@ import (
 var Provision wisski_distillery.Command = pv{}
 
 type pv struct {
-	PHPVersion            string `short:"p" long:"php" description:"specific php version to use for instance. Should be one of '8.0', '8.1'."`
+	PHPVersion            string `short:"p" long:"php" description:"specific php version to use for instance. See 'provision --list-php-versions' for available versions. "`
+	ListPHPVersions       bool   `long:"list-php-versions" description:"List available php versions"`
 	IIPServer             bool   `short:"i" long:"iip-server" description:"enable iip-server inside this instance"`
 	OPCacheDevelopment    bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
 	Flavor                string `short:"f" long:"flavor" description:"Use specific flavor. Use '--list-flavors' to list flavors. "`
@@ -33,7 +34,7 @@ var errMissingSlug = exit.Error{
 }
 
 func (pv pv) AfterParse() error {
-	if !pv.ListFlavors && pv.Positionals.Slug == "" {
+	if !pv.ListFlavors && !pv.ListPHPVersions && pv.Positionals.Slug == "" {
 		return errMissingSlug
 	}
 	return nil
@@ -59,6 +60,9 @@ var errProvisionGeneric = exit.Error{
 func (p pv) Run(context wisski_distillery.Context) error {
 	if p.ListFlavors {
 		return p.listFlavors(context)
+	}
+	if p.ListPHPVersions {
+		return p.listPHPVersions(context)
 	}
 
 	instance, err := context.Environment.Provision().Provision(context.Stderr, context.Context, provision.Flags{
@@ -88,5 +92,16 @@ func (pv) listFlavors(context wisski_distillery.Context) error {
 	encoder := json.NewEncoder(context.Stdout)
 	encoder.SetIndent("", "  ")
 	encoder.Encode(manager.Profiles())
+	return nil
+}
+
+func (pv) listPHPVersions(context wisski_distillery.Context) error {
+	for _, v := range models.KnownPHPVersions() {
+		if v == models.DefaultPHPVersion {
+			context.Printf("%s (default)\n", v)
+		} else {
+			context.Println(v)
+		}
+	}
 	return nil
 }
