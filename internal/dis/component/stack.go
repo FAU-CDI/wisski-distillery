@@ -220,14 +220,19 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		}
 	}
 
+	dockerComposeYML := filepath.Join(is.Dir, "docker-compose.yml")
+
 	// update the docker compose file
 	if is.ComposerYML != nil {
-		dst := filepath.Join(is.Dir, "docker-compose.yml")
-		fmt.Fprintf(progress, "[install] %s\n", dst)
-
-		if err := doComposeFile(dst, is.ComposerYML); err != nil {
+		fmt.Fprintf(progress, "[install] %s\n", dockerComposeYML)
+		if err := doComposeFile(dockerComposeYML, is.ComposerYML); err != nil {
 			return err
 		}
+	}
+
+	if err := addComposeFileHeader(dockerComposeYML); err != nil {
+		fmt.Fprintf(progress, "[update] %s\n", dockerComposeYML)
+		return err
 	}
 
 	// configure .env
@@ -310,6 +315,37 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		if err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+const composeFileHeader = "# This file was automatically created and is updated by the distillery; DO NOT EDIT.\n\n"
+
+// addComposeFileHeader adds a header to the 'docker-compose.yml' file
+// indicating it is automatically created
+func addComposeFileHeader(path string) error {
+	// read existing bytes
+	bytes, err := os.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	// overwrite the file
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, umaskfree.DefaultFilePerm)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	// write the header
+	if _, err := f.WriteString(composeFileHeader); err != nil {
+		return nil
+	}
+
+	// write the original content
+	if _, err := f.Write(bytes); err != nil {
+		return err
 	}
 
 	return nil
