@@ -35,5 +35,14 @@ func (r *Rebuild) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader
 	if err := json.Unmarshal([]byte(params[0]), &system); err != nil {
 		return err
 	}
-	return instance.SystemManager().Apply(ctx, out, system, true)
+
+	smanager := instance.SystemManager()
+
+	if err := smanager.Apply(ctx, out, system, true); err != nil {
+		return err
+	}
+	if err := smanager.RebuildSettings(ctx, out); err != nil {
+		return err
+	}
+	return nil
 }

@@ -127,6 +127,14 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		}
 	}
 
+	// Rebuild the settings file
+	logging.LogMessage(progress, "Rebuilding Settings")
+	{
+		if err := provision.dependencies.SystemManager.RebuildSettings(ctx, progress); err != nil {
+			return err
+		}
+	}
+
 	// Create directory for ontologies
 	logging.LogMessage(progress, fmt.Sprintf("Creating %q", barrel.OntologyDirectory))
 	{
@@ -164,13 +172,6 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 			GraphDBUsername:   provision.GraphDBUsername,
 			GraphDBPassword:   provision.GraphDBPassword,
 		}); err != nil {
-			return err
-		}
-	}
-
-	logging.LogMessage(progress, "Updating TRUSTED_HOST_PATTERNS in settings.php")
-	{
-		if err := provision.dependencies.Settings.SetTrustedDomain(ctx, nil, provision.Domain()); err != nil {
 			return err
 		}
 	}

@@ -36,7 +36,10 @@ func (settings *Settings) Set(ctx context.Context, server *phpx.Server, key stri
 	return err
 }
 
-var errFailedToSetTrustedDomain = errors.New("failed to set trusted domain")
+var (
+	errFailedToSetTrustedDomain        = errors.New("failed to set trusted domain")
+	errFailedInstallDistillerySettings = errors.New("failed to install distillery settings")
+)
 
 func (settings *Settings) SetTrustedDomain(ctx context.Context, server *phpx.Server, domain string) error {
 	var ok bool
@@ -44,6 +47,21 @@ func (settings *Settings) SetTrustedDomain(ctx context.Context, server *phpx.Ser
 	err := settings.dependencies.PHP.ExecScript(ctx, server, &ok, settingsPHP, "set_trusted_domain", domain)
 	if err == nil && !ok {
 		err = errFailedToSetTrustedDomain
+	}
+	return err
+}
+
+// GlobalSettingsPath is the global path to distillery settings
+const GlobalSettingsPath = "/distillery_settings.php"
+
+func (settings *Settings) InstallDistillerySettings(ctx context.Context, server *phpx.Server) error {
+	var ok bool
+
+	err := settings.dependencies.PHP.ExecScript(ctx, server, &ok, settingsPHP, "install_settings_include", []string{
+		GlobalSettingsPath,
+	})
+	if err == nil && !ok {
+		err = errFailedInstallDistillerySettings
 	}
 	return err
 }

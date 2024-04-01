@@ -11,6 +11,7 @@ import (
 )
 
 // Apply applies the given profile to this existing instance.
+// The instance must be running
 func (manager *Manager) Apply(ctx context.Context, progress io.Writer, flags Profile) error {
 	// Update drupal
 	if flags.Drupal != "" {
