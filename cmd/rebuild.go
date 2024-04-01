@@ -83,15 +83,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 			}
 		}
 
-		smanager := instance.SystemManager()
-
-		if err := smanager.Apply(context.Context, writer, sys, true); err != nil {
-			return err
-		}
-		if err := smanager.RebuildSettings(context.Context, writer); err != nil {
-			return err
-		}
-		return nil
+		return instance.SystemManager().Apply(context.Context, writer, sys)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)
 	}))

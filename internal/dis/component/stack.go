@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/pkg/errors"
+	"github.com/tkw1536/pkglib/fsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/stream"
 	"gopkg.in/yaml.v3"
@@ -188,8 +189,9 @@ type StackWithResources struct {
 	MakeDirsPerm fs.FileMode // permission for dirctories, defaults to [environment.DefaultDirCreate]
 	MakeDirs     []string    // directories to ensure that exist
 
-	TouchFilesPerm fs.FileMode // permission for new files to touch, defaults to [environment.DefaultFileCreate]
-	TouchFiles     []string    // Files to 'touch', i.e. ensure that exist; guaranteed to be run after MakeDirs
+	TouchFilesPerm fs.FileMode       // permission for new files to touch or create, defaults to [environment.DefaultFileCreate]
+	TouchFiles     []string          // Files to 'touch', i.e. ensure that exist; guaranteed to be run after MakeDirs
+	CreateFiles    map[string]string // Files to 'create' but not update after they are setup; guaranteed to be run after MakeDirs
 }
 
 // InstallationContext is a context to install data in
@@ -270,7 +272,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		}
 	}
 
-	// make sure that certain files exist
+	// touch files that should be created empty
 	for _, name := range is.TouchFiles {
 		// find the destination!
 		dst := filepath.Join(is.Dir, name)
@@ -278,6 +280,26 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		fmt.Fprintf(progress, "[touch]   %s\n", dst)
 		if err := umaskfree.Touch(dst, umaskfree.DefaultFilePerm); err != nil {
 			return err
+		}
+	}
+	// make sure that certain files exist
+	for name, content := range is.CreateFiles {
+		// find the destination!
+		dst := filepath.Join(is.Dir, name)
+
+		exists, err := fsx.Exists(dst)
+		if err != nil {
+			return err
+		}
+
+		// create the file if it doesn't exist
+		if !exists {
+			fmt.Fprintf(progress, "[create]   %s\n", dst)
+			if err := umaskfree.WriteFile(dst, []byte(content), umaskfree.DefaultFilePerm); err != nil {
+				return err
+			}
+		} else {
+			fmt.Fprintf(progress, "[skip]   %s\n", dst)
 		}
 	}
 

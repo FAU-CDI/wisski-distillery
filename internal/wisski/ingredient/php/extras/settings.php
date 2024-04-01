@@ -43,7 +43,6 @@ function set_setting(string $name, mixed $value): bool {
         return FALSE;
     }
 
-
     // reset the file mode
     return chmod($filename, $old);
 }
@@ -80,7 +79,7 @@ function install_settings_include(array $paths): bool {
         // add code to include the file if it exists
         $code = $code . 'if (file_exists(' . $the_path . ')) { include_once ' . $the_path . '; }' . "\n";
     }
-    $code = $code . "// </distillery-settings-include>";
+    $code = $code . "// </distillery-settings-include>\n";
 
     // and store the settings
     try {

@@ -21,19 +21,33 @@ type SystemManager struct {
 	}
 }
 
-// Apply applies a specific system version to this barrel.
-// If start is true, also starts the container.
-func (smanager *SystemManager) Apply(ctx context.Context, progress io.Writer, system models.System, start bool) (err error) {
-	// setup the new docker image
-	smanager.Instance.System = system
+// Apply applies the given system configuration to this instance and (re-)starts the system.
+func (smanager *SystemManager) Apply(ctx context.Context, progress io.Writer, system models.System) (err error) {
+	if err := smanager.apply(ctx, progress, system, true); err != nil {
+		return err
+	}
 
-	// save in bookkeeping
+	if err := smanager.BuildSettings(ctx, progress); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ApplyInitial builds the base image, but does not start it
+func (smanager *SystemManager) ApplyInitial(ctx context.Context, progress io.Writer, system models.System) error {
+	return smanager.apply(ctx, progress, system, false)
+}
+
+// apply stores the new configuration and builds the base image
+// start inidicates if the image should be started afterwards
+func (smanager *SystemManager) apply(ctx context.Context, progress io.Writer, system models.System, start bool) error {
+	// store the new system configuration
+	smanager.Instance.System = system
 	if err := smanager.dependencies.Bookkeeping.Save(ctx); err != nil {
 		return err
 	}
 
-	// TODO: Apply Content-Security-Policy!
-
-	// and rebuild
+	// build and start the barrel
 	return smanager.dependencies.Barrel.Build(ctx, progress, start)
 }

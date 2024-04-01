@@ -23,7 +23,7 @@ import (
 // Provision applies defaults to flags, to ensure some values are set
 func (manager *Manager) Provision(ctx context.Context, progress io.Writer, system models.System, flags Profile) error {
 	// Force building and applying the system!
-	if err := manager.dependencies.SystemManager.Apply(ctx, progress, system, false); err != nil {
+	if err := manager.dependencies.SystemManager.ApplyInitial(ctx, progress, system); err != nil {
 		return err
 	}
 
@@ -130,7 +130,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	// Rebuild the settings file
 	logging.LogMessage(progress, "Rebuilding Settings")
 	{
-		if err := provision.dependencies.SystemManager.RebuildSettings(ctx, progress); err != nil {
+		if err := provision.dependencies.SystemManager.BuildSettings(ctx, progress); err != nil {
 			return err
 		}
 	}

@@ -22,4 +22,7 @@ const (
 	OntologyDirectory = SitesDirectory + "/default/files/ontology"
 	SitesDirectory    = WebDirectory + "/sites"
 	WissKIDirectory   = WebDirectory + "/modules/contrib/wisski"
+
+	LocalSettingsPath  = "/settings/local.php"
+	GlobalSettingsPath = "/settings/global.php"
 )

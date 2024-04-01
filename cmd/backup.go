@@ -58,7 +58,7 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 	})
 
 	if err != nil {
-		return errBackupFailed.Wrap(err)
+		return errBackupFailed.WrapError(err)
 	}
 	return nil
 }

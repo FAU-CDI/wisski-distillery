@@ -30,19 +30,11 @@ func (*Rebuild) Action() InstanceAction {
 }
 
 func (r *Rebuild) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-	// read the flags of the instance to be provisioned
+	// read the flags of the instance to be rebuilt
 	var system models.System
 	if err := json.Unmarshal([]byte(params[0]), &system); err != nil {
 		return err
 	}
 
-	smanager := instance.SystemManager()
-
-	if err := smanager.Apply(ctx, out, system, true); err != nil {
-		return err
-	}
-	if err := smanager.RebuildSettings(ctx, out); err != nil {
-		return err
-	}
-	return nil
+	return instance.SystemManager().Apply(ctx, out, system)
 }

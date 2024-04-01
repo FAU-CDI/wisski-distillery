@@ -7,6 +7,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 )
 
@@ -41,6 +42,8 @@ var (
 	errFailedInstallDistillerySettings = errors.New("failed to install distillery settings")
 )
 
+// SetTrustedDomain configures the trusted domain setting for the given instance.
+// Note that this removes any installed distillery settings.
 func (settings *Settings) SetTrustedDomain(ctx context.Context, server *phpx.Server, domain string) error {
 	var ok bool
 
@@ -51,14 +54,12 @@ func (settings *Settings) SetTrustedDomain(ctx context.Context, server *phpx.Ser
 	return err
 }
 
-// GlobalSettingsPath is the global path to distillery settings
-const GlobalSettingsPath = "/distillery_settings.php"
-
 func (settings *Settings) InstallDistillerySettings(ctx context.Context, server *phpx.Server) error {
 	var ok bool
 
 	err := settings.dependencies.PHP.ExecScript(ctx, server, &ok, settingsPHP, "install_settings_include", []string{
-		GlobalSettingsPath,
+		barrel.LocalSettingsPath,
+		barrel.GlobalSettingsPath,
 	})
 	if err == nil && !ok {
 		err = errFailedInstallDistillerySettings
