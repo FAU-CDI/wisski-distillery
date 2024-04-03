@@ -7,9 +7,10 @@ These are required for the container to function properly.
 DO NOT EDIT THESE, changes will be overwritten during the next rebuild.
 
 - `docker-compose.yml`: Defines how the docker image is run
-- `Dockerfile`: Dockerfile used to run the actual image
+- `barrel/`: Contains Dockerfile for actual image to be used
+    - `Dockerfile`: Used to build the image
+    - `apache.d`, `scripts`, `php.ini.d`: Resources used during the docker-compose build.
 - `.env`: Parameters for `docker-compose.yml`
-- `apache.d`, `scripts`, `php.ini.d`: Resources used during the docker-compose build.
 
 To tweak parameters inside the `.env` file, rebuild the image via `wdcli rebuild`.
 

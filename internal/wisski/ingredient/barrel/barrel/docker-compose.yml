@@ -3,7 +3,7 @@ version: "3.7"
 services:
   barrel:
     build:
-      context: .
+      context: barrel
       args:
         BARREL_BASE_IMAGE: ${BARREL_BASE_IMAGE}
         OPCACHE_MODE: ${OPCACHE_MODE}
