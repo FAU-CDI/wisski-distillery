@@ -71,16 +71,17 @@ var (
 
 	menuProvision = component.MenuItem{Title: "Provision", Path: "/admin/instances/provision/"}
 
-	menuInstances = component.MenuItem{Title: "Instances", Path: "/admin/instances/"}
-	menuInstance  = component.DummyMenuItem()
-	menuRebuild   = component.DummyMenuItem()
-	menuGrants    = component.DummyMenuItem()
-	menuPurge     = component.DummyMenuItem()
-	menuSnapshots = component.DummyMenuItem()
-	menuSSH       = component.DummyMenuItem()
-	menuStats     = component.DummyMenuItem()
-	menuData      = component.DummyMenuItem()
-	menuDrupal    = component.DummyMenuItem()
+	menuInstances   = component.MenuItem{Title: "Instances", Path: "/admin/instances/"}
+	menuInstance    = component.DummyMenuItem()
+	menuRebuild     = component.DummyMenuItem()
+	menuGrants      = component.DummyMenuItem()
+	menuPurge       = component.DummyMenuItem()
+	menuSnapshots   = component.DummyMenuItem()
+	menuSSH         = component.DummyMenuItem()
+	menuStats       = component.DummyMenuItem()
+	menuData        = component.DummyMenuItem()
+	menuTriplestore = component.DummyMenuItem()
+	menuDrupal      = component.DummyMenuItem()
 )
 
 func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
@@ -159,6 +160,11 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 	{
 		stats := admin.instanceStats(ctx)
 		router.Handler(http.MethodGet, route+"instance/:slug/stats", stats)
+	}
+
+	{
+		triplestore := admin.instanceTS(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug/triplestore", triplestore)
 	}
 
 	{
