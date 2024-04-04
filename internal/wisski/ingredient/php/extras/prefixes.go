@@ -48,7 +48,7 @@ var listURIPrefixesPHP string
 // server is an optional server to fetch prefixes from.
 // server may be nil.
 func (prefixes *Prefixes) All(ctx context.Context, server *phpx.Server) ([]string, error) {
-	uris, err := prefixes.database(ctx, server)
+	uris, err := prefixes.triplestore(ctx, server)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (prefixes *Prefixes) All(ctx context.Context, server *phpx.Server) ([]strin
 	return append(uris, uris2...), nil
 }
 
-func (wisski *Prefixes) database(ctx context.Context, server *phpx.Server) (prefixes []string, err error) {
+func (wisski *Prefixes) triplestore(ctx context.Context, server *phpx.Server) (prefixes []string, err error) {
 	// get all the ugly prefixes
 	err = wisski.dependencies.PHP.ExecScript(ctx, server, &prefixes, listURIPrefixesPHP, "list_prefixes")
 	if err != nil {

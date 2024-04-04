@@ -25,15 +25,17 @@ func (ts *Triplestore) Snapshot(wisski models.Instance, scontext *component.Stag
 
 var errTSBackupWrongStatusCode = errors.New("Triplestore.Backup: Wrong status code")
 
+const nquadsContentType = "text/x-nquads"
+
 // SnapshotDB snapshots the provided repository into dst
 func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string) (int64, error) {
-	res, err := ts.OpenRaw(ctx, "GET", "/repositories/"+repo+"/statements?infer=false", nil, "", "application/n-quads", 0)
+	res, err := ts.DoRest(ctx, 0, http.MethodGet, "/repositories/"+repo+"/statements?infer=false", &RequestHeaders{Accept: nquadsContentType})
 	if err != nil {
 		return 0, err
 	}
+	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK {
 		return 0, errTSBackupWrongStatusCode
 	}
-	defer res.Body.Close()
 	return io.Copy(dst, res.Body)
 }

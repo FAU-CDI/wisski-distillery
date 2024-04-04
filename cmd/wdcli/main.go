@@ -58,6 +58,7 @@ func init() {
 
 	// backup & cron
 	wdcli.Register(cmd.Snapshot)
+	wdcli.Register(cmd.RebuildTS)
 	wdcli.Register(cmd.Backup)
 	wdcli.Register(cmd.Cron)
 	wdcli.Register(cmd.Monday)

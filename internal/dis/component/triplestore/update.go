@@ -20,7 +20,7 @@ func (ts Triplestore) Update(ctx context.Context, progress io.Writer) error {
 
 	logging.LogMessage(progress, "Resetting admin user password")
 	{
-		res, err := ts.OpenRaw(ctx, "PUT", "/rest/security/users/"+ts.Config.TS.AdminUsername, TriplestoreUserPayload{
+		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPut, "/rest/security/users/"+ts.Config.TS.AdminUsername, nil, TriplestoreUserPayload{
 			Password: ts.Config.TS.AdminPassword,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
@@ -30,7 +30,7 @@ func (ts Triplestore) Update(ctx context.Context, progress io.Writer) error {
 				ExecuteCount:          true,
 			},
 			GrantedAuthorities: []string{"ROLE_ADMIN"},
-		}, "", "", tsTrivialTimeout)
+		})
 		if err != nil {
 			return fmt.Errorf("failed to create triplestore user: %s", err)
 		}
@@ -52,7 +52,7 @@ func (ts Triplestore) Update(ctx context.Context, progress io.Writer) error {
 
 	logging.LogMessage(progress, "Enabling Triplestore security")
 	{
-		res, err := ts.OpenRaw(ctx, "POST", "/rest/security", true, "", "", tsTrivialTimeout)
+		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPost, "/rest/security", nil, true)
 		if err != nil {
 			return fmt.Errorf("failed to enable triplestore security: %s", err)
 		}

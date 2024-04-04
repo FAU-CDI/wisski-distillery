@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
@@ -32,7 +33,7 @@ func (ts *Triplestore) Backup(scontext *component.StagingContext) error {
 }
 
 func (ts Triplestore) listRepositories(ctx context.Context) (repos []Repository, err error) {
-	res, err := ts.OpenRaw(ctx, "GET", "/rest/repositories", nil, "", "application/json", 0)
+	res, err := ts.DoRest(ctx, 0, http.MethodGet, "/rest/repositories", &RequestHeaders{Accept: "application/json"})
 	if err != nil {
 		return nil, err
 	}

@@ -19,6 +19,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/users"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/reserve"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/trb"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/liquid"
 	"github.com/tkw1536/pkglib/lifetime"
 )
@@ -68,6 +69,10 @@ func (wisski *WissKI) Reserve() *reserve.Reserve {
 
 func (wisski *WissKI) Barrel() *barrel.Barrel {
 	return export[*barrel.Barrel](wisski)
+}
+
+func (wisski *WissKI) TRB() *trb.TRB {
+	return export[*trb.TRB](wisski)
 }
 
 func (wisski *WissKI) Manager() *manager.Manager {
@@ -183,4 +188,5 @@ func (wisski *WissKI) allIngredients(context *lifetime.Registry[ingredient.Ingre
 	lifetime.Place[*reserve.Reserve](context)
 
 	lifetime.Place[*ssh.SSH](context)
+	lifetime.Place[*trb.TRB](context)
 }

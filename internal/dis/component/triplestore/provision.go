@@ -61,7 +61,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 
 	// do the create!
 	{
-		res, err := ts.OpenRaw(ctx, "POST", "/rest/repositories", createRepo.Bytes(), "config", "", tsTrivialTimeout)
+		res, err := ts.DoRestWithForm(ctx, tsTrivialTimeout, http.MethodPost, "/rest/repositories", nil, "config", &createRepo)
 		if err != nil {
 			return errTripleStoreFailedRepository.WithMessageF(err)
 		}
@@ -73,7 +73,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 
 	// create the user and grant them access
 	{
-		res, err := ts.OpenRaw(ctx, "POST", "/rest/security/users/"+user, TriplestoreUserPayload{
+		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPost, "/rest/security/users/"+user, nil, TriplestoreUserPayload{
 			Password: password,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
@@ -87,7 +87,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 				"READ_REPO_" + name,
 				"WRITE_REPO_" + name,
 			},
-		}, "", "", tsTrivialTimeout)
+		})
 		if err != nil {
 			return errTripleStoreFailedRepository.WithMessageF(err)
 		}
