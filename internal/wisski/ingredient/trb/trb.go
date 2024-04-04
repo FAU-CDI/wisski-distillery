@@ -1,6 +1,7 @@
 package trb
 
 import (
+	"compress/gzip"
 	"context"
 	"errors"
 	"fmt"
@@ -20,7 +21,8 @@ type TRB struct {
 	}
 }
 
-func (trb *TRB) DoSomething(ctx context.Context, out io.Writer, allowEmptyRepository bool) (err error) {
+// RebuildTriplestore rebuilds the triplestore by making a backup, storing it on disk, purging the triplestore, and restoring the backup.
+func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmptyRepository bool) (err error) {
 
 	// stop instance, restart when done
 	logging.LogMessage(out, "Shutting down instance")
@@ -37,12 +39,12 @@ func (trb *TRB) DoSomething(ctx context.Context, out io.Writer, allowEmptyReposi
 	}()
 
 	// make the backup
-	logging.LogMessage(out, "Dumping triplestore")
-	path, err := trb.makeBackup(ctx, allowEmptyRepository)
+	logging.LogMessage(out, "Storing triplestore content")
+	dumpPath, err := trb.makeBackup(ctx, allowEmptyRepository)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Wrote %q\n", path)
+	fmt.Printf("Wrote %q\n", dumpPath)
 
 	logging.LogMessage(out, "Purging triplestore")
 	if err := trb.Malt.TS.Purge(ctx, trb.Instance, trb.Domain()); err != nil {
@@ -54,15 +56,13 @@ func (trb *TRB) DoSomething(ctx context.Context, out io.Writer, allowEmptyReposi
 		return err
 	}
 
-	logging.LogMessage(out, "Loading dump file")
-	content, err := os.Open(path)
-	if err != nil {
+	logging.LogMessage(out, "Restoring triplestore")
+	if err := trb.restoreBackup(ctx, dumpPath); err != nil {
 		return err
 	}
-	defer content.Close()
 
-	logging.LogMessage(out, "Restoring triplestore")
-	if err := trb.Malt.TS.RestoreDB(ctx, trb.GraphDBRepository, content); err != nil {
+	logging.LogMessage(out, "Deleting dump file")
+	if err := os.Remove(dumpPath); err != nil {
 		return err
 	}
 
@@ -72,13 +72,17 @@ func (trb *TRB) DoSomething(ctx context.Context, out io.Writer, allowEmptyReposi
 var errBackupEmpty = errors.New("no data contained in backup file (is the repository empty?)")
 
 func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path string, err error) {
-	f, err := os.CreateTemp("", "")
+	file, err := os.CreateTemp("", "*.nq.gz")
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
+	defer file.Close()
 
-	count, err := trb.Malt.TS.SnapshotDB(ctx, f, trb.GraphDBRepository)
+	// create a new writer
+	zippedFile := gzip.NewWriter(file)
+	defer zippedFile.Close()
+
+	count, err := trb.Malt.TS.SnapshotDB(ctx, zippedFile, trb.GraphDBRepository)
 	if err != nil {
 		return "", err
 	}
@@ -87,5 +91,24 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 		return "", errBackupEmpty
 	}
 
-	return f.Name(), nil
+	return file.Name(), nil
+}
+
+func (trb *TRB) restoreBackup(ctx context.Context, path string) (err error) {
+	reader, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer reader.Close()
+
+	decompressedReader, err := gzip.NewReader(reader)
+	if err != nil {
+		return err
+	}
+	defer decompressedReader.Close()
+
+	if err := trb.Malt.TS.RestoreDB(ctx, trb.GraphDBRepository, decompressedReader); err != nil {
+		return err
+	}
+	return nil
 }
