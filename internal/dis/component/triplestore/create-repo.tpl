@@ -5,7 +5,7 @@
 @prefix rep: <http://www.openrdf.org/config/repository#>.
 @prefix sr: <http://www.openrdf.org/config/repository/sail#>.
 @prefix sail: <http://www.openrdf.org/config/sail#>.
-@prefix owlim: <http://www.ontotext.com/trree/owlim#>.
+@prefix graphdb: <http://www.ontotext.com/config/graphdb#>.
 
 [] a rep:Repository ;
     rep:repositoryID "{{ .RepositoryID }}" ;
@@ -15,42 +15,27 @@
         sr:sailImpl [
             sail:sailType "graphdb:Sail" ;
 
-            owlim:owlim-license "" ;
+            graphdb:base-URL "{{ .BaseURL }}" ;
+            graphdb:defaultNS "" ;
+            graphdb:entity-index-size "10000000" ;
+            graphdb:entity-id-size  "32" ;
+            graphdb:imports "" ;
+            graphdb:repository-type "file-repository" ;
+            graphdb:ruleset "empty" ;
+            graphdb:storage-folder "storage" ;
 
-            owlim:base-URL "{{ .BaseURL }}" ;
-            owlim:defaultNS "" ;
-            owlim:entity-index-size "10000000" ;
-            owlim:entity-id-size  "32" ;
-            owlim:imports "" ;
-            owlim:repository-type "file-repository" ;
-            owlim:ruleset "empty" ;
-            owlim:storage-folder "storage" ;
+            graphdb:enable-context-index "true" ;
 
-            owlim:enable-context-index "true" ;
-            owlim:cache-memory "80m" ;
-            owlim:tuple-index-memory "80m" ;
+            graphdb:enablePredicateList "true" ;
 
-            owlim:enablePredicateList "true" ;
-            owlim:predicate-memory "0%" ;
+            graphdb:in-memory-literal-properties "true" ;
+            graphdb:enable-literal-index "true" ;
 
-            owlim:fts-memory "0%" ;
-            owlim:ftsIndexPolicy "never" ;
-            owlim:ftsLiteralsOnly "true" ;
-
-            owlim:in-memory-literal-properties "false" ;
-            owlim:enable-literal-index "true" ;
-            owlim:index-compression-ratio "-1" ;
-
-            owlim:check-for-inconsistencies "false" ;
-            owlim:disable-sameAs  "false" ;
-            owlim:enable-optimization  "true" ;
-            owlim:transaction-mode "safe" ;
-            owlim:transaction-isolation "true" ;
-            owlim:query-timeout  "0" ;
-            owlim:query-limit-results  "0" ;
-            owlim:throw-QueryEvaluationException-on-timeout "false" ;
-            owlim:useShutdownHooks  "true" ;
-            owlim:read-only "false" ;
-            owlim:nonInterpretablePredicates "http://www.w3.org/2000/01/rdf-schema#label;http://www.w3.org/1999/02/22-rdf-syntax-ns#type;http://www.ontotext.com/owlim/ces#gazetteerConfig;http://www.ontotext.com/owlim/ces#metadataConfig" ;
+            graphdb:check-for-inconsistencies "false" ;
+            graphdb:disable-sameAs  "true" ;
+            graphdb:query-timeout  "0" ;
+            graphdb:query-limit-results  "0" ;
+            graphdb:throw-QueryEvaluationException-on-timeout "false" ;
+            graphdb:read-only "false" ;
         ]
     ].
