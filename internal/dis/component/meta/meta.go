@@ -1,12 +1,12 @@
 package meta
 
 import (
+	"reflect"
 	"sync"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/pkglib/reflectx"
 )
 
 // Component meta is responsible for managing metadata per WissKI Instance
@@ -27,7 +27,7 @@ var (
 
 func (*Meta) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeFor[models.Metadatum](),
+		Model: reflect.TypeFor[models.Metadatum](),
 		Name:  models.MetadataTable,
 	}
 }

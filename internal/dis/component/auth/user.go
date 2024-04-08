@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image/png"
+	"reflect"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -15,7 +16,6 @@ import (
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/tkw1536/pkglib/password"
-	"github.com/tkw1536/pkglib/reflectx"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,7 +25,7 @@ var ErrUserNotFound = errors.New("user not found")
 func (auth *Auth) TableInfo() component.TableInfo {
 	return component.TableInfo{
 		Name:  models.UserTable,
-		Model: reflectx.TypeFor[models.User](),
+		Model: reflect.TypeFor[models.User](),
 	}
 }
 

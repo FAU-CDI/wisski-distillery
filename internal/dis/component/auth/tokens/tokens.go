@@ -3,13 +3,13 @@ package tokens
 import (
 	"context"
 	"crypto/rand"
+	"reflect"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/pkglib/password"
-	"github.com/tkw1536/pkglib/reflectx"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +30,7 @@ var (
 func (tok *Tokens) TableInfo() component.TableInfo {
 	return component.TableInfo{
 		Name:  models.TokensTable,
-		Model: reflectx.TypeFor[models.Token](),
+		Model: reflect.TypeFor[models.Token](),
 	}
 }
 

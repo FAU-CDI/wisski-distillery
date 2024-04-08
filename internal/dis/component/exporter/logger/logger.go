@@ -5,13 +5,13 @@ import (
 	"errors"
 	"io/fs"
 	"os"
+	"reflect"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/tkw1536/pkglib/collection"
-	"github.com/tkw1536/pkglib/reflectx"
 )
 
 // Logger is responsible for logging backups and snapshots
@@ -28,7 +28,7 @@ var (
 
 func (*Logger) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeFor[models.Export](),
+		Model: reflect.TypeFor[models.Export](),
 		Name:  models.ExportTable,
 	}
 }

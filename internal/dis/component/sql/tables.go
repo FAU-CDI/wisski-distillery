@@ -1,9 +1,10 @@
 package sql
 
 import (
+	"reflect"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/pkglib/reflectx"
 )
 
 // This file defines additional tables used by multiple components
@@ -18,7 +19,7 @@ var (
 
 func (*InstanceTable) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeFor[models.Instance](),
+		Model: reflect.TypeFor[models.Instance](),
 		Name:  models.InstanceTable,
 	}
 }
@@ -33,7 +34,7 @@ var (
 
 func (*LockTable) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeFor[models.Lock](),
+		Model: reflect.TypeFor[models.Lock](),
 		Name:  models.LockTable,
 	}
 }

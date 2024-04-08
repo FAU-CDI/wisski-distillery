@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/rs/zerolog"
-	"github.com/tkw1536/pkglib/reflectx"
 	"golang.org/x/exp/slices"
 )
 
@@ -52,7 +52,7 @@ func (rf RuntimeFlags) TookHTML() template.HTML {
 	return template.HTML(fmt.Sprintf("<time datetime=\"P%.3f\">%s</time>", took.Seconds(), took))
 }
 
-var runtimeFlagsName = reflectx.TypeFor[RuntimeFlags]().Name()
+var runtimeFlagsName = reflect.TypeFor[RuntimeFlags]().Name()
 
 // Clone clones this flags
 func (flags Flags) Clone() Flags {

@@ -2,16 +2,16 @@ package sshkeys
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/gliderlabs/ssh"
-	"github.com/tkw1536/pkglib/reflectx"
 )
 
 func (ssh2 *SSHKeys) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflectx.TypeFor[models.Keys](),
+		Model: reflect.TypeFor[models.Keys](),
 		Name:  models.KeysTable,
 	}
 }

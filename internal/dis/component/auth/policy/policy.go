@@ -2,12 +2,12 @@ package policy
 
 import (
 	"context"
+	"reflect"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/pkglib/reflectx"
 	"gorm.io/gorm"
 )
 
@@ -29,7 +29,7 @@ var (
 func (pol *Policy) TableInfo() component.TableInfo {
 	return component.TableInfo{
 		Name:  models.GrantTable,
-		Model: reflectx.TypeFor[models.Grant](),
+		Model: reflect.TypeFor[models.Grant](),
 	}
 }
 

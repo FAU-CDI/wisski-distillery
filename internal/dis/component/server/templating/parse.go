@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"reflect"
 
-	"github.com/tkw1536/pkglib/reflectx"
 	"golang.org/x/exp/slices"
 )
 
@@ -21,7 +20,7 @@ type Parsed[C any] struct {
 // If base is not nil, every template associated with the base template is copied into the given template.
 // Functions will be applied on creation time to represent the context for the given template.
 func Parse[C any](name string, source []byte, base *template.Template, funcs ...FlagFunc) Parsed[C] {
-	tp := reflectx.TypeFor[C]()
+	tp := reflect.TypeFor[C]()
 
 	// determine if we have an embedded field in the struct
 	var hasEmbed bool
