@@ -9,9 +9,17 @@ import (
 )
 
 // Scope represents a single permit by a session to perform some action.
-// Scopes consist of two parts: A general name and a specific object.
-// Scopes are checked by ScopeCheckers.
+// A particular session either has a permission or does not.
 type Scope string
+
+const (
+	// ScopeNone represents a scope that is never granted.
+	// It exists for debugging purposes
+	ScopeNone Scope = "never"
+
+	// ScopeAlways represent
+	ScopeAlways Scope = "always"
+)
 
 type ScopeInfo struct {
 	Scope
