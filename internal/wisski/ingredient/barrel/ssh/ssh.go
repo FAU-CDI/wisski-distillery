@@ -5,16 +5,12 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/gliderlabs/ssh"
 	gossh "golang.org/x/crypto/ssh"
 )
 
 type SSH struct {
 	ingredient.Base
-	dependencies struct {
-		Barrel *barrel.Barrel
-	}
 }
 
 var (
