@@ -33,7 +33,7 @@ type Component interface {
 // Base is embedded into every Component
 type Base struct {
 	name, id string // name and id of this component
-	Still           // the underlying still of the distillery
+	still    Still  // the underlying still of the distillery
 }
 
 //lint:ignore U1000 used to implement the private methods of [Component]
@@ -45,7 +45,7 @@ func (cb *Base) getBase() *Base {
 // Init is only initended to be used within a lifetime.Lifetime[Component,Still].
 func Init(component Component, core Still) {
 	base := component.getBase() // pointer to a struct
-	base.Still = core
+	base.still = core
 
 	tp := reflect.TypeOf(component).Elem()
 	base.name = strings.ToLower(tp.Name())
@@ -60,8 +60,13 @@ func (cb Base) ID() string {
 	return cb.id
 }
 
+// GetStill returns the still underlying the provided component.
+func GetStill(c Component) Still {
+	return c.getBase().still
+}
+
 // Still represents the central part of a distillery.
-// It is used inside the main distillery struct, as well as every component via [ComponentBase].
+// It holds configuration of the distillery.
 type Still struct {
 	Config   *config.Config // the configuration of the distillery
 	Upstream Upstream

@@ -29,7 +29,7 @@ var (
 )
 
 // Information fetches information about this WissKI.
-func (wisski *Info) Information(ctx context.Context, quick bool) (info status.WissKI, err error) {
+func (nfo *Info) Information(ctx context.Context, quick bool) (info status.WissKI, err error) {
 	// setup flags
 	flags := ingredient.FetcherFlags{
 		Quick:   quick,
@@ -43,7 +43,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 		Limit: 5,
 		New: func() *phpx.Server {
 			atomic.AddUint64(&serversUsed, 1)
-			return wisski.dependencies.PHP.NewServer()
+			return nfo.dependencies.PHP.NewServer()
 		},
 		Discard: func(s *phpx.Server) {
 			s.Close()
@@ -53,7 +53,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 
 	// setup a dictionary to record data about how long each operation took.
 	// we use a slice as opposed to a map to avoid having to mutex!
-	fetcherTimes := make([]time.Duration, len(wisski.dependencies.Fetchers))
+	fetcherTimes := make([]time.Duration, len(nfo.dependencies.Fetchers))
 	recordTime := func(i int) func() {
 		start := time.Now()
 		return func() {
@@ -64,7 +64,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 	start := time.Now()
 	{
 		var group errgroup.Group
-		for i, fetcher := range wisski.dependencies.Fetchers {
+		for i, fetcher := range nfo.dependencies.Fetchers {
 			fetcher, flags, i := fetcher, flags, i
 			group.Go(func() error {
 				// quick: don't need to create servers
@@ -101,7 +101,7 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 
 	// get a map of how long each fetcher took
 	times := zerolog.Dict()
-	for i, fetcher := range wisski.dependencies.Fetchers {
+	for i, fetcher := range nfo.dependencies.Fetchers {
 		tookSum += fetcherTimes[i]
 		times = times.Dur(fetcher.Name(), fetcherTimes[i])
 	}
@@ -115,9 +115,11 @@ func (wisski *Info) Information(ctx context.Context, quick bool) (info status.Wi
 	return
 }
 
-func (wisski *Info) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) error {
+func (nfo *Info) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) error {
+	liquid := ingredient.GetLiquid(nfo)
+
 	info.Time = time.Now().UTC()
-	info.Slug = wisski.Slug
-	info.URL = wisski.URL().String()
+	info.Slug = liquid.Slug
+	info.URL = liquid.URL().String()
 	return nil
 }

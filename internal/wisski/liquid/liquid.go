@@ -9,7 +9,7 @@ import (
 // Liquid is the core of a WissKI Instance and used in every ingredient.
 type Liquid struct {
 	*malt.Malt
-	models.Instance
+	models.Instance // TODO: move this into an explicit field
 
 	DrupalUsername string
 	DrupalPassword string

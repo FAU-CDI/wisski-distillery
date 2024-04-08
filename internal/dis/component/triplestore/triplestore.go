@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/config"
+	config_package "github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/tkw1536/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
@@ -27,7 +27,7 @@ var (
 )
 
 func (ts *Triplestore) Path() string {
-	return filepath.Join(ts.Still.Config.Paths.Root, "core", "triplestore")
+	return filepath.Join(component.GetStill(ts).Config.Paths.Root, "core", "triplestore")
 }
 
 func (Triplestore) Context(parent component.InstallationContext) component.InstallationContext {
@@ -38,6 +38,7 @@ func (Triplestore) Context(parent component.InstallationContext) component.Insta
 var resources embed.FS
 
 func (ts *Triplestore) Stack() component.StackWithResources {
+	config := component.GetStill(ts).Config
 	return component.MakeStack(ts, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "triplestore",
@@ -45,14 +46,14 @@ func (ts *Triplestore) Stack() component.StackWithResources {
 		CopyContextFiles: []string{"graphdb.zip"}, // TODO: Move into constant?
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": ts.Config.Docker.Network(),
-			"HOST_RULE":           ts.Config.HTTP.HostRule(config.TriplestoreDomain.Domain()),
-			"HTTPS_ENABLED":       ts.Config.HTTP.HTTPSEnabledEnv(),
+			"DOCKER_NETWORK_NAME": config.Docker.Network(),
+			"HOST_RULE":           config.HTTP.HostRule(config_package.TriplestoreDomain.Domain()),
+			"HTTPS_ENABLED":       config.HTTP.HTTPSEnabledEnv(),
 		},
 
 		ComposerYML: func(root *yaml.Node) (*yaml.Node, error) {
 			// ts is exposed => everything is fine
-			if ts.Config.HTTP.TS.Set && ts.Config.HTTP.TS.Value {
+			if config.HTTP.TS.Set && config.HTTP.TS.Value {
 				return root, nil
 			}
 

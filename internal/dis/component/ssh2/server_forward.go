@@ -58,10 +58,11 @@ func (i Intercept) Intercept(req component.HostPort) (intercepted bool, ok bool,
 }
 
 func (ssh2 *SSH2) Intercepts() []Intercept {
+	upstream := component.GetStill(ssh2).Upstream
 	return ssh2.interceptsC.Get(func() []Intercept {
 		return []Intercept{
-			{Description: "Triplestore", Match: component.HostPort{Host: "triplestore", Port: 7200}, Dest: ssh2.Upstream.Triplestore},
-			{Description: "SQL", Match: component.HostPort{Host: "sql", Port: 3306}, Dest: ssh2.Upstream.SQL},
+			{Description: "Triplestore", Match: component.HostPort{Host: "triplestore", Port: 7200}, Dest: upstream.Triplestore},
+			{Description: "SQL", Match: component.HostPort{Host: "sql", Port: 3306}, Dest: upstream.SQL},
 			{Description: "PHPMyAdmin", Match: component.HostPort{Host: "phpmyadmin", Port: 80}, Dest: component.HostPort{Host: "phpmyadmin", Port: 80}},
 		}
 	})
@@ -77,13 +78,15 @@ func (ssh2 *SSH2) getForwardDest(req component.HostPort, ctx ssh.Context) (ok bo
 		return ok, dest, rejectReason
 	}
 
+	config := component.GetStill(ssh2).Config
+
 	// then check the instances
-	slug, ok := ssh2.Config.HTTP.SlugFromHost(req.Host)
+	slug, ok := config.HTTP.SlugFromHost(req.Host)
 	if !ok || req.Port != 22 || !hasPermission(ctx, slug) {
 		return false, dest, "permission denied"
 	}
 
-	return true, component.HostPort{Host: slug + "." + ssh2.Config.HTTP.PrimaryDomain + ".wisski", Port: 22}, ""
+	return true, component.HostPort{Host: slug + "." + config.HTTP.PrimaryDomain + ".wisski", Port: 22}, ""
 }
 
 // handleDirectTCP handles a direct tcp connection for the server

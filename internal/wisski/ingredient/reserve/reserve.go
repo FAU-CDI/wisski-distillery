@@ -19,20 +19,22 @@ var reserveResources embed.FS
 
 // Stack returns a stack representing the reserve instance
 func (reserve *Reserve) Stack() component.StackWithResources {
+	liquid := ingredient.GetLiquid(reserve)
+	config := ingredient.GetStill(reserve).Config
 	return component.StackWithResources{
 		Stack: component.Stack{
-			Dir: reserve.FilesystemBase,
+			Dir: liquid.FilesystemBase,
 		},
 
 		Resources:   reserveResources,
 		ContextPath: filepath.Join("reserve"),
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": reserve.Malt.Config.Docker.Network(),
+			"DOCKER_NETWORK_NAME": config.Docker.Network(),
 
-			"SLUG":          reserve.Slug,
-			"HOST_RULE":     reserve.HostRule(),
-			"HTTPS_ENABLED": reserve.Malt.Config.HTTP.HTTPSEnabledEnv(),
+			"SLUG":          liquid.Slug,
+			"HOST_RULE":     liquid.HostRule(),
+			"HTTPS_ENABLED": config.HTTP.HTTPSEnabledEnv(),
 		},
 	}
 }

@@ -11,28 +11,30 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
-func (control Server) Path() string {
-	return filepath.Join(control.Still.Config.Paths.Root, "core", "dis")
+func (server *Server) Path() string {
+	return filepath.Join(component.GetStill(server).Config.Paths.Root, "core", "dis")
 }
 
 //go:embed all:server
 var resources embed.FS
 
 func (server *Server) Stack() component.StackWithResources {
+	config := component.GetStill(server).Config
+
 	return component.MakeStack(server, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "server",
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": server.Config.Docker.Network(),
-			"HOST_RULE":           server.Config.HTTP.PanelHostRule(),
-			"HTTPS_ENABLED":       server.Config.HTTP.HTTPSEnabledEnv(),
+			"DOCKER_NETWORK_NAME": config.Docker.Network(),
+			"HOST_RULE":           config.HTTP.PanelHostRule(),
+			"HTTPS_ENABLED":       config.HTTP.HTTPSEnabledEnv(),
 
-			"CONFIG_PATH": server.Config.ConfigPath,
-			"DEPLOY_ROOT": server.Config.Paths.Root,
+			"CONFIG_PATH": config.ConfigPath,
+			"DEPLOY_ROOT": config.Paths.Root,
 
-			"SELF_OVERRIDES_FILE":      server.Config.Paths.OverridesJSON,
-			"SELF_RESOLVER_BLOCK_FILE": server.Config.Paths.ResolverBlocks,
+			"SELF_OVERRIDES_FILE":      config.Paths.OverridesJSON,
+			"SELF_RESOLVER_BLOCK_FILE": config.Paths.ResolverBlocks,
 
 			"CUSTOM_ASSETS_PATH": server.dependencies.Templating.CustomAssetsPath(),
 		},
@@ -48,6 +50,6 @@ func (server *Server) Trigger(ctx context.Context) error {
 
 func (server *Server) Context(parent component.InstallationContext) component.InstallationContext {
 	return component.InstallationContext{
-		bootstrap.Executable: server.Config.Paths.CurrentExecutable(), // TODO: Does this make sense?
+		bootstrap.Executable: component.GetStill(server).Config.Paths.CurrentExecutable(), // TODO: Does this make sense?
 	}
 }

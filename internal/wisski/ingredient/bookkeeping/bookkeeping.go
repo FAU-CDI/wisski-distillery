@@ -13,32 +13,34 @@ type Bookkeeping struct {
 
 // Save saves this instance in the bookkeeping table
 func (bk *Bookkeeping) Save(ctx context.Context) error {
-	sdb, err := bk.Malt.SQL.QueryTable(ctx, bk.Malt.InstanceTable)
+	liquid := ingredient.GetLiquid(bk)
+	sdb, err := ingredient.GetLiquid(bk).Malt.SQL.QueryTable(ctx, liquid.Malt.InstanceTable)
 	if err != nil {
 		return err
 	}
 
 	// it has never been created => we need to create it in the database
-	if bk.Instance.Created.IsZero() {
-		return sdb.Create(&bk.Instance).Error
+	if liquid.Instance.Created.IsZero() {
+		return sdb.Create(&liquid.Instance).Error
 	}
 
 	// Update based on the primary key!
-	return sdb.Select("*").Save(&bk.Instance).Error
+	return sdb.Select("*").Save(&liquid.Instance).Error
 }
 
 // Delete deletes this instance from the bookkeeping table
 func (bk *Bookkeeping) Delete(ctx context.Context) error {
-	sdb, err := bk.Malt.SQL.QueryTable(ctx, bk.Malt.InstanceTable)
+	liquid := ingredient.GetLiquid(bk)
+	sdb, err := liquid.SQL.QueryTable(ctx, liquid.InstanceTable)
 	if err != nil {
 		return err
 	}
 
 	// doesn't exist => nothing to delete
-	if bk.Instance.Created.IsZero() {
+	if liquid.Instance.Created.IsZero() {
 		return nil
 	}
 
 	// delete it directly
-	return sdb.Delete(&bk.Instance).Error
+	return sdb.Delete(&liquid.Instance).Error
 }

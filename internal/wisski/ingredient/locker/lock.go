@@ -26,26 +26,30 @@ var Locked = exit.Error{
 
 // TryLock attemps to lock this WissKI and returns if it suceeded
 func (lock *Locker) TryLock(ctx context.Context) bool {
-	table, err := lock.Malt.SQL.QueryTable(ctx, lock.Malt.LockTable)
+	liquid := ingredient.GetLiquid(lock)
+
+	table, err := liquid.SQL.QueryTable(ctx, liquid.LockTable)
 	if err != nil {
 		return false
 	}
 
-	result := table.FirstOrCreate(&models.Lock{}, models.Lock{Slug: lock.Slug})
+	result := table.FirstOrCreate(&models.Lock{}, models.Lock{Slug: liquid.Slug})
 	return result.Error == nil && result.RowsAffected == 1
 }
 
 // TryUnlock attempts to unlock this WissKI and reports if it succeeded.
 // An Unlock is also attempted when ctx is cancelled.
 func (lock *Locker) TryUnlock(ctx context.Context) bool {
+	liquid := ingredient.GetLiquid(lock)
+
 	ctx, close := contextx.Anyways(ctx, time.Second)
 	defer close()
 
-	table, err := lock.Malt.SQL.QueryTable(ctx, lock.Malt.LockTable)
+	table, err := liquid.SQL.QueryTable(ctx, liquid.LockTable)
 	if err != nil {
 		return false
 	}
-	result := table.Where("slug = ?", lock.Slug).Delete(&models.Lock{})
+	result := table.Where("slug = ?", liquid.Slug).Delete(&models.Lock{})
 	return result.Error == nil && result.RowsAffected == 1
 }
 

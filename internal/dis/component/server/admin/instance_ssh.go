@@ -56,9 +56,10 @@ func (admin *Admin) instanceSSH(ctx context.Context) http.Handler {
 			return ctx, nil, httpx.ErrNotFound
 		}
 
+		config := component.GetStill(admin).Config
 		ctx.Hostname = ctx.Instance.Domain()
-		ctx.PanelDomain = admin.Config.HTTP.PanelDomain()
-		ctx.Port = admin.Config.Listen.SSHPort
+		ctx.PanelDomain = config.HTTP.PanelDomain()
+		ctx.Port = config.Listen.SSHPort
 
 		keys, err := ctx.Instance.SSH().Keys(r.Context())
 		if err != nil {

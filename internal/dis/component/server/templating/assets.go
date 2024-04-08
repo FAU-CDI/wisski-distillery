@@ -8,7 +8,7 @@ import (
 
 // CustomAssetsPath is the path custom assets are stored at
 func (tpl *Templating) CustomAssetsPath() string {
-	return filepath.Join(tpl.Config.Paths.Root, "core", "assets")
+	return filepath.Join(component.GetStill(tpl).Config.Paths.Root, "core", "assets")
 }
 
 func (tpl *Templating) CustomAssetPath(name string) string {

@@ -46,13 +46,15 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 	}
 	fmt.Printf("Wrote %q\n", dumpPath)
 
+	liquid := ingredient.GetLiquid(trb)
+
 	logging.LogMessage(out, "Purging triplestore")
-	if err := trb.Malt.TS.Purge(ctx, trb.Instance, trb.Domain()); err != nil {
+	if err := liquid.TS.Purge(ctx, liquid.Instance, liquid.Domain()); err != nil {
 		return err
 	}
 
 	logging.LogMessage(out, "Provising triplestore")
-	if err := trb.Malt.TS.Provision(ctx, trb.Instance, trb.Domain()); err != nil {
+	if err := liquid.TS.Provision(ctx, liquid.Instance, liquid.Domain()); err != nil {
 		return err
 	}
 
@@ -82,7 +84,9 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 	zippedFile := gzip.NewWriter(file)
 	defer zippedFile.Close()
 
-	count, err := trb.Malt.TS.SnapshotDB(ctx, zippedFile, trb.GraphDBRepository)
+	liquid := ingredient.GetLiquid(trb)
+
+	count, err := liquid.TS.SnapshotDB(ctx, zippedFile, liquid.GraphDBRepository)
 	if err != nil {
 		return "", err
 	}
@@ -107,7 +111,8 @@ func (trb *TRB) restoreBackup(ctx context.Context, path string) (err error) {
 	}
 	defer decompressedReader.Close()
 
-	if err := trb.Malt.TS.RestoreDB(ctx, trb.GraphDBRepository, decompressedReader); err != nil {
+	liquid := ingredient.GetLiquid(trb)
+	if err := liquid.TS.RestoreDB(ctx, liquid.GraphDBRepository, decompressedReader); err != nil {
 		return err
 	}
 	return nil

@@ -35,8 +35,10 @@ var (
 // NoPrefix checks if this WissKI instance is excluded from generating prefixes.
 // TODO: Move this to the database!
 func (prefixes *Prefixes) NoPrefix() bool {
+	liquid := ingredient.GetLiquid(prefixes)
+
 	// FIXME: Ignoring error here!
-	exists, _ := fsx.IsRegular(filepath.Join(prefixes.FilesystemBase, "prefixes.skip"), false)
+	exists, _ := fsx.IsRegular(filepath.Join(liquid.FilesystemBase, "prefixes.skip"), false)
 	return exists
 }
 
@@ -63,9 +65,8 @@ func (prefixes *Prefixes) All(ctx context.Context, server *phpx.Server) ([]strin
 
 // getLivePrefixes get the list of prefixes found within the live system
 func (prefixes *Prefixes) getLivePrefixes(ctx context.Context, server *phpx.Server) (pfs []string, err error) {
-	useTS := !(prefixes.Config.TS.DangerouslyUseAdapterPrefixes.Set && prefixes.Config.TS.DangerouslyUseAdapterPrefixes.Value)
-
-	if useTS {
+	danger := ingredient.GetStill(prefixes).Config.TS.DangerouslyUseAdapterPrefixes
+	if !(danger.Set && danger.Value) {
 		pfs, err = prefixes.getTSPrefixes(ctx, server)
 	} else {
 		// danger danger danger: Use the adapter prefixes
@@ -107,9 +108,11 @@ func (wisski *Prefixes) getTSPrefixes(ctx context.Context, server *phpx.Server) 
 }
 
 func (prefixes *Prefixes) blocked() ([]string, error) {
+	config := ingredient.GetStill(prefixes).Config
+
 	// open the resolver block file
 	// TODO: move this to the distillery
-	file, err := os.Open(prefixes.Malt.Config.Paths.ResolverBlocks)
+	file, err := os.Open(config.Paths.ResolverBlocks)
 	if err != nil {
 		return nil, err
 	}
@@ -145,7 +148,7 @@ func hasAnyPrefix(candidate string, prefixes []string) bool {
 }
 
 func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
-	path := filepath.Join(wisski.FilesystemBase, "prefixes")
+	path := filepath.Join(ingredient.GetLiquid(wisski).FilesystemBase, "prefixes")
 
 	// check that the prefixes path exists
 	{

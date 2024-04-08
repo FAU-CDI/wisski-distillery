@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/sqlx"
@@ -68,6 +69,7 @@ var errSQLUnableToMigrate = exit.Error{
 
 // Update initializes or updates the SQL database.
 func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
+	config := component.GetStill(sql).Config.SQL
 
 	// unsafely create the admin user!
 	{
@@ -76,8 +78,8 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 		}
 		logging.LogMessage(progress, "Creating administrative user")
 		{
-			username := sql.Config.SQL.AdminUsername
-			password := sql.Config.SQL.AdminPassword
+			username := config.AdminUsername
+			password := config.AdminPassword
 			if err := sql.CreateSuperuser(ctx, username, password, true); err != nil {
 				return errSQLUnableToCreateUser
 			}
@@ -87,10 +89,10 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	// create the admin user
 	logging.LogMessage(progress, "Creating sql database")
 	{
-		if !sqlx.IsSafeDatabaseLiteral(sql.Config.SQL.Database) {
+		if !sqlx.IsSafeDatabaseLiteral(config.Database) {
 			return errSQLUnsafeDatabaseName
 		}
-		createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`;", sql.Config.SQL.Database)
+		createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`;", config.Database)
 		if err := sql.Exec(createDBSQL); err != nil {
 			return err
 		}

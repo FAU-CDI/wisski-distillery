@@ -46,8 +46,7 @@ func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
 		menuTOTPAction,
 		menuSSH,
 	}
-
-	if panel.Config.HTTP.API.Value {
+	if component.GetStill(panel).Config.HTTP.API.Value {
 		actions = append(actions, menuTokens)
 	}
 

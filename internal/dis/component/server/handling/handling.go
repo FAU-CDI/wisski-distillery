@@ -37,7 +37,8 @@ func (h *Handling) interceptor(parent httpx.ErrInterceptor) httpx.ErrInterceptor
 		pf = func(r *http.Request, err error) {}
 	}
 
-	parent.RenderError = h.Config.HTTP.Debug.Set && h.Config.HTTP.Debug.Value
+	config := component.GetStill(h).Config
+	parent.RenderError = config.HTTP.Debug.Set && config.HTTP.Debug.Value
 	parent.OnFallback = func(r *http.Request, err error) {
 		pf(r, err)
 

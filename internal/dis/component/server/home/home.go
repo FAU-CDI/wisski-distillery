@@ -30,7 +30,7 @@ func (home *Home) Routes() component.Routes {
 		MatchAllDomains: true,
 		CSRF:            false,
 
-		MenuTitle:    home.Config.Home.Title,
+		MenuTitle:    component.GetStill(home).Config.Home.Title,
 		MenuSticky:   true,
 		MenuPriority: component.MenuHome,
 	}
@@ -45,7 +45,7 @@ func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, 
 	dflt.Fallback = home.publicHandler(ctx)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		slug, ok := home.Config.HTTP.NormSlugFromHost(r.Host)
+		slug, ok := component.GetStill(home).Config.HTTP.NormSlugFromHost(r.Host)
 		switch {
 		case !ok:
 			http.NotFound(w, r)

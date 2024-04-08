@@ -21,7 +21,7 @@ var (
 )
 
 func (s *Solr) Path() string {
-	return filepath.Join(s.Still.Config.Paths.Root, "core", "solr")
+	return filepath.Join(component.GetStill(s).Config.Paths.Root, "core", "solr")
 }
 
 func (*Solr) Context(parent component.InstallationContext) component.InstallationContext {
@@ -37,7 +37,7 @@ func (solr *Solr) Stack() component.StackWithResources {
 		ContextPath: "solr",
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": solr.Config.Docker.Network(),
+			"DOCKER_NETWORK_NAME": component.GetStill(solr).Config.Docker.Network(),
 		},
 
 		MakeDirs: []string{

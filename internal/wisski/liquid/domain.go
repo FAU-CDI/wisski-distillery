@@ -4,11 +4,12 @@ import (
 	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
 // Domain returns the full domain name of this WissKI
 func (liquid *Liquid) Domain() string {
-	return liquid.Config.HTTP.HostFromSlug(liquid.Slug)
+	return component.GetStill(liquid).Config.HTTP.HostFromSlug(liquid.Slug)
 }
 
 func (liquid *Liquid) Hostname() string {
@@ -29,7 +30,7 @@ func (liquid *Liquid) URL() *url.URL {
 	}
 
 	// use http or https scheme depending on if the distillery has it enabled
-	if liquid.Malt.Config.HTTP.HTTPSEnabled() {
+	if component.GetStill(liquid.Malt).Config.HTTP.HTTPSEnabled() {
 		url.Scheme = "https"
 	} else {
 		url.Scheme = "http"

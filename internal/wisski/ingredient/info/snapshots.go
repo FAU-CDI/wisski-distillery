@@ -18,6 +18,6 @@ func (lbr *SnapshotsFetcher) Fetch(flags ingredient.FetcherFlags, info *status.W
 		return
 	}
 
-	info.Snapshots, _ = lbr.Snapshots(flags.Context)
+	info.Snapshots, _ = ingredient.GetLiquid(lbr).Snapshots(flags.Context)
 	return
 }

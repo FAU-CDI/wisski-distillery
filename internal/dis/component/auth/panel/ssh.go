@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
@@ -64,9 +65,10 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 			return sc, err
 		}
 
-		sc.Domain = panel.Config.HTTP.PrimaryDomain
-		sc.PanelDomain = panel.Config.HTTP.PanelDomain()
-		sc.Port = panel.Config.Listen.SSHPort
+		config := component.GetStill(panel).Config
+		sc.Domain = config.HTTP.PrimaryDomain
+		sc.PanelDomain = config.HTTP.PanelDomain()
+		sc.Port = config.Listen.SSHPort
 
 		// pick the first domain that the user has access to as an example
 		grants, err := panel.dependencies.Policy.User(r.Context(), user.User.User)
@@ -75,7 +77,7 @@ func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
 		} else {
 			sc.Slug = "example"
 		}
-		sc.Hostname = panel.Config.HTTP.HostFromSlug(sc.Slug)
+		sc.Hostname = config.HTTP.HostFromSlug(sc.Slug)
 
 		sc.Keys, err = panel.dependencies.Keys.Keys(r.Context(), user.User.User)
 		if err != nil {

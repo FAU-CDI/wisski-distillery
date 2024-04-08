@@ -18,7 +18,8 @@ var (
 )
 
 func (ssh *SSH) Keys(ctx context.Context) (keys []ssh.PublicKey, err error) {
-	grants, err := ssh.Liquid.Policy.Instance(ctx, ssh.Slug)
+	liquid := ingredient.GetLiquid(ssh)
+	grants, err := liquid.Policy.Instance(ctx, liquid.Slug)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +29,7 @@ func (ssh *SSH) Keys(ctx context.Context) (keys []ssh.PublicKey, err error) {
 		if !grant.DrupalAdminRole {
 			continue
 		}
-		ukeys, err := ssh.Liquid.Keys.Keys(ctx, grant.User)
+		ukeys, err := liquid.Keys.Keys(ctx, grant.User)
 		if err != nil {
 			return nil, err
 		}
@@ -50,7 +51,7 @@ func (ssh *SSH) AllKeys(ctx context.Context) (keys []ssh.PublicKey, err error) {
 		return nil, err
 	}
 
-	gkeys, err := ssh.Liquid.Keys.Admin(ctx)
+	gkeys, err := ingredient.GetLiquid(ssh).Keys.Admin(ctx)
 	if err != nil {
 		return nil, err
 	}

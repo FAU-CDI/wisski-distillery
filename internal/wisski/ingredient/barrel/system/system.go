@@ -43,7 +43,7 @@ func (smanager *SystemManager) ApplyInitial(ctx context.Context, progress io.Wri
 // start inidicates if the image should be started afterwards
 func (smanager *SystemManager) apply(ctx context.Context, progress io.Writer, system models.System, start bool) error {
 	// store the new system configuration
-	smanager.Instance.System = system
+	ingredient.GetLiquid(smanager).Instance.System = system
 	if err := smanager.dependencies.Bookkeeping.Save(ctx); err != nil {
 		return err
 	}

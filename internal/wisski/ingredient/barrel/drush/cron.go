@@ -24,7 +24,7 @@ func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 	if err != nil {
 		code := err.(barrel.ExitError).Code
 		// keep going, because we want to run as many crons as possible
-		fmt.Fprintf(progress, "%v", errCronFailed.WithMessageF(drush.Slug, code))
+		fmt.Fprintf(progress, "%v", errCronFailed.WithMessageF(ingredient.GetLiquid(drush).Slug, code))
 	}
 
 	return nil

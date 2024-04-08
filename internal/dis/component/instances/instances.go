@@ -28,7 +28,7 @@ type Instances struct {
 }
 
 func (instances *Instances) Path() string {
-	return filepath.Join(instances.Still.Config.Paths.Root, "instances")
+	return filepath.Join(component.GetStill(instances).Config.Paths.Root, "instances")
 }
 
 // ErrWissKINotFound is returned when a WissKI is not found

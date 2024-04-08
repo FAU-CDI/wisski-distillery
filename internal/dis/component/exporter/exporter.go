@@ -33,7 +33,7 @@ type Exporter struct {
 
 // Path returns the path that contains all snapshot related data.
 func (dis *Exporter) Path() string {
-	return filepath.Join(dis.Config.Paths.Root, "snapshots")
+	return filepath.Join(component.GetStill(dis).Config.Paths.Root, "snapshots")
 }
 
 // StagingPath returns the path to the directory containing a temporary staging area for snapshots.

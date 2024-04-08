@@ -26,7 +26,7 @@ func (ssh2 *SSH2) HandleRoute(ctx context.Context, path string) (http.Handler, e
 		}
 
 		// find the host
-		slug, ok := ssh2.Config.HTTP.SlugFromHost(r.Host)
+		slug, ok := component.GetStill(ssh2).Config.HTTP.SlugFromHost(r.Host)
 		if slug == "" || !ok {
 			httpx.TextInterceptor.Intercept(w, r, httpx.ErrNotFound)
 			return

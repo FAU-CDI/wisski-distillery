@@ -48,14 +48,14 @@ type publicContext struct {
 const logoHTML = template.HTML(`<img src="/logo.svg" alt="WissKI Distillery Logo" class="biglogo">`)
 
 func (home *Home) publicHandler(ctx context.Context) http.Handler {
-	title := home.Config.Home.Title
+	config := component.GetStill(home).Config.Home
 
 	tpl := publicTemplate.Prepare(
 		home.dependencies.Templating,
 		// set title and menu item
-		templating.Title(title),
+		templating.Title(config.Title),
 		templating.Crumbs(
-			component.MenuItem{Title: title, Path: "/"},
+			component.MenuItem{Title: config.Title, Path: "/"},
 		),
 	)
 
@@ -73,7 +73,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		// prepare about
 		pc.aboutContext.Logo = logoHTML
 		pc.aboutContext.Instances = home.dependencies.ListInstances.Infos()
-		pc.aboutContext.SelfRedirect = home.Config.Home.SelfRedirect.String()
+		pc.aboutContext.SelfRedirect = config.SelfRedirect.String()
 
 		// render the about template
 
@@ -88,7 +88,7 @@ func (home *Home) publicHandler(ctx context.Context) http.Handler {
 		pc.ListEnabled = home.dependencies.ListInstances.ShouldShowList(r)
 
 		// title of the list
-		pc.ListTitle = home.Config.Home.List.Title
+		pc.ListTitle = config.List.Title
 
 		return
 	})

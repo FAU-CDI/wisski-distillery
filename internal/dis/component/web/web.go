@@ -21,7 +21,7 @@ var (
 )
 
 func (web *Web) Path() string {
-	return filepath.Join(web.Still.Config.Paths.Root, "core", "web")
+	return filepath.Join(component.GetStill(web).Config.Paths.Root, "core", "web")
 }
 
 func (*Web) Context(parent component.InstallationContext) component.InstallationContext {
@@ -37,12 +37,13 @@ var dockerComposeHTTPS []byte
 func (web *Web) Stack() component.StackWithResources {
 	var stack component.StackWithResources
 
+	config := component.GetStill(web).Config
 	stack.EnvContext = map[string]string{
-		"DOCKER_NETWORK_NAME": web.Config.Docker.Network(),
-		"CERT_EMAIL":          web.Config.HTTP.CertbotEmail,
+		"DOCKER_NETWORK_NAME": config.Docker.Network(),
+		"CERT_EMAIL":          config.HTTP.CertbotEmail,
 	}
 
-	if web.Config.HTTP.HTTPSEnabled() {
+	if config.HTTP.HTTPSEnabled() {
 		stack.ComposerYML = readYaml(dockerComposeHTTPS)
 		stack.TouchFilesPerm = 0600
 		stack.TouchFiles = []string{"acme.json"}

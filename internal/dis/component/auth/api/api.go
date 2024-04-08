@@ -36,8 +36,9 @@ type AuthInfo struct {
 }
 
 func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
+
 	return &Handler[AuthInfo]{
-		Config: a.Config,
+		Config: component.GetStill(a).Config,
 		Auth:   a.dependencies.Auth,
 
 		Methods: []string{"GET"},

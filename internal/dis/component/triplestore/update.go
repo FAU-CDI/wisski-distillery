@@ -6,13 +6,14 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/pkg/errors"
 )
 
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
 
-func (ts Triplestore) Update(ctx context.Context, progress io.Writer) error {
+func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
 	logging.LogMessage(progress, "Waiting for Triplestore")
 	if err := ts.Wait(ctx); err != nil {
 		return err
@@ -20,8 +21,10 @@ func (ts Triplestore) Update(ctx context.Context, progress io.Writer) error {
 
 	logging.LogMessage(progress, "Resetting admin user password")
 	{
-		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPut, "/rest/security/users/"+ts.Config.TS.AdminUsername, nil, TriplestoreUserPayload{
-			Password: ts.Config.TS.AdminPassword,
+		config := component.GetStill(ts).Config.TS
+
+		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPut, "/rest/security/users/"+config.AdminUsername, nil, TriplestoreUserPayload{
+			Password: config.AdminPassword,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
 				DefaultVisGraphSchema: true,

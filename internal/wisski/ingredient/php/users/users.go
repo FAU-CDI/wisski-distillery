@@ -71,7 +71,7 @@ func (u *Users) LoginWithOpt(ctx context.Context, server *phpx.Server, username 
 	}
 
 	// and resolve the (possibly relative) reference
-	dest = u.URL().ResolveReference(dest)
+	dest = ingredient.GetLiquid(u).URL().ResolveReference(dest)
 	return
 }
 

@@ -99,11 +99,12 @@ func (control *Cron) Once(ctx context.Context) {
 //
 // The returned channel is closed once no more cron tasks are active.
 func (control *Cron) Start(ctx context.Context, signal <-chan struct{}) <-chan struct{} {
-	zerolog.Ctx(ctx).Info().Dur("interval", control.Config.CronInterval).Msg("Scheduling Cron() tasks")
+	interval := component.GetStill(control).Config.CronInterval
+	zerolog.Ctx(ctx).Info().Dur("interval", interval).Msg("Scheduling Cron() tasks")
 
 	// run runs cron tasks with the configured timeout
 	run := func() {
-		ctx, done := context.WithTimeout(ctx, control.Config.CronInterval)
+		ctx, done := context.WithTimeout(ctx, interval)
 		defer done()
 
 		control.Once(ctx)
@@ -123,7 +124,7 @@ func (control *Cron) Start(ctx context.Context, signal <-chan struct{}) <-chan s
 		defer timex.ReleaseTimer(t)
 		for {
 			timex.StopTimer(t)
-			t.Reset(control.Config.CronInterval)
+			t.Reset(interval)
 
 			select {
 			case <-t.C:

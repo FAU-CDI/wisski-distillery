@@ -35,8 +35,9 @@ func (li *ListInstances) Infos() []status.WissKI {
 
 // ShouldShowList determines if a list should be shown for the given request
 func (li *ListInstances) ShouldShowList(r *http.Request) bool {
-	allowPrivate := li.Config.Home.List.Private.Value
-	allowPublic := li.Config.Home.List.Public.Value
+	config := component.GetStill(li).Config.Home.List
+	allowPrivate := config.Private.Value
+	allowPublic := config.Public.Value
 
 	if allowPrivate == allowPublic {
 		return allowPrivate

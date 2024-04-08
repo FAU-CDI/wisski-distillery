@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/composer"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
@@ -106,7 +107,9 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		}
 	}
 
-	var sqlDBURL = "mysql://" + provision.SqlUsername + ":" + provision.SqlPassword + "@sql/" + provision.SqlDatabase
+	liquid := ingredient.GetLiquid(provision)
+
+	var sqlDBURL = "mysql://" + liquid.SqlUsername + ":" + liquid.SqlPassword + "@sql/" + liquid.SqlDatabase
 
 	// Use 'drush' to run the site-installation.
 	// Here we need to use the username, password and database creds we made above.
@@ -115,8 +118,8 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		if err := provision.dependencies.Drush.Exec(
 			ctx, progress,
 			"site-install",
-			"standard", "--yes", "--site-name="+provision.Domain(),
-			"--account-name="+provision.DrupalUsername, "--account-pass="+provision.DrupalPassword,
+			"standard", "--yes", "--site-name="+liquid.Domain(),
+			"--account-name="+liquid.DrupalUsername, "--account-pass="+liquid.DrupalPassword,
 			"--db-url="+sqlDBURL,
 		); err != nil {
 			return err
@@ -166,11 +169,11 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		if err := provision.dependencies.Adapters.CreateDistilleryAdapter(ctx, nil, extras.DistilleryAdapter{
 			Label:             "Default WissKI Distillery Adapter",
 			MachineName:       "default",
-			Description:       "Default Adapter for " + provision.Domain(),
-			InstanceDomain:    provision.Domain(),
-			GraphDBRepository: provision.GraphDBRepository,
-			GraphDBUsername:   provision.GraphDBUsername,
-			GraphDBPassword:   provision.GraphDBPassword,
+			Description:       "Default Adapter for " + liquid.Domain(),
+			InstanceDomain:    liquid.Domain(),
+			GraphDBRepository: liquid.GraphDBRepository,
+			GraphDBUsername:   liquid.GraphDBUsername,
+			GraphDBPassword:   liquid.GraphDBPassword,
 		}); err != nil {
 			return err
 		}
@@ -185,9 +188,9 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 
 	logging.LogMessage(progress, "Provisioning is now complete")
 	{
-		fmt.Fprintf(progress, "URL:                  %s\n", provision.URL())
-		fmt.Fprintf(progress, "Username:             %s\n", provision.DrupalUsername)
-		fmt.Fprintf(progress, "Password:             %s\n", provision.DrupalPassword)
+		fmt.Fprintf(progress, "URL:                  %s\n", liquid.URL())
+		fmt.Fprintf(progress, "Username:             %s\n", liquid.DrupalUsername)
+		fmt.Fprintf(progress, "Password:             %s\n", liquid.DrupalPassword)
 	}
 
 	return nil

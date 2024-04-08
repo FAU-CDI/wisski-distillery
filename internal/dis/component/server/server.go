@@ -53,7 +53,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 			}()
 
 			// determine if we are on a slug from a host
-			slug, ok := server.Config.HTTP.NormSlugFromHost(r.Host)
+			slug, ok := component.GetStill(server).Config.HTTP.NormSlugFromHost(r.Host)
 
 			rctx := component.WithRouteContext(r.Context(), component.RouteContext{
 				DefaultDomain: slug == "" && ok,
@@ -126,13 +126,15 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 
 // CSRF returns a CSRF handler for the given function
 func (server *Server) csrf() func(http.Handler) http.Handler {
+	config := component.GetStill(server).Config
+
 	var opts []csrf.Option
-	opts = append(opts, csrf.Secure(server.Config.HTTP.HTTPSEnabled()))
+	opts = append(opts, csrf.Secure(config.HTTP.HTTPSEnabled()))
 	opts = append(opts, csrf.SameSite(csrf.SameSiteStrictMode))
 	opts = append(opts, csrf.Path("/"))
 	opts = append(opts, csrf.CookieName(CSRFCookie))
 	opts = append(opts, csrf.FieldName(CSRFCookieField))
-	return csrf.Protect(server.Config.CSRFSecret(), opts...)
+	return csrf.Protect(config.CSRFSecret(), opts...)
 }
 
 // WithCSP adds a Content-Security-Policy header to every response

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/config"
+	config_package "github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/yamlx"
@@ -32,7 +32,7 @@ var (
 )
 
 func (sql *SQL) Path() string {
-	return filepath.Join(sql.Still.Config.Paths.Root, "core", "sql")
+	return filepath.Join(component.GetStill(sql).Config.Paths.Root, "core", "sql")
 }
 
 func (*SQL) Context(parent component.InstallationContext) component.InstallationContext {
@@ -43,19 +43,20 @@ func (*SQL) Context(parent component.InstallationContext) component.Installation
 var resources embed.FS
 
 func (sql *SQL) Stack() component.StackWithResources {
+	config := component.GetStill(sql).Config
 	return component.MakeStack(sql, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "sql",
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": sql.Config.Docker.Network(),
-			"HTTPS_ENABLED":       sql.Config.HTTP.HTTPSEnabledEnv(),
-			"HOST_RULE":           sql.Config.HTTP.HostRule(config.PHPMyAdminDomain.Domain()),
+			"DOCKER_NETWORK_NAME": config.Docker.Network(),
+			"HTTPS_ENABLED":       config.HTTP.HTTPSEnabledEnv(),
+			"HOST_RULE":           config.HTTP.HostRule(config_package.PHPMyAdminDomain.Domain()),
 		},
 
 		ComposerYML: func(root *yaml.Node) (*yaml.Node, error) {
 			// phpmyadmin is exposed => everything is fine
-			if sql.Config.HTTP.PhpMyAdmin.Set && sql.Config.HTTP.PhpMyAdmin.Value {
+			if config.HTTP.PhpMyAdmin.Set && config.HTTP.PhpMyAdmin.Value {
 				return root, nil
 			}
 

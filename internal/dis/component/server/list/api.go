@@ -41,7 +41,7 @@ type APISystem struct {
 
 func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	return &api.Handler[[]APISystem]{
-		Config: a.Config,
+		Config: component.GetStill(a).Config,
 		Auth:   a.dependencies.Auth,
 
 		Methods: []string{"GET"},

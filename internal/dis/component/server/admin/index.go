@@ -78,7 +78,7 @@ func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target s
 
 func (admin *Admin) Fetch(flags component.FetcherFlags, target *status.Distillery) error {
 	target.Time = time.Now().UTC()
-	target.Config = admin.Config
+	target.Config = component.GetStill(admin).Config
 	return nil
 }
 

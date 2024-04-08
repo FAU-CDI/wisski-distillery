@@ -10,7 +10,7 @@ import (
 
 // Running checks if this WissKI is currently running.
 func (barrel *Barrel) Running(ctx context.Context) (bool, error) {
-	containers, err := barrel.Docker.Containers(ctx, barrel.Stack().Dir)
+	containers, err := ingredient.GetLiquid(barrel).Docker.Containers(ctx, barrel.Stack().Dir)
 	if err != nil {
 		// The compose file is gone => the stack doesn't exist.
 		// Probably means some purging got interrupted.

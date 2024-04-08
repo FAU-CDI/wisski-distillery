@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
 func (home *Home) loadRedirect(ctx context.Context) (redirect Redirect, err error) {
@@ -19,7 +21,7 @@ func (home *Home) loadRedirect(ctx context.Context) (redirect Redirect, err erro
 	redirect.Permanent = false
 
 	// load the overrides file
-	overrides, err := os.Open(home.Config.Paths.OverridesJSON)
+	overrides, err := os.Open(component.GetStill(home).Config.Paths.OverridesJSON)
 	if err != nil {
 		return redirect, err
 	}

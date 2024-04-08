@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/gliderlabs/ssh"
 )
 
@@ -38,17 +39,18 @@ Press CTRL-C to close this connection.
 `
 
 func (ssh2 *SSH2) handleConnection(session ssh.Session) {
+	config := component.GetStill(ssh2).Config
 	slug, _ := getAnyPermission(session.Context())
 
 	banner := welcomeMessage
 	for _, oldnew := range [][2]string{
 		{"${SLUG}", slug},
-		{"${HOSTNAME}", slug + "." + ssh2.Config.HTTP.PrimaryDomain},
+		{"${HOSTNAME}", slug + "." + config.HTTP.PrimaryDomain},
 
-		{"${DOMAIN}", ssh2.Config.HTTP.PanelDomain()},
-		{"${PORT}", strconv.FormatUint(uint64(ssh2.Config.Listen.SSHPort), 10)},
+		{"${DOMAIN}", config.HTTP.PanelDomain()},
+		{"${PORT}", strconv.FormatUint(uint64(config.Listen.SSHPort), 10)},
 
-		{"${HELP_URL}", ssh2.Config.HTTP.JoinPath("user", "ssh").String()},
+		{"${HELP_URL}", config.HTTP.JoinPath("user", "ssh").String()},
 	} {
 		banner = strings.ReplaceAll(banner, oldnew[0], oldnew[1])
 	}

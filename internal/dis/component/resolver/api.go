@@ -32,7 +32,7 @@ func (api *API) Routes() component.Routes {
 
 func (a *API) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	return &api.Handler[string]{
-		Config: a.Config,
+		Config: component.GetStill(a).Config,
 		Auth:   a.dependencies.Auth,
 
 		Methods: []string{"GET"},

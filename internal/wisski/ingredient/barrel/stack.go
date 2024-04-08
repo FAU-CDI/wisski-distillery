@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 )
 
 //go:embed all:barrel
@@ -17,9 +18,12 @@ var localSettingsTemplate string
 
 // Barrel returns a stack representing the running WissKI Instance
 func (barrel *Barrel) Stack() component.StackWithResources {
+	liquid := ingredient.GetLiquid(barrel)
+	config := ingredient.GetStill(barrel).Config
+
 	return component.StackWithResources{
 		Stack: component.Stack{
-			Dir: barrel.FilesystemBase,
+			Dir: liquid.FilesystemBase,
 		},
 
 		Resources:   barrelResources,
@@ -30,23 +34,23 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 		},
 
 		EnvContext: map[string]string{
-			"DOCKER_NETWORK_NAME": barrel.Malt.Config.Docker.Network(),
+			"DOCKER_NETWORK_NAME": config.Docker.Network(),
 
-			"SLUG":            barrel.Slug,
-			"HOST_RULE":       barrel.HostRule(),
-			"WISSKI_HOSTNAME": barrel.Hostname(),
-			"HTTPS_ENABLED":   barrel.Malt.Config.HTTP.HTTPSEnabledEnv(),
+			"SLUG":            liquid.Slug,
+			"HOST_RULE":       liquid.HostRule(),
+			"WISSKI_HOSTNAME": liquid.Hostname(),
+			"HTTPS_ENABLED":   config.HTTP.HTTPSEnabledEnv(),
 
-			"DATA_PATH":   filepath.Join(barrel.FilesystemBase, "data"),
-			"RUNTIME_DIR": barrel.Malt.Config.Paths.RuntimeDir(),
+			"DATA_PATH":   filepath.Join(liquid.FilesystemBase, "data"),
+			"RUNTIME_DIR": config.Paths.RuntimeDir(),
 
-			"LOCAL_SETTINGS_PATH":  filepath.Join(barrel.FilesystemBase, localSettingsName),
+			"LOCAL_SETTINGS_PATH":  filepath.Join(liquid.FilesystemBase, localSettingsName),
 			"LOCAL_SETTINGS_MOUNT": LocalSettingsPath,
 
-			"BARREL_BASE_IMAGE":       barrel.GetDockerBaseImage(),
-			"IIP_SERVER_ENABLED":      barrel.GetIIPServerEnabled(),
-			"OPCACHE_MODE":            barrel.OpCacheMode(),
-			"CONTENT_SECURITY_POLICY": barrel.ContentSecurityPolicy,
+			"BARREL_BASE_IMAGE":       liquid.GetDockerBaseImage(),
+			"IIP_SERVER_ENABLED":      liquid.GetIIPServerEnabled(),
+			"OPCACHE_MODE":            liquid.OpCacheMode(),
+			"CONTENT_SECURITY_POLICY": liquid.ContentSecurityPolicy,
 		},
 
 		MakeDirs: []string{"data", ".composer"},

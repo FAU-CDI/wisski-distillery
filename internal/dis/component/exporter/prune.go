@@ -7,12 +7,14 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
 // ShouldPrune determines if a file with the provided modification time should be
 // removed from the export log.
 func (exporter *Exporter) ShouldPrune(modtime time.Time) bool {
-	return time.Since(modtime) > exporter.Config.MaxBackupAge
+	return time.Since(modtime) > component.GetStill(exporter).Config.MaxBackupAge
 }
 
 // Prune prunes all old exports
@@ -44,7 +46,7 @@ func (exporter *Exporter) PruneExports(ctx context.Context, progress io.Writer) 
 
 		// assemble path, and then remove the file!
 		path := filepath.Join(sPath, entry.Name())
-		fmt.Fprintf(progress, "Removing %s cause it is older than %d days\n", path, exporter.Config.MaxBackupAge)
+		fmt.Fprintf(progress, "Removing %s cause it is older than %d days\n", path, component.GetStill(exporter).Config.MaxBackupAge)
 
 		if err := os.Remove(path); err != nil {
 			return err

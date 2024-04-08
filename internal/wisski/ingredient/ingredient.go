@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/liquid"
 )
 
@@ -25,8 +26,18 @@ type Ingredient interface {
 
 // Base is embedded into every Ingredient
 type Base struct {
-	name           string // name is the name of this ingredient
-	*liquid.Liquid        // the underlying liquid
+	name   string         // name is the name of this ingredient
+	liquid *liquid.Liquid // the underlying liquid
+}
+
+// GetLiquid gets the liquid of this Ingredient
+func GetLiquid(i Ingredient) *liquid.Liquid {
+	return i.getBase().liquid
+}
+
+// GetStill returns the still of the distillery associated with the provided ingredient.
+func GetStill(i Ingredient) component.Still {
+	return component.GetStill(GetLiquid(i).Malt)
 }
 
 //lint:ignore U1000 used to implement the private methods of [Component]
@@ -38,7 +49,7 @@ func (cb *Base) getBase() *Base {
 // Init is only intended to be used within a lifetime.Lifetime[Ingredient,*Liquid].
 func Init(ingredient Ingredient, liquid *liquid.Liquid) {
 	base := ingredient.getBase() // pointer to a struct
-	base.Liquid = liquid
+	base.liquid = liquid
 	base.name = strings.ToLower(reflect.TypeOf(ingredient).Elem().Name())
 }
 

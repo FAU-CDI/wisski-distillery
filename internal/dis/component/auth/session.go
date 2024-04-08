@@ -107,7 +107,7 @@ func (auth *Auth) checkUser(ctx context.Context, name string) (user *AuthUser, e
 // If the session is not set, creates a new session.
 func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
 	return auth.store.Get(func() sessions.Store {
-		return sessions.NewCookieStore([]byte(auth.Config.SessionSecret))
+		return sessions.NewCookieStore([]byte(component.GetStill(auth).Config.SessionSecret))
 	}).Get(r, server.SessionCookie)
 }
 

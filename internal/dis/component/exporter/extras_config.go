@@ -36,10 +36,11 @@ func (control *Config) Backup(scontext *component.StagingContext) error {
 
 // backupfiles lists the files to be backed up.
 func (control *Config) backupFiles() []string {
+	config := component.GetStill(control).Config
 	return []string{
-		control.Config.ConfigPath,
-		control.Config.Paths.ExecutablePath(),
-		control.Config.Paths.OverridesJSON,
-		control.Config.Paths.ResolverBlocks,
+		config.ConfigPath,
+		config.Paths.ExecutablePath(),
+		config.Paths.OverridesJSON,
+		config.Paths.ResolverBlocks,
 	}
 }

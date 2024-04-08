@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/timex"
@@ -58,12 +59,12 @@ func (rh *RequestHeaders) With(headers RequestHeaders) *RequestHeaders {
 }
 
 // DoRest performs a (raw) http request to the without a body.
-func (ts Triplestore) DoRest(ctx context.Context, timeout time.Duration, method, url string, headers *RequestHeaders) (*http.Response, error) {
+func (ts *Triplestore) DoRest(ctx context.Context, timeout time.Duration, method, url string, headers *RequestHeaders) (*http.Response, error) {
 	return ts.DoRestWithReader(ctx, timeout, method, url, headers, nil)
 }
 
 // DoRestWithForm performs a http request where the body are all bytes read from fieldvalue.
-func (ts Triplestore) DoRestWithForm(ctx context.Context, timeout time.Duration, method, url string, headers *RequestHeaders, fieldname string, fieldvalue io.Reader) (*http.Response, error) {
+func (ts *Triplestore) DoRestWithForm(ctx context.Context, timeout time.Duration, method, url string, headers *RequestHeaders, fieldname string, fieldvalue io.Reader) (*http.Response, error) {
 	var buffer bytes.Buffer
 
 	// write the file to it
@@ -83,7 +84,7 @@ func (ts Triplestore) DoRestWithForm(ctx context.Context, timeout time.Duration,
 
 // DoRestWithReader performs a http request where the body is copied from the given io.Reader.
 // The caller must ensure the reader is closed.
-func (ts Triplestore) DoRestWithMarshal(ctx context.Context, timeout time.Duration, method, url string, headers *RequestHeaders, body any) (*http.Response, error) {
+func (ts *Triplestore) DoRestWithMarshal(ctx context.Context, timeout time.Duration, method, url string, headers *RequestHeaders, body any) (*http.Response, error) {
 	// encode into a buffer
 	var buffer bytes.Buffer
 	if err := json.NewEncoder(&buffer).Encode(body); err != nil {
@@ -95,7 +96,7 @@ func (ts Triplestore) DoRestWithMarshal(ctx context.Context, timeout time.Durati
 
 // DoRestWithReader performs a http request where the body is copied from the given io.Reader.
 // The caller must ensure the reader is closed.
-func (ts Triplestore) DoRestWithReader(ctx context.Context, timeout time.Duration, method string, url string, headers *RequestHeaders, body io.Reader) (*http.Response, error) {
+func (ts *Triplestore) DoRestWithReader(ctx context.Context, timeout time.Duration, method string, url string, headers *RequestHeaders, body io.Reader) (*http.Response, error) {
 	// create the request object
 	client := &http.Client{
 		Timeout: timeout,
@@ -104,12 +105,14 @@ func (ts Triplestore) DoRestWithReader(ctx context.Context, timeout time.Duratio
 		},
 	}
 
+	config := component.GetStill(ts).Config.TS
+
 	// create the request and authentication
 	req, err := http.NewRequestWithContext(ctx, method, ts.BaseURL+url, body)
 	if err != nil {
 		return nil, err
 	}
-	req.SetBasicAuth(ts.Config.TS.AdminUsername, ts.Config.TS.AdminPassword)
+	req.SetBasicAuth(config.AdminUsername, config.AdminPassword)
 
 	// add extra headers
 	if headers != nil && headers.Accept != "" {

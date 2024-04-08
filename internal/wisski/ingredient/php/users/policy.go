@@ -19,6 +19,7 @@ func (up *UserPolicy) Fetch(flags ingredient.FetcherFlags, target *status.WissKI
 	}
 
 	// read the grants into the info struct
-	target.Grants, err = up.Malt.Policy.Instance(flags.Context, up.Slug)
+	liquid := ingredient.GetLiquid(up)
+	target.Grants, err = liquid.Policy.Instance(flags.Context, liquid.Slug)
 	return err
 }

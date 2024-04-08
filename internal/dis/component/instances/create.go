@@ -7,6 +7,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 )
@@ -37,22 +38,24 @@ func (instances *Instances) Create(slug string, system models.System) (wissKI *w
 	wissKI.Liquid.Instance.OwnerEmail = ""
 	wissKI.Liquid.Instance.AutoBlindUpdateEnabled = true
 
+	config := component.GetStill(instances).Config
+
 	// sql
 
-	wissKI.Liquid.Instance.SqlDatabase = instances.Config.SQL.DataPrefix + slug
-	wissKI.Liquid.Instance.SqlUsername = instances.Config.SQL.UserPrefix + slug
+	wissKI.Liquid.Instance.SqlDatabase = config.SQL.DataPrefix + slug
+	wissKI.Liquid.Instance.SqlUsername = config.SQL.UserPrefix + slug
 
-	wissKI.Liquid.Instance.SqlPassword, err = instances.Config.NewPassword()
+	wissKI.Liquid.Instance.SqlPassword, err = config.NewPassword()
 	if err != nil {
 		return nil, err
 	}
 
 	// triplestore
 
-	wissKI.Liquid.Instance.GraphDBRepository = instances.Config.TS.DataPrefix + slug
-	wissKI.Liquid.Instance.GraphDBUsername = instances.Config.TS.UserPrefix + slug
+	wissKI.Liquid.Instance.GraphDBRepository = config.TS.DataPrefix + slug
+	wissKI.Liquid.Instance.GraphDBUsername = config.TS.UserPrefix + slug
 
-	wissKI.Liquid.Instance.GraphDBPassword, err = instances.Config.NewPassword()
+	wissKI.Liquid.Instance.GraphDBPassword, err = config.NewPassword()
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +64,7 @@ func (instances *Instances) Create(slug string, system models.System) (wissKI *w
 
 	wissKI.Liquid.DrupalUsername = "admin" // TODO: Change this!
 
-	wissKI.Liquid.DrupalPassword, err = instances.Config.NewPassword()
+	wissKI.Liquid.DrupalPassword, err = config.NewPassword()
 	if err != nil {
 		return nil, err
 	}

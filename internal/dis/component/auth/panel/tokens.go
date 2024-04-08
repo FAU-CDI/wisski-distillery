@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
@@ -52,7 +53,7 @@ func (panel *UserPanel) tokensRoute(ctx context.Context) http.Handler {
 			return tc, err
 		}
 
-		tc.Domain = template.URL(panel.Config.HTTP.JoinPath().String())
+		tc.Domain = template.URL(component.GetStill(panel).Config.HTTP.JoinPath().String())
 
 		// get the tokens
 		tc.Tokens, err = panel.dependencies.Tokens.Tokens(r.Context(), user.User.User)
@@ -178,7 +179,7 @@ func (panel *UserPanel) tokensAddRoute(ctx context.Context) http.Handler {
 			// render the created context
 			return panel.dependencies.Handling.WriteHTML(
 				tplDone.Context(r, TokenCreateContext{
-					Domain: template.URL(panel.Config.HTTP.JoinPath().String()),
+					Domain: template.URL(component.GetStill(panel).Config.HTTP.JoinPath().String()),
 					Token:  tok,
 				}),
 				nil,
