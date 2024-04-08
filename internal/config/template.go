@@ -2,12 +2,12 @@ package config
 
 import (
 	"crypto/rand"
+	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
-	"github.com/tkw1536/pkglib/hostname"
 	"github.com/tkw1536/pkglib/password"
 )
 
@@ -33,7 +33,10 @@ func (tpl *Template) SetDefaults() (err error) {
 	}
 
 	if tpl.DefaultDomain == "" {
-		tpl.DefaultDomain = hostname.FQDN()
+		tpl.DefaultDomain, err = os.Hostname()
+		if err != nil {
+			return err
+		}
 	}
 
 	if tpl.TSAdminUser == "" {
