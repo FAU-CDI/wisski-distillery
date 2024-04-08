@@ -4,14 +4,10 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 )
 
 type Never struct {
 	component.Base
-	dependencies struct {
-		Auth *auth.Auth
-	}
 }
 
 var (
