@@ -48,7 +48,7 @@ var listURIPrefixesPHP string
 // server is an optional server to fetch prefixes from.
 // server may be nil.
 func (prefixes *Prefixes) All(ctx context.Context, server *phpx.Server) ([]string, error) {
-	uris, err := prefixes.triplestore(ctx, server)
+	uris, err := prefixes.getLivePrefixes(ctx, server)
 	if err != nil {
 		return nil, err
 	}
@@ -61,26 +61,49 @@ func (prefixes *Prefixes) All(ctx context.Context, server *phpx.Server) ([]strin
 	return append(uris, uris2...), nil
 }
 
-func (wisski *Prefixes) triplestore(ctx context.Context, server *phpx.Server) (prefixes []string, err error) {
-	// get all the ugly prefixes
-	err = wisski.dependencies.PHP.ExecScript(ctx, server, &prefixes, listURIPrefixesPHP, "list_prefixes")
+// getLivePrefixes get the list of prefixes found within the live system
+func (prefixes *Prefixes) getLivePrefixes(ctx context.Context, server *phpx.Server) (pfs []string, err error) {
+	useTS := !(prefixes.Config.TS.DangerouslyUseAdapterPrefixes.Set && prefixes.Config.TS.DangerouslyUseAdapterPrefixes.Value)
+
+	if useTS {
+		pfs, err = prefixes.getTSPrefixes(ctx, server)
+	} else {
+		// danger danger danger: Use the adapter prefixes
+		pfs, err = prefixes.getAdapterPrefixes(ctx, server)
+	}
+
 	if err != nil {
 		return nil, err
 	}
 
-	// filter out sequential prefixes
-	prefixes = collection.NonSequential(prefixes, func(prev, now string) bool {
-		return strings.HasPrefix(now, prev)
-	})
+	// sort the prefixes, and remove duplicates
+	slices.Sort(pfs)
+	pfs = collection.Deduplicate(pfs)
 
 	// load the list of blocked prefixes
-	blocks, err := wisski.blocked()
+	blocks, err := prefixes.blocked()
 	if err != nil {
 		return nil, err
 	}
 
 	// filter out blocked prefixes
-	return collection.Filter(prefixes, func(uri string) bool { return !hasAnyPrefix(uri, blocks) }), nil
+	return collection.Filter(pfs, func(uri string) bool { return !hasAnyPrefix(uri, blocks) }), nil
+}
+
+func (wisski *Prefixes) getAdapterPrefixes(ctx context.Context, server *phpx.Server) (pfs []string, err error) {
+	err = wisski.dependencies.PHP.ExecScript(ctx, server, &pfs, listURIPrefixesPHP, "list_adapter_prefixes")
+	if err != nil {
+		return nil, err
+	}
+	return pfs, nil
+}
+
+func (wisski *Prefixes) getTSPrefixes(ctx context.Context, server *phpx.Server) (pfs []string, err error) {
+	err = wisski.dependencies.PHP.ExecScript(ctx, server, &pfs, listURIPrefixesPHP, "list_triplestore_prefixes")
+	if err != nil {
+		return nil, err
+	}
+	return pfs, nil
 }
 
 func (prefixes *Prefixes) blocked() ([]string, error) {

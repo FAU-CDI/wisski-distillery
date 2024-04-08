@@ -1,5 +1,7 @@
 package config
 
+import "github.com/FAU-CDI/wisski-distillery/internal/config/validators"
+
 type DatabaseConfig struct {
 	// Credentials for the admin user.
 	// Is automatically created if it does not exist.
@@ -20,4 +22,8 @@ type SQLConfig struct {
 
 type TSConfig struct {
 	DatabaseConfig `yaml:",inline" recurse:"true"`
+
+	// DangerouslyUseAdapterPrefixes inidicates if scanning for prefixes should just use prefixes declared in all adapters.
+	// This may not reflect what is actually in the database.
+	DangerouslyUseAdapterPrefixes validators.NullableBool `yaml:"dangerously_use_adapter_prefixes" default:"false" validate:"bool"`
 }

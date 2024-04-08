@@ -113,6 +113,10 @@ triplestore:
   user_prefix: null
   data_prefix: null
 
+  # if desired, turn off regularly scanning for prefixes in the triplestore.
+  # DANGER: Turning this on will break the global resolver.
+  dangerously_use_adapter_prefixes: false
+
 # The maximum agefor backups to be kept. 
 # Backups older than this will be removed when a new backup is made.
 # The default here is 720hours (== 30 days)
