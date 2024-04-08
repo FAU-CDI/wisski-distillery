@@ -4,6 +4,7 @@ import "github.com/rs/zerolog"
 
 // Flags are global flags for the wdcli executable
 type Flags struct {
+	//lint:ignore SA5008 required by the argument framework
 	LogLevel   LogLevelString `short:"l" long:"loglevel" description:"log level" default:"info" choice:"trace" choice:"debug" choice:"info" choice:"warn" choice:"error" choice:"fatal" choice:"panic"`
 	ConfigPath string         `short:"c" long:"config" description:"path to distillery configuration file"`
 

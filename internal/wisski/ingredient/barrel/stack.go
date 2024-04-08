@@ -4,8 +4,6 @@ import (
 	"embed"
 	"path/filepath"
 
-	_ "embed"
-
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
