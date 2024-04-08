@@ -160,8 +160,9 @@ func (panel *UserPanel) sshAddRoute(context.Context) http.Handler {
 		},
 		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		Template:        tpl.Template(),
-		TemplateContext: templating.FormTemplateContext(tpl),
+		Template:         tpl.Template(),
+		TemplateContext:  templating.FormTemplateContext(tpl),
+		LogTemplateError: tpl.LogTemplateError,
 
 		Validate: func(r *http.Request, values map[string]string) (ak addKeyResult, err error) {
 			ak.User, err = panel.dependencies.Auth.UserOfSession(r)

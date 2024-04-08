@@ -43,8 +43,9 @@ func (panel *UserPanel) routePassword(context.Context) http.Handler {
 		},
 		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		Template:        tpl.Template(),
-		TemplateContext: panel.UserFormContext(tpl, menuChangePassword),
+		Template:         tpl.Template(),
+		TemplateContext:  panel.UserFormContext(tpl, menuChangePassword),
+		LogTemplateError: tpl.LogTemplateError,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			old, passcode, new, new2 := values["old"], values["otp"], values["new"], values["new2"]

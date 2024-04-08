@@ -197,6 +197,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 			}
 			return tpl.Context(r, templating.NewFormContext(ctx))
 		},
+		LogTemplateError: tpl.LogTemplateError,
 
 		Validate: func(r *http.Request, values map[string]string) (*AuthUser, error) {
 			username, password, passcode := values["username"], values["password"], values["otp"]

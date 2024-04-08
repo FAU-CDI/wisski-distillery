@@ -34,6 +34,11 @@ func (tpl *Template[C]) Template() *template.Template {
 	return baseTemplate
 }
 
+// LogTepmplateError logs a non-nil error into the logger found in the request
+func (*Template[C]) LogTemplateError(r *http.Request, err error) {
+	handling.LogTemplateError(r, err)
+}
+
 // Context generates the context to pass to an instance of the template returned by Template.
 func (tpl *Template[C]) Context(r *http.Request, c C, funcs ...FlagFunc) (ctx *tContext[C]) {
 	ctx = tpl.context(r, funcs...)

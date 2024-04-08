@@ -147,8 +147,9 @@ func (panel *UserPanel) tokensAddRoute(context.Context) http.Handler {
 		},
 		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		Template:        tplForm.Template(),
-		TemplateContext: templating.FormTemplateContext(tplForm),
+		Template:         tplForm.Template(),
+		TemplateContext:  templating.FormTemplateContext(tplForm),
+		LogTemplateError: tplForm.LogTemplateError,
 
 		Validate: func(r *http.Request, values map[string]string) (at addTokenResult, err error) {
 			at.User, err = panel.dependencies.Auth.UserOfSession(r)

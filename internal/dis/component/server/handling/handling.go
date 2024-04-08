@@ -57,5 +57,12 @@ func (h *Handling) Redirect(Handler content.RedirectFunc) http.Handler {
 }
 
 func (h *Handling) WriteHTML(context any, err error, template *template.Template, w http.ResponseWriter, r *http.Request) error {
-	return content.WriteHTMLI(context, err, template, h.HTMLInterceptor(), w, r)
+	return LogTemplateError(r, content.WriteHTMLI(context, err, template, h.HTMLInterceptor(), w, r))
+}
+
+func LogTemplateError(r *http.Request, err error) error {
+	if err != nil {
+		zerolog.Ctx(r.Context()).Err(err).Str("path", r.URL.String()).Msg("error rendering template")
+	}
+	return err
 }

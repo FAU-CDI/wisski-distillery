@@ -37,8 +37,9 @@ func (panel *UserPanel) routeTOTPEnable(context.Context) http.Handler {
 			return struct{}{}, err == nil && user != nil && user.IsTOTPEnabled()
 		},
 
-		Template:        tpl.Template(),
-		TemplateContext: panel.UserFormContext(tpl, menuTOTPEnable),
+		Template:         tpl.Template(),
+		TemplateContext:  panel.UserFormContext(tpl, menuTOTPEnable),
+		LogTemplateError: tpl.LogTemplateError,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password := values["password"]
@@ -133,6 +134,7 @@ func (panel *UserPanel) routeTOTPEnroll(context.Context) http.Handler {
 
 			return tpl.Context(r, ctx)
 		},
+		LogTemplateError: tpl.LogTemplateError,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]
@@ -189,8 +191,9 @@ func (panel *UserPanel) routeTOTPDisable(context.Context) http.Handler {
 			return struct{}{}, err == nil && user != nil && !user.IsTOTPEnabled()
 		},
 
-		Template:        tpl.Template(),
-		TemplateContext: panel.UserFormContext(tpl, menuTOTPDisable),
+		Template:         tpl.Template(),
+		TemplateContext:  panel.UserFormContext(tpl, menuTOTPDisable),
+		LogTemplateError: tpl.LogTemplateError,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
 			password, otp := values["password"], values["otp"]

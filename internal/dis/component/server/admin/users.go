@@ -89,8 +89,9 @@ func (admin *Admin) createUser(context.Context) http.Handler {
 		},
 		FieldTemplate: assets.PureCSSFieldTemplate,
 
-		Template:        tpl.Template(),
-		TemplateContext: templating.FormTemplateContext(tpl),
+		Template:         tpl.Template(),
+		TemplateContext:  templating.FormTemplateContext(tpl),
+		LogTemplateError: tpl.LogTemplateError,
 
 		Validate: func(r *http.Request, values map[string]string) (cu createUserResult, err error) {
 			cu.User, cu.Passsword, cu.Admin = values["username"], values["password"], values["admin"] == field.CheckboxChecked
