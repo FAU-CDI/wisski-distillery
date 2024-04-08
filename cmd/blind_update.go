@@ -47,7 +47,7 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) (err error) {
 		return err
 	}
 	if !bu.Force {
-		wissKIs = collection.Filter(wissKIs, func(instance *wisski.WissKI) bool {
+		wissKIs = collection.KeepFunc(wissKIs, func(instance *wisski.WissKI) bool {
 			return bool(instance.AutoBlindUpdateEnabled)
 		})
 	}

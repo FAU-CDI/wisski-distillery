@@ -9,12 +9,12 @@ import (
 	"io"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 
 	_ "embed"
 
-	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/lazy"
 	"github.com/tkw1536/pkglib/status"
 	"github.com/tkw1536/pkglib/stream"
@@ -285,8 +285,8 @@ func init() {
 	}
 
 	// remove comment lines
-	lines = collection.Filter(lines, func(line string) bool {
-		return !strings.HasPrefix(line, "//")
+	lines = slices.DeleteFunc(lines, func(line string) bool {
+		return strings.HasPrefix(line, "//")
 	})
 
 	serverPHP = minifier.ReplaceAllString(strings.Join(lines, ""), "$1")

@@ -88,7 +88,7 @@ func (prefixes *Prefixes) getLivePrefixes(ctx context.Context, server *phpx.Serv
 	}
 
 	// filter out blocked prefixes
-	return collection.Filter(pfs, func(uri string) bool { return !hasAnyPrefix(uri, blocks) }), nil
+	return slices.DeleteFunc(pfs, func(uri string) bool { return hasAnyPrefix(uri, blocks) }), nil
 }
 
 func (wisski *Prefixes) getAdapterPrefixes(ctx context.Context, server *phpx.Server) (pfs []string, err error) {

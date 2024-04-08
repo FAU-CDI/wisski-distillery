@@ -138,11 +138,12 @@ func MarshalMap(m map[string]any) string {
 	var builder strings.Builder
 
 	builder.WriteString("array(")
-	collection.IterateSorted(m, func(k string, v any) {
+	collection.IterateSorted(m, func(k string, v any) bool {
 		builder.WriteString(MarshalString(k))
 		builder.WriteString("=>")
 		builder.WriteString(MarshalJSON(v))
 		builder.WriteString(",")
+		return true
 	})
 	builder.WriteString(")")
 

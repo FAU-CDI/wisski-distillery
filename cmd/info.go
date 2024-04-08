@@ -103,8 +103,9 @@ func (i info) Run(context wisski_distillery.Context) (err error) {
 	}
 
 	context.Printf("Pathbuilders: (count %d)\n", len(info.Pathbuilders))
-	collection.IterateSorted(info.Pathbuilders, func(name, data string) {
+	collection.IterateSorted(info.Pathbuilders, func(name, data string) bool {
 		context.Printf("- %s (%d bytes)\n", name, len(data))
+		return true
 	})
 
 	context.Printf("Users: (count %d)\n", len(info.Users))

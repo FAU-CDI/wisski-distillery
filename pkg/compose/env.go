@@ -43,24 +43,17 @@ func WriteEnvFile(writer io.Writer, env map[string]string) (count int, err error
 		return
 	}
 
-	collection.IterateSorted(env, func(key, value string) {
-		// if we already had an error, break
-		if err != nil {
-			return
-		}
-
+	collection.IterateSorted(env, func(key, value string) bool {
 		// if we don't have a valid name, break
 		if !isValidVariable(key) {
 			err = errInvalidName(key)
-			return
+			return false
 		}
 
 		// write write key = EscapeEnvValue(value) followed by a new line
 		n, err = fmt.Fprintf(writer, "%s%s%s\n", key, string(EnvEqualChar), EscapeEnvValue(value))
 		count += n
-		if err != nil {
-			return
-		}
+		return err == nil
 	})
 	return
 }

@@ -42,7 +42,7 @@ func (log *Logger) For(ctx context.Context, slug string) (exports []models.Expor
 		return nil, err
 	}
 
-	return collection.Filter(exports, func(s models.Export) bool {
+	return collection.KeepFunc(exports, func(s models.Export) bool {
 		return s.Slug == slug
 	}), nil
 }
