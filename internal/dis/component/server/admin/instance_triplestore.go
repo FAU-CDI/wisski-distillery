@@ -29,7 +29,7 @@ type instanceTriplestoreContext struct {
 	Instance *wisski.WissKI
 }
 
-func (admin *Admin) instanceTS(ctx context.Context) http.Handler {
+func (admin *Admin) instanceTS(context.Context) http.Handler {
 	tpl := instanceTriplestoreTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

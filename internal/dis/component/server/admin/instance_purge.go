@@ -29,7 +29,7 @@ type instancePurgeContext struct {
 	Instance *wisski.WissKI
 }
 
-func (admin *Admin) instancePurge(ctx context.Context) http.Handler {
+func (admin *Admin) instancePurge(context.Context) http.Handler {
 	tpl := instancePurgeTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

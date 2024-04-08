@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
-func (home *Home) loadRedirect(ctx context.Context) (redirect Redirect, err error) {
+func (home *Home) loadRedirect(context.Context) (redirect Redirect, err error) {
 	if redirect.Overrides == nil {
 		redirect.Overrides = make(map[string]string)
 	}

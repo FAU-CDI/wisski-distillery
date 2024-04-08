@@ -32,7 +32,7 @@ type instanceDataContext struct {
 	Prefixes     []string
 }
 
-func (admin *Admin) instanceData(ctx context.Context) http.Handler {
+func (admin *Admin) instanceData(context.Context) http.Handler {
 	tpl := instanceDataTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

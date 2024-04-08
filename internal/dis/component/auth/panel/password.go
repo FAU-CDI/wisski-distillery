@@ -31,7 +31,7 @@ var (
 	errPasswordSet           = errors.New("password was updated")
 )
 
-func (panel *UserPanel) routePassword(ctx context.Context) http.Handler {
+func (panel *UserPanel) routePassword(context.Context) http.Handler {
 	tpl := passwordTemplate.Prepare(panel.dependencies.Templating)
 
 	return &form.Form[struct{}]{

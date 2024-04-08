@@ -44,7 +44,7 @@ type instanceUsersContext struct {
 	Grants    []models.Grant // grants that exist for the user
 }
 
-func (admin *Admin) instanceUsers(ctx context.Context) http.Handler {
+func (admin *Admin) instanceUsers(context.Context) http.Handler {
 	tpl := instanceUsersTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

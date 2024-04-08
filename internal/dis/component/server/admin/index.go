@@ -111,7 +111,7 @@ type indexContext struct {
 	Instances []status.WissKI
 }
 
-func (admin *Admin) index(ctx context.Context) http.Handler {
+func (admin *Admin) index(context.Context) http.Handler {
 	tpl := indexTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Actions(
@@ -126,7 +126,7 @@ func (admin *Admin) index(ctx context.Context) http.Handler {
 	})
 }
 
-func (admin *Admin) instances(ctx context.Context) http.Handler {
+func (admin *Admin) instances(context.Context) http.Handler {
 	tpl := instancesTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

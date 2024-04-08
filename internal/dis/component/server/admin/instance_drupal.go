@@ -39,7 +39,7 @@ type instanceDrupalContext struct {
 	LastCron time.Time
 }
 
-func (admin *Admin) instanceDrupal(ctx context.Context) http.Handler {
+func (admin *Admin) instanceDrupal(context.Context) http.Handler {
 	tpl := instanceDrupalTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

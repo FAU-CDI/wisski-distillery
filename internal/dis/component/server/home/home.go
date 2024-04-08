@@ -57,7 +57,7 @@ func (home *Home) HandleRoute(ctx context.Context, route string) (http.Handler, 
 	}), nil
 }
 
-func (home *Home) serveWissKI(w http.ResponseWriter, slug string, r *http.Request) {
+func (home *Home) serveWissKI(w http.ResponseWriter, slug string, _ *http.Request) {
 	if _, ok := home.dependencies.ListInstances.Names()[slug]; !ok {
 		// Get(nil) guaranteed to work by precondition
 		w.WriteHeader(http.StatusNotFound)

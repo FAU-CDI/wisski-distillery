@@ -36,7 +36,7 @@ type instanceSSHContext struct {
 	Port        uint16
 }
 
-func (admin *Admin) instanceSSH(ctx context.Context) http.Handler {
+func (admin *Admin) instanceSSH(context.Context) http.Handler {
 	tpl := instanceSSHTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

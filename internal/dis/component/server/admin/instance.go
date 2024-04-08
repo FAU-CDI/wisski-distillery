@@ -32,7 +32,7 @@ type instanceContext struct {
 	Info     status.WissKI
 }
 
-func (admin *Admin) instance(ctx context.Context) http.Handler {
+func (admin *Admin) instance(context.Context) http.Handler {
 	tpl := instanceTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

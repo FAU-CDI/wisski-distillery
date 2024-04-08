@@ -240,7 +240,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 }
 
 // authLogout implements the authLogout view to logout a user
-func (auth *Auth) authLogout(ctx context.Context) http.Handler {
+func (auth *Auth) authLogout(context.Context) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// do the logout
 		auth.Logout(w, r)

@@ -155,7 +155,7 @@ func (snapshots *Exporter) resolveParts(ctx context.Context, parts []string, sna
 	}
 }
 
-func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, snapshots *Exporter, instance *wisski.WissKI, needsRunning bool) (errmap map[string]error, logmap map[string]string) {
+func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, _ *Exporter, instance *wisski.WissKI, needsRunning bool) (errmap map[string]error, logmap map[string]string) {
 	if !needsRunning && !snapshot.Description.Keepalive {
 		stack := instance.Barrel().Stack()
 

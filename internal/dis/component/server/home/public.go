@@ -47,7 +47,7 @@ type publicContext struct {
 
 const logoHTML = template.HTML(`<img src="/logo.svg" alt="WissKI Distillery Logo" class="biglogo">`)
 
-func (home *Home) publicHandler(ctx context.Context) http.Handler {
+func (home *Home) publicHandler(context.Context) http.Handler {
 	config := component.GetStill(home).Config.Home
 
 	tpl := publicTemplate.Prepare(

@@ -12,7 +12,7 @@ import (
 	_ "embed"
 )
 
-func (admin *Admin) instanceProvision(ctx context.Context) http.Handler {
+func (admin *Admin) instanceProvision(context.Context) http.Handler {
 	tpl := instanceSystemTemplate.Prepare(
 		admin.dependencies.Templating,
 

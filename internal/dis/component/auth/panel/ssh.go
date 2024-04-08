@@ -47,7 +47,7 @@ type SSHTemplateContext struct {
 	Services []ssh2.Intercept
 }
 
-func (panel *UserPanel) sshRoute(ctx context.Context) http.Handler {
+func (panel *UserPanel) sshRoute(context.Context) http.Handler {
 	tpl := sshTemplate.Prepare(
 		panel.dependencies.Templating,
 		templating.Crumbs(
@@ -143,7 +143,7 @@ type addKeyResult struct {
 	Key     ssh.PublicKey
 }
 
-func (panel *UserPanel) sshAddRoute(ctx context.Context) http.Handler {
+func (panel *UserPanel) sshAddRoute(context.Context) http.Handler {
 	tpl := sshAddTemplate.Prepare(
 		panel.dependencies.Templating,
 		templating.Crumbs(

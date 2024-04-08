@@ -23,7 +23,7 @@ var totpEnable = templating.Parse[userFormContext](
 	templating.Assets(assets.AssetsUser),
 )
 
-func (panel *UserPanel) routeTOTPEnable(ctx context.Context) http.Handler {
+func (panel *UserPanel) routeTOTPEnable(context.Context) http.Handler {
 	tpl := totpEnable.Prepare(panel.dependencies.Templating)
 
 	return &form.Form[struct{}]{
@@ -88,7 +88,7 @@ type totpEnrollContext struct {
 	TOTPURL    template.URL
 }
 
-func (panel *UserPanel) routeTOTPEnroll(ctx context.Context) http.Handler {
+func (panel *UserPanel) routeTOTPEnroll(context.Context) http.Handler {
 	tpl := totpEnrollTemplate.Prepare(
 		panel.dependencies.Templating,
 		templating.Crumbs(
@@ -174,7 +174,7 @@ var totpDisableTemplate = templating.Parse[userFormContext](
 	templating.Assets(assets.AssetsUser),
 )
 
-func (panel *UserPanel) routeTOTPDisable(ctx context.Context) http.Handler {
+func (panel *UserPanel) routeTOTPDisable(context.Context) http.Handler {
 	tpl := totpDisableTemplate.Prepare(panel.dependencies.Templating)
 
 	return &form.Form[struct{}]{

@@ -34,7 +34,7 @@ type TokenTemplateContext struct {
 	Tokens []models.Token
 }
 
-func (panel *UserPanel) tokensRoute(ctx context.Context) http.Handler {
+func (panel *UserPanel) tokensRoute(context.Context) http.Handler {
 	tpl := tokensTemplate.Prepare(
 		panel.dependencies.Templating,
 		templating.Crumbs(
@@ -122,7 +122,7 @@ type TokenCreateContext struct {
 	Token  *models.Token
 }
 
-func (panel *UserPanel) tokensAddRoute(ctx context.Context) http.Handler {
+func (panel *UserPanel) tokensAddRoute(context.Context) http.Handler {
 	tplForm := tokensAddTemplate.Prepare(
 		panel.dependencies.Templating,
 		templating.Crumbs(

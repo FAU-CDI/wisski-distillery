@@ -31,7 +31,7 @@ type instanceStatsContext struct {
 	Statistics status.Statistics
 }
 
-func (admin *Admin) instanceStats(ctx context.Context) http.Handler {
+func (admin *Admin) instanceStats(context.Context) http.Handler {
 	tpl := instanceStatsTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

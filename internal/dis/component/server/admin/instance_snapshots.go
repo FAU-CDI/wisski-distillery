@@ -31,7 +31,7 @@ type instanceSnapshotsContext struct {
 	Snapshots []models.Export
 }
 
-func (admin *Admin) instanceSnapshots(ctx context.Context) http.Handler {
+func (admin *Admin) instanceSnapshots(context.Context) http.Handler {
 	tpl := instanceSnapshotsTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

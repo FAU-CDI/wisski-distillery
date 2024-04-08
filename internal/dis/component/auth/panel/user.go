@@ -40,7 +40,7 @@ func (g GrantWithURL) AdminURL() template.URL {
 	return template.URL("/admin/instance/" + g.Slug)
 }
 
-func (panel *UserPanel) routeUser(ctx context.Context) http.Handler {
+func (panel *UserPanel) routeUser(context.Context) http.Handler {
 	actions := []component.MenuItem{
 		menuChangePassword,
 		menuTOTPAction,

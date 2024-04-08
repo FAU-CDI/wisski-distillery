@@ -50,7 +50,7 @@ func (isc *instanceSystemContext) prepare(rebuild bool) {
 	isc.DefaultPHPVersion = models.DefaultPHPVersion
 }
 
-func (admin *Admin) instanceRebuild(ctx context.Context) http.Handler {
+func (admin *Admin) instanceRebuild(context.Context) http.Handler {
 	tpl := instanceSystemTemplate.Prepare(
 		admin.dependencies.Templating,
 

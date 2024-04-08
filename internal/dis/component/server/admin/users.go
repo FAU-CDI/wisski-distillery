@@ -32,7 +32,7 @@ type usersContext struct {
 	Users []*auth.AuthUser
 }
 
-func (admin *Admin) users(ctx context.Context) http.Handler {
+func (admin *Admin) users(context.Context) http.Handler {
 	tpl := usersTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(
@@ -71,7 +71,7 @@ type createUserResult struct {
 	Admin     bool
 }
 
-func (admin *Admin) createUser(ctx context.Context) http.Handler {
+func (admin *Admin) createUser(context.Context) http.Handler {
 	tpl := userCreateTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(

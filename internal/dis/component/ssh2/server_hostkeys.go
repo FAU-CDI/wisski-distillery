@@ -81,7 +81,7 @@ func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, ctx context.Context, pri
 }
 
 // loadHostKey loadsa host key
-func (ssh2 *SSH2) loadHostKey(progress io.Writer, ctx context.Context, key HostKey, path string) (err error) {
+func (ssh2 *SSH2) loadHostKey(progress io.Writer, _ context.Context, key HostKey, path string) (err error) {
 	fmt.Fprintf(progress, "Loading hostkey (algorithm %s) from %q\n", key.Algorithm(), path)
 
 	// read all the bytes from the file
