@@ -11,8 +11,6 @@ import (
 
 type RebuildTriplestore struct {
 	component.Base
-	dependencies struct {
-	}
 }
 
 var (
