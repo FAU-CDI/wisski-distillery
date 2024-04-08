@@ -69,9 +69,6 @@ func (auth *Auth) User(ctx context.Context, name string) (user *AuthUser, err er
 	if err != nil {
 		return
 	}
-	if err != nil {
-		return
-	}
 
 	user = &AuthUser{}
 

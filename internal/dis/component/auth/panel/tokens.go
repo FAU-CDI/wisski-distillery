@@ -170,9 +170,6 @@ func (panel *UserPanel) tokensAddRoute(ctx context.Context) http.Handler {
 			// add the key to the user
 			tok, err := panel.dependencies.Tokens.Add(r.Context(), at.User.User.User, at.Description, at.Scopes)
 			if err != nil {
-				return err
-			}
-			if err != nil {
 				return errAddToken
 			}
 

@@ -71,9 +71,6 @@ func (instances *Instances) Create(slug string, system models.System) (wissKI *w
 
 	// docker image
 	wissKI.Liquid.Instance.System = system
-	if err != nil {
-		return nil, err
-	}
 
 	// store the instance in the object and return it!
 	return wissKI, nil
