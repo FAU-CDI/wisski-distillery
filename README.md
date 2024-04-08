@@ -77,6 +77,18 @@ Next, download a [GraphDB](https://graphdb.ontotext.com/) zip file, and bring th
 ```bash
 /var/www/deploy/wdcli system_update /path/to/graphdb.zip
 ```
+
+Afterwards you probably want to make yourself a panel with admin access and a password:
+
+```bash
+/var/www/deploy/wdcli dis_user -c admin
+/var/www/deploy/wdcli dis_user -a admin
+/var/www/deploy/wdcli dis_user -s admin
+```
+
+Afterwards visit the web interface, and login with your chosen username and password.
+To access the admin panel on the web, setting up TOTP is required. 
+
 ## System Updates
 
 _TLDR: `sudo /var/www/deploy/wdcli system_update /path/to/graphdb.zip`_
