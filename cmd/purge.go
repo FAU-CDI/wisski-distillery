@@ -52,7 +52,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// do the purge!
 	if err := dis.Purger().Purge(context.Context, context.Stdout, slug); err != nil {
-		return errPurgeFailed.Wrap(err)
+		return errPurgeFailed.WrapError(err)
 	}
 	return nil
 }

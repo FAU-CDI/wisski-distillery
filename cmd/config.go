@@ -35,7 +35,7 @@ func (cfg cfg) Run(context wisski_distillery.Context) error {
 		return nil
 	}
 	if err := context.Environment.Config.Marshal(context.Stdout); err != nil {
-		return errMarshalConfig.Wrap(err)
+		return errMarshalConfig.WrapError(err)
 	}
 	return nil
 }

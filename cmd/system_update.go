@@ -99,7 +99,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 	} {
 		context.Println(d)
 		if err := umaskfree.MkdirAll(d, umaskfree.DefaultDirPerm); err != nil {
-			return errBoostrapFailedToCreateDirectory.WithMessageF(d).Wrap(err)
+			return errBoostrapFailedToCreateDirectory.WithMessageF(d).WrapError(err)
 		}
 	}
 
@@ -129,7 +129,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 		logging.LogMessage(context.Stderr, "Checking that the 'docker' api is reachable")
 		ping, err := dis.Docker().Ping(context.Context)
 		if err != nil {
-			return errDockerUnreachable.Wrap(err)
+			return errDockerUnreachable.WrapError(err)
 		}
 		context.Printf("API Version:     %s (experimental: %t)\nBuilder Version: %s\n", ping.APIVersion, ping.Experimental, ping.BuilderVersion)
 	}
@@ -148,7 +148,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 		for _, name := range dis.Config.Docker.Networks() {
 			id, existed, err := dis.Docker().CreateNetwork(context.Context, name)
 			if err != nil {
-				return errNetworkCreateFailed.Wrap(err)
+				return errNetworkCreateFailed.WrapError(err)
 			}
 			if existed {
 				context.Printf("Network %s (id %s) already existed\n", name, id)
@@ -213,7 +213,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 				}
 				return item.Update(context.Context, context.Stderr)
 			}, context.Stderr, "Updating Component: %s", name); err != nil {
-				return errBootstrapComponent.WithMessageF(name).Wrap(err)
+				return errBootstrapComponent.WithMessageF(name).WrapError(err)
 			}
 		}
 		return nil

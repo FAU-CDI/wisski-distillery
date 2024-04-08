@@ -40,7 +40,7 @@ func (s ssh) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 	server, err := dis.SSH().Server(context.Context, s.PrivateKeyPath, context.Stderr)
 	if err != nil {
-		return errSSHServer.Wrap(err)
+		return errSSHServer.WrapError(err)
 	}
 
 	context.Printf("Listening on %s\n", s.Bind)
@@ -48,7 +48,7 @@ func (s ssh) Run(context wisski_distillery.Context) error {
 	// make a new listener
 	listener, err := net.Listen("tcp", s.Bind)
 	if err != nil {
-		return errSSHListen.Wrap(err)
+		return errSSHListen.WrapError(err)
 	}
 
 	go func() {
@@ -58,5 +58,5 @@ func (s ssh) Run(context wisski_distillery.Context) error {
 
 	// and serve that listener
 	err = server.Serve(listener)
-	return errServerListen.Wrap(err)
+	return errServerListen.WrapError(err)
 }

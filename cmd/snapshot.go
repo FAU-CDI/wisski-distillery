@@ -57,7 +57,7 @@ func (sn snapshot) Run(context wisski_distillery.Context) error {
 	// find the instance!
 	instance, err := dis.Instances().WissKI(context.Context, sn.Positionals.Slug)
 	if err != nil {
-		return errSnapshotWissKI.Wrap(err)
+		return errSnapshotWissKI.WrapError(err)
 	}
 
 	// do a snapshot of it!
@@ -72,7 +72,7 @@ func (sn snapshot) Run(context wisski_distillery.Context) error {
 	})
 
 	if err != nil {
-		return errSnapshotFailed.Wrap(err)
+		return errSnapshotFailed.WrapError(err)
 	}
 	return nil
 }

@@ -51,7 +51,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 	// if the caller requested a trigger, just trigger the cron tasks
 	if s.Trigger {
 		if err := dis.Control().Trigger(context.Context); err != nil {
-			return errServerTrigger.Wrap(err)
+			return errServerTrigger.WrapError(err)
 		}
 	}
 
@@ -70,7 +70,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 	// and start the server
 	public, internal, err := dis.Control().Server(context.Context, context.Stderr)
 	if err != nil {
-		return errServerGeneric.Wrap(err)
+		return errServerGeneric.WrapError(err)
 	}
 
 	// start the public listener
@@ -95,7 +95,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 		zerolog.Ctx(context.Context).Info().Str("bind", s.InternalBind).Msg("listening internal server")
 		internalL, err := net.Listen("tcp", s.InternalBind)
 		if err != nil {
-			return errServerListen.Wrap(err)
+			return errServerListen.WrapError(err)
 		}
 		defer internalS.Shutdown(context.Context)
 		go func() {
@@ -111,5 +111,5 @@ func (s server) Run(context wisski_distillery.Context) error {
 		internalS.Shutdown(context.Context)
 	}()
 
-	return errServerListen.Wrap(errors.Join(<-internalC, <-publicC, err))
+	return errServerListen.WrapError(errors.Join(<-internalC, <-publicC, err))
 }

@@ -33,7 +33,7 @@ var errStatusGeneric = exit.Error{
 func (s cStatus) Run(context wisski_distillery.Context) error {
 	status, _, err := context.Environment.Info().Status(context.Context, true)
 	if err != nil {
-		return errStatusGeneric.Wrap(err)
+		return errStatusGeneric.WrapError(err)
 	}
 
 	if s.JSON {

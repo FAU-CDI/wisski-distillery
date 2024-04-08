@@ -47,19 +47,19 @@ var errSettingWissKI = exit.Error{
 func (ds setting) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, ds.Positionals.Slug)
 	if err != nil {
-		return errSettingWissKI.Wrap(err)
+		return errSettingWissKI.WrapError(err)
 	}
 
 	if ds.Positionals.Value == "" {
 		// get the setting
 		value, err := instance.Settings().Get(context.Context, nil, ds.Positionals.Setting)
 		if err != nil {
-			return errSettingGet.Wrap(err)
+			return errSettingGet.WrapError(err)
 		}
 
 		// and print it
 		if err := json.NewEncoder(context.Stdout).Encode(value); err != nil {
-			return errSettingGet.Wrap(err)
+			return errSettingGet.WrapError(err)
 		}
 
 		// finish with a newline
@@ -70,12 +70,12 @@ func (ds setting) Run(context wisski_distillery.Context) error {
 	// serialize the setting into json
 	var data any
 	if err := json.Unmarshal([]byte(ds.Positionals.Value), &data); err != nil {
-		return errSettingSet.Wrap(err)
+		return errSettingSet.WrapError(err)
 	}
 
 	// set the serialized value!
 	if err := instance.Settings().Set(context.Context, nil, ds.Positionals.Setting, data); err != nil {
-		return errSettingSet.Wrap(err)
+		return errSettingSet.WrapError(err)
 	}
 
 	// and we're done

@@ -46,17 +46,17 @@ func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
 	context.Printf("Username>")
 	username, err := context.ReadLine()
 	if err != nil {
-		return errUnableToReadUsername.Wrap(err)
+		return errUnableToReadUsername.WrapError(err)
 	}
 
 	context.Printf("Password>")
 	password, err := context.ReadPassword()
 	if err != nil {
-		return errUnableToReadPassword.Wrap(err)
+		return errUnableToReadPassword.WrapError(err)
 	}
 
 	if err := dis.SQL().CreateSuperuser(context.Context, username, password, false); err != nil {
-		return errUnableToMakeAccount.Wrap(err)
+		return errUnableToMakeAccount.WrapError(err)
 	}
 
 	return nil

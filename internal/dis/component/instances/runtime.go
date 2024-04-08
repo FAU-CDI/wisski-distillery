@@ -26,7 +26,7 @@ func (instances *Instances) Update(ctx context.Context, progress io.Writer) erro
 		fmt.Fprintf(progress, "[copy]  %s\n", dst)
 	})
 	if err != nil {
-		return errBootstrapFailedRuntime.Wrap(err)
+		return errBootstrapFailedRuntime.WrapError(err)
 	}
 	return nil
 }

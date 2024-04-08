@@ -83,10 +83,10 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	{
 		logging.LogMessage(context.Stderr, "Creating root deployment directory")
 		if err := umaskfree.MkdirAll(root, umaskfree.DefaultDirPerm); err != nil {
-			return errBootstrapFailedToCreateDirectory.WithMessageF(root).Wrap(err)
+			return errBootstrapFailedToCreateDirectory.WithMessageF(root).WrapError(err)
 		}
 		if err := cli.WriteBaseDirectory(root); err != nil {
-			return errBootstrapFailedToSaveDirectory.WithMessageF(root).Wrap(err)
+			return errBootstrapFailedToSaveDirectory.WithMessageF(root).WrapError(err)
 		}
 		context.Println(root)
 	}
@@ -102,7 +102,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	// and use thge defaults
 	if err := tpl.SetDefaults(); err != nil {
-		return errBootstrapWriteConfig.Wrap(err)
+		return errBootstrapWriteConfig.WrapError(err)
 	}
 
 	{
@@ -122,7 +122,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	{
 		isFile, err := fsx.IsRegular(cfgPath, false)
 		if err != nil {
-			return errBootstrapWriteConfig.Wrap(err)
+			return errBootstrapWriteConfig.WrapError(err)
 		}
 		if !isFile {
 			// generate the configuration from the template
@@ -150,7 +150,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 				return nil
 			}, context.Stderr, "Creating custom config files"); err != nil {
-				return errBootstrapCreateFile.Wrap(err)
+				return errBootstrapCreateFile.WrapError(err)
 			}
 
 			// Validate configuration file!
@@ -176,7 +176,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 					return err
 				}
 			}, context.Stderr, "Installing primary configuration file"); err != nil {
-				return errBootstrapWriteConfig.Wrap(err)
+				return errBootstrapWriteConfig.WrapError(err)
 			}
 		}
 
@@ -186,13 +186,13 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	logging.LogMessage(context.Stderr, "Configuration is now complete")
 	f, err := os.Open(cfgPath)
 	if err != nil {
-		return errBootstrapOpenConfig.Wrap(err)
+		return errBootstrapOpenConfig.WrapError(err)
 	}
 	defer f.Close()
 
 	var cfg config.Config
 	if err := cfg.Unmarshal(f); err != nil {
-		return errBootstrapOpenConfig.Wrap(err)
+		return errBootstrapOpenConfig.WrapError(err)
 	}
 	context.Println(cfg)
 

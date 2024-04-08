@@ -46,14 +46,14 @@ func (pb pathbuilders) Run(context wisski_distillery.Context) error {
 	// get the wisski
 	instance, err := context.Environment.Instances().WissKI(context.Context, pb.Positionals.Slug)
 	if err != nil {
-		return errPathbuilderWissKI.Wrap(err)
+		return errPathbuilderWissKI.WrapError(err)
 	}
 
 	// get all of the pathbuilders
 	if pb.Positionals.Name == "" {
 		names, err := instance.Pathbuilder().All(context.Context, nil)
 		if err != nil {
-			return errPathbuilders.Wrap(err)
+			return errPathbuilders.WrapError(err)
 		}
 		for _, name := range names {
 			context.Println(name)

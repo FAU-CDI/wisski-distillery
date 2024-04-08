@@ -76,12 +76,12 @@ var errNoKey = exit.Error{
 func (ds disSSH) parseOpts(context wisski_distillery.Context) (user *auth.AuthUser, key gossh.PublicKey, err error) {
 	user, err = context.Environment.Auth().User(context.Context, ds.Positionals.User)
 	if err != nil {
-		return nil, nil, errSSHManageFailed.Wrap(err)
+		return nil, nil, errSSHManageFailed.WrapError(err)
 	}
 
 	content, err := os.ReadFile(ds.Positionals.Path)
 	if err != nil {
-		return nil, nil, errSSHManageFailed.Wrap(err)
+		return nil, nil, errSSHManageFailed.WrapError(err)
 	}
 
 	pk, _, _, _, err := gossh.ParseAuthorizedKey(content)
@@ -99,7 +99,7 @@ func (ds disSSH) runAdd(context wisski_distillery.Context) error {
 	}
 
 	if err := context.Environment.Keys().Add(context.Context, user.User.User, ds.Comment, key); err != nil {
-		return errSSHManageFailed.Wrap(err)
+		return errSSHManageFailed.WrapError(err)
 	}
 	return nil
 }
@@ -111,7 +111,7 @@ func (ds disSSH) runRemove(context wisski_distillery.Context) error {
 	}
 
 	if err := context.Environment.Keys().Remove(context.Context, user.User.User, key); err != nil {
-		return errSSHManageFailed.Wrap(err)
+		return errSSHManageFailed.WrapError(err)
 	}
 	return nil
 }

@@ -64,7 +64,7 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 		logging.LogMessage(context.Stderr, "Checking that base directory %s does not exist", instance.FilesystemBase)
 		exists, err := fsx.Exists(instance.FilesystemBase)
 		if err != nil {
-			return errProvisionGeneric.Wrap(err)
+			return errProvisionGeneric.WrapError(err)
 		}
 		if exists {
 			return errReserveAlreadyExists.WithMessageF(slug)

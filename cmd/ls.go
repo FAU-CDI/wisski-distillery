@@ -33,7 +33,7 @@ var errLsWissKI = exit.Error{
 func (l ls) Run(context wisski_distillery.Context) error {
 	instances, err := context.Environment.Instances().Load(context.Context, l.Positionals.Slug...)
 	if err != nil {
-		return errLsWissKI.Wrap(err)
+		return errLsWissKI.WrapError(err)
 	}
 
 	for _, instance := range instances {

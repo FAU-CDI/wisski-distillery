@@ -38,12 +38,12 @@ var errPrefixesWissKI = exit.Error{
 func (p prefixes) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, p.Positionals.Slug)
 	if err != nil {
-		return errPrefixesWissKI.Wrap(err)
+		return errPrefixesWissKI.WrapError(err)
 	}
 
 	prefixes, err := instance.Prefixes().All(context.Context, nil)
 	if err != nil {
-		return errPrefixesGeneric.Wrap(err)
+		return errPrefixesGeneric.WrapError(err)
 	}
 
 	for _, p := range prefixes {

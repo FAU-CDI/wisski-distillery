@@ -53,7 +53,7 @@ var errInstanceLockWissKI = exit.Error{
 func (l instanceLock) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, l.Positionals.Slug)
 	if err != nil {
-		return errInstanceLockWissKI.Wrap(err)
+		return errInstanceLockWissKI.WrapError(err)
 	}
 
 	if l.Unlock {

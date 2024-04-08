@@ -73,7 +73,7 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 	// get the wisski
 	instance, err := context.Environment.Instances().WissKI(context.Context, mb.Positionals.Slug)
 	if err != nil {
-		return errPathbuilderWissKI.Wrap(err)
+		return errPathbuilderWissKI.WrapError(err)
 	}
 
 	// get the footer (if any)
@@ -81,7 +81,7 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 		zerolog.Ctx(context.Context).Info().Msg("checking for footer")
 		region, err := instance.Blocks().GetFooterRegion(context.Context, nil)
 		if err != nil {
-			return errBlocksFooterFailed.Wrap(err)
+			return errBlocksFooterFailed.WrapError(err)
 		}
 		if region == "" {
 			return errBlocksNoFooter
@@ -96,7 +96,7 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 	// read the content
 	content, err := io.ReadAll(context.Stdin)
 	if err != nil {
-		return errBlocksNoContent.Wrap(err)
+		return errBlocksNoContent.WrapError(err)
 	}
 
 	{

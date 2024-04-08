@@ -41,7 +41,7 @@ var errShellWissKI = exit.Error{
 func (sh shell) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, sh.Positionals.Slug)
 	if err != nil {
-		return errShellWissKI.Wrap(err)
+		return errShellWissKI.WrapError(err)
 	}
 
 	{
