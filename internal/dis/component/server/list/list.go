@@ -62,7 +62,7 @@ func (li *ListInstances) TaskName() string {
 func (li *ListInstances) Cron(ctx context.Context) (err error) {
 	{
 		names, e := li.getNames(ctx)
-		if err == nil {
+		if e == nil {
 			li.names.Set(names)
 		} else {
 			err = e
