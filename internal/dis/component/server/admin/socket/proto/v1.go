@@ -9,8 +9,9 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/tkw1536/pkglib/httpx/websocket"
+	"github.com/gorilla/websocket"
 	"github.com/tkw1536/pkglib/recovery"
+	"github.com/tkw1536/pkglib/websocketx"
 )
 
 var (
@@ -33,7 +34,7 @@ var (
 // Finally it will send a ResultMessage once handling is complete.
 //
 // A corresponding client implementation of this can be found in ..../remote/proto.ts
-func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocket.Connection) (name string, err error) {
+func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocketx.Connection) (name string, err error) {
 	var wg sync.WaitGroup
 
 	// once we have finished executing send a binary message (indicating success) to the client.
@@ -60,9 +61,8 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocket.Connection
 		}
 
 		// encode the result message to json!
-		var message websocket.Message
-		message.Type = websocket.BinaryMessage
-		message.Bytes, err = json.Marshal(result)
+		message := websocketx.NewBinaryMessage(nil)
+		message.Body, err = json.Marshal(result)
 
 		// silently fail if the message fails to encode
 		// although this should not happen
@@ -71,7 +71,7 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocket.Connection
 		}
 
 		// and tell the client about it!
-		<-conn.Write(message)
+		conn.Write(message)
 	}()
 
 	// create channels to receive text and bytes messages
@@ -91,10 +91,10 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocket.Connection
 			select {
 			case msg := <-conn.Read():
 				if msg.Type == websocket.TextMessage {
-					textMessages <- string(msg.Bytes)
+					textMessages <- string(msg.Body)
 				}
 				if msg.Type == websocket.BinaryMessage {
-					binaryMessages <- msg.Bytes
+					binaryMessages <- msg.Body
 				}
 			case <-conn.Context().Done():
 				return
@@ -171,7 +171,7 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocket.Connection
 	// write the output to the client as it comes in!
 	// NOTE(twiesing): We may eventually need buffering here ...
 	output := WriterFunc(func(b []byte) (int, error) {
-		<-conn.WriteText(string(b))
+		conn.WriteText(string(b))
 		return len(b), nil
 	})
 

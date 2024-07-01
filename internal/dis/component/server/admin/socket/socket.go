@@ -14,8 +14,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/proto"
 	"github.com/rs/zerolog"
-	"github.com/tkw1536/pkglib/httpx/websocket"
 	"github.com/tkw1536/pkglib/lazy"
+	"github.com/tkw1536/pkglib/websocketx"
 )
 
 type Sockets struct {
@@ -48,14 +48,13 @@ func (socket *Sockets) Routes() component.Routes {
 }
 
 func (sockets *Sockets) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
-	return &websocket.Server{
-		Context: ctx,
+	return &websocketx.Server{
 		Handler: sockets.Serve,
 	}, nil
 }
 
 // Serve handles a connection to the websocket api
-func (socket *Sockets) Serve(conn *websocket.Connection) {
+func (socket *Sockets) Serve(conn *websocketx.Connection) {
 	// handle the websocket connection!
 	name, err := socket.actions.Get(func() proto.ActionMap { return socket.Actions(conn.Context()) }).Handle(socket.dependencies.Auth, conn)
 	if err != nil {
