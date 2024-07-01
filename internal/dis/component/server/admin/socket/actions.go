@@ -2,13 +2,13 @@ package socket
 
 import (
 	"context"
+	"errors"
 	"io"
 	"net/http"
 
 	"github.com/FAU-CDI/process_over_websocket/proto"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
 
-	// "github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/proto"
 	"github.com/rs/zerolog"
 )
 
@@ -57,7 +57,7 @@ func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
 			return nil, proto.ErrHandlerUnknownProcess
 		}
 
-		if err := action.Validate(args...); err != nil {
+		if err := action.Validate(r, args...); err != nil {
 			return nil, err
 		}
 
@@ -68,7 +68,11 @@ func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
 func (sockets *Sockets) regularAction(a actions.WebsocketAction) (actions.Action, *actionable) {
 	meta := a.Action()
 	return meta, &actionable{
-		Validate: func(args ...string) error {
+		Validate: func(r *http.Request, args ...string) error {
+			if err := sockets.dependencies.Auth.CheckScope(meta.ScopeParam, meta.Scope, r); err != nil {
+				return errors.Join(err, proto.ErrHandlerAuthorizationDenied)
+			}
+
 			if len(args) != meta.NumParams {
 				return proto.ErrHandlerInvalidArgs
 			}
@@ -84,7 +88,11 @@ func (sockets *Sockets) regularAction(a actions.WebsocketAction) (actions.Action
 func (sockets *Sockets) instanceAction(a actions.WebsocketInstanceAction) (actions.InstanceAction, *actionable) {
 	meta := a.Action()
 	return meta, &actionable{
-		Validate: func(args ...string) error {
+		Validate: func(r *http.Request, args ...string) error {
+			if err := sockets.dependencies.Auth.CheckScope(meta.ScopeParam, meta.Scope, r); err != nil {
+				return errors.Join(err, proto.ErrHandlerAuthorizationDenied)
+			}
+
 			if len(args) != meta.NumParams+1 {
 				return proto.ErrHandlerInvalidArgs
 			}
@@ -105,6 +113,6 @@ func (sockets *Sockets) instanceAction(a actions.WebsocketInstanceAction) (actio
 }
 
 type actionable struct {
-	Validate func(args ...string) error
+	Validate func(*http.Request, ...string) error
 	Run      func(ctx context.Context, input io.Reader, output io.Writer, args ...string) (any, error)
 }

@@ -1,39 +1,46 @@
+enum State {
+  Init,
+  Pending,
+  Fulfilled,
+  Rejected,
+}
+
 /** Once calls the underlying function once  */
 export default class Once {
-  #started = false
-  #state: null | { success: true } | { success: false, error: any } = null
+  #state: State = State.Init
+  #rejectReason: any = null
   #waiters: Array<{ resolve: () => void, reject: (err: any) => void }> = []
   async Do (func: () => Promise<void>): Promise<void> {
     await new Promise<void>((resolve, reject) => {
+      const state = this.#state
       // everything is done already => don't do anything
-      const done = this.#state
-      if (done !== null) {
-        if (done.success) {
-          resolve()
-        } else {
-          reject(done.error)
-        }
+      if (state === State.Fulfilled) {
+        resolve()
         return
+      }
+      if (state === State.Rejected) {
+        reject(this.#rejectReason)
       }
 
       // add a waiter to the front
       this.#waiters.unshift({ resolve, reject })
 
-      // if we've already started, don't start it again
-      if (this.#started) {
+      // if we're pending already, we should not start again
+      if (this.#state === State.Pending) {
         return
       }
 
-      this.#started = true // start the function call
+      this.#state = State.Pending
       func()
         .then(() => {
-          this.#state = { success: true }
+          this.#state = State.Fulfilled
           this.#waiters.forEach(({ resolve }) => { resolve() })
         }).catch((err: any) => {
-          if (this.#state !== null) { throw err } // error occurred during handling => re-throw it
+          if (this.#state === State.Fulfilled) { throw err } // error occurred during handling => re-throw it
 
           // error occurred during original promise
-          this.#state = { success: false, error: err }
+          this.#state = State.Rejected
+          this.#rejectReason = err
           this.#waiters.forEach(({ reject }) => { reject(err) })
         }).finally(() => {
           this.#waiters = [] // prevent memory leaks for the resolve/reject
