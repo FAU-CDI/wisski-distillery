@@ -3,6 +3,7 @@ module github.com/FAU-CDI/wisski-distillery
 go 1.22.2
 
 require (
+	github.com/FAU-CDI/process_over_websocket v0.0.0-20240701125335-68e2f9d25d8a
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
 	github.com/alessio/shellescape v1.4.2
 	github.com/compose-spec/compose-go v1.20.2
@@ -40,9 +41,11 @@ require (
 	github.com/feiin/sqlstring v0.3.0 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
 	github.com/gosuri/uilive v0.0.4 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
+	github.com/jellydator/ttlcache/v3 v3.2.0 // indirect
 	github.com/jessevdk/go-flags v1.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect

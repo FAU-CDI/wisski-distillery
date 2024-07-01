@@ -6,11 +6,12 @@
   "dependencies": {
     "@types/ws": "^8.5.9",
     "async-mutex": "^0.4.0",
+    "axios": "^1.7.2",
     "buffer": "^6.0.3",
     "dayjs": "^1.11.5",
     "highlight.js": "^11.7.0",
-    "isomorphic-ws": "^5.0.0",
     "latex.css": "^1.8.0",
+    "modern-isomorphic-ws": "^1.0.5",
     "node-html-parser": "^6.1.1",
     "parcel": "^2.7.0",
     "purecss": "^2.1.0",

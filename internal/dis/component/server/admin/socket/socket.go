@@ -4,6 +4,8 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/FAU-CDI/process_over_websocket"
+	"github.com/FAU-CDI/process_over_websocket/proto"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
@@ -12,16 +14,13 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/purger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/provision"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/proto"
-	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/lazy"
-	"github.com/tkw1536/pkglib/websocketx"
 )
 
 type Sockets struct {
 	component.Base
 
-	actions lazy.Lazy[proto.ActionMap]
+	handler lazy.Lazy[proto.Handler]
 
 	dependencies struct {
 		Actions  []actions.WebsocketAction
@@ -41,23 +40,25 @@ var (
 
 func (socket *Sockets) Routes() component.Routes {
 	return component.Routes{
-		Prefix:    "/api/v1/ws",
+		Prefix:    "/api/v1/pow",
 		Exact:     true,
 		Decorator: socket.dependencies.Auth.Require(true, scopes.ScopeUserValid, nil),
 	}
 }
 
 func (sockets *Sockets) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
-	return &websocketx.Server{
-		Handler: sockets.Serve,
-	}, nil
-}
-
-// Serve handles a connection to the websocket api
-func (socket *Sockets) Serve(conn *websocketx.Connection) {
-	// handle the websocket connection!
-	name, err := socket.actions.Get(func() proto.ActionMap { return socket.Actions(conn.Context()) }).Handle(socket.dependencies.Auth, conn)
-	if err != nil {
-		zerolog.Ctx(conn.Context()).Err(err).Str("name", name).Msg("Error handling websocket")
+	server := process_over_websocket.Server{
+		Handler: sockets.handler.Get(func() proto.Handler { return sockets.Actions(ctx) }),
+		Options: process_over_websocket.Options{
+			DisableREST: true, // for now
+		},
 	}
+
+	// ensure that the server is closed once we are
+	go func() {
+		<-ctx.Done()
+		server.Close()
+	}()
+
+	return http.StripPrefix("/api/v1/pow", &server), nil
 }

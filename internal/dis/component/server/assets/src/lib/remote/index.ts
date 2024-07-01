@@ -1,6 +1,6 @@
+import { Result } from "../socketapi/pow_client"
 import './index.css'
-import { Result } from '../apiclient/websocket'
-import LocalCall from './local'
+import LocalSession from './local'
 
 type Print = ((text: string, flush?: boolean) => void) & {
   paintedFrames: number
@@ -123,11 +123,10 @@ export default function setup (): void {
       runValidation()
     }
 
-    let onClose: ((success: boolean) => void) | undefined
+    let onClose: ((success: boolean, data: any) => void) | undefined
     if (typeof reload === 'string') {
       onClose = () => {
-        if (reload === '') location.reload()
-        else location.href = reload
+        location.href = reload === '' ? location.href : reload
       }
     }
 
@@ -149,7 +148,7 @@ export default function setup (): void {
 
 interface ModalOptions {
   bufferSize: number
-  onClose: ((success: true) => void) & ((success: false, message: string) => void)
+  onClose: ((success: true, data: any) => void) & ((success: false, message: string) => void)
 }
 export function createModal (action: string, params: string[], opts: Partial<ModalOptions>): void {
   // create a modal dialog and append it to the body
@@ -167,7 +166,7 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   finishButton.className = 'pure-button pure-button-success'
   finishButton.append(typeof opts?.onClose === 'function' ? 'Close & Finish' : 'Close')
 
-  let result: Result = { success: false, message: 'Nothing happened' }
+  let result: Result = { success: false, data: 'Nothing happened' }
   finishButton.addEventListener('click', (event) => {
     event.preventDefault()
 
@@ -175,9 +174,9 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
       finishButton.setAttribute('disabled', 'disabled')
       target.innerHTML = 'Finishing up ...'
       if (result.success) {
-        opts.onClose(result.success)
+        opts.onClose(result.success, result.data)
       } else {
-        opts.onClose(result.success, result.message)
+        opts.onClose(result.success, result.data)
       }
       return
     }
@@ -201,7 +200,7 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
     if (result.success) {
       print('Process completed successfully.\n', true)
     } else {
-      print('Process reported error: ' + result.message + '\n', true)
+      print('Process reported error: ' + result.data + '\n', true)
     }
 
     window.onbeforeunload = onbeforeunload
@@ -216,7 +215,7 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   print('Connecting ...', true)
 
   // connect to the socket and send the action
-  const call = new LocalCall({
+  const call = new LocalSession({
     call: action,
     params
   })
@@ -234,6 +233,12 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   call.onLogLine = print
 
   call.connect()
-    .then((result) => close(result))
-    .catch(() => close({ success: false, message: 'connection closed unexpectedly' }))
+    .then(() => call.wait())
+    .then((result) => {
+      close(result)
+    })
+    .catch((err) => {
+      console.error(err)
+      close({ success: false, data: 'connection closed unexpectedly' })
+    })
 }
