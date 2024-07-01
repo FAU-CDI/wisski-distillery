@@ -215,12 +215,12 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   print('Connecting ...', true)
 
   // connect to the socket and send the action
-  const call = new LocalSession({
+  const session = new LocalSession({
     call: action,
     params
   })
 
-  call.beforeCall = function () {
+  session.beforeCall = function () {
     cancelButton.removeAttribute('disabled')
     cancelButton.addEventListener('click', (event) => {
       event.preventDefault()
@@ -230,10 +230,11 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
     })
     print(' Connected.\n', true)
   }
-  call.onLogLine = print
+  session.onLogLine = print
 
-  call.connect()
-    .then(() => call.wait())
+  session.connect()
+    .then(() => session.closeInput()) // for now none of our sessions actually have input
+    .then(() => session.wait())
     .then((result) => {
       close(result)
     })

@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/process_over_websocket/proto"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
+	"github.com/tkw1536/pkglib/contextx"
 
 	"github.com/rs/zerolog"
 )
@@ -38,7 +39,7 @@ func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
 	for _, a := range sockets.dependencies.IActions {
 		action, exec := sockets.instanceAction(a)
 		if _, ok := actions[action.Name]; ok {
-			zerolog.Ctx(ctx).Warn().Str("name", action.Name).Str("type", "instance").Msg("duplicate websocket action")
+			logger.Warn().Str("name", action.Name).Str("type", "instance").Msg("duplicate websocket action")
 		}
 		actions[action.Name] = exec
 
@@ -51,7 +52,7 @@ func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
 			Msg("registering websocket action")
 	}
 
-	return proto.HandlerFunc(func(r *http.Request, name string, args ...string) (proto.Process, error) {
+	return proto.HandlerFunc(func(r *http.Request, name string, args ...string) (p proto.Process, err error) {
 		action, ok := actions[name]
 		if !ok {
 			return nil, proto.ErrHandlerUnknownProcess
@@ -61,7 +62,12 @@ func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
 			return nil, err
 		}
 
-		return proto.ProcessFunc(action.Run), nil
+		return proto.ProcessFunc(func(ictx context.Context, input io.Reader, output io.Writer, args ...string) (res any, err error) {
+			// defer func() {
+			//	logger.Err(err).Str("action", name).Msg("finished pow action")
+			// }()
+			return action.Run(contextx.WithValuesOf(ictx, ctx), input, output, args...)
+		}), nil
 	})
 }
 
@@ -78,8 +84,8 @@ func (sockets *Sockets) regularAction(a actions.WebsocketAction) (actions.Action
 			}
 			return nil
 		},
-		Run: func(ctx context.Context, input io.Reader, output io.Writer, args ...string) (any, error) {
-			err := a.Act(ctx, input, output, args[1:]...)
+		Run: func(ctx context.Context, input io.Reader, output io.Writer, args ...string) (res any, err error) {
+			err = a.Act(ctx, input, output, args...)
 			return err == nil, err
 		},
 	}
@@ -98,7 +104,7 @@ func (sockets *Sockets) instanceAction(a actions.WebsocketInstanceAction) (actio
 			}
 			return nil
 		},
-		Run: func(ctx context.Context, input io.Reader, output io.Writer, args ...string) (any, error) {
+		Run: func(ctx context.Context, input io.Reader, output io.Writer, args ...string) (res any, err error) {
 			instance, err := sockets.dependencies.Instances.WissKI(ctx, args[0])
 			if err != nil {
 				return nil, err
