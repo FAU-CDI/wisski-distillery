@@ -3,7 +3,7 @@ module github.com/FAU-CDI/wisski-distillery
 go 1.22.2
 
 require (
-	github.com/FAU-CDI/process_over_websocket v0.0.0-20240701125335-68e2f9d25d8a
+	github.com/FAU-CDI/process_over_websocket v0.0.0-20240702000845-dfe8e7e06a8e
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
 	github.com/alessio/shellescape v1.4.2
 	github.com/compose-spec/compose-go v1.20.2
