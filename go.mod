@@ -3,7 +3,7 @@ module github.com/FAU-CDI/wisski-distillery
 go 1.22.2
 
 require (
-	github.com/FAU-CDI/process_over_websocket v0.0.0-20240702000845-dfe8e7e06a8e
+	github.com/FAU-CDI/process_over_websocket v0.0.0-20240711115235-b950f2e50b9f
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
 	github.com/alessio/shellescape v1.4.2
 	github.com/compose-spec/compose-go v1.20.2
@@ -60,8 +60,10 @@ require (
 	github.com/opencontainers/image-spec v1.1.0-rc5 // indirect
 	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/swaggest/swgui v1.8.1 // indirect
 	github.com/tdewolff/minify v2.3.6+incompatible // indirect
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
+	github.com/vearutop/statigz v1.4.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/xeipuuv/gojsonschema v1.2.0 // indirect
