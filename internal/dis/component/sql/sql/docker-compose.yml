@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
     sql:
         image: mariadb:11.0

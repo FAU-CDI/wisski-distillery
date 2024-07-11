@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
   binder:
     image: ghcr.io/fau-cdi/tcpmux

@@ -1,5 +1,3 @@
-version: "3.7"
-
 services:
     solr:
         image: docker.io/library/solr:8.11-slim
