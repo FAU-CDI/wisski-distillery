@@ -115,7 +115,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 	internal = wrapHandler(&internalM)
 
 	// Add Content-Security-Policy
-	public = WithCSP(public, models.ContentSecurityPolicyDistilery)
+	public = WithCSP(public, models.ContentSecurityPolicyPanel)
 	internal = WithCSP(internal, models.ContentSecurityPolicyNothing)
 
 	public = wrap.Time(public)
@@ -142,8 +142,20 @@ func WithCSP(handler http.Handler, policy string) http.Handler {
 	if policy == "" {
 		return handler
 	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Security-Policy", policy)
+		SetCSP(w, policy)
 		handler.ServeHTTP(w, r)
 	})
+}
+
+const cspHeader = "Content-Security-Policy"
+
+// SetCSP sets the Content-Security-Policy for the given response
+// Any previously set header is discarded
+func SetCSP(w http.ResponseWriter, policy string) {
+	header := w.Header()
+
+	header.Del(cspHeader)
+	header.Set(cspHeader, policy)
 }

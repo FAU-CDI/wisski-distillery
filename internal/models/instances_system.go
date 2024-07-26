@@ -65,11 +65,14 @@ const (
 	ContentSecurityPolicyNothing = "base-uri 'self'; default-src 'none';"
 
 	// Content Security policy used by the distillery admin server
-	ContentSecurityPolicyDistilery = "base-uri 'self'; default-src 'self'; img-src 'self' data:; media-src 'none'; worker-src 'none'; frame-src 'none'; frame-ancestors 'none';"
+	ContentSecurityPolicyPanel = "base-uri 'self'; default-src 'self'; img-src 'self' data:; media-src 'none'; worker-src 'none'; frame-src 'none'; frame-ancestors 'none';"
+
+	ContentSecurityPolicyPanelUnsafeScripts = ContentSecurityPolicyPanel + " script-src 'self' 'unsafe-inline';"
+	ContentSecurityPolicyPanelUnsafeStyles  = ContentSecurityPolicyPanel + " style-src 'self' 'unsafe-inline';"
 )
 
 func ContentSecurityPolicyExamples() []string {
 	return []string{
-		ContentSecurityPolicyDistilery,
+		ContentSecurityPolicyPanel,
 	}
 }
