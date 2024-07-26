@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/pkglib/httpx"
 
 	_ "embed"
@@ -50,6 +52,7 @@ func (*Logo) HandleRoute(ctx context.Context, path string) (http.Handler, error)
 		case "/favicon.ico":
 			faviconRoute.ServeHTTP(w, r)
 		case "/logo.svg":
+			server.SetCSP(w, models.ContentSecurityPolicyPanelUnsafeStyles)
 			logoSVGRoute.ServeHTTP(w, r)
 		default:
 			http.NotFound(w, r)
