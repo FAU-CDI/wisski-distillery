@@ -27,6 +27,6 @@ func (*Update) Action() InstanceAction {
 	}
 }
 
-func (u *Update) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-	return instance.Composer().Update(ctx, out)
+func (u *Update) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
+	return nil, instance.Composer().Update(ctx, out)
 }

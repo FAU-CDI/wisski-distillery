@@ -31,8 +31,9 @@ func (*Snapshot) Action() InstanceAction {
 	}
 }
 
-func (s *Snapshot) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-	return s.dependencies.Exporter.MakeExport(
+func (s *Snapshot) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
+	// TODO: return the path
+	return nil, s.dependencies.Exporter.MakeExport(
 		ctx,
 		out,
 		exporter.ExportTask{

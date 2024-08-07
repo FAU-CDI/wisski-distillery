@@ -3,6 +3,7 @@ package socket
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -85,8 +86,7 @@ func (sockets *Sockets) regularAction(a actions.WebsocketAction) (actions.Action
 			return nil
 		},
 		Run: func(ctx context.Context, input io.Reader, output io.Writer, args ...string) (res any, err error) {
-			err = a.Act(ctx, input, output, args...)
-			return err == nil, err
+			return a.Act(ctx, input, output, args...)
 		},
 	}
 }
@@ -107,13 +107,10 @@ func (sockets *Sockets) instanceAction(a actions.WebsocketInstanceAction) (actio
 		Run: func(ctx context.Context, input io.Reader, output io.Writer, args ...string) (res any, err error) {
 			instance, err := sockets.dependencies.Instances.WissKI(ctx, args[0])
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("cannot find instance %q: %w", args[0], err)
 			}
 
-			{
-				err := a.Act(ctx, instance, input, output, args[1:]...)
-				return err == nil, err
-			}
+			return a.Act(ctx, instance, input, output, args[1:]...)
 		},
 	}
 }

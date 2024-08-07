@@ -30,11 +30,17 @@ func (*Provision) Action() Action {
 	}
 }
 
-func (p *Provision) Act(ctx context.Context, in io.Reader, out io.Writer, params ...string) error {
+type ProvisionResult struct {
+	URL            string
+	DrupalUsername string
+	DrupalPassword string
+}
+
+func (p *Provision) Act(ctx context.Context, in io.Reader, out io.Writer, params ...string) (any, error) {
 	// read the flags of the instance to be provisioned
 	var flags provision.Flags
 	if err := json.Unmarshal([]byte(params[0]), &flags); err != nil {
-		return err
+		return nil, err
 	}
 
 	instance, err := p.dependencies.Provision.Provision(
@@ -43,12 +49,18 @@ func (p *Provision) Act(ctx context.Context, in io.Reader, out io.Writer, params
 		flags,
 	)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	fmt.Fprintf(out, "URL:      %s\n", instance.URL().String())
-	fmt.Fprintf(out, "Username: %s\n", instance.DrupalUsername)
-	fmt.Fprintf(out, "Password: %s\n", instance.DrupalPassword)
+	result := ProvisionResult{
+		URL:            instance.URL().String(),
+		DrupalUsername: instance.DrupalUsername,
+		DrupalPassword: instance.DrupalPassword,
+	}
 
-	return nil
+	fmt.Fprintf(out, "URL:      %s\n", result.URL)
+	fmt.Fprintf(out, "Username: %s\n", result.DrupalUsername)
+	fmt.Fprintf(out, "Password: %s\n", result.DrupalPassword)
+
+	return result, nil
 }

@@ -27,6 +27,6 @@ func (*Cron) Action() InstanceAction {
 	}
 }
 
-func (c *Cron) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-	return instance.Drush().Cron(ctx, out)
+func (c *Cron) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
+	return nil, instance.Drush().Cron(ctx, out)
 }

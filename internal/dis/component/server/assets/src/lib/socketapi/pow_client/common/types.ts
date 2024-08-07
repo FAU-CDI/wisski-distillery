@@ -1,4 +1,4 @@
-import { type errAlreadyConnected, type errNotConnected, type errWaitExceeded } from './errors' // eslint-disable-line @typescript-eslint/no-unused-vars
+import { type errAlreadyConnected, type errNotConnected, type errWaitExceeded } from './errors'
 
 /**
  * Specifies a remote endpoint for either protocol to connect to.
@@ -16,19 +16,80 @@ export interface CallSpec {
   params: string[]
 }
 
+
 /**
  * Result is the result of a websocket call
  */
 export type Result = ResultSuccess | ResultFailure
+
 interface ResultSuccess {
-  success: true
-  data: unknown
-  buffer?: string
+  status: 'fulfilled'
+  value?: unknown
 }
 
 interface ResultFailure {
-  success: false
-  data: string // error message (if any)
+  status: 'rejected'
+  reason?: string // error message (if any)
+}
+
+interface ResultPending {
+  status: 'pending'
+}
+
+export interface WaitResult {
+  result: Result
+  buffer?: string
+}
+
+export interface Status {
+  result: Result | ResultPending 
+  buffer?: string
+}
+
+export function isStatus(value: unknown): value is Status {
+  // must be object
+  if (typeof value !== 'object' || value === null) return false
+
+  // result must be a Result
+  if (!('result' in value) || !isResult(value.result, true)) {
+    return false
+  }
+
+  // buffer must be a string or undefined
+  if ('buffer' in value) {
+    return typeof value.buffer === 'string' || typeof value.buffer === 'undefined'
+  }
+  return true
+}
+
+export function isResult(value: unknown, allowPending: true): value is (Result | ResultPending)
+export function isResult(value: unknown, allowPending: false): value is Result
+export function isResult(value: unknown, allowPending: boolean): value is (Result | ResultPending) {
+  // must be object
+  if (typeof value !== 'object' || value === null) {
+    return false
+  }
+
+  // status must exist 
+  if (!('status' in value)) {
+    return false
+  }
+  
+  // status must be one of the allowed values
+  switch(value['status']) {
+    case 'fulfilled':
+      return true
+    case 'rejected':
+      if ('reason' in value) {
+        const reason = typeof value.reason
+        return reason === 'string' || reason === 'undefined'
+      }
+      return true
+    case 'pending':
+      return allowPending
+    default:
+      return false  
+  }
 }
 
 /** POWSession represents a session to connect to a remote */
@@ -51,7 +112,7 @@ export interface Session {
    * If the connection is not connected, throws {@link errNotConnected}.
    * If the time limit is exceeded, throws {@link errWaitExceeded}.
    */
-  wait: (options?: { pollInterval?: number, maxWait?: number }) => Promise<Result>
+  wait: (options?: { pollInterval?: number, maxWait?: number }) => Promise<WaitResult>
 
   /**
    * Send text sends some text input to the connection.

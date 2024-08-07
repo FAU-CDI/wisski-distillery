@@ -2,7 +2,7 @@
 
 import WebSocket from 'modern-isomorphic-ws'
 import { Buffer } from 'buffer'
-import { type Session, type CallSpec, type Remote, type Result } from '../common/types'
+import { type Session, type CallSpec, type Remote, type Result, WaitResult, isResult } from '../common/types'
 import { Lazy } from '../common/once'
 import { errAlreadyConnected, errNotConnected } from '../common/errors'
 
@@ -34,6 +34,8 @@ export default class WebsocketSession implements Session {
   /** connect checks if the connect method was called */
   #connected: boolean = false
 
+  private static decoder = new TextDecoder()
+
   async connect (): Promise<void> {
     // ensure that connect is only run once.
     if (this.#connected) {
@@ -41,11 +43,14 @@ export default class WebsocketSession implements Session {
     }
     this.#connected = true
 
+    let receivedResult: Result | null = null
+
     await new Promise<void>((_resolve, _reject) => {
       this.#result.Get(
         async () => await new Promise<Result>((resolve, reject) => {
           // create the websocket
           const ws = new WebSocket(this.remote.url, PROTOCOL, this.remote.headers)
+          ws.binaryType = 'arraybuffer'
           this.ws = ws // make it available to other thing
 
           ws.onopen = () => {
@@ -61,7 +66,20 @@ export default class WebsocketSession implements Session {
           ws.onmessage = ({ data, ...rest }: { data: unknown }) => {
             // ignore non-strings for now
             if (typeof data !== 'string') {
-              // TODO: protocol error
+              if (!(data instanceof ArrayBuffer)) {
+                console.error('websocket implementation did not return a buffer or blob')
+                return
+              }
+
+              try {
+                const raw = JSON.parse(WebsocketSession.decoder.decode(data))
+                if (!isResult(raw, false)) {
+                  throw new Error('result message is not an object')
+                }
+                receivedResult = raw
+              } catch(err: unknown) {
+                  console.error('failed to decode result message', err, data)
+              }
               return
             }
 
@@ -87,42 +105,20 @@ export default class WebsocketSession implements Session {
 
             // normal close => process succeeded
             if (event.code !== EXIT_STATUS_NORMAL_CLOSE) {
-              resolve({ success: false, data: event.reason })
+              reject(new Error('unexpected exit with code ' + event.code.toString() + ' ' + event.reason))
+              return
+            }
+            if (event.reason !== '') {
+              reject(new Error('websocket closed with non-empty reason field'))
               return
             }
 
-            let reason: unknown
-            try {
-              reason = JSON.parse(event.reason)
-            } catch (e: unknown) {
-              resolve({ success: false, data: 'protocol error: unable to parse reason field' })
+            if (receivedResult === null) {
+              reject(new Error('did not receive a result'))
               return
             }
 
-            if (typeof reason !== 'object' || (reason == null)) {
-              resolve({ success: false, data: 'protocol error: reason field is not an object' })
-              return
-            }
-
-            const { success, data } = reason as any
-
-            if (typeof success !== 'boolean') {
-              resolve({ success: false, data: 'protocol error: success field not a boolean' })
-              return
-            }
-
-            if (!success) {
-              if (typeof data !== 'string') {
-                resolve({ success: false, data: 'protocol error: data field does not contain a message' })
-                return
-              }
-              
-              resolve({ success: false, data })
-              return
-            }
-  
-            resolve({ success: true, data })
-
+            resolve(receivedResult)
             this.close()
           }
         })
@@ -131,8 +127,9 @@ export default class WebsocketSession implements Session {
   }
 
   #result = new Lazy<Result>()
-  async wait (): Promise<Result> {
-    return await this.#result.Get(() => { throw new Error('never reached') })
+  async wait (): Promise<WaitResult> {
+    const result = await this.#result.Get(() => { throw new Error('never reached') })
+    return { result }
   }
 
   /**

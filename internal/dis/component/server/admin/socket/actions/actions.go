@@ -14,14 +14,14 @@ type WebsocketAction interface {
 	component.Component
 
 	Action() Action
-	Act(ctx context.Context, in io.Reader, out io.Writer, params ...string) error
+	Act(ctx context.Context, in io.Reader, out io.Writer, params ...string) (any, error)
 }
 
 type WebsocketInstanceAction interface {
 	component.Component
 
 	Action() InstanceAction
-	Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error
+	Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error)
 }
 
 // Action represents information about an action

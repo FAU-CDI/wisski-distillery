@@ -3,7 +3,7 @@ module github.com/FAU-CDI/wisski-distillery
 go 1.22.2
 
 require (
-	github.com/FAU-CDI/process_over_websocket v0.0.0-20240726124028-13c442533e28
+	github.com/FAU-CDI/process_over_websocket v0.0.0-20240801181025-d1dd80498b21
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
 	github.com/alessio/shellescape v1.4.2
 	github.com/compose-spec/compose-go v1.20.2
@@ -17,7 +17,7 @@ require (
 	github.com/pquerna/otp v1.4.0
 	github.com/rs/zerolog v1.32.0
 	github.com/tkw1536/goprogram v0.5.0
-	github.com/tkw1536/pkglib v0.0.0-20240426113100-050f34d1e1dd
+	github.com/tkw1536/pkglib v0.0.0-20240801115724-302162d5da99
 	github.com/yuin/goldmark v1.6.0
 	github.com/yuin/goldmark-meta v1.1.0
 	golang.org/x/crypto v0.22.0

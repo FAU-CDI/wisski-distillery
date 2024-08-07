@@ -27,6 +27,6 @@ func (*Stop) Action() InstanceAction {
 	}
 }
 
-func (*Stop) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-	return instance.Barrel().Stack().Down(ctx, out)
+func (*Stop) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
+	return nil, instance.Barrel().Stack().Down(ctx, out)
 }

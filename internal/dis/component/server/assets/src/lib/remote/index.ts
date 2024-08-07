@@ -166,17 +166,17 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   finishButton.className = 'pure-button pure-button-success'
   finishButton.append(typeof opts?.onClose === 'function' ? 'Close & Finish' : 'Close')
 
-  let result: Result = { success: false, data: 'Nothing happened' }
+  let result: Result = { status: 'rejected', reason: 'Nothing happened' }
   finishButton.addEventListener('click', (event) => {
     event.preventDefault()
 
     if (typeof opts?.onClose === 'function') {
       finishButton.setAttribute('disabled', 'disabled')
       target.innerHTML = 'Finishing up ...'
-      if (result.success) {
-        opts.onClose(result.success, result.data)
+      if (result.status === 'fulfilled') {
+        opts.onClose(true, result.value)
       } else {
-        opts.onClose(result.success, result.data)
+        opts.onClose(false, result.reason ?? 'unknown error')
       }
       return
     }
@@ -197,10 +197,10 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   const close = (message: Result): void => {
     result = message
 
-    if (result.success) {
+    if (result.status === 'fulfilled') {
       print('Process completed successfully.\n', true)
     } else {
-      print('Process reported error: ' + result.data + '\n', true)
+      print('Process reported error: ' + (result.reason ?? 'unknown error') + '\n', true)
     }
 
     window.onbeforeunload = onbeforeunload
@@ -209,7 +209,8 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
     modal.append(finishButton)
 
     const quota = (print.paintedFrames / (print.missedFrames + print.paintedFrames)) * 100
-    console.debug(`Terminal: painted=${print.paintedFrames} missed=${print.missedFrames} (${quota}%)`, true)
+    console.debug(`Result:`, result)
+    console.debug(`Terminal: painted=${print.paintedFrames} missed=${print.missedFrames} (${quota}%)`)
   }
 
   print('Connecting ...', true)
@@ -236,10 +237,10 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
     .then(() => session.closeInput()) // for now none of our sessions actually have input
     .then(() => session.wait())
     .then((result) => {
-      close(result)
+      close(result.result)
     })
     .catch((err) => {
       console.error(err)
-      close({ success: false, data: 'connection closed unexpectedly' })
+      close({ status: 'rejected', reason: 'connection closed unexpectedly' })
     })
 }

@@ -29,12 +29,12 @@ func (*Rebuild) Action() InstanceAction {
 	}
 }
 
-func (r *Rebuild) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
+func (r *Rebuild) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
 	// read the flags of the instance to be rebuilt
 	var system models.System
 	if err := json.Unmarshal([]byte(params[0]), &system); err != nil {
-		return err
+		return nil, err
 	}
 
-	return instance.SystemManager().Apply(ctx, out, system)
+	return nil, instance.SystemManager().Apply(ctx, out, system)
 }

@@ -1,4 +1,4 @@
-import { type Session, type CallSpec, type Remote, type Result } from '../common/types'
+import { type Session, type CallSpec, type Remote, WaitResult, Status, isStatus } from '../common/types'
 import axios from 'axios'
 import { sleep } from '../common/utils'
 import { Lazy } from '../common/once'
@@ -27,26 +27,22 @@ export default class RestSession implements Session {
     this.#id = id
   }
 
-  readonly #result = new Lazy<Result>()
-  async wait (options?: { pollInterval?: number, maxWait?: number }): Promise<Result> {
-    return await this.#result.Get(async (): Promise<Result> => {
+  readonly #result = new Lazy<WaitResult>()
+  async wait (options?: { pollInterval?: number, maxWait?: number }): Promise<WaitResult> {
+    return await this.#result.Get(async (): Promise<WaitResult> => {
       const pollInterval = options?.pollInterval ?? 500
       const maxWait = options?.maxWait ?? 60 * 60 * 1000 // defaults to 1 hour
 
       const start = performance.now()
       let status: Status = await this.status()
-      while (!(status.Started && !status.Running)) {
+      while (status.result.status === 'pending') {
         if (performance.now() - start > maxWait) {
           throw errWaitExceeded
         }
         await sleep(pollInterval)
         status = await this.status()
       }
-
-      if (typeof status.Err === 'string') {
-        return { success: false, data: status.Err }
-      }
-      return { success: true, data: status.Result, buffer: status.Buffer }
+      return status as WaitResult 
     })
   }
 
@@ -56,7 +52,12 @@ export default class RestSession implements Session {
    */
   async status (): Promise<Status> {
     if (typeof this.#id !== 'string') throw errNotConnected
-    return await this.#rest(`/status/${this.#id}`)
+
+    const status = await this.#rest(`/status/${this.#id}`)
+    if (!isStatus(status)) {
+      return {'result': {'status': 'rejected', 'reason': 'invalid status returned'}}
+    }
+    return status
   }
 
   #inputClosed = false
@@ -102,21 +103,3 @@ export default class RestSession implements Session {
     return baseNoSlash + '/' + pathNoSlash
   }
 }
-
-interface Status {
-  Started: boolean
-  Running: boolean
-
-  Buffer?: string
-  Result?: any
-  Err?: string
-}
-
-/*
-
-server.mux.HandleFunc("POST /new", server.serveNew)
-server.mux.HandleFunc("GET /status/{id}", server.serveStatus)
-server.mux.HandleFunc("POST /input/{id}", server.serveInput)
-server.mux.HandleFunc("POST /closeInput/{id}", server.serveCloseInput)
-server.mux.HandleFunc("POST /cancel/{id}", server.serveCancel)
-*/

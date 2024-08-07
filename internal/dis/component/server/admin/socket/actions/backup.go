@@ -28,8 +28,8 @@ func (*Backup) Action() Action {
 	}
 }
 
-func (b *Backup) Act(ctx context.Context, in io.Reader, out io.Writer, params ...string) error {
-	return b.dependencies.Exporter.MakeExport(
+func (b *Backup) Act(ctx context.Context, in io.Reader, out io.Writer, params ...string) (any, error) {
+	return nil, b.dependencies.Exporter.MakeExport(
 		ctx,
 		out,
 		exporter.ExportTask{
