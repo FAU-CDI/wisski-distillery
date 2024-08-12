@@ -14,7 +14,7 @@ type RebuildTriplestore struct {
 }
 
 var (
-	_ WebsocketInstanceAction = (*Snapshot)(nil)
+	_ WebsocketInstanceAction = (*RebuildTriplestore)(nil)
 )
 
 func (wsa *RebuildTriplestore) Action() InstanceAction {
@@ -27,6 +27,7 @@ func (wsa *RebuildTriplestore) Action() InstanceAction {
 	}
 }
 
-func (wsa *RebuildTriplestore) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-	return instance.TRB().RebuildTriplestore(ctx, out, false)
+func (wsa *RebuildTriplestore) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
+	size, err := instance.TRB().RebuildTriplestore(ctx, out, false)
+	return size, err
 }

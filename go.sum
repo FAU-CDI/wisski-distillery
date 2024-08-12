@@ -1,7 +1,7 @@
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1/go.mod h1:xomTg63KZ2rFqZQzSB4Vz2SUXa1BpHTVz9L5PTmPC4E=
-github.com/FAU-CDI/process_over_websocket v0.0.0-20240801181025-d1dd80498b21 h1:4WDrDwrVqWqw58Jkxmgy/pSjhsrLBSYKBdpkCwzZ1IA=
-github.com/FAU-CDI/process_over_websocket v0.0.0-20240801181025-d1dd80498b21/go.mod h1:5dIZCyiA9T3AsKgMowq8vP+wxWIMYA0tRZ1TeWykIEo=
+github.com/FAU-CDI/process_over_websocket v0.0.0-20240812113200-a474cf91e8b6 h1:q+7mevaKilQlkZm16H3UytVaUUdevuyRQiLSS62bt0Y=
+github.com/FAU-CDI/process_over_websocket v0.0.0-20240812113200-a474cf91e8b6/go.mod h1:5dIZCyiA9T3AsKgMowq8vP+wxWIMYA0tRZ1TeWykIEo=
 github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41 h1:RRN/aPFEOSpQVcq+f0iTBkUt6L/EBPTSH9risO3SDto=
 github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41/go.mod h1:9L2AZlOgDtg1WZ9Z1P1nBjqOY/b0mVrVE7UvO20pO2Q=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=

@@ -22,12 +22,13 @@ type TRB struct {
 }
 
 // RebuildTriplestore rebuilds the triplestore by making a backup, storing it on disk, purging the triplestore, and restoring the backup.
-func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmptyRepository bool) (err error) {
+// Returns the size of the backup dump in bytes.
+func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmptyRepository bool) (size int, err error) {
 
 	// stop instance, restart when done
 	logging.LogMessage(out, "Shutting down instance")
 	if err := trb.dependencies.Barrel.Stack().Down(ctx, out); err != nil {
-		return err
+		return 0, err
 	}
 
 	defer func() {
@@ -40,9 +41,9 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 
 	// make the backup
 	logging.LogMessage(out, "Storing triplestore content")
-	dumpPath, err := trb.makeBackup(ctx, allowEmptyRepository)
+	dumpPath, _, err := trb.makeBackup(ctx, allowEmptyRepository)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	fmt.Printf("Wrote %q\n", dumpPath)
 
@@ -50,22 +51,22 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 
 	logging.LogMessage(out, "Purging triplestore")
 	if err := liquid.TS.Purge(ctx, liquid.Instance, liquid.Domain()); err != nil {
-		return err
+		return 0, err
 	}
 
 	logging.LogMessage(out, "Provising triplestore")
 	if err := liquid.TS.Provision(ctx, liquid.Instance, liquid.Domain()); err != nil {
-		return err
+		return 0, err
 	}
 
 	logging.LogMessage(out, "Restoring triplestore")
 	if err := trb.restoreBackup(ctx, dumpPath); err != nil {
-		return err
+		return 0, err
 	}
 
 	logging.LogMessage(out, "Deleting dump file")
 	if err := os.Remove(dumpPath); err != nil {
-		return err
+		return 0, err
 	}
 
 	return
@@ -73,10 +74,10 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 
 var errBackupEmpty = errors.New("no data contained in backup file (is the repository empty?)")
 
-func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path string, err error) {
+func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path string, size int64, err error) {
 	file, err := os.CreateTemp("", "*.nq.gz")
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 	defer file.Close()
 
@@ -84,18 +85,19 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 	zippedFile := gzip.NewWriter(file)
 	defer zippedFile.Close()
 
-	liquid := ingredient.GetLiquid(trb)
+	{
+		liquid := ingredient.GetLiquid(trb)
+		size, err := liquid.TS.SnapshotDB(ctx, zippedFile, liquid.GraphDBRepository)
+		if err != nil {
+			return "", 0, err
+		}
 
-	count, err := liquid.TS.SnapshotDB(ctx, zippedFile, liquid.GraphDBRepository)
-	if err != nil {
-		return "", err
+		if size == 0 && !allowEmptyRepository {
+			return "", 0, errBackupEmpty
+		}
+
+		return file.Name(), size, nil
 	}
-
-	if count == 0 && !allowEmptyRepository {
-		return "", errBackupEmpty
-	}
-
-	return file.Name(), nil
 }
 
 func (trb *TRB) restoreBackup(ctx context.Context, path string) (err error) {

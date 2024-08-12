@@ -31,5 +31,6 @@ func (rts rebuildTS) Run(context wisski_distillery.Context) (err error) {
 		return err
 	}
 
-	return instance.TRB().RebuildTriplestore(context.Context, context.Stdout, rts.AllowEmptyRepository)
+	_, err = instance.TRB().RebuildTriplestore(context.Context, context.Stdout, rts.AllowEmptyRepository)
+	return err
 }

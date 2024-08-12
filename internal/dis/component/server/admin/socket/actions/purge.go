@@ -18,7 +18,7 @@ type Purge struct {
 }
 
 var (
-	_ WebsocketInstanceAction = (*Stop)(nil)
+	_ WebsocketInstanceAction = (*Purge)(nil)
 )
 
 func (*Purge) Action() InstanceAction {
@@ -31,6 +31,6 @@ func (*Purge) Action() InstanceAction {
 	}
 }
 
-func (p *Purge) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) error {
-	return p.dependencies.Purger.Purge(ctx, out, instance.Slug)
+func (p *Purge) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
+	return nil, p.dependencies.Purger.Purge(ctx, out, instance.Slug)
 }
