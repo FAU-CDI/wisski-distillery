@@ -29,6 +29,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         libwebp-dev \
         libxml2-dev \
         libxpm-dev \
+        libzip-dev \
         sudo \
         unzip \
         vim \
@@ -55,6 +56,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         pdo_mysql \
         soap \
         xml \
+        zip \
     && \
     pecl install xmlrpc-1.0.0RC3 && \
     pecl install ssh2-1.3.1 && \
@@ -72,6 +74,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         ssh2 \
         xml \
         xmlrpc \
+        zip \
     && \
     docker-php-source delete
 
