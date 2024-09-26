@@ -12,6 +12,7 @@ var Monday wisski_distillery.Command = monday{}
 
 type monday struct {
 	UpdateInstances bool `short:"u" long:"update-instances" description:"fully update instances. may take a long time, and is potentially breaking"`
+	SkipBackup      bool `long:"skip-backup" description:"skip making a backup. dangerous"`
 	Positionals     struct {
 		GraphdbZip string "positional-arg-name:\"PATH_TO_GRAPHDB_ZIP\" required:\"1-1\" description:\"path to the `graphdb.zip` file\""
 	} `positional-args:"true"`
@@ -39,10 +40,12 @@ func (monday monday) AfterParse() error {
 }
 
 func (monday monday) Run(context wisski_distillery.Context) error {
-	if err := logging.LogOperation(func() error {
-		return context.Exec("backup")
-	}, context.Stderr, "Running backup"); err != nil {
-		return err
+	if !monday.SkipBackup {
+		if err := logging.LogOperation(func() error {
+			return context.Exec("backup")
+		}, context.Stderr, "Running backup"); err != nil {
+			return err
+		}
 	}
 
 	if err := logging.LogOperation(func() error {
