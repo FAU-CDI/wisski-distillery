@@ -1,0 +1,4 @@
+[mariadb]
+
+# Increase the connection limit
+max_connections = 1000

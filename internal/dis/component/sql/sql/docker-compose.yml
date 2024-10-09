@@ -3,6 +3,7 @@ services:
         image: mariadb:11.0
         volumes:
             - "./data/:/var/lib/mysql"
+            - "./conf.d/:/etc/mysql/conf.d:ro"
             - "./imports/:/imports/"
         ports:
             - 127.0.0.1:3306:3306
