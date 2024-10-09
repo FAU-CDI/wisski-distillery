@@ -16,7 +16,6 @@ WORKDIR /var/www
 ARG IIP_SERVER_ENABLED=
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         curl \
-        openssh-server \
         default-mysql-client \
         git \
         imagemagick \
@@ -29,7 +28,9 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         libwebp-dev \
         libxml2-dev \
         libxpm-dev \
+        libxslt-dev \
         libzip-dev \
+        openssh-server \
         sudo \
         unzip \
         vim \
@@ -56,6 +57,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         pdo_mysql \
         soap \
         xml \
+        xmlwriter \
+        xsl \
         zip \
     && \
     pecl install xmlrpc-1.0.0RC3 && \
@@ -74,6 +77,8 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         ssh2 \
         xml \
         xmlrpc \
+        xmlwriter \
+        xsl \
         zip \
     && \
     docker-php-source delete
