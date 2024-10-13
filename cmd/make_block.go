@@ -78,7 +78,7 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 
 	// get the footer (if any)
 	if mb.Footer {
-		wdlog.Of(context.Context).Info().Msg("checking for footer")
+		wdlog.Of(context.Context).Info("checking for footer")
 		region, err := instance.Blocks().GetFooterRegion(context.Context, nil)
 		if err != nil {
 			return errBlocksFooterFailed.WrapError(err)

@@ -142,7 +142,7 @@ func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, e
 
 	items, itemsErr := Items()
 	if itemsErr != nil {
-		wdlog.Of(ctx).Err(itemsErr).Msg("Unable to load news items")
+		wdlog.Of(ctx).Error("Unable to load news items", "error", itemsErr)
 	}
 
 	return tpl.HTMLHandler(news.dependencies.Handling, func(r *http.Request) (nc newsContext, err error) {

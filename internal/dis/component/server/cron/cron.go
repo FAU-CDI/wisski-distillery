@@ -54,7 +54,9 @@ func (control *Cron) Once(ctx context.Context) {
 	var wg sync.WaitGroup
 	wg.Add(len(control.dependencies.Tasks))
 
-	wdlog.Of(ctx).Info().Time("time", time.Now()).Msg("Starting Cron")
+	wdlog.Of(ctx).Info(
+		"Starting Cron",
+	)
 
 	for _, task := range control.dependencies.Tasks {
 		go func(task component.Cronable) {
@@ -63,7 +65,11 @@ func (control *Cron) Once(ctx context.Context) {
 			name := task.TaskName()
 
 			start := time.Now()
-			wdlog.Of(ctx).Info().Str("task", name).Time("time", start).Msg("Calling Cron()")
+			wdlog.Of(ctx).Info(
+				"Calling Cron()",
+				"task", name,
+				"start", start,
+			)
 
 			panicked, panik, err := func() (panicked bool, panik any, err error) {
 				defer func() {
@@ -81,15 +87,35 @@ func (control *Cron) Once(ctx context.Context) {
 
 			switch {
 			case !panicked:
-				wdlog.Of(ctx).Err(err).Str("task", name).Dur("took", took).Msg("Finished Cron()")
+				if err != nil {
+					wdlog.Of(ctx).Error(
+						"Finished Cron()",
+						"error", err,
+						"task", name,
+						"took", took,
+					)
+				} else {
+					wdlog.Of(ctx).Info(
+						"Finished Cron()",
+						"task", name,
+						"took", took,
+					)
+				}
 			case panicked:
-				wdlog.Of(ctx).Error().Str("task", name).Dur("took", took).Str("panic", fmt.Sprint(panik)).Msg("Finished Cron()")
+				wdlog.Of(ctx).Error(
+					"Finished Cron()",
+					"panic", fmt.Sprint(panik),
+					"task", name,
+					"took", took,
+				)
 			}
 		}(task)
 	}
 
 	wg.Wait()
-	wdlog.Of(ctx).Info().Time("time", time.Now()).Msg("Finished Cron")
+	wdlog.Of(ctx).Info(
+		"Finished Cron",
+	)
 }
 
 // Start invokes all cron jobs regularly, waiting between invocations as specified in configuration.
@@ -100,7 +126,11 @@ func (control *Cron) Once(ctx context.Context) {
 // The returned channel is closed once no more cron tasks are active.
 func (control *Cron) Start(ctx context.Context, signal <-chan struct{}) <-chan struct{} {
 	interval := component.GetStill(control).Config.CronInterval
-	wdlog.Of(ctx).Info().Dur("interval", interval).Msg("Scheduling Cron() tasks")
+	wdlog.Of(ctx).Info(
+		"Scheduling Cron() tasks",
+
+		"interval", interval,
+	)
 
 	// run runs cron tasks with the configured timeout
 	run := func() {
@@ -116,9 +146,9 @@ func (control *Cron) Start(ctx context.Context, signal <-chan struct{}) <-chan s
 	go func() {
 		defer close(cleanup)
 
-		wdlog.Of(ctx).Debug().Msg("Cron() starting first run")
+		wdlog.Of(ctx).Debug("Cron() starting first run")
 		run()
-		wdlog.Of(ctx).Debug().Msg("Cron() beginnning scheduling")
+		wdlog.Of(ctx).Debug("Cron() beginnning scheduling")
 
 		t := timex.NewTimer()
 		defer timex.ReleaseTimer(t)
@@ -128,9 +158,9 @@ func (control *Cron) Start(ctx context.Context, signal <-chan struct{}) <-chan s
 
 			select {
 			case <-t.C:
-				wdlog.Of(ctx).Debug().Msg("Cron() timer fired")
+				wdlog.Of(ctx).Debug("Cron() timer fired")
 			case <-signal:
-				wdlog.Of(ctx).Debug().Msg("Cron() received signal")
+				wdlog.Of(ctx).Debug("Cron() received signal")
 			case <-ctx.Done():
 				return
 			}

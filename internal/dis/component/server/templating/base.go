@@ -192,12 +192,14 @@ func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (te
 				panik = recover()
 				stack = debug.Stack()
 
-				wdlog.Of(ctx.ctx).Error().
-					Str("uri", ctx.Runtime.RequestURI).
-					Str("name", name).
-					Str("panic", fmt.Sprint(panik)).
-					Str("stack", string(stack)).
-					Msg("renderSafe: template panic()ed")
+				wdlog.Of(ctx.ctx).Error(
+					"renderSafe: template panic()ed",
+
+					"uri", ctx.Runtime.RequestURI,
+					"name", name,
+					"panic", fmt.Sprint(panik),
+					"stack", string(stack),
+				)
 			}
 		}()
 
@@ -206,10 +208,13 @@ func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (te
 		panicked = false
 
 		if err != nil {
-			wdlog.Of(ctx.ctx).Err(err).
-				Str("uri", ctx.Runtime.RequestURI).
-				Str("name", name).
-				Msg("template errored")
+			wdlog.Of(ctx.ctx).Error(
+				"template errored",
+				"error", err,
+
+				"uri", ctx.Runtime.RequestURI,
+				"name", name,
+			)
 		}
 
 		return template.HTML(builder.String()), false, nil, nil, err

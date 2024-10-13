@@ -94,7 +94,12 @@ func (handler *Handler[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// log the error, and serve the default internal server error
-		wdlog.Of(r.Context()).Error().Str("panic", fmt.Sprint(rec)).Str("stage", stage).Str("route", r.URL.RequestURI()).Msg("api handler caused panic()")
+		wdlog.Of(r.Context()).Error(
+			"api handler caused panic()",
+			"panic", fmt.Sprint(rec),
+			"stage", stage,
+			"route", r.URL.RequestURI(),
+		)
 		apiInternalServerError.ServeHTTP(w, r)
 	}()
 

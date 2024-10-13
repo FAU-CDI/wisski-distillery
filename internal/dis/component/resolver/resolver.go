@@ -91,13 +91,19 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 	domainName := config.HTTP.PrimaryDomain
 	if domainName != "" {
 		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domainName))] = fmt.Sprintf("https://$1.%s", domainName)
-		logger.Info().Str("name", domainName).Msg("registering default domain")
+		logger.Info(
+			"registering default domain",
+			"name", domainName,
+		)
 	}
 
 	// handle the extra domains!
 	for _, domain := range config.HTTP.ExtraDomains {
 		fallback.Data[fmt.Sprintf("^https?://(.*)\\.%s", regexp.QuoteMeta(domain))] = fmt.Sprintf("https://$1.%s", domainName)
-		logger.Info().Str("name", domainName).Msg("registering legacy domain")
+		logger.Info(
+			"registering legacy domain",
+			"name", domainName,
+		)
 	}
 
 	p := wdresolve.ResolveHandler{

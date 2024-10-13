@@ -147,7 +147,11 @@ func (admin *Admin) useraction(ctx context.Context, name string, action func(r *
 	logger := wdlog.Of(ctx)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
-			logger.Err(err).Str("action", name).Msg("failed to parse form")
+			logger.Error(
+				"failed to parse form",
+				"error", err,
+				"action", name,
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
@@ -155,14 +159,22 @@ func (admin *Admin) useraction(ctx context.Context, name string, action func(r *
 		username := r.PostFormValue("user")
 		user, err := admin.dependencies.Auth.User(r.Context(), username)
 		if err != nil {
-			logger.Err(err).Str("action", name).Msg("failed to get user")
+			logger.Error(
+				"failed to get user",
+				"error", err,
+				"action", name,
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
 
 		me, err := admin.dependencies.Auth.UserOfSession(r)
 		if err != nil {
-			logger.Err(err).Str("action", name).Msg("failed to get current user")
+			logger.Error(
+				"failed to get current user",
+				"error", err,
+				"action", name,
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
@@ -174,7 +186,11 @@ func (admin *Admin) useraction(ctx context.Context, name string, action func(r *
 		}
 
 		if err := action(r, user); err != nil {
-			logger.Err(err).Str("action", name).Msg("failed to act on user")
+			logger.Error(
+				"failed to act on user",
+				"error", err,
+				"action", name,
+			)
 			http.Redirect(w, r, "/admin/users/?error="+url.QueryEscape(err.Error()), http.StatusSeeOther)
 			return
 		}
@@ -237,7 +253,11 @@ func (admin *Admin) usersImpersonateHandler(ctx context.Context) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
-			logger.Err(err).Str("action", "impersonate").Msg("failed to parse form")
+			logger.Error(
+				"failed to parse form",
+				"error", err,
+				"action", "impersonate",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
@@ -245,14 +265,23 @@ func (admin *Admin) usersImpersonateHandler(ctx context.Context) http.Handler {
 		username := r.PostFormValue("user")
 		user, err := admin.dependencies.Auth.User(r.Context(), username)
 		if err != nil {
-			logger.Err(err).Str("action", "impersonate").Msg("failed to get user")
+			logger.Error(
+				"failed to get user",
+				"error", err,
+				"action", "impersonate",
+			)
+
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
 
 		// login the user into the session of the provided user
 		if err := admin.dependencies.Auth.Login(w, r, user); err != nil {
-			logger.Err(err).Str("action", "impersonate").Msg("failed to login user")
+			logger.Error(
+				"failed to login user",
+				"error", err,
+				"action", "impersonate",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}

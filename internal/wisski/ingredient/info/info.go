@@ -12,7 +12,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
-	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/sema"
 	"golang.org/x/sync/errgroup"
 )
@@ -101,17 +100,26 @@ func (nfo *Info) Information(ctx context.Context, quick bool) (info status.WissK
 	var tookSum time.Duration
 
 	// get a map of how long each fetcher took
-	times := zerolog.Dict()
+	times := make(map[string]time.Duration, len(nfo.dependencies.Fetchers))
 	for i, fetcher := range nfo.dependencies.Fetchers {
 		tookSum += fetcherTimes[i]
-		times = times.Dur(fetcher.Name(), fetcherTimes[i])
+		times[fetcher.Name()] = fetcherTimes[i]
 	}
 
 	// compute the ratio taken
 	tookRatio := float64(took) / float64(tookSum)
 
 	// and send it to debugging output
-	wdlog.Of(ctx).Debug().Uint64("servers", serversUsed).Dict("fetchers_took_ms", times).Dur("took_ms", took).Dur("took_sum_ms", tookSum).Float64("took_ratio", tookRatio).Bool("quick", quick).Msg("ran information fetchers")
+	wdlog.Of(ctx).Debug(
+		"ran information fetchers",
+
+		"servers", serversUsed,
+		"fetchers_took_ms", times,
+		"took_ms", took,
+		"took_sum_ms", tookSum,
+		"took_ratio", tookRatio,
+		"quick", quick,
+	)
 
 	return
 }

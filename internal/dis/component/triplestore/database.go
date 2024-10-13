@@ -131,7 +131,10 @@ func (ts *Triplestore) DoRestWithReader(ctx context.Context, timeout time.Durati
 func (ts Triplestore) Wait(ctx context.Context) error {
 	return timex.TickUntilFunc(func(time.Time) bool {
 		res, err := ts.DoRest(ctx, tsTrivialTimeout, http.MethodGet, "/rest/repositories", nil)
-		wdlog.Of(ctx).Trace().Err(err).Msg("Triplestore wait")
+		wdlog.Of(ctx).Debug(
+			"Triplestore Wait",
+			"error", err,
+		)
 		if err != nil {
 			return false
 		}

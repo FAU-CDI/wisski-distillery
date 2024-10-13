@@ -98,10 +98,14 @@ func Tabs(actions ...component.MenuItem) FlagFunc {
 }
 
 // ReplaceCrumb replaces a specific crum
-func ReplaceCrumb(old component.MenuItem, action component.MenuItem) FlagFunc {
+func ReplaceCrumb(old component.MenuItem, crumb component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
-		if !old.ReplaceWith(action, flags.Crumbs) {
-			wdlog.Of(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
+		if !old.ReplaceWith(crumb, flags.Crumbs) {
+			wdlog.Of(r.Context()).Warn(
+				"did not replace crumb item",
+				"crum", fmt.Sprint(crumb),
+				"crumbs", fmt.Sprint(flags.Crumbs),
+			)
 		}
 		return flags
 	}
@@ -111,7 +115,11 @@ func ReplaceCrumb(old component.MenuItem, action component.MenuItem) FlagFunc {
 func ReplaceAction(old component.MenuItem, action component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		if !old.ReplaceWith(action, flags.Actions) {
-			wdlog.Of(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
+			wdlog.Of(r.Context()).Warn(
+				"did not replace action item",
+				"action", fmt.Sprint(action),
+				"actions", fmt.Sprint(flags.Actions),
+			)
 		}
 		return flags
 	}
@@ -121,7 +129,11 @@ func ReplaceAction(old component.MenuItem, action component.MenuItem) FlagFunc {
 func ReplaceTab(old component.MenuItem, tab component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		if !old.ReplaceWith(tab, flags.Tabs) {
-			wdlog.Of(r.Context()).Warn().Str("tab", fmt.Sprint(tab)).Str("tabs", fmt.Sprint(flags.Tabs)).Msg("did not replace menu item")
+			wdlog.Of(r.Context()).Warn(
+				"did not replace menu item",
+				"tab", fmt.Sprint(tab),
+				"tabs", fmt.Sprint(flags.Tabs),
+			)
 		}
 		return flags
 	}

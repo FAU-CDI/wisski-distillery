@@ -189,7 +189,10 @@ func (admin *Admin) loginHandler(ctx context.Context) http.Handler {
 	return admin.dependencies.Handling.Redirect(func(r *http.Request) (string, int, error) {
 		// parse the form
 		if err := r.ParseForm(); err != nil {
-			logger.Err(err).Msg("failed to parse admin login")
+			logger.Error(
+				"failed to parse admin login",
+				"error", err,
+			)
 			return "", 0, err
 		}
 
@@ -201,7 +204,10 @@ func (admin *Admin) loginHandler(ctx context.Context) http.Handler {
 
 		target, err := instance.Users().Login(r.Context(), nil, r.PostFormValue("user"))
 		if err != nil {
-			logger.Err(err).Msg("failed to admin login")
+			logger.Error(
+				"failed to admin login",
+				"error", err,
+			)
 			return "", 0, err
 		}
 		return target.String(), http.StatusSeeOther, err

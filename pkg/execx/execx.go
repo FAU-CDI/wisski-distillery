@@ -41,7 +41,12 @@ func Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, a
 
 	// start the command, but if something happens, return nil
 	err := cmd.Start()
-	wdlog.Of(ctx).Debug().Str("exe", exe).Strs("argv", argv).Err(err).Msg("exec.Command.Start")
+	wdlog.Of(ctx).Debug(
+		"exec.Command.Start",
+		"exe", exe,
+		"argv", argv,
+		"error", err,
+	)
 	if err != nil {
 		return CommandErrorFunc
 	}
@@ -54,7 +59,12 @@ func Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, a
 		select {
 		case <-ctx.Done():
 			err := cmd.Process.Kill()
-			wdlog.Of(ctx).Debug().Str("exe", exe).Strs("argv", argv).Err(err).Msg("exec.Command.Kill")
+			wdlog.Of(ctx).Debug(
+				"exec.Command.Kill",
+				"exe", exe,
+				"argv", argv,
+				"error", err,
+			)
 		case <-waitdone:
 		}
 	}()
@@ -68,7 +78,12 @@ func Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, a
 		}()
 
 		err := cmd.Wait()
-		wdlog.Of(ctx).Debug().Str("exe", exe).Strs("argv", argv).Err(err).Msg("exec.Command.Wait")
+		wdlog.Of(ctx).Debug(
+			"exec.Command.Wait",
+			"exe", exe,
+			"argv", argv,
+			"error", err,
+		)
 
 		// non-zero exit
 		if err, ok := err.(*exec.ExitError); ok {

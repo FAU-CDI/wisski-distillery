@@ -21,35 +21,47 @@ func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
 	for _, a := range sockets.dependencies.Actions {
 		action, exec := sockets.regularAction(a)
 		if _, ok := actions[action.Name]; ok {
-			logger.Warn().Str("name", action.Name).Str("type", "regular").Msg("duplicate websocket action")
+			logger.Warn(
+				"duplicate websocket action",
+				"name", action.Name,
+				"type", "regular",
+			)
 			continue
 		}
 		actions[action.Name] = exec
 
-		logger.Info().
-			Str("name", action.Name).
-			Str("type", "regular").
-			Int("params", action.NumParams).
-			Str("scope", string(action.Scope)).
-			Str("scopeParam", action.ScopeParam).
-			Msg("registering websocket action")
+		logger.Info(
+			"registering websocket action",
+
+			"name", action.Name,
+			"type", "regular",
+			"params", action.NumParams,
+			"scope", string(action.Scope),
+			"scopeParam", action.ScopeParam,
+		)
 	}
 
 	// setup instance actions
 	for _, a := range sockets.dependencies.IActions {
 		action, exec := sockets.instanceAction(a)
 		if _, ok := actions[action.Name]; ok {
-			logger.Warn().Str("name", action.Name).Str("type", "instance").Msg("duplicate websocket action")
+			logger.Warn(
+				"duplicate websocket action",
+				"name", action.Name,
+				"type", "instance",
+			)
 		}
 		actions[action.Name] = exec
 
-		logger.Info().
-			Str("name", action.Name).
-			Str("type", "instance").
-			Int("params", action.NumParams).
-			Str("scope", string(action.Scope)).
-			Str("scopeParam", action.ScopeParam).
-			Msg("registering websocket action")
+		logger.Info(
+			"registering websocket action",
+
+			"name", action.Name,
+			"type", "instance",
+			"params", action.NumParams,
+			"scope", string(action.Scope),
+			"scopeParam", action.ScopeParam,
+		)
 	}
 
 	return proto.HandlerFunc(func(r *http.Request, name string, args ...string) (p proto.Process, err error) {

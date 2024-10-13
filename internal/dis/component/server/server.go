@@ -73,24 +73,29 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 	// iterate over all the handler
 	for _, s := range server.dependencies.Routeables {
 		routes := s.Routes()
-		wdlog.Of(ctx).Info().
-			Str("Name", s.Name()).
-			Str("Prefix", routes.Prefix).
-			Strs("Aliases", routes.Aliases).
-			Bool("Exact", routes.Exact).
-			Bool("CSRF", routes.CSRF).
-			Bool("Decorator", routes.Decorator != nil).
-			Bool("Internal", routes.Internal).
-			Bool("MatchAllDomains", routes.MatchAllDomains).
-			Msg("mounting route")
+		wdlog.Of(ctx).Info(
+			"mounting route",
+
+			"Name", s.Name(),
+			"Prefix", routes.Prefix,
+			"Aliases", routes.Aliases,
+			"Exact", routes.Exact,
+			"CSRF", routes.CSRF,
+			"Decorator", routes.Decorator != nil,
+			"Internal", routes.Internal,
+			"MatchAllDomains", routes.MatchAllDomains,
+		)
 
 		// call the handler for the route
 		handler, err := s.HandleRoute(ctx, routes.Prefix)
 		if err != nil {
-			wdlog.Of(ctx).Err(err).
-				Str("Component", s.Name()).
-				Str("Prefix", routes.Prefix).
-				Msg("error mounting route")
+			wdlog.Of(ctx).Error(
+				"error mounting route",
+				"error", err,
+
+				"Component", s.Name(),
+				"Prefix", routes.Prefix,
+			)
 			continue
 		}
 

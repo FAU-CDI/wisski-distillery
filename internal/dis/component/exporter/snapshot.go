@@ -136,7 +136,10 @@ func (snapshots *Exporter) resolveParts(ctx context.Context, parts []string, sna
 
 		// throw a warning for unknown parts
 		for key := range keys {
-			wdlog.Of(ctx).Warn().Str("part", key).Msg("ignoring unknown snapshot part")
+			wdlog.Of(ctx).Warn(
+				"ignoring unknown snapshot part",
+				"part", key,
+			)
 		}
 	}
 
@@ -221,7 +224,11 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, _ *
 		logfile := files[ids[i]]
 		bytes, err := os.ReadFile(logfile)
 		if err != nil {
-			wdlog.Of(ctx).Err(err).Str("component", name).Msg("unable to copy logfile")
+			wdlog.Of(ctx).Error(
+				"unable to copy logfile",
+				"error", err,
+				"component", name,
+			)
 			continue
 		}
 

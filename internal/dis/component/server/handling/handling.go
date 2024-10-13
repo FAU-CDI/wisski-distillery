@@ -42,10 +42,12 @@ func (h *Handling) interceptor(parent httpx.ErrInterceptor) httpx.ErrInterceptor
 	parent.OnFallback = func(r *http.Request, err error) {
 		pf(r, err)
 
-		wdlog.Of(r.Context()).
-			Err(err).
-			Str("path", r.URL.Path).
-			Msg("unknown error")
+		wdlog.Of(r.Context()).Error(
+			"unknown error",
+			"error", err,
+
+			"path", r.URL.Path,
+		)
 	}
 	return parent
 }
@@ -62,7 +64,11 @@ func (h *Handling) WriteHTML(context any, err error, template *template.Template
 
 func LogTemplateError(r *http.Request, err error) error {
 	if err != nil {
-		wdlog.Of(r.Context()).Err(err).Str("path", r.URL.String()).Msg("error rendering template")
+		wdlog.Of(r.Context()).Error(
+			"error rendering template",
+			"error", err,
+			"path", r.URL.String(),
+		)
 	}
 	return err
 }

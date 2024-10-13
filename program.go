@@ -94,7 +94,7 @@ func NewProgram() Program {
 			{
 				context := GetContext(parent)
 				logger := wdlog.New(os.Stdout, context.Args.Flags.LogLevel.Level())
-				parent = wdlog.Set(parent, &logger)
+				parent = wdlog.Set(parent, logger)
 			}
 
 			ctx, stop := signal.NotifyContext(parent, os.Interrupt, os.Kill)
