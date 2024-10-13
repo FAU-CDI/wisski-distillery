@@ -9,13 +9,12 @@ import (
 
 	"github.com/FAU-CDI/process_over_websocket/proto"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/contextx"
-
-	"github.com/rs/zerolog"
 )
 
 func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
-	logger := zerolog.Ctx(ctx)
+	logger := wdlog.Of(ctx)
 
 	actions := make(map[string]*actionable, len(sockets.dependencies.Actions)+len(sockets.dependencies.IActions))
 	// setup basic actions

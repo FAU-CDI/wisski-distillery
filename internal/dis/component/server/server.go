@@ -9,13 +9,13 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/httpx/mux"
 	"github.com/tkw1536/pkglib/httpx/wrap"
 	"github.com/tkw1536/pkglib/recovery"
 
 	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog"
 )
 
 // Server represents the running control server.
@@ -73,7 +73,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 	// iterate over all the handler
 	for _, s := range server.dependencies.Routeables {
 		routes := s.Routes()
-		zerolog.Ctx(ctx).Info().
+		wdlog.Of(ctx).Info().
 			Str("Name", s.Name()).
 			Str("Prefix", routes.Prefix).
 			Strs("Aliases", routes.Aliases).
@@ -87,7 +87,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 		// call the handler for the route
 		handler, err := s.HandleRoute(ctx, routes.Prefix)
 		if err != nil {
-			zerolog.Ctx(ctx).Err(err).
+			wdlog.Of(ctx).Err(err).
 				Str("Component", s.Name()).
 				Str("Prefix", routes.Prefix).
 				Msg("error mounting route")

@@ -8,8 +8,8 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
-	"github.com/rs/zerolog"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -78,7 +78,7 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 
 	// get the footer (if any)
 	if mb.Footer {
-		zerolog.Ctx(context.Context).Info().Msg("checking for footer")
+		wdlog.Of(context.Context).Info().Msg("checking for footer")
 		region, err := instance.Blocks().GetFooterRegion(context.Context, nil)
 		if err != nil {
 			return errBlocksFooterFailed.WrapError(err)

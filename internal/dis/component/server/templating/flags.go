@@ -9,7 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
-	"github.com/rs/zerolog"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"golang.org/x/exp/slices"
 )
 
@@ -101,7 +101,7 @@ func Tabs(actions ...component.MenuItem) FlagFunc {
 func ReplaceCrumb(old component.MenuItem, action component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		if !old.ReplaceWith(action, flags.Crumbs) {
-			zerolog.Ctx(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
+			wdlog.Of(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
 		}
 		return flags
 	}
@@ -111,7 +111,7 @@ func ReplaceCrumb(old component.MenuItem, action component.MenuItem) FlagFunc {
 func ReplaceAction(old component.MenuItem, action component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		if !old.ReplaceWith(action, flags.Actions) {
-			zerolog.Ctx(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
+			wdlog.Of(r.Context()).Warn().Str("action", fmt.Sprint(action)).Str("actions", fmt.Sprint(flags.Actions)).Msg("did not replace menu item")
 		}
 		return flags
 	}
@@ -121,7 +121,7 @@ func ReplaceAction(old component.MenuItem, action component.MenuItem) FlagFunc {
 func ReplaceTab(old component.MenuItem, tab component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		if !old.ReplaceWith(tab, flags.Tabs) {
-			zerolog.Ctx(r.Context()).Warn().Str("tab", fmt.Sprint(tab)).Str("tabs", fmt.Sprint(flags.Tabs)).Msg("did not replace menu item")
+			wdlog.Of(r.Context()).Warn().Str("tab", fmt.Sprint(tab)).Str("tabs", fmt.Sprint(flags.Tabs)).Msg("did not replace menu item")
 		}
 		return flags
 	}

@@ -11,8 +11,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/julienschmidt/httprouter"
-	"github.com/rs/zerolog"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/tkw1536/pkglib/httpx"
@@ -184,7 +184,7 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 }
 
 func (admin *Admin) loginHandler(ctx context.Context) http.Handler {
-	logger := zerolog.Ctx(ctx)
+	logger := wdlog.Of(ctx)
 
 	return admin.dependencies.Handling.Redirect(func(r *http.Request) (string, int, error) {
 		// parse the form

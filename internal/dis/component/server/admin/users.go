@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
-	"github.com/rs/zerolog"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/httpx/form"
 	"github.com/tkw1536/pkglib/httpx/form/field"
@@ -144,7 +144,7 @@ var errNotCurrentUser = httpx.Response{
 }
 
 func (admin *Admin) useraction(ctx context.Context, name string, action func(r *http.Request, user *auth.AuthUser) error) http.Handler {
-	logger := zerolog.Ctx(ctx)
+	logger := wdlog.Of(ctx)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			logger.Err(err).Str("action", name).Msg("failed to parse form")
@@ -233,7 +233,7 @@ func (admin *Admin) usersUnsetPasswordHandler(ctx context.Context) http.Handler 
 }
 
 func (admin *Admin) usersImpersonateHandler(ctx context.Context) http.Handler {
-	logger := zerolog.Ctx(ctx)
+	logger := wdlog.Of(ctx)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {

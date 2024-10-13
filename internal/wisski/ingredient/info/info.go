@@ -9,6 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/rs/zerolog"
@@ -110,7 +111,7 @@ func (nfo *Info) Information(ctx context.Context, quick bool) (info status.WissK
 	tookRatio := float64(took) / float64(tookSum)
 
 	// and send it to debugging output
-	zerolog.Ctx(ctx).Debug().Uint64("servers", serversUsed).Dict("fetchers_took_ms", times).Dur("took_ms", took).Dur("took_sum_ms", tookSum).Float64("took_ratio", tookRatio).Bool("quick", quick).Msg("ran information fetchers")
+	wdlog.Of(ctx).Debug().Uint64("servers", serversUsed).Dict("fetchers_took_ms", times).Dur("took_ms", took).Dur("took_sum_ms", tookSum).Float64("took_ratio", tookRatio).Bool("quick", quick).Msg("ran information fetchers")
 
 	return
 }

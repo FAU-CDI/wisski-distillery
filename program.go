@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
-	"github.com/rs/zerolog"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/goprogram"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/cgo"
@@ -93,12 +93,8 @@ func NewProgram() Program {
 
 			{
 				context := GetContext(parent)
-				writer := zerolog.NewConsoleWriter()
-				writer.Out = context.Stdout
-
-				logger := zerolog.New(writer).Level(context.Args.Flags.LogLevel.Level())
-
-				parent = logger.WithContext(parent)
+				logger := wdlog.New(os.Stdout, context.Args.Flags.LogLevel.Level())
+				parent = wdlog.Set(parent, &logger)
 			}
 
 			ctx, stop := signal.NotifyContext(parent, os.Interrupt, os.Kill)

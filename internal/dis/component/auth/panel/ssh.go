@@ -11,8 +11,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/gliderlabs/ssh"
-	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/httpx/form"
 	"github.com/tkw1536/pkglib/httpx/form/field"
@@ -98,7 +98,7 @@ var (
 )
 
 func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
-	logger := zerolog.Ctx(ctx)
+	logger := wdlog.Of(ctx)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
 			logger.Err(err).Str("action", "delete ssh key").Msg("failed to parse form")

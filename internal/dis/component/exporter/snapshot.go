@@ -10,10 +10,10 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/status"
@@ -136,7 +136,7 @@ func (snapshots *Exporter) resolveParts(ctx context.Context, parts []string, sna
 
 		// throw a warning for unknown parts
 		for key := range keys {
-			zerolog.Ctx(ctx).Warn().Str("part", key).Msg("ignoring unknown snapshot part")
+			wdlog.Of(ctx).Warn().Str("part", key).Msg("ignoring unknown snapshot part")
 		}
 	}
 
@@ -221,7 +221,7 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, _ *
 		logfile := files[ids[i]]
 		bytes, err := os.ReadFile(logfile)
 		if err != nil {
-			zerolog.Ctx(ctx).Err(err).Str("component", name).Msg("unable to copy logfile")
+			wdlog.Of(ctx).Err(err).Str("component", name).Msg("unable to copy logfile")
 			continue
 		}
 

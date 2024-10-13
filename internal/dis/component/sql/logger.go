@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/rs/zerolog"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/utils"
@@ -39,7 +40,7 @@ func (*gormLogger) NewEvent(ctx context.Context, level logger.LogLevel) *zerolog
 	if !ok {
 		zl = zerolog.NoLevel
 	}
-	return zerolog.Ctx(ctx).WithLevel(zl)
+	return wdlog.Of(ctx).WithLevel(zl)
 }
 
 func (gl *gormLogger) LogMode(level logger.LogLevel) logger.Interface {

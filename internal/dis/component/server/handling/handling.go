@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/rs/zerolog"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/httpx/content"
 	"github.com/tkw1536/pkglib/lazy"
@@ -42,7 +42,7 @@ func (h *Handling) interceptor(parent httpx.ErrInterceptor) httpx.ErrInterceptor
 	parent.OnFallback = func(r *http.Request, err error) {
 		pf(r, err)
 
-		zerolog.Ctx(r.Context()).
+		wdlog.Of(r.Context()).
 			Err(err).
 			Str("path", r.URL.Path).
 			Msg("unknown error")
@@ -62,7 +62,7 @@ func (h *Handling) WriteHTML(context any, err error, template *template.Template
 
 func LogTemplateError(r *http.Request, err error) error {
 	if err != nil {
-		zerolog.Ctx(r.Context()).Err(err).Str("path", r.URL.String()).Msg("error rendering template")
+		wdlog.Of(r.Context()).Err(err).Str("path", r.URL.String()).Msg("error rendering template")
 	}
 	return err
 }

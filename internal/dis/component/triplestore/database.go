@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/pkg/errors"
-	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/timex"
 )
 
@@ -131,7 +131,7 @@ func (ts *Triplestore) DoRestWithReader(ctx context.Context, timeout time.Durati
 func (ts Triplestore) Wait(ctx context.Context) error {
 	return timex.TickUntilFunc(func(time.Time) bool {
 		res, err := ts.DoRest(ctx, tsTrivialTimeout, http.MethodGet, "/rest/repositories", nil)
-		zerolog.Ctx(ctx).Trace().Err(err).Msg("Triplestore wait")
+		wdlog.Of(ctx).Trace().Err(err).Msg("Triplestore wait")
 		if err != nil {
 			return false
 		}

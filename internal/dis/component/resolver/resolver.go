@@ -16,7 +16,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
-	"github.com/rs/zerolog"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/lazy"
 
 	_ "embed"
@@ -80,7 +80,7 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 	t := tpl.Template()
 
 	// extract a logger and the fallback
-	logger := zerolog.Ctx(ctx)
+	logger := wdlog.Of(ctx)
 	fallback := &resolvers.Regexp{
 		Data: map[string]string{},
 	}

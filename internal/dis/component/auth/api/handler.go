@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
-	"github.com/rs/zerolog"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/lazy"
 )
@@ -94,7 +94,7 @@ func (handler *Handler[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// log the error, and serve the default internal server error
-		zerolog.Ctx(r.Context()).Error().Str("panic", fmt.Sprint(rec)).Str("stage", stage).Str("route", r.URL.RequestURI()).Msg("api handler caused panic()")
+		wdlog.Of(r.Context()).Error().Str("panic", fmt.Sprint(rec)).Str("stage", stage).Str("route", r.URL.RequestURI()).Msg("api handler caused panic()")
 		apiInternalServerError.ServeHTTP(w, r)
 	}()
 
