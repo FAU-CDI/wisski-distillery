@@ -26,5 +26,5 @@ const (
 	LocalSettingsPath  = "/settings/local.php"
 	GlobalSettingsPath = "/settings/global.php"
 
-	PHPIniPath = "/usr/local/etc/php/conf.d/custom.ini"
+	PHPIniPath = "/usr/local/etc/php/conf.d/zzz_custom.ini"
 )
