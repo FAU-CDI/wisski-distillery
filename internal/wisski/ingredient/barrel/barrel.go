@@ -25,4 +25,6 @@ const (
 
 	LocalSettingsPath  = "/settings/local.php"
 	GlobalSettingsPath = "/settings/global.php"
+
+	PHPIniPath = "/usr/local/etc/php/conf.d/custom.ini"
 )

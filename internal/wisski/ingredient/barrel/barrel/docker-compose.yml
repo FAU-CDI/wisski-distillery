@@ -42,6 +42,7 @@ services:
       - ${DATA_PATH}/home:/var/www:rw
       - ${DATA_PATH}/hostkeys:/ssh/hostkeys:rw
       - ${LOCAL_SETTINGS_PATH}:${LOCAL_SETTINGS_MOUNT}:ro
+      - ${PHP_INI_PATH}:${PHP_INI_MOUNT}:ro
 
 networks:
   default:

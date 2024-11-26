@@ -16,6 +16,11 @@ const localSettingsName = "settings.local.php"
 //go:embed local.settings.php
 var localSettingsTemplate string
 
+const phpIniName = "custom.ini"
+
+//go:embed custom.ini
+var phpIniTemplate string
+
 // Barrel returns a stack representing the running WissKI Instance
 func (barrel *Barrel) Stack() component.StackWithResources {
 	liquid := ingredient.GetLiquid(barrel)
@@ -31,6 +36,7 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 
 		CreateFiles: map[string]string{
 			localSettingsName: localSettingsTemplate,
+			phpIniName:        phpIniTemplate,
 		},
 
 		EnvContext: map[string]string{
@@ -46,6 +52,9 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 
 			"LOCAL_SETTINGS_PATH":  filepath.Join(liquid.FilesystemBase, localSettingsName),
 			"LOCAL_SETTINGS_MOUNT": LocalSettingsPath,
+
+			"PHP_INI_PATH":   filepath.Join(liquid.FilesystemBase, phpIniName),
+			"PHP_INIT_MOUNT": PHPIniPath,
 
 			"BARREL_BASE_IMAGE":       liquid.GetDockerBaseImage(),
 			"IIP_SERVER_ENABLED":      liquid.GetIIPServerEnabled(),

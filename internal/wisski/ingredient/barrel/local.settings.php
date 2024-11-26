@@ -1,6 +1,6 @@
 <?php
 
-// Use this file to manually tweak setttings of this instance in an update-agnostic way.
+// Use this file to manually tweak settings of this instance in an update-agnostic way.
 // This file will not be updated by future distillery updates.
 //
 // The settings.php file contains settings in the following order:
