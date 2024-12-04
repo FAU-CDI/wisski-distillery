@@ -49,7 +49,7 @@ export default class WebsocketSession implements Session {
       this.#result.Get(
         async () => await new Promise<Result>((resolve, reject) => {
           // create the websocket
-          const ws = new WebSocket(this.remote.url, PROTOCOL, this.remote.headers)
+          const ws = new WebSocket(this.remote.url, PROTOCOL, { headers: this.remote.headers })
           ws.binaryType = 'arraybuffer'
           this.ws = ws // make it available to other thing
 
