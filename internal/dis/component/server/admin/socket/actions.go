@@ -9,48 +9,59 @@ import (
 
 	"github.com/FAU-CDI/process_over_websocket/proto"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/contextx"
-
-	"github.com/rs/zerolog"
 )
 
 func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
-	logger := zerolog.Ctx(ctx)
+	logger := wdlog.Of(ctx)
 
 	actions := make(map[string]*actionable, len(sockets.dependencies.Actions)+len(sockets.dependencies.IActions))
 	// setup basic actions
 	for _, a := range sockets.dependencies.Actions {
 		action, exec := sockets.regularAction(a)
 		if _, ok := actions[action.Name]; ok {
-			logger.Warn().Str("name", action.Name).Str("type", "regular").Msg("duplicate websocket action")
+			logger.Warn(
+				"duplicate websocket action",
+				"name", action.Name,
+				"type", "regular",
+			)
 			continue
 		}
 		actions[action.Name] = exec
 
-		logger.Info().
-			Str("name", action.Name).
-			Str("type", "regular").
-			Int("params", action.NumParams).
-			Str("scope", string(action.Scope)).
-			Str("scopeParam", action.ScopeParam).
-			Msg("registering websocket action")
+		logger.Info(
+			"registering websocket action",
+
+			"name", action.Name,
+			"type", "regular",
+			"params", action.NumParams,
+			"scope", string(action.Scope),
+			"scopeParam", action.ScopeParam,
+		)
 	}
 
 	// setup instance actions
 	for _, a := range sockets.dependencies.IActions {
 		action, exec := sockets.instanceAction(a)
 		if _, ok := actions[action.Name]; ok {
-			logger.Warn().Str("name", action.Name).Str("type", "instance").Msg("duplicate websocket action")
+			logger.Warn(
+				"duplicate websocket action",
+				"name", action.Name,
+				"type", "instance",
+			)
 		}
 		actions[action.Name] = exec
 
-		logger.Info().
-			Str("name", action.Name).
-			Str("type", "instance").
-			Int("params", action.NumParams).
-			Str("scope", string(action.Scope)).
-			Str("scopeParam", action.ScopeParam).
-			Msg("registering websocket action")
+		logger.Info(
+			"registering websocket action",
+
+			"name", action.Name,
+			"type", "instance",
+			"params", action.NumParams,
+			"scope", string(action.Scope),
+			"scopeParam", action.ScopeParam,
+		)
 	}
 
 	return proto.HandlerFunc(func(r *http.Request, name string, args ...string) (p proto.Process, err error) {

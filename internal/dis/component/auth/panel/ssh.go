@@ -11,8 +11,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/gliderlabs/ssh"
-	"github.com/rs/zerolog"
 	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/httpx/form"
 	"github.com/tkw1536/pkglib/httpx/form/field"
@@ -98,29 +98,45 @@ var (
 )
 
 func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
-	logger := zerolog.Ctx(ctx)
+	logger := wdlog.Of(ctx)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
-			logger.Err(err).Str("action", "delete ssh key").Msg("failed to parse form")
+			logger.Error(
+				"failed to parse form",
+				"error", err,
+				"action", "delete ssh key",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
 		user, err := panel.dependencies.Auth.UserOfSession(r)
 		if err != nil {
-			logger.Err(err).Str("action", "delete ssh key").Msg("failed to get current user")
+			logger.Error(
+				"failed to get current user",
+				"error", err,
+				"action", "delete ssh key",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
 
 		key, _ := parseKey(r.PostFormValue("signature"))
 		if key == nil {
-			logger.Err(err).Str("action", "delete ssh key").Msg("failed to parse signature")
+			logger.Error(
+				"failed to parse signature",
+				"error", err,
+				"action", "delete ssh key",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
 
 		if err := panel.dependencies.Keys.Remove(r.Context(), user.User.User, key); err != nil {
-			logger.Err(err).Str("action", "delete ssh key").Msg("failed to delete key")
+			logger.Error(
+				"failed to delete key",
+				"error", err,
+				"action", "delete ssh key",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}

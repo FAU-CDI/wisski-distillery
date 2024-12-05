@@ -9,13 +9,13 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/httpx/mux"
 	"github.com/tkw1536/pkglib/httpx/wrap"
 	"github.com/tkw1536/pkglib/recovery"
 
 	"github.com/gorilla/csrf"
-	"github.com/rs/zerolog"
 )
 
 // Server represents the running control server.
@@ -73,24 +73,29 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 	// iterate over all the handler
 	for _, s := range server.dependencies.Routeables {
 		routes := s.Routes()
-		zerolog.Ctx(ctx).Info().
-			Str("Name", s.Name()).
-			Str("Prefix", routes.Prefix).
-			Strs("Aliases", routes.Aliases).
-			Bool("Exact", routes.Exact).
-			Bool("CSRF", routes.CSRF).
-			Bool("Decorator", routes.Decorator != nil).
-			Bool("Internal", routes.Internal).
-			Bool("MatchAllDomains", routes.MatchAllDomains).
-			Msg("mounting route")
+		wdlog.Of(ctx).Info(
+			"mounting route",
+
+			"Name", s.Name(),
+			"Prefix", routes.Prefix,
+			"Aliases", routes.Aliases,
+			"Exact", routes.Exact,
+			"CSRF", routes.CSRF,
+			"Decorator", routes.Decorator != nil,
+			"Internal", routes.Internal,
+			"MatchAllDomains", routes.MatchAllDomains,
+		)
 
 		// call the handler for the route
 		handler, err := s.HandleRoute(ctx, routes.Prefix)
 		if err != nil {
-			zerolog.Ctx(ctx).Err(err).
-				Str("Component", s.Name()).
-				Str("Prefix", routes.Prefix).
-				Msg("error mounting route")
+			wdlog.Of(ctx).Error(
+				"error mounting route",
+				"error", err,
+
+				"Component", s.Name(),
+				"Prefix", routes.Prefix,
+			)
 			continue
 		}
 

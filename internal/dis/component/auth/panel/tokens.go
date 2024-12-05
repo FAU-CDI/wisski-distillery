@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/rs/zerolog"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/httpx/form"
 	"github.com/tkw1536/pkglib/httpx/form/field"
@@ -62,29 +62,45 @@ func (panel *UserPanel) tokensRoute(context.Context) http.Handler {
 }
 
 func (panel *UserPanel) tokensDeleteRoute(ctx context.Context) http.Handler {
-	logger := zerolog.Ctx(ctx)
+	logger := wdlog.Of(ctx)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if err := r.ParseForm(); err != nil {
-			logger.Err(err).Str("action", "delete token").Msg("failed to parse form")
+			logger.Error(
+				"failed to parse form",
+				"error", err,
+				"action", "delete token",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
 		user, err := panel.dependencies.Auth.UserOfSession(r)
 		if err != nil {
-			logger.Err(err).Str("action", "delete token").Msg("failed to get current user")
+			logger.Error(
+				"failed to get current user",
+				"error", err,
+				"action", "delete token",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
 
 		id := r.PostFormValue("id")
 		if id == "" {
-			logger.Err(err).Str("action", "delete token").Msg("failed to get token")
+			logger.Error(
+				"failed to get token",
+				"error", err,
+				"action", "delete token",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
 
 		if err := panel.dependencies.Tokens.Remove(r.Context(), user.User.User, id); err != nil {
-			logger.Err(err).Str("action", "delete token").Msg("failed to delete token")
+			logger.Error(
+				"failed to delete token",
+				"error", err,
+				"action", "delete token",
+			)
 			httpx.HTMLInterceptor.Fallback.ServeHTTP(w, r)
 			return
 		}
