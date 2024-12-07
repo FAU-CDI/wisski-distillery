@@ -1,5 +1,7 @@
+//spellchecker:words home
 package home
 
+//spellchecker:words context embed html template http strings github wisski distillery internal component server assets templating status pkglib httpx
 import (
 	"context"
 	_ "embed"

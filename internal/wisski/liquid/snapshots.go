@@ -1,5 +1,7 @@
+//spellchecker:words liquid
 package liquid
 
+//spellchecker:words context github wisski distillery internal models
 import (
 	"context"
 

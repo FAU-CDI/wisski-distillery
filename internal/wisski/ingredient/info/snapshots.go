@@ -1,5 +1,7 @@
+//spellchecker:words info
 package info
 
+//spellchecker:words github wisski distillery internal status ingredient
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"

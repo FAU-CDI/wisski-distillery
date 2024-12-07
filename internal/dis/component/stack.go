@@ -1,6 +1,9 @@
 // Package stack implements a docker compose stack
+//
+//spellchecker:words component
 package component
 
+//spellchecker:words context path filepath github wisski distillery compose execx unpack errors pkglib umaskfree stream gopkg yaml
 import (
 	"context"
 	"fmt"

@@ -1,5 +1,7 @@
+//spellchecker:words manager
 package manager
 
+//spellchecker:words maps slices github wisski distillery internal ingredient barrel composer drush system bookkeeping extras
 import (
 	"maps"
 	"slices"

@@ -1,5 +1,7 @@
+//spellchecker:words config
 package config
 
+//spellchecker:words html template strings github wisski distillery internal config validators golang idna
 import (
 	"fmt"
 	"html/template"

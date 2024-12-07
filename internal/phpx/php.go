@@ -1,6 +1,9 @@
 // Package phpx provides functionalities for interacting with PHP code
+//
+//spellchecker:words phpx
 package phpx
 
+//spellchecker:words context github pkglib stream
 import (
 	"context"
 

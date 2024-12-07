@@ -1,5 +1,7 @@
+//spellchecker:words proto
 package proto
 
+//spellchecker:words errors github wisski distillery internal component auth pkglib websocketx
 import (
 	"errors"
 

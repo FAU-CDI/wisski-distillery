@@ -1,5 +1,6 @@
 package dis
 
+//spellchecker:words github wisski distillery internal config component goprogram exit pkglib
 import (
 	"os"
 

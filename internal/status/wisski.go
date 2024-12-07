@@ -1,5 +1,7 @@
+//spellchecker:words status
 package status
 
+//spellchecker:words html template strconv time github wisski distillery internal models phpx
 import (
 	"fmt"
 	"html/template"

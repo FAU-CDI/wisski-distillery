@@ -1,5 +1,7 @@
+//spellchecker:words server
 package server
 
+//spellchecker:words context embed path filepath syscall github wisski distillery internal bootstrap component
 import (
 	"context"
 	"embed"

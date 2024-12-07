@@ -1,5 +1,7 @@
+//spellchecker:words home
 package home
 
+//spellchecker:words context encoding json http strings github wisski distillery internal component
 import (
 	"context"
 	"encoding/json"

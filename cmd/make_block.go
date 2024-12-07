@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words html template time github wisski distillery internal wdlog ingredient extras goprogram exit
 import (
 	"fmt"
 	"html/template"

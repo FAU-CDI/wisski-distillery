@@ -1,6 +1,9 @@
 // Package component holds the main abstraction for components.
+//
+//spellchecker:words component
 package component
 
+//spellchecker:words reflect strconv strings github wisski distillery internal config
 import (
 	"net"
 	"reflect"

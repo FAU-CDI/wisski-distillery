@@ -1,5 +1,7 @@
+//spellchecker:words news
 package news
 
+//spellchecker:words context http github wisski distillery internal component auth scopes
 import (
 	"context"
 	"net/http"

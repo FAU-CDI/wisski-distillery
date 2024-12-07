@@ -1,5 +1,6 @@
 package ssh2
 
+//spellchecker:words bufio strconv strings github wisski distillery internal component gliderlabs
 import (
 	"bufio"
 	"io"

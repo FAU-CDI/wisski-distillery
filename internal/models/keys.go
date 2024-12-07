@@ -1,5 +1,7 @@
+//spellchecker:words models
 package models
 
+//spellchecker:words github gliderlabs golang crypto gossh
 import (
 	"github.com/gliderlabs/ssh"
 	gossh "golang.org/x/crypto/ssh"

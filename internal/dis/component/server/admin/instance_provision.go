@@ -1,5 +1,7 @@
+//spellchecker:words admin
 package admin
 
+//spellchecker:words context http github wisski distillery internal component server assets templating ingredient barrel manager pkglib collection embed
 import (
 	"context"
 	"net/http"

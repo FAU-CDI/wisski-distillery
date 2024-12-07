@@ -1,5 +1,7 @@
+//spellchecker:words triplestore
 package triplestore
 
+//spellchecker:words context http github wisski distillery internal component models errors
 import (
 	"context"
 	"io"

@@ -1,5 +1,7 @@
+//spellchecker:words validators
 package validators
 
+//spellchecker:words github pkglib validator
 import (
 	"github.com/tkw1536/pkglib/validator"
 )

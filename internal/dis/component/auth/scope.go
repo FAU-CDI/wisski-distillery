@@ -1,5 +1,7 @@
+//spellchecker:words auth
 package auth
 
+//spellchecker:words errors http github wisski distillery internal component
 import (
 	"errors"
 	"net/http"

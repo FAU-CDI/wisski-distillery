@@ -1,6 +1,9 @@
 // Package targz provides facilities for packaging tar.gz files
+//
+//spellchecker:words targz
 package targz
 
+//spellchecker:words archive compress gzip path filepath github pkglib umaskfree
 import (
 	"archive/tar"
 	"compress/gzip"

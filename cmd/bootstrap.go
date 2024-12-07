@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words path filepath github wisski distillery internal bootstrap config logging goprogram exit pkglib umaskfree
 import (
 	"io/fs"
 	"os"

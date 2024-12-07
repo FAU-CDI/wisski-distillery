@@ -1,5 +1,7 @@
+//spellchecker:words panel
 package panel
 
+//spellchecker:words context http github wisski distillery internal component auth next policy scopes tokens instances server handling templating sshkeys models julienschmidt httprouter pkglib httpx form
 import (
 	"context"
 	"net/http"

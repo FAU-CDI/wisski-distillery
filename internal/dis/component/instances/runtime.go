@@ -1,5 +1,7 @@
+//spellchecker:words instances
 package instances
 
+//spellchecker:words context embed github wisski distillery internal component unpack goprogram exit
 import (
 	"context"
 	"embed"

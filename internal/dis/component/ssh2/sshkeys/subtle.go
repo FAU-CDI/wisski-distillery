@@ -1,5 +1,7 @@
+//spellchecker:words sshkeys
 package sshkeys
 
+//spellchecker:words crypto rand math time github gliderlabs
 import (
 	"crypto/rand"
 	"math/big"

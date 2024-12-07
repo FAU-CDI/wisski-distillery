@@ -1,5 +1,7 @@
+//spellchecker:words component
 package component
 
+//spellchecker:words html template http sync atomic
 import (
 	"html/template"
 	"net/http"

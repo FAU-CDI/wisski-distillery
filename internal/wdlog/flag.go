@@ -1,5 +1,7 @@
+//spellchecker:words wdlog
 package wdlog
 
+//spellchecker:words slog
 import "log/slog"
 
 // Flag is used to represents a level command line flag.

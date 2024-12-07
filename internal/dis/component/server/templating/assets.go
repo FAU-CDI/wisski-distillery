@@ -1,5 +1,7 @@
+//spellchecker:words templating
 package templating
 
+//spellchecker:words path filepath github wisski distillery internal component
 import (
 	"path/filepath"
 

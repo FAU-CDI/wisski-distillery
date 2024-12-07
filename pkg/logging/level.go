@@ -1,5 +1,7 @@
+//spellchecker:words logging
 package logging
 
+//spellchecker:words sync
 import (
 	"io"
 	"sync"

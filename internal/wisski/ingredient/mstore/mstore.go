@@ -1,5 +1,7 @@
+//spellchecker:words mstore
 package mstore
 
+//spellchecker:words context github wisski distillery internal component meta ingredient
 import (
 	"context"
 

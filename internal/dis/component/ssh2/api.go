@@ -1,5 +1,6 @@
 package ssh2
 
+//spellchecker:words context http github wisski distillery internal component pkglib httpx golang crypto gossh
 import (
 	"context"
 	"net/http"

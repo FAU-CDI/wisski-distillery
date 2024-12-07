@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words sync github wisski distillery internal component execx logging goprogram exit parser pkglib umaskfree status
 import (
 	"fmt"
 	"io"

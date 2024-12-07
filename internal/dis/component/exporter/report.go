@@ -1,5 +1,7 @@
+//spellchecker:words exporter
 package exporter
 
+//spellchecker:words encoding json strings github pkglib sequence
 import (
 	"encoding/json"
 	"fmt"
@@ -12,7 +14,7 @@ import (
 func (snapshot Snapshot) String() string {
 	var builder strings.Builder
 
-	_ = snapshot.ReportPlain(&builder) // no way to report error; should be nil
+	_ = snapshot.ReportPlain(&builder) // no way to report error
 	return builder.String()
 }
 
@@ -20,6 +22,7 @@ func (snapshot Snapshot) ReportMachine(w io.Writer) error {
 	return json.NewEncoder(w).Encode(snapshot)
 }
 
+//nolint:errcheck
 func (snapshot Snapshot) ReportPlain(w io.Writer) error {
 	ww := &sequence.Writer{Writer: w} // allows us to ignore all the errors
 
@@ -68,7 +71,7 @@ func (snapshot Snapshot) ReportPlain(w io.Writer) error {
 // Strings turns this backup into a string for the BackupReport.
 func (backup Backup) String() string {
 	var builder strings.Builder
-	backup.ReportPlain(&builder)
+	_ = backup.ReportPlain(&builder) // no way to report error
 	return builder.String()
 }
 
@@ -77,6 +80,8 @@ func (backup Backup) ReportMachine(w io.Writer) error {
 }
 
 // Report formats a report for this backup, and writes it into Writer.
+//
+//nolint:errcheck
 func (backup Backup) ReportPlain(w io.Writer) error {
 	cw := &sequence.Writer{Writer: w}
 

@@ -1,5 +1,7 @@
+//spellchecker:words component
 package component
 
+//spellchecker:words context github wisski distillery internal status
 import (
 	"context"
 

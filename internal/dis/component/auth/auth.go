@@ -1,5 +1,7 @@
+//spellchecker:words auth
 package auth
 
+//spellchecker:words context http github wisski distillery internal component auth tokens server templating gorilla sessions julienschmidt httprouter pkglib lazy
 import (
 	"context"
 	"net/http"

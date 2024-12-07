@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words github wisski distillery internal component logging goprogram exit pkglib status
 import (
 	"fmt"
 	"io"

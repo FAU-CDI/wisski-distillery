@@ -1,5 +1,7 @@
+//spellchecker:words barrel
 package barrel
 
+//spellchecker:words github wisski distillery internal ingredient locker mstore
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"

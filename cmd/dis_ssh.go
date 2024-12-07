@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words github wisski distillery internal component auth goprogram exit golang crypto gossh
 import (
 	"os"
 

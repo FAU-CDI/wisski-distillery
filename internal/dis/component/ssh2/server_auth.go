@@ -1,5 +1,6 @@
 package ssh2
 
+//spellchecker:words github wisski distillery internal component sshkeys gliderlabs
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/gliderlabs/ssh"

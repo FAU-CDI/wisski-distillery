@@ -1,5 +1,7 @@
+//spellchecker:words scopes
 package scopes
 
+//spellchecker:words http github wisski distillery internal component
 import (
 	"net/http"
 

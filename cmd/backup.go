@@ -1,9 +1,13 @@
 package cmd
 
+//spellchecker:words slog github wisski distillery internal component exporter wdlog logging goprogram exit
 import (
+	"log/slog"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 )
@@ -40,9 +44,14 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 
 	// prune old backups
 	if !bk.NoPrune {
-		defer logging.LogOperation(func() error {
-			return dis.Exporter().PruneExports(context.Context, context.Stderr)
-		}, context.Stderr, "Pruning old backups")
+		defer func() {
+			err := logging.LogOperation(func() error {
+				return dis.Exporter().PruneExports(context.Context, context.Stderr)
+			}, context.Stderr, "Pruning old backups")
+			if err != nil {
+				wdlog.Of(context.Context).Error("failed to prune backups", slog.Any("error", err))
+			}
+		}()
 	}
 
 	// do the handling

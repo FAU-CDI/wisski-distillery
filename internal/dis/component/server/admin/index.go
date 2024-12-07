@@ -1,5 +1,7 @@
+//spellchecker:words admin
 package admin
 
+//spellchecker:words context http time embed github wisski distillery internal component server assets templating status golang sync errgroup
 import (
 	"context"
 	"fmt"

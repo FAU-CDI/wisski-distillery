@@ -1,5 +1,6 @@
 package sql
 
+//spellchecker:words context database time gorm driver mysql logger github wisski distillery internal component models pkglib timex
 import (
 	"context"
 	"database/sql"

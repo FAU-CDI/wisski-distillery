@@ -1,5 +1,7 @@
+//spellchecker:words panel
 package panel
 
+//spellchecker:words context html template http github wisski distillery internal component auth server assets templating models wdlog pkglib httpx form field embed
 import (
 	"context"
 	"html/template"

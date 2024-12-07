@@ -1,5 +1,7 @@
+//spellchecker:words sshkeys
 package sshkeys
 
+//spellchecker:words context github wisski distillery internal component auth gliderlabs
 import (
 	"context"
 

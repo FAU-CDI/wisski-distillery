@@ -1,3 +1,4 @@
+//spellchecker:words config
 package config
 
 type DockerConfig struct {

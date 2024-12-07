@@ -1,5 +1,6 @@
 package cli
 
+//spellchecker:words github goprogram meta
 import (
 	"github.com/tkw1536/goprogram"
 	"github.com/tkw1536/goprogram/meta"

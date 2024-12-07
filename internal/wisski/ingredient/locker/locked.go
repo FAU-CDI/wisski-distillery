@@ -1,5 +1,7 @@
+//spellchecker:words locker
 package locker
 
+//spellchecker:words context github wisski distillery internal status ingredient
 import (
 	"context"
 

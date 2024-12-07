@@ -1,6 +1,9 @@
 // Package wisski provides WissKI
+//
+//spellchecker:words wisski
 package wisski
 
+//spellchecker:words sync github wisski distillery internal ingredient barrel composer drush manager system bookkeeping info locker mstore extras users reserve liquid pkglib lifetime
 import (
 	"sync"
 

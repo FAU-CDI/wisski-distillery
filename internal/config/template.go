@@ -1,5 +1,7 @@
+//spellchecker:words config
 package config
 
+//spellchecker:words crypto rand path filepath time github wisski distillery internal bootstrap passwordx pkglib password
 import (
 	"crypto/rand"
 	"os"

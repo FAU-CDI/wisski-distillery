@@ -1,5 +1,7 @@
+//spellchecker:words validators
 package validators
 
+//spellchecker:words time
 import "time"
 
 func ValidateDuration(d *time.Duration, dflt string) error {

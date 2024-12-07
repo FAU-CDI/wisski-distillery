@@ -1,5 +1,7 @@
+//spellchecker:words malt
 package malt
 
+//spellchecker:words github wisski distillery internal component auth policy docker exporter logger meta sshkeys triplestore
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/policy"

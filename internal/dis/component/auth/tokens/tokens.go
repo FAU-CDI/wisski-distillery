@@ -1,5 +1,7 @@
+//spellchecker:words tokens
 package tokens
 
+//spellchecker:words context crypto rand reflect strings github wisski distillery internal component models pkglib password gorm
 import (
 	"context"
 	"crypto/rand"

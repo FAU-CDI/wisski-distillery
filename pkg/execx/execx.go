@@ -1,8 +1,11 @@
 // Package execx provides thin wrappers around the os.Exec package.
+//
+//spellchecker:words execx
 package execx
 
 // TODO: Move this to an external package
 
+//spellchecker:words context exec path filepath github wisski distillery internal wdlog pkglib stream
 import (
 	"context"
 	"os/exec"

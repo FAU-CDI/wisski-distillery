@@ -1,5 +1,7 @@
+//spellchecker:words config
 package config
 
+//spellchecker:words crypto rand github wisski distillery internal passwordx pkglib password
 import (
 	"crypto/rand"
 

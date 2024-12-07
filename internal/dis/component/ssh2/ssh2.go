@@ -1,5 +1,6 @@
 package ssh2
 
+//spellchecker:words github wisski distillery internal component auth instances sshkeys pkglib lazy
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"

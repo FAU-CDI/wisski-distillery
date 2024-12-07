@@ -1,5 +1,7 @@
+//spellchecker:words docker
 package docker
 
+//spellchecker:words context golang slices github wisski distillery compose docker types filters
 import (
 	"context"
 

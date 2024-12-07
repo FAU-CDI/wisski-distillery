@@ -1,5 +1,7 @@
+//spellchecker:words component
 package component
 
+//spellchecker:words context path filepath github wisski distillery internal models errors pkglib umaskfree
 import (
 	"context"
 	"fmt"

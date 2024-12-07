@@ -1,5 +1,7 @@
+//spellchecker:words composer
 package composer
 
+//spellchecker:words strings
 import "strings"
 
 // ModuleName extracts the module name from a specification.

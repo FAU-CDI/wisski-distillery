@@ -1,3 +1,4 @@
+//spellchecker:words server
 package server
 
 // CSRFCookie, CSRFCookieField, SessionCookie and SessionUserKey

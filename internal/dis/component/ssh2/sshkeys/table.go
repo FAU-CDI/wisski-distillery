@@ -1,5 +1,7 @@
+//spellchecker:words sshkeys
 package sshkeys
 
+//spellchecker:words context reflect github wisski distillery internal component models gliderlabs
 import (
 	"context"
 	"reflect"

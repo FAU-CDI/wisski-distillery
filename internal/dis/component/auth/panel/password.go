@@ -1,5 +1,7 @@
+//spellchecker:words panel
 package panel
 
+//spellchecker:words context errors http embed github wisski distillery internal component server assets templating pkglib httpx form field
 import (
 	"context"
 	"errors"

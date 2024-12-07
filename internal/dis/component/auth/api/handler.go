@@ -1,6 +1,7 @@
 // Package api implements a common handler used by the api routes
 package api
 
+//spellchecker:words encoding json errors http github wisski distillery internal config component auth scopes wdlog pkglib httpx lazy
 import (
 	"encoding/json"
 	"errors"

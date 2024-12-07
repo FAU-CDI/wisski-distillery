@@ -1,5 +1,7 @@
+//spellchecker:words bookkeeping
 package bookkeeping
 
+//spellchecker:words context github wisski distillery internal ingredient
 import (
 	"context"
 

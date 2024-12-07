@@ -1,5 +1,6 @@
 package ssh2
 
+//spellchecker:words embed path filepath github wisski distillery internal bootstrap component
 import (
 	"embed"
 	"path/filepath"

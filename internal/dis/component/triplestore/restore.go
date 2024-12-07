@@ -1,5 +1,7 @@
+//spellchecker:words triplestore
 package triplestore
 
+//spellchecker:words context http github errors
 import (
 	"context"
 	"fmt"

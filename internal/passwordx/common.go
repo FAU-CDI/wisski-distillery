@@ -1,5 +1,7 @@
+//spellchecker:words passwordx
 package passwordx
 
+//spellchecker:words embed github pkglib password
 import (
 	"embed"
 

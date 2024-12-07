@@ -1,5 +1,7 @@
+//spellchecker:words templating
 package templating
 
+//spellchecker:words context embed html template http reflect runtime debug strings time github wisski distillery internal component server handling wdlog gorilla csrf pkglib httpx content form wrap
 import (
 	"context"
 	_ "embed"
@@ -36,7 +38,7 @@ func (tpl *Template[C]) Template() *template.Template {
 
 // LogTepmplateError logs a non-nil error into the logger found in the request
 func (*Template[C]) LogTemplateError(r *http.Request, err error) {
-	handling.LogTemplateError(r, err)
+	_ = handling.LogTemplateError(r, err) // no way to report error
 }
 
 // Context generates the context to pass to an instance of the template returned by Template.

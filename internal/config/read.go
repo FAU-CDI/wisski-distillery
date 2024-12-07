@@ -1,5 +1,7 @@
+//spellchecker:words config
 package config
 
+//spellchecker:words github wisski distillery internal config validators pkglib validator gopkg yaml
 import (
 	"io"
 

@@ -1,5 +1,6 @@
 package sql
 
+//spellchecker:words embed path filepath time github wisski distillery internal config package component pkglib umaskfree yamlx gopkg yaml
 import (
 	"embed"
 	"path/filepath"

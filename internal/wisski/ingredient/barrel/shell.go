@@ -1,5 +1,7 @@
+//spellchecker:words barrel
 package barrel
 
+//spellchecker:words context github alessio shellescape goprogram exit pkglib stream
 import (
 	"context"
 	"fmt"

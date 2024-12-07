@@ -1,5 +1,7 @@
+//spellchecker:words triplestore
 package triplestore
 
+//spellchecker:words embed path filepath time github wisski distillery internal config package component pkglib yamlx gopkg yaml
 import (
 	"embed"
 	"path/filepath"

@@ -1,5 +1,6 @@
 package api
 
+//spellchecker:words context http github wisski distillery internal component auth
 import (
 	"context"
 	"net/http"

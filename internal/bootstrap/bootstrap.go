@@ -1,7 +1,10 @@
 // Package bootstrap implements the core of the WissKI Distillery and the wdcli executable.
 // It does not depend on any other packages.
+//
+//spellchecker:words bootstrap
 package bootstrap
 
+//spellchecker:words embed
 import _ "embed"
 
 // TODO: This package should be split up into a true bootstrap component, and something else.

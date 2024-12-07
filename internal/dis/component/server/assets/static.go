@@ -1,6 +1,9 @@
 // Package static implements serving of fully static resources
+//
+//spellchecker:words assets
 package assets
 
+//spellchecker:words context embed http github wisski distillery internal component
 import (
 	"context"
 	"embed"

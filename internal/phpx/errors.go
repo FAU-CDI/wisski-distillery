@@ -1,3 +1,4 @@
+//spellchecker:words phpx
 package phpx
 
 import "fmt"

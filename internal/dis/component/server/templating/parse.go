@@ -1,5 +1,7 @@
+//spellchecker:words templating
 package templating
 
+//spellchecker:words html template reflect golang slices
 import (
 	"html/template"
 	"reflect"
@@ -36,7 +38,9 @@ func Parse[C any](name string, source []byte, base *template.Template, funcs ...
 	if base != nil {
 		for _, tree := range base.Templates() {
 			root := tree.Tree.Copy()
-			new.AddParseTree(tree.Name(), root)
+			if _, err := new.AddParseTree(tree.Name(), root); err != nil {
+				panic("never reached") // Tree is a copy and has never been executed
+			}
 		}
 	}
 

@@ -1,5 +1,6 @@
 package ssh2
 
+//spellchecker:words context github gliderlabs
 import (
 	"context"
 	"io"

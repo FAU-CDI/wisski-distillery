@@ -1,3 +1,4 @@
+//spellchecker:words models
 package models
 
 // LockTable is the name of the table the 'Metadatum' model is stored in.

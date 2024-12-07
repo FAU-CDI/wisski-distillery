@@ -1,5 +1,7 @@
+//spellchecker:words reserve
 package reserve
 
+//spellchecker:words embed path filepath github wisski distillery internal component ingredient
 import (
 	"embed"
 	"path/filepath"

@@ -1,5 +1,7 @@
+//spellchecker:words panel
 package panel
 
+//spellchecker:words context errors http github wisski distillery internal component auth server assets templating models wdlog gliderlabs pkglib httpx form field golang crypto gossh embed
 import (
 	"context"
 	"errors"

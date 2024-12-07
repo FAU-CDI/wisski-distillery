@@ -1,6 +1,9 @@
 // Package wdlog manages logging in the distillery
+//
+//spellchecker:words wdlog
 package wdlog
 
+//spellchecker:words context slog
 import (
 	"context"
 	"io"

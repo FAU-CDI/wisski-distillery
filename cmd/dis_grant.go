@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words github wisski distillery internal component instances models goprogram exit
 import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"

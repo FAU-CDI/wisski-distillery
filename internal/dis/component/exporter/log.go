@@ -1,5 +1,7 @@
+//spellchecker:words exporter
 package exporter
 
+//spellchecker:words github wisski distillery internal models
 import "github.com/FAU-CDI/wisski-distillery/internal/models"
 
 func (backup *Backup) LogEntry() models.Export {

@@ -1,5 +1,7 @@
+//spellchecker:words panel
 package panel
 
+//spellchecker:words context html template http embed github wisski distillery internal component auth scopes server assets templating models
 import (
 	"context"
 	"html/template"

@@ -1,5 +1,7 @@
+//spellchecker:words socket
 package socket
 
+//spellchecker:words context http strings github process over websocket proto wisski distillery internal component auth scopes exporter instances purger provision server admin socket actions models pkglib lazy
 import (
 	"context"
 	"net/http"

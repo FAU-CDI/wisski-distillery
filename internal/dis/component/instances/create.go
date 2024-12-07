@@ -1,5 +1,7 @@
+//spellchecker:words instances
 package instances
 
+//spellchecker:words errors path filepath strings github wisski distillery internal config validators component models
 import (
 	"errors"
 	"path/filepath"

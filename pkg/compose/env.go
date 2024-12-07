@@ -1,5 +1,7 @@
+//spellchecker:words compose
 package compose
 
+//spellchecker:words strings github pkglib collection
 import (
 	"fmt"
 	"io"

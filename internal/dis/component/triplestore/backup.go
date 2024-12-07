@@ -1,5 +1,7 @@
+//spellchecker:words triplestore
 package triplestore
 
+//spellchecker:words context encoding json http github wisski distillery internal component
 import (
 	"context"
 	"encoding/json"

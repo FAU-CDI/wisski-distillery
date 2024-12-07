@@ -1,5 +1,7 @@
+//spellchecker:words logger
 package logger
 
+//spellchecker:words context errors reflect github wisski distillery internal component models status pkglib collection
 import (
 	"context"
 	"errors"

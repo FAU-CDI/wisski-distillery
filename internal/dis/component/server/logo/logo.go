@@ -1,5 +1,7 @@
+//spellchecker:words logo
 package logo
 
+//spellchecker:words context http github wisski distillery internal component server models pkglib httpx embed
 import (
 	"context"
 	"net/http"

@@ -1,5 +1,7 @@
+//spellchecker:words proto
 package proto
 
+//spellchecker:words context encoding json errors sync time github wisski distillery internal component auth gorilla websocket pkglib recovery websocketx
 import (
 	"context"
 	"encoding/json"

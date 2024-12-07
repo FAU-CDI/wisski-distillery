@@ -1,5 +1,7 @@
+//spellchecker:words admin
 package admin
 
+//spellchecker:words context http github wisski distillery internal component auth policy scopes server admin socket handling templating wdlog julienschmidt httprouter instances pkglib httpx
 import (
 	"context"
 	"net/http"

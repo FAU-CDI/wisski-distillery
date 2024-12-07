@@ -1,5 +1,7 @@
+//spellchecker:words models
 package models
 
+//spellchecker:words encoding json
 import (
 	"encoding/json"
 )

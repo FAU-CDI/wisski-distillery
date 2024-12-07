@@ -1,5 +1,6 @@
 package web
 
+//spellchecker:words path filepath github wisski distillery internal component gopkg yaml embed
 import (
 	"path/filepath"
 

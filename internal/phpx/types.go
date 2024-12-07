@@ -1,5 +1,7 @@
+//spellchecker:words phpx
 package phpx
 
+//spellchecker:words encoding json errors strconv time
 import (
 	"encoding/json"
 	"errors"

@@ -1,5 +1,7 @@
+//spellchecker:words validators
 package validators
 
+//spellchecker:words github errors
 import (
 	"net/url"
 

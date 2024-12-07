@@ -1,6 +1,9 @@
 // Command wdcli implement the entry point for the wisski-distillery
+//
+//spellchecker:words main
 package main
 
+//spellchecker:words runtime debug github wisski distillery internal goprogram exit pkglib stream
 import (
 	"fmt"
 	"os"
@@ -96,9 +99,9 @@ func main() {
 	// when there are no arguments then parsing argument *will* fail
 	//
 	// we don't need to even bother with the rest of the program
-	// just immediatly return a custom error message.
+	// just immediately return a custom error message.
 	if len(os.Args) == 1 {
-		_ = exit.Die(streams, errNoArgumentsProvided)
+		_ = exit.Die(streams, errNoArgumentsProvided) // returned below anyways
 		errNoArgumentsProvided.Return()
 		return
 	}

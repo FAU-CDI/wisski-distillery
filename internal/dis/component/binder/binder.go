@@ -1,5 +1,7 @@
+//spellchecker:words binder
 package binder
 
+//spellchecker:words embed path filepath github wisski distillery internal component pkglib yamlx gopkg yaml
 import (
 	"embed"
 	"path/filepath"

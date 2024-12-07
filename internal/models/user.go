@@ -1,3 +1,4 @@
+//spellchecker:words models
 package models
 
 // UserTable is the name of the table the [`User`] model is stored in.

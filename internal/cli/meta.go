@@ -1,5 +1,6 @@
 package cli
 
+//spellchecker:words errors user path filepath strings github wisski distillery internal bootstrap pkglib umaskfree
 import (
 	"errors"
 	"io/fs"

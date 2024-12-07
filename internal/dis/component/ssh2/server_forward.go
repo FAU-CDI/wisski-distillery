@@ -1,5 +1,6 @@
 package ssh2
 
+//spellchecker:words github wisski distillery internal component gliderlabs golang crypto gossh
 import (
 	"fmt"
 	"io"

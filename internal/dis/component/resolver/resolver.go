@@ -1,5 +1,7 @@
+//spellchecker:words resolver
 package resolver
 
+//spellchecker:words context http regexp time github wdresolve resolvers wisski distillery internal component auth scopes instances server assets handling templating wdlog pkglib lazy embed
 import (
 	"context"
 	"fmt"

@@ -1,5 +1,7 @@
+//spellchecker:words wdlog
 package wdlog
 
+//spellchecker:words context slog
 import (
 	"context"
 	"log/slog"

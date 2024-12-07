@@ -1,5 +1,7 @@
+//spellchecker:words actions
 package actions
 
+//spellchecker:words context encoding json github wisski distillery internal component auth scopes provision
 import (
 	"context"
 	"encoding/json"

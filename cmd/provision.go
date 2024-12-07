@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words encoding json github wisski distillery internal component provision models ingredient barrel manager logging goprogram exit
 import (
 	"encoding/json"
 
@@ -97,9 +98,13 @@ func (pv) listFlavors(context wisski_distillery.Context) error {
 func (pv) listPHPVersions(context wisski_distillery.Context) error {
 	for _, v := range models.KnownPHPVersions() {
 		if v == models.DefaultPHPVersion {
-			context.Printf("%s (default)\n", v)
+			if _, err := context.Printf("%s (default)\n", v); err != nil {
+				return err
+			}
 		} else {
-			context.Println(v)
+			if _, err := context.Println(v); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

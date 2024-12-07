@@ -1,5 +1,7 @@
+//spellchecker:words wisski distillery
 package wisski_distillery
 
+//spellchecker:words context signal user github wisski distillery internal bootstrap wdlog goprogram exit pkglib
 import (
 	"context"
 	"os"

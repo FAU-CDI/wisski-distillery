@@ -1,5 +1,7 @@
+//spellchecker:words phpx
 package phpx
 
+//spellchecker:words bytes compress flate context encoding base json regexp slices strings sync embed github pkglib lazy status stream
 import (
 	"bytes"
 	"compress/flate"

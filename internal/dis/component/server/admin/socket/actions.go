@@ -1,5 +1,7 @@
+//spellchecker:words socket
 package socket
 
+//spellchecker:words context errors http github process over websocket proto wisski distillery internal component server admin socket actions wdlog pkglib contextx
 import (
 	"context"
 	"errors"

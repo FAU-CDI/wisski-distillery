@@ -1,5 +1,7 @@
+//spellchecker:words templating
 package templating
 
+//spellchecker:words embed html template
 import (
 	_ "embed"
 	"html/template"

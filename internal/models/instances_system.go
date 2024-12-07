@@ -1,3 +1,4 @@
+//spellchecker:words models
 package models
 
 // System represents system information.

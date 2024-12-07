@@ -1,5 +1,6 @@
 package sql
 
+//spellchecker:words context errors reflect time github wisski distillery internal component logging goprogram exit pkglib sqlx stream timex
 import (
 	"context"
 	"errors"
@@ -76,7 +77,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 		if err := sql.unsafeWaitShell(ctx); err != nil {
 			return err
 		}
-		logging.LogMessage(progress, "Creating administrative user")
+		_, _ = logging.LogMessage(progress, "Creating administrative user") // shouldn't abort cause logging failed
 		{
 			username := config.AdminUsername
 			password := config.AdminPassword
@@ -87,7 +88,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	}
 
 	// create the admin user
-	logging.LogMessage(progress, "Creating sql database")
+	_, _ = logging.LogMessage(progress, "Creating sql database") //  shouldn't abort cause logging failed
 	{
 		if !sqlx.IsSafeDatabaseLiteral(config.Database) {
 			return errSQLUnsafeDatabaseName
@@ -99,7 +100,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	}
 
 	// wait for the database to come up
-	logging.LogMessage(progress, "Waiting for database update to be complete")
+	_, _ = logging.LogMessage(progress, "Waiting for database update to be complete") //  shouldn't abort cause logging failed
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return err
 	}

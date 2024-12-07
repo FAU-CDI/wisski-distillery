@@ -1,5 +1,7 @@
+//spellchecker:words exporter
 package exporter
 
+//spellchecker:words crypto rand errors path filepath time github wisski distillery internal component exporter logger instances passwordx pkglib umaskfree password
 import (
 	"crypto/rand"
 	"errors"

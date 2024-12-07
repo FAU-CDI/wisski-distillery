@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words encoding json github wisski distillery internal goprogram exit
 import (
 	"encoding/json"
 

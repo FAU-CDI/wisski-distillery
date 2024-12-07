@@ -1,5 +1,7 @@
+//spellchecker:words logging
 package logging
 
+//spellchecker:words errors strings golang term
 import (
 	"errors"
 	"fmt"
@@ -15,8 +17,11 @@ func LogOperation(operation func() error, progress io.Writer, format string, arg
 	incIndent(progress)
 	defer decIndent(progress)
 
-	result := operation()
-	return errors.Join(result, errLog)
+	err := operation()
+	if errLog != nil && err != nil {
+		return errors.Join(err, errLog)
+	}
+	return err
 }
 
 // LogMessage logs a message that is displayed to the user

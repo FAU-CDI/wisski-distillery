@@ -1,5 +1,7 @@
+//spellchecker:words admin
 package admin
 
+//spellchecker:words context embed html template http time github wisski distillery internal component server assets templating status pkglib httpx golang sync errgroup julienschmidt httprouter
 import (
 	"context"
 	_ "embed"

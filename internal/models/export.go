@@ -1,5 +1,7 @@
+//spellchecker:words models
 package models
 
+//spellchecker:words time
 import "time"
 
 // ExportTable is the name of the table the [Export] model is stored in.

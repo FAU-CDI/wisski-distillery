@@ -1,13 +1,17 @@
+//spellchecker:words list
 package list
 
+//spellchecker:words context slog http github wisski distillery internal component auth instances status wdlog pkglib lazy golang sync errgroup
 import (
 	"context"
+	"log/slog"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/lazy"
 	"golang.org/x/sync/errgroup"
 )
@@ -115,7 +119,9 @@ func (li *ListInstances) getInfos(ctx context.Context) ([]status.WissKI, error) 
 			return
 		})
 	}
-	eg.Wait()
+	if err := eg.Wait(); err != nil {
+		wdlog.Of(ctx).Error("getInfos() failed", slog.Any("error", err))
+	}
 
 	// filter them by those that are running and do not have prefixes excluded
 	infosF := infos[:0]

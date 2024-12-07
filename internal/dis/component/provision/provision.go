@@ -1,5 +1,7 @@
+//spellchecker:words provision
 package provision
 
+//spellchecker:words context errors github wisski distillery internal component instances models ingredient barrel manager logging pkglib
 import (
 	"context"
 	"errors"

@@ -1,5 +1,7 @@
+//spellchecker:words docker
 package docker
 
+//spellchecker:words context github wisski distillery internal component docker types filters client
 import (
 	"context"
 

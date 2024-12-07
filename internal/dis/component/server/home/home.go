@@ -1,5 +1,7 @@
+//spellchecker:words home
 package home
 
+//spellchecker:words context http github wisski distillery internal component server handling list templating
 import (
 	"context"
 	"fmt"

@@ -1,5 +1,7 @@
+//spellchecker:words component
 package component
 
+//spellchecker:words reflect
 import (
 	"reflect"
 )

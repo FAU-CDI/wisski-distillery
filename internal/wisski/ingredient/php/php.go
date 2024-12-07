@@ -1,5 +1,6 @@
 package php
 
+//spellchecker:words context strings github wisski distillery internal phpx ingredient barrel
 import (
 	"context"
 	"strings"

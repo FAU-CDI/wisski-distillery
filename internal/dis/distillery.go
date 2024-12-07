@@ -1,6 +1,7 @@
 // Package dis provides the main distillery
 package dis
 
+//spellchecker:words sync time github wisski distillery internal component auth next panel policy scopes tokens binder docker exporter logger instances malt purger meta provision resolver server admin socket actions assets cron handling handleing home legal list logo news templating solr sshkeys triplestore pkglib lifetime
 import (
 	"io"
 	"sync"

@@ -1,5 +1,7 @@
+//spellchecker:words purger
 package purger
 
+//spellchecker:words context github wisski distillery internal component instances models logging goprogram exit
 import (
 	"context"
 	"fmt"

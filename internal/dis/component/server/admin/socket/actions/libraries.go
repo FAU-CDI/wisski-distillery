@@ -1,5 +1,7 @@
+//spellchecker:words actions
 package actions
 
+//spellchecker:words context github wisski distillery internal component auth scopes pkglib stream
 import (
 	"context"
 	"io"

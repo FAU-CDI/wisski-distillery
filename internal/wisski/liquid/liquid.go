@@ -1,6 +1,9 @@
 // Package liquid provides Liquid
+//
+//spellchecker:words liquid
 package liquid
 
+//spellchecker:words github wisski distillery internal component instances malt models
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"

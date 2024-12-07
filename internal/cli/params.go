@@ -1,5 +1,6 @@
 package cli
 
+//spellchecker:words context errors signal path filepath github wisski distillery internal bootstrap
 import (
 	"context"
 	"errors"

@@ -1,5 +1,6 @@
 package ssh
 
+//spellchecker:words context github wisski distillery internal status ingredient gliderlabs golang crypto gossh
 import (
 	"context"
 

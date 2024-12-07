@@ -1,5 +1,6 @@
 package sql
 
+//spellchecker:words reflect github wisski distillery internal component models
 import (
 	"reflect"
 

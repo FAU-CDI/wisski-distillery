@@ -1,5 +1,7 @@
+//spellchecker:words cron
 package cron
 
+//spellchecker:words context signal sync syscall time github wisski distillery internal component wdlog pkglib timex
 import (
 	"context"
 	"fmt"

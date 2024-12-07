@@ -1,5 +1,7 @@
+//spellchecker:words locker
 package locker
 
+//spellchecker:words context time github wisski distillery internal models ingredient goprogram exit pkglib contextx
 import (
 	"context"
 	"time"

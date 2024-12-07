@@ -1,5 +1,7 @@
+//spellchecker:words exporter
 package exporter
 
+//spellchecker:words context path filepath time github wisski distillery internal component
 import (
 	"context"
 	"fmt"

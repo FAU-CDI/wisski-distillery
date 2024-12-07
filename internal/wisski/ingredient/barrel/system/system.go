@@ -1,5 +1,7 @@
+//spellchecker:words system
 package system
 
+//spellchecker:words context github wisski distillery internal models ingredient barrel bookkeeping extras
 import (
 	"context"
 	"io"

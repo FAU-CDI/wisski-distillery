@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words github wisski distillery internal goprogram exit pkglib status
 import (
 	"fmt"
 	"io"
@@ -45,12 +46,10 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) (err error)
 	}
 
 	return status.WriterGroup(context.Stderr, upc.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
-		io.WriteString(writer, "reading prefixes")
-		err := instance.Prefixes().Update(context.Context)
-		if err != nil {
+		if _, err := io.WriteString(writer, "reading prefixes"); err != nil {
 			return err
 		}
-		return nil
+		return instance.Prefixes().Update(context.Context)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("update_prefix %q", item.Slug)
 	}))

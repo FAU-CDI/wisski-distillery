@@ -1,5 +1,7 @@
+//spellchecker:words ingredient
 package ingredient
 
+//spellchecker:words context github wisski distillery internal phpx status
 import (
 	"context"
 

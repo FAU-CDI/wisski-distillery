@@ -1,5 +1,6 @@
 package trb
 
+//spellchecker:words compress gzip context errors github wisski distillery internal ingredient barrel logging
 import (
 	"compress/gzip"
 	"context"

@@ -1,5 +1,7 @@
+//spellchecker:words policy
 package policy
 
+//spellchecker:words context errors github wisski distillery internal models gorm clause
 import (
 	"context"
 	"errors"

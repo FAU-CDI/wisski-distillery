@@ -1,5 +1,7 @@
+//spellchecker:words drush
 package drush
 
+//spellchecker:words context github wisski distillery internal ingredient barrel pkglib stream
 import (
 	"context"
 	"io"

@@ -1,5 +1,7 @@
+//spellchecker:words exporter
 package exporter
 
+//spellchecker:words context errors path filepath github wisski distillery internal component models logging targz pkglib collection umaskfree status
 import (
 	"context"
 	"errors"
@@ -172,7 +174,9 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		// write out the log entry
 		entry.Path = stagingDir
 		entry.Packed = false
-		exporter.dependencies.ExporterLogger.Add(ctx, entry)
+		if err := exporter.dependencies.ExporterLogger.Add(ctx, entry); err != nil {
+			return err
+		}
 
 		fmt.Fprintf(progress, "Wrote %s\n", stagingDir)
 		return nil
@@ -197,11 +201,8 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	}
 
 	// write out the log entry
-	logging.LogMessage(progress, "Writing Log Entry")
+	_, _ = logging.LogMessage(progress, "Writing Log Entry") // shouldn't fail because of log
 	entry.Path = archivePath
 	entry.Packed = true
-	exporter.dependencies.ExporterLogger.Add(ctx, entry)
-
-	// and we're done!
-	return nil
+	return exporter.dependencies.ExporterLogger.Add(ctx, entry)
 }

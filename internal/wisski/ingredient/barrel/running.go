@@ -1,5 +1,7 @@
+//spellchecker:words barrel
 package barrel
 
+//spellchecker:words context github wisski distillery internal status ingredient compose spec errdefs
 import (
 	"context"
 

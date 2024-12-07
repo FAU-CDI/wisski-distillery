@@ -1,5 +1,7 @@
+//spellchecker:words list
 package list
 
+//spellchecker:words context http time github wisski distillery internal component auth scopes status
 import (
 	"context"
 	"net/http"

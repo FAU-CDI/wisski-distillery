@@ -1,5 +1,7 @@
+//spellchecker:words drush
 package drush
 
+//spellchecker:words context time github wisski distillery internal phpx status ingredient barrel goprogram exit
 import (
 	"context"
 	"fmt"

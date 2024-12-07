@@ -1,5 +1,7 @@
+//spellchecker:words policy
 package policy
 
+//spellchecker:words context reflect github wisski distillery internal component auth models gorm
 import (
 	"context"
 	"reflect"

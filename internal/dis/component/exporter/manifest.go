@@ -1,5 +1,7 @@
+//spellchecker:words exporter
 package exporter
 
+//spellchecker:words path filepath
 import (
 	"path/filepath"
 )

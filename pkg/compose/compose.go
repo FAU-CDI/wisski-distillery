@@ -1,5 +1,7 @@
+//spellchecker:words compose
 package compose
 
+//spellchecker:words path filepath github compose spec loader types
 import (
 	"path/filepath"
 

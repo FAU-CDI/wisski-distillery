@@ -1,5 +1,7 @@
+//spellchecker:words models
 package models
 
+//spellchecker:words database driver errors time
 import (
 	"database/sql/driver"
 	"errors"

@@ -1,5 +1,7 @@
+//spellchecker:words actions
 package actions
 
+//spellchecker:words context github wisski distillery internal component auth scopes instances purger
 import (
 	"context"
 	"io"

@@ -1,5 +1,7 @@
+//spellchecker:words composer
 package composer
 
+//spellchecker:words context errors github wisski distillery internal ingredient barrel drush mstore pkglib stream
 import (
 	"context"
 	"errors"

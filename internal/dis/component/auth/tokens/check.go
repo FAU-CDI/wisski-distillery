@@ -1,5 +1,7 @@
+//spellchecker:words tokens
 package tokens
 
+//spellchecker:words errors http strings github wisski distillery internal component models golang slices
 import (
 	"errors"
 	"net/http"

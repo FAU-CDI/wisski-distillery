@@ -1,5 +1,6 @@
 package sql
 
+//spellchecker:words context errors github wisski distillery internal component pkglib stream
 import (
 	"context"
 	"errors"

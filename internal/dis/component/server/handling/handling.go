@@ -1,5 +1,7 @@
+//spellchecker:words handling
 package handling
 
+//spellchecker:words html template http github wisski distillery internal component wdlog pkglib httpx content lazy
 import (
 	"html/template"
 	"net/http"

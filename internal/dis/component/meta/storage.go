@@ -1,5 +1,7 @@
+//spellchecker:words meta
 package meta
 
+//spellchecker:words context encoding json errors github wisski distillery internal component models pkglib collection gorm
 import (
 	"context"
 	"encoding/json"

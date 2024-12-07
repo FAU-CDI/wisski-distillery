@@ -1,5 +1,7 @@
+//spellchecker:words admin
 package admin
 
+//spellchecker:words context errors http github wisski distillery internal component auth server assets templating wdlog pkglib httpx form field embed
 import (
 	"context"
 	"errors"

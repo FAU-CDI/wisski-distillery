@@ -1,15 +1,19 @@
+//spellchecker:words auth
 package auth
 
+//spellchecker:words context errors html template slog http github wisski distillery internal component server assets templating wdlog pkglib httpx form field gorilla sessions embed
 import (
 	"context"
 	"errors"
 	"html/template"
+	"log/slog"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/httpx/form"
 	"github.com/tkw1536/pkglib/httpx/form/field"
 
@@ -241,10 +245,12 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 }
 
 // authLogout implements the authLogout view to logout a user
-func (auth *Auth) authLogout(context.Context) http.Handler {
+func (auth *Auth) authLogout(ctx context.Context) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// do the logout
-		auth.Logout(w, r)
+		if err := auth.Logout(w, r); err != nil {
+			wdlog.Of(ctx).Error("failed to logout user", slog.Any("err", err))
+		}
 
 		// get the destination
 		next := r.URL.Query().Get("next")

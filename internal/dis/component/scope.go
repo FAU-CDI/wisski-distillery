@@ -1,5 +1,7 @@
+//spellchecker:words component
 package component
 
+//spellchecker:words encoding json http github wisski distillery internal models
 import (
 	"encoding/json"
 	"fmt"

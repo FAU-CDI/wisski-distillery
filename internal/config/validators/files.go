@@ -1,5 +1,7 @@
+//spellchecker:words validators
 package validators
 
+//spellchecker:words github errors pkglib
 import (
 	"github.com/pkg/errors"
 	"github.com/tkw1536/pkglib/fsx"

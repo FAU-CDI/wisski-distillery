@@ -1,5 +1,7 @@
+//spellchecker:words manager
 package manager
 
+//spellchecker:words context time github wisski distillery internal component models ingredient barrel composer extras logging pkglib contextx stream
 import (
 	"context"
 	"fmt"

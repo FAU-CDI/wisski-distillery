@@ -1,5 +1,7 @@
+//spellchecker:words config
 package config
 
+//spellchecker:words path filepath github wisski distillery internal bootstrap pkglib
 import (
 	"os"
 	"path/filepath"

@@ -1,5 +1,7 @@
+//spellchecker:words extras
 package extras
 
+//spellchecker:words context html template github wisski distillery internal phpx ingredient embed
 import (
 	"context"
 	"html/template"

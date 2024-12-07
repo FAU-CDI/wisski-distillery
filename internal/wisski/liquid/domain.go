@@ -1,5 +1,7 @@
+//spellchecker:words liquid
 package liquid
 
+//spellchecker:words github wisski distillery internal config component
 import (
 	"net/url"
 

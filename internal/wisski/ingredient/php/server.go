@@ -1,5 +1,6 @@
 package php
 
+//spellchecker:words context embed github wisski distillery internal phpx pkglib stream
 import (
 	"context"
 	_ "embed"

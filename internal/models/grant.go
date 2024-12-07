@@ -1,3 +1,4 @@
+//spellchecker:words models
 package models
 
 // GrantTable is the name of the table the 'Grant' model is stored in.

@@ -1,6 +1,9 @@
 // Package config contains distillery configuration
+//
+//spellchecker:words config
 package config
 
+//spellchecker:words hash math rand reflect time github pkglib reflectx yamlx gopkg yaml embed
 import (
 	"hash/fnv"
 	"math/rand"

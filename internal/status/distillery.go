@@ -1,5 +1,7 @@
+//spellchecker:words status
 package status
 
+//spellchecker:words time github wisski distillery internal config models
 import (
 	"time"
 

@@ -1,5 +1,6 @@
 package sql
 
+//spellchecker:words context errors time github wisski distillery internal wdlog gorm logger utils
 import (
 	"context"
 	"errors"

@@ -1,5 +1,7 @@
+//spellchecker:words ingredient
 package ingredient
 
+//spellchecker:words reflect strings github wisski distillery internal component liquid
 import (
 	"reflect"
 	"strings"

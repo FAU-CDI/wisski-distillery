@@ -1,5 +1,7 @@
+//spellchecker:words unpack
 package unpack
 
+//spellchecker:words path filepath github errors pkglib umaskfree
 import (
 	"io"
 	"io/fs"

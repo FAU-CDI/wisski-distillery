@@ -1,5 +1,7 @@
+//spellchecker:words next
 package next
 
+//spellchecker:words context http github wisski distillery internal component auth policy scopes instances server handling ingredient users pkglib httpx
 import (
 	"context"
 	"net/http"

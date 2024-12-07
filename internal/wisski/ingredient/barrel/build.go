@@ -1,5 +1,7 @@
+//spellchecker:words barrel
 package barrel
 
+//spellchecker:words context time github wisski distillery internal component meta status ingredient locker mstore
 import (
 	"context"
 	"io"

@@ -1,5 +1,7 @@
+//spellchecker:words config
 package config
 
+//spellchecker:words github wisski distillery internal config validators
 import "github.com/FAU-CDI/wisski-distillery/internal/config/validators"
 
 type DatabaseConfig struct {

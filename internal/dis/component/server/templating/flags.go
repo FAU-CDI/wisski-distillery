@@ -1,5 +1,7 @@
+//spellchecker:words templating
 package templating
 
+//spellchecker:words html template http reflect time github wisski distillery internal component server assets wdlog golang slices
 import (
 	"fmt"
 	"html/template"

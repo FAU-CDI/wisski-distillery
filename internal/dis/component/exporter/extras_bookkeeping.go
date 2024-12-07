@@ -1,5 +1,7 @@
+//spellchecker:words exporter
 package exporter
 
+//spellchecker:words context github wisski distillery internal component models
 import (
 	"context"
 	"fmt"

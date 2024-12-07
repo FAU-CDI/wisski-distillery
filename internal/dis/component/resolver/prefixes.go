@@ -1,5 +1,7 @@
+//spellchecker:words resolver
 package resolver
 
+//spellchecker:words context
 import (
 	"context"
 )
