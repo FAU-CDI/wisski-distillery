@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net"
 	"net/http"
+	"sync"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -77,8 +78,10 @@ func (s server) Run(context wisski_distillery.Context) error {
 	// start the public listener
 	publicS := http.Server{Handler: public}
 	publicC := make(chan error)
+	var shutdownPublic func()
 	{
-		wdlog.Of(context.Context).Info(
+		log := wdlog.Of(context.Context)
+		log.Info(
 			"listening public server",
 			"bind", s.Bind,
 		)
@@ -87,11 +90,15 @@ func (s server) Run(context wisski_distillery.Context) error {
 		if err != nil {
 			return errServerListen.WrapError(err)
 		}
-		defer func() {
+
+		// shutdown the public server when done!
+		shutdownPublic = sync.OnceFunc(func() {
 			if err := publicS.Shutdown(context.Context); err != nil {
-				wdlog.Of(context.Context).Error("failed to shutdown public server: %s", slog.Any("error", err))
+				log.Error("failed to shutdown public server", slog.Any("error", err))
 			}
-		}()
+		})
+		defer shutdownPublic()
+
 		go func() {
 			publicC <- publicS.Serve(publicL)
 		}()
@@ -100,8 +107,11 @@ func (s server) Run(context wisski_distillery.Context) error {
 	// start the internal listener
 	internalS := http.Server{Handler: internal}
 	internalC := make(chan error)
+
+	var shutdownInternal func()
 	{
-		wdlog.Of(context.Context).Info(
+		log := wdlog.Of(context.Context)
+		log.Info(
 			"listening internal server",
 			"bind", s.InternalBind,
 		)
@@ -109,28 +119,29 @@ func (s server) Run(context wisski_distillery.Context) error {
 		if err != nil {
 			return errServerListen.WrapError(err)
 		}
-		defer func() {
+
+		// shutdown the internal server when done!
+		shutdownInternal = sync.OnceFunc(func() {
 			if err := internalS.Shutdown(context.Context); err != nil {
-				wdlog.Of(context.Context).Error("failed to shutdown internal server: %s", slog.Any("error", err))
+				log.Error("failed to shutdown internal server", slog.Any("error", err))
 			}
-		}()
+		})
+		defer shutdownInternal()
+
 		go func() {
 			internalC <- internalS.Serve(internalL)
 		}()
 	}
 
+	// shutdown everything when the context closes
 	go func() {
 		<-context.Context.Done()
 
 		log := wdlog.Of(context.Context)
 		log.Info("shutting down server")
 
-		if err := publicS.Shutdown(context.Context); err != nil {
-			log.Error("failed to shutdown public server: %s", slog.Any("error", err))
-		}
-		if err := internalS.Shutdown(context.Context); err != nil {
-			log.Error("failed to shutdown internal server: %s", slog.Any("error", err))
-		}
+		shutdownPublic()
+		shutdownInternal()
 	}()
 
 	return errServerListen.WrapError(errors.Join(<-internalC, <-publicC, err))
