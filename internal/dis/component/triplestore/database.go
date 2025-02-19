@@ -74,9 +74,13 @@ func (ts *Triplestore) DoRestWithForm(ctx context.Context, timeout time.Duration
 		if err != nil {
 			return nil, err
 		}
-		io.Copy(part, fieldvalue)
+		if _, err := io.Copy(part, fieldvalue); err != nil {
+			return nil, err
+		}
 	}
-	writer.Close()
+	if err := writer.Close(); err != nil {
+		return nil, err
+	}
 
 	// and sent the reader as the body
 	return ts.DoRestWithReader(ctx, timeout, method, url, headers.With(RequestHeaders{ContentType: writer.FormDataContentType()}), &buffer)

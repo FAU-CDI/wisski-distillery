@@ -37,8 +37,8 @@ func (s cStatus) Run(context wisski_distillery.Context) error {
 	}
 
 	if s.JSON {
-		json.NewEncoder(context.Stdout).Encode(status)
-		return nil
+		err := json.NewEncoder(context.Stdout).Encode(status)
+		return errStatusGeneric.WrapError(err)
 	}
 
 	context.Printf("Total Instances:      %v\n", status.TotalCount)

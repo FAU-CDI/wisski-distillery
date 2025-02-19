@@ -68,7 +68,7 @@ func (bc *StagingContext) sendPath(path string) {
 	// use the relative path for logging
 	rel, err := bc.relativize(path)
 	if err == nil {
-		io.WriteString(bc.progress, rel+"\n")
+		_, _ = io.WriteString(bc.progress, rel+"\n")
 	}
 
 	// send the absolute path

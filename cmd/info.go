@@ -48,8 +48,7 @@ func (i info) Run(context wisski_distillery.Context) (err error) {
 	}
 
 	if i.JSON {
-		json.NewEncoder(context.Stdout).Encode(info)
-		return nil
+		return json.NewEncoder(context.Stdout).Encode(info)
 	}
 
 	context.Printf("Slug:                 %v\n", info.Slug)

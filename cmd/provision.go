@@ -91,8 +91,7 @@ func (p pv) Run(context wisski_distillery.Context) error {
 func (pv) listFlavors(context wisski_distillery.Context) error {
 	encoder := json.NewEncoder(context.Stdout)
 	encoder.SetIndent("", "  ")
-	encoder.Encode(manager.Profiles())
-	return nil
+	return encoder.Encode(manager.Profiles())
 }
 
 func (pv) listPHPVersions(context wisski_distillery.Context) error {

@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -10,11 +11,12 @@ import (
 
 // LogOperation logs a message that is displayed to the user, and then increases the log indent level.
 func LogOperation(operation func() error, progress io.Writer, format string, args ...interface{}) error {
-	logOperation(progress, getIndent(progress), format, args...)
+	_, errLog := logOperation(progress, getIndent(progress), format, args...)
 	incIndent(progress)
 	defer decIndent(progress)
 
-	return operation()
+	result := operation()
+	return errors.Join(result, errLog)
 }
 
 // LogMessage logs a message that is displayed to the user

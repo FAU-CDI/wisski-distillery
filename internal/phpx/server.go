@@ -255,7 +255,9 @@ func (server *Server) Call(ctx context.Context, function string, args ...any) (v
 
 // Close closes this server and prevents any further code from being run.
 func (server *Server) Close() error {
-	server.prepare()
+	if err := server.prepare(); err != nil {
+		return err
+	}
 
 	server.m.Lock()
 	defer server.m.Unlock()

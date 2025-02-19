@@ -171,7 +171,9 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocketx.Connectio
 	// write the output to the client as it comes in!
 	// NOTE(twiesing): We may eventually need buffering here ...
 	output := WriterFunc(func(b []byte) (int, error) {
-		conn.WriteText(string(b))
+		if err := conn.WriteText(string(b)); err != nil {
+			return 0, err
+		}
 		return len(b), nil
 	})
 

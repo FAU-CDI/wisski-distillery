@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"errors"
+	"log/slog"
 	"net"
 	"net/http"
 
@@ -86,7 +87,11 @@ func (s server) Run(context wisski_distillery.Context) error {
 		if err != nil {
 			return errServerListen.WrapError(err)
 		}
-		defer publicS.Shutdown(context.Context)
+		defer func() {
+			if err := publicS.Shutdown(context.Context); err != nil {
+				wdlog.Of(context.Context).Error("failed to shutdown public server: %s", slog.Any("error", err))
+			}
+		}()
 		go func() {
 			publicC <- publicS.Serve(publicL)
 		}()
@@ -104,7 +109,11 @@ func (s server) Run(context wisski_distillery.Context) error {
 		if err != nil {
 			return errServerListen.WrapError(err)
 		}
-		defer internalS.Shutdown(context.Context)
+		defer func() {
+			if err := internalS.Shutdown(context.Context); err != nil {
+				wdlog.Of(context.Context).Error("failed to shutdown internal server: %s", slog.Any("error", err))
+			}
+		}()
 		go func() {
 			internalC <- internalS.Serve(internalL)
 		}()
@@ -113,9 +122,15 @@ func (s server) Run(context wisski_distillery.Context) error {
 	go func() {
 		<-context.Context.Done()
 
-		wdlog.Of(context.Context).Info("shutting down server")
-		publicS.Shutdown(context.Context)
-		internalS.Shutdown(context.Context)
+		log := wdlog.Of(context.Context)
+		log.Info("shutting down server")
+
+		if err := publicS.Shutdown(context.Context); err != nil {
+			log.Error("failed to shutdown public server: %s", slog.Any("error", err))
+		}
+		if err := internalS.Shutdown(context.Context); err != nil {
+			log.Error("failed to shutdown internal server: %s", slog.Any("error", err))
+		}
 	}()
 
 	return errServerListen.WrapError(errors.Join(<-internalC, <-publicC, err))
