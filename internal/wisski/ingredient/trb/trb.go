@@ -10,6 +10,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 )
 
@@ -17,13 +18,20 @@ type TRB struct {
 	ingredient.Base
 
 	dependencies struct {
-		Barrel *barrel.Barrel
+		Barrel   *barrel.Barrel
+		Adapters *extras.Adapters
 	}
 }
 
 // RebuildTriplestore rebuilds the triplestore by making a backup, storing it on disk, purging the triplestore, and restoring the backup.
 // Returns the size of the backup dump in bytes.
 func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmptyRepository bool) (size int, err error) {
+
+	// re-create the default adapter
+	logging.LogMessage(out, "Re-creating adapter")
+	if _, err := trb.dependencies.Adapters.SetAdapter(ctx, nil, trb.dependencies.Adapters.DefaultAdapter()); err != nil {
+		return 0, err
+	}
 
 	// stop instance, restart when done
 	logging.LogMessage(out, "Shutting down instance")

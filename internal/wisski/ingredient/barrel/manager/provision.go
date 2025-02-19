@@ -11,7 +11,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/composer"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/stream"
@@ -166,15 +165,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	// create the default adapter
 	logging.LogMessage(progress, "Creating default adapter")
 	{
-		if err := provision.dependencies.Adapters.CreateDistilleryAdapter(ctx, nil, extras.DistilleryAdapter{
-			Label:             "Default WissKI Distillery Adapter",
-			MachineName:       "default",
-			Description:       "Default Adapter for " + liquid.Domain(),
-			InstanceDomain:    liquid.Domain(),
-			GraphDBRepository: liquid.GraphDBRepository,
-			GraphDBUsername:   liquid.GraphDBUsername,
-			GraphDBPassword:   liquid.GraphDBPassword,
-		}); err != nil {
+		if _, err := provision.dependencies.Adapters.SetAdapter(ctx, nil, provision.dependencies.Adapters.DefaultAdapter()); err != nil {
 			return err
 		}
 	}

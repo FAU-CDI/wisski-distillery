@@ -143,6 +143,10 @@ func (wisski *WissKI) Theme() *extras.Theme {
 	return export[*extras.Theme](wisski)
 }
 
+func (wisski *WissKI) Adapters() *extras.Adapters {
+	return export[*extras.Adapters](wisski)
+}
+
 //
 // All components
 // THESE SHOULD NEVER BE CALLED DIRECTLY

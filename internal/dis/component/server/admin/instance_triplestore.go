@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
 	"github.com/tkw1536/pkglib/httpx"
 
 	"github.com/julienschmidt/httprouter"
@@ -27,6 +28,7 @@ type instanceTriplestoreContext struct {
 	templating.RuntimeFlags
 
 	Instance *wisski.WissKI
+	Adapters []extras.DistilleryAdapter
 }
 
 func (admin *Admin) instanceTS(context.Context) http.Handler {
@@ -48,6 +50,7 @@ func (admin *Admin) instanceTS(context.Context) http.Handler {
 		if err != nil {
 			return ctx, nil, httpx.ErrNotFound
 		}
+		ctx.Adapters = ctx.Instance.Adapters().Adapters()
 
 		return ctx, []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + ctx.Instance.Slug)}),

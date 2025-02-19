@@ -22,8 +22,9 @@ type Adapters struct {
 var adaptersPHP string
 
 type DistilleryAdapter struct {
+	ID string
+
 	Label          string
-	MachineName    string
 	Description    string
 	InstanceDomain string
 
@@ -32,10 +33,34 @@ type DistilleryAdapter struct {
 	GraphDBPassword   string
 }
 
-func (wisski *Adapters) CreateDistilleryAdapter(ctx context.Context, server *phpx.Server, adapter DistilleryAdapter) error {
-	return wisski.dependencies.PHP.ExecScript(
-		ctx, server, nil, adaptersPHP,
-		"create_distillery_adapter",
-		adapter.Label, adapter.MachineName, adapter.Description, adapter.InstanceDomain, adapter.GraphDBRepository, adapter.GraphDBUsername, adapter.GraphDBPassword,
+// Adapters returns a list of (managed) adapters belonging to the given WissKI.
+func (wisski *Adapters) Adapters() []DistilleryAdapter {
+	return []DistilleryAdapter{
+		wisski.DefaultAdapter(),
+	}
+}
+
+func (wisski *Adapters) DefaultAdapter() DistilleryAdapter {
+	liquid := ingredient.GetLiquid(wisski)
+	return DistilleryAdapter{
+		ID: "default",
+
+		Label:             "Default WissKI Distillery Adapter",
+		Description:       "Default Adapter for " + liquid.Domain(),
+		InstanceDomain:    liquid.Domain(),
+		GraphDBRepository: liquid.GraphDBRepository,
+		GraphDBUsername:   liquid.GraphDBUsername,
+		GraphDBPassword:   liquid.GraphDBPassword,
+	}
+}
+
+// SetAdapter creates or updates an adapter in the distillery.
+// created indicates if a new adapter was created or if an existing one was updated.
+func (wisski *Adapters) SetAdapter(ctx context.Context, server *phpx.Server, adapter DistilleryAdapter) (created bool, err error) {
+	err = wisski.dependencies.PHP.ExecScript(
+		ctx, server, &created, adaptersPHP,
+		"create_or_update_distillery_adapter",
+		adapter.Label, adapter.ID, adapter.Description, adapter.InstanceDomain, adapter.GraphDBRepository, adapter.GraphDBUsername, adapter.GraphDBPassword,
 	)
+	return
 }
