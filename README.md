@@ -115,7 +115,7 @@ These are:
   - See [internal/component/sql](internal/component/sql) for implementation details.
 
 
-- [proxyssh](https://github.com/tkw1536/proxyssh) - an ssh server that delegates client connections to different WissKIs
+- an ssh server that delegates client connections to different WissKIs
   - It is configured to run inside a docker container.
   - Uses a global configurable authorized_keys file.
   - Also allows users to write their own authorized_keys files.
