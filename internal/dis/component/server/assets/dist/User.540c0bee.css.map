@@ -1,0 +1,1 @@
+{"mappings":"ACAA","sources":["User.540c0bee.css","src/lib/copy/index.css"],"sourcesContent":[".copy {\n  -webkit-user-select: all;\n  user-select: all;\n}\n/*# sourceMappingURL=User.540c0bee.css.map */\n",".copy {\n    user-select: all;\n}"],"names":[],"version":3,"file":"User.540c0bee.css.map","sourceRoot":"../"}
