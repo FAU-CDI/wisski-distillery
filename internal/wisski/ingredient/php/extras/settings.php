@@ -36,15 +36,25 @@ function set_setting(string $name, mixed $value): bool {
         "required" => TRUE,
     ];
 
-    // do the rewrite
-    try {
-        drupal_rewrite_settings($settings, $filename);
-    } catch(Throwable $t) {
-        return FALSE;
+    $ok = TRUE;
+    if(class_exists('\Drupal\Core\Site\SettingsEditor')) {
+        try {
+            \Drupal\Core\Site\SettingsEditor::rewrite($filename, $settings);
+        } catch(Throwable $t) {
+            $ok = FALSE;
+        }
+    } elseif (function_exists('drupal_rewrite_settings')) {
+        try {
+            drupal_rewrite_settings($settings, $filename);
+        } catch(Throwable $t) {
+            $ok = FALSE;
+        }
+    } else {
+        throw new Exception("Unsupported Drupal Release (need 'SettingsEditor' or 'drupal_rewrite_settings')");
     }
 
     // reset the file mode
-    return chmod($filename, $old);
+    return chmod($filename, $old) && $ok;
 }
 
 /** Sets the trusted host to the specified domain */

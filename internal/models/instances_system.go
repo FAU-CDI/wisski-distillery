@@ -26,7 +26,7 @@ func (system System) OpCacheMode() string {
 }
 
 var (
-	phpVersions   = []string{"8.1", "8.2", "8.3"}
+	phpVersions   = []string{"8.1", "8.2", "8.3", "8.4"}
 	phpVersionMap = (func() map[string]struct{} {
 		m := make(map[string]struct{}, len(phpVersions))
 		for _, v := range phpVersions {
@@ -37,7 +37,7 @@ var (
 )
 
 // DefaultPHPVersion is the default php version
-const DefaultPHPVersion = "8.1"
+const DefaultPHPVersion = "8.3"
 
 // KnownPHPVersions returns a slice of php versions.
 func KnownPHPVersions() []string {

@@ -12,13 +12,13 @@ export function Backup (): CallSpec {
 
 interface ProvisionParams {
   Slug: string
-  Flavor?: 'Drupal 10' | 'Drupal 9'
+  Flavor?: 'Drupal 11' | 'Drupal 10' | 'Drupal 9'
   IIPServer?: string
   System: SystemParams
 }
 
 interface SystemParams {
-  PHP: 'Default (8.1)' | '8.0' | '8.1' | '8.2' | '8.3'
+  PHP: 'Default (8.3)' | '8.0' | '8.1' | '8.2' | '8.3'
   OpCacheDevelopment: boolean
   ContentSecurityPolicy: string
 }
