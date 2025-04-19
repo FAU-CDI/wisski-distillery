@@ -9,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	wstatus "github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/status"
 )
@@ -81,7 +82,7 @@ var errDrupalUserActionFailed = exit.Error{
 }
 
 func (du drupalUser) Run(context wisski_distillery.Context) (err error) {
-	defer errDrupalUserActionFailed.DeferWrap(&err)
+	defer errwrap.DeferWrap(errDisUserActionFailed, &err)
 
 	instance, err := context.Environment.Instances().WissKI(context.Context, du.Positionals.Slug)
 	if err != nil {

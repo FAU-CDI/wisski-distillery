@@ -6,6 +6,7 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/collection"
 )
@@ -36,7 +37,7 @@ var errInfoFailed = exit.Error{
 }
 
 func (i info) Run(context wisski_distillery.Context) (err error) {
-	defer errInfoFailed.DeferWrap(&err)
+	defer errwrap.DeferWrap(errInfoFailed, &err)
 
 	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)
 	if err != nil {
@@ -103,10 +104,9 @@ func (i info) Run(context wisski_distillery.Context) (err error) {
 	}
 
 	context.Printf("Pathbuilders: (count %d)\n", len(info.Pathbuilders))
-	collection.IterateSorted(info.Pathbuilders, func(name, data string) bool {
+	for name, data := range collection.IterSorted(info.Pathbuilders) {
 		context.Printf("- %s (%d bytes)\n", name, len(data))
-		return true
-	})
+	}
 
 	context.Printf("Users: (count %d)\n", len(info.Users))
 	for _, user := range info.Users {

@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 )
 
@@ -54,7 +55,7 @@ func (docker *Docker) CreateNetwork(ctx context.Context, name string) (id string
 	defer client.Close()
 
 	// check if the network exists, by listing the network name
-	list, err := client.NetworkList(ctx, types.NetworkListOptions{Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: name})})
+	list, err := client.NetworkList(ctx, network.ListOptions{Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: name})})
 	if err != nil {
 		return "", false, err
 	}
@@ -65,7 +66,7 @@ func (docker *Docker) CreateNetwork(ctx context.Context, name string) (id string
 	}
 
 	// do the actual create!
-	create, err := client.NetworkCreate(ctx, name, types.NetworkCreate{CheckDuplicate: true})
+	create, err := client.NetworkCreate(ctx, name, network.CreateOptions{Scope: "local"})
 	if err != nil {
 		return "", false, err
 	}

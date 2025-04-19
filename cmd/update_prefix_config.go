@@ -8,6 +8,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/status"
@@ -36,7 +37,7 @@ var errPrefixUpdateFailed = exit.Error{
 }
 
 func (upc updateprefixconfig) Run(context wisski_distillery.Context) (err error) {
-	defer errPrefixUpdateFailed.DeferWrap(&err)
+	defer errwrap.DeferWrap(errPrefixUpdateFailed, &err)
 
 	dis := context.Environment
 

@@ -52,7 +52,7 @@ type Config struct {
 }
 
 func zeroSensitive(v reflect.Value) {
-	reflectx.IterateFields(v.Type(), func(field reflect.StructField, index int) (stop bool) {
+	for field := range reflectx.IterFields(v.Type()) {
 		// if we set the recurse tag, recurse into it
 		if _, ok := field.Tag.Lookup("recurse"); ok {
 			zeroSensitive(v.FieldByName(field.Name))
@@ -62,8 +62,7 @@ func zeroSensitive(v reflect.Value) {
 		if _, ok := field.Tag.Lookup("sensitive"); ok {
 			v.FieldByName(field.Name).Set(reflect.Zero(field.Type))
 		}
-		return false
-	})
+	}
 }
 
 func (config Config) MarshalSensitive() string {

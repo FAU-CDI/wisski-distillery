@@ -6,6 +6,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -70,7 +71,7 @@ var errFailedGrant = exit.Error{
 }
 
 func (dg disGrant) Run(context wisski_distillery.Context) (err error) {
-	defer errFailedGrant.DeferWrap(&err)
+	defer errwrap.DeferWrap(errFailedGrant, &err)
 
 	switch {
 	case dg.AddUser:

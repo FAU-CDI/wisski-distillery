@@ -45,19 +45,20 @@ func WriteEnvFile(writer io.Writer, env map[string]string) (count int, err error
 		return
 	}
 
-	collection.IterateSorted(env, func(key, value string) bool {
+	for key, value := range collection.IterSorted(env) {
 		// if we don't have a valid name, break
 		if !isValidVariable(key) {
-			err = errInvalidName(key)
-			return false
+			return count, errInvalidName(key)
 		}
 
 		// write write key = EscapeEnvValue(value) followed by a new line
 		n, err = fmt.Fprintf(writer, "%s%s%s\n", key, string(EnvEqualChar), EscapeEnvValue(value))
+		if err != nil {
+			return count, err
+		}
 		count += n
-		return err == nil
-	})
-	return
+	}
+	return count, nil
 }
 
 // isValidVariable checks if name is a valid variable name.

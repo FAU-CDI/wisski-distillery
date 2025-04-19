@@ -9,6 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/status"
 )
@@ -62,7 +63,7 @@ var errRebuildFailed = exit.Error{
 }
 
 func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
-	defer errRebuildFailed.DeferWrap(&err)
+	defer errwrap.DeferWrap(errRebuildFailed, &err)
 
 	dis := context.Environment
 

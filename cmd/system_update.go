@@ -9,6 +9,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
@@ -85,7 +86,7 @@ var errSystemUpdateGeneric = exit.Error{
 }
 
 func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
-	defer errSystemUpdateGeneric.DeferWrap(&err)
+	defer errwrap.DeferWrap(errSystemUpdateGeneric, &err)
 
 	dis := context.Environment
 

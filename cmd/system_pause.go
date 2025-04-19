@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/status"
@@ -51,7 +52,7 @@ var errPauseGeneric = exit.Error{
 }
 
 func (sp systempause) Run(context wisski_distillery.Context) (err error) {
-	defer errPauseGeneric.DeferWrap(&err)
+	defer errwrap.DeferWrap(errPauseGeneric, &err)
 
 	if sp.Start {
 		return sp.start(context, context.Environment)

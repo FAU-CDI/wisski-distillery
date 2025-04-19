@@ -22,8 +22,12 @@ var errBlindUpdateFailed = exit.Error{
 
 // Update performs a blind drush update
 func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err error) {
-
-	defer errBlindUpdateFailed.WithMessageF(ingredient.GetLiquid(composer).Slug).DeferWrap(&err)
+	defer func() {
+		if err == nil {
+			return
+		}
+		err = errBlindUpdateFailed.WithMessageF(ingredient.GetLiquid(composer).Slug).WrapError(err)
+	}()
 
 	if err := composer.FixPermission(ctx, progress); err != nil {
 		return err

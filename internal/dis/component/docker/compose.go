@@ -9,6 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 )
 
@@ -54,7 +55,7 @@ func (*Docker) containers(ctx context.Context, project compose.Project, client D
 	}
 
 	// find the containers
-	containers, err := client.ContainerList(ctx, types.ContainerListOptions{
+	containers, err := client.ContainerList(ctx, container.ListOptions{
 		All:     all,
 		Filters: f,
 	})
