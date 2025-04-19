@@ -8,14 +8,13 @@ import (
 	"golang.org/x/exp/slices"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
-	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 )
 
 // Containers loads the compose project at path, connects to the docker daemon, and then lists all containers belonging to the given services.
 // If services is empty, all containers belonging to any service are returned.
-func (docker *Docker) Containers(ctx context.Context, path string, services ...string) (containers []types.Container, err error) {
+func (docker *Docker) Containers(ctx context.Context, path string, services ...string) (containers []container.Summary, err error) {
 	proj, err := compose.Open(path)
 	if err != nil {
 		return nil, err
@@ -42,7 +41,7 @@ const (
 //
 // services optionally filters the returned containers by the services they belong to.
 // If services is empty, all containers are returned, else containers belonging to any of the services included.
-func (*Docker) containers(ctx context.Context, project compose.Project, client DockerClient, all bool, services ...string) ([]types.Container, error) {
+func (*Docker) containers(ctx context.Context, project compose.Project, client DockerClient, all bool, services ...string) ([]container.Summary, error) {
 	// build filters
 	f := filters.NewArgs(
 		filters.Arg("label", projectLabel+"="+project.Name),

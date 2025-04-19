@@ -22,7 +22,6 @@ jobs:
       - name: Install go dependencies
         run: |
           go get -t ./...
-          go install github.com/tkw1536/gogenlicense/cmd/gogenlicense@latest
       - name: Install node dependencies
         run:  |
           cd internal/dis/component/server/assets
