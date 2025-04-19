@@ -142,7 +142,7 @@ func (server *Server) csrf() func(http.Handler) http.Handler {
 	opts = append(opts, csrf.CookieName(CSRFCookie))
 	opts = append(opts, csrf.FieldName(CSRFCookieField))
 	opts = append(opts, csrf.TrustedOrigins(config.HTTP.PanelDomains()))
-	return csrf.Protect(config.CSRFSecret(), opts...)
+	return csrf.Protect(config.CSRFKey(), opts...)
 }
 
 // WithCSP adds a Content-Security-Policy header to every response

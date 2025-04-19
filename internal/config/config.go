@@ -5,6 +5,7 @@ package config
 
 //spellchecker:words hash math rand reflect time github pkglib reflectx yamlx gopkg yaml embed
 import (
+	"fmt"
 	"hash/fnv"
 	"math/rand"
 	"reflect"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/tkw1536/pkglib/reflectx"
 	"github.com/tkw1536/pkglib/yamlx"
+	"golang.org/x/crypto/scrypt"
 	"gopkg.in/yaml.v3"
 
 	_ "embed"
@@ -113,17 +115,44 @@ func Marshal(config *Config, previous []byte) ([]byte, error) {
 	return yaml.Marshal(template)
 }
 
+// SessionKey returns a key used for sessions to be derived from the session secret.
+func (config *Config) SessionKey() []byte {
+	return config.derivedKey(32)
+}
+
 // CSRFSecret return the csrfSecret derived from the session secret
-func (config *Config) CSRFSecret() []byte {
-	// take the hash of the secret
-	h := fnv.New32a()
-	h.Write([]byte(config.SessionSecret))
+func (config *Config) CSRFKey() []byte {
+	return config.derivedKey(0)
+}
 
-	// seed a random number generator
-	rand := rand.New(rand.NewSource(int64(h.Sum32())))
+// deriveKey derives a 32-bit key which can be used with sessions.
+// It will change when the config file changes.
+func (config *Config) derivedKey(skip int) []byte {
+	salt := config.makeSalt(skip, 64)
 
-	// take a bunch of bytes from it
-	secret := make([]byte, 32)
-	rand.Read(secret)
-	return secret
+	bytes, err := scrypt.Key([]byte(config.SessionSecret), salt, 32768, 8, 1, 32)
+	if err != nil {
+		panic(fmt.Sprintf("scrypt: derivedKey returned error: %s", err))
+	}
+
+	return bytes
+}
+
+// makeSalt makes some salt for key deriviation.
+// It is based on the contents of the config file.
+func (config *Config) makeSalt(skip, len int) []byte {
+	h := fnv.New64a()
+	h.Write([]byte(config.MarshalSensitive()))
+	sum := int64(h.Sum64()) // this wraps around, but that's fine!
+
+	// initialize the PRNG and go forward
+	rand := rand.New(rand.NewSource(sum))
+	for range skip {
+		rand.Int63()
+	}
+
+	// and get the bytes
+	salt := make([]byte, len)
+	rand.Read(salt)
+	return salt
 }
