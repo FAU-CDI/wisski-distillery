@@ -47,7 +47,7 @@ type HTTPConfig struct {
 	PhpMyAdmin validators.NullableBool `yaml:"phpmyadmin" validate:"bool" default:"false"`
 }
 
-// PanelDomain is the domain name where the control panel runs.
+// PanelDomain is the primary domain name where the control panel runs.
 func (hcfg HTTPConfig) PanelDomain() string {
 	// if we have panel domain enabled, then return it
 	if hcfg.Panel.Set && hcfg.Panel.Value {
@@ -56,6 +56,15 @@ func (hcfg HTTPConfig) PanelDomain() string {
 
 	// else use the domain itself
 	return hcfg.Domains(PanelDomain.Domain())[0]
+}
+
+// returns a list of all domains that the panel is available at
+func (hcfg HTTPConfig) PanelDomains() []string {
+	domains := hcfg.Domains(PanelDomain.Domain())
+	if hcfg.Panel.Set && hcfg.Panel.Value {
+		domains = append(domains, hcfg.Domains("")...)
+	}
+	return domains
 }
 
 // TSDomain returns the full url to the triplestore, if any
@@ -229,11 +238,7 @@ func TrimSuffixFold(s string, suffix string) string {
 
 // DefaultHostRule returns the host rule for the control panel of this distillery.
 func (cfg HTTPConfig) PanelHostRule() string {
-	all := cfg.Domains(PanelDomain.Domain())
-	if cfg.Panel.Set && cfg.Panel.Value {
-		all = append(all, cfg.Domains("")...)
-	}
-	return MakeHostRule(all...)
+	return MakeHostRule(cfg.PanelDomains()...)
 }
 
 // MakeHostRule builds a new Host() rule string to be used by traefik.

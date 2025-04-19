@@ -141,6 +141,7 @@ func (server *Server) csrf() func(http.Handler) http.Handler {
 	opts = append(opts, csrf.Path("/"))
 	opts = append(opts, csrf.CookieName(CSRFCookie))
 	opts = append(opts, csrf.FieldName(CSRFCookieField))
+	opts = append(opts, csrf.TrustedOrigins(config.HTTP.PanelDomains()))
 	return csrf.Protect(config.CSRFSecret(), opts...)
 }
 
