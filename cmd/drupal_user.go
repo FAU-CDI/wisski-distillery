@@ -82,7 +82,7 @@ var errDrupalUserActionFailed = exit.Error{
 }
 
 func (du drupalUser) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errDisUserActionFailed, &err)
+	defer errwrap.DeferWrap(errDrupalUserActionFailed, &err)
 
 	instance, err := context.Environment.Instances().WissKI(context.Context, du.Positionals.Slug)
 	if err != nil {
