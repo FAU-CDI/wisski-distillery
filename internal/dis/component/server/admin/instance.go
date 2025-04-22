@@ -4,6 +4,7 @@ package admin
 //spellchecker:words context html template http github wisski distillery internal component instances server assets templating models status julienschmidt httprouter pkglib httpx embed
 import (
 	"context"
+	"errors"
 	"html/template"
 	"net/http"
 
@@ -49,7 +50,7 @@ func (admin *Admin) instance(context.Context) http.Handler {
 
 		// find the instance itself!
 		instance, err := admin.dependencies.Instances.WissKI(r.Context(), slug)
-		if err == instances.ErrWissKINotFound {
+		if errors.Is(err, instances.ErrWissKINotFound) {
 			return ic, nil, httpx.ErrNotFound
 		}
 		if err != nil {
@@ -74,7 +75,7 @@ func (admin *Admin) instance(context.Context) http.Handler {
 	})
 }
 
-// instanceTabs
+// instanceTabs.
 func (admin *Admin) instanceTabs(slug string, active string) templating.FlagFunc {
 	return func(flags templating.Flags, r *http.Request) templating.Flags {
 		flags.Tabs = []component.MenuItem{

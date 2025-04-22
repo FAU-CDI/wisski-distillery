@@ -7,7 +7,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Config is the configuration command
+// Config is the configuration command.
 var Config wisski_distillery.Command = cfg{}
 
 type cfg struct {

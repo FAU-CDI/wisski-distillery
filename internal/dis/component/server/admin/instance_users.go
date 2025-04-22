@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	_ "embed"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -19,9 +20,10 @@ import (
 	"github.com/tkw1536/pkglib/httpx"
 	"github.com/tkw1536/pkglib/httpx/form/field"
 
+	"maps"
+	"slices"
+
 	"github.com/julienschmidt/httprouter"
-	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 )
 
 //go:embed "html/instance_users.html"
@@ -132,7 +134,7 @@ func (admin *Admin) postInstanceUsers(r *http.Request) (gc instanceUsersContext,
 func (gc *instanceUsersContext) use(r *http.Request, slug string, admin *Admin) (funcs []templating.FlagFunc, err error) {
 	// find the instance itself
 	gc.instance, err = admin.dependencies.Instances.WissKI(r.Context(), slug)
-	if err == instances.ErrWissKINotFound {
+	if errors.Is(err, instances.ErrWissKINotFound) {
 		return nil, httpx.ErrNotFound
 	}
 	if err != nil {
@@ -171,7 +173,7 @@ func (gc *instanceUsersContext) useUsers(r *http.Request, admin *Admin) (err err
 	}
 
 	// setup the usernames
-	gc.Usernames = maps.Keys(userNameMap)
+	gc.Usernames = slices.AppendSeq(make([]string, 0, len(userNameMap)), maps.Keys(userNameMap))
 	slices.Sort(gc.Usernames)
 
 	// get the drupal user data

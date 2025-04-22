@@ -16,7 +16,7 @@ import (
 	"github.com/tkw1536/pkglib/collection"
 )
 
-// Logger is responsible for logging backups and snapshots
+// Logger is responsible for logging backups and snapshots.
 type Logger struct {
 	component.Base
 	dependencies struct {
@@ -97,7 +97,7 @@ func (log *Logger) Add(ctx context.Context, export models.Export) error {
 	return nil
 }
 
-// Fetch writes the SnapshotLog into the given observation
+// Fetch writes the SnapshotLog into the given observation.
 func (logger *Logger) Fetch(ctx context.Context, flags component.FetcherFlags, target *status.Distillery) (err error) {
 	target.Backups, err = logger.For(ctx, "")
 	return

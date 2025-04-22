@@ -14,7 +14,7 @@ import (
 	"github.com/tkw1536/pkglib/stream"
 )
 
-// Drush implements commands related to drush
+// Drush implements commands related to drush.
 type Composer struct {
 	ingredient.Base
 	dependencies struct {

@@ -13,7 +13,7 @@ import (
 	_ "embed"
 )
 
-// Version implements reading the current drupal version
+// Version implements reading the current drupal version.
 type Version struct {
 	ingredient.Base
 	dependencies struct {
@@ -21,7 +21,7 @@ type Version struct {
 	}
 }
 
-// Get returns the currently active theme
+// Get returns the currently active theme.
 func (v *Version) Get(ctx context.Context, server *phpx.Server) (version string, err error) {
 	err = v.dependencies.PHP.EvalCode(
 		ctx, server, &version, "return Drupal::VERSION; ",

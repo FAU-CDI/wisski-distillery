@@ -26,13 +26,13 @@ type Ingredient interface {
 	getBase() *Base
 }
 
-// Base is embedded into every Ingredient
+// Base is embedded into every Ingredient.
 type Base struct {
 	name   string         // name is the name of this ingredient
 	liquid *liquid.Liquid // the underlying liquid
 }
 
-// GetLiquid gets the liquid of this Ingredient
+// GetLiquid gets the liquid of this Ingredient.
 func GetLiquid(i Ingredient) *liquid.Liquid {
 	return i.getBase().liquid
 }

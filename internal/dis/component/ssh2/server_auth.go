@@ -10,11 +10,11 @@ func (ssh2 *SSH2) setupAuth(server *ssh.Server) {
 	server.PublicKeyHandler = ssh2.handleAuth
 }
 
-// ssh2Key is a type of context keys for this package
+// ssh2Key is a type of context keys for this package.
 type ssh2Key int
 
 const (
-	// permissions represents the permissions for the given session
+	// permissions represents the permissions for the given session.
 	permission ssh2Key = iota
 )
 

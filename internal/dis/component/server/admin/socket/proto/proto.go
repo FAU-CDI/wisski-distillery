@@ -9,7 +9,7 @@ import (
 	"github.com/tkw1536/pkglib/websocketx"
 )
 
-// ActionMap handles a set of WebSocket actions
+// ActionMap handles a set of WebSocket actions.
 type ActionMap map[string]Action
 
 var (

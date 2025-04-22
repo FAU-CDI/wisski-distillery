@@ -19,7 +19,7 @@ import (
 	"github.com/tkw1536/pkglib/status"
 )
 
-// SystemUpdate is the 'system_update' command
+// SystemUpdate is the 'system_update' command.
 var SystemUpdate wisski_distillery.Command = systemupdate{}
 
 type systemupdate struct {
@@ -231,8 +231,7 @@ var errMustExecFailed = exit.Error{
 	Message: "process exited with code %d",
 }
 
-// mustExec indicates that the given executable process must complete successfully.
-// If it does not, returns errMustExecFailed
+// If it does not, returns errMustExecFailed.
 func (si systemupdate) mustExec(context wisski_distillery.Context, workdir string, exe string, argv ...string) error {
 	dis := context.Environment
 	if workdir == "" {

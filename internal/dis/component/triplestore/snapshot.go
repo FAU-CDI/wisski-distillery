@@ -29,7 +29,7 @@ var errTSBackupWrongStatusCode = errors.New("Triplestore.Backup: Wrong status co
 
 const nquadsContentType = "text/x-nquads"
 
-// SnapshotDB snapshots the provided repository into dst
+// SnapshotDB snapshots the provided repository into dst.
 func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string) (int64, error) {
 	res, err := ts.DoRest(ctx, 0, http.MethodGet, "/repositories/"+repo+"/statements?infer=false", &RequestHeaders{Accept: nquadsContentType})
 	if err != nil {

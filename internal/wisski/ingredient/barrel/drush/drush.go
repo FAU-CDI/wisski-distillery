@@ -12,7 +12,7 @@ import (
 	"github.com/tkw1536/pkglib/stream"
 )
 
-// Drush implements commands related to drush
+// Drush implements commands related to drush.
 type Drush struct {
 	ingredient.Base
 	dependencies struct {
@@ -21,7 +21,7 @@ type Drush struct {
 	}
 }
 
-// Enable enables the given drush modules
+// Enable enables the given drush modules.
 func (drush *Drush) Enable(ctx context.Context, progress io.Writer, modules ...string) error {
 	return drush.Exec(ctx, progress, append([]string{"pm-enable", "--yes"}, modules...)...)
 }

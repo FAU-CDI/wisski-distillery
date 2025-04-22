@@ -4,6 +4,7 @@ package next
 //spellchecker:words context http github wisski distillery internal component auth policy scopes instances server handling ingredient users pkglib httpx
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/url"
 
@@ -39,7 +40,7 @@ func (next *Next) Routes() component.Routes {
 	}
 }
 
-// Next returns a url that will forward authorized users to the given slug and path
+// Next returns a url that will forward authorized users to the given slug and path.
 func (next *Next) Next(context context.Context, slug, path string) (string, error) {
 	wisski, err := next.dependencies.Instances.WissKI(context, slug)
 	if err != nil {
@@ -49,7 +50,6 @@ func (next *Next) Next(context context.Context, slug, path string) (string, erro
 	target := wisski.URL()
 	target.Path = path
 	return "/next/?next=" + url.PathEscape(target.String()), nil
-
 }
 
 func (next *Next) getInstance(r *http.Request) (wisski *wisski.WissKI, path string, err error) {
@@ -91,7 +91,7 @@ func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, e
 
 		// check if they have a grant
 		grant, err := next.dependencies.Policy.Has(r.Context(), user.User.User, instance.Slug)
-		if err == policy.ErrNoAccess {
+		if errors.Is(err, policy.ErrNoAccess) {
 			return "", 0, httpx.ErrForbidden
 		}
 		if err != nil {

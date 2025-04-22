@@ -9,7 +9,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Info is then 'info' command
+// Info is then 'info' command.
 var Status wisski_distillery.Command = cStatus{}
 
 type cStatus struct {

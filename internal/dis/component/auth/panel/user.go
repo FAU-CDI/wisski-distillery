@@ -71,18 +71,18 @@ func (panel *UserPanel) routeUser(context.Context) http.Handler {
 
 		// replace the totp action in the menu
 		var totpAction component.MenuItem
-		if uc.AuthUser.IsTOTPEnabled() {
+		if uc.IsTOTPEnabled() {
 			totpAction = menuTOTPDisable
 		} else {
 			totpAction = menuTOTPEnable
 		}
 		funcs = []templating.FlagFunc{
 			templating.ReplaceAction(menuTOTPAction, totpAction),
-			templating.Title(uc.AuthUser.User.User),
+			templating.Title(uc.User.User),
 		}
 
 		// find the grants
-		grants, err := panel.dependencies.Policy.User(r.Context(), uc.AuthUser.User.User)
+		grants, err := panel.dependencies.Policy.User(r.Context(), uc.User.User)
 		if err != nil {
 			return uc, nil, err
 		}

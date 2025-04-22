@@ -28,7 +28,7 @@ var (
 //go:embed users.php
 var usersPHP string
 
-// All returns all known usernames
+// All returns all known usernames.
 func (u *Users) All(ctx context.Context, server *phpx.Server) (users []status.DrupalUser, err error) {
 	err = u.dependencies.PHP.ExecScript(ctx, server, &users, usersPHP, "list_users")
 	return
@@ -36,7 +36,7 @@ func (u *Users) All(ctx context.Context, server *phpx.Server) (users []status.Dr
 
 var errLoginUnknownError = errors.New("`Login': unknown error")
 
-// Login generates a login link for the user with the given username
+// Login generates a login link for the user with the given username.
 func (u *Users) Login(ctx context.Context, server *phpx.Server, username string) (dest *url.URL, err error) {
 	return u.LoginWithOpt(ctx, server, username, LoginOptions{
 		Destination:     "/",
@@ -51,9 +51,8 @@ type LoginOptions struct {
 	GrantAdminRole  bool
 }
 
-// LoginOrCreate generates a login link for the user with the given username and options
+// LoginOrCreate generates a login link for the user with the given username and options.
 func (u *Users) LoginWithOpt(ctx context.Context, server *phpx.Server, username string, opts LoginOptions) (dest *url.URL, err error) {
-
 	// generate a (relative) link
 	var path string
 	err = u.dependencies.PHP.ExecScript(ctx, server, &path, usersPHP, "get_login_link", username, opts.Destination, opts.CreateIfMissing, opts.GrantAdminRole)
@@ -79,7 +78,7 @@ func (u *Users) LoginWithOpt(ctx context.Context, server *phpx.Server, username 
 
 var errSetPassword = errors.New("`SetPassword': unknown error")
 
-// SetPassword sets the password for a given user
+// SetPassword sets the password for a given user.
 func (u *Users) SetPassword(ctx context.Context, server *phpx.Server, username, password string) error {
 	var ok bool
 	err := u.dependencies.PHP.ExecScript(ctx, server, &ok, usersPHP, "set_user_password", username, password)

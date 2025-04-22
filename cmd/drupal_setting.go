@@ -9,7 +9,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// DrupalSetting is then 'drupal_setting' command
+// DrupalSetting is then 'drupal_setting' command.
 var DrupalSetting wisski_distillery.Command = setting{}
 
 type setting struct {

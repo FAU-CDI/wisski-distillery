@@ -16,7 +16,7 @@ type DistilleryFetcher interface {
 	Fetch(flags FetcherFlags, target *status.Distillery) error
 }
 
-// FetcherFlags describes options for a DistilleryFetcher
+// FetcherFlags describes options for a DistilleryFetcher.
 type FetcherFlags struct {
 	Context context.Context
 }

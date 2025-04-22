@@ -87,7 +87,6 @@ var (
 )
 
 func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http.Handler, err error) {
-
 	router := httprouter.New()
 
 	// add a handler for the index page

@@ -18,7 +18,7 @@ func (ssh2 *SSHKeys) TableInfo() component.TableInfo {
 	}
 }
 
-// Keys returns a list of keys for the given user
+// Keys returns a list of keys for the given user.
 func (ssh2 *SSHKeys) Keys(ctx context.Context, user string) ([]models.Keys, error) {
 	// the empty user has no key
 	if user == "" {
@@ -42,7 +42,7 @@ func (ssh2 *SSHKeys) Keys(ctx context.Context, user string) ([]models.Keys, erro
 	return keys, nil
 }
 
-// Add adds a new key to the given user, unless it already exists
+// Add adds a new key to the given user, unless it already exists.
 func (ssh2 *SSHKeys) Add(ctx context.Context, user string, comment string, key ssh.PublicKey) error {
 	// check that the given user exists
 	{

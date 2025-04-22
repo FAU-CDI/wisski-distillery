@@ -4,6 +4,7 @@ package composer
 //spellchecker:words context time github wisski distillery internal component meta status ingredient mstore logging goprogram exit
 import (
 	"context"
+	"errors"
 	"io"
 	"time"
 
@@ -20,7 +21,7 @@ var errBlindUpdateFailed = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-// Update performs a blind drush update
+// Update performs a blind drush update.
 func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err error) {
 	defer func() {
 		if err == nil {
@@ -64,7 +65,7 @@ const lastUpdate = mstore.For[int64]("lastUpdate")
 
 func (drush *Composer) LastUpdate(ctx context.Context) (t time.Time, err error) {
 	epoch, err := lastUpdate.Get(ctx, drush.dependencies.MStore)
-	if err == meta.ErrMetadatumNotSet {
+	if errors.Is(err, meta.ErrMetadatumNotSet) {
 		return t, nil
 	}
 	if err != nil {

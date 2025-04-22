@@ -174,7 +174,7 @@ func (dis *Distillery) allComponents(context *lifetime.Registry[component.Compon
 	lifetime.Place[*next.Next](context)
 	lifetime.Place[*tokens.Tokens](context)
 
-	//scopes
+	// scopes
 	lifetime.Place[*scopes.Never](context)
 	lifetime.Place[*scopes.UserLoggedIn](context)
 	lifetime.Place[*scopes.AdminLoggedIn](context)

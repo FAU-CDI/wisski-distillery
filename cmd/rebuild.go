@@ -14,7 +14,7 @@ import (
 	"github.com/tkw1536/pkglib/status"
 )
 
-// Cron is the 'cron' command
+// Cron is the 'cron' command.
 var Rebuild wisski_distillery.Command = rebuild{}
 
 type rebuild struct {

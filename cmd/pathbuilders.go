@@ -7,7 +7,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Pathbuilders is the 'pathbuilders' command
+// Pathbuilders is the 'pathbuilders' command.
 var Pathbuilders wisski_distillery.Command = pathbuilders{}
 
 type pathbuilders struct {
@@ -43,7 +43,6 @@ var errPathbuilderWissKI = exit.Error{
 }
 
 func (pb pathbuilders) Run(context wisski_distillery.Context) error {
-
 	// get the wisski
 	instance, err := context.Environment.Instances().WissKI(context.Context, pb.Positionals.Slug)
 	if err != nil {

@@ -11,7 +11,7 @@ import (
 	"github.com/tkw1536/pkglib/collection"
 )
 
-// Info is then 'info' command
+// Info is then 'info' command.
 var Info wisski_distillery.Command = info{}
 
 type info struct {

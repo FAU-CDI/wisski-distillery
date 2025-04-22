@@ -19,7 +19,7 @@ func (exporter *Exporter) ShouldPrune(modtime time.Time) bool {
 	return time.Since(modtime) > component.GetStill(exporter).Config.MaxBackupAge
 }
 
-// Prune prunes all old exports
+// Prune prunes all old exports.
 func (exporter *Exporter) PruneExports(ctx context.Context, progress io.Writer) error {
 	sPath := exporter.ArchivePath()
 

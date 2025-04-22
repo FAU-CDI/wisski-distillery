@@ -12,7 +12,7 @@ import (
 	_ "embed"
 )
 
-// Prefixes implements reading and writing prefix
+// Prefixes implements reading and writing prefix.
 type Adapters struct {
 	ingredient.Base
 	dependencies struct {

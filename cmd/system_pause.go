@@ -16,7 +16,7 @@ import (
 	"github.com/tkw1536/pkglib/status"
 )
 
-// SystemPause is the 'system_pause' command
+// SystemPause is the 'system_pause' command.
 var SystemPause wisski_distillery.Command = systempause{}
 
 type systempause struct {

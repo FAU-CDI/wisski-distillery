@@ -10,7 +10,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// DisGrant is the 'dis_grant' command
+// DisGrant is the 'dis_grant' command.
 var DisGrant wisski_distillery.Command = disGrant{}
 
 type disGrant struct {

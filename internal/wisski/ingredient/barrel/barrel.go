@@ -8,7 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 )
 
-// Barrel provides access to the underlying Barrel
+// Barrel provides access to the underlying Barrel.
 type Barrel struct {
 	ingredient.Base
 	dependencies struct {

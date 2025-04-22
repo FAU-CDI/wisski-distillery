@@ -80,9 +80,9 @@ func (sql *SQL) Stack() component.StackWithResources {
 }
 
 const (
-	// "mysql"-compatible executable for raw sql queries
+	// "mysql"-compatible executable for raw sql queries.
 	SQLQueryExecutable = "mariadb"
 
-	// "mysqldump"-compatible executable for dumping an entire database
+	// "mysqldump"-compatible executable for dumping an entire database.
 	SQlDumpExecutable = "mariadb-dump"
 )

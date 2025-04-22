@@ -7,7 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
-// Filesystem implements snapshotting an instnace filesystem
+// Filesystem implements snapshotting an instnace filesystem.
 type Filesystem struct {
 	component.Base
 }
@@ -22,7 +22,7 @@ func (Filesystem) SnapshotNeedsRunning() bool { return false }
 // SnapshotName returns a new name to be used as an argument for path.
 func (Filesystem) SnapshotName() string { return "data" }
 
-// Snapshot creates a snapshot of this instance
+// Snapshot creates a snapshot of this instance.
 func (*Filesystem) Snapshot(wisski models.Instance, context *component.StagingContext) error {
 	return context.CopyDirectory(".", wisski.FilesystemBase)
 }

@@ -58,7 +58,7 @@ func (hcfg HTTPConfig) PanelDomain() string {
 	return hcfg.Domains(PanelDomain.Domain())[0]
 }
 
-// returns a list of all domains that the panel is available at
+// returns a list of all domains that the panel is available at.
 func (hcfg HTTPConfig) PanelDomains() []string {
 	domains := hcfg.Domains(PanelDomain.Domain())
 	if hcfg.Panel.Set && hcfg.Panel.Value {
@@ -67,7 +67,7 @@ func (hcfg HTTPConfig) PanelDomains() []string {
 	return domains
 }
 
-// TSDomain returns the full url to the triplestore, if any
+// TSDomain returns the full url to the triplestore, if any.
 func (hcfg HTTPConfig) TSURL() template.URL {
 	return hcfg.optionalURL(TriplestoreDomain.Domain(), hcfg.TS)
 }
@@ -78,7 +78,7 @@ func (hcfg HTTPConfig) PhpMyAdminURL() template.URL {
 
 // optionalURL returns the public-facing url to domain if enabled is true.
 func (hcfg HTTPConfig) optionalURL(domain string, enabled validators.NullableBool) template.URL {
-	if !(enabled.Set && enabled.Value) {
+	if !enabled.Set || !enabled.Value {
 		return ""
 	}
 
@@ -120,7 +120,7 @@ func (hcfg HTTPConfig) HTTPSEnabled() bool {
 	return hcfg.CertbotEmail != ""
 }
 
-// SpecialDomain represents a reserved domain
+// SpecialDomain represents a reserved domain.
 type SpecialDomain string
 
 var (
@@ -208,7 +208,7 @@ func (cfg HTTPConfig) SlugFromHost(host string) (slug string, ok bool) {
 	return "", ok
 }
 
-// NormSlugFromHost is like SlugFromHost, but normalizes the panel host
+// NormSlugFromHost is like SlugFromHost, but normalizes the panel host.
 func (cfg HTTPConfig) NormSlugFromHost(host string) (string, bool) {
 	// if we didn't get a domain, don't do anything
 	slug, ok := cfg.SlugFromHost(host)
@@ -222,7 +222,7 @@ func (cfg HTTPConfig) NormSlugFromHost(host string) (string, bool) {
 	}
 
 	// if we don't serve the toplevel domain then the toplevel domain is an error.
-	if slug == "" && !(cfg.Panel.Set && cfg.Panel.Value) {
+	if slug == "" && (!cfg.Panel.Set || !cfg.Panel.Value) {
 		return "", false
 	}
 

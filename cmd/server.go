@@ -14,7 +14,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Server is the 'server' command
+// Server is the 'server' command.
 var Server wisski_distillery.Command = server{}
 
 type server struct {

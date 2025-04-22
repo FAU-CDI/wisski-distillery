@@ -123,7 +123,7 @@ func (panel *UserPanel) routeTOTPEnroll(context.Context) http.Handler {
 			}
 
 			if err == nil && user != nil {
-				ctx.userFormContext.User = &user.User
+				ctx.User = &user.User
 				secret, err := user.TOTP()
 				if err == nil {
 					img, _ := auth.TOTPLink(secret, 500, 500)

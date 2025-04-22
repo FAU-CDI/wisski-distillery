@@ -56,7 +56,7 @@ func (scope ScopeInfo) CheckError(err error) error {
 	return CheckError{Scope: scope.Scope, Err: err}
 }
 
-// ScopeProvider is a component that can check a specific scope
+// ScopeProvider is a component that can check a specific scope.
 type ScopeProvider interface {
 	Component
 
@@ -83,7 +83,7 @@ func (si SessionInfo) MarshalJSON() ([]byte, error) {
 	}{User: si.Username(), Token: si.Token})
 }
 
-// Username reports the username associated with this session
+// Username reports the username associated with this session.
 func (si SessionInfo) Username() string {
 	if si.User == nil {
 		return ""
@@ -91,7 +91,7 @@ func (si SessionInfo) Username() string {
 	return si.User.User
 }
 
-// Anonymous reports if this Session is associated with a user account
+// Anonymous reports if this Session is associated with a user account.
 func (si SessionInfo) Anonymous() bool {
 	return si.Username() != ""
 }

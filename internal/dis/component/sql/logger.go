@@ -12,7 +12,7 @@ import (
 	"gorm.io/gorm/utils"
 )
 
-// logger implements "gorm/logger.Interface"
+// logger implements "gorm/logger.Interface".
 type gormLogger struct {
 	Level                     logger.LogLevel
 	SlowThreshold             time.Duration

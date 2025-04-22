@@ -4,11 +4,10 @@ package models
 //spellchecker:words time
 import "time"
 
-// ExportTable is the name of the table the [Export] model is stored in.
-// NOTE(twiesing): It is called snapshot for legacy reasons
+// NOTE(twiesing): It is called snapshot for legacy reasons.
 const ExportTable = "snapshot"
 
-// Export represents an entry in the export log
+// Export represents an entry in the export log.
 type Export struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 

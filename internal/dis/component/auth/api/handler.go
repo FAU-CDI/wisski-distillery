@@ -60,7 +60,7 @@ var apiForbidden = &Response{
 	Message: "forbidden",
 }
 
-// ServeHTTP servers an api call
+// ServeHTTP servers an api call.
 func (handler *Handler[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// check that the api is actually enabled!
 	if !handler.Config.HTTP.API.Value {
@@ -161,8 +161,7 @@ func (handler *Handler[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(result)
 }
 
-// Response represents a generic response to any request.
-// Response objects cache response serialization
+// Response objects cache response serialization.
 type Response struct {
 	Status  int    `json:"status"`
 	Message string `json:"message"`

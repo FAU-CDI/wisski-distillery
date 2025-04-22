@@ -26,7 +26,7 @@ func (config *Config) Unmarshal(src io.Reader) error {
 	return config.Validate()
 }
 
-// Validate validates this configuration file and sets appropriate defaults
+// Validate validates this configuration file and sets appropriate defaults.
 func (config *Config) Validate() error {
 	return validator.Validate(config, validators.New())
 }

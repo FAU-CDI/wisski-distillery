@@ -28,14 +28,14 @@ var publicTemplate = templating.Parse[publicContext](
 var aboutHTML string
 var aboutTemplate = template.Must(template.New("about.html").Parse(aboutHTML))
 
-// aboutContext is passed to about.html
+// aboutContext is passed to about.html.
 type aboutContext struct {
 	Instances    []status.WissKI // list of WissKI Instancaes
 	Logo         template.HTML
 	SelfRedirect string
 }
 
-// publicCOntext is passed to public.html
+// publicCOntext is passed to public.html.
 type publicContext struct {
 	templating.RuntimeFlags
 
@@ -73,9 +73,9 @@ func (home *Home) publicHandler(context.Context) http.Handler {
 		var builder strings.Builder
 
 		// prepare about
-		pc.aboutContext.Logo = logoHTML
-		pc.aboutContext.Instances = home.dependencies.ListInstances.Infos()
-		pc.aboutContext.SelfRedirect = config.SelfRedirect.String()
+		pc.Logo = logoHTML
+		pc.Instances = home.dependencies.ListInstances.Infos()
+		pc.SelfRedirect = config.SelfRedirect.String()
 
 		// render the about template
 

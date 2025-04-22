@@ -9,13 +9,13 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 )
 
-// MStore implements metadata storage for this WissKI
+// MStore implements metadata storage for this WissKI.
 type MStore struct {
 	ingredient.Base
 	*meta.Storage
 }
 
-// For is a Store for the provided value
+// For is a Store for the provided value.
 type For[Value any] meta.TypedKey[Value]
 
 func (f For[Value]) Get(ctx context.Context, m *MStore) (value Value, err error) {
@@ -39,5 +39,5 @@ func (f For[Value]) SetAll(ctx context.Context, m *MStore, values ...Value) erro
 }
 
 func (f For[Value]) Delete(ctx context.Context, m *MStore) error {
-	return m.Storage.Delete(ctx, meta.Key(f))
+	return m.Delete(ctx, meta.Key(f))
 }

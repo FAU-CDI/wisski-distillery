@@ -27,8 +27,7 @@ import (
 	"github.com/tkw1536/pkglib/lifetime"
 )
 
-// WissKI represents a single WissKI Instance.
-// A WissKI may not be copied
+// A WissKI may not be copied.
 type WissKI struct {
 	liquid.Liquid
 
@@ -159,7 +158,7 @@ func (wisski *WissKI) allIngredients(context *lifetime.Registry[ingredient.Ingre
 	// core bits
 	lifetime.Place[*locker.Locker](context)
 	lifetime.Register(context, func(m *mstore.MStore, _ *liquid.Liquid) {
-		m.Storage = wisski.Malt.Meta.Storage(wisski.Slug)
+		m.Storage = wisski.Meta.Storage(wisski.Slug)
 	})
 
 	// php

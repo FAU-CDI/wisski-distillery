@@ -13,7 +13,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Provision is the 'provision' command
+// Provision is the 'provision' command.
 var Provision wisski_distillery.Command = pv{}
 
 type pv struct {

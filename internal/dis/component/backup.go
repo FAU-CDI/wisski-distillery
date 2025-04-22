@@ -13,7 +13,7 @@ import (
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
-// Backupable represents a component with a Backup method
+// Backupable represents a component with a Backup method.
 type Backupable interface {
 	Component
 
@@ -38,7 +38,7 @@ type Snapshotable interface {
 	Snapshot(wisski models.Instance, context *StagingContext) error
 }
 
-// NewStagingContext returns a new [StagingContext]
+// NewStagingContext returns a new [StagingContext].
 func NewStagingContext(ctx context.Context, progress io.Writer, path string, manifest chan<- string) *StagingContext {
 	return &StagingContext{
 		ctx:      ctx,
@@ -48,7 +48,7 @@ func NewStagingContext(ctx context.Context, progress io.Writer, path string, man
 	}
 }
 
-// StagingContext is a context used for [Backupable] and [Snapshotable]
+// StagingContext is a context used for [Backupable] and [Snapshotable].
 type StagingContext struct {
 	ctx      context.Context
 	progress io.Writer     // writer to direct progress to

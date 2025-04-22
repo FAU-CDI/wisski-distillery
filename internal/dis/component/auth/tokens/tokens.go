@@ -15,7 +15,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// Tokens implements Tokens
+// Tokens implements Tokens.
 type Tokens struct {
 	component.Base
 
@@ -48,7 +48,7 @@ func (tok *Tokens) OnUserDelete(ctx context.Context, user *models.User) error {
 	return table.Delete(&models.Token{}, &models.Token{User: user.User}).Error
 }
 
-// Tokens returns a list of tokens for the given user
+// Tokens returns a list of tokens for the given user.
 func (tok *Tokens) Tokens(ctx context.Context, user string) ([]models.Token, error) {
 	// the empty user has no tokens
 	if user == "" {
@@ -79,7 +79,7 @@ const (
 	tokenCharset     password.Charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 )
 
-// NewToken generates a new token
+// NewToken generates a new token.
 func NewToken() (string, error) {
 	// generate a new password
 	token, err := password.Generate(rand.Reader, tokenGroupCount*tokenGroupLength, tokenCharset)
@@ -91,7 +91,7 @@ func NewToken() (string, error) {
 	var result strings.Builder
 	result.Grow(len(token) + (tokenGroupCount-1)*len(tokenSeparator))
 
-	for i := 0; i < tokenGroupCount; i++ {
+	for i := range tokenGroupCount {
 		if i != 0 {
 			result.WriteString(tokenSeparator)
 		}
@@ -101,13 +101,11 @@ func NewToken() (string, error) {
 	}
 
 	return result.String(), nil
-
 }
 
 // Add adds a new token, unless it already exists.
 // The token is granted scopes with .SetScopes(scopes).
 func (tok *Tokens) Add(ctx context.Context, user string, description string, scopes []string) (*models.Token, error) {
-
 	// create a new token and set the scopes
 	mk := models.Token{
 		User:        user,
@@ -146,7 +144,7 @@ func (tok *Tokens) Add(ctx context.Context, user string, description string, sco
 	return &mk, nil
 }
 
-// Remove removes a token with the given token from the user
+// Remove removes a token with the given token from the user.
 func (tok *Tokens) Remove(ctx context.Context, user, id string) error {
 	// get the table
 	table, err := tok.table(ctx)

@@ -21,8 +21,7 @@ import (
 	"github.com/tkw1536/pkglib/status"
 )
 
-// ExportTask describes a task that makes either a [Backup] or a [Snapshot].
-// See [Exporter.MakeExport]
+// See [Exporter.MakeExport].
 type ExportTask struct {
 	// Dest is the destination path to write the backup to.
 	// When empty, this is created automatically in the staging or archive directory.
@@ -47,7 +46,7 @@ type ExportTask struct {
 	SnapshotDescription SnapshotDescription
 }
 
-// export is implemented by [Backup] and [Snapshot]
+// export is implemented by [Backup] and [Snapshot].
 type export interface {
 	LogEntry() models.Export
 	// ReportPlain writes a plaintext report summary into w
@@ -56,7 +55,7 @@ type export interface {
 	ReportMachine(w io.Writer) error
 }
 
-// Parts lists all available snapshot parts
+// Parts lists all available snapshot parts.
 func (exporter *Exporter) Parts() []string {
 	return collection.MapSlice(exporter.dependencies.Snapshotable, func(c component.Snapshotable) string { return c.SnapshotName() })
 }
@@ -69,7 +68,6 @@ const (
 // MakeExport performs an export task as described by flags.
 // Output is directed to the provided io.
 func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, task ExportTask) (err error) {
-
 	// extract parameters
 	Title := "Backup"
 	Slug := ""

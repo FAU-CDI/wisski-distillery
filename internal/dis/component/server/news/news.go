@@ -19,7 +19,7 @@ import (
 	"github.com/yuin/goldmark"
 	gmmeta "github.com/yuin/goldmark-meta"
 	"github.com/yuin/goldmark/parser"
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 type News struct {
@@ -91,7 +91,7 @@ func (item *Item) parse(path string, builder *strings.Builder) error {
 //go:embed "NEWS/*.md"
 var newsFS embed.FS
 
-// Items returns a list of all news items
+// Items returns a list of all news items.
 func Items() ([]Item, error) {
 	var builder strings.Builder
 
@@ -133,7 +133,7 @@ var (
 	menuNews = component.MenuItem{Title: "News", Path: "/news/"}
 )
 
-// HandleRoute returns the handler for the requested path
+// HandleRoute returns the handler for the requested path.
 func (news *News) HandleRoute(ctx context.Context, path string) (http.Handler, error) {
 	tpl := newsTemplate.Prepare(
 		news.dependencies.Templating,

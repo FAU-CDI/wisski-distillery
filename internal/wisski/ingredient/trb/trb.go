@@ -27,7 +27,6 @@ type TRB struct {
 // RebuildTriplestore rebuilds the triplestore by making a backup, storing it on disk, purging the triplestore, and restoring the backup.
 // Returns the size of the backup dump in bytes.
 func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmptyRepository bool) (size int, err error) {
-
 	// re-create the default adapter
 	logging.LogMessage(out, "Re-creating adapter")
 	if _, err := trb.dependencies.Adapters.SetAdapter(ctx, nil, trb.dependencies.Adapters.DefaultAdapter()); err != nil {

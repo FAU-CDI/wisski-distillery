@@ -197,13 +197,10 @@ type StackWithResources struct {
 	CreateFiles    map[string]string // Files to 'create' but not update after they are setup; guaranteed to be run after MakeDirs
 }
 
-// InstallationContext is a context to install data in
+// InstallationContext is a context to install data in.
 type InstallationContext map[string]string
 
-// Install installs or updates this stack into the directory specified by stack.Stack().
-//
-// Installation is non-interactive, but will provide debugging output onto io.
-// InstallationContext
+// InstallationContext.
 func (is StackWithResources) Install(ctx context.Context, progress io.Writer, context InstallationContext) error {
 	if is.ContextPath != "" {
 		// setup the base files
@@ -325,8 +322,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 const composeFileHeader = "# This file was automatically created and is updated by the distillery; DO NOT EDIT.\n\n"
 
-// addComposeFileHeader adds a header to the 'docker-compose.yml' file
-// indicating it is automatically created
+// indicating it is automatically created.
 func addComposeFileHeader(path string) error {
 	// read existing bytes
 	bytes, err := os.ReadFile(path)
@@ -407,7 +403,7 @@ func doComposeFile(path string, update func(node *yaml.Node) (*yaml.Node, error)
 	return umaskfree.WriteFile(path, result, mode)
 }
 
-// writeEnvFile writes an environment file
+// writeEnvFile writes an environment file.
 func writeEnvFile(path string, perm fs.FileMode, variables map[string]string) error {
 	// create the environment file
 	file, err := umaskfree.Create(path, perm)

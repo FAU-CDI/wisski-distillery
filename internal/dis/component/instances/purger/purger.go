@@ -4,6 +4,7 @@ package purger
 //spellchecker:words context github wisski distillery internal component instances models logging goprogram exit
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -15,7 +16,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Purger purges instances from the distillery
+// Purger purges instances from the distillery.
 type Purger struct {
 	component.Base
 	dependencies struct {
@@ -38,7 +39,7 @@ var errPurgeGeneric = exit.Error{
 func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) error {
 	logging.LogMessage(out, "Checking bookkeeping table")
 	instance, err := purger.dependencies.Instances.WissKI(ctx, slug)
-	if err == instances.ErrWissKINotFound {
+	if errors.Is(err, instances.ErrWissKINotFound) {
 		fmt.Fprintln(out, "Not found in bookkeeping table, assuming defaults")
 		instance, err = purger.dependencies.Instances.Create(slug, models.System{})
 	}

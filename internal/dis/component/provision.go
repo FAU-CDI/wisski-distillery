@@ -8,7 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
-// Provisionable is a component that can be provisioned
+// Provisionable is a component that can be provisioned.
 type Provisionable interface {
 	Component
 

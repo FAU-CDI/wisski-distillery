@@ -14,7 +14,7 @@ import (
 	"github.com/tkw1536/pkglib/status"
 )
 
-// DrupalUser is the 'drupal_user' setting
+// DrupalUser is the 'drupal_user' setting.
 var DrupalUser wisski_distillery.Command = drupalUser{}
 
 type drupalUser struct {
@@ -145,7 +145,7 @@ func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context,
 
 	for {
 		context.Printf("Enter a password to check:")
-		candidate, err := context.IOStream.ReadPassword()
+		candidate, err := context.ReadPassword()
 		if err != nil {
 			return err
 		}
@@ -167,14 +167,14 @@ func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context,
 
 func (du drupalUser) resetPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
 	context.Printf("Enter new password for user %s:", du.Positionals.User)
-	passwd1, err := context.IOStream.ReadPassword()
+	passwd1, err := context.ReadPassword()
 	if err != nil {
 		return err
 	}
 	context.Println()
 
 	context.Printf("Enter the same password again:")
-	passwd2, err := context.IOStream.ReadPassword()
+	passwd2, err := context.ReadPassword()
 	if err != nil {
 		return err
 	}

@@ -19,7 +19,7 @@ import (
 // It should contain the path to a deployment directory.
 const metaConfigFile = "." + bootstrap.Executable
 
-// MetaConfigPath returns the full path to the MetaConfigPath()
+// MetaConfigPath returns the full path to the MetaConfigPath().
 func MetaConfigPath() (string, error) {
 	// find the current user
 	usr, err := user.Current()
@@ -60,7 +60,7 @@ func ReadBaseDirectory() (value string, err error) {
 	return value, nil
 }
 
-// WriteBaseDirectory writes the base directory to the environment, or returns an error
+// WriteBaseDirectory writes the base directory to the environment, or returns an error.
 func WriteBaseDirectory(dir string) error {
 	// get the path!
 	path, err := MetaConfigPath()

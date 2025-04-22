@@ -13,7 +13,7 @@ func (*Policy) Provision(ctx context.Context, instance models.Instance, domain s
 	return nil
 }
 
-// Purge purges every policy for the given slug form the database
+// Purge purges every policy for the given slug form the database.
 func (pol *Policy) Purge(ctx context.Context, instance models.Instance, domain string) error {
 	table, err := pol.table(ctx)
 	if err != nil {
@@ -22,7 +22,7 @@ func (pol *Policy) Purge(ctx context.Context, instance models.Instance, domain s
 	return table.Delete(&models.Grant{}, &models.Grant{Slug: instance.Slug}).Error
 }
 
-// OnUserDelete is called when a user is deleted
+// OnUserDelete is called when a user is deleted.
 func (pol *Policy) OnUserDelete(ctx context.Context, user *models.User) error {
 	table, err := pol.table(ctx)
 	if err != nil {

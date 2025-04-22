@@ -13,7 +13,7 @@ import (
 	"github.com/tkw1536/pkglib/status"
 )
 
-// Cron is the 'cron' command
+// Cron is the 'cron' command.
 var Cron wisski_distillery.Command = cron{}
 
 type cron struct {

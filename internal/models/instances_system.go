@@ -17,7 +17,7 @@ const (
 	imageSuffix = "-apache-bullseye"
 )
 
-// OpCacheMode returns the name of the `opcache-*.ini` configuration being included in the docker image
+// OpCacheMode returns the name of the `opcache-*.ini` configuration being included in the docker image.
 func (system System) OpCacheMode() string {
 	if system.OpCacheDevelopment {
 		return "devel"
@@ -36,7 +36,7 @@ var (
 	})()
 )
 
-// DefaultPHPVersion is the default php version
+// DefaultPHPVersion is the default php version.
 const DefaultPHPVersion = "8.3"
 
 // KnownPHPVersions returns a slice of php versions.
@@ -53,7 +53,7 @@ func (system System) GetDockerBaseImage() string {
 	return imagePrefix + version + imageSuffix
 }
 
-// GetIIPServerEnabled returns if the IIPServer was enabled
+// GetIIPServerEnabled returns if the IIPServer was enabled.
 func (system System) GetIIPServerEnabled() string {
 	if !system.IIPServer {
 		return ""
@@ -62,10 +62,10 @@ func (system System) GetIIPServerEnabled() string {
 }
 
 const (
-	// Content Security Policy used by the internal server
+	// Content Security Policy used by the internal server.
 	ContentSecurityPolicyNothing = "base-uri 'self'; default-src 'none';"
 
-	// Content Security policy used by the distillery admin server
+	// Content Security policy used by the distillery admin server.
 	ContentSecurityPolicyPanel = "base-uri 'self'; default-src 'self'; img-src 'self' data:; media-src 'none'; worker-src 'none'; frame-src 'none'; frame-ancestors 'none';"
 
 	ContentSecurityPolicyPanelUnsafeScripts = ContentSecurityPolicyPanel + " script-src 'self' 'unsafe-inline';"

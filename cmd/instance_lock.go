@@ -8,7 +8,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// InstanceLock is then 'instance_lock' command
+// InstanceLock is then 'instance_lock' command.
 var InstanceLock wisski_distillery.Command = instanceLock{}
 
 type instanceLock struct {

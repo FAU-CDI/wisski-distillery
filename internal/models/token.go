@@ -9,7 +9,7 @@ import (
 // TokensTable is the name of the table the 'Token' model is stored in.
 const TokensTable = "tokens"
 
-// Token represents an access token for a specific user
+// Token represents an access token for a specific user.
 type Token struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 

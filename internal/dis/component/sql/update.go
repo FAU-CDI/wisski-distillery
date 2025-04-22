@@ -26,7 +26,7 @@ func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) i
 
 var errSQLNotFound = errors.New("internal error: unsafeWaitShell: sql client not found")
 
-// unsafeWaitShell waits for a connection via the database shell to succeed
+// unsafeWaitShell waits for a connection via the database shell to succeed.
 func (sql *SQL) unsafeWaitShell(ctx context.Context) (err error) {
 	defer func() {
 		// catch the errSQLNotFound
@@ -35,12 +35,11 @@ func (sql *SQL) unsafeWaitShell(ctx context.Context) (err error) {
 			return
 		}
 
-		// other panic => keep panicking
-		if r != errSQLNotFound {
-			panic(r)
+		// if we simply didn't find the sql, don't panic!
+		if e, ok := r.(error); ok && errors.Is(e, errSQLNotFound) {
+			err = e
+			return
 		}
-
-		err = errSQLNotFound
 	}()
 
 	return timex.TickUntilFunc(func(time.Time) bool {

@@ -11,7 +11,7 @@ import (
 	"github.com/tkw1536/goprogram/parser"
 )
 
-// Shell is the 'shell' command
+// Shell is the 'shell' command.
 var Shell wisski_distillery.Command = shell{}
 
 type shell struct {

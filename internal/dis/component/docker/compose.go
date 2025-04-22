@@ -5,7 +5,7 @@ package docker
 import (
 	"context"
 
-	"golang.org/x/exp/slices"
+	"slices"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
 	"github.com/docker/docker/api/types/container"

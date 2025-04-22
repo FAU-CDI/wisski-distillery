@@ -21,7 +21,7 @@ import (
 	_ "embed"
 )
 
-// Prefixes implements reading and writing prefix
+// Prefixes implements reading and writing prefix.
 type Prefixes struct {
 	ingredient.Base
 	dependencies struct {
@@ -65,10 +65,10 @@ func (prefixes *Prefixes) All(ctx context.Context, server *phpx.Server) ([]strin
 	return append(uris, uris2...), nil
 }
 
-// getLivePrefixes get the list of prefixes found within the live system
+// getLivePrefixes get the list of prefixes found within the live system.
 func (prefixes *Prefixes) getLivePrefixes(ctx context.Context, server *phpx.Server) (pfs []string, err error) {
 	danger := ingredient.GetStill(prefixes).Config.TS.DangerouslyUseAdapterPrefixes
-	if !(danger.Set && danger.Value) {
+	if !danger.Set || !danger.Value {
 		pfs, err = prefixes.getTSPrefixes(ctx, server)
 	} else {
 		// danger danger danger: Use the adapter prefixes
@@ -190,12 +190,12 @@ func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 
 var prefix = mstore.For[string]("prefix")
 
-// Prefixes returns the cached prefixes from the given instance
+// Prefixes returns the cached prefixes from the given instance.
 func (wisski *Prefixes) AllCached(ctx context.Context) (results []string, err error) {
 	return prefix.GetAll(ctx, wisski.dependencies.MStore)
 }
 
-// Update updates the cached prefixes of this instance
+// Update updates the cached prefixes of this instance.
 func (wisski *Prefixes) Update(ctx context.Context) error {
 	prefixes, err := wisski.All(ctx, nil)
 	if err != nil {

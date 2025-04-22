@@ -9,7 +9,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// SSH is the 'ssh' command
+// SSH is the 'ssh' command.
 var SSH wisski_distillery.Command = ssh{}
 
 type ssh struct {

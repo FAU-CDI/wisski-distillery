@@ -24,7 +24,6 @@ var (
 //
 // It does not perform any checks if the instance already exists, or does the creation in the database.
 func (instances *Instances) Create(slug string, system models.System) (wissKI *wisski.WissKI, err error) {
-
 	// make sure that the slug is valid!
 	slug, err = instances.IsValidSlug(slug)
 	if err != nil {
@@ -34,45 +33,45 @@ func (instances *Instances) Create(slug string, system models.System) (wissKI *w
 	wissKI = new(wisski.WissKI)
 	instances.use(wissKI)
 
-	wissKI.Liquid.Instance.Slug = slug
-	wissKI.Liquid.Instance.FilesystemBase = filepath.Join(instances.Path(), wissKI.Domain())
+	wissKI.Slug = slug
+	wissKI.FilesystemBase = filepath.Join(instances.Path(), wissKI.Domain())
 
-	wissKI.Liquid.Instance.OwnerEmail = ""
-	wissKI.Liquid.Instance.AutoBlindUpdateEnabled = true
+	wissKI.OwnerEmail = ""
+	wissKI.AutoBlindUpdateEnabled = true
 
 	config := component.GetStill(instances).Config
 
 	// sql
 
-	wissKI.Liquid.Instance.SqlDatabase = config.SQL.DataPrefix + slug
-	wissKI.Liquid.Instance.SqlUsername = config.SQL.UserPrefix + slug
+	wissKI.SqlDatabase = config.SQL.DataPrefix + slug
+	wissKI.SqlUsername = config.SQL.UserPrefix + slug
 
-	wissKI.Liquid.Instance.SqlPassword, err = config.NewPassword()
+	wissKI.SqlPassword, err = config.NewPassword()
 	if err != nil {
 		return nil, err
 	}
 
 	// triplestore
 
-	wissKI.Liquid.Instance.GraphDBRepository = config.TS.DataPrefix + slug
-	wissKI.Liquid.Instance.GraphDBUsername = config.TS.UserPrefix + slug
+	wissKI.GraphDBRepository = config.TS.DataPrefix + slug
+	wissKI.GraphDBUsername = config.TS.UserPrefix + slug
 
-	wissKI.Liquid.Instance.GraphDBPassword, err = config.NewPassword()
+	wissKI.GraphDBPassword, err = config.NewPassword()
 	if err != nil {
 		return nil, err
 	}
 
 	// drupal
 
-	wissKI.Liquid.DrupalUsername = "admin" // TODO: Change this!
+	wissKI.DrupalUsername = "admin" // TODO: Change this!
 
-	wissKI.Liquid.DrupalPassword, err = config.NewPassword()
+	wissKI.DrupalPassword, err = config.NewPassword()
 	if err != nil {
 		return nil, err
 	}
 
 	// docker image
-	wissKI.Liquid.Instance.System = system
+	wissKI.System = system
 
 	// store the instance in the object and return it!
 	return wissKI, nil

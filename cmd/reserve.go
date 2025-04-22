@@ -12,7 +12,7 @@ import (
 	"github.com/tkw1536/pkglib/fsx"
 )
 
-// Reserve is the 'reserve' command
+// Reserve is the 'reserve' command.
 var Reserve wisski_distillery.Command = reserve{}
 
 type reserve struct {

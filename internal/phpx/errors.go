@@ -3,7 +3,7 @@ package phpx
 
 import "fmt"
 
-// Common PHP Errors
+// Common PHP Errors.
 const (
 	errInit    = "Server initialization failed"
 	errClosed  = "Server closed"
@@ -11,25 +11,25 @@ const (
 	errReceive = "Failed to decode response"
 )
 
-// PHPError represents an error during PHPServer logic
+// PHPError represents an error during PHPServer logic.
 type ServerError struct {
 	Message string
 	Err     error
 }
 
-// Unwrap returns the underlying error
+// Unwrap returns the underlying error.
 func (err ServerError) Unwrap() error {
 	return err.Err
 }
 
 func (err ServerError) Error() string {
 	if err.Err == nil {
-		return fmt.Sprintf("PHPServer: %s", err.Message)
+		return "PHPServer: " + err.Message
 	}
 	return fmt.Sprintf("PHPServer: %s: %s", err.Message, err.Err)
 }
 
-// Throwable represents an error during php code
+// Throwable represents an error during php code.
 type Throwable string
 
 func (throwable Throwable) Error() string {

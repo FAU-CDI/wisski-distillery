@@ -24,7 +24,7 @@ func LogOperation(operation func() error, progress io.Writer, format string, arg
 	return err
 }
 
-// LogMessage logs a message that is displayed to the user
+// LogMessage logs a message that is displayed to the user.
 func LogMessage(progress io.Writer, format string, args ...interface{}) (int, error) {
 	return logOperation(progress, getIndent(progress), format, args...)
 }
@@ -38,7 +38,7 @@ func logOperation(progress io.Writer, indent int, format string, args ...interfa
 	return fmt.Fprintf(progress, message, args...)
 }
 
-// streamIsTerminal checks if stream is a terminal
+// streamIsTerminal checks if stream is a terminal.
 func streamIsTerminal(stream any) bool {
 	file, ok := stream.(interface{ Fd() uintptr })
 	return ok && term.IsTerminal(int(file.Fd()))

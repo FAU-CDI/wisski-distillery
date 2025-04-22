@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
-// Config implements backing up configuration
+// Config implements backing up configuration.
 type Config struct {
 	component.Base
 }

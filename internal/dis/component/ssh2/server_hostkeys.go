@@ -81,7 +81,7 @@ func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, ctx context.Context, pri
 	return hostKey, nil
 }
 
-// loadHostKey loadsa host key
+// loadHostKey loadsa host key.
 func (ssh2 *SSH2) loadHostKey(progress io.Writer, _ context.Context, key HostKey, path string) (err error) {
 	fmt.Fprintf(progress, "Loading hostkey (algorithm %s) from %q\n", key.Algorithm(), path)
 
@@ -107,7 +107,7 @@ func (ssh2 *SSH2) loadHostKey(progress io.Writer, _ context.Context, key HostKey
 	return key.UnmarshalPEM(privateKeyPEM)
 }
 
-// makeHostKey makes a new host key
+// makeHostKey makes a new host key.
 func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostKey, path string) error {
 	fmt.Fprintf(progress, "Writing hostkey (algorithm %s) to %q\n", key.Algorithm(), path)
 
@@ -156,10 +156,10 @@ type HostKey interface {
 type HostKeyAlgorithm string
 
 const (
-	// RSAAlgorithm represents the RSA Algorithm
+	// RSAAlgorithm represents the RSA Algorithm.
 	RSAAlgorithm HostKeyAlgorithm = "rsa"
 
-	// ED25519Algorithm represents the ED25519 algorithm
+	// ED25519Algorithm represents the ED25519 algorithm.
 	ED25519Algorithm HostKeyAlgorithm = "ed25519"
 )
 

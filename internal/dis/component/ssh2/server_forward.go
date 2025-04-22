@@ -11,7 +11,7 @@ import (
 	gossh "golang.org/x/crypto/ssh"
 )
 
-// direct-tcpip data struct as specified in RFC4254, Section 7.2
+// direct-tcpip data struct as specified in RFC4254, Section 7.2.
 type localForwardChannelData struct {
 	DestAddr string
 	DestPort uint32
@@ -20,7 +20,7 @@ type localForwardChannelData struct {
 	OriginPort uint32
 }
 
-// setupForwardHandler sets up the forwarding handler for the ssh server
+// setupForwardHandler sets up the forwarding handler for the ssh server.
 func (ssh2 *SSH2) setupForwardHandler(server *ssh.Server) {
 	if server.ChannelHandlers == nil {
 		server.ChannelHandlers = make(map[string]ssh.ChannelHandler)
@@ -37,7 +37,7 @@ type Intercept struct {
 	Dest        component.HostPort
 }
 
-// ExamplePort returns a local port that can be forwarded to without root rights
+// ExamplePort returns a local port that can be forwarded to without root rights.
 func (i Intercept) ExamplePort() uint32 {
 	if i.Match.Port < 100 {
 		return i.Match.Port * 101
@@ -90,7 +90,7 @@ func (ssh2 *SSH2) getForwardDest(req component.HostPort, ctx ssh.Context) (ok bo
 	return true, component.HostPort{Host: slug + "." + config.HTTP.PrimaryDomain + ".wisski", Port: 22}, ""
 }
 
-// handleDirectTCP handles a direct tcp connection for the server
+// handleDirectTCP handles a direct tcp connection for the server.
 func (ssh2 *SSH2) handleDirectTCP(srv *ssh.Server, conn *gossh.ServerConn, newChan gossh.NewChannel, ctx ssh.Context) {
 	d := localForwardChannelData{}
 	if err := gossh.Unmarshal(newChan.ExtraData(), &d); err != nil {

@@ -17,8 +17,7 @@ import (
 	"github.com/tkw1536/pkglib/cgo"
 )
 
-// these define the ggman-specific program types
-// none of these are strictly needed, they're just around for convenience
+// none of these are strictly needed, they're just around for convenience.
 type wdcliEnv = *dis.Distillery
 type wdcliParameters = cli.Params
 type wdcliRequirements = cli.Requirements

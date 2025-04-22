@@ -28,7 +28,7 @@ type Template struct {
 	SessionSecret       string
 }
 
-// SetDefaults sets defaults on the template
+// SetDefaults sets defaults on the template.
 func (tpl *Template) SetDefaults() (err error) {
 	if tpl.RootPath == "" {
 		tpl.RootPath = bootstrap.BaseDirectoryDefault
@@ -81,7 +81,7 @@ func (tpl *Template) SetDefaults() (err error) {
 	return nil
 }
 
-// Generate generates a configuration file for this configuration
+// Generate generates a configuration file for this configuration.
 func (tpl Template) Generate() Config {
 	return Config{
 		Listen: ListenConfig{

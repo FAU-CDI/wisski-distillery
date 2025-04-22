@@ -4,6 +4,7 @@ package barrel
 //spellchecker:words context time github wisski distillery internal component meta status ingredient locker mstore
 import (
 	"context"
+	"errors"
 	"io"
 	"time"
 
@@ -46,12 +47,12 @@ func (barrel *Barrel) Build(ctx context.Context, progress io.Writer, start bool)
 	return barrel.setLastRebuild(ctx)
 }
 
-// TODO: Move this to time.Time
+// TODO: Move this to time.Time.
 var lastRebuild = mstore.For[int64]("lastRebuild")
 
 func (barrel Barrel) LastRebuild(ctx context.Context) (t time.Time, err error) {
 	epoch, err := lastRebuild.Get(ctx, barrel.dependencies.MStore)
-	if err == meta.ErrMetadatumNotSet {
+	if errors.Is(err, meta.ErrMetadatumNotSet) {
 		return t, nil
 	}
 	if err != nil {

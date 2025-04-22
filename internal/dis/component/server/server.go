@@ -36,10 +36,7 @@ var (
 	_ component.Installable = (*Server)(nil)
 )
 
-// Server returns an http.Mux that implements the main server instance.
-// The server may spawn background tasks, but these should be terminated once context closes.
-//
-// Logging messages are directed to progress
+// Logging messages are directed to progress.
 func (server *Server) Server(ctx context.Context, progress io.Writer) (public http.Handler, internal http.Handler, err error) {
 	interceptor := server.dependencies.Handleing.TextInterceptor()
 
@@ -131,7 +128,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 	return
 }
 
-// CSRF returns a CSRF handler for the given function
+// CSRF returns a CSRF handler for the given function.
 func (server *Server) csrf() func(http.Handler) http.Handler {
 	config := component.GetStill(server).Config
 
@@ -145,7 +142,7 @@ func (server *Server) csrf() func(http.Handler) http.Handler {
 	return csrf.Protect(config.CSRFKey(), opts...)
 }
 
-// WithCSP adds a Content-Security-Policy header to every response
+// WithCSP adds a Content-Security-Policy header to every response.
 func WithCSP(handler http.Handler, policy string) http.Handler {
 	if policy == "" {
 		return handler
@@ -159,8 +156,7 @@ func WithCSP(handler http.Handler, policy string) http.Handler {
 
 const cspHeader = "Content-Security-Policy"
 
-// SetCSP sets the Content-Security-Policy for the given response
-// Any previously set header is discarded
+// Any previously set header is discarded.
 func SetCSP(w http.ResponseWriter, policy string) {
 	header := w.Header()
 

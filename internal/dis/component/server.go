@@ -9,7 +9,7 @@ import (
 	"github.com/tkw1536/pkglib/httpx/mux"
 )
 
-// Routeable is a component that is servable
+// Routeable is a component that is servable.
 type Routeable interface {
 	Component
 
@@ -21,7 +21,7 @@ type Routeable interface {
 	HandleRoute(ctx context.Context, path string) (http.Handler, error)
 }
 
-// Routes represents information about a single Routeable
+// Routes represents information about a single Routeable.
 type Routes struct {
 	// Prefix is the prefix this pattern handles
 	Prefix string
@@ -59,17 +59,17 @@ type routeContextTyp int
 
 const routeContextKey routeContextTyp = 0
 
-// RouteContext represents the context passed to a given route
+// RouteContext represents the context passed to a given route.
 type RouteContext struct {
 	DefaultDomain bool
 }
 
-// WithRouteContext adds the given RouteContext to the context
+// WithRouteContext adds the given RouteContext to the context.
 func WithRouteContext(parent context.Context, value RouteContext) context.Context {
 	return context.WithValue(parent, routeContextKey, value)
 }
 
-// RouteContextOf returns the route context of the given context
+// RouteContextOf returns the route context of the given context.
 func RouteContextOf(context context.Context) RouteContext {
 	ctx, ok := context.Value(routeContextKey).(RouteContext)
 	if !ok {
@@ -78,7 +78,7 @@ func RouteContextOf(context context.Context) RouteContext {
 	return ctx
 }
 
-// Predicate returns the predicate corresponding to the given route
+// Predicate returns the predicate corresponding to the given route.
 func (routes Routes) Predicate(context func(*http.Request) RouteContext) mux.Predicate {
 	if routes.MatchAllDomains || routes.Internal {
 		return nil

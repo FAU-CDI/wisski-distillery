@@ -22,7 +22,6 @@ func (snapshot Snapshot) ReportMachine(w io.Writer) error {
 	return json.NewEncoder(w).Encode(snapshot)
 }
 
-//nolint:errcheck
 func (snapshot Snapshot) ReportPlain(w io.Writer) error {
 	ww := &sequence.Writer{Writer: w} // allows us to ignore all the errors
 

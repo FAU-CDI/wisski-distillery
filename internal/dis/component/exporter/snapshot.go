@@ -10,6 +10,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"maps"
+	"slices"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
@@ -19,11 +22,9 @@ import (
 	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/status"
-	"golang.org/x/exp/maps"
-	"golang.org/x/exp/slices"
 )
 
-// SnapshotDescription is a description for a snapshot
+// SnapshotDescription is a description for a snapshot.
 type SnapshotDescription struct {
 	Dest      string // destination path
 	Keepalive bool   // should we keep the instance alive while making the snapshot?
@@ -31,7 +32,7 @@ type SnapshotDescription struct {
 	Parts []string // SnapshotName()s of the components to include.
 }
 
-// Snapshot represents the result of generating a snapshot
+// Snapshot represents the result of generating a snapshot.
 type Snapshot struct {
 	Description SnapshotDescription
 	Instance    models.Instance
@@ -59,9 +60,8 @@ type Snapshot struct {
 	partsStopped []component.Snapshotable `json:"-"`
 }
 
-// Snapshot creates a new snapshot of this instance into dest
+// Snapshot creates a new snapshot of this instance into dest.
 func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.WissKI, progress io.Writer, desc SnapshotDescription) (snapshot Snapshot) {
-
 	logging.LogMessage(progress, "Locking instance")
 	if !instance.Locker().TryLock(ctx) {
 		err := locker.Locked
@@ -146,7 +146,7 @@ func (snapshots *Exporter) resolveParts(ctx context.Context, parts []string, sna
 	}
 
 	// sort the names of all requested parts
-	snapshot.Description.Parts = maps.Keys(partMap)
+	snapshot.Description.Parts = slices.AppendSeq(make([]string, 0, len(partMap)), maps.Keys(partMap))
 	slices.Sort(snapshot.Description.Parts)
 
 	// and setup the map for running and stopped parts!

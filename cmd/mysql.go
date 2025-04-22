@@ -10,7 +10,7 @@ import (
 	"github.com/tkw1536/goprogram/parser"
 )
 
-// Mysql is the 'mysql' command
+// Mysql is the 'mysql' command.
 var Mysql wisski_distillery.Command = mysql{}
 
 type mysql struct {

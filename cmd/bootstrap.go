@@ -2,6 +2,7 @@ package cmd
 
 //spellchecker:words path filepath github wisski distillery internal bootstrap config logging goprogram exit pkglib umaskfree
 import (
+	"errors"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -17,7 +18,7 @@ import (
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
-// Bootstrap is the 'bootstrap' command
+// Bootstrap is the 'bootstrap' command.
 var Bootstrap wisski_distillery.Command = cBootstrap{}
 
 type cBootstrap struct {
@@ -114,7 +115,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 		}
 
 		err = umaskfree.CopyFile(context.Context, wdcliPath, exe)
-		if err != nil && err != umaskfree.ErrCopySameFile {
+		if err != nil && !errors.Is(err, umaskfree.ErrCopySameFile) {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
 		context.Println(wdcliPath)
@@ -180,7 +181,6 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 				return errBootstrapWriteConfig.WrapError(err)
 			}
 		}
-
 	}
 
 	// re-read the configuration and print it!

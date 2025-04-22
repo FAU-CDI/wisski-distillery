@@ -6,7 +6,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 )
 
-// RebuildTS is the 'rebuild_ts' setting
+// RebuildTS is the 'rebuild_ts' setting.
 var RebuildTS wisski_distillery.Command = rebuildTS{}
 
 type rebuildTS struct {

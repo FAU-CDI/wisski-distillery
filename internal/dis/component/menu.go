@@ -8,14 +8,14 @@ import (
 	"sync/atomic"
 )
 
-// Menuable is a component that provides a menu
+// Menuable is a component that provides a menu.
 type Menuable interface {
 	Component
 
 	Menu(r *http.Request) []MenuItem
 }
 
-// MenuItem represents an item inside the menu
+// MenuItem represents an item inside the menu.
 type MenuItem struct {
 	Title  string
 	Path   template.URL
@@ -29,7 +29,7 @@ type MenuItem struct {
 
 var dummyCounter uint64
 
-// DummyMenuItem creates a new Dummy Menu Item to be replaced
+// DummyMenuItem creates a new Dummy Menu Item to be replaced.
 func DummyMenuItem() MenuItem {
 	return MenuItem{
 		replaceID: atomic.AddUint64(&dummyCounter, 1),
@@ -59,7 +59,7 @@ func MenuItemSort(a, b MenuItem) int {
 
 type MenuPriority int
 
-// Menu* indicates priorities of the menu
+// Menu* indicates priorities of the menu.
 const (
 	MenuHome MenuPriority = iota
 	MenuNews

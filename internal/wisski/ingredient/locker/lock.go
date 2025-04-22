@@ -12,7 +12,7 @@ import (
 	"github.com/tkw1536/pkglib/contextx"
 )
 
-// Locker provides facitilites for locking this WissKI instance
+// Locker provides facitilites for locking this WissKI instance.
 type Locker struct {
 	ingredient.Base
 }
@@ -26,7 +26,7 @@ var Locked = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-// TryLock attemps to lock this WissKI and returns if it suceeded
+// TryLock attemps to lock this WissKI and returns if it suceeded.
 func (lock *Locker) TryLock(ctx context.Context) bool {
 	liquid := ingredient.GetLiquid(lock)
 

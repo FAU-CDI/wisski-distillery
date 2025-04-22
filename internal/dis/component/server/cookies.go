@@ -8,7 +8,7 @@ package server
 const (
 	CSRFCookie      = "F" // CSRF cookie sent on a lot of requests
 	CSRFCookieField = "@" // form field name __should not be used by anything else__
-	// to pay respect
+	// to pay respect.
 
 	SessionCookie  = "x" // name of the cookie to use ; to doubt
 	SessionUserKey = "@" // key within the session data to hold the username

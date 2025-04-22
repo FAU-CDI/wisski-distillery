@@ -6,7 +6,7 @@ import (
 	"github.com/tkw1536/goprogram/meta"
 )
 
-// Requirements are requirements for the WissKI Distillery
+// Requirements are requirements for the WissKI Distillery.
 type Requirements struct {
 	// Do we need an installed distillery?
 	NeedsDistillery bool

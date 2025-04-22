@@ -8,7 +8,7 @@ import (
 	"github.com/tkw1536/goprogram/parser"
 )
 
-// Shell is the 'shell' command
+// Shell is the 'shell' command.
 var MakeMysqlAccount wisski_distillery.Command = makeMysqlAccount{}
 
 type makeMysqlAccount struct{}

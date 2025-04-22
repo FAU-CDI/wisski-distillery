@@ -4,7 +4,7 @@ package models
 // GrantTable is the name of the table the 'Grant' model is stored in.
 const GrantTable = "grant"
 
-// Grant represents an access grant to a specific user
+// Grant represents an access grant to a specific user.
 type Grant struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 

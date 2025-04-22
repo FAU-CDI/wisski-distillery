@@ -4,7 +4,7 @@ package models
 // UserTable is the name of the table the [`User`] model is stored in.
 const UserTable = "users"
 
-// User represents a distillery user
+// User represents a distillery user.
 type User struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 

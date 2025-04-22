@@ -36,7 +36,7 @@ func (tpl *Template[C]) Template() *template.Template {
 	return baseTemplate
 }
 
-// LogTepmplateError logs a non-nil error into the logger found in the request
+// LogTepmplateError logs a non-nil error into the logger found in the request.
 func (*Template[C]) LogTemplateError(r *http.Request, err error) {
 	_ = handling.LogTemplateError(r, err) // no way to report error
 }
@@ -61,8 +61,8 @@ func (tpl *Template[C]) context(r *http.Request, funcs ...FlagFunc) (ctx *tConte
 	ctx.Runtime.Menu = tpl.templating.buildMenu(r)
 
 	// generate the rest of the options
-	ctx.Runtime.Flags = ctx.Runtime.Flags.Apply(r, tpl.p.funcs...)
-	ctx.Runtime.Flags = ctx.Runtime.Flags.Apply(r, funcs...)
+	ctx.Runtime.Flags = ctx.Runtime.Apply(r, tpl.p.funcs...)
+	ctx.Runtime.Flags = ctx.Runtime.Apply(r, funcs...)
 	ctx.updateEmbedded = tpl.p.hasRuntimeFlagsEmbed
 
 	// the main template
@@ -75,7 +75,7 @@ func (tpl *Template[C]) context(r *http.Request, funcs ...FlagFunc) (ctx *tConte
 	return
 }
 
-// ParseForm is like Parse[BaseFormContext]
+// ParseForm is like Parse[BaseFormContext].
 var ParseForm = Parse[FormContext]
 
 type FormContext struct {
@@ -83,12 +83,12 @@ type FormContext struct {
 	RuntimeFlags
 }
 
-// NewFormContext returns a new FormContext from an underlying context
+// NewFormContext returns a new FormContext from an underlying context.
 func NewFormContext(context form.FormContext) FormContext {
 	return FormContext{FormContext: context}
 }
 
-// FormTemplateContext returns a new handler for a form with the given base context
+// FormTemplateContext returns a new handler for a form with the given base context.
 func FormTemplateContext(tw *Template[FormContext]) func(ctx form.FormContext, r *http.Request) any {
 	// TODO: Is this needed?
 	return func(ctx form.FormContext, r *http.Request) any {
@@ -171,7 +171,7 @@ func (ctx *tContext[C]) Main() (template.HTML, error) {
 	return ctx.renderSafe("main", ctx.tMain, ctx.cMain)
 }
 
-// Footer renders the footer template
+// Footer renders the footer template.
 func (ctx *tContext[C]) Footer() (template.HTML, error) {
 	return ctx.renderSafe("footer", ctx.tFooter, ctx.cFooter)
 }
@@ -180,7 +180,6 @@ const renderSafeError = "Error displaying page. See server log for details. "
 const renderPanicError = "Panic displaying page. See server log for details. "
 
 func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (template.HTML, error) {
-
 	// already done with context => return
 	if err := ctx.ctx.Err(); err != nil {
 		return "", err
@@ -231,7 +230,7 @@ func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (te
 	return value, nil
 }
 
-// panicErr is returned by renderSafe when a panic occurs
+// panicErr is returned by renderSafe when a panic occurs.
 type panicErr struct {
 	value any
 	stack []byte

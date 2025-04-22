@@ -14,7 +14,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// MakeBlock is the 'make_block' command
+// MakeBlock is the 'make_block' command.
 var MakeBlock wisski_distillery.Command = makeBlock{}
 
 type makeBlock struct {
@@ -70,7 +70,6 @@ var errBlocksNoContent = exit.Error{
 }
 
 func (mb makeBlock) Run(context wisski_distillery.Context) error {
-
 	// get the wisski
 	instance, err := context.Environment.Instances().WissKI(context.Context, mb.Positionals.Slug)
 	if err != nil {

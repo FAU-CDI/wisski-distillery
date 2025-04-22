@@ -38,7 +38,6 @@ func (binder *Binder) Stack() component.StackWithResources {
 		Resources:   composeTemplate,
 
 		ComposerYML: func(root *yaml.Node) (*yaml.Node, error) {
-
 			ports := config.Listen.ComposePorts("8000")
 			if err := yamlx.ReplaceWith(root, ports, "services", "binder", "ports"); err != nil {
 				return nil, err

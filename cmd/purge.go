@@ -7,7 +7,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Provision is the 'provision' command
+// Provision is the 'provision' command.
 var Purge wisski_distillery.Command = purge{}
 
 type purge struct {

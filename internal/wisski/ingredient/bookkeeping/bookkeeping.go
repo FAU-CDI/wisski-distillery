@@ -8,21 +8,21 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 )
 
-// Bookkeeping provides instance bookkeeping
+// Bookkeeping provides instance bookkeeping.
 type Bookkeeping struct {
 	ingredient.Base
 }
 
-// Save saves this instance in the bookkeeping table
+// Save saves this instance in the bookkeeping table.
 func (bk *Bookkeeping) Save(ctx context.Context) error {
 	liquid := ingredient.GetLiquid(bk)
-	sdb, err := ingredient.GetLiquid(bk).Malt.SQL.QueryTable(ctx, liquid.Malt.InstanceTable)
+	sdb, err := ingredient.GetLiquid(bk).SQL.QueryTable(ctx, liquid.InstanceTable)
 	if err != nil {
 		return err
 	}
 
 	// it has never been created => we need to create it in the database
-	if liquid.Instance.Created.IsZero() {
+	if liquid.Created.IsZero() {
 		return sdb.Create(&liquid.Instance).Error
 	}
 
@@ -30,7 +30,7 @@ func (bk *Bookkeeping) Save(ctx context.Context) error {
 	return sdb.Select("*").Save(&liquid.Instance).Error
 }
 
-// Delete deletes this instance from the bookkeeping table
+// Delete deletes this instance from the bookkeeping table.
 func (bk *Bookkeeping) Delete(ctx context.Context) error {
 	liquid := ingredient.GetLiquid(bk)
 	sdb, err := liquid.SQL.QueryTable(ctx, liquid.InstanceTable)
@@ -39,7 +39,7 @@ func (bk *Bookkeeping) Delete(ctx context.Context) error {
 	}
 
 	// doesn't exist => nothing to delete
-	if liquid.Instance.Created.IsZero() {
+	if liquid.Created.IsZero() {
 		return nil
 	}
 

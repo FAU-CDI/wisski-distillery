@@ -31,7 +31,7 @@ type Block struct {
 	BlockID string
 }
 
-// Create creates a new block with the given title and html content
+// Create creates a new block with the given title and html content.
 func (blocks *Blocks) Create(ctx context.Context, server *phpx.Server, block Block) (err error) {
 	err = blocks.dependencies.PHP.ExecScript(ctx, server, nil, blocksPHP, "create_basic_block", block.Info, block.Content, block.Region, block.BlockID)
 	return err

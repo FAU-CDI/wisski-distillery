@@ -9,10 +9,10 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
-// DrupalUser represents a WissKI DrupalUser
+// DrupalUser represents a WissKI DrupalUser.
 type DrupalUser struct {
 	UID     phpx.Integer   `json:"uid,omitempty"`
 	Name    phpx.String    `json:"name,omitempty"`
@@ -60,7 +60,7 @@ func (du DrupalUser) String() string {
 	return builder.String()
 }
 
-// UserRole represents the role of a user
+// UserRole represents the role of a user.
 type UserRole string
 
 const (
@@ -68,14 +68,14 @@ const (
 	ContentEditor UserRole = "content_editor"
 )
 
-// UserRoles represents a set of user roles for a given user
+// UserRoles represents a set of user roles for a given user.
 type UserRoles map[UserRole]struct{}
 
 func (ur UserRoles) String() string {
 	return "[" + ur.string() + "]"
 }
 
-// String turns this UserRoles into a string
+// String turns this UserRoles into a string.
 func (ur UserRoles) string() string {
 	roles := make([]string, len(ur))
 	i := 0
@@ -91,7 +91,7 @@ func (ur UserRoles) MarshalJSON() ([]byte, error) {
 	return json.Marshal(ur.string())
 }
 
-// Has checks if the UserRole has the given role
+// Has checks if the UserRole has the given role.
 func (ur UserRoles) Has(role UserRole) (ok bool) {
 	_, ok = ur[role]
 	return

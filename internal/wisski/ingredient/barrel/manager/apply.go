@@ -12,8 +12,7 @@ import (
 	"github.com/tkw1536/pkglib/stream"
 )
 
-// Apply applies the given profile to this existing instance.
-// The instance must be running
+// The instance must be running.
 func (manager *Manager) Apply(ctx context.Context, progress io.Writer, flags Profile) error {
 	// Update drupal
 	if flags.Drupal != "" {
@@ -78,14 +77,12 @@ func (manager *Manager) installModules(ctx context.Context, progress io.Writer, 
 		}
 		return nil
 	}, progress, "%s", message)
-
 }
 
 // applyDrupal applies a specific drupal version.
 // Assumes that drupal != "".
 func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, drupal string) error {
 	return logging.LogOperation(func() error {
-
 		logging.LogMessage(progress, "Clearing up permissions for update")
 		{
 			for _, script := range [][]string{
@@ -145,13 +142,11 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 
 		return nil
 	}, progress, "%s", "Updating to Drupal %q", drupal)
-
 }
 
 // applyWissKI applies the WissKI version.
 func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wisski string) error {
 	return logging.LogOperation(func() error {
-
 		logging.LogMessage(progress, "Installing WissKI Module")
 		{
 			spec := "drupal/wisski"

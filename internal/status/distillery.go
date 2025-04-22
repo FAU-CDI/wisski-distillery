@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
-// Distillery holds status and analytical data about a distillery
+// Distillery holds status and analytical data about a distillery.
 type Distillery struct {
 	Time time.Time // Time when this information was built
 

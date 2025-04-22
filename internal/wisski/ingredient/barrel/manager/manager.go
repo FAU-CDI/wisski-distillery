@@ -32,7 +32,7 @@ type Manager struct {
 	}
 }
 
-// profiles contains the list of default profiles
+// profiles contains the list of default profiles.
 var (
 	defaultProfile = "Drupal 11"
 	profiles       = map[string]Profile{

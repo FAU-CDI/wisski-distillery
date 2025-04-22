@@ -24,7 +24,7 @@ type PathsConfig struct {
 	ResolverBlocks string `yaml:"blocks" validate:"file"`
 }
 
-// RuntimeDir returns the path to the runtime directory
+// RuntimeDir returns the path to the runtime directory.
 func (pcfg PathsConfig) RuntimeDir() string {
 	return filepath.Join(pcfg.Root, "runtime")
 }
@@ -34,7 +34,7 @@ func (pcfg PathsConfig) ExecutablePath() string {
 	return filepath.Join(pcfg.Root, bootstrap.Executable)
 }
 
-// UsingDistilleryExecutable checks if the current process is using the distillery executable
+// UsingDistilleryExecutable checks if the current process is using the distillery executable.
 func (pcfg PathsConfig) UsingDistilleryExecutable() bool {
 	exe, err := os.Executable()
 	if err != nil {

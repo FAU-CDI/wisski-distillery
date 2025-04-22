@@ -16,7 +16,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// ListInstances holds information about all instances
+// ListInstances holds information about all instances.
 type ListInstances struct {
 	component.Base
 
@@ -37,7 +37,7 @@ func (li *ListInstances) Infos() []status.WissKI {
 	return li.infos.Get(nil)
 }
 
-// ShouldShowList determines if a list should be shown for the given request
+// ShouldShowList determines if a list should be shown for the given request.
 func (li *ListInstances) ShouldShowList(r *http.Request) bool {
 	config := component.GetStill(li).Config.Home.List
 	allowPrivate := config.Private.Value
@@ -85,7 +85,7 @@ func (li *ListInstances) Cron(ctx context.Context) (err error) {
 	return
 }
 
-// getNames returns the names of the given instances
+// getNames returns the names of the given instances.
 func (li *ListInstances) getNames(ctx context.Context) (map[string]struct{}, error) {
 	wissKIs, err := li.dependencies.Instances.All(ctx)
 	if err != nil {
@@ -99,7 +99,7 @@ func (li *ListInstances) getNames(ctx context.Context) (map[string]struct{}, err
 	return names, nil
 }
 
-// getInfos returns the names of the given instances
+// getInfos returns the names of the given instances.
 func (li *ListInstances) getInfos(ctx context.Context) ([]status.WissKI, error) {
 	// find all the WissKIs
 	wissKIs, err := li.dependencies.Instances.All(ctx)
@@ -112,7 +112,6 @@ func (li *ListInstances) getInfos(ctx context.Context) ([]status.WissKI, error) 
 	// determine their infos
 	var eg errgroup.Group
 	for i, instance := range wissKIs {
-		i := i
 		wissKI := instance
 		eg.Go(func() (err error) {
 			infos[i], err = wissKI.Info().Information(ctx, false)

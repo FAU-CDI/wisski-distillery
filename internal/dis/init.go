@@ -27,7 +27,7 @@ var CGoEnabled = exit.Error{
 	Message:  "this functionality is only available when cgo support is disabled. Set `CGO_ENABLED=0' at build time and try again",
 }
 
-// NewDistillery creates a new distillery from the provided flags
+// NewDistillery creates a new distillery from the provided flags.
 func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (dis *Distillery, err error) {
 	// check cgo support to prevent weird error messages
 	// this has to happen either when we are inside docker, or when explicity requested by the command.
@@ -36,7 +36,7 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	}
 
 	dis = new(Distillery)
-	dis.Still.Upstream = component.Upstream{
+	dis.Upstream = component.Upstream{
 		SQL:         component.HostPort{Host: "127.0.0.1", Port: 3306},
 		Triplestore: component.HostPort{Host: "127.0.0.1", Port: 7200},
 		Solr:        component.HostPort{Host: "127.0.0.1", Port: 8983},
@@ -47,9 +47,9 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	// so setup the ports to connect everything to properly.
 	// also override some of the parameters for the environment.
 	if flags.InternalInDocker {
-		dis.Still.Upstream.SQL = component.HostPort{Host: "sql", Port: 3306}
-		dis.Still.Upstream.Triplestore = component.HostPort{Host: "triplestore", Port: 7200}
-		dis.Still.Upstream.Solr = component.HostPort{Host: "solr", Port: 8983}
+		dis.Upstream.SQL = component.HostPort{Host: "sql", Port: 3306}
+		dis.Upstream.Triplestore = component.HostPort{Host: "triplestore", Port: 7200}
+		dis.Upstream.Solr = component.HostPort{Host: "solr", Port: 8983}
 		params.ConfigPath = os.Getenv("CONFIG_PATH")
 	}
 

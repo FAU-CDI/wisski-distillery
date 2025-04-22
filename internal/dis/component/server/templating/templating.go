@@ -7,7 +7,7 @@ import (
 	"github.com/tkw1536/pkglib/lazy"
 )
 
-// Templating implements templating customization
+// Templating implements templating customization.
 type Templating struct {
 	component.Base
 	dependencies struct {

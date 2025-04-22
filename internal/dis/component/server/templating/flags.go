@@ -15,7 +15,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// Flags represent handle-updatable options for the base template
+// Flags represent handle-updatable options for the base template.
 type Flags struct {
 	Title         string // Title of the menu
 	assets.Assets        // assets are the assets included in the template
@@ -25,7 +25,7 @@ type Flags struct {
 	Actions []component.MenuItem // actions are the actions available to a specific thingy
 }
 
-// Apply applies a set of functions to this flags
+// Apply applies a set of functions to this flags.
 func (flags Flags) Apply(r *http.Request, funcs ...FlagFunc) Flags {
 	for _, f := range funcs {
 		flags = f(flags, r)
@@ -44,7 +44,7 @@ type RuntimeFlags struct {
 	CSRF        template.HTML        // csrf data (if any)
 }
 
-// Returns how long this request took to render
+// Returns how long this request took to render.
 func (rf RuntimeFlags) Took() time.Duration {
 	return time.Since(rf.StartedAt)
 }
@@ -56,7 +56,7 @@ func (rf RuntimeFlags) TookHTML() template.HTML {
 
 var runtimeFlagsName = reflect.TypeFor[RuntimeFlags]().Name()
 
-// Clone clones this flags
+// Clone clones this flags.
 func (flags Flags) Clone() Flags {
 	flags.Crumbs = slices.Clone(flags.Crumbs)
 	flags.Actions = slices.Clone(flags.Actions)
@@ -67,7 +67,7 @@ func (flags Flags) Clone() Flags {
 // FlagFunc may not be nil.
 type FlagFunc func(flags Flags, r *http.Request) Flags
 
-// Assets sets the given assets for the given flags
+// Assets sets the given assets for the given flags.
 func Assets(Assets assets.Assets) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		flags.Assets = Assets
@@ -75,7 +75,7 @@ func Assets(Assets assets.Assets) FlagFunc {
 	}
 }
 
-// Crumbs sets the crumbs
+// Crumbs sets the crumbs.
 func Crumbs(crumbs ...component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		flags.Crumbs = slices.Clone(crumbs)
@@ -83,7 +83,7 @@ func Crumbs(crumbs ...component.MenuItem) FlagFunc {
 	}
 }
 
-// Actions sets the actions
+// Actions sets the actions.
 func Actions(actions ...component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		flags.Actions = slices.Clone(actions)
@@ -91,7 +91,7 @@ func Actions(actions ...component.MenuItem) FlagFunc {
 	}
 }
 
-// Tabs sets the tabs
+// Tabs sets the tabs.
 func Tabs(actions ...component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		flags.Tabs = slices.Clone(actions)
@@ -99,7 +99,7 @@ func Tabs(actions ...component.MenuItem) FlagFunc {
 	}
 }
 
-// ReplaceCrumb replaces a specific crum
+// ReplaceCrumb replaces a specific crum.
 func ReplaceCrumb(old component.MenuItem, crumb component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		if !old.ReplaceWith(crumb, flags.Crumbs) {
@@ -113,7 +113,7 @@ func ReplaceCrumb(old component.MenuItem, crumb component.MenuItem) FlagFunc {
 	}
 }
 
-// ReplaceAction replaces a specific action
+// ReplaceAction replaces a specific action.
 func ReplaceAction(old component.MenuItem, action component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		if !old.ReplaceWith(action, flags.Actions) {
@@ -127,7 +127,7 @@ func ReplaceAction(old component.MenuItem, action component.MenuItem) FlagFunc {
 	}
 }
 
-// ReplaceTab replaces a specific tab
+// ReplaceTab replaces a specific tab.
 func ReplaceTab(old component.MenuItem, tab component.MenuItem) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		if !old.ReplaceWith(tab, flags.Tabs) {
@@ -141,7 +141,7 @@ func ReplaceTab(old component.MenuItem, tab component.MenuItem) FlagFunc {
 	}
 }
 
-// Title sets the title of this template
+// Title sets the title of this template.
 func Title(title string) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
 		flags.Title = title

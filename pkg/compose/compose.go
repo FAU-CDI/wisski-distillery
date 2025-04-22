@@ -10,7 +10,7 @@ import (
 	"github.com/compose-spec/compose-go/types"
 )
 
-// ComposeProject represents a compose project
+// ComposeProject represents a compose project.
 type Project = *types.Project
 
 // Open loads a docker compose project from the given path.

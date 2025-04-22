@@ -6,7 +6,7 @@ import (
 	"html/template"
 	"reflect"
 
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 // Parsed represents a parsed template that takes as argument a context of type C.

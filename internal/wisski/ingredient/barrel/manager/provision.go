@@ -4,6 +4,7 @@ package manager
 //spellchecker:words context time github wisski distillery internal component models ingredient barrel composer extras logging pkglib contextx stream
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"time"
@@ -18,11 +19,7 @@ import (
 	"github.com/tkw1536/pkglib/stream"
 )
 
-// Provision provisions this instance with the given flags.
-//
-// Provision assumes that the instance does not yet exist, and may fail with an existing instance.
-//
-// Provision applies defaults to flags, to ensure some values are set
+// Provision applies defaults to flags, to ensure some values are set.
 func (manager *Manager) Provision(ctx context.Context, progress io.Writer, system models.System, flags Profile) error {
 	// Force building and applying the system!
 	if err := manager.dependencies.SystemManager.ApplyInitial(ctx, progress, system); err != nil {
@@ -62,7 +59,7 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 	return manager.bootstrap(ctx, progress, flags)
 }
 
-// TODO: Move this to the flags
+// TODO: Move this to the flags.
 var drushVariants = []string{
 	"drush/drush", "drush/drush:^12", "drush/drush:^11",
 }
@@ -98,7 +95,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	{
 		for _, v := range drushVariants {
 			err := provision.dependencies.Composer.TryInstall(ctx, progress, v)
-			if err == composer.ErrNotInstalled {
+			if errors.Is(err, composer.ErrNotInstalled) {
 				continue
 			}
 			if err != nil {

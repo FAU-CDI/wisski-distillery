@@ -23,7 +23,7 @@ const phpIniName = "custom.ini"
 //go:embed custom.ini
 var phpIniTemplate string
 
-// Barrel returns a stack representing the running WissKI Instance
+// Barrel returns a stack representing the running WissKI Instance.
 func (barrel *Barrel) Stack() component.StackWithResources {
 	liquid := ingredient.GetLiquid(barrel)
 	config := ingredient.GetStill(barrel).Config

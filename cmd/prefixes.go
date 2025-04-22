@@ -7,7 +7,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Prefixes is then 'prefixes' command
+// Prefixes is then 'prefixes' command.
 var Prefixes wisski_distillery.Command = prefixes{}
 
 type prefixes struct {

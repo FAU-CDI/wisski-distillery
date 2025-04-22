@@ -7,7 +7,7 @@ import "github.com/tkw1536/pkglib/password"
 // Safe is a charset used for generating passwords that can be safely passed without having to be escaped.
 const Safe = password.DefaultCharSet
 
-// Printable is a charset that contains all printable ascii characters
+// Printable is a charset that contains all printable ascii characters.
 const Printable = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 
 // Identifier is a charset to be used to generate unique identifiers.

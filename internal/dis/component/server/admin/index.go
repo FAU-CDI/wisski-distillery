@@ -54,7 +54,6 @@ func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target s
 		Context: ctx,
 	}
 	for _, o := range admin.dependencies.Fetchers {
-		o := o
 		group.Go(func() error {
 			return o.Fetch(flags, &target)
 		})

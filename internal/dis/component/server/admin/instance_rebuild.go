@@ -4,6 +4,7 @@ package admin
 //spellchecker:words context html template http github wisski distillery internal component instances server assets templating models julienschmidt httprouter pkglib httpx embed
 import (
 	"context"
+	"errors"
 	"html/template"
 	"net/http"
 
@@ -25,7 +26,7 @@ var instanceSystemTemplate = templating.Parse[instanceSystemContext](
 	"instance_system.html", instanceSystemHTML, nil,
 )
 
-// instanceSystemContext is the context for instance_system.html
+// instanceSystemContext is the context for instance_system.html.
 type instanceSystemContext struct {
 	templating.RuntimeFlags
 
@@ -44,7 +45,7 @@ type instanceSystemContext struct {
 	Profiles       map[string]string
 }
 
-// prepare prares the given instanceSystemContent
+// prepare prares the given instanceSystemContent.
 func (isc *instanceSystemContext) prepare(rebuild bool) {
 	isc.Rebuild = rebuild
 	isc.PHPVersions = models.KnownPHPVersions()
@@ -72,7 +73,7 @@ func (admin *Admin) instanceRebuild(context.Context) http.Handler {
 
 		var instance *wisski.WissKI
 		instance, err = admin.dependencies.Instances.WissKI(r.Context(), slug)
-		if err == instances.ErrWissKINotFound {
+		if errors.Is(err, instances.ErrWissKINotFound) {
 			return isc, nil, httpx.ErrNotFound
 		}
 		if err != nil {

@@ -14,7 +14,7 @@ import (
 	"github.com/tkw1536/pkglib/status"
 )
 
-// BlindUpdate is the 'blind_update' command
+// BlindUpdate is the 'blind_update' command.
 var BlindUpdate wisski_distillery.Command = blindUpdate{}
 
 type blindUpdate struct {

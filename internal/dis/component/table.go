@@ -6,7 +6,7 @@ import (
 	"reflect"
 )
 
-// Table is a component that manages a provided sql table
+// Table is a component that manages a provided sql table.
 type Table interface {
 	Component
 

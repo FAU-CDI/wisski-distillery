@@ -7,7 +7,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Ls is the 'ls' command
+// Ls is the 'ls' command.
 var Ls wisski_distillery.Command = ls{}
 
 type ls struct {

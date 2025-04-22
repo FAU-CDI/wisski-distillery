@@ -34,14 +34,13 @@ type TriplestoreUserAppSettings struct {
 // This includes e.g. CRUDing a specific repo.
 const tsTrivialTimeout = time.Minute
 
-// RequestHeaders represent headers of a raw http request
+// RequestHeaders represent headers of a raw http request.
 type RequestHeaders struct {
 	Accept      string
 	ContentType string
 }
 
 func (rh *RequestHeaders) With(headers RequestHeaders) *RequestHeaders {
-
 	// create new request headers and copy the old options
 	var newHeaders RequestHeaders
 	if rh != nil {

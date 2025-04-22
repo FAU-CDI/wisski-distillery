@@ -9,7 +9,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// DisUser is the 'dis_user' command
+// DisUser is the 'dis_user' command.
 var DisUser wisski_distillery.Command = disUser{}
 
 type disUser struct {
@@ -158,14 +158,14 @@ func (du disUser) runSetPassword(context wisski_distillery.Context) error {
 	var passwd string
 	{
 		context.Printf("Enter new password for user %s:", du.Positionals.User)
-		passwd1, err := context.IOStream.ReadPassword()
+		passwd1, err := context.ReadPassword()
 		if err != nil {
 			return err
 		}
 		context.Println()
 
 		context.Printf("Enter the same password again:")
-		passwd, err = context.IOStream.ReadPassword()
+		passwd, err = context.ReadPassword()
 		if err != nil {
 			return err
 		}
@@ -199,7 +199,7 @@ func (du disUser) runCheckPassword(context wisski_distillery.Context) error {
 
 	context.Printf("Enter password for %s:", du.Positionals.User)
 
-	candidate, err := context.IOStream.ReadPassword()
+	candidate, err := context.ReadPassword()
 	if err != nil {
 		return err
 	}
@@ -207,8 +207,7 @@ func (du disUser) runCheckPassword(context wisski_distillery.Context) error {
 
 	var passcode string
 	if user.IsTOTPEnabled() {
-
-		passcode, err = context.IOStream.ReadPassword()
+		passcode, err = context.ReadPassword()
 		if err != nil {
 			return err
 		}
@@ -250,7 +249,7 @@ func (du disUser) runEnableTOTP(context wisski_distillery.Context) error {
 
 	// request the passcode
 	context.Printf("Enter passcode for %s:", du.Positionals.User)
-	passcode, err := context.IOStream.ReadPassword()
+	passcode, err := context.ReadPassword()
 	if err != nil {
 		return err
 	}

@@ -17,10 +17,10 @@ import (
 // Key represents a key for metadata.
 type Key string
 
-// ErrMetadatumNotSet is returned by various [MetaStorage] functions when a metadatum is not set
+// ErrMetadatumNotSet is returned by various [MetaStorage] functions when a metadatum is not set.
 var ErrMetadatumNotSet = errors.New("metadatum not set")
 
-// Storage manages metadata for either the entire distillery, or a single slug
+// Storage manages metadata for either the entire distillery, or a single slug.
 type Storage struct {
 	Slug string
 
@@ -194,7 +194,7 @@ func (f TypedKey[Value]) Get(ctx context.Context, s *Storage) (value Value, err 
 
 func (f TypedKey[Value]) GetOrSet(ctx context.Context, s *Storage, dflt Value) (value Value, err error) {
 	value, err = f.Get(ctx, s)
-	if err == ErrMetadatumNotSet {
+	if errors.Is(err, ErrMetadatumNotSet) {
 		value = dflt
 		err = f.Set(ctx, s, value)
 	}

@@ -37,7 +37,7 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
 			GrantedAuthorities: []string{"ROLE_ADMIN"},
 		})
 		if err != nil {
-			return fmt.Errorf("failed to create triplestore user: %s", err)
+			return fmt.Errorf("failed to create triplestore user: %w", err)
 		}
 		defer res.Body.Close()
 
@@ -51,7 +51,7 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
 			logging.LogMessage(progress, "Security is already enabled")
 			return nil
 		default:
-			return fmt.Errorf("failed to create triplestore user: %s", err)
+			return fmt.Errorf("failed to create triplestore user: %w", err)
 		}
 	}
 
@@ -59,7 +59,7 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
 	{
 		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPost, "/rest/security", nil, true)
 		if err != nil {
-			return fmt.Errorf("failed to enable triplestore security: %s", err)
+			return fmt.Errorf("failed to enable triplestore security: %w", err)
 		}
 		defer res.Body.Close()
 

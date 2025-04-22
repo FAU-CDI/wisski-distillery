@@ -120,7 +120,7 @@ func (config *Config) SessionKey() []byte {
 	return config.derivedKey(32)
 }
 
-// CSRFSecret return the csrfSecret derived from the session secret
+// CSRFSecret return the csrfSecret derived from the session secret.
 func (config *Config) CSRFKey() []byte {
 	return config.derivedKey(0)
 }

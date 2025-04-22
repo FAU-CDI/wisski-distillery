@@ -8,7 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
-// CustomAssetsPath is the path custom assets are stored at
+// CustomAssetsPath is the path custom assets are stored at.
 func (tpl *Templating) CustomAssetsPath() string {
 	return filepath.Join(component.GetStill(tpl).Config.Paths.Root, "core", "assets")
 }

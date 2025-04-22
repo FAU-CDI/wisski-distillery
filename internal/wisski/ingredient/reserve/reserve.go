@@ -19,7 +19,7 @@ type Reserve struct {
 //go:embed all:reserve
 var reserveResources embed.FS
 
-// Stack returns a stack representing the reserve instance
+// Stack returns a stack representing the reserve instance.
 func (reserve *Reserve) Stack() component.StackWithResources {
 	liquid := ingredient.GetLiquid(reserve)
 	config := ingredient.GetStill(reserve).Config

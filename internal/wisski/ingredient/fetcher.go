@@ -17,7 +17,7 @@ type WissKIFetcher interface {
 	Fetch(flags FetcherFlags, target *status.WissKI) error
 }
 
-// FetcherFlags describes options for a WissKIFetcher
+// FetcherFlags describes options for a WissKIFetcher.
 type FetcherFlags struct {
 	Context context.Context
 	Quick   bool

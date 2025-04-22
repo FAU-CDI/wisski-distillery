@@ -33,7 +33,7 @@ type Component interface {
 	getBase() *Base
 }
 
-// Base is embedded into every Component
+// Base is embedded into every Component.
 type Base struct {
 	name, id string // name and id of this component
 	still    Still  // the underlying still of the distillery

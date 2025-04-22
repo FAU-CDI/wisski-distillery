@@ -3,7 +3,7 @@ package cli
 //spellchecker:words github wisski distillery internal wdlog
 import "github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 
-// Flags are global flags for the wdcli executable
+// Flags are global flags for the wdcli executable.
 type Flags struct {
 	//lint:ignore SA5008 required by the argument framework
 	//nolint:staticcheck

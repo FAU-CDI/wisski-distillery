@@ -15,7 +15,6 @@ import (
 //
 // NOTE(twiesing): Don't name this method "Menu", as it will cause a stack overflow.
 func (tpl *Templating) buildMenu(r *http.Request) []component.MenuItem {
-
 	path := mux.NormalizePath(r.URL.Path)
 
 	// get the static menu items, and then return all the regular ones
@@ -30,7 +29,7 @@ func (tpl *Templating) buildMenu(r *http.Request) []component.MenuItem {
 	return items
 }
 
-// Menu returns a list of menu items provided by routeables
+// Menu returns a list of menu items provided by routeables.
 func (tpl *Templating) Menu(r *http.Request) []component.MenuItem {
 	return tpl.menu.Get(func() []component.MenuItem {
 		items := make([]component.MenuItem, 0, len(tpl.dependencies.Routeables))

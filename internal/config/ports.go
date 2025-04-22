@@ -5,7 +5,7 @@ package config
 import (
 	"fmt"
 
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 type ListenConfig struct {

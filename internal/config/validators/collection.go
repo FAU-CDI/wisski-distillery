@@ -6,7 +6,7 @@ import (
 	"github.com/tkw1536/pkglib/validator"
 )
 
-// New creates a new set of standard validators for the configuration
+// New creates a new set of standard validators for the configuration.
 func New() validator.Collection {
 	coll := make(validator.Collection)
 

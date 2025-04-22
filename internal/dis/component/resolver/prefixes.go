@@ -20,8 +20,7 @@ func (resolver *Resolver) Cron(ctx context.Context) error {
 	return nil
 }
 
-// AllPrefixes returns a list of all prefixes from the server.
-// Prefixes may be cached on the server
+// Prefixes may be cached on the server.
 func (resolver *Resolver) AllPrefixes(ctx context.Context) (map[string]string, error) {
 	instances, err := resolver.dependencies.Instances.All(ctx)
 	if err != nil {

@@ -12,7 +12,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Backup is the 'backup' command
+// Backup is the 'backup' command.
 var Backup wisski_distillery.Command = backup{}
 
 type backup struct {

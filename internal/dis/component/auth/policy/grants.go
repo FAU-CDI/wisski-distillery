@@ -65,7 +65,7 @@ func (policy *Policy) Remove(ctx context.Context, username string, slug string) 
 	return table.Delete(&models.Grant{}, models.Grant{User: username, Slug: slug}).Error
 }
 
-// User returns all grants for the given user
+// User returns all grants for the given user.
 func (policy *Policy) User(ctx context.Context, username string) (grants []models.Grant, err error) {
 	if username == "" {
 		return nil, ErrInvalid
@@ -85,7 +85,7 @@ func (policy *Policy) User(ctx context.Context, username string) (grants []model
 	return grants, nil
 }
 
-// Instance returns all the grants for the given instance
+// Instance returns all the grants for the given instance.
 func (policy *Policy) Instance(ctx context.Context, slug string) (grants []models.Grant, err error) {
 	if slug == "" {
 		return nil, ErrInvalid

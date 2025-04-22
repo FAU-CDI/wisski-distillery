@@ -42,12 +42,12 @@ func (sql *SQL) Exec(query string, args ...interface{}) error {
 // ========== connection via gorm ==========
 //
 
-// QueryTable returns a gorm.DB to connect to the provided table of the given model
+// QueryTable returns a gorm.DB to connect to the provided table of the given model.
 func (sql *SQL) QueryTable(ctx context.Context, table component.Table) (*gorm.DB, error) {
 	return sql.queryTable(ctx, false, table.TableInfo().Name)
 }
 
-// queryTable returns a gorm.DB to connect to the provided distillery database table
+// queryTable returns a gorm.DB to connect to the provided distillery database table.
 func (sql *SQL) queryTable(ctx context.Context, silent bool, table string) (*gorm.DB, error) {
 	conn, err := sql.connect(component.GetStill(sql).Config.SQL.Database)
 	if err != nil {
@@ -87,7 +87,7 @@ func (sql *SQL) queryTable(ctx context.Context, silent bool, table string) (*gor
 	return db, nil
 }
 
-// WaitQueryTable waits for a connection to succeed via QueryTable
+// WaitQueryTable waits for a connection to succeed via QueryTable.
 func (sql *SQL) WaitQueryTable(ctx context.Context) error {
 	// TODO: Establish a convention on when to wait for this!
 	return timex.TickUntilFunc(func(time.Time) bool {
@@ -112,7 +112,7 @@ func (ssql *SQL) connect(database string) (*sql.DB, error) {
 	return conn, nil
 }
 
-// dsn returns a dsn fof connecting to the database
+// dsn returns a dsn fof connecting to the database.
 func (sql *SQL) dsn(database string) string {
 	config := component.GetStill(sql).Config.SQL
 	user := config.AdminUsername

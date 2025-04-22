@@ -54,6 +54,5 @@ func (ssh2 *SSH2) HandleRoute(ctx context.Context, path string) (http.Handler, e
 		for _, key := range keys {
 			w.Write(gossh.MarshalAuthorizedKey(key))
 		}
-
 	}), nil
 }

@@ -16,7 +16,7 @@ type Docker struct {
 	component.Base
 }
 
-// DockerClient is a client to the docker api
+// DockerClient is a client to the docker api.
 type DockerClient = *client.Client
 
 func (docker *Docker) APIClient() (DockerClient, error) {
@@ -27,7 +27,7 @@ func (docker *Docker) APIClient() (DockerClient, error) {
 	return cli, nil
 }
 
-// Ping pings the docker daemon to check if it is properly working
+// Ping pings the docker daemon to check if it is properly working.
 func (docker *Docker) Ping(ctx context.Context) (types.Ping, error) {
 	client, err := docker.APIClient()
 	if err != nil {

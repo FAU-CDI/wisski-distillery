@@ -8,7 +8,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// Snapshot creates a snapshot of an instance
+// Snapshot creates a snapshot of an instance.
 var Snapshot wisski_distillery.Command = snapshot{}
 
 type snapshot struct {

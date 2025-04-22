@@ -159,13 +159,7 @@ func (server *Server) MarshalEval(ctx context.Context, value any, code string) e
 	return json.Unmarshal(received[0], value)
 }
 
-// Decode decodes a message received from the server.
-// The message is assumed to be encoded by server.php.
-//
-// This function does the following:
-// - decode base64 (opposite of php's "base64_encode")
-// - inflate (opposite of php's "gzdeflate")
-// - decode json (opposite of php's "json_encode")
+// - decode json (opposite of php's "json_encode").
 func (*Server) decode(dest *[2]json.RawMessage, message []byte) error {
 	// decode base64
 	raw := base64.NewDecoder(base64.StdEncoding, bytes.NewReader(message))
@@ -179,14 +173,8 @@ func (*Server) decode(dest *[2]json.RawMessage, message []byte) error {
 	return decoder.Decode(dest)
 }
 
-// Encode encodes and writes a message for the server into dest.
-// The message is assumed to be received by server.php.
-//
-// This function does the following:
-// - inflate (opposite of php's "gzdeflate")
-// - encode base64 (opposite of php's "base64_decode")
+// - encode base64 (opposite of php's "base64_decode").
 func (*Server) encode(dest io.WriteCloser, code string) (err error) {
-
 	// write a final newline at the end!
 	defer func() {
 		if err != nil {
@@ -212,7 +200,7 @@ func (*Server) encode(dest io.WriteCloser, code string) (err error) {
 	return
 }
 
-// Eval is like [MarshalEval], but returns the value as an any
+// Eval is like [MarshalEval], but returns the value as an any.
 func (server *Server) Eval(ctx context.Context, code string) (value any, err error) {
 	err = server.MarshalEval(ctx, &value, code)
 	return
@@ -249,7 +237,7 @@ func (server *Server) MarshalCall(ctx context.Context, value any, function strin
 	return server.MarshalEval(ctx, value, code)
 }
 
-// Call is like [MarshalCall] but returns the return value of the function as an any
+// Call is like [MarshalCall] but returns the return value of the function as an any.
 func (server *Server) Call(ctx context.Context, function string, args ...any) (value any, err error) {
 	err = server.MarshalCall(ctx, &value, function, args...)
 	return
@@ -278,7 +266,7 @@ func (server *Server) Close() error {
 //go:embed server.php
 var serverPHP string
 
-// pre-process the server.php code to make it shorter
+// pre-process the server.php code to make it shorter.
 func init() {
 	minifier := regexp.MustCompile(`\s*([=)(.,{}])\s*`)
 

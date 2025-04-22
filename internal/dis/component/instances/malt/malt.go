@@ -13,7 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 )
 
-// Malt is a component passed to every WissKI ingredient
+// Malt is a component passed to every WissKI ingredient.
 type Malt struct {
 	component.Base
 

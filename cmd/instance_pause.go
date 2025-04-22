@@ -7,7 +7,7 @@ import (
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// InstancePause is the 'instance_pause' command
+// InstancePause is the 'instance_pause' command.
 var InstancePause wisski_distillery.Command = instancepause{}
 
 type instancepause struct {

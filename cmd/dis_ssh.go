@@ -12,7 +12,7 @@ import (
 	gossh "golang.org/x/crypto/ssh"
 )
 
-// DisSSH is the 'dis_ssh' command
+// DisSSH is the 'dis_ssh' command.
 var DisSSH wisski_distillery.Command = disSSH{}
 
 type disSSH struct {

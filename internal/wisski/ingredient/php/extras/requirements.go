@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
-	"golang.org/x/exp/slices"
+	"slices"
 
 	_ "embed"
 )
@@ -29,7 +29,7 @@ var (
 //go:embed requirements.php
 var requirementsPHP string
 
-// Create creates a new block with the given title and html content
+// Create creates a new block with the given title and html content.
 func (requirements *Requirements) Get(ctx context.Context, server *phpx.Server) (data []status.Requirement, err error) {
 	err = requirements.dependencies.PHP.ExecScript(ctx, server, &data, requirementsPHP, "get_requirements", ingredient.GetLiquid(requirements).URL().String())
 	if err == nil {
@@ -58,7 +58,7 @@ func (requirements *Requirements) Get(ctx context.Context, server *phpx.Server) 
 	return
 }
 
-// Fetch fetches information
+// Fetch fetches information.
 func (requirements *Requirements) Fetch(flags ingredient.FetcherFlags, target *status.WissKI) error {
 	if flags.Quick {
 		return nil

@@ -136,7 +136,7 @@ func AsInteger(value any) (i Integer, ok bool) {
 
 	// try to parse the "leading" string, by successively cutting off parts of the tail
 	// once we have a valid number, return it.
-	for l := 0; l < len(str); l++ {
+	for l := range len(str) {
 		i64, err := strconv.ParseInt(string(str)[:len(str)-l], 10, 64)
 		if err != nil {
 			continue
@@ -162,7 +162,7 @@ func (i *Integer) UnmarshalJSON(data []byte) (err error) {
 	}, data)
 }
 
-// Timestamp represents a time value in PHP, represented as an integer
+// Timestamp represents a time value in PHP, represented as an integer.
 type Timestamp time.Time
 
 func (ts Timestamp) Time() time.Time {

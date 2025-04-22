@@ -8,7 +8,7 @@ import (
 	"github.com/tkw1536/pkglib/fsx"
 )
 
-// Monday is the 'monday' command
+// Monday is the 'monday' command.
 var Monday wisski_distillery.Command = monday{}
 
 type monday struct {

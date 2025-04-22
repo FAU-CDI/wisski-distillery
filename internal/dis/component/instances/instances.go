@@ -33,7 +33,7 @@ func (instances *Instances) Path() string {
 	return filepath.Join(component.GetStill(instances).Config.Paths.Root, "instances")
 }
 
-// ErrWissKINotFound is returned when a WissKI is not found
+// ErrWissKINotFound is returned when a WissKI is not found.
 var ErrWissKINotFound = errors.New("WissKI not found")
 
 var errSQL = exit.Error{
@@ -41,9 +41,9 @@ var errSQL = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-// use uses the non-nil wisski instance with this instances
+// use uses the non-nil wisski instance with this instances.
 func (instances *Instances) use(wisski *wisski.WissKI) {
-	wisski.Liquid.Malt = instances.dependencies.Malt
+	wisski.Malt = instances.dependencies.Malt
 }
 
 // WissKI returns the WissKI with the provided slug, if it exists.
@@ -67,7 +67,7 @@ func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wi
 	wissKI = new(wisski.WissKI)
 
 	// find the instance by slug
-	query := table.Find(&wissKI.Liquid.Instance, &models.Instance{Slug: slug})
+	query := table.Find(&wissKI.Instance, &models.Instance{Slug: slug})
 	switch {
 	case query.Error != nil:
 		return nil, errSQL.WithMessageF(query.Error)
@@ -135,7 +135,7 @@ func (instances *Instances) Load(ctx context.Context, slugs ...string) ([]*wissk
 	return instances.WissKIs(ctx, slugs...)
 }
 
-// find finds instances based on the provided query
+// find finds instances based on the provided query.
 func (instances *Instances) find(ctx context.Context, order bool, query func(table *gorm.DB) *gorm.DB) (results []*wisski.WissKI, err error) {
 	sql := instances.dependencies.SQL
 	if err := sql.WaitQueryTable(ctx); err != nil {
@@ -168,7 +168,7 @@ func (instances *Instances) find(ctx context.Context, order bool, query func(tab
 	results = make([]*wisski.WissKI, len(bks))
 	for i, bk := range bks {
 		results[i] = new(wisski.WissKI)
-		results[i].Liquid.Instance = bk
+		results[i].Instance = bk
 		instances.use(results[i])
 	}
 

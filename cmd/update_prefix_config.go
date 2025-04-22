@@ -14,7 +14,7 @@ import (
 	"github.com/tkw1536/pkglib/status"
 )
 
-// Cron is the 'cron' command
+// Cron is the 'cron' command.
 var UpdatePrefixConfig wisski_distillery.Command = updateprefixconfig{}
 
 type updateprefixconfig struct {

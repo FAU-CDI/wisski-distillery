@@ -25,5 +25,4 @@ func (sql *SQL) Backup(scontext *component.StagingContext) error {
 		}
 		return nil
 	})
-
 }

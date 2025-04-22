@@ -91,7 +91,7 @@ func (auth *Auth) UserOfSession(r *http.Request) (user *AuthUser, err error) {
 func (auth *Auth) checkUser(ctx context.Context, name string) (user *AuthUser, err error) {
 	// fetch the user, check if they still exist
 	user, err = auth.User(ctx, name)
-	if err == ErrUserNotFound {
+	if errors.Is(err, ErrUserNotFound) {
 		return nil, nil
 	}
 	if err != nil {
@@ -124,7 +124,6 @@ func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
 }
 
 func (auth *Auth) Menu(r *http.Request) []component.MenuItem {
-
 	user, err := auth.UserOfSession(r)
 	if user == nil || err != nil {
 		return nil
@@ -136,7 +135,6 @@ func (auth *Auth) Menu(r *http.Request) []component.MenuItem {
 			Priority: component.MenuAuth,
 		},
 	}
-
 }
 
 type contextUserKey struct{}
@@ -182,7 +180,7 @@ var loginTemplate = templating.ParseForm(
 
 var errLoginFailed = errors.New("login failed")
 
-// authLogin implements a view to login a user
+// authLogin implements a view to login a user.
 func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 	tpl := loginTemplate.Prepare(
 		auth.dependencies.Templating,
@@ -252,7 +250,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 	}
 }
 
-// authLogout implements the authLogout view to logout a user
+// authLogout implements the authLogout view to logout a user.
 func (auth *Auth) authLogout(ctx context.Context) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// do the logout

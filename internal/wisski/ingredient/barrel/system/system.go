@@ -13,7 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
 )
 
-// SystemManager applies a specific system configuration
+// SystemManager applies a specific system configuration.
 type SystemManager struct {
 	ingredient.Base
 	dependencies struct {
@@ -36,16 +36,15 @@ func (smanager *SystemManager) Apply(ctx context.Context, progress io.Writer, sy
 	return nil
 }
 
-// ApplyInitial builds the base image, but does not start it
+// ApplyInitial builds the base image, but does not start it.
 func (smanager *SystemManager) ApplyInitial(ctx context.Context, progress io.Writer, system models.System) error {
 	return smanager.apply(ctx, progress, system, false)
 }
 
-// apply stores the new configuration and builds the base image
-// start inidicates if the image should be started afterwards
+// start inidicates if the image should be started afterwards.
 func (smanager *SystemManager) apply(ctx context.Context, progress io.Writer, system models.System, start bool) error {
 	// store the new system configuration
-	ingredient.GetLiquid(smanager).Instance.System = system
+	ingredient.GetLiquid(smanager).System = system
 	if err := smanager.dependencies.Bookkeeping.Save(ctx); err != nil {
 		return err
 	}

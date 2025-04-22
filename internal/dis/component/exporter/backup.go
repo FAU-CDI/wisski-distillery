@@ -22,7 +22,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-// Backup describes a backup
+// Backup describes a backup.
 type Backup struct {
 	Description BackupDescription
 
@@ -47,14 +47,14 @@ type Backup struct {
 	WithManifest
 }
 
-// BackupDescription provides a description for a backup
+// BackupDescription provides a description for a backup.
 type BackupDescription struct {
 	Dest string // Destination path
 
 	ConcurrentSnapshots int // maximum number of concurrent snapshots
 }
 
-// New create a new Backup
+// New create a new Backup.
 func (exporter *Exporter) NewBackup(ctx context.Context, progress io.Writer, description BackupDescription) (backup Backup) {
 	backup.Description = description
 

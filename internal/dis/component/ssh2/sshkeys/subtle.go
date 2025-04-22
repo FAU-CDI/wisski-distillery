@@ -53,5 +53,4 @@ func Slowdown[T any](f func() T) T {
 	}()
 
 	return f()
-
 }
