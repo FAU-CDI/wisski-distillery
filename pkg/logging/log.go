@@ -35,7 +35,11 @@ func logOperation(progress io.Writer, indent int, format string, args ...interfa
 		message = " => " + format + "\n"
 	}
 
-	return fmt.Fprintf(progress, message, args...)
+	count, err := fmt.Fprintf(progress, message, args...)
+	if err != nil {
+		return 0, fmt.Errorf("failed to format message: %w", err)
+	}
+	return count, nil
 }
 
 // streamIsTerminal checks if stream is a terminal.

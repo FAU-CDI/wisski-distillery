@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -101,7 +102,7 @@ func (server *Server) prepare() error {
 		}()
 	})
 
-	return server.err.Get(nil)
+	return server.err.Get(nil) //nolint:wrapcheck
 }
 
 // MarshalEval evaluates code on the server and Marshals the result into value.
@@ -161,31 +162,49 @@ func (server *Server) MarshalEval(ctx context.Context, value any, code string) e
 	}
 
 	// read the actual result!
-	return json.Unmarshal(received[0], value)
+	err := json.Unmarshal(received[0], value)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal result: %w", err)
+	}
+	return nil
 }
 
 // - decode json (opposite of php's "json_encode").
-func (*Server) decode(dest *[2]json.RawMessage, message []byte) error {
+func (*Server) decode(dest *[2]json.RawMessage, message []byte) (e error) {
 	// decode base64
 	raw := base64.NewDecoder(base64.StdEncoding, bytes.NewReader(message))
 
 	// unpack gzip
 	unpacker := flate.NewReader(raw)
-	defer unpacker.Close()
+	defer func() {
+		e2 := unpacker.Close()
+		if e2 == nil {
+			return
+		}
+		e2 = fmt.Errorf("failed to close unpacker: %w", e2)
+		if e == nil {
+			e = e2
+		} else {
+			e = errors.Join(e, e2)
+		}
+	}()
 
 	// and read the value
 	decoder := json.NewDecoder(unpacker)
-	return decoder.Decode(dest)
+	if err := decoder.Decode(dest); err != nil {
+		return fmt.Errorf("failed to unmarshal: %w", err)
+	}
+	return nil
 }
 
 // - encode base64 (opposite of php's "base64_decode").
-func (*Server) encode(dest io.WriteCloser, code string) (err error) {
+func (*Server) encode(dest io.WriteCloser, code string) (e error) {
 	// write a final newline at the end!
 	defer func() {
-		if err != nil {
+		if e != nil {
 			return
 		}
-		_, err = dest.Write([]byte("\n"))
+		_, e = dest.Write([]byte("\n"))
 	}()
 
 	// base64 encode all the things!
@@ -195,14 +214,27 @@ func (*Server) encode(dest io.WriteCloser, code string) (err error) {
 	// compress all the things!
 	compressor, err := flate.NewWriter(encoder, 9)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create compressor: %w", err)
 	}
-	defer compressor.Close()
+	defer func() {
+		e2 := compressor.Close()
+		if e2 == nil {
+			return
+		}
+		e2 = fmt.Errorf("failed to close compressor: %w", e2)
+		if e == nil {
+			e = e2
+		} else {
+			e = errors.Join(e, e2)
+		}
+	}()
 
 	// do the write!
-	_, err = compressor.Write([]byte(code))
-
-	return
+	_, e = compressor.Write([]byte(code))
+	if e != nil {
+		e = fmt.Errorf("failed to write to compressor: %w", e)
+	}
+	return e
 }
 
 // Eval is like [MarshalEval], but returns the value as an any.

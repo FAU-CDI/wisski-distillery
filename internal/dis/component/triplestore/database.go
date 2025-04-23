@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -148,6 +149,8 @@ func (ts Triplestore) Wait(ctx context.Context) error {
 	}, ctx, ts.PollInterval)
 }
 
+var errPurgeReturnedCode = errors.New("purge returned abnormal exit code")
+
 // PurgeUser deletes the specified user from the triplestore.
 // When the user does not exist, returns no error.
 func (ts Triplestore) PurgeUser(ctx context.Context, user string) error {
@@ -157,10 +160,12 @@ func (ts Triplestore) PurgeUser(ctx context.Context, user string) error {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusNoContent && res.StatusCode != http.StatusNotFound {
-		return errors.Errorf("Delete returned code %d", res.StatusCode)
+		return fmt.Errorf("%w: %d", errPurgeReturnedCode, res.StatusCode)
 	}
 	return nil
 }
+
+var errDeleteReturnedCode = errors.New("delete returned abnormal exit code")
 
 // PurgeRepo deletes the specified repo from the triplestore.
 // When the repo does not exist, returns no error.
@@ -171,7 +176,7 @@ func (ts Triplestore) PurgeRepo(ctx context.Context, repo string) error {
 	}
 	defer res.Body.Close()
 	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusNotFound {
-		return errors.Errorf("Delete returned code %d", res.StatusCode)
+		return fmt.Errorf("%w: %d", errDeleteReturnedCode, res.StatusCode)
 	}
 	return nil
 }

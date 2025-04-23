@@ -4,6 +4,7 @@ package drush
 //spellchecker:words context time github wisski distillery internal phpx status ingredient barrel goprogram exit
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -24,7 +25,11 @@ var errCronFailed = exit.Error{
 func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 	err := drush.Exec(ctx, progress, "core-cron")
 	if err != nil {
-		code := err.(barrel.ExitError).Code //nolint:errorlint // guaranteed type by documentation
+		var ee barrel.ExitError
+		if !(errors.As(err, &ee)) {
+			return fmt.Errorf("drush.Exec returned unexpected error: %w", err)
+		}
+		code := ee.Code()
 		// keep going, because we want to run as many crons as possible
 		fmt.Fprintf(progress, "%v", errCronFailed.WithMessageF(ingredient.GetLiquid(drush).Slug, code))
 	}

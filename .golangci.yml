@@ -1,8 +1,6 @@
 version: "2"
 linters:
   default: standard
-  disable:
-    - errcheck # for now
   enable:
     - bidichk
     - bodyclose
@@ -12,7 +10,7 @@ linters:
     - copyloopvar
     - durationcheck
     - err113
-#    - errcheck
+    - errcheck
     - errchkjson
     - errname
     - errorlint
@@ -46,4 +44,4 @@ linters:
     - usetesting
     - wastedassign
     - whitespace
-#    - wrapcheck
+    - wrapcheck

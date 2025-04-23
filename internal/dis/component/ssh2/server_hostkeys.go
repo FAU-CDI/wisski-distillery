@@ -8,6 +8,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -16,7 +17,6 @@ import (
 	"github.com/gliderlabs/ssh"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 
-	"github.com/pkg/errors"
 	gossh "golang.org/x/crypto/ssh"
 )
 
@@ -70,7 +70,7 @@ func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, ctx context.Context, pri
 	if _, e := os.Lstat(privateKeyPath); errors.Is(e, fs.ErrNotExist) { // path doesn't exist => generate a new key there!
 		err = ssh2.makeHostKey(progress, ctx, hostKey, privateKeyPath)
 		if err != nil {
-			err = errors.Wrap(err, "Unable to generate new host key")
+			err = fmt.Errorf("unable to generate new host key: %w", err)
 			return
 		}
 	}
@@ -88,13 +88,13 @@ func (ssh2 *SSH2) loadHostKey(progress io.Writer, _ context.Context, key HostKey
 	// read all the bytes from the file
 	privateKeyBytes, err := os.ReadFile(path) // #nosec G304 -- configured intentionally
 	if err != nil {
-		err = errors.Wrap(err, "Unable to read private key bytes")
+		err = fmt.Errorf("unable to read private key bytes: %w", err)
 		return
 	}
 
 	// if the length is nil, return
 	if len(privateKeyBytes) == 0 {
-		err = errors.New("No bytes were read from the private key")
+		err = errors.New("no bytes were read from the private key")
 		return
 	}
 
@@ -112,12 +112,12 @@ func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostK
 	fmt.Fprintf(progress, "Writing hostkey (algorithm %s) to %q\n", key.Algorithm(), path)
 
 	if err := key.Generate(ctx, 0, nil); err != nil {
-		return errors.Wrap(err, "Failed to generate key")
+		return fmt.Errorf("failed to generate key: %w", err)
 	}
 
 	privateKeyPEM, err := key.MarshalPEM()
 	if err != nil {
-		return errors.Wrap(err, "Failed to marshal key")
+		return fmt.Errorf("failed to marshal key: %w", err)
 	}
 
 	// generate and write private key as PEM
@@ -221,10 +221,11 @@ func (ek *ed25519HostKey) MarshalPEM() (block *pem.Block, err error) {
 	return
 }
 
+var errExpectedPrivateKey = errors.New("expected 'PRIVATE KEY' in PEM format")
+
 func (ek *ed25519HostKey) UnmarshalPEM(block *pem.Block) (err error) {
 	if block.Type != "PRIVATE KEY" {
-		err = errors.New("Expected 'PRIVATE KEY' in PEM format")
-		return
+		return errExpectedPrivateKey
 	}
 
 	pk := ed25519.NewKeyFromSeed(block.Bytes)
@@ -280,7 +281,7 @@ func (rk *rsaHostKey) MarshalPEM() (block *pem.Block, err error) {
 
 func (rk *rsaHostKey) UnmarshalPEM(block *pem.Block) (err error) {
 	if block.Type != "RSA PRIVATE KEY" {
-		err = errors.New("Expected 'RSA PRIVATE KEY' in PEM format")
+		err = errors.New("expected 'RSA PRIVATE KEY' in PEM format")
 		return
 	}
 
@@ -288,14 +289,14 @@ func (rk *rsaHostKey) UnmarshalPEM(block *pem.Block) (err error) {
 	var parsedKey interface{}
 	if parsedKey, err = x509.ParsePKCS1PrivateKey(block.Bytes); err != nil {
 		if parsedKey, err = x509.ParsePKCS8PrivateKey(block.Bytes); err != nil { // note this returns type `interface{}`
-			err = errors.Wrap(err, "Expected PKCS1 or PKCS8 private key")
+			err = fmt.Errorf("expected PKCS1 or PKCS8 private key: %w", err)
 			return
 		}
 	}
 
 	pk, isRSA := parsedKey.(*rsa.PrivateKey)
 	if !isRSA {
-		err = errors.New("Expected an rsa.PrivateKey")
+		err = errors.New("expected an rsa.PrivateKey")
 		return
 	}
 

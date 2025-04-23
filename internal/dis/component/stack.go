@@ -6,6 +6,7 @@ package component
 //spellchecker:words context path filepath github wisski distillery compose execx unpack errors pkglib umaskfree stream gopkg yaml
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -15,7 +16,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
-	"github.com/pkg/errors"
 	"github.com/tkw1536/pkglib/fsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/stream"
@@ -200,6 +200,12 @@ type StackWithResources struct {
 // InstallationContext is a context to install data in.
 type InstallationContext map[string]string
 
+type fileMissingFromContextError string
+
+func (fem fileMissingFromContextError) Error() string {
+	return fmt.Sprintf("file missing from context: %q", string(fem))
+}
+
 // InstallationContext.
 func (is StackWithResources) Install(ctx context.Context, progress io.Writer, context InstallationContext) error {
 	if is.ContextPath != "" {
@@ -264,7 +270,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		// find the source!
 		src, ok := context[name]
 		if !ok {
-			return errors.Errorf("Missing file from context: %q", src)
+			return fileMissingFromContextError(src)
 		}
 
 		// find the destination!
@@ -273,7 +279,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		// copy over file from context
 		fmt.Fprintf(progress, "[copy]    %s (from %s)\n", dst, src)
 		if err := umaskfree.CopyFile(ctx, dst, src); err != nil {
-			return errors.Wrapf(err, "Unable to copy file %s", src)
+			return fmt.Errorf("unable to copy file %s: %w", src, err)
 		}
 	}
 
@@ -322,8 +328,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 const composeFileHeader = "# This file was automatically created and is updated by the distillery; DO NOT EDIT.\n\n"
 
-// indicating it is automatically created.
-func addComposeFileHeader(path string) error {
+func addComposeFileHeader(path string) (e error) {
 	// read existing bytes
 	bytes, err := os.ReadFile(path) // #nosec G304 -- intended
 	if err != nil {
@@ -333,9 +338,20 @@ func addComposeFileHeader(path string) error {
 	// overwrite the file
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, umaskfree.DefaultFilePerm) // #nosec G304 -- intended
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to open compose file: %w", err)
 	}
-	defer f.Close()
+	defer func() {
+		e2 := f.Close()
+		if e2 == nil {
+			return
+		}
+		e2 = fmt.Errorf("failed to close file: %w", e2)
+		if e == nil {
+			e = e2
+		} else {
+			e = errors.Join(e, e2)
+		}
+	}()
 
 	// write the header
 	if _, err := f.WriteString(composeFileHeader); err != nil {
@@ -344,7 +360,7 @@ func addComposeFileHeader(path string) error {
 
 	// write the original content
 	if _, err := f.Write(bytes); err != nil {
-		return err
+		return fmt.Errorf("failed to write compose file; %w", err)
 	}
 
 	return nil
@@ -368,13 +384,13 @@ func doComposeFile(path string, update func(node *yaml.Node) (*yaml.Node, error)
 			// read the yaml bytes
 			bytes, err := os.ReadFile(path) // #nosec G304 -- intended
 			if err != nil {
-				return errors.Wrap(err, "unable to read existing file")
+				return fmt.Errorf("unable to read existing file: %w", err)
 			}
 
 			// unmarshal it into a node, or bail out!
 			node = new(yaml.Node)
 			if err := yaml.Unmarshal(bytes, node); err != nil {
-				return errors.Wrap(err, "unable to unmarshal existing file")
+				return fmt.Errorf("unable to unmarshal existing file: %w", err)
 			}
 		case errors.Is(err, fs.ErrNotExist):
 			// file does not exist => use default mode
@@ -383,24 +399,27 @@ func doComposeFile(path string, update func(node *yaml.Node) (*yaml.Node, error)
 			// use a nil existing node
 			node = nil
 		default:
-			return err
+			return fmt.Errorf("failed to stat file: %w", err)
 		}
 	}
 
 	// update the node
 	node, err := update(node)
 	if err != nil {
-		return errors.Wrap(err, "update function failed")
+		return fmt.Errorf("update function failed: %w", err)
 	}
 
 	// re-encode the bytes
 	result, err := yaml.Marshal(node)
 	if err != nil {
-		return errors.Wrap(err, "failed to re-marshal")
+		return fmt.Errorf("failed to re-marshal: %w", err)
 	}
 
 	// write the bytes back!
-	return umaskfree.WriteFile(path, result, mode)
+	if err := umaskfree.WriteFile(path, result, mode); err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+	return nil
 }
 
 // writeEnvFile writes an environment file.
@@ -408,14 +427,14 @@ func writeEnvFile(path string, perm fs.FileMode, variables map[string]string) er
 	// create the environment file
 	file, err := umaskfree.Create(path, perm)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create env file: %w", err)
 	}
 	defer file.Close()
 
 	// write the file!
 	_, err = compose.WriteEnvFile(file, variables)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to write env file: %w", err)
 	}
 
 	// and return nil

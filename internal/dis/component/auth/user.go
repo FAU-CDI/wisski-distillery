@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"image/png"
 	"reflect"
@@ -14,7 +15,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
-	"github.com/pkg/errors"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/tkw1536/pkglib/password"
@@ -112,7 +112,7 @@ func (auth *Auth) CreateUser(ctx context.Context, name string) (user *AuthUser, 
 	// do the create statement
 	err = table.Select("*").Create(&user.User).Error
 	if err != nil {
-		return nil, errors.Wrapf(err, "Create")
+		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	user.auth = auth
@@ -238,7 +238,7 @@ const MinPasswordLength = 8
 
 var (
 	ErrPolicyBlank    = errors.New("password is blank")
-	ErrPolicyTooShort = errors.New(fmt.Sprintf("password is too short: minimum length %d", MinPasswordLength))
+	ErrPolicyTooShort = fmt.Errorf("password is too short: minimum length %d", MinPasswordLength)
 	ErrPolicyKnown    = errors.New("password is on the list of known passwords")
 	ErrPolicyUsername = errors.New("password may not be identical to username")
 )

@@ -5,6 +5,7 @@ package phpx
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -99,7 +100,11 @@ func AsString(value any) (s String, ok bool) {
 }
 
 func (s String) MarshalJSON() ([]byte, error) {
-	return json.Marshal(string(s))
+	bytes, err := json.Marshal(string(s))
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal json: %w", err)
+	}
+	return bytes, nil
 }
 
 var errNotAString = errors.New("`String': not a string")
@@ -147,7 +152,11 @@ func AsInteger(value any) (i Integer, ok bool) {
 }
 
 func (i Integer) MarshalJSON() ([]byte, error) {
-	return json.Marshal(int64(i))
+	bytes, err := json.Marshal(int64(i))
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal json: %w", err)
+	}
+	return bytes, nil
 }
 
 var errNotAnInteger = errors.New("`Integer': not an integer")
@@ -188,12 +197,12 @@ func UnmarshalIntermediate[I, T any](dest *T, parser func(I) (T, error), src []b
 	var temp I
 	err = json.Unmarshal(src, &temp)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal into json: %w", err)
 	}
 
 	*dest, err = parser(temp)
 	if err != nil {
-		return err
+		return fmt.Errorf("parser returned error: %w", err)
 	}
 
 	return nil

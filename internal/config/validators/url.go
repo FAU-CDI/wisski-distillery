@@ -3,9 +3,10 @@ package validators
 
 //spellchecker:words github errors
 import (
+	"fmt"
 	"net/url"
 
-	"github.com/pkg/errors"
+	"errors"
 )
 
 // URL represents a url.URL that is marshaled as a string representing the url.
@@ -34,6 +35,8 @@ func (u *URL) UnmarshalText(text []byte) error {
 	return nil
 }
 
+var errNotValidHTTPSURL = errors.New("not a valid https URL")
+
 func ValidateHTTPSURL(url **URL, dflt string) error {
 	if (*url).String() == "" {
 		*url = new(URL)
@@ -42,7 +45,7 @@ func ValidateHTTPSURL(url **URL, dflt string) error {
 		}
 	}
 	if (*url).Scheme != "https" {
-		return errors.Errorf("%q is not a valid https URL (%q)", *url, (*url).Scheme)
+		return fmt.Errorf("%w: %q has scheme %q", errNotValidHTTPSURL, *url, (*url).Scheme)
 	}
 	return nil
 }

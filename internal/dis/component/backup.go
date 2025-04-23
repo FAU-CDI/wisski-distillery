@@ -8,8 +8,9 @@ import (
 	"io"
 	"path/filepath"
 
+	"errors"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/pkg/errors"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 

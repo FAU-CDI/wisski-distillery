@@ -54,7 +54,7 @@ func WriteEnvFile(writer io.Writer, env map[string]string) (count int, err error
 		// write write key = EscapeEnvValue(value) followed by a new line
 		n, err = fmt.Fprintf(writer, "%s%s%s\n", key, string(EnvEqualChar), EscapeEnvValue(value))
 		if err != nil {
-			return count, err
+			return count, fmt.Errorf("failed to format variable %q: %w", key, err)
 		}
 		count += n
 	}

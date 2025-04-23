@@ -4,6 +4,7 @@ package phpx
 //spellchecker:words encoding json math strconv strings github pkglib collection
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -22,7 +23,7 @@ func Marshal(data any) (string, error) {
 
 	bytes, err := json.Marshal(data)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to marshal data: %w", err)
 	}
 
 	return "json_decode(" + MarshalString(string(bytes)) + ")", nil
@@ -100,7 +101,6 @@ var stringReplacer = strings.NewReplacer("'", "\\'", "\\", "\\\\")
 // MarshalString marshals s as a php string that can be used safely as a PHP expression.
 func MarshalString(s string) string {
 	// See [https://www.php.net/manual/en/language.types.string.php#language.types.string.syntax.single]
-	// we just escape
 	return "'" + stringReplacer.Replace(s) + "'"
 }
 

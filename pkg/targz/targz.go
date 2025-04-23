@@ -7,6 +7,7 @@ package targz
 import (
 	"archive/tar"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"io/fs"
 	"os"
@@ -23,7 +24,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 	// create the target archive
 	archive, err := umaskfree.Create(dst, umaskfree.DefaultFilePerm)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to create file: %w", err)
 	}
 	defer archive.Close()
 
@@ -45,7 +46,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		var relpath string
 		relpath, err = filepath.Rel(src, path)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get relative path for %q: %w", path, err)
 		}
 
 		// call the oncopy!
@@ -56,7 +57,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		// read mode etc
 		info, err := entry.Info()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get file info for %q: %w", path, err)
 		}
 
 		// FIXME: How do we handle
@@ -64,13 +65,13 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		// create a file info header!
 		tInfo, err := tar.FileInfoHeader(info, relpath)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to create info header for %q: %w", path, err)
 		}
 		tInfo.Name = filepath.ToSlash(relpath)
 
 		// write it!
 		if err := tarHandle.WriteHeader(tInfo); err != nil {
-			return err
+			return fmt.Errorf("failed to write tar header for %q: %w", path, err)
 		}
 
 		// if it's not a regular file, we are done
@@ -81,14 +82,17 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		// open the file
 		handle, err := os.Open(path) // #nosec G304 -- intended
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to open file: %w", err)
 		}
 		defer handle.Close()
 
 		// and copy it into the archive
 		ccount, err := io.Copy(tarHandle, handle)
 		count += ccount
-		return err
+		if err != nil {
+			return fmt.Errorf("failed to copy %q into archive: %w", path, err)
+		}
+		return nil
 	})
 	return
 }

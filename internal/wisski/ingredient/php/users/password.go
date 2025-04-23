@@ -21,7 +21,12 @@ func (u *Users) GetPasswordValidator(ctx context.Context, username string) (pv P
 	var hash string
 	err = u.dependencies.PHP.ExecScript(ctx, server, &hash, usersPHP, "get_password_hash", username)
 	if err != nil {
-		server.Close()
+		if e2 := server.Close(); e2 != nil {
+			err = errors.Join(
+				fmt.Errorf("failed to get password hash: %w", err),
+				fmt.Errorf("failed to close server: %w", err),
+			)
+		}
 		return pv, err
 	}
 	if len(hash) == 0 {
@@ -43,7 +48,10 @@ type PasswordValidator struct {
 }
 
 func (pv PasswordValidator) Close() error {
-	return pv.server.Close()
+	if err := pv.server.Close(); err != nil {
+		return fmt.Errorf("failed to close php server: %w", err)
+	}
+	return nil
 }
 
 func (pv PasswordValidator) Check(ctx context.Context, password string) bool {
@@ -82,5 +90,9 @@ func (pv PasswordValidator) CheckDictionary(ctx context.Context, writer io.Write
 		}
 	}
 
-	return ctx.Err()
+	err := ctx.Err()
+	if err != nil {
+		return fmt.Errorf("context closed before returning: %w", err)
+	}
+	return nil
 }

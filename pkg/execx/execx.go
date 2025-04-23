@@ -9,6 +9,7 @@ package execx
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os/exec"
 	"path/filepath"
 
@@ -112,7 +113,11 @@ func MustExec(ctx context.Context, io stream.IOStream, workdir string, exe strin
 func LookPathAbs(file string) (string, error) {
 	path, err := exec.LookPath(file)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to find file: %w", err)
 	}
-	return filepath.Abs(path)
+	abs, err := filepath.Abs(path)
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve path: %w", err)
+	}
+	return abs, nil
 }

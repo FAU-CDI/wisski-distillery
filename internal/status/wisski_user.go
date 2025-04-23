@@ -91,7 +91,11 @@ func (ur UserRoles) string() string {
 }
 
 func (ur UserRoles) MarshalJSON() ([]byte, error) {
-	return json.Marshal(ur.string())
+	bytes, err := json.Marshal(ur.string())
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal string: %w", err)
+	}
+	return bytes, nil
 }
 
 // Has checks if the UserRole has the given role.
@@ -101,7 +105,7 @@ func (ur UserRoles) Has(role UserRole) (ok bool) {
 }
 
 func (u *UserRoles) UnmarshalJSON(data []byte) error {
-	return phpx.UnmarshalIntermediate(u, func(s phpx.String) (UserRoles, error) {
+	if err := phpx.UnmarshalIntermediate(u, func(s phpx.String) (UserRoles, error) {
 		if len(s) == 0 {
 			return nil, nil
 		}
@@ -111,5 +115,8 @@ func (u *UserRoles) UnmarshalJSON(data []byte) error {
 			uroles[UserRole(r)] = struct{}{}
 		}
 		return uroles, nil
-	}, data)
+	}, data); err != nil {
+		return fmt.Errorf("failed to unmarshal user roles: %w", err)
+	}
+	return nil
 }

@@ -2,6 +2,7 @@ package cmd
 
 //spellchecker:words github wisski distillery internal ingredient barrel goprogram exit parser
 import (
+	"errors"
 	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
@@ -48,7 +49,12 @@ func (sh shell) Run(context wisski_distillery.Context) error {
 	{
 		err := instance.Barrel().Shell(context.Context, context.IOStream, sh.Positionals.Args...)
 		if err != nil {
-			code := err.(barrel.ExitError).Code() //nolint:errorlint // guaranteed type by documentation
+			var ee barrel.ExitError
+			if !(errors.As(err, &ee)) {
+				return fmt.Errorf("barrel.Shell returned unexpected error: %w", err)
+			}
+			code := ee.Code()
+
 			return exit.Error{
 				ExitCode: code,
 				Message:  fmt.Sprintf("Exit code %d", code),

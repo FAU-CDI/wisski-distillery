@@ -5,6 +5,7 @@ package extras
 import (
 	"bufio"
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"slices"
@@ -156,7 +157,7 @@ func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 	{
 		isFile, err := fsx.IsRegular(path, true)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to check if prefixes is a file: %w", err)
 		}
 		if !isFile {
 			return nil, nil
@@ -166,7 +167,7 @@ func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 	// open the file
 	file, err := os.Open(path) // #nosec G304 -- fixed path
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open prefix file: %w", err)
 	}
 	defer file.Close()
 
@@ -180,8 +181,8 @@ func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 		prefixes = append(prefixes, line)
 	}
 
-	if scanner.Err() != nil {
-		return nil, scanner.Err()
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("failed to scan prefixes: %w", err)
 	}
 	return prefixes, nil
 }
@@ -199,9 +200,12 @@ func (wisski *Prefixes) AllCached(ctx context.Context) (results []string, err er
 func (wisski *Prefixes) Update(ctx context.Context) error {
 	prefixes, err := wisski.All(ctx, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get prefixes: %w", err)
 	}
-	return prefix.SetAll(ctx, wisski.dependencies.MStore, prefixes...)
+	if err := prefix.SetAll(ctx, wisski.dependencies.MStore, prefixes...); err != nil {
+		return fmt.Errorf("failed to set prefixes: %w", err)
+	}
+	return nil
 }
 
 func (prefixes *Prefixes) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {

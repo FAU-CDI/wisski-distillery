@@ -3,6 +3,8 @@ package users
 
 //spellchecker:words github wisski distillery internal status ingredient
 import (
+	"fmt"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 )
@@ -23,5 +25,8 @@ func (up *UserPolicy) Fetch(flags ingredient.FetcherFlags, target *status.WissKI
 	// read the grants into the info struct
 	liquid := ingredient.GetLiquid(up)
 	target.Grants, err = liquid.Policy.Instance(flags.Context, liquid.Slug)
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to get grants: %w", err)
+	}
+	return nil
 }

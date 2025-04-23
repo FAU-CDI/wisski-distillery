@@ -111,19 +111,19 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 func (trb *TRB) restoreBackup(ctx context.Context, path string) (err error) {
 	reader, err := os.Open(path) // #nosec G304 -- intended
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to restore database: %w", err)
 	}
 	defer reader.Close()
 
 	decompressedReader, err := gzip.NewReader(reader)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create gzip reader: %w", err)
 	}
 	defer decompressedReader.Close()
 
 	liquid := ingredient.GetLiquid(trb)
 	if err := liquid.TS.RestoreDB(ctx, liquid.GraphDBRepository, decompressedReader); err != nil {
-		return err
+		return fmt.Errorf("failed to restore database: %w", err)
 	}
 	return nil
 }

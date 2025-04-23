@@ -6,6 +6,7 @@ import (
 	"context"
 	_ "embed"
 	"errors"
+	"fmt"
 	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
@@ -59,7 +60,7 @@ func (u *Users) LoginWithOpt(ctx context.Context, server *phpx.Server, username 
 
 	// if something went wrong, return
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get login link: %w", err)
 	}
 	if path == "" {
 		return nil, errLoginUnknownError
@@ -68,7 +69,7 @@ func (u *Users) LoginWithOpt(ctx context.Context, server *phpx.Server, username 
 	// parse it as a url
 	dest, err = url.Parse(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse login url: %w", err)
 	}
 
 	// and resolve the (possibly relative) reference
@@ -83,7 +84,7 @@ func (u *Users) SetPassword(ctx context.Context, server *phpx.Server, username, 
 	var ok bool
 	err := u.dependencies.PHP.ExecScript(ctx, server, &ok, usersPHP, "set_user_password", username, password)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to execute user script: %w", err)
 	}
 	if !ok {
 		return errSetPassword
