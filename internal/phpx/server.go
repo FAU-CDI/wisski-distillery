@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"regexp"
@@ -26,6 +27,8 @@ import (
 // A typical use-case is to define functions using [MarshalEval], and then call those functions [MarshalCall].
 //
 // A server, once used, should be closed using the [Close] method.
+//
+//nolint:containedctx
 type Server struct {
 	// Context to use for the server
 	Context context.Context
@@ -82,9 +85,11 @@ func (server *Server) prepare() error {
 		// start the shell process, which will close everything once done
 		go func() {
 			defer func() {
-				ir.Close()
-				iw.Close()
-				lb.Close()
+				// TODO: is there a reasonable way to report this error?
+				// via the logger perhaps?
+				_ = ir.Close()
+				_ = iw.Close()
+				_ = lb.Close()
 
 				server.cancel()
 			}()
@@ -92,7 +97,7 @@ func (server *Server) prepare() error {
 			// start the actual server
 			io := stream.NewIOStream(&lb, nil, ir)
 			err := server.Executor.Spawn(server.c, io, serverPHP)
-			server.err.Set(ServerError{errClosed, err})
+			server.err.Set(ServerError{Message: errClosed, Err: err})
 		}()
 	})
 
@@ -147,7 +152,7 @@ func (server *Server) MarshalEval(ctx context.Context, value any, code string) e
 	// check if there was an error
 	var errString string
 	if err := json.Unmarshal(received[1], &errString); err == nil && errString != "" {
-		return Throwable(errString)
+		return ThrowableError(errString)
 	}
 
 	// special case: no return value => no unmarshaling needed
@@ -246,7 +251,7 @@ func (server *Server) Call(ctx context.Context, function string, args ...any) (v
 // Close closes this server and prevents any further code from being run.
 func (server *Server) Close() error {
 	if err := server.prepare(); err != nil {
-		return err
+		return fmt.Errorf("failed to prepeare server: %w", err)
 	}
 
 	server.m.Lock()
@@ -257,9 +262,12 @@ func (server *Server) Close() error {
 		return ServerError{Message: errClosed}
 	}
 
-	server.in.Close()
+	err := server.in.Close()
 	<-server.c.Done()
 
+	if err != nil {
+		return fmt.Errorf("suspicous close of server input: %w", err)
+	}
 	return nil
 }
 

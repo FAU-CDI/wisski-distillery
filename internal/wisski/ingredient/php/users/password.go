@@ -48,7 +48,7 @@ func (pv PasswordValidator) Close() error {
 
 func (pv PasswordValidator) Check(ctx context.Context, password string) bool {
 	var result phpx.Boolean
-	err := pv.server.MarshalCall(ctx, &result, "check_password_hash", password, string(pv.hash))
+	err := pv.server.MarshalCall(ctx, &result, "check_password_hash", password, pv.hash)
 	if err != nil {
 		return false
 	}

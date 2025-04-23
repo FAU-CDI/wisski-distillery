@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"slices"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
@@ -19,7 +21,6 @@ import (
 	"github.com/yuin/goldmark"
 	gmmeta "github.com/yuin/goldmark-meta"
 	"github.com/yuin/goldmark/parser"
-	"slices"
 )
 
 type News struct {
@@ -83,7 +84,7 @@ func (item *Item) parse(path string, builder *strings.Builder) error {
 	}
 
 	// write content
-	item.Content = template.HTML(builder.String())
+	item.Content = template.HTML(builder.String()) // #nosec G203 -- markdown html assumed to be safe
 
 	return nil
 }

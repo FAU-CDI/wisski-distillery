@@ -18,6 +18,8 @@ type WissKIFetcher interface {
 }
 
 // FetcherFlags describes options for a WissKIFetcher.
+//
+//nolint:containedctx // TODO: Pass context explicitly
 type FetcherFlags struct {
 	Context context.Context
 	Quick   bool

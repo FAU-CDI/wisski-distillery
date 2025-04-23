@@ -186,7 +186,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		auth.dependencies.Templating,
 		func(flags templating.Flags, r *http.Request) templating.Flags {
 			flags.Crumbs = []component.MenuItem{
-				{Title: "Login", Path: template.URL(r.URL.RequestURI())},
+				{Title: "Login", Path: template.URL(r.URL.RequestURI())}, // #nosec G203 -- request URI assumed to be safe
 			}
 			return flags
 		},

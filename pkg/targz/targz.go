@@ -79,7 +79,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		}
 
 		// open the file
-		handle, err := os.Open(path)
+		handle, err := os.Open(path) // #nosec G304 -- intended
 		if err != nil {
 			return err
 		}

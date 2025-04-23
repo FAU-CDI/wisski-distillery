@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"html/template"
 	"net/http"
+	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
@@ -59,11 +60,12 @@ func (admin *Admin) instanceStats(context.Context) http.Handler {
 			return ctx, nil, err
 		}
 
+		escapedSlug := url.PathEscape(ctx.Instance.Slug)
 		return ctx, []templating.FlagFunc{
-			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + ctx.Instance.Slug)}),
-			templating.ReplaceCrumb(menuStats, component.MenuItem{Title: "SSH", Path: template.URL("/admin/instance/" + ctx.Instance.Slug + "/stats")}),
+			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),    // #nosec G203 -- escaped and safe
+			templating.ReplaceCrumb(menuStats, component.MenuItem{Title: "SSH", Path: template.URL("/admin/instance/" + escapedSlug + "/stats")}), // #nosec G203 -- escaped and safe
 			templating.Title(ctx.Instance.Slug + " - Stats"),
-			admin.instanceTabs(slug, "stats"),
+			admin.instanceTabs(escapedSlug, "stats"),
 		}, nil
 	})
 }

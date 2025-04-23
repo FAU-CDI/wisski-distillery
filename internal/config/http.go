@@ -90,7 +90,7 @@ func (hcfg HTTPConfig) optionalURL(domain string, enabled validators.NullableBoo
 	if hcfg.HTTPSEnabled() {
 		u.Scheme = "https"
 	}
-	return template.URL(u.String())
+	return template.URL(u.String()) // #nosec G203 -- config assumed to be safe
 }
 
 // JoinPath returns the root public url joined with the provided parts.

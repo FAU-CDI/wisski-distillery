@@ -27,6 +27,8 @@ type Ingredient interface {
 }
 
 // Base is embedded into every Ingredient.
+//
+//nolint:recvcheck
 type Base struct {
 	name   string         // name is the name of this ingredient
 	liquid *liquid.Liquid // the underlying liquid

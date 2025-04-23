@@ -163,6 +163,8 @@ func (i *Integer) UnmarshalJSON(data []byte) (err error) {
 }
 
 // Timestamp represents a time value in PHP, represented as an integer.
+//
+//nolint:recvcheck
 type Timestamp time.Time
 
 func (ts Timestamp) Time() time.Time {

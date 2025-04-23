@@ -34,9 +34,10 @@ func (mysql) Description() wisski_distillery.Description {
 
 func (ms mysql) Run(context wisski_distillery.Context) error {
 	code := context.Environment.SQL().Shell(context.Context, context.IOStream, ms.Positionals.Args...)
-	if code != 0 {
+
+	if code := exit.Code(code); code != 0 {
 		return exit.Error{
-			ExitCode: exit.ExitCode(uint8(code)),
+			ExitCode: code,
 			Message:  fmt.Sprintf("Exit code %d", code),
 		}
 	}

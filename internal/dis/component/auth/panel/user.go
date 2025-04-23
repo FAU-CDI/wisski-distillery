@@ -6,6 +6,7 @@ import (
 	"context"
 	"html/template"
 	"net/http"
+	"net/url"
 
 	_ "embed"
 
@@ -39,7 +40,7 @@ type GrantWithURL struct {
 }
 
 func (g GrantWithURL) AdminURL() template.URL {
-	return template.URL("/admin/instance/" + g.Slug)
+	return template.URL("/admin/instance/" + url.PathEscape(g.Slug)) // #nosec G203 -- escaped safely
 }
 
 func (panel *UserPanel) routeUser(context.Context) http.Handler {
@@ -95,7 +96,7 @@ func (panel *UserPanel) routeUser(context.Context) http.Handler {
 			if err != nil {
 				return uc, nil, err
 			}
-			uc.Grants[i].URL = template.URL(url)
+			uc.Grants[i].URL = template.URL(url) // #nosec G203 -- safe
 		}
 
 		return uc, funcs, err

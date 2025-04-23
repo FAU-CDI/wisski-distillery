@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"sync"
+	"time"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -77,7 +78,10 @@ func (s server) Run(context wisski_distillery.Context) error {
 	}
 
 	// start the public listener
-	publicS := http.Server{Handler: public}
+	publicS := http.Server{
+		Handler:           public,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
 	publicC := make(chan error)
 	var shutdownPublic func()
 	{
@@ -106,7 +110,10 @@ func (s server) Run(context wisski_distillery.Context) error {
 	}
 
 	// start the internal listener
-	internalS := http.Server{Handler: internal}
+	internalS := http.Server{
+		Handler:           internal,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
 	internalC := make(chan error)
 
 	var shutdownInternal func()

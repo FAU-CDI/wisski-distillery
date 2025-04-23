@@ -102,7 +102,7 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 	{
 		err := instance.Blocks().Create(context.Context, nil, extras.Block{
 			Info:    mb.Title,
-			Content: template.HTML(content),
+			Content: template.HTML(content), // #nosec G203 -- intended to be read from stdin
 
 			Region:  mb.Region,
 			BlockID: id,

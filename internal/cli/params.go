@@ -13,6 +13,8 @@ import (
 )
 
 // Params are used to initialize the excutable.
+//
+//nolint:containedctx
 type Params struct {
 	ConfigPath string          // ConfigPath is the path to the configuration file for the distillery
 	Context    context.Context // Context for the distillery

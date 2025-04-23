@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"html/template"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -64,24 +65,28 @@ func (admin *Admin) instanceDrupal(context.Context) http.Handler {
 		var eg errgroup.Group
 
 		// get the requirements
+		//nolint:contextcheck
 		eg.Go(func() (err error) {
 			ctx.Requirements, err = ctx.Instance.Requirements().Get(r.Context(), nil)
 			return
 		})
 
 		// get the drupal version
+		//nolint:contextcheck
 		eg.Go(func() (err error) {
 			ctx.DrupalVersion, err = ctx.Instance.Version().Get(r.Context(), nil)
 			return
 		})
 
 		// get the default theme
+		//nolint:contextcheck
 		eg.Go(func() (err error) {
 			ctx.DefaultTheme, err = ctx.Instance.Theme().Get(r.Context(), nil)
 			return
 		})
 
 		// last time cron was executed
+		//nolint:contextcheck
 		eg.Go(func() (err error) {
 			ctx.LastCron, err = ctx.Instance.Drush().LastCron(r.Context(), nil)
 			return
@@ -91,11 +96,12 @@ func (admin *Admin) instanceDrupal(context.Context) http.Handler {
 			return ctx, nil, err
 		}
 
+		escapedSlug := url.PathEscape(ctx.Instance.Slug)
 		return ctx, []templating.FlagFunc{
-			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + ctx.Instance.Slug)}),
-			templating.ReplaceCrumb(menuDrupal, component.MenuItem{Title: "Drupal", Path: template.URL("/admin/instance/" + ctx.Instance.Slug + "/drupal")}),
+			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),         // #nosec G203 -- escaped and safe
+			templating.ReplaceCrumb(menuDrupal, component.MenuItem{Title: "Drupal", Path: template.URL("/admin/instance/" + escapedSlug + "/drupal")}), // #nosec G203 -- escaped and safe
 			templating.Title(ctx.Instance.Slug + " - Drupal"),
-			admin.instanceTabs(slug, "drupal"),
+			admin.instanceTabs(escapedSlug, "drupal"),
 		}, nil
 	})
 }

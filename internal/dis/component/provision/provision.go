@@ -54,6 +54,12 @@ func (flags Flags) Profile() (profile manager.Profile) {
 
 var ErrInstanceAlreadyExists = errors.New("instance with provided slug already exists")
 
+type unknownFlavorError string
+
+func (err unknownFlavorError) Error() string {
+	return fmt.Sprintf("unknown flavor %q", string(err))
+}
+
 func (pv *Provision) validate(flags Flags) error {
 	// check the slug
 	if _, err := pv.dependencies.Instances.IsValidSlug(flags.Slug); err != nil {
@@ -61,7 +67,7 @@ func (pv *Provision) validate(flags Flags) error {
 	}
 	// check that we know the flavor
 	if flags.Flavor != "" && !manager.HasProfile(flags.Flavor) {
-		return fmt.Errorf("unknown flavor %q", flags.Flavor)
+		return unknownFlavorError(flags.Flavor)
 	}
 	return nil
 }

@@ -33,6 +33,8 @@ type SnapshotDescription struct {
 }
 
 // Snapshot represents the result of generating a snapshot.
+//
+//nolint:recvcheck
 type Snapshot struct {
 	Description SnapshotDescription
 	Instance    models.Instance
@@ -64,7 +66,7 @@ type Snapshot struct {
 func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.WissKI, progress io.Writer, desc SnapshotDescription) (snapshot Snapshot) {
 	logging.LogMessage(progress, "Locking instance")
 	if !instance.Locker().TryLock(ctx) {
-		err := locker.Locked
+		err := locker.ErrLocked
 		fmt.Fprintln(progress, err)
 		fmt.Fprintln(progress, "Aborting snapshot creation")
 
@@ -224,7 +226,7 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, _ *
 
 		// read the logfile
 		logfile := files[ids[i]]
-		bytes, err := os.ReadFile(logfile)
+		bytes, err := os.ReadFile(logfile) // #nosec G304 -- logfile set dynamically
 		if err != nil {
 			wdlog.Of(ctx).Error(
 				"unable to copy logfile",

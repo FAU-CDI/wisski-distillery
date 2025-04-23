@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -92,7 +93,7 @@ func (admin *Admin) postInstanceUsers(r *http.Request) (gc instanceUsersContext,
 	// read out the form values
 	var (
 		slug           = r.PostFormValue("slug")
-		delete         = r.PostFormValue("action") == "delete"
+		actionIsDelete = r.PostFormValue("action") == "delete"
 		distilleryUser = r.PostFormValue("distillery-user")
 		drupalUser     = r.PostFormValue("drupal-user")
 		adminRole      = r.PostFormValue("admin") == field.CheckboxChecked
@@ -104,7 +105,7 @@ func (admin *Admin) postInstanceUsers(r *http.Request) (gc instanceUsersContext,
 		return gc, nil, err
 	}
 
-	if delete {
+	if actionIsDelete {
 		// delete the user grant
 		err := admin.dependencies.Policy.Remove(r.Context(), distilleryUser, slug)
 		if err != nil {
@@ -143,11 +144,12 @@ func (gc *instanceUsersContext) use(r *http.Request, slug string, admin *Admin) 
 	gc.Instance = gc.instance.Instance
 
 	// replace the functions
+	escapedSlug := url.PathEscape(slug)
 	funcs = []templating.FlagFunc{
-		templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
-		templating.ReplaceCrumb(menuGrants, component.MenuItem{Title: "Users & Grants", Path: template.URL("/admin/instance/" + slug + "/users")}),
+		templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),                // #nosec G203 -- escaped and safe
+		templating.ReplaceCrumb(menuGrants, component.MenuItem{Title: "Users & Grants", Path: template.URL("/admin/instance/" + escapedSlug + "/users")}), // #nosec G203 -- escaped and safe
 		templating.Title(gc.Instance.Slug + " - Users & Grants"),
-		admin.instanceTabs(slug, "users"),
+		admin.instanceTabs(escapedSlug, "users"),
 	}
 	return funcs, nil
 }

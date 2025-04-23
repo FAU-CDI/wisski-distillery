@@ -8,6 +8,8 @@ import (
 )
 
 // Filesystem implements snapshotting an instnace filesystem.
+//
+//nolint:recvcheck
 type Filesystem struct {
 	component.Base
 }

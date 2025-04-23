@@ -17,6 +17,8 @@ type DistilleryFetcher interface {
 }
 
 // FetcherFlags describes options for a DistilleryFetcher.
+//
+//nolint:containedctx // TODO: pass context explicitly
 type FetcherFlags struct {
 	Context context.Context
 }

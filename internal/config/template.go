@@ -14,6 +14,8 @@ import (
 )
 
 // Template is used to generate a configuration file.
+//
+//nolint:recvcheck
 type Template struct {
 	RootPath      string
 	DefaultDomain string

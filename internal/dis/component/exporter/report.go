@@ -22,46 +22,47 @@ func (snapshot Snapshot) ReportMachine(w io.Writer) error {
 	return json.NewEncoder(w).Encode(snapshot)
 }
 
+//nolint:errchkjson
 func (snapshot Snapshot) ReportPlain(w io.Writer) error {
 	ww := &sequence.Writer{Writer: w} // allows us to ignore all the errors
 
 	encoder := json.NewEncoder(ww)
 	encoder.SetIndent("", "  ")
 
-	_, _ = io.WriteString(ww, "======= Begin Snapshot Report "+snapshot.Instance.Slug+" =======\n")
+	io.WriteString(ww, "======= Begin Snapshot Report "+snapshot.Instance.Slug+" =======\n")
 
-	_, _ = fmt.Fprintf(ww, "Slug:  %s\n", snapshot.Instance.Slug)
-	_, _ = fmt.Fprintf(ww, "Dest:  %s\n", snapshot.Description.Dest)
+	fmt.Fprintf(ww, "Slug:  %s\n", snapshot.Instance.Slug)
+	fmt.Fprintf(ww, "Dest:  %s\n", snapshot.Description.Dest)
 
-	_, _ = fmt.Fprintf(ww, "Start: %s\n", snapshot.StartTime)
-	_, _ = fmt.Fprintf(ww, "End:   %s\n", snapshot.EndTime)
-	_, _ = io.WriteString(ww, "\n")
+	fmt.Fprintf(ww, "Start: %s\n", snapshot.StartTime)
+	fmt.Fprintf(ww, "End:   %s\n", snapshot.EndTime)
+	io.WriteString(ww, "\n")
 
-	_, _ = io.WriteString(ww, "======= Description =======\n")
-	_ = encoder.Encode(snapshot.Description)
-	_, _ = io.WriteString(ww, "\n")
+	io.WriteString(ww, "======= Description =======\n")
+	encoder.Encode(snapshot.Description)
+	io.WriteString(ww, "\n")
 
-	_, _ = io.WriteString(ww, "======= Instance =======\n")
-	_ = encoder.Encode(snapshot.Instance)
-	_, _ = io.WriteString(ww, "\n")
+	io.WriteString(ww, "======= Instance =======\n")
+	encoder.Encode(snapshot.Instance)
+	io.WriteString(ww, "\n")
 
-	_, _ = io.WriteString(ww, "======= Errors =======\n")
-	_, _ = fmt.Fprintf(ww, "Panic:       %v\n", snapshot.ErrPanic)
-	_, _ = fmt.Fprintf(ww, "Start:       %v\n", snapshot.ErrStart)
-	_, _ = fmt.Fprintf(ww, "Stop:        %v\n", snapshot.ErrStop)
+	io.WriteString(ww, "======= Errors =======\n")
+	fmt.Fprintf(ww, "Panic:       %v\n", snapshot.ErrPanic)
+	fmt.Fprintf(ww, "Start:       %v\n", snapshot.ErrStart)
+	fmt.Fprintf(ww, "Stop:        %v\n", snapshot.ErrStop)
 
-	_, _ = fmt.Fprintf(ww, "Errors:    %s\n", snapshot.Errors)
+	fmt.Fprintf(ww, "Errors:    %s\n", snapshot.Errors)
 
-	_, _ = io.WriteString(ww, "\n")
+	io.WriteString(ww, "\n")
 
-	_, _ = io.WriteString(ww, "======= Manifest =======\n")
+	io.WriteString(ww, "======= Manifest =======\n")
 	for _, file := range snapshot.Manifest {
-		_, _ = io.WriteString(ww, file+"\n")
+		io.WriteString(ww, file+"\n")
 	}
 
-	_, _ = io.WriteString(ww, "\n")
+	io.WriteString(ww, "\n")
 
-	_, _ = io.WriteString(ww, "======= End Snapshot Report "+snapshot.Instance.Slug+"=======\n")
+	io.WriteString(ww, "======= End Snapshot Report "+snapshot.Instance.Slug+"=======\n")
 
 	_, err := ww.Sum()
 	return err
@@ -80,7 +81,7 @@ func (backup Backup) ReportMachine(w io.Writer) error {
 
 // Report formats a report for this backup, and writes it into Writer.
 //
-//nolint:errcheck
+//nolint:errchkjson
 func (backup Backup) ReportPlain(w io.Writer) error {
 	cw := &sequence.Writer{Writer: w}
 

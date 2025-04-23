@@ -16,9 +16,8 @@ import (
 // Typically data is marshaled using [json.Marshal] and decoded in PHP using 'json_decode'.
 // Special cases may exist for specific datatypes.
 func Marshal(data any) (string, error) {
-	switch d := data.(type) {
-	case string:
-		return MarshalString(d), nil
+	if str, ok := data.(string); ok {
+		return MarshalString(str), nil
 	}
 
 	bytes, err := json.Marshal(data)

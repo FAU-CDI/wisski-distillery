@@ -28,9 +28,9 @@ func newGormLogger() logger.Interface {
 }
 
 func (gl *gormLogger) LogMode(level logger.LogLevel) logger.Interface {
-	new := *gl
-	new.Level = level
-	return &new
+	iface := *gl
+	iface.Level = level
+	return &iface
 }
 
 func (gl *gormLogger) Info(ctx context.Context, format string, v ...interface{}) {

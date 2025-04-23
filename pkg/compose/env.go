@@ -19,9 +19,9 @@ const (
 	EnvQuoteChar   = '"'  // quoting
 )
 
-type errInvalidName string
+type invalidNameError string
 
-func (ei errInvalidName) Error() string {
+func (ei invalidNameError) Error() string {
 	return fmt.Sprintf("invalid variable name: %q", string(ei))
 }
 
@@ -48,7 +48,7 @@ func WriteEnvFile(writer io.Writer, env map[string]string) (count int, err error
 	for key, value := range collection.IterSorted(env) {
 		// if we don't have a valid name, break
 		if !isValidVariable(key) {
-			return count, errInvalidName(key)
+			return count, invalidNameError(key)
 		}
 
 		// write write key = EscapeEnvValue(value) followed by a new line
@@ -64,7 +64,7 @@ func WriteEnvFile(writer io.Writer, env map[string]string) (count int, err error
 // isValidVariable checks if name is a valid variable name.
 func isValidVariable(name string) bool {
 	for _, r := range name {
-		if !(r == '_' || (r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || (r >= '0' && r <= '9')) {
+		if r != '_' && (r < 'a' || r > 'z') && (r < 'A' || r > 'Z') && (r < '0' || r > '9') {
 			return false
 		}
 	}

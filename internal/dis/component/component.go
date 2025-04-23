@@ -34,6 +34,8 @@ type Component interface {
 }
 
 // Base is embedded into every Component.
+//
+//nolint:recvcheck
 type Base struct {
 	name, id string // name and id of this component
 	still    Still  // the underlying still of the distillery

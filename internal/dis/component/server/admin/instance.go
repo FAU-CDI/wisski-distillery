@@ -7,6 +7,7 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
+	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -64,31 +65,32 @@ func (admin *Admin) instance(context.Context) http.Handler {
 			return ic, nil, err
 		}
 
+		escapedSlug := url.PathEscape(slug)
 		funcs = []templating.FlagFunc{
-			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + slug)}),
+			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}), // #nosec G203 -- escaped and safe
 			templating.Title(instance.Slug),
 
-			admin.instanceTabs(slug, "overview"),
+			admin.instanceTabs(escapedSlug, "overview"),
 		}
 
 		return
 	})
 }
 
-// instanceTabs.
-func (admin *Admin) instanceTabs(slug string, active string) templating.FlagFunc {
+// #nosec G203 -- escaped and safe
+func (admin *Admin) instanceTabs(slugEscaped string, active string) templating.FlagFunc {
 	return func(flags templating.Flags, r *http.Request) templating.Flags {
 		flags.Tabs = []component.MenuItem{
-			{Title: "Overview", Path: template.URL("/admin/instance/" + slug), Active: active == "overview"},
-			{Title: "Rebuild", Path: template.URL("/admin/instance/" + slug + "/rebuild"), Active: active == "rebuild"},
-			{Title: "Users & Grants", Path: template.URL("/admin/instance/" + slug + "/users"), Active: active == "users"},
-			{Title: "Triplestore", Path: template.URL("/admin/instance/" + slug + "/triplestore"), Active: active == "triplestore"},
-			{Title: "Drupal", Path: template.URL("/admin/instance/" + slug + "/drupal"), Active: active == "drupal"},
-			{Title: "WissKI Data", Path: template.URL("/admin/instance/" + slug + "/data"), Active: active == "data"},
-			{Title: "WissKI Stats", Path: template.URL("/admin/instance/" + slug + "/stats"), Active: active == "stats"},
-			{Title: "SSH", Path: template.URL("/admin/instance/" + slug + "/ssh"), Active: active == "ssh"},
-			{Title: "Snapshots", Path: template.URL("/admin/instance/" + slug + "/snapshots"), Active: active == "snapshots"},
-			{Title: "Purge", Path: template.URL("/admin/instance/" + slug + "/purge"), Active: active == "purge"},
+			{Title: "Overview", Path: template.URL("/admin/instance/" + slugEscaped), Active: active == "overview"},
+			{Title: "Rebuild", Path: template.URL("/admin/instance/" + slugEscaped + "/rebuild"), Active: active == "rebuild"},
+			{Title: "Users & Grants", Path: template.URL("/admin/instance/" + slugEscaped + "/users"), Active: active == "users"},
+			{Title: "Triplestore", Path: template.URL("/admin/instance/" + slugEscaped + "/triplestore"), Active: active == "triplestore"},
+			{Title: "Drupal", Path: template.URL("/admin/instance/" + slugEscaped + "/drupal"), Active: active == "drupal"},
+			{Title: "WissKI Data", Path: template.URL("/admin/instance/" + slugEscaped + "/data"), Active: active == "data"},
+			{Title: "WissKI Stats", Path: template.URL("/admin/instance/" + slugEscaped + "/stats"), Active: active == "stats"},
+			{Title: "SSH", Path: template.URL("/admin/instance/" + slugEscaped + "/ssh"), Active: active == "ssh"},
+			{Title: "Snapshots", Path: template.URL("/admin/instance/" + slugEscaped + "/snapshots"), Active: active == "snapshots"},
+			{Title: "Purge", Path: template.URL("/admin/instance/" + slugEscaped + "/purge"), Active: active == "purge"},
 		}
 		return flags
 	}

@@ -66,7 +66,7 @@ func (l instanceLock) Run(context wisski_distillery.Context) error {
 	}
 
 	if !instance.Locker().TryLock(context.Context) {
-		return locker.Locked
+		return locker.ErrLocked
 	}
 
 	context.Println("locked")

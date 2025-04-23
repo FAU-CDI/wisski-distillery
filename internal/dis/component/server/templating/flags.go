@@ -7,12 +7,12 @@ import (
 	"html/template"
 	"net/http"
 	"reflect"
+	"slices"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"golang.org/x/exp/slices"
 )
 
 // Flags represent handle-updatable options for the base template.
@@ -51,7 +51,7 @@ func (rf RuntimeFlags) Took() time.Duration {
 func (rf RuntimeFlags) TookHTML() template.HTML {
 	took := rf.Took()
 
-	return template.HTML(fmt.Sprintf("<time datetime=\"P%.3f\">%s</time>", took.Seconds(), took))
+	return template.HTML(fmt.Sprintf("<time datetime=\"P%.3f\">%s</time>", took.Seconds(), took)) // #nosec G203 -- we know it's safe html
 }
 
 var runtimeFlagsName = reflect.TypeFor[RuntimeFlags]().Name()
@@ -68,9 +68,9 @@ func (flags Flags) Clone() Flags {
 type FlagFunc func(flags Flags, r *http.Request) Flags
 
 // Assets sets the given assets for the given flags.
-func Assets(Assets assets.Assets) FlagFunc {
+func Assets(assets assets.Assets) FlagFunc {
 	return func(flags Flags, r *http.Request) Flags {
-		flags.Assets = Assets
+		flags.Assets = assets
 		return flags
 	}
 }

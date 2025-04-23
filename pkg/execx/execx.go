@@ -8,6 +8,7 @@ package execx
 //spellchecker:words context exec path filepath github wisski distillery internal wdlog pkglib stream
 import (
 	"context"
+	"errors"
 	"os/exec"
 	"path/filepath"
 
@@ -89,8 +90,9 @@ func Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, a
 		)
 
 		// non-zero exit
-		if err, ok := err.(*exec.ExitError); ok {
-			return err.ExitCode()
+		var exit *exec.ExitError
+		if errors.As(err, &exit) {
+			return exit.ExitCode()
 		}
 
 		if err != nil {

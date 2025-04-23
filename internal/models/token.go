@@ -4,6 +4,7 @@ package models
 //spellchecker:words encoding json
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // TokensTable is the name of the table the 'Token' model is stored in.
@@ -45,10 +46,14 @@ func (token *Token) GetScopes() (scopes []string) {
 
 // SetScopes sets the scopes associated to this token to scopes.
 // It scopes is nil, sets the token to permit all scopes.
-func (token *Token) SetScopes(scopes []string) {
+func (token *Token) SetScopes(scopes []string) (err error) {
 	token.AllScopes = scopes == nil
 	if token.AllScopes {
 		scopes = []string{}
 	}
-	token.Scopes, _ = json.Marshal(scopes)
+	token.Scopes, err = json.Marshal(scopes)
+	if err != nil {
+		return fmt.Errorf("failed to marshal scopes: %w", err)
+	}
+	return nil
 }

@@ -109,7 +109,7 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 }
 
 func (trb *TRB) restoreBackup(ctx context.Context, path string) (err error) {
-	reader, err := os.Open(path)
+	reader, err := os.Open(path) // #nosec G304 -- intended
 	if err != nil {
 		return err
 	}

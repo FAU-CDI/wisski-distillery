@@ -75,13 +75,11 @@ func (control *Cron) Once(ctx context.Context) {
 
 			panicked, panik, err := func() (panicked bool, panik any, err error) {
 				defer func() {
-					panik = recover()
+					if panik = recover(); panik != nil {
+						panicked = true
+					}
 				}()
-
-				panicked = true
 				err = task.Cron(ctx)
-				panicked = false
-
 				return
 			}()
 

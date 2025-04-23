@@ -93,15 +93,15 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 	}
 
 	{
-		totpenable := panel.routeTOTPEnable(ctx)
-		router.Handler(http.MethodGet, route+"totp/enable", totpenable)
-		router.Handler(http.MethodPost, route+"totp/enable", totpenable)
+		totpEnable := panel.routeTOTPEnable(ctx)
+		router.Handler(http.MethodGet, route+"totp/enable", totpEnable)
+		router.Handler(http.MethodPost, route+"totp/enable", totpEnable)
 	}
 
 	{
-		totpenroll := panel.routeTOTPEnroll(ctx)
-		router.Handler(http.MethodGet, route+"totp/enroll", totpenroll)
-		router.Handler(http.MethodPost, route+"totp/enroll", totpenroll)
+		totpEnroll := panel.routeTOTPEnroll(ctx)
+		router.Handler(http.MethodGet, route+"totp/enroll", totpEnroll)
+		router.Handler(http.MethodPost, route+"totp/enroll", totpEnroll)
 	}
 
 	{
@@ -116,14 +116,14 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 	}
 
 	{
-		add := panel.sshAddRoute(ctx)
-		router.Handler(http.MethodGet, route+"ssh/add", add)
-		router.Handler(http.MethodPost, route+"ssh/add", add)
+		sshAdd := panel.sshAddRoute(ctx)
+		router.Handler(http.MethodGet, route+"ssh/add", sshAdd)
+		router.Handler(http.MethodPost, route+"ssh/add", sshAdd)
 	}
 
 	{
-		delete := panel.sshDeleteRoute(ctx)
-		router.Handler(http.MethodPost, route+"ssh/delete", delete)
+		sshDelete := panel.sshDeleteRoute(ctx)
+		router.Handler(http.MethodPost, route+"ssh/delete", sshDelete)
 	}
 
 	{
@@ -132,20 +132,21 @@ func (panel *UserPanel) HandleRoute(ctx context.Context, route string) (http.Han
 	}
 
 	{
-		add := panel.tokensAddRoute(ctx)
-		router.Handler(http.MethodGet, route+"tokens/add", add)
-		router.Handler(http.MethodPost, route+"tokens/add", add)
+		tokensAdd := panel.tokensAddRoute(ctx)
+		router.Handler(http.MethodGet, route+"tokens/add", tokensAdd)
+		router.Handler(http.MethodPost, route+"tokens/add", tokensAdd)
 	}
 
 	{
-		delete := panel.tokensDeleteRoute(ctx)
-		router.Handler(http.MethodPost, route+"tokens/delete", delete)
+		tokensDelete := panel.tokensDeleteRoute(ctx)
+		router.Handler(http.MethodPost, route+"tokens/delete", tokensDelete)
 	}
 
 	// ensure that the user is logged in!
 	return panel.dependencies.Auth.Protect(router, false, scopes.ScopeUserValid, nil), nil
 }
 
+//nolint:errname
 type userFormContext struct {
 	templating.RuntimeFlags
 	form.FormContext

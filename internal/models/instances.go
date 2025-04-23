@@ -55,6 +55,8 @@ func (i Instance) IsBlindUpdateEnabled() bool {
 }
 
 // SQLBit1 implements a boolean as a BIT(1).
+//
+//nolint:recvcheck
 type SQLBit1 bool
 
 func (sb SQLBit1) Value() (driver.Value, error) {

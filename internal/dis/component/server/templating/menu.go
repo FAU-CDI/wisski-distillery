@@ -5,10 +5,10 @@ package templating
 import (
 	"html/template"
 	"net/http"
+	"slices"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/tkw1536/pkglib/httpx/mux"
-	"golang.org/x/exp/slices"
 )
 
 // buildMenu builds the manu for this request for all known components in this distillery.
@@ -42,7 +42,7 @@ func (tpl *Templating) Menu(r *http.Request) []component.MenuItem {
 				Title:    routes.MenuTitle,
 				Priority: routes.MenuPriority,
 				Sticky:   routes.MenuSticky,
-				Path:     template.URL(routes.Prefix),
+				Path:     template.URL(routes.Prefix), // #nosec G203 -- prefix assumed to be safe
 			})
 		}
 		slices.SortFunc(items, component.MenuItemSort)

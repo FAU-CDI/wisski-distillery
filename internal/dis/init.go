@@ -22,7 +22,7 @@ var errOpenConfig = exit.Error{
 }
 
 // An error to be returned when cgo is enabled unexpectedly.
-var CGoEnabled = exit.Error{
+var ErrCGoEnabled = exit.Error{
 	ExitCode: exit.ExitGeneralArguments,
 	Message:  "this functionality is only available when cgo support is disabled. Set `CGO_ENABLED=0' at build time and try again",
 }
@@ -32,7 +32,7 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	// check cgo support to prevent weird error messages
 	// this has to happen either when we are inside docker, or when explicity requested by the command.
 	if cgo.Enabled && (flags.InternalInDocker || req.FailOnCgo) {
-		return nil, CGoEnabled
+		return nil, ErrCGoEnabled
 	}
 
 	dis = new(Distillery)

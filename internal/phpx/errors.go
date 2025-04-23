@@ -29,9 +29,9 @@ func (err ServerError) Error() string {
 	return fmt.Sprintf("PHPServer: %s: %s", err.Message, err.Err)
 }
 
-// Throwable represents an error during php code.
-type Throwable string
+// ThrowableError represents an error during php code.
+type ThrowableError string
 
-func (throwable Throwable) Error() string {
+func (throwable ThrowableError) Error() string {
 	return string(throwable)
 }

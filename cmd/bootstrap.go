@@ -185,7 +185,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 
 	// re-read the configuration and print it!
 	logging.LogMessage(context.Stderr, "Configuration is now complete")
-	f, err := os.Open(cfgPath)
+	f, err := os.Open(cfgPath) // #nosec G304 -- intended
 	if err != nil {
 		return errBootstrapOpenConfig.WrapError(err)
 	}

@@ -84,7 +84,7 @@ func (home *Home) publicHandler(context.Context) http.Handler {
 		}
 
 		// and return about!
-		pc.About = template.HTML(builder.String())
+		pc.About = template.HTML(builder.String()) // #nosec G203 -- template should be safe
 
 		// check if we should show the list of WissKIs
 		pc.ListEnabled = home.dependencies.ListInstances.ShouldShowList(r)

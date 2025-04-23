@@ -43,7 +43,7 @@ func ReadBaseDirectory() (value string, err error) {
 	}
 
 	// read the meta config file!
-	contents, err := os.ReadFile(path)
+	contents, err := os.ReadFile(path) // #nosec G304 -- intended
 	if err != nil {
 		return "", err
 	}

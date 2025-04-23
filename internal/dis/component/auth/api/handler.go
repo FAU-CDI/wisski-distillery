@@ -87,6 +87,8 @@ func (handler *Handler[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// we now delegate to user-level code;
 	// so we now need to make sure that panic()s are caught.
 	var stage string
+
+	//nolint:contextcheck
 	defer func() {
 		// recover any error
 		rec := recover()
@@ -124,7 +126,7 @@ func (handler *Handler[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	stage = "handler"
 
 	result, err := handler.Handler(param, r)
-	switch true {
+	switch {
 	case err == nil: /* keep going */
 
 	// handle common httpx errors

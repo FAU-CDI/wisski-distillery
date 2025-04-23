@@ -48,7 +48,7 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
 		case http.StatusUnauthorized:
 			// a password is needed => security is already enabled.
 			// the password may or may not work, but that's a problem for later
-			logging.LogMessage(progress, "Security is already enabled")
+			_, _ = logging.LogMessage(progress, "Security is already enabled")
 			return nil
 		default:
 			return fmt.Errorf("failed to create triplestore user: %w", err)

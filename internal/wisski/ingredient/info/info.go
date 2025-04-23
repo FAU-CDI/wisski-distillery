@@ -5,6 +5,7 @@ package info
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"sync/atomic"
 	"time"
@@ -48,7 +49,9 @@ func (nfo *Info) Information(ctx context.Context, quick bool) (info status.WissK
 			return nfo.dependencies.PHP.NewServer()
 		},
 		Discard: func(s *phpx.Server) {
-			s.Close()
+			if err := s.Close(); err != nil {
+				wdlog.Of(ctx).Error("failed to close phpx.Server: %w", slog.Any("error", err))
+			}
 		},
 	}
 	defer pool.Close()
@@ -67,7 +70,7 @@ func (nfo *Info) Information(ctx context.Context, quick bool) (info status.WissK
 	{
 		var group errgroup.Group
 		for i, fetcher := range nfo.dependencies.Fetchers {
-			fetcher, flags, i := fetcher, flags, i
+			flags := flags // needed for a local copy of flags
 			group.Go(func() error {
 				// quick: don't need to create servers
 				if flags.Quick {

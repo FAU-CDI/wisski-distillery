@@ -33,12 +33,12 @@ func Parse[C any](name string, source []byte, base *template.Template, funcs ...
 		}
 	}
 
-	// create a new template, and optionally inherit from the base template
-	new := template.New(name)
+	// create a tpl template, and optionally inherit from the base template
+	tpl := template.New(name)
 	if base != nil {
 		for _, tree := range base.Templates() {
 			root := tree.Tree.Copy()
-			if _, err := new.AddParseTree(tree.Name(), root); err != nil {
+			if _, err := tpl.AddParseTree(tree.Name(), root); err != nil {
 				panic("never reached") // Tree is a copy and has never been executed
 			}
 		}
@@ -46,7 +46,7 @@ func Parse[C any](name string, source []byte, base *template.Template, funcs ...
 
 	return Parsed[C]{
 		hasRuntimeFlagsEmbed: hasEmbed,
-		tpl:                  template.Must(new.Parse(string(source))),
+		tpl:                  template.Must(tpl.Parse(string(source))),
 		funcs:                funcs,
 	}
 }
@@ -63,7 +63,7 @@ func (p *Parsed[C]) Prepare(templating *Templating, funcs ...FlagFunc) *Template
 
 	// copy the functions!
 	pcopy.funcs = slices.Clone(pcopy.funcs)
-	pcopy.funcs = append(wrap.p.funcs, funcs...)
+	pcopy.funcs = append(pcopy.funcs, funcs...)
 
 	return &wrap
 }

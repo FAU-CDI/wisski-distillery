@@ -8,8 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"slices"
+
+	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 )
 
 // DrupalUser represents a WissKI DrupalUser.
@@ -69,6 +70,8 @@ const (
 )
 
 // UserRoles represents a set of user roles for a given user.
+//
+//nolint:recvcheck
 type UserRoles map[UserRole]struct{}
 
 func (ur UserRoles) String() string {

@@ -9,6 +9,7 @@ import (
 	"io"
 	"log/slog"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -19,10 +20,11 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/status"
-	"golang.org/x/exp/slices"
 )
 
 // Backup describes a backup.
+//
+//nolint:recvcheck
 type Backup struct {
 	Description BackupDescription
 

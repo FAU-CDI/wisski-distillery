@@ -78,6 +78,7 @@ func (tpl *Template[C]) context(r *http.Request, funcs ...FlagFunc) (ctx *tConte
 // ParseForm is like Parse[BaseFormContext].
 var ParseForm = Parse[FormContext]
 
+//nolint:errname
 type FormContext struct {
 	form.FormContext
 	RuntimeFlags
@@ -144,6 +145,8 @@ func (tw *Template[C]) HTMLHandlerWithFlags(handling *handling.Handling, worker 
 //
 // Callers may not retain references beyond the invocation of the template.
 // Callers must not rely on the internal structure of this tContext.
+//
+//nolint:containedctx
 type tContext[C any] struct {
 	Runtime        RuntimeFlags // underlying flags
 	updateEmbedded bool         // should we automatically update an embedded RuntimeFlags inside the context?
@@ -218,24 +221,24 @@ func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (te
 			)
 		}
 
-		return template.HTML(builder.String()), false, nil, nil, err
+		return template.HTML(builder.String()), false, nil, nil, err // #nosec G203 -- this is a template and unsafe by default
 	}()
 
 	if err != nil {
 		return renderSafeError, err
 	}
 	if panicked {
-		return renderPanicError, panicErr{value: panik, stack: stack}
+		return renderPanicError, panicError{value: panik, stack: stack}
 	}
 	return value, nil
 }
 
-// panicErr is returned by renderSafe when a panic occurs.
-type panicErr struct {
+// panicError is returned by renderSafe when a panic occurs.
+type panicError struct {
 	value any
 	stack []byte
 }
 
-func (pe panicErr) Error() string {
+func (pe panicError) Error() string {
 	return fmt.Sprintf("panic: %v", pe.value)
 }

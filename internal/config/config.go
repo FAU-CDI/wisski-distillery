@@ -25,6 +25,8 @@ import (
 //
 // Config contains many methods that do not require any interaction with any running components.
 // Methods that require running components are instead store inside the [Distillery] or an appropriate [Component].
+//
+//nolint:recvcheck
 type Config struct {
 	Listen ListenConfig `yaml:"listen" recurse:"true"`
 	Paths  PathsConfig  `yaml:"paths" recurse:"true"`
@@ -140,19 +142,24 @@ func (config *Config) derivedKey(skip int) []byte {
 
 // makeSalt makes some salt for key deriviation.
 // It is based on the contents of the config file.
-func (config *Config) makeSalt(skip, len int) []byte {
+func (config *Config) makeSalt(skip, size int) []byte {
+	// TODO: Generate random salt and read it from somewhere!
 	h := fnv.New64a()
-	h.Write([]byte(config.MarshalSensitive()))
-	sum := int64(h.Sum64()) // this wraps around, but that's fine!
+	if _, err := h.Write([]byte(config.MarshalSensitive())); err != nil {
+		panic("hash failed to write")
+	}
+	sum := int64(h.Sum64()) // #nosec G115 -- this wraps around, but that's fine!
 
 	// initialize the PRNG and go forward
-	rand := rand.New(rand.NewSource(sum))
+	rand := rand.New(rand.NewSource(sum)) // #nosec G404 -- this is used to make salt only
 	for range skip {
 		rand.Int63()
 	}
 
 	// and get the bytes
-	salt := make([]byte, len)
-	rand.Read(salt)
+	salt := make([]byte, size)
+	if _, err := rand.Read(salt); err != nil {
+		panic("never reached: rand.Read() always returns err == nil")
+	}
 	return salt
 }

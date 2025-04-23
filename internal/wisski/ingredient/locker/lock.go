@@ -21,7 +21,7 @@ var (
 	_ ingredient.WissKIFetcher = (*Locker)(nil)
 )
 
-var Locked = exit.Error{
+var ErrLocked = exit.Error{
 	Message:  "instance is locked for administrative operations",
 	ExitCode: exit.ExitGeneric,
 }
@@ -44,8 +44,8 @@ func (lock *Locker) TryLock(ctx context.Context) bool {
 func (lock *Locker) TryUnlock(ctx context.Context) bool {
 	liquid := ingredient.GetLiquid(lock)
 
-	ctx, close := contextx.Anyways(ctx, time.Second)
-	defer close()
+	ctx, cancel := contextx.Anyways(ctx, time.Second)
+	defer cancel()
 
 	table, err := liquid.SQL.QueryTable(ctx, liquid.LockTable)
 	if err != nil {

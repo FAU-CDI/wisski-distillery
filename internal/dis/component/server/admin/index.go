@@ -19,7 +19,7 @@ import (
 
 // Status produces a new observation of the distillery, and a new information of all instances
 // The information on all instances is passed the given quick flag.
-func (admin *Admin) Status(ctx context.Context, QuickInformation bool) (target status.Distillery, information []status.WissKI, err error) {
+func (admin *Admin) Status(ctx context.Context, quick bool) (target status.Distillery, information []status.WissKI, err error) {
 	var group errgroup.Group
 
 	group.Go(func() error {

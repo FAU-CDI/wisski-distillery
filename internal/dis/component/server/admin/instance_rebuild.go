@@ -7,6 +7,7 @@ import (
 	"errors"
 	"html/template"
 	"net/http"
+	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -84,11 +85,12 @@ func (admin *Admin) instanceRebuild(context.Context) http.Handler {
 		isc.System = instance.System
 
 		// replace the menu item
+		escapedSlug := url.PathEscape(instance.Slug)
 		funcs = []templating.FlagFunc{
-			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + instance.Slug)}),
-			templating.ReplaceCrumb(menuRebuild, component.MenuItem{Title: "Rebuild", Path: template.URL("/admin/instance/" + instance.Slug + "/rebuild")}),
+			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),            // #nosec G203 -- escaped and safe
+			templating.ReplaceCrumb(menuRebuild, component.MenuItem{Title: "Rebuild", Path: template.URL("/admin/instance/" + escapedSlug + "/rebuild")}), // #nosec G203 -- escaped and safe
 			templating.Title(instance.Slug + " - Rebuild"),
-			admin.instanceTabs(slug, "rebuild"),
+			admin.instanceTabs(escapedSlug, "rebuild"),
 		}
 
 		isc.prepare(true)

@@ -48,7 +48,7 @@ func (sh shell) Run(context wisski_distillery.Context) error {
 	{
 		err := instance.Barrel().Shell(context.Context, context.IOStream, sh.Positionals.Args...)
 		if err != nil {
-			code := err.(barrel.ExitError).Code()
+			code := err.(barrel.ExitError).Code() //nolint:errorlint // guaranteed type by documentation
 			return exit.Error{
 				ExitCode: code,
 				Message:  fmt.Sprintf("Exit code %d", code),

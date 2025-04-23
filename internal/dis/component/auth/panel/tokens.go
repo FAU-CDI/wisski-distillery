@@ -55,7 +55,7 @@ func (panel *UserPanel) tokensRoute(context.Context) http.Handler {
 			return tc, err
 		}
 
-		tc.Domain = template.URL(component.GetStill(panel).Config.HTTP.JoinPath().String())
+		tc.Domain = template.URL(component.GetStill(panel).Config.HTTP.JoinPath().String()) // #nosec G203 -- assumed to be safe
 
 		// get the tokens
 		tc.Tokens, err = panel.dependencies.Tokens.Tokens(r.Context(), user.User.User)
@@ -195,7 +195,7 @@ func (panel *UserPanel) tokensAddRoute(context.Context) http.Handler {
 			// render the created context
 			return panel.dependencies.Handling.WriteHTML(
 				tplDone.Context(r, TokenCreateContext{
-					Domain: template.URL(component.GetStill(panel).Config.HTTP.JoinPath().String()),
+					Domain: template.URL(component.GetStill(panel).Config.HTTP.JoinPath().String()), // #nosec G203 -- assumed to be safe
 					Token:  tok,
 				}),
 				nil,

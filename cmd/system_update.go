@@ -232,15 +232,18 @@ var errMustExecFailed = exit.Error{
 }
 
 // If it does not, returns errMustExecFailed.
+//
+//nolint:unparam
 func (si systemupdate) mustExec(context wisski_distillery.Context, workdir string, exe string, argv ...string) error {
 	dis := context.Environment
 	if workdir == "" {
 		workdir = dis.Config.Paths.Root
 	}
 	code := execx.Exec(context.Context, context.IOStream, workdir, exe, argv...)()
-	if code != 0 {
+
+	if code := exit.Code(code); code != 0 {
 		err := errMustExecFailed.WithMessageF(code)
-		err.ExitCode = exit.ExitCode(code)
+		err.ExitCode = code
 		return err
 	}
 	return nil

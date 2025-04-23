@@ -24,7 +24,7 @@ var errCronFailed = exit.Error{
 func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 	err := drush.Exec(ctx, progress, "core-cron")
 	if err != nil {
-		code := err.(barrel.ExitError).Code
+		code := err.(barrel.ExitError).Code //nolint:errorlint // guaranteed type by documentation
 		// keep going, because we want to run as many crons as possible
 		fmt.Fprintf(progress, "%v", errCronFailed.WithMessageF(ingredient.GetLiquid(drush).Slug, code))
 	}

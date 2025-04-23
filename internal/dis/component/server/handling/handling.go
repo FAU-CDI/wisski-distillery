@@ -54,8 +54,8 @@ func (h *Handling) interceptor(parent httpx.ErrInterceptor) httpx.ErrInterceptor
 	return parent
 }
 
-func (h *Handling) Redirect(Handler content.RedirectFunc) http.Handler {
-	r := content.Redirect(Handler)
+func (h *Handling) Redirect(handler content.RedirectFunc) http.Handler {
+	r := content.Redirect(handler)
 	r.Interceptor = h.TextInterceptor()
 	return r
 }

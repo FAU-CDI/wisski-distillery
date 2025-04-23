@@ -325,13 +325,13 @@ const composeFileHeader = "# This file was automatically created and is updated 
 // indicating it is automatically created.
 func addComposeFileHeader(path string) error {
 	// read existing bytes
-	bytes, err := os.ReadFile(path)
+	bytes, err := os.ReadFile(path) // #nosec G304 -- intended
 	if err != nil {
 		return err
 	}
 
 	// overwrite the file
-	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, umaskfree.DefaultFilePerm)
+	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, umaskfree.DefaultFilePerm) // #nosec G304 -- intended
 	if err != nil {
 		return err
 	}
@@ -366,7 +366,7 @@ func doComposeFile(path string, update func(node *yaml.Node) (*yaml.Node, error)
 			mode = stat.Mode()
 
 			// read the yaml bytes
-			bytes, err := os.ReadFile(path)
+			bytes, err := os.ReadFile(path) // #nosec G304 -- intended
 			if err != nil {
 				return errors.Wrap(err, "unable to read existing file")
 			}

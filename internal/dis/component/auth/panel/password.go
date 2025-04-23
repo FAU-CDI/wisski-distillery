@@ -50,7 +50,7 @@ func (panel *UserPanel) routePassword(context.Context) http.Handler {
 		LogTemplateError: tpl.LogTemplateError,
 
 		Validate: func(r *http.Request, values map[string]string) (struct{}, error) {
-			old, passcode, new, new2 := values["old"], values["otp"], values["new"], values["new2"]
+			old, passcode, new, new2 := values["old"], values["otp"], values["new"], values["new2"] //nolint:predeclared
 
 			if new != new2 {
 				return struct{}{}, errPasswordsNotIdentical

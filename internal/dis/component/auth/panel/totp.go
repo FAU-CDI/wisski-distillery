@@ -83,6 +83,7 @@ var totpEnrollTemplate = templating.Parse[totpEnrollContext](
 	templating.Assets(assets.AssetsUser),
 )
 
+//nolint:errname
 type totpEnrollContext struct {
 	userFormContext
 
@@ -129,8 +130,8 @@ func (panel *UserPanel) routeTOTPEnroll(context.Context) http.Handler {
 					img, _ := auth.TOTPLink(secret, 500, 500)
 
 					ctx.TOTPSecret = secret.Secret()
-					ctx.TOTPImage = template.URL(img)
-					ctx.TOTPURL = template.URL(secret.URL())
+					ctx.TOTPImage = template.URL(img)        // #nosec G203 -- this is safe
+					ctx.TOTPURL = template.URL(secret.URL()) // #nosec G203 -- this is safe
 				}
 			}
 

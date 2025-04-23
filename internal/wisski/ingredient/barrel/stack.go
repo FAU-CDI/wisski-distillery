@@ -34,7 +34,7 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 		},
 
 		Resources:   barrelResources,
-		ContextPath: filepath.Join("barrel"),
+		ContextPath: "barrel",
 
 		CreateFiles: map[string]string{
 			localSettingsName: localSettingsTemplate,

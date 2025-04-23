@@ -38,14 +38,14 @@ func DummyMenuItem() MenuItem {
 
 // ReplaceWith replaces this MenuItem with a different MenuItem.
 // This method returns true if an appropriate DummyMenuItem exists.
-func (mi MenuItem) ReplaceWith(new MenuItem, items []MenuItem) bool {
+func (mi MenuItem) ReplaceWith(replacement MenuItem, items []MenuItem) bool {
 	if mi.replaceID == 0 {
 		// never replace non-dummy items
 		return false
 	}
 	for i, item := range items {
 		if mi.replaceID == item.replaceID {
-			items[i] = new
+			items[i] = replacement
 			return true
 		}
 	}

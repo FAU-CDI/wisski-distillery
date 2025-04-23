@@ -4,6 +4,7 @@ package auth
 //spellchecker:words context http github wisski distillery internal component pkglib httpx
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/url"
 
@@ -18,7 +19,7 @@ import (
 // If an unauthenticated user attempts to access the returned handler, they are redirected to the login endpoint.
 // If an authenticated user is missing the given scope, a Forbidden response is called.
 // If an authenticated calls the endpoint, and they have the given permissions, the original handler is called.
-func (auth *Auth) Protect(handler http.Handler, AllowToken bool, scope component.Scope, param func(*http.Request) string) http.Handler {
+func (auth *Auth) Protect(handler http.Handler, allowToken bool, scope component.Scope, param func(*http.Request) string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var forbiddenMessage string
 		var paramValue string
@@ -31,7 +32,7 @@ func (auth *Auth) Protect(handler http.Handler, AllowToken bool, scope component
 		}
 
 		// token was set, but not allowed!
-		if session.Token && !AllowToken {
+		if session.Token && !allowToken {
 			goto forbidden
 		}
 
@@ -58,10 +59,13 @@ func (auth *Auth) Protect(handler http.Handler, AllowToken bool, scope component
 		// check if we have the actual scope
 		{
 			err = auth.CheckScope(paramValue, scope, r)
-			if ade, ok := err.(component.AccessDeniedError); ok {
+
+			var ade component.AccessDeniedError
+			if errors.Is(err, &ade) {
 				forbiddenMessage = ade.Error()
 				goto forbidden
 			}
+
 			if err != nil {
 				goto err
 			}

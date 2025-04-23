@@ -7,6 +7,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
@@ -16,7 +17,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
 	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/fsx"
-	"golang.org/x/exp/slices"
 
 	_ "embed"
 )
@@ -164,7 +164,7 @@ func (wisski *Prefixes) filePrefixes() (prefixes []string, err error) {
 	}
 
 	// open the file
-	file, err := os.Open(path)
+	file, err := os.Open(path) // #nosec G304 -- fixed path
 	if err != nil {
 		return nil, err
 	}

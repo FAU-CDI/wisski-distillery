@@ -43,7 +43,7 @@ func (solr *Solr) Stack() component.StackWithResources {
 		},
 
 		MakeDirs: []string{
-			filepath.Join("data"),
+			"data",
 		},
 	})
 }

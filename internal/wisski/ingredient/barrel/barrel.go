@@ -9,6 +9,8 @@ import (
 )
 
 // Barrel provides access to the underlying Barrel.
+//
+//nolint:recvcheck
 type Barrel struct {
 	ingredient.Base
 	dependencies struct {

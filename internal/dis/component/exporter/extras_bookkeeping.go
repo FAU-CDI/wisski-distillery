@@ -11,6 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
+//nolint:recvcheck
 type Bookkeeping struct {
 	component.Base
 }

@@ -50,7 +50,7 @@ func (manager *Manager) Apply(ctx context.Context, progress io.Writer, flags Pro
 }
 
 func (manager *Manager) installModules(ctx context.Context, progress io.Writer, modules []string, enable bool) error {
-	message := ""
+	var message string
 	if enable {
 		message = "Installing and enabling modules"
 	} else {

@@ -86,7 +86,7 @@ func (ssh2 *SSH2) loadHostKey(progress io.Writer, _ context.Context, key HostKey
 	fmt.Fprintf(progress, "Loading hostkey (algorithm %s) from %q\n", key.Algorithm(), path)
 
 	// read all the bytes from the file
-	privateKeyBytes, err := os.ReadFile(path)
+	privateKeyBytes, err := os.ReadFile(path) // #nosec G304 -- configured intentionally
 	if err != nil {
 		err = errors.Wrap(err, "Unable to read private key bytes")
 		return

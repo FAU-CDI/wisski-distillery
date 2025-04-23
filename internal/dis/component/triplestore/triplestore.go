@@ -13,6 +13,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+//nolint:recvcheck
 type Triplestore struct {
 	component.Base
 
