@@ -5,6 +5,7 @@ package news
 import (
 	"context"
 	"embed"
+	"fmt"
 	"html/template"
 	"io/fs"
 	"net/http"
@@ -59,7 +60,7 @@ func (item *Item) parse(path string, builder *strings.Builder) error {
 	// open file
 	content, err := fs.ReadFile(newsFS, path)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read news file: %w", err)
 	}
 
 	// parse and read metadata
@@ -69,7 +70,7 @@ func (item *Item) parse(path string, builder *strings.Builder) error {
 
 	context := parser.NewContext()
 	if err := reader.Convert(content, builder, parser.WithContext(context)); err != nil {
-		return err
+		return fmt.Errorf("failed to convert to html: %w", err)
 	}
 	meta := gmmeta.Get(context)
 
@@ -80,7 +81,7 @@ func (item *Item) parse(path string, builder *strings.Builder) error {
 	date, _ := meta["date"].(string)
 	item.Date, err = time.Parse("2006-01-02", date)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse date: %w", err)
 	}
 
 	// write content
@@ -98,14 +99,14 @@ func Items() ([]Item, error) {
 
 	files, err := fs.Glob(newsFS, "NEWS/*.md")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to list news files: %w", err)
 	}
 
 	items := make([]Item, len(files))
 	for i, file := range files {
 		items[i].ID = file[len("NEWS/") : len(file)-len(".md")]
 		if err := items[i].parse(file, &builder); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to parse file %q: %w", file, err)
 		}
 	}
 

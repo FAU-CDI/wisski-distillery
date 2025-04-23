@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -160,7 +161,7 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocketx.Connectio
 	// NOTE(twiesing): We may eventually need buffering here ...
 	output := WriterFunc(func(b []byte) (int, error) {
 		if err := conn.WriteText(string(b)); err != nil {
-			return 0, err
+			return 0, fmt.Errorf("failed to write text: %w", err)
 		}
 		return len(b), nil
 	})

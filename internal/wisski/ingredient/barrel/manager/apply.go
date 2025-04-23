@@ -4,6 +4,7 @@ package manager
 //spellchecker:words context github wisski distillery internal ingredient barrel composer logging pkglib stream
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 
@@ -60,7 +61,9 @@ func (manager *Manager) installModules(ctx context.Context, progress io.Writer, 
 	// enable the module
 	return logging.LogOperation(func() error {
 		for _, spec := range modules {
-			logging.LogMessage(progress, fmt.Sprintf("Installing %q", spec))
+			if _, err := logging.LogMessage(progress, fmt.Sprintf("Installing %q", spec)); err != nil {
+				return fmt.Errorf("failed to log message: %w", err)
+			}
 			err := manager.dependencies.Composer.Install(ctx, progress, spec)
 			if err != nil {
 				return err
@@ -68,7 +71,9 @@ func (manager *Manager) installModules(ctx context.Context, progress io.Writer, 
 
 			if enable {
 				name := composer.ModuleName(spec)
-				logging.LogMessage(progress, fmt.Sprintf("Enabling %q (from spec %q)", name, spec))
+				if _, err := logging.LogMessage(progress, fmt.Sprintf("Enabling %q (from spec %q)", name, spec)); err != nil {
+					return fmt.Errorf("failed to log message: %w", err)
+				}
 				err := manager.dependencies.Drush.Enable(ctx, progress, name)
 				if err != nil {
 					return err
@@ -81,9 +86,11 @@ func (manager *Manager) installModules(ctx context.Context, progress io.Writer, 
 
 // applyDrupal applies a specific drupal version.
 // Assumes that drupal != "".
-func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, drupal string) error {
+func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, drupal string) (e error) {
 	return logging.LogOperation(func() error {
-		logging.LogMessage(progress, "Clearing up permissions for update")
+		if _, err := logging.LogMessage(progress, "Clearing up permissions for update"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		{
 			for _, script := range [][]string{
 				{"chmod", "777", "web/sites/default"},
@@ -98,20 +105,38 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 		}
 
 		defer func() {
-			logging.LogMessage(progress, "Resetting permissions")
+			if _, err := logging.LogMessage(progress, "Resetting permissions"); err != nil {
+				err = fmt.Errorf("failed to log message: %w", err)
+				if e == nil {
+					e = err
+				} else {
+					e = errors.Join(e, err)
+				}
+				return
+			}
+
 			{
 				for _, script := range [][]string{
 					{"chmod", "755", "web/sites/default"},
 					{"chmod", "644", "web/sites/default/*settings.php"},
 					{"chmod", "644", "web/sites/default/*services.php"},
 				} {
-					manager.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
+					if err := manager.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...); err != nil {
+						err = fmt.Errorf("failed to reset perms: %w", err)
+						if e == nil {
+							e = err
+						} else {
+							e = errors.Join(e, err)
+						}
+					}
 				}
 			}
 		}()
 
 		// write out a specific Drupal version
-		logging.LogMessage(progress, "Performing Drupal update")
+		if _, err := logging.LogMessage(progress, "Performing Drupal update"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		{
 			args := []string{
 				"drupal/internal/core-recommended:", "drupal/internal/core-composer-scaffold:", "drupal/internal/core-project-message:",
@@ -126,14 +151,18 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 			}
 		}
 
-		logging.LogMessage(progress, "Running composer update")
+		if _, err := logging.LogMessage(progress, "Running composer update"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		{
 			if err := manager.dependencies.Composer.Exec(ctx, progress, "update"); err != nil {
 				return err
 			}
 		}
 
-		logging.LogMessage(progress, "Performing database updates (if any)")
+		if _, err := logging.LogMessage(progress, "Performing database updates (if any)"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		{
 			if err := manager.dependencies.Drush.Exec(ctx, progress, "updatedb", "--yes"); err != nil {
 				return err
@@ -147,7 +176,9 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 // applyWissKI applies the WissKI version.
 func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wisski string) error {
 	return logging.LogOperation(func() error {
-		logging.LogMessage(progress, "Installing WissKI Module")
+		if _, err := logging.LogMessage(progress, "Installing WissKI Module"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		{
 			spec := "drupal/wisski"
 			if wisski != "" {
@@ -161,14 +192,18 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 		}
 
 		// install dependencies in the WissKI directory
-		logging.LogMessage(progress, "Installing WissKI Dependencies")
+		if _, err := logging.LogMessage(progress, "Installing WissKI Dependencies"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		{
 			if err := manager.dependencies.Composer.ExecWissKI(ctx, progress, "install"); err != nil {
 				return err
 			}
 		}
 
-		logging.LogMessage(progress, "Enable Wisski modules")
+		if _, err := logging.LogMessage(progress, "Enable Wisski modules"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		{
 			if err := manager.dependencies.Drush.Enable(ctx, progress,
 				"wisski_core", "wisski_linkblock", "wisski_pathbuilder", "wisski_adapter_sparql11_pb", "wisski_salz",
@@ -181,7 +216,9 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 			}
 		}
 
-		logging.LogMessage(progress, "Performing database updates (if any)")
+		if _, err := logging.LogMessage(progress, "Performing database updates (if any)"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		{
 			if err := manager.dependencies.Drush.Exec(ctx, progress, "updatedb", "--yes"); err != nil {
 				return err

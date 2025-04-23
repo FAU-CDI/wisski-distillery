@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal logging pkglib
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -75,6 +77,8 @@ func (monday monday) Run(context wisski_distillery.Context) error {
 		}
 	}
 
-	logging.LogMessage(context.Stderr, "Done, have a great week!")
+	if _, err := logging.LogMessage(context.Stderr, "Done, have a great week!"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	return nil
 }

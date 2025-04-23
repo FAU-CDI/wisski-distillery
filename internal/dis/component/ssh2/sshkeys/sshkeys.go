@@ -4,6 +4,7 @@ package sshkeys
 //spellchecker:words context github wisski distillery internal component auth gliderlabs
 import (
 	"context"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
@@ -29,7 +30,7 @@ var (
 func (k *SSHKeys) Admin(ctx context.Context) (keys []ssh.PublicKey, err error) {
 	users, err := k.dependencies.Auth.Users(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get users: %w", err)
 	}
 
 	// iterate over enabled distillery admin users

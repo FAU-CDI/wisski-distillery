@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal component models logging goprogram exit pkglib
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -50,7 +52,9 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 	slug := r.Positionals.Slug
 
 	// check that it doesn't already exist
-	logging.LogMessage(context.Stderr, "Reserving new WissKI instance %s", slug)
+	if _, err := logging.LogMessage(context.Stderr, "Reserving new WissKI instance %s", slug); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	if exists, err := dis.Instances().Has(context.Context, slug); err != nil || exists {
 		return errReserveAlreadyExists.WithMessageF(slug)
 	}
@@ -63,7 +67,9 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 
 	// check that the base directory does not exist
 	{
-		logging.LogMessage(context.Stderr, "Checking that base directory %s does not exist", instance.FilesystemBase)
+		if _, err := logging.LogMessage(context.Stderr, "Checking that base directory %s does not exist", instance.FilesystemBase); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		exists, err := fsx.Exists(instance.FilesystemBase)
 		if err != nil {
 			return errProvisionGeneric.WrapError(err)
@@ -90,7 +96,9 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 	}
 
 	// and we're done!
-	logging.LogMessage(context.Stderr, "Instance has been reserved")
+	if _, err := logging.LogMessage(context.Stderr, "Instance has been reserved"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	context.Printf("URL:      %s\n", instance.URL().String())
 
 	return nil

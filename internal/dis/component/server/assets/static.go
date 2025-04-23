@@ -7,6 +7,7 @@ package assets
 import (
 	"context"
 	"embed"
+	"fmt"
 	"io/fs"
 	"net/http"
 
@@ -36,7 +37,7 @@ func (static *Static) HandleRoute(ctx context.Context, route string) (http.Handl
 	// take the filesystem
 	fs, err := fs.Sub(staticFS, "dist")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get 'dist' directory: %w", err)
 	}
 
 	// and serve it

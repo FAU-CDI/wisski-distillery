@@ -16,12 +16,16 @@ import (
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
 
 func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
-	logging.LogMessage(progress, "Waiting for Triplestore")
+	if _, err := logging.LogMessage(progress, "Waiting for Triplestore"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := ts.Wait(ctx); err != nil {
-		return err
+		return fmt.Errorf("failed to wait: %w", err)
 	}
 
-	logging.LogMessage(progress, "Resetting admin user password")
+	if _, err := logging.LogMessage(progress, "Resetting admin user password"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	{
 		config := component.GetStill(ts).Config.TS
 
@@ -48,14 +52,18 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
 		case http.StatusUnauthorized:
 			// a password is needed => security is already enabled.
 			// the password may or may not work, but that's a problem for later
-			_, _ = logging.LogMessage(progress, "Security is already enabled")
+			if _, err := logging.LogMessage(progress, "Security is already enabled"); err != nil {
+				return fmt.Errorf("failed to log message: %w", err)
+			}
 			return nil
 		default:
 			return fmt.Errorf("failed to create triplestore user: %w", err)
 		}
 	}
 
-	logging.LogMessage(progress, "Enabling Triplestore security")
+	if _, err := logging.LogMessage(progress, "Enabling Triplestore security"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	{
 		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPost, "/rest/security", nil, true)
 		if err != nil {

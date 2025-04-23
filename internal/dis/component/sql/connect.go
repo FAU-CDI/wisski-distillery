@@ -32,7 +32,7 @@ func (sql *SQL) Exec(query string, args ...interface{}) error {
 	{
 		_, err := conn.Exec(query, args...)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to execute query: %w", err)
 		}
 		return nil
 	}
@@ -74,7 +74,7 @@ func (sql *SQL) queryTable(ctx context.Context, silent bool, table string) (*gor
 	// open the gorm connection!
 	db, err := gorm.Open(mysql.New(cfg), config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect with gorm: %w", err)
 	}
 
 	// set the table
@@ -90,11 +90,14 @@ func (sql *SQL) queryTable(ctx context.Context, silent bool, table string) (*gor
 // WaitQueryTable waits for a connection to succeed via QueryTable.
 func (sql *SQL) WaitQueryTable(ctx context.Context) error {
 	// TODO: Establish a convention on when to wait for this!
-	return timex.TickUntilFunc(func(time.Time) bool {
+	if err := timex.TickUntilFunc(func(time.Time) bool {
 		// TODO: Use a different table here
 		_, err := sql.queryTable(ctx, true, models.InstanceTable)
 		return err == nil
-	}, ctx, sql.PollInterval)
+	}, ctx, sql.PollInterval); err != nil {
+		return fmt.Errorf("failed to wait for connection: %w", err)
+	}
+	return nil
 }
 
 //
@@ -104,7 +107,7 @@ func (sql *SQL) WaitQueryTable(ctx context.Context) error {
 func (ssql *SQL) connect(database string) (*sql.DB, error) {
 	conn, err := sql.Open("mysql", ssql.dsn(database))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to connect to sql: %w", err)
 	}
 
 	conn.SetMaxIdleConns(0)

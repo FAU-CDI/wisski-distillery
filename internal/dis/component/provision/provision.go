@@ -80,7 +80,9 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 	}
 
 	// check that it doesn't already exist
-	logging.LogMessage(progress, "Provisioning new WissKI instance %s", flags.Slug)
+	if _, err := logging.LogMessage(progress, "Provisioning new WissKI instance %s", flags.Slug); err != nil {
+		return nil, fmt.Errorf("failed to log message: %w", err)
+	}
 	if exists, err := pv.dependencies.Instances.Has(ctx, flags.Slug); err != nil || exists {
 		return nil, ErrInstanceAlreadyExists
 	}
@@ -96,7 +98,9 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 
 	// check that the base directory does not exist
 	{
-		logging.LogMessage(progress, "Checking that base directory %s does not exist", instance.FilesystemBase)
+		if _, err := logging.LogMessage(progress, "Checking that base directory %s does not exist", instance.FilesystemBase); err != nil {
+			return nil, fmt.Errorf("failed to log message: %w", err)
+		}
 		exists, err := fsx.Exists(instance.FilesystemBase)
 		if err != nil {
 			return nil, err
@@ -121,7 +125,9 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
 		for _, pc := range pv.dependencies.Provisionable {
-			logging.LogMessage(progress, "Provisioning %s resources", pc.Name())
+			if _, err := logging.LogMessage(progress, "Provisioning %s resources", pc.Name()); err != nil {
+				return fmt.Errorf("failed to log message: %w", err)
+			}
 			err := pc.Provision(ctx, instance.Instance, domain)
 			if err != nil {
 				return err
@@ -141,7 +147,9 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 	}
 
 	// start the container!
-	logging.LogMessage(progress, "Starting Container")
+	if _, err := logging.LogMessage(progress, "Starting Container"); err != nil {
+		return nil, fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := instance.Barrel().Stack().Up(ctx, progress); err != nil {
 		return nil, err
 	}

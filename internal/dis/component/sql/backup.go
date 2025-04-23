@@ -4,6 +4,7 @@ package sql
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -18,11 +19,14 @@ func (*SQL) BackupName() string {
 
 // Backup makes a backup of all SQL databases into the path dest.
 func (sql *SQL) Backup(scontext *component.StagingContext) error {
-	return scontext.AddFile("", func(ctx context.Context, file io.Writer) error {
+	if err := scontext.AddFile("", func(ctx context.Context, file io.Writer) error {
 		code := sql.Stack().Exec(ctx, stream.NewIOStream(file, scontext.Progress(), nil), "sql", SQlDumpExecutable, "--all-databases")()
 		if code != 0 {
 			return errSQLBackup
 		}
 		return nil
-	})
+	}); err != nil {
+		return fmt.Errorf("failed to add to context: %w", err)
+	}
+	return nil
 }

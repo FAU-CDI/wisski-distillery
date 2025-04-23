@@ -79,7 +79,10 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 		if err := sql.unsafeWaitShell(ctx); err != nil {
 			return err
 		}
-		_, _ = logging.LogMessage(progress, "Creating administrative user") // shouldn't abort cause logging failed
+		if _, err := logging.LogMessage(progress, "Creating administrative user"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
+
 		{
 			username := config.AdminUsername
 			password := config.AdminPassword
@@ -90,7 +93,9 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	}
 
 	// create the admin user
-	_, _ = logging.LogMessage(progress, "Creating sql database") //  shouldn't abort cause logging failed
+	if _, err := logging.LogMessage(progress, "Creating sql database"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	} //  shouldn't abort cause logging failed
 	{
 		if !sqlx.IsSafeDatabaseLiteral(config.Database) {
 			return errSQLUnsafeDatabaseName
@@ -102,7 +107,9 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	}
 
 	// wait for the database to come up
-	_, _ = logging.LogMessage(progress, "Waiting for database update to be complete") //  shouldn't abort cause logging failed
+	if _, err := logging.LogMessage(progress, "Waiting for database update to be complete"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	} //  shouldn't abort cause logging failed
 	if err := sql.WaitQueryTable(ctx); err != nil {
 		return fmt.Errorf("failed to wait for database: %w", err)
 	}
@@ -111,7 +118,9 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	if err := logging.LogOperation(func() error {
 		for _, table := range sql.dependencies.Tables {
 			info := table.TableInfo()
-			logging.LogMessage(progress, "migrating %q table", table.Name())
+			if _, err := logging.LogMessage(progress, "migrating %q table", table.Name()); err != nil {
+				return fmt.Errorf("failed to log message: %w", err)
+			}
 			db, err := sql.queryTable(ctx, false, info.Name)
 			if err != nil {
 				return errSQLUnableToMigrate.WithMessageF(table.Name, "unable to access table")

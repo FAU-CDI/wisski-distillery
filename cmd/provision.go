@@ -3,6 +3,7 @@ package cmd
 //spellchecker:words encoding json github wisski distillery internal component provision models ingredient barrel manager logging goprogram exit
 import (
 	"encoding/json"
+	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -81,7 +82,9 @@ func (p pv) Run(context wisski_distillery.Context) error {
 	}
 
 	// and we're done!
-	logging.LogMessage(context.Stderr, "Instance has been provisioned")
+	if _, err := logging.LogMessage(context.Stderr, "Instance has been provisioned"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	context.Printf("URL:      %s\n", instance.URL().String())
 	context.Printf("Username: %s\n", instance.DrupalUsername)
 	context.Printf("Password: %s\n", instance.DrupalPassword)

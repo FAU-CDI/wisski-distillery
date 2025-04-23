@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"text/template"
 
@@ -27,7 +28,7 @@ var createRepoTpl string
 //
 // NOTE(twiesing): The template is not aware of SparQL syntax, thus this template is very unsafe.
 // And should only be used with KNOWN GOOD input.
-var creteRepoTemplate = template.Must(template.New("create-repo.tpl").Parse(createRepoTpl))
+var createRepoTemplate = template.Must(template.New("create-repo.tpl").Parse(createRepoTpl))
 
 type createRepoContext struct {
 	RepositoryID string
@@ -53,12 +54,12 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 
 	// prepare the create repo request
 	var createRepo bytes.Buffer
-	if err := creteRepoTemplate.Execute(&createRepo, createRepoContext{
+	if err := createRepoTemplate.Execute(&createRepo, createRepoContext{
 		RepositoryID: name,
 		Label:        domain,
 		BaseURL:      "http://" + domain + "/",
 	}); err != nil {
-		return err
+		return fmt.Errorf("failed to create repository with template: %w", err)
 	}
 
 	// do the create!

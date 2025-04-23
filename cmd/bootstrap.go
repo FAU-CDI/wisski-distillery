@@ -3,6 +3,7 @@ package cmd
 //spellchecker:words path filepath github wisski distillery internal bootstrap config logging goprogram exit pkglib umaskfree
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -83,7 +84,9 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	{
-		logging.LogMessage(context.Stderr, "Creating root deployment directory")
+		if _, err := logging.LogMessage(context.Stderr, "Creating root deployment directory"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		if err := umaskfree.MkdirAll(root, umaskfree.DefaultDirPerm); err != nil {
 			return errBootstrapFailedToCreateDirectory.WithMessageF(root).WrapError(err)
 		}
@@ -108,7 +111,9 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	{
-		logging.LogMessage(context.Stderr, "Copying over wdcli executable")
+		if _, err := logging.LogMessage(context.Stderr, "Copying over wdcli executable"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		exe, err := os.Executable()
 		if err != nil {
 			return errBoostrapFailedToCopyExe.WithMessageF(err)
@@ -184,7 +189,9 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	}
 
 	// re-read the configuration and print it!
-	logging.LogMessage(context.Stderr, "Configuration is now complete")
+	if _, err := logging.LogMessage(context.Stderr, "Configuration is now complete"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	f, err := os.Open(cfgPath) // #nosec G304 -- intended
 	if err != nil {
 		return errBootstrapOpenConfig.WrapError(err)
@@ -198,7 +205,9 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	context.Println(cfg)
 
 	// Tell the user how to proceed
-	logging.LogMessage(context.Stderr, "Bootstrap is complete")
+	if _, err := logging.LogMessage(context.Stderr, "Bootstrap is complete"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	context.Printf("Adjust the configuration file at %s\n", cfgPath)
 	context.Printf("Then make sure 'docker compose' is installed.\n")
 	context.Printf("Finally grab a GraphDB zipped source file and run:\n")

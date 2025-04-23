@@ -62,7 +62,9 @@ func (sp systempause) Run(context wisski_distillery.Context) (err error) {
 }
 
 func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distillery) error {
-	logging.LogMessage(context.Stderr, "Starting Components")
+	if _, err := logging.LogMessage(context.Stderr, "Starting Components"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 
 	// find all the core stacks
 	if err := status.RunErrorGroup(context.Stderr, status.Group[component.Installable, error]{
@@ -78,7 +80,9 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 		return err
 	}
 
-	logging.LogMessage(context.Stderr, "Starting Up WissKIs")
+	if _, err := logging.LogMessage(context.Stderr, "Starting Up WissKIs"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 
 	// find the instances
 	wissKIs, err := dis.Instances().All(context.Context)
@@ -104,7 +108,9 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 }
 
 func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distillery) error {
-	logging.LogMessage(context.Stderr, "Shutting Down WissKIs")
+	if _, err := logging.LogMessage(context.Stderr, "Shutting Down WissKIs"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 
 	// find the instances
 	wissKIs, err := dis.Instances().All(context.Context)
@@ -126,7 +132,9 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 		return err
 	}
 
-	logging.LogMessage(context.Stderr, "Shutting Down Components")
+	if _, err := logging.LogMessage(context.Stderr, "Shutting Down Components"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 
 	// find all the core stacks
 	if err := status.RunErrorGroup(context.Stderr, status.Group[component.Installable, error]{

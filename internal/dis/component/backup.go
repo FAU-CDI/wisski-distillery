@@ -51,7 +51,7 @@ func NewStagingContext(ctx context.Context, progress io.Writer, path string, man
 
 // StagingContext is a context used for [Backupable] and [Snapshotable].
 //
-//nolint:containedctx
+//nolint:containedctx // TODO: Move this out of the context
 type StagingContext struct {
 	ctx      context.Context
 	progress io.Writer     // writer to direct progress to

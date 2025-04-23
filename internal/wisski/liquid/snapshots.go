@@ -4,11 +4,15 @@ package liquid
 //spellchecker:words context github wisski distillery internal models
 import (
 	"context"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
-// It's not that this is.
 func (liquid *Liquid) Snapshots(ctx context.Context) (snapshots []models.Export, err error) {
-	return liquid.ExporterLog.For(ctx, liquid.Slug)
+	snapshots, err = liquid.ExporterLog.For(ctx, liquid.Slug)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list snapshots: %w", err)
+	}
+	return snapshots, nil
 }

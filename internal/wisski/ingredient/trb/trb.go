@@ -28,27 +28,47 @@ type TRB struct {
 // Returns the size of the backup dump in bytes.
 func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmptyRepository bool) (size int, err error) {
 	// re-create the default adapter
-	logging.LogMessage(out, "Re-creating adapter")
+	if _, err := logging.LogMessage(out, "Re-creating adapter"); err != nil {
+		return 0, fmt.Errorf("failed to log message: %w", err)
+	}
 	if _, err := trb.dependencies.Adapters.SetAdapter(ctx, nil, trb.dependencies.Adapters.DefaultAdapter()); err != nil {
 		return 0, err
 	}
 
 	// stop instance, restart when done
-	logging.LogMessage(out, "Shutting down instance")
+	if _, err := logging.LogMessage(out, "Shutting down instance"); err != nil {
+		return 0, fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := trb.dependencies.Barrel.Stack().Down(ctx, out); err != nil {
 		return 0, err
 	}
 
 	defer func() {
-		logging.LogMessage(out, "Restarting instance")
-		e := trb.dependencies.Barrel.Stack().Up(ctx, out)
+		if _, e := logging.LogMessage(out, "Restarting instance"); e != nil {
+			e = fmt.Errorf("failed to log message: %w", err)
+			if err == nil {
+				err = e
+			} else {
+				err = errors.Join(err, e)
+			}
+			return
+		}
+
+		e2 := trb.dependencies.Barrel.Stack().Up(ctx, out)
+		if e2 == nil {
+			return
+		}
 		if err == nil {
-			err = e
+			err = e2
+		} else {
+			err = errors.Join(err, e2)
 		}
 	}()
 
 	// make the backup
-	logging.LogMessage(out, "Storing triplestore content")
+	if _, err := logging.LogMessage(out, "Storing triplestore content"); err != nil {
+		return 0, fmt.Errorf("failed to log message: %w", err)
+	}
 	dumpPath, _, err := trb.makeBackup(ctx, allowEmptyRepository)
 	if err != nil {
 		return 0, err
@@ -57,24 +77,32 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 
 	liquid := ingredient.GetLiquid(trb)
 
-	logging.LogMessage(out, "Purging triplestore")
+	if _, err := logging.LogMessage(out, "Purging triplestore"); err != nil {
+		return 0, fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := liquid.TS.Purge(ctx, liquid.Instance, liquid.Domain()); err != nil {
 		return 0, err
 	}
 
-	logging.LogMessage(out, "Provising triplestore")
+	if _, err := logging.LogMessage(out, "Provising triplestore"); err != nil {
+		return 0, fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := liquid.TS.Provision(ctx, liquid.Instance, liquid.Domain()); err != nil {
 		return 0, err
 	}
 
-	logging.LogMessage(out, "Restoring triplestore")
+	if _, err := logging.LogMessage(out, "Restoring triplestore"); err != nil {
+		return 0, fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := trb.restoreBackup(ctx, dumpPath); err != nil {
 		return 0, err
 	}
 
-	logging.LogMessage(out, "Deleting dump file")
+	if _, err := logging.LogMessage(out, "Deleting dump file"); err != nil {
+		return 0, fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := os.Remove(dumpPath); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to delete dump file: %w", err)
 	}
 
 	return
@@ -82,12 +110,23 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 
 var errBackupEmpty = errors.New("no data contained in backup file (is the repository empty?)")
 
-func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path string, size int64, err error) {
+func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path string, size int64, e error) {
 	file, err := os.CreateTemp("", "*.nq.gz")
 	if err != nil {
-		return "", 0, err
+		return "", 0, fmt.Errorf("failed to create temporary file: %w", err)
 	}
-	defer file.Close()
+	defer func() {
+		e2 := file.Close()
+		if e2 == nil {
+			return
+		}
+		e2 = fmt.Errorf("failed to close file: %w", e2)
+		if e == nil {
+			e = e2
+		} else {
+			e = errors.Join(e, e2)
+		}
+	}()
 
 	// create a new writer
 	zippedFile := gzip.NewWriter(file)
@@ -97,7 +136,7 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 		liquid := ingredient.GetLiquid(trb)
 		size, err := liquid.TS.SnapshotDB(ctx, zippedFile, liquid.GraphDBRepository)
 		if err != nil {
-			return "", 0, err
+			return "", 0, fmt.Errorf("failed to snapshot db: %w", err)
 		}
 
 		if size == 0 && !allowEmptyRepository {

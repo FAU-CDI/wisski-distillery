@@ -3,6 +3,7 @@ package sql
 //spellchecker:words embed path filepath time github wisski distillery internal config package component pkglib umaskfree yamlx gopkg yaml
 import (
 	"embed"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -65,7 +66,7 @@ func (sql *SQL) Stack() component.StackWithResources {
 			if err := yamlx.ReplaceWith(root, []string{
 				"eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}",
 			}, "services", "phpmyadmin", "labels"); err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to replace yaml network name: %w", err)
 			}
 
 			return root, nil

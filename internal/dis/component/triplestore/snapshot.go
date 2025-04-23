@@ -18,12 +18,21 @@ func (Triplestore) SnapshotNeedsRunning() bool { return false }
 func (Triplestore) SnapshotName() string { return "triplestore" }
 
 func (ts *Triplestore) Snapshot(wisski models.Instance, scontext *component.StagingContext) error {
-	return scontext.AddDirectory(".", func(ctx context.Context) error {
-		return scontext.AddFile(wisski.GraphDBRepository+".nq", func(ctx context.Context, file io.Writer) error {
+	if err := scontext.AddDirectory(".", func(ctx context.Context) error {
+		if err := scontext.AddFile(wisski.GraphDBRepository+".nq", func(ctx context.Context, file io.Writer) error {
 			_, err := ts.SnapshotDB(ctx, file, wisski.GraphDBRepository)
-			return err
-		})
-	})
+			if err != nil {
+				return fmt.Errorf("failed to snapshot database: %w", err)
+			}
+			return nil
+		}); err != nil {
+			return fmt.Errorf("failed to add nq file: %w", err)
+		}
+		return nil
+	}); err != nil {
+		return fmt.Errorf("failed to add directory: %w", err)
+	}
+	return nil
 }
 
 var errTSBackupWrongStatusCode = errors.New("Triplestore.Backup: Wrong status code")
@@ -51,5 +60,9 @@ func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string
 	if res.StatusCode != http.StatusOK {
 		return 0, errTSBackupWrongStatusCode
 	}
-	return io.Copy(dst, res.Body)
+	count, err := io.Copy(dst, res.Body)
+	if err != nil {
+		return count, fmt.Errorf("failed to copy result: %w", err)
+	}
+	return count, nil
 }

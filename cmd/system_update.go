@@ -91,7 +91,9 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 	dis := context.Environment
 
 	// create all the other directories
-	logging.LogMessage(context.Stderr, "Ensuring distillery installation directories exist")
+	if _, err := logging.LogMessage(context.Stderr, "Ensuring distillery installation directories exist"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	for _, d := range []string{
 		dis.Config.Paths.Root,
 		dis.Instances().Path(),
@@ -107,7 +109,9 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 
 	if si.InstallDocker {
 		// install system updates
-		logging.LogMessage(context.Stderr, "Updating Operating System Packages")
+		if _, err := logging.LogMessage(context.Stderr, "Updating Operating System Packages"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		if err := si.mustExec(context, "", "apt-get", "update"); err != nil {
 			return err
 		}
@@ -116,7 +120,9 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 		}
 
 		// install docker
-		logging.LogMessage(context.Stderr, "Installing / Updating Docker")
+		if _, err := logging.LogMessage(context.Stderr, "Installing / Updating Docker"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		if err := si.mustExec(context, "", "apt-get", "install", "curl"); err != nil {
 			return err
 		}
@@ -128,7 +134,9 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 
 	// check that the docker api is available
 	{
-		logging.LogMessage(context.Stderr, "Checking that the 'docker' api is reachable")
+		if _, err := logging.LogMessage(context.Stderr, "Checking that the 'docker' api is reachable"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		ping, err := dis.Docker().Ping(context.Context)
 		if err != nil {
 			return errDockerUnreachable.WrapError(err)
@@ -137,7 +145,9 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 	}
 
 	{
-		logging.LogMessage(context.Stderr, "Checking that 'docker compose' is available")
+		if _, err := logging.LogMessage(context.Stderr, "Checking that 'docker compose' is available"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 		if err := si.mustExec(context, "", "docker", "compose", "version"); err != nil {
 			return err
 		}
@@ -145,7 +155,9 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 
 	// create the docker networks
 	{
-		logging.LogMessage(context.Stderr, "Configuring docker networks")
+		if _, err := logging.LogMessage(context.Stderr, "Configuring docker networks"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 
 		for _, name := range dis.Config.Docker.Networks() {
 			id, existed, err := dis.Docker().CreateNetwork(context.Context, name)
@@ -223,7 +235,9 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 		return err
 	}
 
-	logging.LogMessage(context.Stderr, "System has been updated")
+	if _, err := logging.LogMessage(context.Stderr, "System has been updated"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	return nil
 }
 

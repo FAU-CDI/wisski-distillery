@@ -27,7 +27,9 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 	}
 
 	// Create the composer directory!
-	logging.LogMessage(progress, "Creating required directories")
+	if _, err := logging.LogMessage(progress, "Creating required directories"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	{
 		code, err := manager.dependencies.Barrel.Stack().Run(ctx, stream.FromNil(), component.RunFlags{Detach: true, AutoRemove: true}, "barrel", "sudo", "-u", "www-data", "mkdir", "-p", barrel.ComposerDirectory)
 		if code != 0 {
@@ -70,7 +72,9 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	// TODO: Check if we can remove the easyrdf patch!
 	flags.ApplyDefaults()
 
-	logging.LogMessage(progress, "Creating Composer Project")
+	if _, err := logging.LogMessage(progress, "Creating Composer Project"); err != nil {
+		return fmt.Errorf("failed to log progress: %w", err)
+	}
 	{
 		drupal := "drupal/recommended-project"
 		if flags.Drupal != "" {
@@ -82,7 +86,9 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		}
 	}
 
-	logging.LogMessage(progress, "Configuring Composer")
+	if _, err := logging.LogMessage(progress, "Configuring Composer"); err != nil {
+		return fmt.Errorf("failed to log progress: %w", err)
+	}
 	{
 		// needed for composer > 2.2
 		err := provision.dependencies.Composer.Exec(ctx, progress, "config", "allow-plugins", "true")
@@ -91,7 +97,9 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		}
 	}
 
-	logging.LogMessage(progress, "Installing drush")
+	if _, err := logging.LogMessage(progress, "Installing drush"); err != nil {
+		return fmt.Errorf("failed to log progress: %w", err)
+	}
 	{
 		for _, v := range drushVariants {
 			err := provision.dependencies.Composer.TryInstall(ctx, progress, v)
@@ -111,7 +119,9 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 
 	// Use 'drush' to run the site-installation.
 	// Here we need to use the username, password and database creds we made above.
-	logging.LogMessage(progress, "Running Drupal installation scripts")
+	if _, err := logging.LogMessage(progress, "Running Drupal installation scripts"); err != nil {
+		return fmt.Errorf("failed to log progress: %w", err)
+	}
 	{
 		if err := provision.dependencies.Drush.Exec(
 			ctx, progress,
@@ -129,7 +139,9 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	}
 
 	// Rebuild the settings file
-	logging.LogMessage(progress, "Rebuilding Settings")
+	if _, err := logging.LogMessage(progress, "Rebuilding Settings"); err != nil {
+		return fmt.Errorf("failed to log progress: %w", err)
+	}
 	{
 		if err := provision.dependencies.SystemManager.BuildSettings(ctx, progress); err != nil {
 			return err
@@ -137,10 +149,12 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	}
 
 	// Create directory for ontologies
-	logging.LogMessage(progress, fmt.Sprintf("Creating %q", barrel.OntologyDirectory))
+	if _, err := logging.LogMessage(progress, fmt.Sprintf("Creating %q", barrel.OntologyDirectory)); err != nil {
+		return fmt.Errorf("failed to log progress: %w", err)
+	}
 	{
 		if err := provision.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "mkdir", "-p", barrel.OntologyDirectory); err != nil {
-			return err
+			return fmt.Errorf("failed to create directory: %w", err)
 		}
 	}
 
@@ -162,21 +176,27 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	}
 
 	// create the default adapter
-	logging.LogMessage(progress, "Creating default adapter")
+	if _, err := logging.LogMessage(progress, "Creating default adapter"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	{
 		if _, err := provision.dependencies.Adapters.SetAdapter(ctx, nil, provision.dependencies.Adapters.DefaultAdapter()); err != nil {
 			return fmt.Errorf("failed to create default adapter: %w", err)
 		}
 	}
 
-	logging.LogMessage(progress, "Running initial cron")
+	if _, err := logging.LogMessage(progress, "Running initial cron"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	{
 		if err := provision.dependencies.Drush.Exec(ctx, progress, "core-cron"); err != nil {
 			return fmt.Errorf("failed to run initial cron: %w", err)
 		}
 	}
 
-	logging.LogMessage(progress, "Provisioning is now complete")
+	if _, err := logging.LogMessage(progress, "Provisioning is now complete"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	{
 		fmt.Fprintf(progress, "URL:                  %s\n", liquid.URL())
 		fmt.Fprintf(progress, "Username:             %s\n", liquid.DrupalUsername)

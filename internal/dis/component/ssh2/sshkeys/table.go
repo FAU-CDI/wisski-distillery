@@ -4,6 +4,7 @@ package sshkeys
 //spellchecker:words context reflect github wisski distillery internal component models gliderlabs
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -48,14 +49,14 @@ func (ssh2 *SSHKeys) Add(ctx context.Context, user string, comment string, key s
 	{
 		_, err := ssh2.dependencies.Auth.User(ctx, user)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to authenticate user: %w", err)
 		}
 	}
 
 	// fetch all the keys
 	keys, err := ssh2.Keys(ctx, user)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to retrieve keys: %w", err)
 	}
 
 	pks := make([]ssh.PublicKey, 0, len(keys))
@@ -80,11 +81,14 @@ func (ssh2 *SSHKeys) Add(ctx context.Context, user string, comment string, key s
 	// get the table
 	table, err := ssh2.dependencies.SQL.QueryTable(ctx, ssh2)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query ssh key table: %w", err)
 	}
 
 	// create the key instance
-	return table.Create(&mk).Error
+	if err := table.Create(&mk).Error; err != nil {
+		return fmt.Errorf("failed to insert key into table: %w", err)
+	}
+	return nil
 }
 
 // Remove removes a given publuc key from a user.
@@ -92,7 +96,7 @@ func (ssh2 *SSHKeys) Remove(ctx context.Context, user string, key ssh.PublicKey)
 	// find all the keys for the given user
 	keys, err := ssh2.Keys(ctx, user)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get keys: %w", err)
 	}
 
 	// iterate and find all the public keys
@@ -115,16 +119,22 @@ func (ssh2 *SSHKeys) Remove(ctx context.Context, user string, key ssh.PublicKey)
 	}
 
 	// and do the delete
-	return table.Where("pk in ?", pks).Delete(&models.Keys{}).Error
+	if err := table.Where("pk in ?", pks).Delete(&models.Keys{}).Error; err != nil {
+		return fmt.Errorf("failed to delete key: %w", err)
+	}
+	return nil
 }
 
 func (ssh2 *SSHKeys) OnUserDelete(ctx context.Context, user *models.User) error {
 	// get the table
 	table, err := ssh2.dependencies.SQL.QueryTable(ctx, ssh2)
 	if err != nil {
-		return err
+		return fmt.Errorf("failkd to query user table: %w", err)
 	}
 
 	// delete all keys for the user
-	return table.Delete(&models.Keys{}, &models.Keys{User: user.User}).Error
+	if err := table.Delete(&models.Keys{}, &models.Keys{User: user.User}).Error; err != nil {
+		return fmt.Errorf("faile to delete ssh keys for user: %w", err)
+	}
+	return nil
 }

@@ -37,7 +37,9 @@ var errPurgeGeneric = exit.Error{
 // Purge permanently purges an instance from the distillery.
 // The instance does not have to exist; in which case the resources are also deleted.
 func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) error {
-	logging.LogMessage(out, "Checking bookkeeping table")
+	if _, err := logging.LogMessage(out, "Checking bookkeeping table"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	instance, err := purger.dependencies.Instances.WissKI(ctx, slug)
 	if errors.Is(err, instances.ErrWissKINotFound) {
 		fmt.Fprintln(out, "Not found in bookkeeping table, assuming defaults")
@@ -48,13 +50,17 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	}
 
 	// remove docker stack
-	logging.LogMessage(out, "Stopping and removing docker container")
+	if _, err := logging.LogMessage(out, "Stopping and removing docker container"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := instance.Barrel().Stack().Down(ctx, out); err != nil {
 		fmt.Fprintln(out, err)
 	}
 
 	// remove the filesystem
-	logging.LogMessage(out, "Removing from filesystem %s", instance.FilesystemBase)
+	if _, err := logging.LogMessage(out, "Removing from filesystem %s", instance.FilesystemBase); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := os.RemoveAll(instance.FilesystemBase); err != nil {
 		fmt.Fprintln(out, err)
 	}
@@ -63,7 +69,9 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
 		for _, pc := range purger.dependencies.Provisionable {
-			logging.LogMessage(out, "Purging %s resources", pc.Name())
+			if _, err := logging.LogMessage(out, "Purging %s resources", pc.Name()); err != nil {
+				return fmt.Errorf("failed to log message: %w", err)
+			}
 			err := pc.Purge(ctx, instance.Instance, domain)
 			if err != nil {
 				return err
@@ -76,13 +84,17 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	}
 
 	// remove from bookkeeping
-	logging.LogMessage(out, "Removing instance from bookkeeping")
+	if _, err := logging.LogMessage(out, "Removing instance from bookkeeping"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	if err := instance.Bookkeeping().Delete(ctx); err != nil {
 		fmt.Fprintln(out, err)
 	}
 
 	// remove the filesystem
-	logging.LogMessage(out, "Remove lock data")
+	if _, err := logging.LogMessage(out, "Remove lock data"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	if instance.Locker().TryUnlock(ctx) {
 		fmt.Fprintln(out, "instance was not locked")
 	}

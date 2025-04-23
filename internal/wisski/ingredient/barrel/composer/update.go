@@ -5,6 +5,7 @@ package composer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"time"
 
@@ -34,7 +35,9 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 		return err
 	}
 
-	logging.LogMessage(progress, "Updating Packages")
+	if _, err := logging.LogMessage(progress, "Updating Packages"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	{
 		err := composer.Exec(ctx, progress, "update")
 		if err != nil {
@@ -42,7 +45,9 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 		}
 	}
 
-	logging.LogMessage(progress, "Installing database updates")
+	if _, err := logging.LogMessage(progress, "Installing database updates"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	{
 		err := composer.dependencies.Drush.Exec(ctx, progress, "-y", "updatedb")
 		if err != nil {
@@ -50,7 +55,9 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 		}
 	}
 
-	logging.LogMessage(progress, "Updating WissKI Packages")
+	if _, err := logging.LogMessage(progress, "Updating WissKI Packages"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	{
 		err := composer.Exec(ctx, progress, "update")
 		if err != nil {

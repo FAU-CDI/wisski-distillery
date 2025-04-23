@@ -5,6 +5,7 @@ package server
 import (
 	"context"
 	"embed"
+	"fmt"
 	"io"
 	"path/filepath"
 	"syscall"
@@ -47,7 +48,10 @@ func (server *Server) Stack() component.StackWithResources {
 
 // Trigger triggers the active cron run to immediatly invoke cron.
 func (server *Server) Trigger(ctx context.Context) error {
-	return server.Stack().Kill(ctx, io.Discard, "control", syscall.SIGHUP)
+	if err := server.Stack().Kill(ctx, io.Discard, "control", syscall.SIGHUP); err != nil {
+		return fmt.Errorf("failed to trigger 'control' service: %w", err)
+	}
+	return nil
 }
 
 func (server *Server) Context(parent component.InstallationContext) component.InstallationContext {

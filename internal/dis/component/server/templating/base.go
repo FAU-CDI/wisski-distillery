@@ -185,7 +185,7 @@ const renderPanicError = "Panic displaying page. See server log for details. "
 func (ctx *tContext[C]) renderSafe(name string, t *template.Template, c any) (template.HTML, error) {
 	// already done with context => return
 	if err := ctx.ctx.Err(); err != nil {
-		return "", err
+		return "", fmt.Errorf("context already closed: %w", err)
 	}
 
 	value, panicked, panik, stack, err := func() (value template.HTML, panicked bool, panik any, stack []byte, err error) {

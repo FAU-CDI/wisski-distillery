@@ -64,7 +64,9 @@ type Snapshot struct {
 
 // Snapshot creates a new snapshot of this instance into dest.
 func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.WissKI, progress io.Writer, desc SnapshotDescription) (snapshot Snapshot) {
-	logging.LogMessage(progress, "Locking instance")
+	if _, err := logging.LogMessage(progress, "Locking instance"); err != nil {
+		// TODO: error
+	}
 	if !instance.Locker().TryLock(ctx) {
 		err := locker.ErrLocked
 		fmt.Fprintln(progress, err)
@@ -75,7 +77,9 @@ func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.Wiss
 		}
 	}
 	defer func() {
-		logging.LogMessage(progress, "Unlocking instance")
+		if _, err := logging.LogMessage(progress, "Unlocking instance"); err != nil {
+			// TODO: error
+		}
 
 		ctx, cancel := contextx.Anyways(ctx, time.Second)
 		defer cancel()
@@ -166,11 +170,15 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, _ *
 	if !needsRunning && !snapshot.Description.Keepalive {
 		stack := instance.Barrel().Stack()
 
-		logging.LogMessage(progress, "Stopping instance")
+		if _, err := logging.LogMessage(progress, "Stopping instance"); err != nil {
+			// TODO: error
+		}
 		snapshot.ErrStop = stack.Down(ctx, progress)
 
 		defer func() {
-			logging.LogMessage(progress, "Starting instance")
+			if _, err := logging.LogMessage(progress, "Starting instance"); err != nil {
+				// TODO: error
+			}
 			snapshot.ErrStart = stack.Up(ctx, progress)
 		}()
 	}
