@@ -1,8 +1,9 @@
 //spellchecker:words validators
 package validators
 
+import "errors"
+
 //spellchecker:words github errors
-import "github.com/pkg/errors"
 
 var errEmpty = errors.New("value is empty")
 

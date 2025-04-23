@@ -42,7 +42,7 @@ func (sql *SQL) unsafeWaitShell(ctx context.Context) (err error) {
 		}
 	}()
 
-	return timex.TickUntilFunc(func(time.Time) bool {
+	if err := timex.TickUntilFunc(func(time.Time) bool {
 		code := sql.Shell(ctx, stream.FromNil(), "-e", "select 1;")
 
 		// special case: executable was not found in the docker container.
@@ -51,7 +51,10 @@ func (sql *SQL) unsafeWaitShell(ctx context.Context) (err error) {
 			panic(errSQLNotFound)
 		}
 		return code == 0
-	}, ctx, sql.PollInterval)
+	}, ctx, sql.PollInterval); err != nil {
+		return fmt.Errorf("failed to wait for sql: %w", err)
+	}
+	return nil
 }
 
 // unsafeQuery shell executes a raw database query.

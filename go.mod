@@ -13,7 +13,6 @@ require (
 	github.com/gorilla/sessions v1.4.0
 	github.com/gorilla/websocket v1.5.3
 	github.com/julienschmidt/httprouter v1.3.0
-	github.com/pkg/errors v0.9.1
 	github.com/pquerna/otp v1.4.0
 	github.com/tkw1536/goprogram v0.8.4
 	github.com/tkw1536/pkglib v0.0.0-20250415153013-42f5cb7cb7da
@@ -198,6 +197,7 @@ require (
 	github.com/opencontainers/image-spec v1.1.1 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect
+	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/polyfloyd/go-errorlint v1.7.1 // indirect
 	github.com/prometheus/client_golang v1.12.1 // indirect
