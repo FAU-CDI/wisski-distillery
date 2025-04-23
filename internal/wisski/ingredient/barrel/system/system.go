@@ -4,6 +4,7 @@ package system
 //spellchecker:words context github wisski distillery internal models ingredient barrel bookkeeping extras
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -46,9 +47,12 @@ func (smanager *SystemManager) apply(ctx context.Context, progress io.Writer, sy
 	// store the new system configuration
 	ingredient.GetLiquid(smanager).System = system
 	if err := smanager.dependencies.Bookkeeping.Save(ctx); err != nil {
-		return err
+		return fmt.Errorf("failed to save bookkeeping: %w", err)
 	}
 
 	// build and start the barrel
-	return smanager.dependencies.Barrel.Build(ctx, progress, start)
+	if err := smanager.dependencies.Barrel.Build(ctx, progress, start); err != nil {
+		return fmt.Errorf("faield to build barrel: %w", err)
+	}
+	return nil
 }

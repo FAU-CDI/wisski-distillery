@@ -2,6 +2,7 @@ package web
 
 //spellchecker:words path filepath github wisski distillery internal component gopkg yaml embed
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -60,7 +61,7 @@ func readYaml(bytes []byte) func(*yaml.Node) (*yaml.Node, error) {
 		var node yaml.Node
 		err := yaml.Unmarshal(bytes, &node)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to unmarshal yaml: %w", err)
 		}
 		return &node, nil
 	}

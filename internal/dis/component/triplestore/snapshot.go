@@ -4,12 +4,13 @@ package triplestore
 //spellchecker:words context http github wisski distillery internal component models errors
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/pkg/errors"
 )
 
 func (Triplestore) SnapshotNeedsRunning() bool { return false }
@@ -30,12 +31,23 @@ var errTSBackupWrongStatusCode = errors.New("Triplestore.Backup: Wrong status co
 const nquadsContentType = "text/x-nquads"
 
 // SnapshotDB snapshots the provided repository into dst.
-func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string) (int64, error) {
+func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string) (c int64, e error) {
 	res, err := ts.DoRest(ctx, 0, http.MethodGet, "/repositories/"+repo+"/statements?infer=false", &RequestHeaders{Accept: nquadsContentType})
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to send rest request: %w", err)
 	}
-	defer res.Body.Close()
+	defer func() {
+		e2 := res.Body.Close()
+		if e2 == nil {
+			return
+		}
+		e2 = fmt.Errorf("failed to close body: %w", e2)
+		if e == nil {
+			e = e2
+		} else {
+			e = errors.Join(e, e2)
+		}
+	}()
 	if res.StatusCode != http.StatusOK {
 		return 0, errTSBackupWrongStatusCode
 	}

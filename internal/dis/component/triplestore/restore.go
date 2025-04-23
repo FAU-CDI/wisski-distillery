@@ -4,11 +4,10 @@ package triplestore
 //spellchecker:words context http github errors
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/pkg/errors"
 )
 
 var errTSRestoreWrongStatusCode = errors.New("Triplestore.Restore: Wrong status code")

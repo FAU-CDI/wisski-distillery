@@ -3,10 +3,9 @@ package validators
 
 //spellchecker:words regexp strings github errors
 import (
+	"errors"
 	"regexp"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 var regexpSlug = regexp.MustCompile(`^[a-zA-Z0-9][-a-zA-Z0-9]*$`) // TODO: Make this regexp nicer!

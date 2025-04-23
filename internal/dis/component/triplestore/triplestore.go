@@ -4,6 +4,7 @@ package triplestore
 //spellchecker:words embed path filepath time github wisski distillery internal config package component pkglib yamlx gopkg yaml
 import (
 	"embed"
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -64,7 +65,7 @@ func (ts *Triplestore) Stack() component.StackWithResources {
 			if err := yamlx.ReplaceWith(root, []string{
 				"eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}",
 			}, "services", "triplestore", "labels"); err != nil {
-				return nil, err
+				return nil, fmt.Errorf("failed to replace docker network name: %w", err)
 			}
 
 			return root, nil

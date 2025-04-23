@@ -94,18 +94,18 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 		}
 		createDBSQL := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s`;", config.Database)
 		if err := sql.Exec(createDBSQL); err != nil {
-			return err
+			return fmt.Errorf("failed to create database: %w", err)
 		}
 	}
 
 	// wait for the database to come up
 	_, _ = logging.LogMessage(progress, "Waiting for database update to be complete") //  shouldn't abort cause logging failed
 	if err := sql.WaitQueryTable(ctx); err != nil {
-		return err
+		return fmt.Errorf("failed to wait for database: %w", err)
 	}
 
 	// migrate all of the tables!
-	return logging.LogOperation(func() error {
+	if err := logging.LogOperation(func() error {
 		for _, table := range sql.dependencies.Tables {
 			info := table.TableInfo()
 			logging.LogMessage(progress, "migrating %q table", table.Name())
@@ -121,5 +121,8 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 			}
 		}
 		return nil
-	}, progress, "migrating database tables")
+	}, progress, "migrating database tables"); err != nil {
+		return fmt.Errorf("failed to migrate database tables: %w", err)
+	}
+	return nil
 }

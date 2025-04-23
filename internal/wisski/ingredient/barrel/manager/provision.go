@@ -165,14 +165,14 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	logging.LogMessage(progress, "Creating default adapter")
 	{
 		if _, err := provision.dependencies.Adapters.SetAdapter(ctx, nil, provision.dependencies.Adapters.DefaultAdapter()); err != nil {
-			return err
+			return fmt.Errorf("failed to create default adapter: %w", err)
 		}
 	}
 
 	logging.LogMessage(progress, "Running initial cron")
 	{
 		if err := provision.dependencies.Drush.Exec(ctx, progress, "core-cron"); err != nil {
-			return err
+			return fmt.Errorf("failed to run initial cron: %w", err)
 		}
 	}
 
