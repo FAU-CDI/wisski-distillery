@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal goprogram exit parser
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
@@ -47,17 +49,17 @@ func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
 	context.Printf("Username>")
 	username, err := context.ReadLine()
 	if err != nil {
-		return errUnableToReadUsername.WrapError(err)
+		return fmt.Errorf("%w: %w", errUnableToReadUsername, err)
 	}
 
 	context.Printf("Password>")
 	password, err := context.ReadPassword()
 	if err != nil {
-		return errUnableToReadPassword.WrapError(err)
+		return fmt.Errorf("%w: %w", errUnableToReadPassword, err)
 	}
 
 	if err := dis.SQL().CreateSuperuser(context.Context, username, password, false); err != nil {
-		return errUnableToMakeAccount.WrapError(err)
+		return fmt.Errorf("%w: %w", errUnableToMakeAccount, err)
 	}
 
 	return nil

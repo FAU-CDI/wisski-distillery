@@ -78,7 +78,7 @@ func (p pv) Run(context wisski_distillery.Context) error {
 		},
 	})
 	if err != nil {
-		return errProvisionGeneric.WithMessageF(p.Positionals.Slug).WrapError(err)
+		return fmt.Errorf("%w: %w", errProvisionGeneric.WithMessageF(p.Positionals.Slug), err)
 	}
 
 	// and we're done!

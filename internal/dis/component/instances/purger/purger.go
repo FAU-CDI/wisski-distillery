@@ -74,7 +74,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 			}
 			err := pc.Purge(ctx, instance.Instance, domain)
 			if err != nil {
-				return fmt.Errorf("failed to purge %s for instance %q: %w", pc.Name(), instance.Instance.Slug, err)
+				return fmt.Errorf("failed to purge %s for instance %q: %w", pc.Name(), instance.Slug, err)
 			}
 		}
 

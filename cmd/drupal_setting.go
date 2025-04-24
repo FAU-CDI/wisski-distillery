@@ -3,6 +3,7 @@ package cmd
 //spellchecker:words encoding json github wisski distillery internal goprogram exit
 import (
 	"encoding/json"
+	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -48,19 +49,19 @@ var errSettingWissKI = exit.Error{
 func (ds setting) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, ds.Positionals.Slug)
 	if err != nil {
-		return errSettingWissKI.WrapError(err) // nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errSettingWissKI, err)
 	}
 
 	if ds.Positionals.Value == "" {
 		// get the setting
 		value, err := instance.Settings().Get(context.Context, nil, ds.Positionals.Setting)
 		if err != nil {
-			return errSettingGet.WrapError(err) // nolint:wrapcheck
+			return fmt.Errorf("%w: %w", errSettingGet, err)
 		}
 
 		// and print it
 		if err := json.NewEncoder(context.Stdout).Encode(value); err != nil {
-			return errSettingGet.WrapError(err) // nolint:wrapcheck
+			return fmt.Errorf("%w: %w", errSettingGet, err)
 		}
 
 		// finish with a newline
@@ -71,12 +72,12 @@ func (ds setting) Run(context wisski_distillery.Context) error {
 	// serialize the setting into json
 	var data any
 	if err := json.Unmarshal([]byte(ds.Positionals.Value), &data); err != nil {
-		return errSettingSet.WrapError(err) // nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errSettingSet, err)
 	}
 
 	// set the serialized value!
 	if err := instance.Settings().Set(context.Context, nil, ds.Positionals.Setting, data); err != nil {
-		return errSettingSet.WrapError(err) // nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errSettingSet, err)
 	}
 
 	// and we're done

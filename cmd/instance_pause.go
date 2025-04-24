@@ -45,7 +45,7 @@ var errInstancePauseWissKI = exit.Error{
 func (i instancepause) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)
 	if err != nil {
-		return errInstancePauseWissKI.WrapError(err)
+		return fmt.Errorf("%w: %w", errInstancePauseWissKI, err)
 	}
 
 	stack := instance.Barrel().Stack()

@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal goprogram exit
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
@@ -39,12 +41,12 @@ var errPrefixesWissKI = exit.Error{
 func (p prefixes) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, p.Positionals.Slug)
 	if err != nil {
-		return errPrefixesWissKI.WrapError(err)
+		return fmt.Errorf("%w: %w", errPrefixesWissKI, err)
 	}
 
 	prefixes, err := instance.Prefixes().All(context.Context, nil)
 	if err != nil {
-		return errPrefixesGeneric.WrapError(err)
+		return fmt.Errorf("%w: %w", errPrefixesGeneric, err)
 	}
 
 	for _, p := range prefixes {

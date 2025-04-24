@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal goprogram exit
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
@@ -36,7 +38,7 @@ func (cfg cfg) Run(context wisski_distillery.Context) error {
 		return nil
 	}
 	if err := context.Environment.Config.Marshal(context.Stdout); err != nil {
-		return errMarshalConfig.WrapError(err) //nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errMarshalConfig, err)
 	}
 	return nil
 }

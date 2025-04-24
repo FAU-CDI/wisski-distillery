@@ -3,6 +3,7 @@ package cmd
 //spellchecker:words errors slog http sync github wisski distillery internal wdlog goprogram exit
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"net"
 	"net/http"
@@ -55,7 +56,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 	// if the caller requested a trigger, just trigger the cron tasks
 	if s.Trigger {
 		if err := dis.Control().Trigger(context.Context); err != nil {
-			return errServerTrigger.WrapError(err)
+			return fmt.Errorf("%w: %w", errServerTrigger, err)
 		}
 	}
 
@@ -74,7 +75,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 	// and start the server
 	public, internal, err := dis.Control().Server(context.Context, context.Stderr)
 	if err != nil {
-		return errServerGeneric.WrapError(err)
+		return fmt.Errorf("%w: %w", errServerGeneric, err)
 	}
 
 	// start the public listener
@@ -93,7 +94,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 
 		publicL, err := net.Listen("tcp", s.Bind)
 		if err != nil {
-			return errServerListen.WrapError(err)
+			return fmt.Errorf("%w: %w", errServerListen, err)
 		}
 
 		// shutdown the public server when done!
@@ -125,7 +126,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 		)
 		internalL, err := net.Listen("tcp", s.InternalBind)
 		if err != nil {
-			return errServerListen.WrapError(err)
+			return fmt.Errorf("%w: %w", errServerListen, err)
 		}
 
 		// shutdown the internal server when done!
@@ -152,5 +153,9 @@ func (s server) Run(context wisski_distillery.Context) error {
 		shutdownInternal()
 	}()
 
-	return errServerListen.WrapError(errors.Join(<-internalC, <-publicC, err))
+	err = errors.Join(<-internalC, <-publicC, err)
+	if err != nil {
+		return fmt.Errorf("%w: %w", errServerListen, err)
+	}
+	return nil
 }

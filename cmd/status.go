@@ -3,6 +3,7 @@ package cmd
 //spellchecker:words encoding json github wisski distillery internal goprogram exit
 import (
 	"encoding/json"
+	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -34,12 +35,15 @@ var errStatusGeneric = exit.Error{
 func (s cStatus) Run(context wisski_distillery.Context) error {
 	status, _, err := context.Environment.Info().Status(context.Context, true)
 	if err != nil {
-		return errStatusGeneric.WrapError(err)
+		return fmt.Errorf("%w: %w", errStatusGeneric, err)
 	}
 
 	if s.JSON {
 		err := json.NewEncoder(context.Stdout).Encode(status)
-		return errStatusGeneric.WrapError(err)
+		if err != nil {
+			return fmt.Errorf("%w: %w", errStatusGeneric, err)
+		}
+		return nil
 	}
 
 	context.Printf("Total Instances:      %v\n", status.TotalCount)

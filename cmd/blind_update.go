@@ -46,7 +46,7 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) (err error) {
 	// find all the instances!
 	wissKIs, err := context.Environment.Instances().Load(context.Context, bu.Positionals.Slug...)
 	if err != nil {
-		return errBlindUpdateFailed.WrapError(err) // nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errBlindUpdateFailed, err)
 	}
 	if !bu.Force {
 		wissKIs = collection.KeepFunc(wissKIs, func(instance *wisski.WissKI) bool {

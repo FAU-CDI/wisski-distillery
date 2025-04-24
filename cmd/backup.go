@@ -2,6 +2,7 @@ package cmd
 
 //spellchecker:words slog github wisski distillery internal component exporter wdlog logging goprogram exit
 import (
+	"fmt"
 	"log/slog"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
@@ -65,9 +66,8 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 			ConcurrentSnapshots: bk.ConcurrentSnapshots,
 		},
 	})
-
 	if err != nil {
-		return errBackupFailed.WrapError(err) //nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errBackupFailed, err)
 	}
 	return nil
 }

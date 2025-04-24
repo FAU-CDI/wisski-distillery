@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal goprogram exit
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
@@ -46,14 +48,14 @@ func (pb pathbuilders) Run(context wisski_distillery.Context) error {
 	// get the wisski
 	instance, err := context.Environment.Instances().WissKI(context.Context, pb.Positionals.Slug)
 	if err != nil {
-		return errPathbuilderWissKI.WrapError(err)
+		return fmt.Errorf("%w: %w", errPathbuilderWissKI, err)
 	}
 
 	// get all of the pathbuilders
 	if pb.Positionals.Name == "" {
 		names, err := instance.Pathbuilder().All(context.Context, nil)
 		if err != nil {
-			return errPathbuilders.WrapError(err)
+			return fmt.Errorf("%w: %w", errPathbuilders, err)
 		}
 		for _, name := range names {
 			context.Println(name)

@@ -72,7 +72,7 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 		}
 		exists, err := fsx.Exists(instance.FilesystemBase)
 		if err != nil {
-			return errProvisionGeneric.WrapError(err)
+			return fmt.Errorf("%w: %w", errProvisionGeneric, err)
 		}
 		if exists {
 			return errReserveAlreadyExists.WithMessageF(slug)

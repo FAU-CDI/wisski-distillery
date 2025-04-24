@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal component exporter goprogram exit
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
@@ -58,7 +60,7 @@ func (sn snapshot) Run(context wisski_distillery.Context) error {
 	// find the instance!
 	instance, err := dis.Instances().WissKI(context.Context, sn.Positionals.Slug)
 	if err != nil {
-		return errSnapshotWissKI.WrapError(err)
+		return fmt.Errorf("%w: %w", errSnapshotWissKI, err)
 	}
 
 	// do a snapshot of it!
@@ -73,7 +75,7 @@ func (sn snapshot) Run(context wisski_distillery.Context) error {
 	})
 
 	if err != nil {
-		return errSnapshotFailed.WrapError(err)
+		return fmt.Errorf("%w: %w", errSnapshotFailed, err)
 	}
 	return nil
 }

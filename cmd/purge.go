@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal goprogram exit
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
@@ -53,7 +55,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// do the purge!
 	if err := dis.Purger().Purge(context.Context, context.Stdout, slug); err != nil {
-		return errPurgeFailed.WrapError(err)
+		return fmt.Errorf("%w: %w", errPurgeFailed, err)
 	}
 	return nil
 }

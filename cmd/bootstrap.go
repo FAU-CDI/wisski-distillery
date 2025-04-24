@@ -89,10 +89,10 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 		if err := umaskfree.MkdirAll(root, umaskfree.DefaultDirPerm); err != nil {
-			return errBootstrapFailedToCreateDirectory.WithMessageF(root).WrapError(err) //nolint:wrapcheck
+			return fmt.Errorf("%w: %w", errBootstrapFailedToCreateDirectory.WithMessageF(root), err)
 		}
 		if err := cli.WriteBaseDirectory(root); err != nil {
-			return errBootstrapFailedToSaveDirectory.WithMessageF(root).WrapError(err) //nolint:wrapcheck
+			return fmt.Errorf("%w: %w", errBootstrapFailedToSaveDirectory.WithMessageF(root), err)
 		}
 		context.Println(root)
 	}
@@ -108,7 +108,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 
 	// and use thge defaults
 	if err := tpl.SetDefaults(); err != nil {
-		return errBootstrapWriteConfig.WrapError(err) //nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errBootstrapWriteConfig, err)
 	}
 
 	{
@@ -130,7 +130,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	{
 		isFile, err := fsx.IsRegular(cfgPath, false)
 		if err != nil {
-			return errBootstrapWriteConfig.WrapError(err) //nolint:wrapcheck
+			return fmt.Errorf("%w: %w", errBootstrapWriteConfig, err)
 		}
 		if !isFile {
 			// generate the configuration from the template
@@ -158,7 +158,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 
 				return nil
 			}, context.Stderr, "Creating custom config files"); err != nil {
-				return errBootstrapCreateFile.WrapError(err) //nolint:wrapcheck
+				return fmt.Errorf("%w: %w", errBootstrapCreateFile, err)
 			}
 
 			// Validate configuration file!
@@ -184,7 +184,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 					return fmt.Errorf("failed to write config yml: %w", err)
 				}
 			}, context.Stderr, "Installing primary configuration file"); err != nil {
-				return errBootstrapWriteConfig.WrapError(err) //nolint:wrapcheck
+				return fmt.Errorf("%w: %w", err, errBootstrapWriteConfig)
 			}
 		}
 	}
@@ -195,13 +195,13 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	}
 	f, err := os.Open(cfgPath) // #nosec G304 -- intended
 	if err != nil {
-		return errBootstrapOpenConfig.WrapError(err) //nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errBootstrapOpenConfig, err)
 	}
 	defer errwrap.Close(f, "configuration file", &e)
 
 	var cfg config.Config
 	if err := cfg.Unmarshal(f); err != nil {
-		return errBootstrapOpenConfig.WrapError(err) //nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errBootstrapOpenConfig, err)
 	}
 	context.Println(cfg)
 

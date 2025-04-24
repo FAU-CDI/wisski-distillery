@@ -1,14 +1,17 @@
 package errwrap
 
 import (
+	"fmt"
+
 	"github.com/tkw1536/goprogram/exit"
 )
 
-// DeferWrap replaces *err with wrap.WrapError(*err) iff *err is not nil.
-func DeferWrap(wrap exit.Error, err *error) {
+// DeferWrap replaces *err with an error that wraps both wrap and the underlying error.
+// Deprecated: Manually wrap where needed.
+func DeferWrap(wrap exit.Error, retval *error) {
 	// TODO: Check if this is still needed
-	if err == nil || *err == nil {
+	if retval == nil || *retval == nil {
 		return
 	}
-	*err = wrap.WrapError(*err)
+	*retval = fmt.Errorf("%w: %w", wrap, *retval)
 }

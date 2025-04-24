@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal ingredient locker goprogram exit
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
@@ -54,7 +56,7 @@ var errInstanceLockWissKI = exit.Error{
 func (l instanceLock) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, l.Positionals.Slug)
 	if err != nil {
-		return errInstanceLockWissKI.WrapError(err) //nolint:wrapcheck
+		return fmt.Errorf("%w: %w", errInstanceLockWissKI, err)
 	}
 
 	if l.Unlock {

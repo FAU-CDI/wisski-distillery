@@ -18,7 +18,7 @@ import (
 )
 
 var errBlindUpdateFailed = exit.Error{
-	Message:  "failed to run blind update script for instance %q",
+	Message:  "failed to run blind update script",
 	ExitCode: exit.ExitGeneric,
 }
 
@@ -28,7 +28,7 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 		if err == nil {
 			return
 		}
-		err = errBlindUpdateFailed.WithMessageF(ingredient.GetLiquid(composer).Slug).WrapError(err)
+		err = fmt.Errorf("%w for instance %q: %w", errBlindUpdateFailed, ingredient.GetLiquid(composer).Slug, err)
 	}()
 
 	if err := composer.FixPermission(ctx, progress); err != nil {
