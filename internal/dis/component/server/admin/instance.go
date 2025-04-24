@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -55,14 +56,14 @@ func (admin *Admin) instance(context.Context) http.Handler {
 			return ic, nil, httpx.ErrNotFound
 		}
 		if err != nil {
-			return ic, nil, err
+			return ic, nil, fmt.Errorf("failed to get instance: %w", err)
 		}
 		ic.Instance = instance.Instance
 
 		// get some more info about the wisski
 		ic.Info, err = instance.Info().Information(r.Context(), true)
 		if err != nil {
-			return ic, nil, err
+			return ic, nil, fmt.Errorf("failed to get information: %w", err)
 		}
 
 		escapedSlug := url.PathEscape(slug)

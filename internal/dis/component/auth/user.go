@@ -36,7 +36,7 @@ func (auth *Auth) Users(ctx context.Context) (users []*AuthUser, err error) {
 	// query the user table
 	table, err := auth.dependencies.SQL.QueryTable(ctx, auth)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 
 	// find all the users
@@ -69,7 +69,7 @@ func (auth *Auth) User(ctx context.Context, name string) (user *AuthUser, err er
 	// return the user
 	table, err := auth.dependencies.SQL.QueryTable(ctx, auth)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 
 	user = &AuthUser{}
@@ -97,7 +97,7 @@ func (auth *Auth) CreateUser(ctx context.Context, name string) (user *AuthUser, 
 	// return the user
 	table, err := auth.dependencies.SQL.QueryTable(ctx, auth)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 
 	user = &AuthUser{
@@ -323,7 +323,7 @@ func (au *AuthUser) MakeRegular(ctx context.Context) error {
 func (au *AuthUser) Save(ctx context.Context) error {
 	table, err := au.auth.dependencies.SQL.QueryTable(ctx, au.auth)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query table: %w", err)
 	}
 	return table.Select("*").Updates(&au.User).Error
 }

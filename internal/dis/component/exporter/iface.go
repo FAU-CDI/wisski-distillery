@@ -163,7 +163,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 			}
 
 			if err := export.ReportPlain(report); err != nil {
-				return err
+				return fmt.Errorf("failed to generate report: %w", err)
 			}
 		}
 
@@ -179,14 +179,13 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		entry.Path = stagingDir
 		entry.Packed = false
 		if err := exporter.dependencies.ExporterLogger.Add(ctx, entry); err != nil {
-			return err
+			return fmt.Errorf("failed to add log entry entry: %w", err)
 		}
 
 		fmt.Fprintf(progress, "Wrote %s\n", stagingDir)
 		return nil
 	}
 
-	// package everything up as an archive!
 	if err := logging.LogOperation(func() error {
 		var count int64
 		defer func() { fmt.Fprintf(progress, "Wrote %d byte(s) to %s\n", count, archivePath) }()
@@ -199,16 +198,23 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 			st.Set(0, dst)
 		})
 
-		return err
+		if err != nil {
+			return fmt.Errorf("failed to package archive: %w", err)
+		}
+		return nil
 	}, progress, "Writing archive"); err != nil {
-		return err
+		return fmt.Errorf("failed to write archive: %w", err)
 	}
 
-	// write out the log entry
 	if _, err := logging.LogMessage(progress, "Writing Log Entry"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
-	} // shouldn't fail because of log
+	}
+
 	entry.Path = archivePath
 	entry.Packed = true
-	return exporter.dependencies.ExporterLogger.Add(ctx, entry)
+
+	if err := exporter.dependencies.ExporterLogger.Add(ctx, entry); err != nil {
+		return fmt.Errorf("failed to log backup: %w", err)
+	}
+	return nil
 }

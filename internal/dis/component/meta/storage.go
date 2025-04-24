@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
@@ -33,7 +34,7 @@ type Storage struct {
 func (s Storage) Get(ctx context.Context, key Key, target any) error {
 	table, err := s.sql.QueryTable(ctx, s.table)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query table: %w", err)
 	}
 
 	// read the datum from the database
@@ -51,7 +52,10 @@ func (s Storage) Get(ctx context.Context, key Key, target any) error {
 	}
 
 	// and do the unmarshaling!
-	return json.Unmarshal(datum.Value, target)
+	if err := json.Unmarshal(datum.Value, target); err != nil {
+		return fmt.Errorf("failed to unmarshal: %w", err)
+	}
+	return nil
 }
 
 // GetAll receives all metadata with the provided keys.
@@ -62,7 +66,7 @@ func (s Storage) Get(ctx context.Context, key Key, target any) error {
 func (s Storage) GetAll(ctx context.Context, key Key, target func(index, total int) any) error {
 	table, err := s.sql.QueryTable(ctx, s.table)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query table: %w", err)
 	}
 
 	// read the datum from the database
@@ -78,7 +82,7 @@ func (s Storage) GetAll(ctx context.Context, key Key, target func(index, total i
 	for index, datum := range data {
 		err := json.Unmarshal(datum.Value, target(index, len(data)))
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to unmarshal: %w", err)
 		}
 	}
 
@@ -89,7 +93,7 @@ func (s Storage) GetAll(ctx context.Context, key Key, target func(index, total i
 func (s Storage) Delete(ctx context.Context, key Key) error {
 	table, err := s.sql.QueryTable(ctx, s.table)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query table: %w", err)
 	}
 
 	// delete all the values
@@ -103,18 +107,18 @@ func (s Storage) Delete(ctx context.Context, key Key) error {
 // Set serializes value and stores it with the provided key.
 // Any other metadata with the same key is deleted.
 func (s Storage) Set(ctx context.Context, key Key, value any) error {
-	table, err := s.sql.QueryTable(ctx, s.table)
-	if err != nil {
-		return err
-	}
-
 	// marshal the value
 	bytes, err := json.Marshal(value)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to marshal value: %w", err)
 	}
 
-	return table.Transaction(func(tx *gorm.DB) error {
+	table, err := s.sql.QueryTable(ctx, s.table)
+	if err != nil {
+		return fmt.Errorf("failed to query table: %w", err)
+	}
+
+	if err := table.Transaction(func(tx *gorm.DB) error {
 		// delete the old values
 		status := tx.Where(&models.Metadatum{Slug: s.Slug, Key: string(key)}).Delete(&models.Metadatum{})
 		if err := status.Error; err != nil {
@@ -132,7 +136,10 @@ func (s Storage) Set(ctx context.Context, key Key, value any) error {
 		}
 
 		return nil
-	})
+	}); err != nil {
+		return fmt.Errorf("transaction failed: %w", err)
+	}
+	return nil
 }
 
 // Set serializes values and stores them with the provided key.
@@ -140,10 +147,10 @@ func (s Storage) Set(ctx context.Context, key Key, value any) error {
 func (s Storage) SetAll(ctx context.Context, key Key, values ...any) error {
 	table, err := s.sql.QueryTable(ctx, s.table)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query table: %w", err)
 	}
 
-	return table.Transaction(func(tx *gorm.DB) error {
+	if err := table.Transaction(func(tx *gorm.DB) error {
 		// delete the old values
 		status := tx.Where(&models.Metadatum{Slug: s.Slug, Key: string(key)}).Delete(&models.Metadatum{})
 		if err := status.Error; err != nil {
@@ -153,7 +160,7 @@ func (s Storage) SetAll(ctx context.Context, key Key, values ...any) error {
 		for _, value := range values {
 			bytes, err := json.Marshal(value)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to marshal value: %w", err)
 			}
 
 			// create the new item to insert
@@ -167,14 +174,17 @@ func (s Storage) SetAll(ctx context.Context, key Key, values ...any) error {
 			}
 		}
 		return nil
-	})
+	}); err != nil {
+		return fmt.Errorf("transation failed: %w", err)
+	}
+	return nil
 }
 
 // Purge removes all metadata, regardless of key.
 func (s Storage) Purge(ctx context.Context) error {
 	table, err := s.sql.QueryTable(ctx, s.table)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query table: %w", err)
 	}
 
 	status := table.Where("slug = ?", s.Slug).Delete(&models.Metadatum{})

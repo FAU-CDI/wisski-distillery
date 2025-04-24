@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -78,7 +79,7 @@ func (admin *Admin) instanceRebuild(context.Context) http.Handler {
 			return isc, nil, httpx.ErrNotFound
 		}
 		if err != nil {
-			return isc, nil, err
+			return isc, nil, fmt.Errorf("failed to get WissKI: %w", err)
 		}
 
 		isc.Slug = instance.Slug

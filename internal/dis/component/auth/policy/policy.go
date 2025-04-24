@@ -4,6 +4,7 @@ package policy
 //spellchecker:words context reflect github wisski distillery internal component auth models gorm
 import (
 	"context"
+	"fmt"
 	"reflect"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -36,5 +37,9 @@ func (pol *Policy) TableInfo() component.TableInfo {
 }
 
 func (pol *Policy) table(ctx context.Context) (*gorm.DB, error) {
-	return pol.dependencies.SQL.QueryTable(ctx, pol)
+	conn, err := pol.dependencies.SQL.QueryTable(ctx, pol)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query table: %w", err)
+	}
+	return conn, nil
 }

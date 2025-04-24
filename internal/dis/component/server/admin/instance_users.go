@@ -87,7 +87,7 @@ func (admin *Admin) getGrantsUsers(r *http.Request) (gc instanceUsersContext, fu
 func (admin *Admin) postInstanceUsers(r *http.Request) (gc instanceUsersContext, funcs []templating.FlagFunc, err error) {
 	// parse the form
 	if err := r.ParseForm(); err != nil {
-		return gc, nil, err
+		return gc, nil, fmt.Errorf("failed to parse form: %w", err)
 	}
 
 	// read out the form values
@@ -109,7 +109,7 @@ func (admin *Admin) postInstanceUsers(r *http.Request) (gc instanceUsersContext,
 		// delete the user grant
 		err := admin.dependencies.Policy.Remove(r.Context(), distilleryUser, slug)
 		if err != nil {
-			return gc, nil, err
+			return gc, nil, fmt.Errorf("failer to remove user grant: %w", err)
 		}
 	} else {
 		// update the grant
@@ -139,7 +139,7 @@ func (gc *instanceUsersContext) use(r *http.Request, slug string, admin *Admin) 
 		return nil, httpx.ErrNotFound
 	}
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get WissKI: %w", err)
 	}
 	gc.Instance = gc.instance.Instance
 
@@ -157,12 +157,12 @@ func (gc *instanceUsersContext) use(r *http.Request, slug string, admin *Admin) 
 func (gc *instanceUsersContext) useUsers(r *http.Request, admin *Admin) (err error) {
 	gc.Grants, err = admin.dependencies.Policy.Instance(r.Context(), gc.Instance.Slug)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get instance: %w", err)
 	}
 
 	users, err := admin.dependencies.Auth.Users(r.Context())
 	if err != nil {
-		return err
+		return fmt.Errorf("failer to get users: %w", err)
 	}
 
 	// create a namemap of users, but not those already taken
@@ -181,7 +181,7 @@ func (gc *instanceUsersContext) useUsers(r *http.Request, admin *Admin) (err err
 	// get the drupal user data
 	gc.Users, err = gc.instance.Users().All(r.Context(), nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get all users: %w", err)
 	}
 	slices.SortFunc(gc.Users, func(a, b status.DrupalUser) int {
 		return int(a.UID) - int(b.UID)

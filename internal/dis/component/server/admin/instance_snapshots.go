@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -56,7 +57,7 @@ func (admin *Admin) instanceSnapshots(context.Context) http.Handler {
 
 		ctx.Snapshots, err = ctx.Instance.Snapshots(r.Context())
 		if err != nil {
-			return ctx, nil, err
+			return ctx, nil, fmt.Errorf("failed to get snapshots: %w", err)
 		}
 
 		escapedSlug := url.PathEscape(ctx.Instance.Slug)

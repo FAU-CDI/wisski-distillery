@@ -77,10 +77,14 @@ type SessionInfo struct {
 }
 
 func (si SessionInfo) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
+	bytes, err := json.Marshal(struct {
 		User  string `json:"user"`
 		Token bool   `json:"token"`
 	}{User: si.Username(), Token: si.Token})
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal json: %w", err)
+	}
+	return bytes, nil
 }
 
 // Username reports the username associated with this session.

@@ -4,6 +4,7 @@ package instances
 //spellchecker:words errors path filepath strings github wisski distillery internal config validators component models
 import (
 	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -48,7 +49,7 @@ func (instances *Instances) Create(slug string, system models.System) (wissKI *w
 
 	wissKI.SqlPassword, err = config.NewPassword()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate new password: %w", err)
 	}
 
 	// triplestore
@@ -58,7 +59,7 @@ func (instances *Instances) Create(slug string, system models.System) (wissKI *w
 
 	wissKI.GraphDBPassword, err = config.NewPassword()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate new password: %w", err)
 	}
 
 	// drupal
@@ -67,7 +68,7 @@ func (instances *Instances) Create(slug string, system models.System) (wissKI *w
 
 	wissKI.DrupalPassword, err = config.NewPassword()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get net password: %w", err)
 	}
 
 	// docker image

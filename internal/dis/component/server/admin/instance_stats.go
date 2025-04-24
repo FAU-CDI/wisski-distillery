@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -57,7 +58,7 @@ func (admin *Admin) instanceStats(context.Context) http.Handler {
 		// read statistics
 		ctx.Statistics, err = ctx.Instance.Stats().Get(r.Context(), nil)
 		if err != nil {
-			return ctx, nil, err
+			return ctx, nil, fmt.Errorf("failed to get stats: %w", err)
 		}
 
 		escapedSlug := url.PathEscape(ctx.Instance.Slug)

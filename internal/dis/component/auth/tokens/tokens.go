@@ -5,6 +5,7 @@ package tokens
 import (
 	"context"
 	"crypto/rand"
+	"fmt"
 	"reflect"
 	"strings"
 
@@ -37,7 +38,11 @@ func (tok *Tokens) TableInfo() component.TableInfo {
 }
 
 func (tok *Tokens) table(ctx context.Context) (*gorm.DB, error) {
-	return tok.dependencies.SQL.QueryTable(ctx, tok)
+	conn, err := tok.dependencies.SQL.QueryTable(ctx, tok)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query table: %w", err)
+	}
+	return conn, nil
 }
 
 func (tok *Tokens) OnUserDelete(ctx context.Context, user *models.User) error {

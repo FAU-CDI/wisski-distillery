@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -66,7 +67,7 @@ func (admin *Admin) instanceSSH(context.Context) http.Handler {
 
 		keys, err := ctx.Instance.SSH().Keys(r.Context())
 		if err != nil {
-			return ctx, nil, err
+			return ctx, nil, fmt.Errorf("failed to get keys: %w", err)
 		}
 
 		ctx.SSHKeys = make([]string, len(keys))

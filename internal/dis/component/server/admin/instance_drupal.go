@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -93,7 +94,7 @@ func (admin *Admin) instanceDrupal(context.Context) http.Handler {
 		})
 
 		if err = eg.Wait(); err != nil {
-			return ctx, nil, err
+			return ctx, nil, fmt.Errorf("failed to get values: %w", err)
 		}
 
 		escapedSlug := url.PathEscape(ctx.Instance.Slug)

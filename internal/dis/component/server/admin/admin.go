@@ -4,6 +4,7 @@ package admin
 //spellchecker:words context http github wisski distillery internal component auth policy scopes server admin socket handling templating wdlog julienschmidt httprouter instances pkglib httpx
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -194,7 +195,7 @@ func (admin *Admin) loginHandler(ctx context.Context) http.Handler {
 				"failed to parse admin login",
 				"error", err,
 			)
-			return "", 0, err
+			return "", 0, fmt.Errorf("failed to parse admin login: %w", err)
 		}
 
 		// get the instance
@@ -209,7 +210,7 @@ func (admin *Admin) loginHandler(ctx context.Context) http.Handler {
 				"failed to admin login",
 				"error", err,
 			)
-			return "", 0, err
+			return "", 0, fmt.Errorf("failed to login admin: %w", err)
 		}
 		return target.String(), http.StatusSeeOther, err
 	})

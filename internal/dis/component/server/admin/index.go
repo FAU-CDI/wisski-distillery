@@ -26,7 +26,7 @@ func (admin *Admin) Status(ctx context.Context, quick bool) (target status.Disti
 		// list all the instances
 		all, err := admin.dependencies.Instances.All(ctx)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to list all instances: %w", err)
 		}
 
 		// get all of their info!
@@ -61,7 +61,7 @@ func (admin *Admin) Status(ctx context.Context, quick bool) (target status.Disti
 
 	// wait for all the fetchers to finish
 	if err := group.Wait(); err != nil {
-		return status.Distillery{}, nil, err
+		return status.Distillery{}, nil, fmt.Errorf("failed to fetch distillery information: %w", err)
 	}
 
 	// count overall instances

@@ -19,7 +19,10 @@ func (snapshot Snapshot) String() string {
 }
 
 func (snapshot Snapshot) ReportMachine(w io.Writer) error {
-	return json.NewEncoder(w).Encode(snapshot)
+	if err := json.NewEncoder(w).Encode(snapshot); err != nil {
+		return fmt.Errorf("failed to encode report: %w", err)
+	}
+	return nil
 }
 
 //nolint:errchkjson
@@ -65,7 +68,10 @@ func (snapshot Snapshot) ReportPlain(w io.Writer) error {
 	io.WriteString(ww, "======= End Snapshot Report "+snapshot.Instance.Slug+"=======\n")
 
 	_, err := ww.Sum()
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to generate report: %w", err)
+	}
+	return nil
 }
 
 // Strings turns this backup into a string for the BackupReport.
@@ -76,7 +82,10 @@ func (backup Backup) String() string {
 }
 
 func (backup Backup) ReportMachine(w io.Writer) error {
-	return json.NewEncoder(w).Encode(backup)
+	if err := json.NewEncoder(w).Encode(backup); err != nil {
+		return fmt.Errorf("failed to marshal report: %w", err)
+	}
+	return nil
 }
 
 // Report formats a report for this backup, and writes it into Writer.
@@ -120,5 +129,8 @@ func (backup Backup) ReportPlain(w io.Writer) error {
 	io.WriteString(cw, "\n")
 
 	_, err := cw.Sum()
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to write report: %w", err)
+	}
+	return nil
 }

@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -61,14 +62,14 @@ func (admin *Admin) instanceData(context.Context) http.Handler {
 
 		ctx.Pathbuilders, err = ctx.Instance.Pathbuilder().GetAll(r.Context(), server)
 		if err != nil {
-			return ctx, nil, err
+			return ctx, nil, fmt.Errorf("failed to get pathbuilders: %w", err)
 		}
 
 		prefixes := ctx.Instance.Prefixes()
 		ctx.NoPrefixes = prefixes.NoPrefix()
 		ctx.Prefixes, err = prefixes.All(r.Context(), server)
 		if err != nil {
-			return ctx, nil, err
+			return ctx, nil, fmt.Errorf("failed to get prefixes: %w", err)
 		}
 
 		escapedSlug := url.PathEscape(ctx.Instance.Slug)
