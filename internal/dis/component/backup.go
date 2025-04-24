@@ -190,7 +190,7 @@ func (sc *StagingContext) AddFile(path string, op func(ctx context.Context, file
 	// create the file
 	file, err := umaskfree.Create(dst, umaskfree.DefaultFilePerm)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create default file: %w", err)
 	}
 	defer errwrap.Close(file, "file", &e)
 

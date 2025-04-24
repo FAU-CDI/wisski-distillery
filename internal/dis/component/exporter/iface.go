@@ -103,8 +103,8 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	err = umaskfree.Mkdir(stagingDir, umaskfree.DefaultDirPerm)
-	if !errors.Is(err, fs.ErrExist) && err != nil {
-		return err
+	if err != nil && !errors.Is(err, fs.ErrExist) {
+		return fmt.Errorf("failed to create staging directory: %w", err)
 	}
 
 	// if it was requested to not do staging only
@@ -144,11 +144,11 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 
 			report, err := umaskfree.Create(reportPath, umaskfree.DefaultFilePerm)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create report file: %w", err)
 			}
 
 			if err := export.ReportMachine(report); err != nil {
-				return err
+				return fmt.Errorf("failed to generate report: %w", err)
 			}
 		}
 
@@ -159,7 +159,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 
 			report, err := umaskfree.Create(reportPath, umaskfree.DefaultFilePerm)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create file: %w", err)
 			}
 
 			if err := export.ReportPlain(report); err != nil {

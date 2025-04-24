@@ -4,6 +4,7 @@ package docker
 //spellchecker:words context golang slices github wisski distillery compose docker types filters
 import (
 	"context"
+	"fmt"
 
 	"slices"
 
@@ -18,12 +19,12 @@ import (
 func (docker *Docker) Containers(ctx context.Context, path string, services ...string) (containers []container.Summary, e error) {
 	proj, err := compose.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open compose file: %w", err)
 	}
 
 	client, err := docker.APIClient()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create docker client: %w", err)
 	}
 	defer errwrap.Close(client, "docker client", &e)
 
@@ -60,13 +61,13 @@ func (*Docker) containers(ctx context.Context, project compose.Project, client D
 		Filters: f,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to list containers: %w", err)
 	}
 
 	// for all services or exactly one service (case above)
 	// we can immediatly return!
 	if len(services) <= 1 {
-		return containers, err
+		return containers, nil
 	}
 
 	// make a map of services that were requested

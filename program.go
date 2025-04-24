@@ -107,3 +107,5 @@ func NewProgram() Program {
 		},
 	}
 }
+
+// TODO: Check if / when we need umaskfree?
