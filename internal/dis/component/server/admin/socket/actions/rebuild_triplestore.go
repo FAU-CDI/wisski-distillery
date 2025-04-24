@@ -4,6 +4,7 @@ package actions
 //spellchecker:words context github wisski distillery internal component auth scopes
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -31,5 +32,8 @@ func (wsa *RebuildTriplestore) Action() InstanceAction {
 
 func (wsa *RebuildTriplestore) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
 	size, err := instance.TRB().RebuildTriplestore(ctx, out, false)
-	return size, err
+	if err != nil {
+		return 0, fmt.Errorf("failed to rebuild triplestore: %w", err)
+	}
+	return size, nil
 }

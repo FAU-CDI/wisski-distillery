@@ -42,7 +42,7 @@ func (bk *Bookkeeping) Delete(ctx context.Context) error {
 	liquid := ingredient.GetLiquid(bk)
 	sdb, err := liquid.SQL.QueryTable(ctx, liquid.InstanceTable)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query table: %w", err)
 	}
 
 	// doesn't exist => nothing to delete

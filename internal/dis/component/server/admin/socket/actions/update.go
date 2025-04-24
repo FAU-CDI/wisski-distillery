@@ -4,6 +4,7 @@ package actions
 //spellchecker:words context github wisski distillery internal component auth scopes
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -30,5 +31,8 @@ func (*Update) Action() InstanceAction {
 }
 
 func (u *Update) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
-	return nil, instance.Composer().Update(ctx, out)
+	if err := instance.Composer().Update(ctx, out); err != nil {
+		return nil, fmt.Errorf("failed to update composer: %w", err)
+	}
+	return nil, nil
 }

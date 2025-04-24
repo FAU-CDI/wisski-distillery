@@ -29,7 +29,7 @@ func (ssh2 *SSHKeys) Keys(ctx context.Context, user string) ([]models.Keys, erro
 	// get the table
 	table, err := ssh2.dependencies.SQL.QueryTable(ctx, ssh2)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 
 	var keys []models.Keys
@@ -37,7 +37,7 @@ func (ssh2 *SSHKeys) Keys(ctx context.Context, user string) ([]models.Keys, erro
 	// make a query to find all keys (in the underlying model)
 	query := table.Find(&keys, &models.Keys{User: user})
 	if query.Error != nil {
-		return nil, query.Error
+		return nil, fmt.Errorf("failed to find user: %w", query.Error)
 	}
 
 	return keys, nil

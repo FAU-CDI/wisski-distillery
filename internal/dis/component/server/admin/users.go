@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -108,7 +109,7 @@ func (admin *Admin) createUser(context.Context) http.Handler {
 			// check the password policy
 			err = admin.dependencies.Auth.CheckPasswordPolicy(cu.Passsword, cu.User)
 			if err != nil {
-				return cu, err
+				return cu, fmt.Errorf("failed to check passsword policy: %w", err)
 			}
 
 			return cu, nil
@@ -118,19 +119,19 @@ func (admin *Admin) createUser(context.Context) http.Handler {
 			// create the user
 			user, err := admin.dependencies.Auth.CreateUser(r.Context(), cu.User)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create user: %w", err)
 			}
 
 			// disable the user and setup the admin flag
 			user.SetAdmin(cu.Admin)
 			if err := user.Save(r.Context()); err != nil {
-				return err
+				return fmt.Errorf("failed to save user: %w", err)
 			}
 
 			// set the password!
 			err = user.SetPassword(r.Context(), []byte(cu.Passsword))
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to set password: %w", err)
 			}
 
 			// everything went fine, redirect the user back to the user page!
@@ -237,7 +238,7 @@ func (admin *Admin) usersPasswordHandler(ctx context.Context) http.Handler {
 		// check the password policy
 		err := user.CheckPasswordPolicy(password)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to check password policy: %w", err)
 		}
 		return user.SetPassword(r.Context(), []byte(password))
 	})

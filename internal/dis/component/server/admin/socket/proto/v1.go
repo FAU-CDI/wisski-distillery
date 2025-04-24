@@ -116,7 +116,7 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocketx.Connectio
 
 	// check that we have the given permission
 	if err := auth.CheckScope(action.ScopeParam, action.scope(), conn.Request()); err != nil {
-		return call.Call, err
+		return call.Call, fmt.Errorf("failed to check scope: %w", err)
 	}
 
 	// create a context to be canceled once done

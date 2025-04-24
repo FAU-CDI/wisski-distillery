@@ -5,6 +5,7 @@ package actions
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -35,8 +36,11 @@ func (r *Rebuild) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader
 	// read the flags of the instance to be rebuilt
 	var system models.System
 	if err := json.Unmarshal([]byte(params[0]), &system); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal system properties: %w", err)
 	}
 
-	return nil, instance.SystemManager().Apply(ctx, out, system)
+	if err := instance.SystemManager().Apply(ctx, out, system); err != nil {
+		return nil, fmt.Errorf("failed to apply system properties: %w", err)
+	}
+	return nil, nil
 }

@@ -105,7 +105,7 @@ func (li *ListInstances) getInfos(ctx context.Context) ([]status.WissKI, error) 
 	// find all the WissKIs
 	wissKIs, err := li.dependencies.Instances.All(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to list all instances: %w", err)
 	}
 
 	infos := make([]status.WissKI, len(wissKIs))

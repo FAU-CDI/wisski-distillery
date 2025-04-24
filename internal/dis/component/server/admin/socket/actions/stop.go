@@ -4,6 +4,7 @@ package actions
 //spellchecker:words context github wisski distillery internal component auth scopes
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -30,5 +31,8 @@ func (*Stop) Action() InstanceAction {
 }
 
 func (*Stop) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
-	return nil, instance.Barrel().Stack().Down(ctx, out)
+	if err := instance.Barrel().Stack().Down(ctx, out); err != nil {
+		return nil, fmt.Errorf("failed to shutdown barrel: %w", err)
+	}
+	return nil, nil
 }

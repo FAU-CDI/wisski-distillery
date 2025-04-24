@@ -4,6 +4,7 @@ package actions
 //spellchecker:words context github wisski distillery internal component auth scopes exporter
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -31,7 +32,7 @@ func (*Backup) Action() Action {
 }
 
 func (b *Backup) Act(ctx context.Context, in io.Reader, out io.Writer, params ...string) (any, error) {
-	return nil, b.dependencies.Exporter.MakeExport(
+	if err := b.dependencies.Exporter.MakeExport(
 		ctx,
 		out,
 		exporter.ExportTask{
@@ -40,5 +41,8 @@ func (b *Backup) Act(ctx context.Context, in io.Reader, out io.Writer, params ..
 
 			StagingOnly: false,
 		},
-	)
+	); err != nil {
+		return nil, fmt.Errorf("failed to create export: %w", err)
+	}
+	return nil, nil
 }
