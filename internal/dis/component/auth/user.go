@@ -140,10 +140,16 @@ var (
 )
 
 func (au *AuthUser) TOTP() (*otp.Key, error) {
+	// TODO: make this private
 	if au.TOTPURL == "" {
 		return nil, ErrTOTPDisabled
 	}
-	return otp.NewKeyFromURL(au.TOTPURL)
+
+	key, err := otp.NewKeyFromURL(au.TOTPURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get key from url: %w", err)
+	}
+	return key, nil
 }
 
 // CheckTOTP validates the given totp passcode against the saved secret.
@@ -171,7 +177,7 @@ func (au *AuthUser) NewTOTP(ctx context.Context) (*otp.Key, error) {
 		AccountName: au.User.User,
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to generate TOTP secret: %w", err)
 	}
 
 	au.TOTPURL = key.URL()
@@ -182,14 +188,14 @@ func TOTPLink(secret *otp.Key, width, height int) (string, error) {
 	// make an image
 	img, err := secret.Image(width, height)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to create QR code: %w", err)
 	}
 
 	// encode image as base64
 	var buffer bytes.Buffer
 
 	if err := png.Encode(&buffer, img); err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to encode QR code to png: %w", err)
 	}
 
 	// return the image url
@@ -221,7 +227,7 @@ func (au *AuthUser) DisableTOTP(ctx context.Context) (err error) {
 func (au *AuthUser) SetPassword(ctx context.Context, password []byte) (err error) {
 	au.PasswordHash, err = bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate hash from password: %w", err)
 	}
 	au.SetEnabled(true)
 	return au.Save(ctx)
@@ -292,7 +298,10 @@ func (au *AuthUser) CheckPassword(ctx context.Context, password []byte) error {
 		return ErrUserDisabled
 	}
 
-	return bcrypt.CompareHashAndPassword(au.PasswordHash, password)
+	if err := bcrypt.CompareHashAndPassword(au.PasswordHash, password); err != nil {
+		return fmt.Errorf("wrong password: %w", err)
+	}
+	return nil
 }
 
 func (au *AuthUser) CheckCredentials(ctx context.Context, password []byte, passcode string) error {
@@ -332,13 +341,13 @@ func (au *AuthUser) Save(ctx context.Context) error {
 func (au *AuthUser) Delete(ctx context.Context) error {
 	table, err := au.auth.dependencies.SQL.QueryTable(ctx, au.auth)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query table: %w", err)
 	}
 
 	// run all the user delete hooks
 	for _, c := range au.auth.dependencies.UserDeleteHooks {
 		if err := c.OnUserDelete(ctx, &au.User); err != nil {
-			return err
+			return fmt.Errorf("failed to run delete hook %q: %w", c.Name(), err)
 		}
 	}
 

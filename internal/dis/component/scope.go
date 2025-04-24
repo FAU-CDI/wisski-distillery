@@ -43,8 +43,8 @@ type AccessDeniedError string
 
 func (aed AccessDeniedError) Error() string { return string(aed) }
 
-// DeniedError returns an AccessDeniedError that indivates the access is denied.
-func (scope ScopeInfo) DeniedError() error {
+// DeniedError returns an AccessDeniedError that indicates the access is denied.
+func (scope ScopeInfo) DeniedError() AccessDeniedError {
 	if scope.DeniedMessage == "" {
 		return AccessDeniedError(fmt.Sprintf("missing scope %q", string(scope.Scope)))
 	}
@@ -52,7 +52,7 @@ func (scope ScopeInfo) DeniedError() error {
 }
 
 // CheckError returns a CheckError with the given underlying error.
-func (scope ScopeInfo) CheckError(err error) error {
+func (scope ScopeInfo) CheckError(err error) CheckError {
 	return CheckError{Scope: scope.Scope, Err: err}
 }
 

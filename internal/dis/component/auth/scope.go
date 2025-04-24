@@ -44,7 +44,7 @@ func (auth *Auth) getScopeMap() map[component.Scope]scopeMapEntry {
 // A request can be one of two types:
 // - A signed in user with an implicitly associated set of scopes
 // - A session authorized with a token only
-// If the request is denied a scope, the error will be of type AccessDeniedError.
+// If the request is denied a scope, the error will be wrapping an error of type AccessDeniedError.
 func (auth *Auth) CheckScope(param string, scope component.Scope, r *http.Request) error {
 	// the empty scope is always permitted implicitly
 	if scope == "" {

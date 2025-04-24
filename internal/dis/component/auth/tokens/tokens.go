@@ -89,7 +89,7 @@ func NewToken() (string, error) {
 	// generate a new password
 	token, err := password.Generate(rand.Reader, tokenGroupCount*tokenGroupLength, tokenCharset)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to generate new token: %w", err)
 	}
 
 	// insert the token group separators

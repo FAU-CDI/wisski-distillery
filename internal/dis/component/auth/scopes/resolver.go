@@ -3,6 +3,7 @@ package scopes
 
 //spellchecker:words http github wisski distillery internal component auth
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -35,5 +36,8 @@ func (*ResolverScope) Scope() component.ScopeInfo {
 
 func (rs *ResolverScope) HasScope(param string, r *http.Request) (bool, error) {
 	_, user, err := rs.dependencies.Auth.SessionOf(r)
-	return user != nil, err
+	if err != nil {
+		return false, fmt.Errorf("failed to get session: %w", err)
+	}
+	return user != nil, nil
 }

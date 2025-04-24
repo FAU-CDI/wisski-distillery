@@ -51,7 +51,7 @@ var errNoGraphDBZip = exit.Error{
 func (s systemupdate) AfterParse() error {
 	isFile, err := fsx.IsRegular(s.Positionals.GraphdbZip, true)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to check for regular file: %w", err)
 	}
 
 	if !isFile {
@@ -191,11 +191,11 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 				stack := item.Stack()
 
 				if err := stack.Install(context.Context, writer, item.Context(ctx)); err != nil {
-					return err
+					return fmt.Errorf("failed to install stack: %w", err)
 				}
 
 				if err := stack.Update(context.Context, writer, true); err != nil {
-					return err
+					return fmt.Errorf("failed to update stack: %w", err)
 				}
 
 				ud, ok := item.(component.Updatable)
@@ -213,7 +213,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 			},
 		}, dis.Installable())
 	}, context.Stderr, "Performing Stack Updates"); err != nil {
-		return err
+		return fmt.Errorf("failed to perform stack updates: %w", err)
 	}
 
 	if err := logging.LogOperation(func() error {
@@ -232,7 +232,7 @@ func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 		}
 		return nil
 	}, context.Stderr, "Performing Component Updates"); err != nil {
-		return err
+		return fmt.Errorf("failed to preform component updates: %w", err)
 	}
 
 	if _, err := logging.LogMessage(context.Stderr, "System has been updated"); err != nil {

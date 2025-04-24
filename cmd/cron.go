@@ -45,13 +45,16 @@ func (cr cron) Run(context wisski_distillery.Context) (err error) {
 	// find all the instances!
 	wissKIs, err := context.Environment.Instances().Load(context.Context, cr.Positionals.Slug...)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to load instances: %w", err)
 	}
 
 	// and do the actual blind_update!
-	return status.WriterGroup(context.Stderr, cr.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+	if err := status.WriterGroup(context.Stderr, cr.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
 		return instance.Drush().Cron(context.Context, writer)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("cron %q", item.Slug)
-	}))
+	})); err != nil {
+		return fmt.Errorf("failed to run cron: %w", err)
+	}
+	return nil
 }

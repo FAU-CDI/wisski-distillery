@@ -86,7 +86,7 @@ func (du drupalUser) Run(context wisski_distillery.Context) (err error) {
 
 	instance, err := context.Environment.Instances().WissKI(context.Context, du.Positionals.Slug)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get WissKI: %w", err)
 	}
 
 	switch {
@@ -105,7 +105,7 @@ func (du drupalUser) Run(context wisski_distillery.Context) (err error) {
 func (du drupalUser) login(context wisski_distillery.Context, instance *wisski.WissKI) error {
 	link, err := instance.Users().Login(context.Context, nil, du.Positionals.User)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to login user: %w", err)
 	}
 	context.Println(link)
 	return nil
@@ -116,10 +116,10 @@ func (du drupalUser) checkCommonPassword(context wisski_distillery.Context, inst
 
 	entities, err := users.All(context.Context, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to list all users: %w", err)
 	}
 
-	return status.RunErrorGroup(context.Stderr, status.Group[wstatus.DrupalUser, error]{
+	if err := status.RunErrorGroup(context.Stderr, status.Group[wstatus.DrupalUser, error]{
 		PrefixString: func(item wstatus.DrupalUser, index int) string {
 			return fmt.Sprintf("User[%q]: ", item.Name)
 		},
@@ -127,19 +127,22 @@ func (du drupalUser) checkCommonPassword(context wisski_distillery.Context, inst
 		Handler: func(user wstatus.DrupalUser, index int, writer io.Writer) (e error) {
 			pv, err := users.GetPasswordValidator(context.Context, string(user.Name))
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to get password validator: %w", err)
 			}
 			defer errwrap.Close(pv, "password validator", &e)
 
 			return pv.CheckDictionary(context.Context, writer)
 		},
-	}, entities)
+	}, entities); err != nil {
+		return fmt.Errorf("failed to get check for common passwords: %w", err)
+	}
+	return nil
 }
 
 func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context, instance *wisski.WissKI) (e error) {
 	validator, err := instance.Users().GetPasswordValidator(context.Context, du.Positionals.User)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get password validator: %w", err)
 	}
 	defer errwrap.Close(validator, "validator", &e)
 
@@ -147,7 +150,7 @@ func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context,
 		context.Printf("Enter a password to check:")
 		candidate, err := context.ReadPassword()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read password: %w", err)
 		}
 		context.Println()
 
@@ -169,14 +172,14 @@ func (du drupalUser) resetPassword(context wisski_distillery.Context, instance *
 	context.Printf("Enter new password for user %s:", du.Positionals.User)
 	passwd1, err := context.ReadPassword()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read password: %w", err)
 	}
 	context.Println()
 
 	context.Printf("Enter the same password again:")
 	passwd2, err := context.ReadPassword()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read password: %w", err)
 	}
 	context.Println()
 
@@ -184,5 +187,8 @@ func (du drupalUser) resetPassword(context wisski_distillery.Context, instance *
 		return errPasswordsNotIdentical
 	}
 
-	return instance.Users().SetPassword(context.Context, nil, du.Positionals.User, passwd1)
+	if err := instance.Users().SetPassword(context.Context, nil, du.Positionals.User, passwd1); err != nil {
+		return fmt.Errorf("failed to set password: %w", err)
+	}
+	return nil
 }

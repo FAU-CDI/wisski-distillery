@@ -5,6 +5,7 @@ package panel
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -64,7 +65,7 @@ func (panel *UserPanel) sshRoute(context.Context) http.Handler {
 	return tpl.HTMLHandler(panel.dependencies.Handling, func(r *http.Request) (sc SSHTemplateContext, err error) {
 		user, err := panel.dependencies.Auth.UserOfSession(r)
 		if err != nil {
-			return sc, err
+			return sc, fmt.Errorf("failed to get user of session: %w", err)
 		}
 
 		config := component.GetStill(panel).Config
@@ -83,7 +84,7 @@ func (panel *UserPanel) sshRoute(context.Context) http.Handler {
 
 		sc.Keys, err = panel.dependencies.Keys.Keys(r.Context(), user.User.User)
 		if err != nil {
-			return sc, err
+			return sc, fmt.Errorf("failed to get keys: %w", err)
 		}
 
 		sc.Services = panel.dependencies.SSH2.Intercepts()

@@ -70,11 +70,11 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 	// find the instances
 	wissKIs, err := dis.Instances().Load(context.Context, rb.Positionals.Slug...)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get instances: %w", err)
 	}
 
 	// and do the actual rebuild
-	return status.WriterGroup(context.Stderr, rb.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+	if err := status.WriterGroup(context.Stderr, rb.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
 		sys := instance.System
 		if rb.System {
 			sys = models.System{
@@ -88,5 +88,8 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 		return instance.SystemManager().Apply(context.Context, writer, sys)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)
-	}))
+	})); err != nil {
+		return fmt.Errorf("failed to rebuild systems: %w", err)
+	}
+	return nil
 }

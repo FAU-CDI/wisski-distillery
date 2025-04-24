@@ -15,7 +15,7 @@ func ValidateFile(path *string, dflt string) error {
 	}
 	isFile, err := fsx.IsRegular(*path, true)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to check for regular file: %w", err)
 	}
 	if !isFile {
 		return fmt.Errorf("%q does not exist or is not a file: %w", *path, fs.ErrNotExist)
@@ -29,7 +29,7 @@ func ValidateDirectory(path *string, dflt string) error {
 	}
 	isDirectory, err := fsx.IsDirectory(*path, true)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to check for directory: %w", err)
 	}
 	if !isDirectory {
 		return fmt.Errorf("%q does not exist or is not a directory: %w", *path, fs.ErrNotExist)

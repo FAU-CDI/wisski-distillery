@@ -3,6 +3,7 @@ package cli
 //spellchecker:words errors user path filepath strings github wisski distillery internal bootstrap pkglib umaskfree
 import (
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 	"os/user"
@@ -24,7 +25,7 @@ func MetaConfigPath() (string, error) {
 	// find the current user
 	usr, err := user.Current()
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get current user: %w", err)
 	}
 	return filepath.Join(usr.HomeDir, metaConfigFile), nil
 }
@@ -45,7 +46,7 @@ func ReadBaseDirectory() (value string, err error) {
 	// read the meta config file!
 	contents, err := os.ReadFile(path) // #nosec G304 -- intended
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to read meta config file: %w", err)
 	}
 
 	// and trim the spaces!
@@ -69,5 +70,8 @@ func WriteBaseDirectory(dir string) error {
 	}
 
 	// just put the directory inside it!
-	return umaskfree.WriteFile(path, []byte(dir), fs.ModePerm)
+	if err := umaskfree.WriteFile(path, []byte(dir), fs.ModePerm); err != nil {
+		return fmt.Errorf("failed to create base directory: %w", err)
+	}
+	return nil
 }

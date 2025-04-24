@@ -85,13 +85,13 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 		if err := logging.LogOperation(func() error {
 			return s.Install(context.Context, context.Stderr, component.InstallationContext{})
 		}, context.Stderr, "Installing docker stack"); err != nil {
-			return err
+			return fmt.Errorf("failed to install docker stack: %w", err)
 		}
 
 		if err := logging.LogOperation(func() error {
 			return s.Update(context.Context, context.Stderr, true)
 		}, context.Stderr, "Updating docker stack"); err != nil {
-			return err
+			return fmt.Errorf("failed to update docker stack: %w", err)
 		}
 	}
 

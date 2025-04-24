@@ -4,6 +4,7 @@ package config
 //spellchecker:words crypto rand path filepath time github wisski distillery internal bootstrap passwordx pkglib password
 import (
 	"crypto/rand"
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -39,7 +40,7 @@ func (tpl *Template) SetDefaults() (err error) {
 	if tpl.DefaultDomain == "" {
 		tpl.DefaultDomain, err = os.Hostname()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get hostname: %w", err)
 		}
 	}
 
@@ -50,7 +51,7 @@ func (tpl *Template) SetDefaults() (err error) {
 	if tpl.TSAdminPassword == "" {
 		tpl.TSAdminPassword, err = password.Generate(rand.Reader, 64, passwordx.Safe)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to generate triplestore admin password: %w", err)
 		}
 	}
 
@@ -61,14 +62,14 @@ func (tpl *Template) SetDefaults() (err error) {
 	if tpl.SQLAdminPassword == "" {
 		tpl.SQLAdminPassword, err = password.Generate(rand.Reader, 64, passwordx.Safe)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to generate sql password: %w", err)
 		}
 	}
 
 	if tpl.DockerNetworkPrefix == "" {
 		tpl.DockerNetworkPrefix, err = password.Generate(rand.Reader, 10, passwordx.Identifier)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to generate docker network prefix: %w", err)
 		}
 		tpl.DockerNetworkPrefix = `distillery-` + tpl.DockerNetworkPrefix
 	}
@@ -76,7 +77,7 @@ func (tpl *Template) SetDefaults() (err error) {
 	if tpl.SessionSecret == "" {
 		tpl.SessionSecret, err = password.Generate(rand.Reader, 100, passwordx.Printable)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to generate session secret: %w", err)
 		}
 	}
 

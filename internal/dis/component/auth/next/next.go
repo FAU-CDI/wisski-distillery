@@ -5,6 +5,7 @@ package next
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -44,7 +45,7 @@ func (next *Next) Routes() component.Routes {
 func (next *Next) Next(context context.Context, slug, path string) (string, error) {
 	wisski, err := next.dependencies.Instances.WissKI(context, slug)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("failed to get WissKI: %w", err)
 	}
 
 	target := wisski.URL()
@@ -68,7 +69,7 @@ func (next *Next) getInstance(r *http.Request) (wisski *wisski.WissKI, path stri
 	// fetch the instance from the database
 	wisski, err = next.dependencies.Instances.WissKI(r.Context(), slug)
 	if err != nil {
-		return nil, "", err
+		return nil, "", fmt.Errorf("failed to get WissKI: %w", err)
 	}
 
 	// return the wisski and the relative path
@@ -86,7 +87,7 @@ func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, e
 		// get the user
 		user, _, err := next.dependencies.Auth.SessionOf(r)
 		if err != nil {
-			return "", 0, err
+			return "", 0, fmt.Errorf("failed to get session: %w", err)
 		}
 
 		// check if they have a grant
@@ -95,7 +96,7 @@ func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, e
 			return "", 0, httpx.ErrForbidden
 		}
 		if err != nil {
-			return "", 0, err
+			return "", 0, fmt.Errorf("failed to check access: %w", err)
 		}
 
 		// perform the login
@@ -105,7 +106,7 @@ func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, e
 			GrantAdminRole:  grant.DrupalAdminRole,
 		})
 		if err != nil {
-			return "", 0, err
+			return "", 0, fmt.Errorf("failed to login user: %w", err)
 		}
 
 		// and redirect

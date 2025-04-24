@@ -4,6 +4,8 @@ package panel
 //spellchecker:words context html template http github wisski distillery internal component auth server assets templating models wdlog pkglib httpx form field embed
 import (
 	"context"
+	"errors"
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -36,6 +38,8 @@ type TokenTemplateContext struct {
 	Tokens []models.Token
 }
 
+var errNoUserInSession = errors.New("no user in session")
+
 func (panel *UserPanel) tokensRoute(context.Context) http.Handler {
 	tpl := tokensTemplate.Prepare(
 		panel.dependencies.Templating,
@@ -51,15 +55,21 @@ func (panel *UserPanel) tokensRoute(context.Context) http.Handler {
 	return tpl.HTMLHandler(panel.dependencies.Handling, func(r *http.Request) (tc TokenTemplateContext, err error) {
 		// list the user
 		user, err := panel.dependencies.Auth.UserOfSession(r)
-		if err != nil || user == nil {
-			return tc, err
+		if err != nil {
+			return tc, fmt.Errorf("failed to get user of session: %w", err)
+		}
+		if user == nil {
+			return tc, errNoUserInSession
 		}
 
 		tc.Domain = template.URL(component.GetStill(panel).Config.HTTP.JoinPath().String()) // #nosec G203 -- assumed to be safe
 
 		// get the tokens
 		tc.Tokens, err = panel.dependencies.Tokens.Tokens(r.Context(), user.User.User)
-		return tc, err
+		if err != nil {
+			return tc, fmt.Errorf("failed to get token: %w", err)
+		}
+		return tc, nil
 	})
 }
 

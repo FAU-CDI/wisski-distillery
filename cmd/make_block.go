@@ -73,7 +73,7 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 	// get the wisski
 	instance, err := context.Environment.Instances().WissKI(context.Context, mb.Positionals.Slug)
 	if err != nil {
-		return errPathbuilderWissKI.WrapError(err)
+		return errPathbuilderWissKI.WrapError(err) //nolint:wrapcheck
 	}
 
 	// get the footer (if any)

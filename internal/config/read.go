@@ -3,6 +3,7 @@ package config
 
 //spellchecker:words github wisski distillery internal config validators pkglib validator gopkg yaml
 import (
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
@@ -18,7 +19,7 @@ func (config *Config) Unmarshal(src io.Reader) error {
 		decoder := yaml.NewDecoder(src)
 		decoder.KnownFields(true)
 		if err := decoder.Decode(config); err != nil {
-			return err
+			return fmt.Errorf("failed to decode config: %w", err)
 		}
 	}
 
@@ -28,11 +29,17 @@ func (config *Config) Unmarshal(src io.Reader) error {
 
 // Validate validates this configuration file and sets appropriate defaults.
 func (config *Config) Validate() error {
-	return validator.Validate(config, validators.New())
+	if err := validator.Validate(config, validators.New()); err != nil {
+		return fmt.Errorf("failed to validate config: %w", err)
+	}
+	return nil
 }
 
 func (config *Config) Marshal(dest io.Writer) error {
 	encoder := yaml.NewEncoder(dest)
 	encoder.SetIndent(4)
-	return encoder.Encode(config)
+	if err := encoder.Encode(config); err != nil {
+		return fmt.Errorf("failed to marshal config: %w", err)
+	}
+	return nil
 }

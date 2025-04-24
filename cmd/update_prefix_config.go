@@ -43,15 +43,18 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) (err error)
 
 	wissKIs, err := dis.Instances().All(context.Context)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get all instances: %w", err)
 	}
 
-	return status.WriterGroup(context.Stderr, upc.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+	if err := status.WriterGroup(context.Stderr, upc.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
 		if _, err := io.WriteString(writer, "reading prefixes"); err != nil {
-			return err
+			return fmt.Errorf("failed to log progress: %w", err)
 		}
 		return instance.Prefixes().Update(context.Context)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("update_prefix %q", item.Slug)
-	}))
+	})); err != nil {
+		return fmt.Errorf("failed to update prefixes: %w", err)
+	}
+	return nil
 }

@@ -77,7 +77,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 			return item.Stack().Up(context.Context, writer)
 		},
 	}, dis.Installable()); err != nil {
-		return err
+		return fmt.Errorf("failed to start components: %w", err)
 	}
 
 	if _, err := logging.LogMessage(context.Stderr, "Starting Up WissKIs"); err != nil {
@@ -87,7 +87,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 	// find the instances
 	wissKIs, err := dis.Instances().All(context.Context)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get all instances: %w", err)
 	}
 
 	// shut them all down
@@ -101,7 +101,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 			return item.Barrel().Stack().Up(context.Context, writer)
 		},
 	}, wissKIs); err != nil {
-		return err
+		return fmt.Errorf("failed to start instances: %w", err)
 	}
 
 	return nil
@@ -115,7 +115,7 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 	// find the instances
 	wissKIs, err := dis.Instances().All(context.Context)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get all instances: %w", err)
 	}
 
 	// shut them all down
@@ -129,7 +129,7 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 			return item.Barrel().Stack().Down(context.Context, writer)
 		},
 	}, wissKIs); err != nil {
-		return err
+		return fmt.Errorf("failed to shutdown instances: %w", err)
 	}
 
 	if _, err := logging.LogMessage(context.Stderr, "Shutting Down Components"); err != nil {
@@ -147,7 +147,7 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 			return item.Stack().Down(context.Context, writer)
 		},
 	}, dis.Installable()); err != nil {
-		return err
+		return fmt.Errorf("failed to shutdown core instances: %w", err)
 	}
 
 	return nil

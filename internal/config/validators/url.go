@@ -29,7 +29,7 @@ func (u *URL) UnmarshalText(text []byte) error {
 	}
 	pu, err := url.Parse(string(text))
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to parse url: %w", err)
 	}
 	*u = URL(*pu)
 	return nil

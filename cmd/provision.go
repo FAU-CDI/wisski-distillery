@@ -95,18 +95,21 @@ func (p pv) Run(context wisski_distillery.Context) error {
 func (pv) listFlavors(context wisski_distillery.Context) error {
 	encoder := json.NewEncoder(context.Stdout)
 	encoder.SetIndent("", "  ")
-	return encoder.Encode(manager.Profiles())
+	if err := encoder.Encode(manager.Profiles()); err != nil {
+		return fmt.Errorf("failed to encode flavors: %w", err)
+	}
+	return nil
 }
 
 func (pv) listPHPVersions(context wisski_distillery.Context) error {
 	for _, v := range models.KnownPHPVersions() {
 		if v == models.DefaultPHPVersion {
 			if _, err := context.Printf("%s (default)\n", v); err != nil {
-				return err
+				return fmt.Errorf("failed to print message: %w", err)
 			}
 		} else {
 			if _, err := context.Println(v); err != nil {
-				return err
+				return fmt.Errorf("failed to print message: %w", err)
 			}
 		}
 	}

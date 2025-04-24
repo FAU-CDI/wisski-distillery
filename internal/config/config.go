@@ -99,22 +99,26 @@ func Marshal(config *Config, previous []byte) ([]byte, error) {
 	// load the template yaml
 	template := new(yaml.Node)
 	if err := yaml.Unmarshal(previous, template); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal previous configuration: %w", err)
 	}
 
 	// load the config yaml
 	cfg, err := yamlx.Marshal(config)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to marshal configuration: %w", err)
 	}
 
 	// transplant the configuration yaml into the template
 	if err := yamlx.Transplant(template, cfg, true); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to render template with configuration: %w", err)
 	}
 
 	// marshal it again as a set of bytes
-	return yaml.Marshal(template)
+	out, err := yaml.Marshal(template)
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal: %w", err)
+	}
+	return out, nil
 }
 
 // SessionKey returns a key used for sessions to be derived from the session secret.

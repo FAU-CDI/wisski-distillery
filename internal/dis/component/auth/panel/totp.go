@@ -4,6 +4,7 @@ package panel
 //spellchecker:words context html template http github wisski distillery internal component auth server assets templating pkglib httpx form field embed
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"net/http"
 
@@ -48,7 +49,7 @@ func (panel *UserPanel) routeTOTPEnable(context.Context) http.Handler {
 
 			user, err := panel.dependencies.Auth.UserOfSession(r)
 			if err != nil {
-				return struct{}{}, err
+				return struct{}{}, fmt.Errorf("failed to get user of session: %w", err)
 			}
 
 			{
@@ -144,7 +145,7 @@ func (panel *UserPanel) routeTOTPEnroll(context.Context) http.Handler {
 
 			user, err := panel.dependencies.Auth.UserOfSession(r)
 			if err != nil {
-				return struct{}{}, err
+				return struct{}{}, fmt.Errorf("failed to get user of session: %w", err)
 			}
 
 			{
@@ -203,7 +204,7 @@ func (panel *UserPanel) routeTOTPDisable(context.Context) http.Handler {
 
 			user, err := panel.dependencies.Auth.UserOfSession(r)
 			if err != nil {
-				return struct{}{}, err
+				return struct{}{}, fmt.Errorf("failed to get user of session: %w", err)
 			}
 
 			{

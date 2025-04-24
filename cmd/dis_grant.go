@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal component instances models goprogram exit
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -87,7 +89,7 @@ func (dg disGrant) Run(context wisski_distillery.Context) (err error) {
 func (dg disGrant) checkHasSlug(context wisski_distillery.Context) error {
 	has, err := context.Environment.Instances().Has(context.Context, dg.Positionals.Slug)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to check if instance exists: %w", err)
 	}
 	if !has {
 		return instances.ErrWissKINotFound
@@ -101,12 +103,15 @@ func (dg disGrant) runAddUser(context wisski_distillery.Context) error {
 	}
 
 	policy := context.Environment.Policy()
-	return policy.Set(context.Context, models.Grant{
+	if err := policy.Set(context.Context, models.Grant{
 		User:            dg.Positionals.User,
 		Slug:            dg.Positionals.Slug,
 		DrupalUsername:  dg.Positionals.DrupalUser,
 		DrupalAdminRole: dg.DrupalAdmin,
-	})
+	}); err != nil {
+		return fmt.Errorf("failed to set policy: %w", err)
+	}
+	return nil
 }
 
 func (dg disGrant) runRemoveUser(context wisski_distillery.Context) error {
@@ -115,7 +120,10 @@ func (dg disGrant) runRemoveUser(context wisski_distillery.Context) error {
 	}
 
 	policy := context.Environment.Policy()
-	return policy.Remove(context.Context, dg.Positionals.User, dg.Positionals.Slug)
+	if err := policy.Remove(context.Context, dg.Positionals.User, dg.Positionals.Slug); err != nil {
+		return fmt.Errorf("failed to remove policy: %w", err)
+	}
+	return nil
 }
 
 func (dg disGrant) runAddAll(context wisski_distillery.Context) error {
@@ -123,7 +131,7 @@ func (dg disGrant) runAddAll(context wisski_distillery.Context) error {
 
 	instances, err := context.Environment.Instances().All(context.Context)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to list instances: %w", err)
 	}
 
 	for _, instance := range instances {
@@ -134,7 +142,7 @@ func (dg disGrant) runAddAll(context wisski_distillery.Context) error {
 			DrupalUsername:  dg.Positionals.User,
 			DrupalAdminRole: dg.DrupalAdmin,
 		}); err != nil {
-			return err
+			return fmt.Errorf("failed to add grant for instance %q to user: %w", instance.Slug, err)
 		}
 	}
 

@@ -5,6 +5,7 @@ package panel
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 
 	_ "embed"
@@ -58,7 +59,7 @@ func (panel *UserPanel) routePassword(context.Context) http.Handler {
 
 			user, err := panel.dependencies.Auth.UserOfSession(r)
 			if err != nil {
-				return struct{}{}, err
+				return struct{}{}, fmt.Errorf("failed to get user of session: %w", err)
 			}
 
 			{
@@ -71,7 +72,7 @@ func (panel *UserPanel) routePassword(context.Context) http.Handler {
 			{
 				err := user.CheckPasswordPolicy(new)
 				if err != nil {
-					return struct{}{}, err
+					return struct{}{}, fmt.Errorf("failed to check password policy: %w", err)
 				}
 			}
 

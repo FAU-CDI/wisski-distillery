@@ -4,6 +4,7 @@ package panel
 //spellchecker:words context html template http embed github wisski distillery internal component auth scopes server assets templating models
 import (
 	"context"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -64,8 +65,11 @@ func (panel *UserPanel) routeUser(context.Context) http.Handler {
 	return tpl.HTMLHandlerWithFlags(panel.dependencies.Handling, func(r *http.Request) (uc userContext, funcs []templating.FlagFunc, err error) {
 		// find the user
 		uc.AuthUser, err = panel.dependencies.Auth.UserOfSession(r)
-		if err != nil || uc.AuthUser == nil {
-			return uc, nil, err
+		if err != nil {
+			return uc, nil, fmt.Errorf("failed to get user for session: %w", err)
+		}
+		if uc.AuthUser == nil {
+			return uc, nil, errNoUserInSession
 		}
 
 		uc.ShowAdminURLs = panel.dependencies.Auth.CheckScope("", scopes.ScopeUserAdmin, r) == nil
@@ -85,7 +89,7 @@ func (panel *UserPanel) routeUser(context.Context) http.Handler {
 		// find the grants
 		grants, err := panel.dependencies.Policy.User(r.Context(), uc.User.User)
 		if err != nil {
-			return uc, nil, err
+			return uc, nil, fmt.Errorf("failed to get user grants: %w", err)
 		}
 
 		uc.Grants = make([]GrantWithURL, len(grants))
@@ -94,11 +98,11 @@ func (panel *UserPanel) routeUser(context.Context) http.Handler {
 
 			url, err := panel.dependencies.Next.Next(r.Context(), grant.Slug, "/")
 			if err != nil {
-				return uc, nil, err
+				return uc, nil, fmt.Errorf("failed to get forward url: %w", err)
 			}
 			uc.Grants[i].URL = template.URL(url) // #nosec G203 -- safe
 		}
 
-		return uc, funcs, err
+		return uc, funcs, nil
 	})
 }

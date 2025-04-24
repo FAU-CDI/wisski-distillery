@@ -5,6 +5,7 @@ package policy
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"gorm.io/gorm/clause"
@@ -31,7 +32,7 @@ func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
 	{
 		_, err := policy.dependencies.Auth.User(ctx, grant.User)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to get user: %w", err)
 		}
 	}
 

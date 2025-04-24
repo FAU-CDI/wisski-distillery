@@ -89,10 +89,10 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 		if err := umaskfree.MkdirAll(root, umaskfree.DefaultDirPerm); err != nil {
-			return errBootstrapFailedToCreateDirectory.WithMessageF(root).WrapError(err)
+			return errBootstrapFailedToCreateDirectory.WithMessageF(root).WrapError(err) //nolint:wrapcheck
 		}
 		if err := cli.WriteBaseDirectory(root); err != nil {
-			return errBootstrapFailedToSaveDirectory.WithMessageF(root).WrapError(err)
+			return errBootstrapFailedToSaveDirectory.WithMessageF(root).WrapError(err) //nolint:wrapcheck
 		}
 		context.Println(root)
 	}
@@ -108,7 +108,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 
 	// and use thge defaults
 	if err := tpl.SetDefaults(); err != nil {
-		return errBootstrapWriteConfig.WrapError(err)
+		return errBootstrapWriteConfig.WrapError(err) //nolint:wrapcheck
 	}
 
 	{
@@ -117,12 +117,12 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 		}
 		exe, err := os.Executable()
 		if err != nil {
-			return errBoostrapFailedToCopyExe.WithMessageF(err)
+			return errBoostrapFailedToCopyExe.WithMessageF(err) //nolint:wrapcheck
 		}
 
 		err = umaskfree.CopyFile(context.Context, wdcliPath, exe)
 		if err != nil && !errors.Is(err, umaskfree.ErrCopySameFile) {
-			return errBoostrapFailedToCopyExe.WithMessageF(err)
+			return errBoostrapFailedToCopyExe.WithMessageF(err) //nolint:wrapcheck
 		}
 		context.Println(wdcliPath)
 	}
@@ -130,7 +130,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	{
 		isFile, err := fsx.IsRegular(cfgPath, false)
 		if err != nil {
-			return errBootstrapWriteConfig.WrapError(err)
+			return errBootstrapWriteConfig.WrapError(err) //nolint:wrapcheck
 		}
 		if !isFile {
 			// generate the configuration from the template
@@ -144,7 +144,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 					bootstrap.DefaultOverridesJSON,
 					fs.ModePerm,
 				); err != nil {
-					return err
+					return fmt.Errorf("failed to write overrides file: %w", err)
 				}
 
 				context.Println(cfg.Paths.ResolverBlocks)
@@ -153,38 +153,38 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 					bootstrap.DefaultResolverBlockedTXT,
 					fs.ModePerm,
 				); err != nil {
-					return err
+					return fmt.Errorf("failed to write resolver blocks file: %w", err)
 				}
 
 				return nil
 			}, context.Stderr, "Creating custom config files"); err != nil {
-				return errBootstrapCreateFile.WrapError(err)
+				return errBootstrapCreateFile.WrapError(err) //nolint:wrapcheck
 			}
 
 			// Validate configuration file!
 			if err := cfg.Validate(); err != nil {
-				return err
+				return fmt.Errorf("failed to validate configuration: %w", err)
 			}
 
 			// and marshal it out!
 			if err := logging.LogOperation(func() (e error) {
 				configYML, err := umaskfree.Create(cfgPath, umaskfree.DefaultFilePerm)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to create configuration path: %w", err)
 				}
 				defer errwrap.Close(configYML, "configuration file", &e)
 
 				bytes, err := config.Marshal(&cfg, nil)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to marshal configuration file: %w", err)
 				}
 
 				{
 					_, err := configYML.Write(bytes)
-					return err
+					return fmt.Errorf("failed to write config yml: %w", err)
 				}
 			}, context.Stderr, "Installing primary configuration file"); err != nil {
-				return errBootstrapWriteConfig.WrapError(err)
+				return errBootstrapWriteConfig.WrapError(err) //nolint:wrapcheck
 			}
 		}
 	}
@@ -195,13 +195,13 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	}
 	f, err := os.Open(cfgPath) // #nosec G304 -- intended
 	if err != nil {
-		return errBootstrapOpenConfig.WrapError(err)
+		return errBootstrapOpenConfig.WrapError(err) //nolint:wrapcheck
 	}
 	defer errwrap.Close(f, "configuration file", &e)
 
 	var cfg config.Config
 	if err := cfg.Unmarshal(f); err != nil {
-		return errBootstrapOpenConfig.WrapError(err)
+		return errBootstrapOpenConfig.WrapError(err) //nolint:wrapcheck
 	}
 	context.Println(cfg)
 

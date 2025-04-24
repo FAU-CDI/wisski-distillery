@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal goprogram exit
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
@@ -46,9 +48,15 @@ func (i instancepause) Run(context wisski_distillery.Context) error {
 		return errInstancePauseWissKI.WrapError(err)
 	}
 
+	stack := instance.Barrel().Stack()
 	if i.Stop {
-		return instance.Barrel().Stack().Down(context.Context, context.Stdout)
+		if err := stack.Down(context.Context, context.Stdout); err != nil {
+			return fmt.Errorf("failed to stop instance: %w", err)
+		}
 	} else {
-		return instance.Barrel().Stack().Up(context.Context, context.Stdout)
+		if err := stack.Up(context.Context, context.Stdout); err != nil {
+			return fmt.Errorf("failed to start instance: %w", err)
+		}
 	}
+	return nil
 }

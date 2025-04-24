@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 )
@@ -29,9 +31,12 @@ func (rebuildTS) Description() wisski_distillery.Description {
 func (rts rebuildTS) Run(context wisski_distillery.Context) (err error) {
 	instance, err := context.Environment.Instances().WissKI(context.Context, rts.Positionals.Slug)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get WissKI: %w", err)
 	}
 
 	_, err = instance.TRB().RebuildTriplestore(context.Context, context.Stdout, rts.AllowEmptyRepository)
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to rebuild triplestore: %w", err)
+	}
+	return nil
 }

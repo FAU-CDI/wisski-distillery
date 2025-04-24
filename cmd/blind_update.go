@@ -46,7 +46,7 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) (err error) {
 	// find all the instances!
 	wissKIs, err := context.Environment.Instances().Load(context.Context, bu.Positionals.Slug...)
 	if err != nil {
-		return errBlindUpdateFailed.WrapError(err)
+		return errBlindUpdateFailed.WrapError(err) // nolint:wrapcheck
 	}
 	if !bu.Force {
 		wissKIs = collection.KeepFunc(wissKIs, func(instance *wisski.WissKI) bool {
@@ -55,9 +55,12 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) (err error) {
 	}
 
 	// and do the actual blind_update!
-	return status.WriterGroup(context.Stderr, bu.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+	if err := status.WriterGroup(context.Stderr, bu.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
 		return instance.Composer().Update(context.Context, writer)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("blind_update %q", item.Slug)
-	}))
+	})); err != nil {
+		return fmt.Errorf("failed to blind_update: %w", err)
+	}
+	return nil
 }

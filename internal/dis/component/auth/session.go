@@ -5,6 +5,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -58,7 +59,7 @@ func (auth *Auth) UserOfToken(r *http.Request) (user *AuthUser, err error) {
 	// get the token object
 	token, err := auth.dependencies.Tokens.TokenOf(r)
 	if token == nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get token for request: %w", err)
 	}
 	return auth.checkUser(r.Context(), token.User)
 }
@@ -110,7 +111,7 @@ func (auth *Auth) checkUser(ctx context.Context, name string) (user *AuthUser, e
 // session returns the session that belongs to a given request.
 // If the session is not set, creates a new session.
 func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
-	return auth.store.Get(func() sessions.Store {
+	sess, err := auth.store.Get(func() sessions.Store {
 		config := component.GetStill(auth).Config
 
 		cookiestore := sessions.NewCookieStore(config.SessionKey())
@@ -121,6 +122,10 @@ func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
 
 		return cookiestore
 	}).Get(r, server.SessionCookie)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get session: %w", err)
+	}
+	return sess, nil
 }
 
 func (auth *Auth) Menu(r *http.Request) []component.MenuItem {
@@ -153,7 +158,10 @@ func (auth *Auth) Login(w http.ResponseWriter, r *http.Request, user *AuthUser) 
 		return err
 	}
 	sess.Values[server.SessionUserKey] = user.User.User
-	return sess.Save(r, w)
+	if err := sess.Save(r, w); err != nil {
+		return fmt.Errorf("failed to save session: %w", err)
+	}
+	return nil
 }
 
 // Logout logs out the user from the given session.
@@ -166,7 +174,10 @@ func (auth *Auth) Logout(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 	sess.Options.MaxAge = -1
-	return sess.Save(r, w)
+	if err := sess.Save(r, w); err != nil {
+		return fmt.Errorf("failed to save session: %w", err)
+	}
+	return nil
 }
 
 //go:embed "login.html"

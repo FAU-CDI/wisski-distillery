@@ -101,12 +101,16 @@ func (bc *StagingContext) resolve(path string) (dest string, err error) {
 	return filepath.Join(bc.path, path), nil
 }
 
-func (bc *StagingContext) relativize(path string) (dest string, err error) {
+func (bc *StagingContext) relativize(path string) (string, error) {
 	if !filepath.IsAbs(path) {
 		return "", errRelativeRelative
 	}
 
-	return filepath.Rel(bc.path, path)
+	dest, err := filepath.Rel(bc.path, path)
+	if err != nil {
+		return "", fmt.Errorf("failed to get relative path: %w", err)
+	}
+	return dest, nil
 }
 
 // AddDirectory creates a new directory inside the destination.
@@ -127,7 +131,7 @@ func (sc *StagingContext) AddDirectory(path string, op func(context.Context) err
 
 	// run the make directory
 	if err := umaskfree.Mkdir(dst, umaskfree.DefaultDirPerm); err != nil {
-		return err
+		return fmt.Errorf("failed to create directory: %w", err)
 	}
 
 	// tell the files that we are creating it!
@@ -148,7 +152,10 @@ func (sc *StagingContext) CopyFile(dst, src string) error {
 		return err
 	}
 	sc.sendPath(dst)
-	return umaskfree.CopyFile(sc.ctx, dstPath, src)
+	if err := umaskfree.CopyFile(sc.ctx, dstPath, src); err != nil {
+		return fmt.Errorf("failed to copy file: %w", err)
+	}
+	return nil
 }
 
 // CopyDirectory copies a directory from src to dst.
@@ -162,9 +169,12 @@ func (sc *StagingContext) CopyDirectory(dst, src string) error {
 		return err
 	}
 
-	return umaskfree.CopyDirectory(sc.ctx, dstPath, src, func(dst, src string) {
+	if err := umaskfree.CopyDirectory(sc.ctx, dstPath, src, func(dst, src string) {
 		sc.sendPath(dst)
-	})
+	}); err != nil {
+		return fmt.Errorf("failed to copy directory: %w", err)
+	}
+	return nil
 }
 
 // AddFile creates a new file at the provided path inside the destination.

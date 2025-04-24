@@ -2,6 +2,8 @@ package cmd
 
 //spellchecker:words github wisski distillery internal component auth goprogram exit
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
@@ -88,39 +90,45 @@ var errDisUserActionFailed = exit.Error{
 func (du disUser) Run(context wisski_distillery.Context) (err error) {
 	defer errwrap.DeferWrap(errDisUserActionFailed, &err)
 
+	var action func(wisski_distillery.Context, *auth.AuthUser) error
 	switch {
-	case du.InfoUser:
-		return du.runInfo(context)
-	case du.CreateUser:
-		return du.runCreate(context)
-	case du.DeleteUser:
-		return du.runDelete(context)
-	case du.SetPassword:
-		return du.runSetPassword(context)
-	case du.UnsetPassword:
-		return du.runUnsetPassword(context)
-	case du.CheckPassword:
-		return du.runCheckPassword(context)
 	case du.ListUsers:
 		return du.runListUsers(context)
-	case du.EnableTOTP:
-		return du.runEnableTOTP(context)
-	case du.DisableTOTP:
-		return du.runDisableTOTP(context)
-	case du.MakeAdmin:
-		return du.runMakeAdmin(context)
-	case du.RemoveAdmin:
-		return du.runRemoveAdmin(context)
-	}
-	panic("never reached")
-}
+	case du.CreateUser:
+		return du.runCreate(context)
 
-func (du disUser) runInfo(context wisski_distillery.Context) error {
+	case du.InfoUser:
+		action = du.runInfo
+	case du.DeleteUser:
+		action = du.runDelete
+	case du.SetPassword:
+		action = du.runSetPassword
+	case du.UnsetPassword:
+		action = du.runUnsetPassword
+	case du.CheckPassword:
+		action = du.runCheckPassword
+
+	case du.EnableTOTP:
+		action = du.runEnableTOTP
+	case du.DisableTOTP:
+		action = du.runDisableTOTP
+	case du.MakeAdmin:
+		action = du.runMakeAdmin
+	case du.RemoveAdmin:
+		action = du.runRemoveAdmin
+	default:
+		panic("never reached")
+	}
+
 	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get user: %w", err)
 	}
 
+	return action(context, user)
+}
+
+func (du disUser) runInfo(context wisski_distillery.Context, user *auth.AuthUser) error {
 	context.Println(user)
 	return nil
 }
@@ -128,20 +136,18 @@ func (du disUser) runInfo(context wisski_distillery.Context) error {
 func (du disUser) runCreate(context wisski_distillery.Context) error {
 	user, err := context.Environment.Auth().CreateUser(context.Context, du.Positionals.User)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create user: %w", err)
 	}
 
 	context.Println(user)
 	return nil
 }
 
-func (du disUser) runDelete(context wisski_distillery.Context) error {
-	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
-	if err != nil {
-		return err
+func (du disUser) runDelete(context wisski_distillery.Context, user *auth.AuthUser) error {
+	if err := user.Delete(context.Context); err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
 	}
-
-	return user.Delete(context.Context)
+	return nil
 }
 
 var errPasswordPolicy = exit.Error{
@@ -149,25 +155,20 @@ var errPasswordPolicy = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (du disUser) runSetPassword(context wisski_distillery.Context) error {
-	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
-	if err != nil {
-		return err
-	}
-
+func (du disUser) runSetPassword(context wisski_distillery.Context, user *auth.AuthUser) error {
 	var passwd string
 	{
 		context.Printf("Enter new password for user %s:", du.Positionals.User)
 		passwd1, err := context.ReadPassword()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read password: %w", err)
 		}
 		context.Println()
 
 		context.Printf("Enter the same password again:")
 		passwd, err = context.ReadPassword()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read password: %w", err)
 		}
 		context.Println()
 
@@ -179,29 +180,25 @@ func (du disUser) runSetPassword(context wisski_distillery.Context) error {
 		}
 	}
 
-	return user.SetPassword(context.Context, []byte(passwd))
+	if err := user.SetPassword(context.Context, []byte(passwd)); err != nil {
+		return fmt.Errorf("failed to set password: %w", err)
+	}
+	return nil
 }
 
-func (du disUser) runUnsetPassword(context wisski_distillery.Context) error {
-	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
-	if err != nil {
-		return err
+func (du disUser) runUnsetPassword(context wisski_distillery.Context, user *auth.AuthUser) error {
+	if err := user.UnsetPassword(context.Context); err != nil {
+		return fmt.Errorf("failed to unset password: %w", err)
 	}
-
-	return user.UnsetPassword(context.Context)
+	return nil
 }
 
-func (du disUser) runCheckPassword(context wisski_distillery.Context) error {
-	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
-	if err != nil {
-		return err
-	}
-
+func (du disUser) runCheckPassword(context wisski_distillery.Context, user *auth.AuthUser) error {
 	context.Printf("Enter password for %s:", du.Positionals.User)
 
 	candidate, err := context.ReadPassword()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read password: %w", err)
 	}
 	context.Println()
 
@@ -209,18 +206,21 @@ func (du disUser) runCheckPassword(context wisski_distillery.Context) error {
 	if user.IsTOTPEnabled() {
 		passcode, err = context.ReadPassword()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to read password: %w", err)
 		}
 		context.Println()
 	}
 
-	return user.CheckCredentials(context.Context, []byte(candidate), passcode)
+	if err := user.CheckCredentials(context.Context, []byte(candidate), passcode); err != nil {
+		return fmt.Errorf("failed to check credentials: %w", err)
+	}
+	return nil
 }
 
 func (du disUser) runListUsers(context wisski_distillery.Context) error {
 	users, err := context.Environment.Auth().Users(context.Context)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to list all users: %w", err)
 	}
 	for _, user := range users {
 		context.Println(user)
@@ -228,22 +228,17 @@ func (du disUser) runListUsers(context wisski_distillery.Context) error {
 	return nil
 }
 
-func (du disUser) runEnableTOTP(context wisski_distillery.Context) error {
-	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
-	if err != nil {
-		return err
-	}
-
+func (du disUser) runEnableTOTP(context wisski_distillery.Context, user *auth.AuthUser) error {
 	// get the secret
 	key, err := user.NewTOTP(context.Context)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate new totp: %w", err)
 	}
 
 	// print out the link
 	url, err := auth.TOTPLink(key, 100, 100)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate totp link: %w", err)
 	}
 	context.Println(url)
 
@@ -251,36 +246,34 @@ func (du disUser) runEnableTOTP(context wisski_distillery.Context) error {
 	context.Printf("Enter passcode for %s:", du.Positionals.User)
 	passcode, err := context.ReadPassword()
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read passcode: %w", err)
 	}
 	context.Println()
 
 	// and enter it
-	return user.EnableTOTP(context.Context, passcode)
+	if err := user.EnableTOTP(context.Context, passcode); err != nil {
+		return fmt.Errorf("failed to emable totp: %w", err)
+	}
+	return nil
 }
 
-func (du disUser) runDisableTOTP(context wisski_distillery.Context) error {
-	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
-	if err != nil {
-		return err
+func (du disUser) runDisableTOTP(context wisski_distillery.Context, user *auth.AuthUser) error {
+	if err := user.DisableTOTP(context.Context); err != nil {
+		return fmt.Errorf("failed to disable totp: %w", err)
 	}
-
-	return user.DisableTOTP(context.Context)
+	return nil
 }
 
-func (du disUser) runMakeAdmin(context wisski_distillery.Context) error {
-	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
-	if err != nil {
-		return err
+func (du disUser) runMakeAdmin(context wisski_distillery.Context, user *auth.AuthUser) error {
+	if err := user.MakeAdmin(context.Context); err != nil {
+		return fmt.Errorf("failed to make admin: %w", err)
 	}
-	return user.MakeAdmin(context.Context)
+	return nil
 }
 
-func (du disUser) runRemoveAdmin(context wisski_distillery.Context) error {
-	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
-	if err != nil {
-		return err
+func (du disUser) runRemoveAdmin(context wisski_distillery.Context, user *auth.AuthUser) error {
+	if err := user.MakeRegular(context.Context); err != nil {
+		return fmt.Errorf("failed to make regular user: %w", err)
 	}
-
-	return user.MakeRegular(context.Context)
+	return nil
 }
