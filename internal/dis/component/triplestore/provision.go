@@ -8,11 +8,13 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"net/url"
 	"text/template"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -47,7 +49,7 @@ func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, doma
 	)
 }
 
-func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user, password string) error {
+func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user, password string) (e error) {
 	if err := ts.Wait(ctx); err != nil {
 		return err
 	}
@@ -68,7 +70,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 		if err != nil {
 			return errTripleStoreFailedRepository.WithMessageF(err)
 		}
-		defer res.Body.Close()
+		defer errwrap.Close(res.Body, "response body", &e)
 		if res.StatusCode != http.StatusCreated {
 			return errTripleStoreFailedRepository.WithMessageF("repo create did not return status code 201")
 		}
@@ -76,7 +78,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 
 	// create the user and grant them access
 	{
-		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPost, "/rest/security/users/"+user, nil, TriplestoreUserPayload{
+		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPost, "/rest/security/users/"+url.PathEscape(user), nil, TriplestoreUserPayload{
 			Password: password,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
@@ -94,7 +96,8 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 		if err != nil {
 			return errTripleStoreFailedRepository.WithMessageF(err)
 		}
-		defer res.Body.Close()
+		defer errwrap.Close(res.Body, "response body", &e)
+
 		if res.StatusCode != http.StatusCreated {
 			return errTripleStoreFailedRepository.WithMessageF("user create did not return status code 201")
 		}

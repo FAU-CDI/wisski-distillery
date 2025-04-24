@@ -3,13 +3,13 @@ package php
 //spellchecker:words context strings github wisski distillery internal phpx ingredient barrel
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 )
 
 type PHP struct {
@@ -36,21 +36,7 @@ type PHP struct {
 func (php *PHP) ExecScript(ctx context.Context, server *phpx.Server, value any, code string, entrypoint string, args ...any) (err error) {
 	if server == nil {
 		server = php.NewServer()
-		if err != nil {
-			return
-		}
-		defer func() {
-			e2 := server.Close()
-			if e2 == nil {
-				return
-			}
-			e2 = fmt.Errorf("failed to close server: %w", e2)
-			if err == nil {
-				err = e2
-			} else {
-				err = errors.Join(err, e2)
-			}
-		}()
+		defer errwrap.Close(server, "server", &err)
 	}
 
 	if code != "" {
@@ -68,18 +54,7 @@ func (php *PHP) ExecScript(ctx context.Context, server *phpx.Server, value any, 
 func (php *PHP) EvalCode(ctx context.Context, server *phpx.Server, value any, code string) (err error) {
 	if server == nil {
 		server = php.NewServer()
-		defer func() {
-			e2 := server.Close()
-			if e2 == nil {
-				return
-			}
-			e2 = fmt.Errorf("failed to close server: %w", e2)
-			if err == nil {
-				err = e2
-			} else {
-				err = errors.Join(err, e2)
-			}
-		}()
+		defer errwrap.Close(server, "server", &err)
 	}
 
 	if err := server.MarshalEval(ctx, value, code); err != nil {

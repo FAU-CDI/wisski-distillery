@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -19,6 +18,7 @@ import (
 
 	_ "embed"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/pkglib/lazy"
 	"github.com/tkw1536/pkglib/status"
 	"github.com/tkw1536/pkglib/stream"
@@ -176,18 +176,7 @@ func (*Server) decode(dest *[2]json.RawMessage, message []byte) (e error) {
 
 	// unpack gzip
 	unpacker := flate.NewReader(raw)
-	defer func() {
-		e2 := unpacker.Close()
-		if e2 == nil {
-			return
-		}
-		e2 = fmt.Errorf("failed to close unpacker: %w", e2)
-		if e == nil {
-			e = e2
-		} else {
-			e = errors.Join(e, e2)
-		}
-	}()
+	defer errwrap.Close(unpacker, "unpacker", &e)
 
 	// and read the value
 	decoder := json.NewDecoder(unpacker)
@@ -209,25 +198,14 @@ func (*Server) encode(dest io.WriteCloser, code string) (e error) {
 
 	// base64 encode all the things!
 	encoder := base64.NewEncoder(base64.StdEncoding, dest)
-	defer encoder.Close()
+	defer errwrap.Close(encoder, "encoder", &e)
 
 	// compress all the things!
 	compressor, err := flate.NewWriter(encoder, 9)
 	if err != nil {
 		return fmt.Errorf("failed to create compressor: %w", err)
 	}
-	defer func() {
-		e2 := compressor.Close()
-		if e2 == nil {
-			return
-		}
-		e2 = fmt.Errorf("failed to close compressor: %w", e2)
-		if e == nil {
-			e = e2
-		} else {
-			e = errors.Join(e, e2)
-		}
-	}()
+	defer errwrap.Close(compressor, "compressor", &e)
 
 	// do the write!
 	_, e = compressor.Write([]byte(code))

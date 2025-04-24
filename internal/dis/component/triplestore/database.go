@@ -11,10 +11,12 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/pkglib/timex"
 )
 
@@ -148,7 +150,7 @@ func (ts Triplestore) Wait(ctx context.Context) error {
 		if err != nil {
 			return false
 		}
-		defer res.Body.Close()
+		defer res.Body.Close() // no way to report error
 		return true
 	}, ctx, ts.PollInterval); err != nil {
 		return fmt.Errorf("failed to wait for triplestore: %w", err)
@@ -160,12 +162,12 @@ var errPurgeReturnedCode = errors.New("purge returned abnormal exit code")
 
 // PurgeUser deletes the specified user from the triplestore.
 // When the user does not exist, returns no error.
-func (ts Triplestore) PurgeUser(ctx context.Context, user string) error {
-	res, err := ts.DoRest(ctx, tsTrivialTimeout, http.MethodDelete, "/rest/security/users/"+user, nil)
+func (ts Triplestore) PurgeUser(ctx context.Context, user string) (e error) {
+	res, err := ts.DoRest(ctx, tsTrivialTimeout, http.MethodDelete, "/rest/security/users/"+url.PathEscape(user), nil)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer errwrap.Close(res.Body, "response body", &e)
 	if res.StatusCode != http.StatusNoContent && res.StatusCode != http.StatusNotFound {
 		return fmt.Errorf("%w: %d", errPurgeReturnedCode, res.StatusCode)
 	}
@@ -176,12 +178,12 @@ var errDeleteReturnedCode = errors.New("delete returned abnormal exit code")
 
 // PurgeRepo deletes the specified repo from the triplestore.
 // When the repo does not exist, returns no error.
-func (ts Triplestore) PurgeRepo(ctx context.Context, repo string) error {
-	res, err := ts.DoRest(ctx, tsTrivialTimeout, http.MethodDelete, "/rest/repositories/"+repo, nil)
+func (ts Triplestore) PurgeRepo(ctx context.Context, repo string) (e error) {
+	res, err := ts.DoRest(ctx, tsTrivialTimeout, http.MethodDelete, "/rest/repositories/"+url.PathEscape(repo), nil)
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer errwrap.Close(res.Body, "response body", &e)
 	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusNotFound {
 		return fmt.Errorf("%w: %d", errDeleteReturnedCode, res.StatusCode)
 	}

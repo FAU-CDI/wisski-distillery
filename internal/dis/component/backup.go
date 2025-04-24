@@ -11,6 +11,7 @@ import (
 	"errors"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
@@ -174,7 +175,7 @@ func (sc *StagingContext) CopyDirectory(dst, src string) error {
 // The op function must not retain file.
 // The underlying file does not need to be closed.
 // AddFile will not return before op has returned.
-func (sc *StagingContext) AddFile(path string, op func(ctx context.Context, file io.Writer) error) error {
+func (sc *StagingContext) AddFile(path string, op func(ctx context.Context, file io.Writer) error) (e error) {
 	// check if we're already done
 	if err, ok := sc.ctxdone(); ok {
 		return err
@@ -191,7 +192,7 @@ func (sc *StagingContext) AddFile(path string, op func(ctx context.Context, file
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer errwrap.Close(file, "file", &e)
 
 	// tell them that we are creating it!
 	sc.sendPath(path)

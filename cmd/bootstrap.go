@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/fsx"
@@ -72,7 +73,7 @@ var errBootstrapCreateFile = exit.Error{
 	ExitCode: exit.ExitGeneric,
 }
 
-func (bs cBootstrap) Run(context wisski_distillery.Context) error {
+func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	root := bs.Directory
 
 	// check that we didn't get a different base directory
@@ -166,12 +167,12 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 			}
 
 			// and marshal it out!
-			if err := logging.LogOperation(func() error {
+			if err := logging.LogOperation(func() (e error) {
 				configYML, err := umaskfree.Create(cfgPath, umaskfree.DefaultFilePerm)
 				if err != nil {
 					return err
 				}
-				defer configYML.Close()
+				defer errwrap.Close(configYML, "configuration file", &e)
 
 				bytes, err := config.Marshal(&cfg, nil)
 				if err != nil {
@@ -196,7 +197,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) error {
 	if err != nil {
 		return errBootstrapOpenConfig.WrapError(err)
 	}
-	defer f.Close()
+	defer errwrap.Close(f, "configuration file", &e)
 
 	var cfg config.Config
 	if err := cfg.Unmarshal(f); err != nil {

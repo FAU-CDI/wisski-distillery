@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 )
 
 func (ts *Triplestore) BackupName() string { return "triplestore" }
@@ -41,13 +42,13 @@ func (ts *Triplestore) Backup(scontext *component.StagingContext) error {
 	return nil
 }
 
-func (ts Triplestore) listRepositories(ctx context.Context) (repos []Repository, err error) {
+func (ts Triplestore) listRepositories(ctx context.Context) (repos []Repository, e error) {
 	res, err := ts.DoRest(ctx, 0, http.MethodGet, "/rest/repositories", &RequestHeaders{Accept: "application/json"})
 	if err != nil {
 		return nil, err
 	}
-	defer res.Body.Close()
+	defer errwrap.Close(res.Body, "response body", &e)
 
-	err = json.NewDecoder(res.Body).Decode(&repos)
+	e = json.NewDecoder(res.Body).Decode(&repos)
 	return
 }

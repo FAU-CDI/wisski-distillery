@@ -12,6 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 )
 
@@ -115,22 +116,11 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 	if err != nil {
 		return "", 0, fmt.Errorf("failed to create temporary file: %w", err)
 	}
-	defer func() {
-		e2 := file.Close()
-		if e2 == nil {
-			return
-		}
-		e2 = fmt.Errorf("failed to close file: %w", e2)
-		if e == nil {
-			e = e2
-		} else {
-			e = errors.Join(e, e2)
-		}
-	}()
+	defer errwrap.Close(file, "file", &e)
 
 	// create a new writer
 	zippedFile := gzip.NewWriter(file)
-	defer zippedFile.Close()
+	defer errwrap.Close(zippedFile, "zipped file", &e)
 
 	{
 		liquid := ingredient.GetLiquid(trb)
@@ -147,18 +137,18 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 	}
 }
 
-func (trb *TRB) restoreBackup(ctx context.Context, path string) (err error) {
+func (trb *TRB) restoreBackup(ctx context.Context, path string) (e error) {
 	reader, err := os.Open(path) // #nosec G304 -- intended
 	if err != nil {
 		return fmt.Errorf("failed to restore database: %w", err)
 	}
-	defer reader.Close()
+	defer errwrap.Close(reader, "temporary backup file", &e)
 
 	decompressedReader, err := gzip.NewReader(reader)
 	if err != nil {
 		return fmt.Errorf("failed to create gzip reader: %w", err)
 	}
-	defer decompressedReader.Close()
+	defer errwrap.Close(decompressedReader, "gzip reader", &e)
 
 	liquid := ingredient.GetLiquid(trb)
 	if err := liquid.TS.RestoreDB(ctx, liquid.GraphDBRepository, decompressedReader); err != nil {

@@ -124,24 +124,24 @@ func (du drupalUser) checkCommonPassword(context wisski_distillery.Context, inst
 			return fmt.Sprintf("User[%q]: ", item.Name)
 		},
 		PrefixAlign: true,
-		Handler: func(user wstatus.DrupalUser, index int, writer io.Writer) error {
+		Handler: func(user wstatus.DrupalUser, index int, writer io.Writer) (e error) {
 			pv, err := users.GetPasswordValidator(context.Context, string(user.Name))
 			if err != nil {
 				return err
 			}
-			defer pv.Close()
+			defer errwrap.Close(pv, "password validator", &e)
 
 			return pv.CheckDictionary(context.Context, writer)
 		},
 	}, entities)
 }
 
-func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context, instance *wisski.WissKI) error {
+func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context, instance *wisski.WissKI) (e error) {
 	validator, err := instance.Users().GetPasswordValidator(context.Context, du.Positionals.User)
 	if err != nil {
 		return err
 	}
-	defer validator.Close()
+	defer errwrap.Close(validator, "validator", &e)
 
 	for {
 		context.Printf("Enter a password to check:")

@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
@@ -20,24 +21,24 @@ import (
 // If the destination already exists, it is truncated.
 //
 // onCopy, when not nil, is called for each file being copied into the archive.
-func Package(dst, src string, onCopy func(rel string, src string)) (count int64, err error) {
+func Package(dst, src string, onCopy func(rel string, src string)) (count int64, e error) {
 	// create the target archive
 	archive, err := umaskfree.Create(dst, umaskfree.DefaultFilePerm)
 	if err != nil {
 		return 0, fmt.Errorf("failed to create file: %w", err)
 	}
-	defer archive.Close()
+	defer errwrap.Close(archive, "archive file", &e)
 
 	// create a gzip writer
 	zipHandle := gzip.NewWriter(archive)
-	defer zipHandle.Close()
+	defer errwrap.Close(zipHandle, "zip handle", &e)
 
 	// create a tar writer
 	tarHandle := tar.NewWriter(zipHandle)
-	defer tarHandle.Close()
+	defer errwrap.Close(tarHandle, "tar handle", &e)
 
 	// and walk through it!
-	err = filepath.WalkDir(src, func(path string, entry fs.DirEntry, err error) error {
+	e = filepath.WalkDir(src, func(path string, entry fs.DirEntry, err error) (e error) {
 		if err != nil {
 			return err
 		}
@@ -84,7 +85,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		if err != nil {
 			return fmt.Errorf("failed to open file: %w", err)
 		}
-		defer handle.Close()
+		defer errwrap.Close(handle, "file", &e)
 
 		// and copy it into the archive
 		ccount, err := io.Copy(tarHandle, handle)

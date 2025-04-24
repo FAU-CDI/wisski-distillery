@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
@@ -53,13 +54,13 @@ func InstallDir(dst string, src string, fsys fs.FS, onInstallFile func(dst, src 
 //
 // OnInstallFile is called for each source and destination file.
 // OnInstallFile may be nil.
-func installResource(dst string, src string, fsys fs.FS, onInstallFile func(dst, src string)) error {
+func installResource(dst string, src string, fsys fs.FS, onInstallFile func(dst, src string)) (e error) {
 	// open the srcFile
 	srcFile, err := fsys.Open(src)
 	if err != nil {
 		return fmt.Errorf("failed to open file to install: %w", err)
 	}
-	defer srcFile.Close()
+	defer errwrap.Close(srcFile, "file to install", &e)
 
 	// stat it!
 	srcInfo, err := srcFile.Stat()
@@ -120,13 +121,13 @@ func installDir(dst string, srcInfo fs.FileInfo, srcFile fs.ReadDirFile, src str
 	return nil
 }
 
-func installFile(dst string, srcInfo fs.FileInfo, src fs.File) error {
+func installFile(dst string, srcInfo fs.FileInfo, src fs.File) (e error) {
 	// create the file using the right mode!
 	file, err := umaskfree.Create(dst, srcInfo.Mode())
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
-	defer file.Close()
+	defer errwrap.Close(file, "file", &e)
 
 	// copy over the content!
 	_, err = io.Copy(file, src)

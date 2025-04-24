@@ -8,9 +8,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 )
 
 func (Triplestore) SnapshotNeedsRunning() bool { return false }
@@ -41,22 +43,12 @@ const nquadsContentType = "text/x-nquads"
 
 // SnapshotDB snapshots the provided repository into dst.
 func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string) (c int64, e error) {
-	res, err := ts.DoRest(ctx, 0, http.MethodGet, "/repositories/"+repo+"/statements?infer=false", &RequestHeaders{Accept: nquadsContentType})
+	res, err := ts.DoRest(ctx, 0, http.MethodGet, "/repositories/"+url.PathEscape(repo)+"/statements?infer=false", &RequestHeaders{Accept: nquadsContentType})
 	if err != nil {
 		return 0, fmt.Errorf("failed to send rest request: %w", err)
 	}
-	defer func() {
-		e2 := res.Body.Close()
-		if e2 == nil {
-			return
-		}
-		e2 = fmt.Errorf("failed to close body: %w", e2)
-		if e == nil {
-			e = e2
-		} else {
-			e = errors.Join(e, e2)
-		}
-	}()
+	defer errwrap.Close(res.Body, "response body", &e)
+
 	if res.StatusCode != http.StatusOK {
 		return 0, errTSBackupWrongStatusCode
 	}

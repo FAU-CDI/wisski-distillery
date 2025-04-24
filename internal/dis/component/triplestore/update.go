@@ -8,14 +8,16 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 )
 
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
 
-func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
+func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) (e error) {
 	if _, err := logging.LogMessage(progress, "Waiting for Triplestore"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
@@ -29,7 +31,7 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
 	{
 		config := component.GetStill(ts).Config.TS
 
-		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPut, "/rest/security/users/"+config.AdminUsername, nil, TriplestoreUserPayload{
+		res, err := ts.DoRestWithMarshal(ctx, tsTrivialTimeout, http.MethodPut, "/rest/security/users/"+url.PathEscape(config.AdminUsername), nil, TriplestoreUserPayload{
 			Password: config.AdminPassword,
 			AppSettings: TriplestoreUserAppSettings{
 				DefaultInference:      true,
@@ -43,7 +45,7 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
 		if err != nil {
 			return fmt.Errorf("failed to create triplestore user: %w", err)
 		}
-		defer res.Body.Close()
+		defer errwrap.Close(res.Body, "response body", &e)
 
 		switch res.StatusCode {
 		case http.StatusOK:
@@ -69,7 +71,7 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) error {
 		if err != nil {
 			return fmt.Errorf("failed to enable triplestore security: %w", err)
 		}
-		defer res.Body.Close()
+		defer errwrap.Close(res.Body, "response body", &e)
 
 		if res.StatusCode != http.StatusOK {
 			return errTriplestoreFailedSecurity

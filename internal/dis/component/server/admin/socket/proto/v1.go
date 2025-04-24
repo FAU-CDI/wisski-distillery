@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/gorilla/websocket"
 	"github.com/tkw1536/pkglib/recovery"
 	"github.com/tkw1536/pkglib/websocketx"
@@ -146,7 +147,7 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocketx.Connectio
 	// create a pipe to handle the input
 	// and start handling it
 	var inputR, inputW = io.Pipe()
-	defer inputW.Close()
+	defer errwrap.Close(inputW, "input writer", &err)
 
 	wg.Add(1)
 	go func() {

@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/pkglib/fsx"
@@ -354,18 +355,7 @@ func addComposeFileHeader(path string) (e error) {
 	if err != nil {
 		return fmt.Errorf("failed to open compose file: %w", err)
 	}
-	defer func() {
-		e2 := f.Close()
-		if e2 == nil {
-			return
-		}
-		e2 = fmt.Errorf("failed to close file: %w", e2)
-		if e == nil {
-			e = e2
-		} else {
-			e = errors.Join(e, e2)
-		}
-	}()
+	defer errwrap.Close(f, "file", &e)
 
 	// write the header
 	if _, err := f.WriteString(composeFileHeader); err != nil {
@@ -437,13 +427,13 @@ func doComposeFile(path string, update func(node *yaml.Node) (*yaml.Node, error)
 }
 
 // writeEnvFile writes an environment file.
-func writeEnvFile(path string, perm fs.FileMode, variables map[string]string) error {
+func writeEnvFile(path string, perm fs.FileMode, variables map[string]string) (e error) {
 	// create the environment file
 	file, err := umaskfree.Create(path, perm)
 	if err != nil {
 		return fmt.Errorf("failed to create env file: %w", err)
 	}
-	defer file.Close()
+	defer errwrap.Close(file, "file", &e)
 
 	// write the file!
 	_, err = compose.WriteEnvFile(file, variables)

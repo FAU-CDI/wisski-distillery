@@ -8,13 +8,14 @@ import (
 	"slices"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
+	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 )
 
 // Containers loads the compose project at path, connects to the docker daemon, and then lists all containers belonging to the given services.
 // If services is empty, all containers belonging to any service are returned.
-func (docker *Docker) Containers(ctx context.Context, path string, services ...string) (containers []container.Summary, err error) {
+func (docker *Docker) Containers(ctx context.Context, path string, services ...string) (containers []container.Summary, e error) {
 	proj, err := compose.Open(path)
 	if err != nil {
 		return nil, err
@@ -24,7 +25,7 @@ func (docker *Docker) Containers(ctx context.Context, path string, services ...s
 	if err != nil {
 		return nil, err
 	}
-	defer client.Close()
+	defer errwrap.Close(client, "docker client", &e)
 
 	return docker.containers(ctx, proj, client, false, services...)
 }
