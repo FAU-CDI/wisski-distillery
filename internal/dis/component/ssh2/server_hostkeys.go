@@ -130,7 +130,7 @@ func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostK
 	// generate and write private key as PEM
 	privateKeyFile, err := umaskfree.Create(path, umaskfree.DefaultFilePerm)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create private key file: %w", err)
 	}
 	defer func() {
 		e2 := privateKeyFile.Close()

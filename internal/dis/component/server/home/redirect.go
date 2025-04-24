@@ -5,6 +5,8 @@ package home
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"strings"
@@ -12,7 +14,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 )
 
-func (home *Home) loadRedirect(context.Context) (redirect Redirect, err error) {
+func (home *Home) loadRedirect(context.Context) (redirect Redirect, e error) {
 	if redirect.Overrides == nil {
 		redirect.Overrides = make(map[string]string)
 	}
@@ -25,13 +27,24 @@ func (home *Home) loadRedirect(context.Context) (redirect Redirect, err error) {
 	// load the overrides file
 	overrides, err := os.Open(component.GetStill(home).Config.Paths.OverridesJSON)
 	if err != nil {
-		return redirect, err
+		return redirect, fmt.Errorf("failed to open file: %w", err)
 	}
-	defer overrides.Close()
+	defer func() {
+		e2 := overrides.Close()
+		if e2 == nil {
+			return
+		}
+		e2 = fmt.Errorf("failed to close overrides file: %w", err)
+		if e == nil {
+			e = e2
+		} else {
+			e = errors.Join(e, e2)
+		}
+	}()
 
 	// decode the overrides file
 	if err := json.NewDecoder(overrides).Decode(&redirect.Overrides); err != nil {
-		return redirect, err
+		return redirect, fmt.Errorf("failed to parse overrides files: %w", err)
 	}
 
 	// and return!

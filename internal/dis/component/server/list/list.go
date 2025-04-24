@@ -4,6 +4,7 @@ package list
 //spellchecker:words context slog http github wisski distillery internal component auth instances status wdlog pkglib lazy golang sync errgroup
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -89,7 +90,7 @@ func (li *ListInstances) Cron(ctx context.Context) (err error) {
 func (li *ListInstances) getNames(ctx context.Context) (map[string]struct{}, error) {
 	wissKIs, err := li.dependencies.Instances.All(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get instance names: %w", err)
 	}
 
 	names := make(map[string]struct{}, len(wissKIs))
