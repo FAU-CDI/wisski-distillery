@@ -5,6 +5,7 @@ package composer
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
@@ -38,7 +39,7 @@ func (composer *Composer) ExecWissKI(ctx context.Context, progress io.Writer, co
 
 func (composer *Composer) exec(ctx context.Context, progress io.Writer, command ...string) error {
 	if err := composer.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), append([]string{"composer", "--no-interaction"}, command...)...); err != nil {
-		return err
+		return fmt.Errorf("composer command returned error: %w", err)
 	}
 	return nil
 }
@@ -46,7 +47,8 @@ func (composer *Composer) exec(ctx context.Context, progress io.Writer, command 
 // FixPermissions fixes the permissions of the sites directory.
 // This needs to be run after every installation of a composer module.
 func (composer *Composer) FixPermission(ctx context.Context, progress io.Writer) error {
-	composer.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "chmod", "-R", "u+w", barrel.SitesDirectory)
+	// TODO: Do we want this to error out if it fails?
+	_ = composer.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "chmod", "-R", "u+w", barrel.SitesDirectory)
 	return nil
 }
 

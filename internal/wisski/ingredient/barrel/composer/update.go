@@ -32,7 +32,7 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 	}()
 
 	if err := composer.FixPermission(ctx, progress); err != nil {
-		return err
+		return fmt.Errorf("failed to fix permissions: %w", err)
 	}
 
 	if _, err := logging.LogMessage(progress, "Updating Packages"); err != nil {
@@ -41,7 +41,7 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 	{
 		err := composer.Exec(ctx, progress, "update")
 		if err != nil {
-			return err
+			return fmt.Errorf("composer run returned error: %w", err)
 		}
 	}
 
@@ -49,9 +49,9 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	{
-		err := composer.dependencies.Drush.Exec(ctx, progress, "-y", "updatedb")
+		err := composer.dependencies.Drush.Exec(ctx, progress, "--yes", "updatedb")
 		if err != nil {
-			return err
+			return fmt.Errorf("drush updatedb returned error: %w", err)
 		}
 	}
 
@@ -76,7 +76,7 @@ func (drush *Composer) LastUpdate(ctx context.Context) (t time.Time, err error) 
 		return t, nil
 	}
 	if err != nil {
-		return t, err
+		return t, fmt.Errorf("failed to get last update: %w", err)
 	}
 
 	// and turn it into time!
@@ -84,7 +84,10 @@ func (drush *Composer) LastUpdate(ctx context.Context) (t time.Time, err error) 
 }
 
 func (drush *Composer) setLastUpdate(ctx context.Context) error {
-	return lastUpdate.Set(ctx, drush.dependencies.MStore, time.Now().Unix())
+	if err := lastUpdate.Set(ctx, drush.dependencies.MStore, time.Now().Unix()); err != nil {
+		return fmt.Errorf("failed to set last update: %w", err)
+	}
+	return nil
 }
 
 type LastUpdateFetcher struct {

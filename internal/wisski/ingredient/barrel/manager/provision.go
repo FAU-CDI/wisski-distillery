@@ -23,7 +23,7 @@ import (
 func (manager *Manager) Provision(ctx context.Context, progress io.Writer, system models.System, flags Profile) error {
 	// Force building and applying the system!
 	if err := manager.dependencies.SystemManager.ApplyInitial(ctx, progress, system); err != nil {
-		return err
+		return fmt.Errorf("failed to apply initial configuration: %w", err)
 	}
 
 	// Create the composer directory!
@@ -36,7 +36,7 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 			err = barrel.ExitError(code)
 		}
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to create composer directory in barrel: %w", err)
 		}
 	}
 
@@ -46,7 +46,7 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 		err = barrel.ExitError(code)
 	}
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to start barrel in dummy mode: %w", err)
 	}
 
 	// when we are done, shut it down!
@@ -63,7 +63,7 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 
 // TODO: Move this to the flags.
 var drushVariants = []string{
-	"drush/drush", "drush/drush:^12", "drush/drush:^11",
+	"drush/drush", "drush/drush:^13", "drush/drush:^12", "drush/drush:^11",
 }
 
 // bootstrap applies the initial flags induced by flags.
@@ -82,7 +82,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		}
 		err := provision.dependencies.Composer.Exec(ctx, progress, "create-project", drupal, ".")
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to create drupal project structure: %w", err)
 		}
 	}
 
@@ -93,7 +93,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		// needed for composer > 2.2
 		err := provision.dependencies.Composer.Exec(ctx, progress, "config", "allow-plugins", "true")
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to configure composer: %w", err)
 		}
 	}
 
@@ -107,7 +107,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 				continue
 			}
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to install drush %q: %w", v, err)
 			}
 			break
 		}
@@ -130,11 +130,11 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 			"--account-name="+liquid.DrupalUsername, "--account-pass="+liquid.DrupalPassword,
 			"--db-url="+sqlDBURL,
 		); err != nil {
-			return err
+			return fmt.Errorf("failed to execute drush site-install command: %w", err)
 		}
 
 		if err := provision.dependencies.Composer.FixPermission(ctx, progress); err != nil {
-			return err
+			return fmt.Errorf("failed to fix permissions: %w", err)
 		}
 	}
 
@@ -144,7 +144,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	}
 	{
 		if err := provision.dependencies.SystemManager.BuildSettings(ctx, progress); err != nil {
-			return err
+			return fmt.Errorf("failed to build settings: %w", err)
 		}
 	}
 

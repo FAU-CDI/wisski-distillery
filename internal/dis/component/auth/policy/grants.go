@@ -12,7 +12,7 @@ import (
 
 var (
 	ErrNoAccess = errors.New("no access")
-	ErrInvalid  = errors.New("invalid parameters")
+	errInvalid  = errors.New("invalid parameters")
 )
 
 // Set sets a specific grant, overwriting any previous grant.
@@ -24,7 +24,7 @@ func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
 		grant.DrupalUsername = grant.User
 	}
 	if grant.User == "" || grant.Slug == "" {
-		return ErrInvalid
+		return errInvalid
 	}
 
 	// check that the referenced user exists!
@@ -52,7 +52,7 @@ func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
 func (policy *Policy) Remove(ctx context.Context, username string, slug string) error {
 	// empty username or slug never have acccess
 	if username == "" || slug == "" {
-		return ErrInvalid
+		return errInvalid
 	}
 
 	// get the table
@@ -68,7 +68,7 @@ func (policy *Policy) Remove(ctx context.Context, username string, slug string) 
 // User returns all grants for the given user.
 func (policy *Policy) User(ctx context.Context, username string) (grants []models.Grant, err error) {
 	if username == "" {
-		return nil, ErrInvalid
+		return nil, errInvalid
 	}
 
 	// get the table
@@ -88,7 +88,7 @@ func (policy *Policy) User(ctx context.Context, username string) (grants []model
 // Instance returns all the grants for the given instance.
 func (policy *Policy) Instance(ctx context.Context, slug string) (grants []models.Grant, err error) {
 	if slug == "" {
-		return nil, ErrInvalid
+		return nil, errInvalid
 	}
 
 	// get the table
@@ -113,7 +113,7 @@ func (policy *Policy) Instance(ctx context.Context, slug string) (grants []model
 func (policy *Policy) Has(ctx context.Context, username string, slug string) (grant models.Grant, err error) {
 	// empty username or slug never have acccess
 	if username == "" || slug == "" {
-		return grant, ErrInvalid
+		return grant, errInvalid
 	}
 
 	// get the table

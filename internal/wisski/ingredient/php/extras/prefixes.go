@@ -55,12 +55,12 @@ var listURIPrefixesPHP string
 func (prefixes *Prefixes) All(ctx context.Context, server *phpx.Server) ([]string, error) {
 	uris, err := prefixes.getLivePrefixes(ctx, server)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get live prefixes: %w", err)
 	}
 
 	uris2, err := prefixes.filePrefixes()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get file prefixes: %w", err)
 	}
 
 	return append(uris, uris2...), nil
@@ -77,7 +77,7 @@ func (prefixes *Prefixes) getLivePrefixes(ctx context.Context, server *phpx.Serv
 	}
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to ge prefixes: %w", err)
 	}
 
 	// sort the prefixes, and remove duplicates
@@ -87,7 +87,7 @@ func (prefixes *Prefixes) getLivePrefixes(ctx context.Context, server *phpx.Serv
 	// load the list of blocked prefixes
 	blocks, err := prefixes.blocked()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get blocked prefixes: %w", err)
 	}
 
 	// filter out blocked prefixes
@@ -97,7 +97,7 @@ func (prefixes *Prefixes) getLivePrefixes(ctx context.Context, server *phpx.Serv
 func (wisski *Prefixes) getAdapterPrefixes(ctx context.Context, server *phpx.Server) (pfs []string, err error) {
 	err = wisski.dependencies.PHP.ExecScript(ctx, server, &pfs, listURIPrefixesPHP, "list_adapter_prefixes")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to list adapter prefixes: %w", err)
 	}
 	return pfs, nil
 }
@@ -105,7 +105,7 @@ func (wisski *Prefixes) getAdapterPrefixes(ctx context.Context, server *phpx.Ser
 func (wisski *Prefixes) getTSPrefixes(ctx context.Context, server *phpx.Server) (pfs []string, err error) {
 	err = wisski.dependencies.PHP.ExecScript(ctx, server, &pfs, listURIPrefixesPHP, "list_triplestore_prefixes")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to execute triplestore_prefix script: %w", err)
 	}
 	return pfs, nil
 }
@@ -117,7 +117,7 @@ func (prefixes *Prefixes) blocked() ([]string, error) {
 	// TODO: move this to the distillery
 	file, err := os.Open(config.Paths.ResolverBlocks)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open resolver blocks file: %w", err)
 	}
 
 	var lines []string
@@ -134,7 +134,7 @@ func (prefixes *Prefixes) blocked() ([]string, error) {
 
 	// check if there was an error
 	if err := scanner.Err(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to scan for blocked prefixes: %w", err)
 	}
 
 	// and done!
@@ -193,7 +193,11 @@ var prefix = mstore.For[string]("prefix")
 
 // Prefixes returns the cached prefixes from the given instance.
 func (wisski *Prefixes) AllCached(ctx context.Context) (results []string, err error) {
-	return prefix.GetAll(ctx, wisski.dependencies.MStore)
+	results, err = prefix.GetAll(ctx, wisski.dependencies.MStore)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get cached values: %w", err)
+	}
+	return results, nil
 }
 
 // Update updates the cached prefixes of this instance.

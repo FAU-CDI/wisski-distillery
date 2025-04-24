@@ -4,6 +4,7 @@ package drush
 //spellchecker:words context github wisski distillery internal ingredient barrel pkglib stream
 import (
 	"context"
+	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
@@ -23,10 +24,16 @@ type Drush struct {
 
 // Enable enables the given drush modules.
 func (drush *Drush) Enable(ctx context.Context, progress io.Writer, modules ...string) error {
-	return drush.Exec(ctx, progress, append([]string{"pm-enable", "--yes"}, modules...)...)
+	if err := drush.Exec(ctx, progress, append([]string{"pm-enable", "--yes"}, modules...)...); err != nil {
+		return fmt.Errorf("drush pm-enable returned error: %w", err)
+	}
+	return nil
 }
 
 func (drush *Drush) Exec(ctx context.Context, progress io.Writer, command ...string) error {
 	script := append([]string{"drush"}, command...)
-	return drush.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
+	if err := drush.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...); err != nil {
+		return fmt.Errorf("drush returned error: %w", err)
+	}
+	return nil
 }

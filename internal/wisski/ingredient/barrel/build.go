@@ -5,6 +5,7 @@ package barrel
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"time"
 
@@ -32,14 +33,14 @@ func (barrel *Barrel) Build(ctx context.Context, progress io.Writer, start bool)
 	{
 		err := stack.Install(ctx, progress, context)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to install stack: %w", err)
 		}
 	}
 
 	{
 		err := stack.Update(ctx, progress, start)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to update stack: %w", err)
 		}
 	}
 
@@ -56,7 +57,7 @@ func (barrel Barrel) LastRebuild(ctx context.Context) (t time.Time, err error) {
 		return t, nil
 	}
 	if err != nil {
-		return t, err
+		return t, fmt.Errorf("failed to set last rebuild: %w", err)
 	}
 
 	// and turn it into time!
@@ -64,7 +65,10 @@ func (barrel Barrel) LastRebuild(ctx context.Context) (t time.Time, err error) {
 }
 
 func (barrel *Barrel) setLastRebuild(ctx context.Context) error {
-	return lastRebuild.Set(ctx, barrel.dependencies.MStore, time.Now().Unix())
+	if err := lastRebuild.Set(ctx, barrel.dependencies.MStore, time.Now().Unix()); err != nil {
+		return fmt.Errorf("failed to set last rebuild: %w", err)
+	}
+	return nil
 }
 
 type LastRebuildFetcher struct {

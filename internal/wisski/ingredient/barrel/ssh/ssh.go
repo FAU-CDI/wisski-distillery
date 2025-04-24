@@ -3,6 +3,7 @@ package ssh
 //spellchecker:words context github wisski distillery internal status ingredient gliderlabs golang crypto gossh
 import (
 	"context"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
@@ -22,7 +23,7 @@ func (ssh *SSH) Keys(ctx context.Context) (keys []ssh.PublicKey, err error) {
 	liquid := ingredient.GetLiquid(ssh)
 	grants, err := liquid.Policy.Instance(ctx, liquid.Slug)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get instance: %w", err)
 	}
 
 	// iterate over enabled distillery admin users
@@ -32,7 +33,7 @@ func (ssh *SSH) Keys(ctx context.Context) (keys []ssh.PublicKey, err error) {
 		}
 		ukeys, err := liquid.Keys.Keys(ctx, grant.User)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to get the set of keys: %w", err)
 		}
 		for _, ukey := range ukeys {
 			if pk := ukey.PublicKey(); pk != nil {
@@ -54,7 +55,7 @@ func (ssh *SSH) AllKeys(ctx context.Context) (keys []ssh.PublicKey, err error) {
 
 	gkeys, err := ingredient.GetLiquid(ssh).Keys.Admin(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get the set of administrative keys: %w", err)
 	}
 
 	keys = append(keys, lkeys...)

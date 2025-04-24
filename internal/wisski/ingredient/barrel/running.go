@@ -4,6 +4,7 @@ package barrel
 //spellchecker:words context github wisski distillery internal status ingredient compose spec errdefs
 import (
 	"context"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
@@ -20,7 +21,7 @@ func (barrel *Barrel) Running(ctx context.Context) (bool, error) {
 			return false, nil
 		}
 
-		return false, err
+		return false, fmt.Errorf("failed to get barrel containers: %w", err)
 	}
 	return len(containers) > 0, nil
 }

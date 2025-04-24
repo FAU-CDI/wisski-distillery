@@ -36,7 +36,7 @@ func (ssh2 *SSH2) UseOrMakeHostKeys(progress io.Writer, ctx context.Context, ser
 	for _, algorithm := range algorithms {
 		path := privateKeyPath + "_" + string(algorithm)
 		if err := ssh2.UseOrMakeHostKey(progress, ctx, server, path, algorithm); err != nil {
-			return err
+			return fmt.Errorf("failed to use or make host key: %w", err)
 		}
 	}
 	return nil
@@ -51,7 +51,7 @@ func (ssh2 *SSH2) UseOrMakeHostKeys(progress io.Writer, ctx context.Context, ser
 func (ssh2 *SSH2) UseOrMakeHostKey(progress io.Writer, ctx context.Context, server *ssh.Server, privateKeyPath string, algorithm HostKeyAlgorithm) error {
 	key, err := ssh2.ReadOrMakeHostKey(progress, ctx, privateKeyPath, algorithm)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to read or make host key: %w", err)
 	}
 
 	// use the host key
@@ -76,14 +76,16 @@ func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, ctx context.Context, pri
 	}
 	err = ssh2.loadHostKey(progress, ctx, hostKey, privateKeyPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load host key: %w", err)
 	}
 	return hostKey, nil
 }
 
 // loadHostKey loadsa host key.
 func (ssh2 *SSH2) loadHostKey(progress io.Writer, _ context.Context, key HostKey, path string) (err error) {
-	fmt.Fprintf(progress, "Loading hostkey (algorithm %s) from %q\n", key.Algorithm(), path)
+	if _, err := fmt.Fprintf(progress, "Loading hostkey (algorithm %s) from %q\n", key.Algorithm(), path); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 
 	// read all the bytes from the file
 	privateKeyBytes, err := os.ReadFile(path) // #nosec G304 -- configured intentionally
@@ -104,12 +106,17 @@ func (ssh2 *SSH2) loadHostKey(progress io.Writer, _ context.Context, key HostKey
 		err = errors.New("pem.Decode() returned nil")
 		return
 	}
-	return key.UnmarshalPEM(privateKeyPEM)
+	if err := key.UnmarshalPEM(privateKeyPEM); err != nil {
+		return fmt.Errorf("failed to unmarshal private key: %w", err)
+	}
+	return nil
 }
 
 // makeHostKey makes a new host key.
-func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostKey, path string) error {
-	fmt.Fprintf(progress, "Writing hostkey (algorithm %s) to %q\n", key.Algorithm(), path)
+func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostKey, path string) (e error) {
+	if _, err := fmt.Fprintf(progress, "Writing hostkey (algorithm %s) to %q\n", key.Algorithm(), path); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 
 	if err := key.Generate(ctx, 0, nil); err != nil {
 		return fmt.Errorf("failed to generate key: %w", err)
@@ -125,8 +132,24 @@ func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostK
 	if err != nil {
 		return err
 	}
-	defer privateKeyFile.Close()
-	return pem.Encode(privateKeyFile, privateKeyPEM)
+	defer func() {
+		e2 := privateKeyFile.Close()
+		if e2 == nil {
+			return
+		}
+		e2 = fmt.Errorf("failed to close private key file: %w", e2)
+
+		if e == nil {
+			e = e2
+		} else {
+			e = errors.Join(e, e2)
+		}
+
+	}()
+	if err := pem.Encode(privateKeyFile, privateKeyPEM); err != nil {
+		return fmt.Errorf("failed to encode private key: %w", err)
+	}
+	return nil
 }
 
 // HostKey represents an pair of ssh private key and algorithm.
@@ -185,9 +208,7 @@ type ed25519HostKey struct {
 	pk *ed25519.PrivateKey
 }
 
-func init() {
-	var _ HostKey = (*ed25519HostKey)(nil)
-}
+var _ HostKey = (*ed25519HostKey)(nil)
 
 func (ek *ed25519HostKey) Algorithm() HostKeyAlgorithm {
 	return ED25519Algorithm
@@ -205,15 +226,18 @@ func (ek *ed25519HostKey) Generate(ctx context.Context, keySize int, random io.R
 
 	_, pr, err := ed25519.GenerateKey(random)
 	if err != nil {
-		return
+		return fmt.Errorf("failed to generate ed25519 key: %w", err)
 	}
 
 	// store the private key and setup the signer
 	ek.pk = &pr
 	ek.Signer, err = gossh.NewSignerFromKey(ek.pk)
+	if err != nil {
+		return fmt.Errorf("failed to create signer: %w", err)
+	}
 
 	// return
-	return
+	return nil
 }
 
 func (ek *ed25519HostKey) MarshalPEM() (block *pem.Block, err error) {
@@ -233,7 +257,10 @@ func (ek *ed25519HostKey) UnmarshalPEM(block *pem.Block) (err error) {
 	// store the private key and setup the signer
 	ek.pk = &pk
 	ek.Signer, err = gossh.NewSignerFromKey(ek.pk)
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to create signer: %w", err)
+	}
+	return nil
 }
 
 //
@@ -257,7 +284,7 @@ func (rk *rsaHostKey) Algorithm() HostKeyAlgorithm {
 }
 
 func (rk *rsaHostKey) Generate(ctx context.Context, keySize int, random io.Reader) (err error) {
-	if keySize == 0 {
+	if keySize <= 0 {
 		keySize = rk.defaultBitSize
 	}
 	if random == nil {
@@ -266,7 +293,7 @@ func (rk *rsaHostKey) Generate(ctx context.Context, keySize int, random io.Reade
 
 	rk.pk, err = rsa.GenerateKey(random, keySize)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to generate rsa key: %w", err)
 	}
 
 	// store the signer

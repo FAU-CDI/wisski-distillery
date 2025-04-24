@@ -58,15 +58,14 @@ func (manager *Manager) installModules(ctx context.Context, progress io.Writer, 
 		message = "Installing modules"
 	}
 
-	// enable the module
-	return logging.LogOperation(func() error {
+	if err := logging.LogOperation(func() error {
 		for _, spec := range modules {
 			if _, err := logging.LogMessage(progress, fmt.Sprintf("Installing %q", spec)); err != nil {
 				return fmt.Errorf("failed to log message: %w", err)
 			}
 			err := manager.dependencies.Composer.Install(ctx, progress, spec)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to install module %q: %w", spec, err)
 			}
 
 			if enable {
@@ -76,18 +75,21 @@ func (manager *Manager) installModules(ctx context.Context, progress io.Writer, 
 				}
 				err := manager.dependencies.Drush.Enable(ctx, progress, name)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to enable module %q: %w", name, err)
 				}
 			}
 		}
 		return nil
-	}, progress, "%s", message)
+	}, progress, "%s", message); err != nil {
+		return fmt.Errorf("failed to install modules: %w", err)
+	}
+	return nil
 }
 
 // applyDrupal applies a specific drupal version.
 // Assumes that drupal != "".
 func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, drupal string) (e error) {
-	return logging.LogOperation(func() error {
+	if err := logging.LogOperation(func() error {
 		if _, err := logging.LogMessage(progress, "Clearing up permissions for update"); err != nil {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
@@ -99,7 +101,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 			} {
 				err := manager.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
 				if err != nil {
-					return err
+					return fmt.Errorf("failed to change permissions before update: %w", err)
 				}
 			}
 		}
@@ -122,7 +124,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 					{"chmod", "644", "web/sites/default/*services.php"},
 				} {
 					if err := manager.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...); err != nil {
-						err = fmt.Errorf("failed to reset perms: %w", err)
+						err = fmt.Errorf("failed to reset permissions after update: %w", err)
 						if e == nil {
 							e = err
 						} else {
@@ -147,7 +149,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 			args = append(args, "--update-with-dependencies", "--no-update")
 
 			if err := manager.dependencies.Composer.Install(ctx, progress, args...); err != nil {
-				return err
+				return fmt.Errorf("failed to install drupal core: %w", err)
 			}
 		}
 
@@ -156,7 +158,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 		}
 		{
 			if err := manager.dependencies.Composer.Exec(ctx, progress, "update"); err != nil {
-				return err
+				return fmt.Errorf("failed to update: %w", err)
 			}
 		}
 
@@ -165,17 +167,20 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 		}
 		{
 			if err := manager.dependencies.Drush.Exec(ctx, progress, "updatedb", "--yes"); err != nil {
-				return err
+				return fmt.Errorf("failed to update database: %w", err)
 			}
 		}
 
 		return nil
-	}, progress, "%s", "Updating to Drupal %q", drupal)
+	}, progress, "%s", "Updating to Drupal %q", drupal); err != nil {
+		return fmt.Errorf("failed to update drupal: %w", err)
+	}
+	return nil
 }
 
 // applyWissKI applies the WissKI version.
 func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wisski string) error {
-	return logging.LogOperation(func() error {
+	if err := logging.LogOperation(func() error {
 		if _, err := logging.LogMessage(progress, "Installing WissKI Module"); err != nil {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
@@ -187,7 +192,7 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 
 			err := manager.dependencies.Composer.Install(ctx, progress, spec)
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to install WissKI: %w", err)
 			}
 		}
 
@@ -197,7 +202,7 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 		}
 		{
 			if err := manager.dependencies.Composer.ExecWissKI(ctx, progress, "install"); err != nil {
-				return err
+				return fmt.Errorf("failed to install wisski dependencies: %w", err)
 			}
 		}
 
@@ -208,11 +213,11 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 			if err := manager.dependencies.Drush.Enable(ctx, progress,
 				"wisski_core", "wisski_linkblock", "wisski_pathbuilder", "wisski_adapter_sparql11_pb", "wisski_salz",
 			); err != nil {
-				return err
+				return fmt.Errorf("failed to enable wisski modules: %w", err)
 			}
 
 			if err := manager.dependencies.Composer.FixPermission(ctx, progress); err != nil {
-				return err
+				return fmt.Errorf("failed to fix permissions: %w", err)
 			}
 		}
 
@@ -221,10 +226,13 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 		}
 		{
 			if err := manager.dependencies.Drush.Exec(ctx, progress, "updatedb", "--yes"); err != nil {
-				return err
+				return fmt.Errorf("failed to update database with drush: %w", err)
 			}
 		}
 
 		return nil
-	}, progress, "Installing WissKI version %q", wisski)
+	}, progress, "Installing WissKI version %q", wisski); err != nil {
+		return fmt.Errorf("failed to install drupal version: %w", err)
+	}
+	return nil
 }

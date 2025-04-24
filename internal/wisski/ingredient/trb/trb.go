@@ -32,7 +32,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	if _, err := trb.dependencies.Adapters.SetAdapter(ctx, nil, trb.dependencies.Adapters.DefaultAdapter()); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to setup triplestore adapter: %w", err)
 	}
 
 	// stop instance, restart when done
@@ -40,7 +40,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := trb.dependencies.Barrel.Stack().Down(ctx, out); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to shut down stack: %w", err)
 	}
 
 	defer func() {
@@ -71,7 +71,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 	}
 	dumpPath, _, err := trb.makeBackup(ctx, allowEmptyRepository)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to make backup: %w", err)
 	}
 	fmt.Printf("Wrote %q\n", dumpPath)
 
@@ -81,21 +81,21 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := liquid.TS.Purge(ctx, liquid.Instance, liquid.Domain()); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to purge triplestore data: %w", err)
 	}
 
 	if _, err := logging.LogMessage(out, "Provising triplestore"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := liquid.TS.Provision(ctx, liquid.Instance, liquid.Domain()); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to provision triplestore: %w", err)
 	}
 
 	if _, err := logging.LogMessage(out, "Restoring triplestore"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := trb.restoreBackup(ctx, dumpPath); err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to restore backup: %w", err)
 	}
 
 	if _, err := logging.LogMessage(out, "Deleting dump file"); err != nil {

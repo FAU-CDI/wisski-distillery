@@ -4,6 +4,7 @@ package bookkeeping
 //spellchecker:words context github wisski distillery internal ingredient
 import (
 	"context"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 )
@@ -18,16 +19,22 @@ func (bk *Bookkeeping) Save(ctx context.Context) error {
 	liquid := ingredient.GetLiquid(bk)
 	sdb, err := ingredient.GetLiquid(bk).SQL.QueryTable(ctx, liquid.InstanceTable)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to get bookkeeping data: %w", err)
 	}
 
 	// it has never been created => we need to create it in the database
 	if liquid.Created.IsZero() {
-		return sdb.Create(&liquid.Instance).Error
+		if err := sdb.Create(&liquid.Instance).Error; err != nil {
+			return fmt.Errorf("failed to create bookkeeping data: %w", err)
+		}
+		return nil
 	}
 
 	// Update based on the primary key!
-	return sdb.Select("*").Save(&liquid.Instance).Error
+	if err := sdb.Select("*").Save(&liquid.Instance).Error; err != nil {
+		return fmt.Errorf("failed to update bookkeeping data: %w", err)
+	}
+	return nil
 }
 
 // Delete deletes this instance from the bookkeeping table.
