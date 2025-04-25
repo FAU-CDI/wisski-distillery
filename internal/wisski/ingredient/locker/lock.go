@@ -4,11 +4,11 @@ package locker
 //spellchecker:words context time github wisski distillery internal models ingredient goprogram exit pkglib contextx
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/contextx"
 )
 
@@ -21,10 +21,7 @@ var (
 	_ ingredient.WissKIFetcher = (*Locker)(nil)
 )
 
-var ErrLocked = exit.Error{
-	Message:  "instance is locked for administrative operations",
-	ExitCode: exit.ExitGeneric,
-}
+var ErrLocked = errors.New("instance is locked for administrative operations")
 
 // TryLock attemps to lock this WissKI and returns if it suceeded.
 func (lock *Locker) TryLock(ctx context.Context) bool {

@@ -14,13 +14,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
-	"github.com/tkw1536/goprogram/exit"
 )
-
-var errCronFailed = exit.Error{
-	Message:  "failed to run cron script for instance %q: exited with code %d",
-	ExitCode: exit.ExitGeneric,
-}
 
 func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 	err := drush.Exec(ctx, progress, "core-cron")
@@ -30,8 +24,9 @@ func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 			return fmt.Errorf("drush.Exec returned unexpected error: %w", err)
 		}
 		code := ee.Code()
+
 		// keep going, because we want to run as many crons as possible
-		fmt.Fprintf(progress, "%v", errCronFailed.WithMessageF(ingredient.GetLiquid(drush).Slug, code))
+		fmt.Fprintf(progress, "failed to run cron script for instance %q: exited with code %d", ingredient.GetLiquid(drush).Slug, code)
 	}
 
 	return nil

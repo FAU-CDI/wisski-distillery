@@ -14,23 +14,10 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/exit"
 )
-
-var errBlindUpdateFailed = exit.Error{
-	Message:  "failed to run blind update script",
-	ExitCode: exit.ExitGeneric,
-}
 
 // Update performs a blind drush update.
 func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err error) {
-	defer func() {
-		if err == nil {
-			return
-		}
-		err = fmt.Errorf("%w for instance %q: %w", errBlindUpdateFailed, ingredient.GetLiquid(composer).Slug, err)
-	}()
-
 	if err := composer.FixPermission(ctx, progress); err != nil {
 		return fmt.Errorf("failed to fix permissions: %w", err)
 	}

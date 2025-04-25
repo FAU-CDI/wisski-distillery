@@ -15,13 +15,9 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
-	"github.com/tkw1536/goprogram/exit"
 )
 
-var errTripleStoreFailedRepository = exit.Error{
-	Message:  "failed to create repository: %s",
-	ExitCode: exit.ExitGeneric,
-}
+var errWrongEndpointStatusCode = fmt.Errorf("endpoint request did not return status code %d", http.StatusCreated)
 
 //go:embed create-repo.tpl
 var createRepoTpl string
@@ -68,11 +64,11 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 	{
 		res, err := ts.DoRestWithForm(ctx, tsTrivialTimeout, http.MethodPost, "/rest/repositories", nil, "config", &createRepo)
 		if err != nil {
-			return errTripleStoreFailedRepository.WithMessageF(err)
+			return fmt.Errorf("repository create endpoint failed: %w", err)
 		}
 		defer errwrap.Close(res.Body, "response body", &e)
 		if res.StatusCode != http.StatusCreated {
-			return errTripleStoreFailedRepository.WithMessageF("repo create did not return status code 201")
+			return fmt.Errorf("failed to create repository: %w", errWrongEndpointStatusCode)
 		}
 	}
 
@@ -94,12 +90,12 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 			},
 		})
 		if err != nil {
-			return errTripleStoreFailedRepository.WithMessageF(err)
+			return fmt.Errorf("user create endpoint failed: %w", err)
 		}
 		defer errwrap.Close(res.Body, "response body", &e)
 
 		if res.StatusCode != http.StatusCreated {
-			return errTripleStoreFailedRepository.WithMessageF("user create did not return status code 201")
+			return fmt.Errorf("failed to create user: %w", errWrongEndpointStatusCode)
 		}
 	}
 

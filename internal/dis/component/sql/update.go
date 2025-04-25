@@ -11,7 +11,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/sqlx"
 	"github.com/tkw1536/pkglib/stream"
 	"github.com/tkw1536/pkglib/timex"
@@ -63,12 +62,10 @@ func (sql *SQL) unsafeQueryShell(ctx context.Context, query string) bool {
 	return code == 0
 }
 
-var errSQLUnableToCreateUser = errors.New("unable to create administrative user")
-var errSQLUnsafeDatabaseName = errors.New("distillery database has an unsafe name")
-var errSQLUnableToMigrate = exit.Error{
-	Message:  "unable to migrate %s table: %s",
-	ExitCode: exit.ExitGeneric,
-}
+var (
+	errSQLUnableToCreateUser = errors.New("unable to create administrative user")
+	errSQLUnsafeDatabaseName = errors.New("distillery database has an unsafe name")
+)
 
 // Update initializes or updates the SQL database.
 func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
@@ -123,13 +120,13 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 			}
 			db, err := sql.queryTable(ctx, false, info.Name)
 			if err != nil {
-				return errSQLUnableToMigrate.WithMessageF(table.Name, "unable to access table")
+				return fmt.Errorf("failed to access table %q for migration: %w", table.Name(), err)
 			}
 
 			tp := reflect.New(info.Model).Interface()
 
 			if err := db.AutoMigrate(tp); err != nil {
-				return errSQLUnableToMigrate.WithMessageF(table.Name, err)
+				return fmt.Errorf("failed auto migration for table %q: %w", table.Name(), err)
 			}
 		}
 		return nil

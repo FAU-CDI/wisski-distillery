@@ -13,7 +13,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/exit"
 )
 
 // Purger purges instances from the distillery.
@@ -23,15 +22,6 @@ type Purger struct {
 		Instances     *instances.Instances
 		Provisionable []component.Provisionable
 	}
-}
-
-var errPurgeNoDetails = exit.Error{
-	Message:  "unable to find instance details for purge: %s",
-	ExitCode: exit.ExitGeneric,
-}
-var errPurgeGeneric = exit.Error{
-	Message:  "unable to purge instance %q: %s",
-	ExitCode: exit.ExitGeneric,
 }
 
 // Purge permanently purges an instance from the distillery.
@@ -46,7 +36,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 		instance, err = purger.dependencies.Instances.Create(slug, models.System{})
 	}
 	if err != nil {
-		return errPurgeNoDetails.WithMessageF(err)
+		return fmt.Errorf("unable to find instance details for purge: %w", err)
 	}
 
 	// remove docker stack
@@ -80,7 +70,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 
 		return nil
 	}, out, "Purging instance-specific resources"); err != nil {
-		return errPurgeGeneric.WithMessageF(slug, err)
+		return fmt.Errorf("unable to purge instance %q: %w", slug, err)
 	}
 
 	// remove from bookkeeping

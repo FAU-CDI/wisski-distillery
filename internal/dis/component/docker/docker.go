@@ -18,7 +18,7 @@ type Docker struct {
 	component.Base
 }
 
-// DockerClient is a client to the docker api.
+// DockerClient is a client to the docker api
 // TODO: Make this private
 type DockerClient = *client.Client
 

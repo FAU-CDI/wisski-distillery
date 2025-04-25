@@ -5,18 +5,15 @@ package instances
 import (
 	"context"
 	"embed"
+	"errors"
 	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
-	"github.com/tkw1536/goprogram/exit"
 )
 
-var errBootstrapFailedRuntime = exit.Error{
-	Message:  "failed to update runtime",
-	ExitCode: exit.ExitGeneric,
-}
+var errBootstrapFailedRuntime = errors.New("failed to update runtime")
 
 // Runtime contains runtime resources to be installed into any instance
 //

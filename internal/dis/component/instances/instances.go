@@ -14,7 +14,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/tkw1536/goprogram/exit"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -36,11 +35,6 @@ func (instances *Instances) Path() string {
 
 // ErrWissKINotFound is returned when a WissKI is not found.
 var ErrWissKINotFound = errors.New("WissKI not found")
-
-var errSQL = exit.Error{
-	Message:  "unknown SQL error %s",
-	ExitCode: exit.ExitGeneric,
-}
 
 // use uses the non-nil wisski instance with this instances.
 func (instances *Instances) use(wisski *wisski.WissKI) {
@@ -71,7 +65,7 @@ func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wi
 	query := table.Find(&wissKI.Instance, &models.Instance{Slug: slug})
 	switch {
 	case query.Error != nil:
-		return nil, errSQL.WithMessageF(query.Error)
+		return nil, fmt.Errorf("failed to find instance: %w", query.Error)
 	case query.RowsAffected == 0:
 		return nil, ErrWissKINotFound
 	}
@@ -106,7 +100,7 @@ func (instances *Instances) Has(ctx context.Context, slug string) (ok bool, err 
 
 	query := table.Select("count(*) > 0").Where("slug = ?", slug).Find(&ok)
 	if query.Error != nil {
-		return false, errSQL.WithMessageF(query.Error)
+		return false, fmt.Errorf("failed to count instances: %w", query.Error)
 	}
 	return
 }
@@ -162,7 +156,7 @@ func (instances *Instances) find(ctx context.Context, order bool, query func(tab
 	var bks []models.Instance
 	find = find.Find(&bks)
 	if find.Error != nil {
-		return nil, errSQL.WithMessageF(find.Error)
+		return nil, fmt.Errorf("failed to find instances: %w", find.Error)
 	}
 
 	// make proper instances
