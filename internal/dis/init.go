@@ -2,6 +2,7 @@ package dis
 
 //spellchecker:words github wisski distillery internal config component goprogram exit pkglib
 import (
+	"fmt"
 	"os"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
@@ -19,7 +20,7 @@ var errNoConfigFile = exit.Error{
 
 var errOpenConfig = exit.Error{
 	ExitCode: exit.ExitGeneralArguments,
-	Message:  "error loading configuration file: %q",
+	Message:  "error loading configuration file",
 }
 
 // An error to be returned when cgo is enabled unexpectedly.
@@ -71,7 +72,7 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	// open the config file!
 	f, err := os.Open(params.ConfigPath)
 	if err != nil {
-		return nil, errOpenConfig.WithMessageF(err)
+		return nil, fmt.Errorf("%w: %w", errOpenConfig, err)
 	}
 	defer errwrap.Close(f, "config file", &e)
 
