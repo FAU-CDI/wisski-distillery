@@ -726,8 +726,8 @@ github.com/tkw1536/gogenlicense v1.3.0 h1:TvwtdbkKOErJoKc7K8URzUiObjauuX9+Bwm7ul
 github.com/tkw1536/gogenlicense v1.3.0/go.mod h1:E2Pb8zfvNpOPHOf2CYmMr4MbvQFoDjUEtlXZNbTixvY=
 github.com/tkw1536/goprogram v0.8.4 h1:B9GPpn2qaemklz+i1ICtIYHh4dopy6D88uO8zf8MV4M=
 github.com/tkw1536/goprogram v0.8.4/go.mod h1:v0j3Da8lbNq93PfXGMHnHnAG+8L1JBOdTy4txXjE5C4=
-github.com/tkw1536/pkglib v0.0.0-20250415153013-42f5cb7cb7da h1:1BJ944CeWyQhuMEFw8tCr+O5FMRXmYJYsyuXfNFSifc=
-github.com/tkw1536/pkglib v0.0.0-20250415153013-42f5cb7cb7da/go.mod h1:M66z46BT3CB7/MB1XVWLpN59SlkVp4Q0IEOXDG1ey8M=
+github.com/tkw1536/pkglib v0.0.0-20250425055220-d3648c4a8886 h1:kWOcGlT3gD9M3f9bboQaHquAerOzuThLE3MvG3gHsA8=
+github.com/tkw1536/pkglib v0.0.0-20250425055220-d3648c4a8886/go.mod h1:M66z46BT3CB7/MB1XVWLpN59SlkVp4Q0IEOXDG1ey8M=
 github.com/tomarrell/wrapcheck/v2 v2.10.0 h1:SzRCryzy4IrAH7bVGG4cK40tNUhmVmMDuJujy4XwYDg=
 github.com/tomarrell/wrapcheck/v2 v2.10.0/go.mod h1:g9vNIyhb5/9TQgumxQyOEqDHsmGYcGsVMOx/xGkqdMo=
 github.com/tommy-muehle/go-mnd/v2 v2.5.1 h1:NowYhSdyE/1zwK9QCLeRb6USWdoif80Ie+v+yU8u1Zw=
