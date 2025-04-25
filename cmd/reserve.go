@@ -8,7 +8,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/fsx"
@@ -46,8 +45,13 @@ var errReserveGeneric = exit.Error{
 }
 
 func (r reserve) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errReserveGeneric, &err)
+	if err := r.run(context); err != nil {
+		return fmt.Errorf("%w: %w", errReserveGeneric, err)
+	}
+	return nil
+}
 
+func (r reserve) run(context wisski_distillery.Context) (err error) {
 	dis := context.Environment
 	slug := r.Positionals.Slug
 

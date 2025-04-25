@@ -8,7 +8,6 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/status"
@@ -32,18 +31,16 @@ func (updateprefixconfig) Description() wisski_distillery.Description {
 }
 
 var errPrefixUpdateFailed = exit.Error{
-	Message:  "failed to update the prefix configuration",
+	Message:  "failed to update prefix configuration",
 	ExitCode: exit.ExitGeneric,
 }
 
 func (upc updateprefixconfig) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errPrefixUpdateFailed, &err)
-
 	dis := context.Environment
 
 	wissKIs, err := dis.Instances().All(context.Context)
 	if err != nil {
-		return fmt.Errorf("failed to get all instances: %w", err)
+		return fmt.Errorf("%w: failed to get all instances: %w", errPrefixUpdateFailed, err)
 	}
 
 	if err := status.WriterGroup(context.Stderr, upc.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
@@ -54,7 +51,7 @@ func (upc updateprefixconfig) Run(context wisski_distillery.Context) (err error)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("update_prefix %q", item.Slug)
 	})); err != nil {
-		return fmt.Errorf("failed to update prefixes: %w", err)
+		return fmt.Errorf("%w: failed to update prefixes: %w", errPrefixUpdateFailed, err)
 	}
 	return nil
 }

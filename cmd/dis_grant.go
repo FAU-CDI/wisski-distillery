@@ -8,7 +8,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -73,17 +72,19 @@ var errFailedGrant = exit.Error{
 }
 
 func (dg disGrant) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errFailedGrant, &err)
-
 	switch {
 	case dg.AddUser:
-		return dg.runAddUser(context)
+		err = dg.runAddUser(context)
 	case dg.AddAll:
-		return dg.runAddAll(context)
+		err = dg.runAddAll(context)
 	case dg.RemoveUser:
-		return dg.runRemoveUser(context)
+		err = dg.runRemoveUser(context)
 	}
-	panic("never reached")
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errFailedGrant, err)
+	}
+	return nil
 }
 
 func (dg disGrant) checkHasSlug(context wisski_distillery.Context) error {

@@ -82,24 +82,28 @@ var errDrupalUserActionFailed = exit.Error{
 }
 
 func (du drupalUser) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errDrupalUserActionFailed, &err)
-
 	instance, err := context.Environment.Instances().WissKI(context.Context, du.Positionals.Slug)
 	if err != nil {
-		return fmt.Errorf("failed to get WissKI: %w", err)
+		return fmt.Errorf("%w: failed to get WissKI: %w", errDrupalUserActionFailed, err)
 	}
 
 	switch {
 	case du.CheckCommonPasswords:
-		return du.checkCommonPassword(context, instance)
+		err = du.checkCommonPassword(context, instance)
 	case du.CheckPasswdInteractive:
-		return du.checkPasswordInteractive(context, instance)
+		err = du.checkPasswordInteractive(context, instance)
 	case du.ResetPasswd:
-		return du.resetPassword(context, instance)
+		err = du.resetPassword(context, instance)
 	case du.Login:
-		return du.login(context, instance)
+		err = du.login(context, instance)
+	default:
+		panic("never reached")
 	}
-	panic("never reached")
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errDrupalUserActionFailed, err)
+	}
+	return nil
 }
 
 func (du drupalUser) login(context wisski_distillery.Context, instance *wisski.WissKI) error {

@@ -7,7 +7,6 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 )
 
@@ -88,44 +87,56 @@ var errDisUserActionFailed = exit.Error{
 }
 
 func (du disUser) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errDisUserActionFailed, &err)
+	var userAction func(wisski_distillery.Context, *auth.AuthUser) error
+	var genericAction func(wisski_distillery.Context) error
 
-	var action func(wisski_distillery.Context, *auth.AuthUser) error
 	switch {
 	case du.ListUsers:
-		return du.runListUsers(context)
+		genericAction = du.runListUsers
 	case du.CreateUser:
-		return du.runCreate(context)
+		genericAction = du.runCreate
 
 	case du.InfoUser:
-		action = du.runInfo
+		userAction = du.runInfo
 	case du.DeleteUser:
-		action = du.runDelete
+		userAction = du.runDelete
 	case du.SetPassword:
-		action = du.runSetPassword
+		userAction = du.runSetPassword
 	case du.UnsetPassword:
-		action = du.runUnsetPassword
+		userAction = du.runUnsetPassword
 	case du.CheckPassword:
-		action = du.runCheckPassword
+		userAction = du.runCheckPassword
 
 	case du.EnableTOTP:
-		action = du.runEnableTOTP
+		userAction = du.runEnableTOTP
 	case du.DisableTOTP:
-		action = du.runDisableTOTP
+		userAction = du.runDisableTOTP
 	case du.MakeAdmin:
-		action = du.runMakeAdmin
+		userAction = du.runMakeAdmin
 	case du.RemoveAdmin:
-		action = du.runRemoveAdmin
-	default:
-		panic("never reached")
+		userAction = du.runRemoveAdmin
 	}
 
-	user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
-	if err != nil {
-		return fmt.Errorf("failed to get user: %w", err)
+	switch {
+	case genericAction != nil:
+		if err := genericAction(context); err != nil {
+			return fmt.Errorf("%w: %w", errDisUserActionFailed, err)
+		}
+		return nil
+
+	case userAction != nil:
+		user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
+		if err != nil {
+			return fmt.Errorf("%w: failed to get user: %w", errDisUserActionFailed, err)
+		}
+
+		if err := userAction(context, user); err != nil {
+			return fmt.Errorf("%w: %w", errDisUserActionFailed, err)
+		}
+		return nil
 	}
 
-	return action(context, user)
+	panic("never reached")
 }
 
 func (du disUser) runInfo(context wisski_distillery.Context, user *auth.AuthUser) error {

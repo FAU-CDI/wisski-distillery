@@ -7,7 +7,6 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/collection"
 )
@@ -38,8 +37,13 @@ var errInfoFailed = exit.Error{
 }
 
 func (i info) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errInfoFailed, &err)
+	if err := i.run(context); err != nil {
+		return fmt.Errorf("%w: %w", errInfoFailed, err)
+	}
+	return nil
+}
 
+func (i info) run(context wisski_distillery.Context) (err error) {
 	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("failed to get instance: %w", err)

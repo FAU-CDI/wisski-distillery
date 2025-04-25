@@ -9,7 +9,6 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
@@ -86,8 +85,13 @@ var errSystemUpdateGeneric = exit.Error{
 }
 
 func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errSystemUpdateGeneric, &err)
+	if err := si.run(context); err != nil {
+		return fmt.Errorf("%w: %w", errSystemUpdateGeneric, err)
+	}
+	return nil
+}
 
+func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 	dis := context.Environment
 
 	// create all the other directories

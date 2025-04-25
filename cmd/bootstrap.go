@@ -117,12 +117,12 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 		}
 		exe, err := os.Executable()
 		if err != nil {
-			return errBoostrapFailedToCopyExe.WithMessageF(err) //nolint:wrapcheck
+			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
 
 		err = umaskfree.CopyFile(context.Context, wdcliPath, exe)
 		if err != nil && !errors.Is(err, umaskfree.ErrCopySameFile) {
-			return errBoostrapFailedToCopyExe.WithMessageF(err) //nolint:wrapcheck
+			return errBoostrapFailedToCopyExe.WithMessageF(err)
 		}
 		context.Println(wdcliPath)
 	}

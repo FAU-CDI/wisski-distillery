@@ -9,7 +9,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/status"
 )
@@ -63,14 +62,12 @@ var errRebuildFailed = exit.Error{
 }
 
 func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errRebuildFailed, &err)
-
 	dis := context.Environment
 
 	// find the instances
 	wissKIs, err := dis.Instances().Load(context.Context, rb.Positionals.Slug...)
 	if err != nil {
-		return fmt.Errorf("failed to get instances: %w", err)
+		return fmt.Errorf("%w: failed to get instances: %w", errRebuildFailed, err)
 	}
 
 	// and do the actual rebuild
@@ -89,7 +86,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)
 	})); err != nil {
-		return fmt.Errorf("failed to rebuild systems: %w", err)
+		return fmt.Errorf("%w: failed to rebuild systems: %w", errRebuildFailed, err)
 	}
 	return nil
 }

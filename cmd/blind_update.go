@@ -8,7 +8,6 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/status"
@@ -41,8 +40,6 @@ var errBlindUpdateFailed = exit.Error{
 }
 
 func (bu blindUpdate) Run(context wisski_distillery.Context) (err error) {
-	defer errwrap.DeferWrap(errBlindUpdateFailed, &err)
-
 	// find all the instances!
 	wissKIs, err := context.Environment.Instances().Load(context.Context, bu.Positionals.Slug...)
 	if err != nil {
@@ -60,7 +57,7 @@ func (bu blindUpdate) Run(context wisski_distillery.Context) (err error) {
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("blind_update %q", item.Slug)
 	})); err != nil {
-		return fmt.Errorf("failed to blind_update: %w", err)
+		return fmt.Errorf("%w: failed to blind_update: %w", errBlindUpdateFailed, err)
 	}
 	return nil
 }
