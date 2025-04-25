@@ -12,6 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
+	"github.com/docker/docker/client"
 )
 
 // Containers loads the compose project at path, connects to the docker daemon, and then lists all containers belonging to the given services.
@@ -22,7 +23,7 @@ func (docker *Docker) Containers(ctx context.Context, path string, services ...s
 		return nil, fmt.Errorf("failed to open compose file: %w", err)
 	}
 
-	client, err := docker.APIClient()
+	client, err := docker.apiClient()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create docker client: %w", err)
 	}
@@ -43,7 +44,7 @@ const (
 //
 // services optionally filters the returned containers by the services they belong to.
 // If services is empty, all containers are returned, else containers belonging to any of the services included.
-func (*Docker) containers(ctx context.Context, project compose.Project, client DockerClient, all bool, services ...string) ([]container.Summary, error) {
+func (*Docker) containers(ctx context.Context, project compose.Project, client *client.Client, all bool, services ...string) ([]container.Summary, error) {
 	// build filters
 	f := filters.NewArgs(
 		filters.Arg("label", projectLabel+"="+project.Name),

@@ -18,13 +18,9 @@ type Docker struct {
 	component.Base
 }
 
-// DockerClient is a client to the docker api
-// TODO: Make this private
-type DockerClient = *client.Client
-
-// APIClient creates a new docker api client.
+// apiClient creates a new docker api client.
 // The caller must close the client.
-func (docker *Docker) APIClient() (DockerClient, error) {
+func (docker *Docker) apiClient() (*client.Client, error) {
 	// TODO: make this function private?
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
@@ -35,7 +31,7 @@ func (docker *Docker) APIClient() (DockerClient, error) {
 
 // Ping pings the docker daemon to check if it is properly working.
 func (docker *Docker) Ping(ctx context.Context) (p types.Ping, e error) {
-	client, err := docker.APIClient()
+	client, err := docker.apiClient()
 	if err != nil {
 		return types.Ping{}, fmt.Errorf("failed to create docker client: %w", err)
 	}
@@ -54,7 +50,7 @@ func (docker *Docker) Ping(ctx context.Context) (p types.Ping, e error) {
 // exists indicates if the network already exists.
 func (docker *Docker) CreateNetwork(ctx context.Context, name string) (id string, exists bool, e error) {
 	// create a new docker client
-	client, err := docker.APIClient()
+	client, err := docker.apiClient()
 	if err != nil {
 		return "", false, fmt.Errorf("failed to create docker client: %w", err)
 	}
