@@ -90,7 +90,7 @@ var (
 				"drupal/geofield:^1.64",
 				"drupal/geofield_map:^11.0",
 				"drupal/imce:^3.1",
-				//	"drupal/remove_generator:^2.0",
+				"drupal/remove_generator:^2.1",
 			},
 		},
 	}
