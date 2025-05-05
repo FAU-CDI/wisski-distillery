@@ -36,15 +36,10 @@ func (snapshot) Description() wisski_distillery.Description {
 	}
 }
 
-var errSnapshotFailed = exit.Error{
-	Message:  "failed to make a snapshot",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errSnapshotWissKI = exit.Error{
-	Message:  "unable to find WissKI",
-	ExitCode: exit.ExitGeneric,
-}
+var (
+	errSnapshotFailed = exit.NewErrorWithCode("failed to make a snapshot", exit.ExitGeneric)
+	errSnapshotWissKI = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)
+)
 
 func (sn snapshot) Run(context wisski_distillery.Context) error {
 	dis := context.Environment

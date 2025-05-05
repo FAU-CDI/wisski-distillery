@@ -14,9 +14,9 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/pquerna/otp v1.4.0
-	github.com/tkw1536/goprogram v0.8.4
-	github.com/tkw1536/pkglib v0.0.0-20250425055220-d3648c4a8886
-	github.com/yuin/goldmark v1.7.10
+	github.com/tkw1536/goprogram v0.9.2
+	github.com/tkw1536/pkglib v0.0.0-20250427111619-8c7bdd279fea
+	github.com/yuin/goldmark v1.7.11
 	github.com/yuin/goldmark-meta v1.1.0
 	golang.org/x/crypto v0.37.0
 	golang.org/x/net v0.39.0
@@ -24,7 +24,7 @@ require (
 	golang.org/x/term v0.31.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.5.7
-	gorm.io/gorm v1.25.12
+	gorm.io/gorm v1.26.0
 )
 
 require (

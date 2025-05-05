@@ -28,15 +28,10 @@ func (s ssh) Description() wisski_distillery.Description {
 	}
 }
 
-var errSSHServer = exit.Error{
-	ExitCode: exit.ExitGeneric,
-	Message:  "unable to listen server",
-}
-
-var errSSHListen = exit.Error{
-	ExitCode: exit.ExitGeneric,
-	Message:  "unable to listen",
-}
+var (
+	errSSHServer = exit.NewErrorWithCode("unable to listen server", exit.ExitGeneric)
+	errSSHListen = exit.NewErrorWithCode("unable to listen", exit.ExitGeneric)
+)
 
 func (s ssh) Run(context wisski_distillery.Context) error {
 	dis := context.Environment

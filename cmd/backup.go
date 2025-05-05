@@ -35,10 +35,7 @@ func (backup) Description() wisski_distillery.Description {
 	}
 }
 
-var errBackupFailed = exit.Error{
-	Message:  "failed to make a backup",
-	ExitCode: exit.ExitGeneric,
-}
+var errBackupFailed = exit.NewErrorWithCode("failed to make a backup", exit.ExitGeneric)
 
 func (bk backup) Run(context wisski_distillery.Context) error {
 	dis := context.Environment

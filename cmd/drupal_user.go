@@ -38,15 +38,10 @@ func (drupalUser) Description() wisski_distillery.Description {
 	}
 }
 
-var errNoActionSelected = exit.Error{
-	Message:  "exactly one action must be selected",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errUserParameter = exit.Error{
-	Message:  "incorrect username parameter",
-	ExitCode: exit.ExitGeneric,
-}
+var (
+	errNoActionSelected = exit.NewErrorWithCode("exactly one action must be selected", exit.ExitGeneric)
+	errUserParameter    = exit.NewErrorWithCode("incorrect username parameter", exit.ExitGeneric)
+)
 
 func (du drupalUser) AfterParse() error {
 	var count int
@@ -71,15 +66,10 @@ func (du drupalUser) AfterParse() error {
 	return nil
 }
 
-var errPasswordsNotIdentical = exit.Error{
-	Message:  "passwords are not identical",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errDrupalUserActionFailed = exit.Error{
-	Message:  "action failed",
-	ExitCode: exit.ExitGeneric,
-}
+var (
+	errPasswordsNotIdentical  = exit.NewErrorWithCode("passwords are not identical", exit.ExitGeneric)
+	errDrupalUserActionFailed = exit.NewErrorWithCode("action failed", exit.ExitGeneric)
+)
 
 func (du drupalUser) Run(context wisski_distillery.Context) (err error) {
 	instance, err := context.Environment.Instances().WissKI(context.Context, du.Positionals.Slug)

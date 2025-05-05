@@ -37,7 +37,7 @@ func (monday monday) AfterParse() error {
 		return fmt.Errorf("failed to check for regular file: %w", err)
 	}
 	if !isFile {
-		return errNoGraphDBZip.WithMessageF(monday.Positionals.GraphdbZip)
+		return fmt.Errorf("%q: %w", monday.Positionals.GraphdbZip, errNoGraphDBZip)
 	}
 	return nil
 }

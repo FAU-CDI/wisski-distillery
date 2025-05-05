@@ -35,10 +35,7 @@ func (shell) Description() wisski_distillery.Description {
 	}
 }
 
-var errShellWissKI = exit.Error{
-	Message:  "unable to find WissKI",
-	ExitCode: exit.ExitGeneric,
-}
+var errShellWissKI = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)
 
 func (sh shell) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, sh.Positionals.Slug)
@@ -55,10 +52,7 @@ func (sh shell) Run(context wisski_distillery.Context) error {
 			}
 			code := ee.Code()
 
-			return exit.Error{
-				ExitCode: code,
-				Message:  fmt.Sprintf("Exit code %d", code),
-			}
+			return exit.NewErrorWithCode(fmt.Sprintf("exit code %d", code), code)
 		}
 	}
 

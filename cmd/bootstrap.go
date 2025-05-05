@@ -38,40 +38,15 @@ func (cBootstrap) Description() wisski_distillery.Description {
 	}
 }
 
-var errBootstrapDifferent = exit.Error{
-	Message:  "refusing to bootstrap: base directory is already set to %s",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBootstrapFailedToCreateDirectory = exit.Error{
-	Message:  "failed to create directory %s",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBootstrapFailedToSaveDirectory = exit.Error{
-	Message:  "failed to register base directory: %s",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBoostrapFailedToCopyExe = exit.Error{
-	Message:  "failed to copy wdcli executable: %s",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBootstrapWriteConfig = exit.Error{
-	Message:  "failed to write configuration file",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBootstrapOpenConfig = exit.Error{
-	Message:  "failed to open configuration file",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBootstrapCreateFile = exit.Error{
-	Message:  "failed to touch configuration file",
-	ExitCode: exit.ExitGeneric,
-}
+var (
+	errBootstrapDifferent               = exit.NewErrorWithCode("refusing to bootstrap: base directory is already set to", exit.ExitGeneric)
+	errBootstrapFailedToCreateDirectory = exit.NewErrorWithCode("failed to create directory", exit.ExitGeneric)
+	errBootstrapFailedToSaveDirectory   = exit.NewErrorWithCode("failed to register base directory", exit.ExitGeneric)
+	errBoostrapFailedToCopyExe          = exit.NewErrorWithCode("failed to copy wdcli executable", exit.ExitGeneric)
+	errBootstrapWriteConfig             = exit.NewErrorWithCode("failed to write configuration file", exit.ExitGeneric)
+	errBootstrapOpenConfig              = exit.NewErrorWithCode("failed to open configuration file", exit.ExitGeneric)
+	errBootstrapCreateFile              = exit.NewErrorWithCode("failed to touch configuration file", exit.ExitGeneric)
+)
 
 func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	root := bs.Directory
@@ -80,7 +55,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	{
 		got, err := cli.ReadBaseDirectory()
 		if err == nil && got != "" && got != root {
-			return errBootstrapDifferent.WithMessageF(got)
+			return fmt.Errorf("%w %q", errBootstrapDifferent, got)
 		}
 	}
 
@@ -89,10 +64,10 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 		if err := umaskfree.MkdirAll(root, umaskfree.DefaultDirPerm); err != nil {
-			return fmt.Errorf("%w: %w", errBootstrapFailedToCreateDirectory.WithMessageF(root), err)
+			return fmt.Errorf("%q: %w: %w", root, errBootstrapFailedToCreateDirectory, err)
 		}
 		if err := cli.WriteBaseDirectory(root); err != nil {
-			return fmt.Errorf("%w: %w", errBootstrapFailedToSaveDirectory.WithMessageF(root), err)
+			return fmt.Errorf("%q: %w: %w", root, errBootstrapFailedToSaveDirectory, err)
 		}
 		context.Println(root)
 	}
@@ -117,12 +92,12 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 		}
 		exe, err := os.Executable()
 		if err != nil {
-			return errBoostrapFailedToCopyExe.WithMessageF(err)
+			return fmt.Errorf("%w: %w", errBoostrapFailedToCopyExe, err)
 		}
 
 		err = umaskfree.CopyFile(context.Context, wdcliPath, exe)
 		if err != nil && !errors.Is(err, umaskfree.ErrCopySameFile) {
-			return errBoostrapFailedToCopyExe.WithMessageF(err)
+			return fmt.Errorf("%w: %w", errBoostrapFailedToCopyExe, err)
 		}
 		context.Println(wdcliPath)
 	}

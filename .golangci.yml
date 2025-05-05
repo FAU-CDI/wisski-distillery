@@ -3,6 +3,11 @@ issues:
   max-issues-per-linter: 0
 linters:
   default: standard
+  settings:
+    wrapcheck:
+      ignore-package-globs:
+        - github.com/tkw1536/pkglib/errorsx
+        - github.com/tkw1536/goprogram/exit
   enable:
     - bidichk
     - bodyclose

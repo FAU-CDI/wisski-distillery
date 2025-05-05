@@ -26,10 +26,7 @@ func (c cfg) Description() wisski_distillery.Description {
 	}
 }
 
-var errMarshalConfig = exit.Error{
-	Message:  "unable to marshal config",
-	ExitCode: exit.ExitGeneric,
-}
+var errMarshalConfig = exit.NewErrorWithCode("unable to marshal config", exit.ExitGeneric)
 
 func (cfg cfg) Run(context wisski_distillery.Context) error {
 	if cfg.Human {

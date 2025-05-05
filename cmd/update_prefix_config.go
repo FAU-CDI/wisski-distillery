@@ -30,10 +30,7 @@ func (updateprefixconfig) Description() wisski_distillery.Description {
 	}
 }
 
-var errPrefixUpdateFailed = exit.Error{
-	Message:  "failed to update prefix configuration",
-	ExitCode: exit.ExitGeneric,
-}
+var errPrefixUpdateFailed = exit.NewErrorWithCode("failed to update prefix configuration", exit.ExitGeneric)
 
 func (upc updateprefixconfig) Run(context wisski_distillery.Context) (err error) {
 	dis := context.Environment

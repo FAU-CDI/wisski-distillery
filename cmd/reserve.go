@@ -34,15 +34,10 @@ func (reserve) Description() wisski_distillery.Description {
 
 // TODO: AfterParse to check instance!
 
-var errReserveAlreadyExists = exit.Error{
-	Message:  "instance %q already exists",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errReserveGeneric = exit.Error{
-	Message:  "unable to provision instance",
-	ExitCode: exit.ExitGeneric,
-}
+var (
+	errReserveAlreadyExists = exit.NewErrorWithCode("instance already exists", exit.ExitGeneric)
+	errReserveGeneric       = exit.NewErrorWithCode("unable to provision instance", exit.ExitGeneric)
+)
 
 func (r reserve) Run(context wisski_distillery.Context) (err error) {
 	if err := r.run(context); err != nil {
@@ -60,13 +55,13 @@ func (r reserve) run(context wisski_distillery.Context) (err error) {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	if exists, err := dis.Instances().Has(context.Context, slug); err != nil || exists {
-		return errReserveAlreadyExists.WithMessageF(slug)
+		return fmt.Errorf("%q: %w: ", slug, errReserveAlreadyExists)
 	}
 
 	// make it in-memory
 	instance, err := dis.Instances().Create(slug, models.System{})
 	if err != nil {
-		return errProvisionGeneric.WithMessageF(slug, err)
+		return fmt.Errorf("%w: %w", errProvisionGeneric, err)
 	}
 
 	// check that the base directory does not exist
@@ -79,7 +74,7 @@ func (r reserve) run(context wisski_distillery.Context) (err error) {
 			return fmt.Errorf("%w: %w", errProvisionGeneric, err)
 		}
 		if exists {
-			return errReserveAlreadyExists.WithMessageF(slug)
+			return fmt.Errorf("%q: %w", slug, errReserveAlreadyExists)
 		}
 	}
 

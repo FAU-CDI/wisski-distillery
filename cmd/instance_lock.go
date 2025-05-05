@@ -31,11 +31,6 @@ func (instanceLock) Description() wisski_distillery.Description {
 	}
 }
 
-var errLockUnlockExcluded = exit.Error{
-	Message:  "exactly one of `--lock` and `--unlock` must be provied",
-	ExitCode: exit.ExitCommandArguments,
-}
-
 func (l instanceLock) AfterParse() error {
 	if l.Lock == l.Unlock {
 		return errLockUnlockExcluded
@@ -43,15 +38,11 @@ func (l instanceLock) AfterParse() error {
 	return nil
 }
 
-var errNotUnlock = exit.Error{
-	Message:  "unable to unlock instance: not locked",
-	ExitCode: exit.ExitCommandArguments,
-}
-
-var errInstanceLockWissKI = exit.Error{
-	Message:  "unable to get WissKI",
-	ExitCode: exit.ExitGeneric,
-}
+var (
+	errLockUnlockExcluded = exit.NewErrorWithCode("exactly one of `--lock` and `--unlock` must be provied", exit.ExitCommandArguments)
+	errNotUnlock          = exit.NewErrorWithCode("unable to unlock instance: not locked", exit.ExitCommandArguments)
+	errInstanceLockWissKI = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
+)
 
 func (l instanceLock) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, l.Positionals.Slug)

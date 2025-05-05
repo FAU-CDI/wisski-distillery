@@ -35,20 +35,11 @@ func (s server) Description() wisski_distillery.Description {
 	}
 }
 
-var errServerListen = exit.Error{
-	ExitCode: exit.ExitGeneric,
-	Message:  "unable to listen",
-}
-
-var errServerTrigger = exit.Error{
-	Message:  "failed to trigger",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errServerGeneric = exit.Error{
-	ExitCode: exit.ExitGeneric,
-	Message:  "unable to instantiate server",
-}
+var (
+	errServerListen  = exit.NewErrorWithCode("unable to listen", exit.ExitGeneric)
+	errServerTrigger = exit.NewErrorWithCode("failed to trigger", exit.ExitGeneric)
+	errServerGeneric = exit.NewErrorWithCode("unable to instantiate server", exit.ExitGeneric)
+)
 
 func (s server) Run(context wisski_distillery.Context) error {
 	dis := context.Environment

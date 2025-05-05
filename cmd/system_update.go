@@ -42,10 +42,7 @@ func (systemupdate) Description() wisski_distillery.Description {
 	}
 }
 
-var errNoGraphDBZip = exit.Error{
-	Message:  "%q does not exist",
-	ExitCode: exit.ExitCommandArguments,
-}
+var errNoGraphDBZip = exit.NewErrorWithCode("does not exist", exit.ExitCommandArguments)
 
 func (s systemupdate) AfterParse() error {
 	isFile, err := fsx.IsRegular(s.Positionals.GraphdbZip, true)
@@ -54,35 +51,34 @@ func (s systemupdate) AfterParse() error {
 	}
 
 	if !isFile {
-		return errNoGraphDBZip.WithMessageF(s.Positionals.GraphdbZip)
+		return fmt.Errorf("%q: %w", s.Positionals.GraphdbZip, errNoGraphDBZip)
 	}
 	return nil
 }
 
-var errBoostrapFailedToCreateDirectory = exit.Error{
-	Message:  "failed to create directory %s",
-	ExitCode: exit.ExitGeneric,
-}
+var errBoostrapFailedToCreateDirectory = exit.NewErrorWithCode(
+	"failed to create directory", exit.ExitGeneric,
+)
 
-var errBootstrapComponent = exit.Error{
-	Message:  "unable to bootstrap",
-	ExitCode: exit.ExitGeneric,
-}
+var errBootstrapComponent = exit.NewErrorWithCode(
+	"unable to bootstrap",
+	exit.ExitGeneric,
+)
 
-var errDockerUnreachable = exit.Error{
-	Message:  "unable to reach docker api",
-	ExitCode: exit.ExitGeneric,
-}
+var errDockerUnreachable = exit.NewErrorWithCode(
+	"unable to reach docker api",
+	exit.ExitGeneric,
+)
 
-var errNetworkCreateFailed = exit.Error{
-	Message:  "unable to create docker network",
-	ExitCode: exit.ExitGeneric,
-}
+var errNetworkCreateFailed = exit.NewErrorWithCode(
+	"unable to create docker network",
+	exit.ExitGeneric,
+)
 
-var errSystemUpdateGeneric = exit.Error{
-	Message:  "generic system update error",
-	ExitCode: exit.ExitGeneric,
-}
+var errSystemUpdateGeneric = exit.NewErrorWithCode(
+	"generic system update error",
+	exit.ExitGeneric,
+)
 
 func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
 	if err := si.run(context); err != nil {
@@ -107,7 +103,7 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 	} {
 		context.Println(d)
 		if err := umaskfree.MkdirAll(d, umaskfree.DefaultDirPerm); err != nil {
-			return fmt.Errorf("%w: %w", errBoostrapFailedToCreateDirectory.WithMessageF(d), err)
+			return fmt.Errorf("%q: %w: %w", d, errBoostrapFailedToCreateDirectory, err)
 		}
 	}
 
@@ -245,12 +241,6 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 	return nil
 }
 
-var errMustExecFailed = exit.Error{
-	Message: "process exited with code %d",
-}
-
-// If it does not, returns errMustExecFailed.
-//
 //nolint:unparam
 func (si systemupdate) mustExec(context wisski_distillery.Context, workdir string, exe string, argv ...string) error {
 	dis := context.Environment
@@ -260,9 +250,7 @@ func (si systemupdate) mustExec(context wisski_distillery.Context, workdir strin
 	code := execx.Exec(context.Context, context.IOStream, workdir, exe, argv...)()
 
 	if code := exit.Code(code); code != 0 {
-		err := errMustExecFailed.WithMessageF(code)
-		err.ExitCode = code
-		return err
+		return exit.NewErrorWithCode(fmt.Sprintf("process exited with code %d", code), code)
 	}
 	return nil
 }

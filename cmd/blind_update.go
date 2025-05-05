@@ -34,10 +34,7 @@ func (blindUpdate) Description() wisski_distillery.Description {
 	}
 }
 
-var errBlindUpdateFailed = exit.Error{
-	Message:  "failed to run blind update",
-	ExitCode: exit.ExitGeneric,
-}
+var errBlindUpdateFailed = exit.NewErrorWithCode("failed to run blind update", exit.ExitGeneric)
 
 func (bu blindUpdate) Run(context wisski_distillery.Context) (err error) {
 	// find all the instances!

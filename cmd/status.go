@@ -27,10 +27,7 @@ func (cStatus) Description() wisski_distillery.Description {
 	}
 }
 
-var errStatusGeneric = exit.Error{
-	ExitCode: exit.ExitGeneric,
-	Message:  "unable to get status",
-}
+var errStatusGeneric = exit.NewErrorWithCode("unable to get status", exit.ExitGeneric)
 
 func (s cStatus) Run(context wisski_distillery.Context) error {
 	status, _, err := context.Environment.Info().Status(context.Context, true)

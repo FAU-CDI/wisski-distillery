@@ -38,10 +38,7 @@ func (disGrant) Description() wisski_distillery.Description {
 	}
 }
 
-var errNoSlugSelect = exit.Error{
-	Message:  "slug not provided",
-	ExitCode: exit.ExitCommandArguments,
-}
+var errNoSlugSelect = exit.NewErrorWithCode("slug not provided", exit.ExitCommandArguments)
 
 func (dg disGrant) AfterParse() error {
 	var counter int
@@ -66,10 +63,7 @@ func (dg disGrant) AfterParse() error {
 	return nil
 }
 
-var errFailedGrant = exit.Error{
-	Message:  "unable to manage grants",
-	ExitCode: exit.ExitGeneric,
-}
+var errFailedGrant = exit.NewErrorWithCode("unable to manage grants", exit.ExitGeneric)
 
 func (dg disGrant) Run(context wisski_distillery.Context) (err error) {
 	switch {

@@ -28,10 +28,7 @@ func (ls) Description() wisski_distillery.Description {
 	}
 }
 
-var errLsWissKI = exit.Error{
-	Message:  "unable to get WissKIs",
-	ExitCode: exit.ExitGeneric,
-}
+var errLsWissKI = exit.NewErrorWithCode("unable to get WissKIs", exit.ExitGeneric)
 
 func (l ls) Run(context wisski_distillery.Context) error {
 	instances, err := context.Environment.Instances().Load(context.Context, l.Positionals.Slug...)

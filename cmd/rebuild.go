@@ -31,10 +31,7 @@ type rebuild struct {
 	} `positional-args:"true"`
 }
 
-var errRebuildNoSystem = exit.Error{
-	Message:  "flags for system reconfiguration have been set, but `--system' was not provided",
-	ExitCode: exit.ExitCommandArguments,
-}
+var errRebuildNoSystem = exit.NewErrorWithCode("flags for system reconfiguration have been set, but `--system' was not provided", exit.ExitCommandArguments)
 
 func (rb rebuild) AfterParse() error {
 	if rb.System {
@@ -56,10 +53,7 @@ func (rebuild) Description() wisski_distillery.Description {
 	}
 }
 
-var errRebuildFailed = exit.Error{
-	Message:  "failed to run rebuild",
-	ExitCode: exit.ExitGeneric,
-}
+var errRebuildFailed = exit.NewErrorWithCode("failed to run rebuild", exit.ExitGeneric)
 
 func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 	dis := context.Environment

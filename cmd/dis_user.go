@@ -45,10 +45,7 @@ func (disUser) Description() wisski_distillery.Description {
 	}
 }
 
-var errUserRequired = exit.Error{
-	Message:  "`USER` argument is required",
-	ExitCode: exit.ExitCommandArguments,
-}
+var errUserRequired = exit.NewErrorWithCode("`USER` argument is required", exit.ExitCommandArguments)
 
 func (du disUser) AfterParse() error {
 	var counter int
@@ -81,10 +78,7 @@ func (du disUser) AfterParse() error {
 	return nil
 }
 
-var errDisUserActionFailed = exit.Error{
-	Message:  "action failed",
-	ExitCode: exit.ExitGeneric,
-}
+var errDisUserActionFailed = exit.NewErrorWithCode("action failed", exit.ExitGeneric)
 
 func (du disUser) Run(context wisski_distillery.Context) (err error) {
 	var userAction func(wisski_distillery.Context, *auth.AuthUser) error
@@ -161,10 +155,7 @@ func (du disUser) runDelete(context wisski_distillery.Context, user *auth.AuthUs
 	return nil
 }
 
-var errPasswordPolicy = exit.Error{
-	Message:  "password policy failed: %s",
-	ExitCode: exit.ExitGeneric,
-}
+var errPasswordPolicy = exit.NewErrorWithCode("password policy failed: %s", exit.ExitGeneric)
 
 func (du disUser) runSetPassword(context wisski_distillery.Context, user *auth.AuthUser) error {
 	var passwd string
@@ -187,7 +178,7 @@ func (du disUser) runSetPassword(context wisski_distillery.Context, user *auth.A
 			return errPasswordsNotIdentical
 		}
 		if err := user.CheckPasswordPolicy(passwd); err != nil {
-			return errPasswordPolicy.WithMessageF(err)
+			return fmt.Errorf("%w: %w", errPasswordPolicy, err)
 		}
 	}
 

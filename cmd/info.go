@@ -31,10 +31,7 @@ func (info) Description() wisski_distillery.Description {
 	}
 }
 
-var errInfoFailed = exit.Error{
-	Message:  "failed to get info",
-	ExitCode: exit.ExitGeneric,
-}
+var errInfoFailed = exit.NewErrorWithCode("failed to get info", exit.ExitGeneric)
 
 func (i info) Run(context wisski_distillery.Context) (err error) {
 	if err := i.run(context); err != nil {

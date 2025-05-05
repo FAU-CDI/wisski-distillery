@@ -37,10 +37,7 @@ func (i instancepause) AfterParse() error {
 	return nil
 }
 
-var errInstancePauseWissKI = exit.Error{
-	Message:  "unable to get WissKI",
-	ExitCode: exit.ExitGeneric,
-}
+var errInstancePauseWissKI = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
 
 func (i instancepause) Run(context wisski_distillery.Context) error {
 	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)

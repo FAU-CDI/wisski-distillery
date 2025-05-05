@@ -27,10 +27,7 @@ type makeBlock struct {
 	} `positional-args:"true"`
 }
 
-var errFooterAndRegion = exit.Error{
-	Message:  "`--footer` and `--region` provided",
-	ExitCode: exit.ExitCommandArguments,
-}
+var errFooterAndRegion = exit.NewErrorWithCode("`--footer` and `--region` provided", exit.ExitCommandArguments)
 
 func (mb makeBlock) AfterParse() error {
 	if mb.Region != "" && mb.Footer {
@@ -49,31 +46,18 @@ func (makeBlock) Description() wisski_distillery.Description {
 	}
 }
 
-var errBlocksGeneric = exit.Error{
-	Message:  "unable to create block",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBlocksFooterFailed = exit.Error{
-	Message:  "unable to determine footer block",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBlocksNoFooter = exit.Error{
-	Message:  "no footer known for region",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errBlocksNoContent = exit.Error{
-	Message:  "unable to read content from standard input",
-	ExitCode: exit.ExitCommandArguments,
-}
+var (
+	errBlocksGeneric      = exit.NewErrorWithCode("unable to create block", exit.ExitGeneric)
+	errBlocksFooterFailed = exit.NewErrorWithCode("unable to determine footer block", exit.ExitGeneric)
+	errBlocksNoFooter     = exit.NewErrorWithCode("no footer known for region", exit.ExitGeneric)
+	errBlocksNoContent    = exit.NewErrorWithCode("unable to read content from standard input", exit.ExitCommandArguments)
+)
 
 func (mb makeBlock) Run(context wisski_distillery.Context) error {
 	// get the wisski
 	instance, err := context.Environment.Instances().WissKI(context.Context, mb.Positionals.Slug)
 	if err != nil {
-		return fmt.Errorf("%w: %w", errPathbuilderWissKI, err)
+		return fmt.Errorf("%w: %w", errPathbuildersWissKI, err)
 	}
 
 	// get the footer (if any)

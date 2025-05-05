@@ -55,10 +55,7 @@ func (ds disSSH) AfterParse() error {
 	return nil
 }
 
-var errSSHManageFailed = exit.Error{
-	Message:  "unable to manage ssh keys",
-	ExitCode: exit.ExitCommandArguments,
-}
+var errSSHManageFailed = exit.NewErrorWithCode("unable to manage ssh keys", exit.ExitCommandArguments)
 
 func (ds disSSH) Run(context wisski_distillery.Context) error {
 	switch {
@@ -70,10 +67,7 @@ func (ds disSSH) Run(context wisski_distillery.Context) error {
 	panic("never reached")
 }
 
-var errNoKey = exit.Error{
-	Message:  "unable to parse key",
-	ExitCode: exit.ExitCommandArguments,
-}
+var errNoKey = exit.NewErrorWithCode("unable to parse key", exit.ExitCommandArguments)
 
 func (ds disSSH) parseOpts(context wisski_distillery.Context) (user *auth.AuthUser, key gossh.PublicKey, err error) {
 	user, err = context.Environment.Auth().User(context.Context, ds.Positionals.User)

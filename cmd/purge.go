@@ -29,15 +29,10 @@ func (purge) Description() wisski_distillery.Description {
 	}
 }
 
-var errPurgeNoConfirmation = exit.Error{
-	Message:  "aborting after request was not confirmed. either type `yes` or pass `--yes` on the command line",
-	ExitCode: exit.ExitGeneric,
-}
-
-var errPurgeFailed = exit.Error{
-	Message:  "failed to run purge",
-	ExitCode: exit.ExitGeneric,
-}
+var (
+	errPurgeNoConfirmation = exit.NewErrorWithCode("aborting after request was not confirmed. either type `yes` or pass `--yes` on the command line", exit.ExitGeneric)
+	errPurgeFailed         = exit.NewErrorWithCode("failed to run purge", exit.ExitGeneric)
+)
 
 func (p purge) Run(context wisski_distillery.Context) error {
 	dis := context.Environment

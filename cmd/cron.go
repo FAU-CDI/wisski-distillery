@@ -33,10 +33,7 @@ func (cron) Description() wisski_distillery.Description {
 	}
 }
 
-var errCronFailed = exit.Error{
-	Message:  "failed to run cron",
-	ExitCode: exit.ExitGeneric,
-}
+var errCronFailed = exit.NewErrorWithCode("failed to run cron", exit.ExitGeneric)
 
 func (cr cron) Run(context wisski_distillery.Context) (err error) {
 	// find all the instances!

@@ -56,10 +56,7 @@ type Description = goprogram.Description[wdCliFlags, wdcliRequirements]
 var GetContext = goprogram.GetContext[wdcliEnv, wdcliParameters, wdCliFlags, wdcliRequirements]
 
 // an error when nor arguments are provided.
-var errUserIsNotRoot = exit.Error{
-	ExitCode: exit.ExitGeneralArguments,
-	Message:  "this command has to be executed as root. the current user is not root",
-}
+var errUserIsNotRoot = exit.NewErrorWithCode("this command has to be executed as root. the current user is not root", exit.ExitGeneralArguments)
 
 const warnCGoEnabled = "Warning: This executable has been built with cgo enabled. This means certain commands may not work. \n"
 const warnNoDeployWdcli = "Warning: Not using %q executable at %q. This might leave the distillery in an inconsistent state. \n"

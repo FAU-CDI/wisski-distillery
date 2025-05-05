@@ -30,14 +30,9 @@ type pv struct {
 	} `positional-args:"true"`
 }
 
-var errMissingSlug = exit.Error{
-	ExitCode: exit.ExitCommandArguments,
-	Message:  "must provide a slug",
-}
-
 func (pv pv) AfterParse() error {
 	if !pv.ListFlavors && !pv.ListPHPVersions && pv.Positionals.Slug == "" {
-		return errMissingSlug
+		return errProvisionMissingSlug
 	}
 	return nil
 }
@@ -52,10 +47,10 @@ func (pv) Description() wisski_distillery.Description {
 	}
 }
 
-var errProvisionGeneric = exit.Error{
-	Message:  "unable to provision instance %s",
-	ExitCode: exit.ExitGeneric,
-}
+var (
+	errProvisionMissingSlug = exit.NewErrorWithCode("must provide a slug", exit.ExitCommandArguments)
+	errProvisionGeneric     = exit.NewErrorWithCode("unable to provision instance", exit.ExitGeneric)
+)
 
 // TODO: AfterParse to check instance!
 
@@ -78,7 +73,7 @@ func (p pv) Run(context wisski_distillery.Context) error {
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("%w: %w", errProvisionGeneric.WithMessageF(p.Positionals.Slug), err)
+		return fmt.Errorf("%q: %w: %w", p.Positionals.Slug, errProvisionGeneric, err)
 	}
 
 	// and we're done!

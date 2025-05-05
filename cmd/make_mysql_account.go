@@ -28,20 +28,11 @@ func (makeMysqlAccount) Description() wisski_distillery.Description {
 	}
 }
 
-var errUnableToReadUsername = exit.Error{
-	ExitCode: exit.ExitGeneric,
-	Message:  "unable to read username",
-}
-
-var errUnableToReadPassword = exit.Error{
-	ExitCode: exit.ExitGeneric,
-	Message:  "unable to read password",
-}
-
-var errUnableToMakeAccount = exit.Error{
-	ExitCode: exit.ExitGeneric,
-	Message:  "unable to create account",
-}
+var (
+	errUnableToReadUsername = exit.NewErrorWithCode("unable to read username", exit.ExitGeneric)
+	errUnableToReadPassword = exit.NewErrorWithCode("unable to read password", exit.ExitGeneric)
+	errUnableToMakeAccount  = exit.NewErrorWithCode("unable to create account", exit.ExitGeneric)
+)
 
 func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
 	dis := context.Environment

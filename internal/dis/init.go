@@ -13,28 +13,18 @@ import (
 	"github.com/tkw1536/pkglib/cgo"
 )
 
-var errNoConfigFile = exit.Error{
-	ExitCode: exit.ExitGeneralArguments,
-	Message:  "configuration file does not exist",
-}
-
-var errOpenConfig = exit.Error{
-	ExitCode: exit.ExitGeneralArguments,
-	Message:  "error loading configuration file",
-}
-
-// An error to be returned when cgo is enabled unexpectedly.
-var ErrCGoEnabled = exit.Error{
-	ExitCode: exit.ExitGeneralArguments,
-	Message:  "this functionality is only available when cgo support is disabled. Set `CGO_ENABLED=0' at build time and try again",
-}
+var (
+	errNoConfigFile = exit.NewErrorWithCode("configuration file does not exist", exit.ExitGeneralArguments)
+	errOpenConfig   = exit.NewErrorWithCode("error loading configuration file", exit.ExitGeneralArguments)
+	errCGoEnabled   = exit.NewErrorWithCode("this functionality is only available when cgo support is disabled. Set `CGO_ENABLED=0' at build time and try again", exit.ExitGeneralArguments)
+)
 
 // NewDistillery creates a new distillery from the provided flags.
 func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (dis *Distillery, e error) {
 	// check cgo support to prevent weird error messages
 	// this has to happen either when we are inside docker, or when explicity requested by the command.
 	if cgo.Enabled && (flags.InternalInDocker || req.FailOnCgo) {
-		return nil, ErrCGoEnabled
+		return nil, errCGoEnabled
 	}
 
 	dis = new(Distillery)
