@@ -3,11 +3,11 @@ package logging
 
 //spellchecker:words errors strings golang term
 import (
-	"errors"
 	"fmt"
 	"io"
 	"strings"
 
+	"github.com/tkw1536/pkglib/errorsx"
 	"golang.org/x/term"
 )
 
@@ -18,10 +18,7 @@ func LogOperation(operation func() error, progress io.Writer, format string, arg
 	defer decIndent(progress)
 
 	err := operation()
-	if errLog != nil && err != nil {
-		return errors.Join(err, errLog)
-	}
-	return err
+	return errorsx.Combine(err, errLog)
 }
 
 // LogMessage logs a message that is displayed to the user.

@@ -13,9 +13,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
@@ -147,7 +147,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 				if err != nil {
 					return fmt.Errorf("failed to create configuration path: %w", err)
 				}
-				defer errwrap.Close(configYML, "configuration file", &e)
+				defer errorsx.Close(configYML, &e, "configuration file")
 
 				bytes, err := config.Marshal(&cfg, nil)
 				if err != nil {
@@ -172,7 +172,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	if err != nil {
 		return fmt.Errorf("%w: %w", errBootstrapOpenConfig, err)
 	}
-	defer errwrap.Close(f, "configuration file", &e)
+	defer errorsx.Close(f, &e, "configuration file")
 
 	var cfg config.Config
 	if err := cfg.Unmarshal(f); err != nil {

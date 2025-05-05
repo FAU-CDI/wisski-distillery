@@ -14,7 +14,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/httpx"
 
 	"github.com/julienschmidt/httprouter"
@@ -58,7 +58,7 @@ func (admin *Admin) instanceData(context.Context) http.Handler {
 		}
 
 		server := ctx.Instance.PHP().NewServer()
-		defer errwrap.Close(server, "server", &err)
+		defer errorsx.Close(server, &err, "server")
 
 		ctx.Pathbuilders, err = ctx.Instance.Pathbuilder().GetAll(r.Context(), server)
 		if err != nil {

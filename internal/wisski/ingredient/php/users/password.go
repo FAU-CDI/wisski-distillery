@@ -10,6 +10,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/password"
 )
 
@@ -30,8 +31,10 @@ func (u *Users) GetPasswordValidator(ctx context.Context, username string) (pv P
 		return pv, err
 	}
 	if len(hash) == 0 {
-		server.Close()
-		return pv, errGetValidator
+		return pv, errorsx.Combine(
+			errGetValidator,
+			server.Close(),
+		)
 	}
 
 	pv.server = server
@@ -71,7 +74,9 @@ func (pv PasswordValidator) CheckDictionary(ctx context.Context, writer io.Write
 	if pv.Check(ctx, pv.username) {
 		if writer != nil {
 			counter++
-			fmt.Fprintln(writer, counter)
+			if _, err := fmt.Fprintln(writer, counter); err != nil {
+				return fmt.Errorf("unable to report progress: %w", err)
+			}
 		}
 		return errPasswordUsername
 	}
@@ -82,7 +87,9 @@ func (pv PasswordValidator) CheckDictionary(ctx context.Context, writer io.Write
 		result := pv.Check(ctx, candidate.Password)
 		if writer != nil {
 			counter++
-			fmt.Fprintln(writer, counter)
+			if _, err := fmt.Fprintln(writer, counter); err != nil {
+				return fmt.Errorf("unable to report progress: %w", err)
+			}
 		}
 
 		if result {

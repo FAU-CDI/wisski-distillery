@@ -198,9 +198,15 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	{
-		fmt.Fprintf(progress, "URL:                  %s\n", liquid.URL())
-		fmt.Fprintf(progress, "Username:             %s\n", liquid.DrupalUsername)
-		fmt.Fprintf(progress, "Password:             %s\n", liquid.DrupalPassword)
+		if _, err := fmt.Fprintf(progress, "URL:                  %s\n", liquid.URL()); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
+		if _, err := fmt.Fprintf(progress, "Username:             %s\n", liquid.DrupalUsername); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
+		if _, err := fmt.Fprintf(progress, "Password:             %s\n", liquid.DrupalPassword); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 	}
 
 	return nil

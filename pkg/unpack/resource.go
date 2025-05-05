@@ -10,7 +10,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
@@ -60,7 +60,7 @@ func installResource(dst string, src string, fsys fs.FS, onInstallFile func(dst,
 	if err != nil {
 		return fmt.Errorf("failed to open file to install: %w", err)
 	}
-	defer errwrap.Close(srcFile, "file to install", &e)
+	defer errorsx.Close(srcFile, &e, "file to install")
 
 	// stat it!
 	srcInfo, err := srcFile.Stat()
@@ -127,7 +127,7 @@ func installFile(dst string, srcInfo fs.FileInfo, src fs.File) (e error) {
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
-	defer errwrap.Close(file, "file", &e)
+	defer errorsx.Close(file, &e, "file")
 
 	// copy over the content!
 	_, err = io.Copy(file, src)

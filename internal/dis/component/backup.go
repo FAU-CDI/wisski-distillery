@@ -11,7 +11,7 @@ import (
 	"errors"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
@@ -202,7 +202,7 @@ func (sc *StagingContext) AddFile(path string, op func(ctx context.Context, file
 	if err != nil {
 		return fmt.Errorf("failed to create default file: %w", err)
 	}
-	defer errwrap.Close(file, "file", &e)
+	defer errorsx.Close(file, &e, "file")
 
 	// tell them that we are creating it!
 	sc.sendPath(path)

@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 var errTSRestoreWrongStatusCode = errors.New("Triplestore.Restore: Wrong status code")
@@ -22,7 +22,7 @@ func (ts Triplestore) RestoreDB(ctx context.Context, repo string, reader io.Read
 	if err != nil {
 		return err
 	}
-	defer errwrap.Close(res.Body, "request body", &e)
+	defer errorsx.Close(res.Body, &e, "request body")
 
 	if res.StatusCode != http.StatusNoContent {
 		message, _ := io.ReadAll(res.Body)

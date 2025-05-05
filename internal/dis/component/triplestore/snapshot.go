@@ -12,7 +12,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 func (Triplestore) SnapshotNeedsRunning() bool { return false }
@@ -47,7 +47,7 @@ func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string
 	if err != nil {
 		return 0, fmt.Errorf("failed to send rest request: %w", err)
 	}
-	defer errwrap.Close(res.Body, "response body", &e)
+	defer errorsx.Close(res.Body, &e, "response body")
 
 	if res.StatusCode != http.StatusOK {
 		return 0, errTSBackupWrongStatusCode

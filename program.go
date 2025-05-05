@@ -4,6 +4,7 @@ package wisski_distillery
 //spellchecker:words context signal user github wisski distillery internal bootstrap wdlog goprogram exit pkglib
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 	"os/user"
@@ -72,13 +73,17 @@ func NewProgram() Program {
 
 			// warn about cgo!
 			if cgo.Enabled {
-				context.Printf(warnCGoEnabled)
+				if _, err := context.Printf(warnCGoEnabled); err != nil {
+					return fmt.Errorf("failed to print error: %w", err)
+				}
 			}
 
 			// when not running inside docker and we need a distillery
 			// then we should warn if we are not using the distillery executable.
 			if dis := context.Environment; !context.Args.Flags.InternalInDocker && context.Description.Requirements.NeedsDistillery && !dis.Config.Paths.UsingDistilleryExecutable() {
-				context.EPrintf(warnNoDeployWdcli, bootstrap.Executable, dis.Config.Paths.ExecutablePath())
+				if _, err := context.EPrintf(warnNoDeployWdcli, bootstrap.Executable, dis.Config.Paths.ExecutablePath()); err != nil {
+					return fmt.Errorf("failed to log error: %w", err)
+				}
 			}
 
 			return nil

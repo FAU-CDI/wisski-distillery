@@ -111,9 +111,8 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	// we need the staging directory to be deleted at the end
 	if !task.StagingOnly {
 		defer func() {
-			if _, err := logging.LogMessage(progress, "Removing staging directory"); err != nil {
-				// TODO: error
-			}
+			// #nosec G104
+			logging.LogMessage(progress, "Removing staging directory") //nolint:errcheck // no way to report error
 			os.RemoveAll(stagingDir)
 		}()
 	}

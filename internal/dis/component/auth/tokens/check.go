@@ -7,9 +7,11 @@ import (
 	"net/http"
 	"strings"
 
+	"slices"
+
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"slices"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 const (
@@ -47,7 +49,7 @@ func (tok *Tokens) TokenOf(r *http.Request) (*models.Token, error) {
 	res := table.Where(&models.Token{Token: id}).Find(&tokenObj)
 
 	if res.Error != nil {
-		return nil, errors.Join(ErrNoToken, res.Error)
+		return nil, errorsx.Combine(ErrNoToken, res.Error)
 	}
 	if res.RowsAffected == 0 {
 		return nil, nil
@@ -72,10 +74,7 @@ func (tok *Tokens) Check(r *http.Request, scope component.Scope) (bool, error) {
 	// get the token object from the request
 	tokenObj, err := tok.TokenOf(r)
 	if tokenObj == nil {
-		if err == nil {
-			return false, ErrNoToken
-		}
-		return false, errors.Join(ErrNoToken, err)
+		return false, errorsx.Combine(ErrNoToken, err)
 	}
 
 	// TODO: Do we need this function?

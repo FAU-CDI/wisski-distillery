@@ -13,7 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 )
 
@@ -27,15 +27,15 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 	if err != nil {
 		return 0, fmt.Errorf("failed to create file: %w", err)
 	}
-	defer errwrap.Close(archive, "archive file", &e)
+	defer errorsx.Close(archive, &e, "archive file")
 
 	// create a gzip writer
 	zipHandle := gzip.NewWriter(archive)
-	defer errwrap.Close(zipHandle, "zip handle", &e)
+	defer errorsx.Close(zipHandle, &e, "zip handle")
 
 	// create a tar writer
 	tarHandle := tar.NewWriter(zipHandle)
-	defer errwrap.Close(tarHandle, "tar handle", &e)
+	defer errorsx.Close(tarHandle, &e, "tar handle")
 
 	// and walk through it!
 	e = filepath.WalkDir(src, func(path string, entry fs.DirEntry, err error) (e error) {
@@ -85,7 +85,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		if err != nil {
 			return fmt.Errorf("failed to open file: %w", err)
 		}
-		defer errwrap.Close(handle, "file", &e)
+		defer errorsx.Close(handle, &e, "file")
 
 		// and copy it into the archive
 		ccount, err := io.Copy(tarHandle, handle)

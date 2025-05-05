@@ -11,8 +11,8 @@ import (
 	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
@@ -45,7 +45,7 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) (e error)
 		if err != nil {
 			return fmt.Errorf("failed to create triplestore user: %w", err)
 		}
-		defer errwrap.Close(res.Body, "response body", &e)
+		defer errorsx.Close(res.Body, &e, "response body")
 
 		switch res.StatusCode {
 		case http.StatusOK:
@@ -71,7 +71,7 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) (e error)
 		if err != nil {
 			return fmt.Errorf("failed to enable triplestore security: %w", err)
 		}
-		defer errwrap.Close(res.Body, "response body", &e)
+		defer errorsx.Close(res.Body, &e, "response body")
 
 		if res.StatusCode != http.StatusOK {
 			return errTriplestoreFailedSecurity

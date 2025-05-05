@@ -4,7 +4,6 @@ package exporter
 //spellchecker:words context errors slog path filepath strings time github wisski distillery internal component wdlog logging pkglib umaskfree status golang slices
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"log/slog"
@@ -18,6 +17,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/status"
 )
@@ -178,5 +178,5 @@ func (backup *Backup) run(ctx context.Context, progress io.Writer, exporter *Exp
 		return nil
 	}, progress, "Creating instance snapshots")
 
-	return errors.Join(err1, err2)
+	return errorsx.Combine(err1, err2)
 }

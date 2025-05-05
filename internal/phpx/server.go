@@ -18,7 +18,7 @@ import (
 
 	_ "embed"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/lazy"
 	"github.com/tkw1536/pkglib/status"
 	"github.com/tkw1536/pkglib/stream"
@@ -176,7 +176,7 @@ func (*Server) decode(dest *[2]json.RawMessage, message []byte) (e error) {
 
 	// unpack gzip
 	unpacker := flate.NewReader(raw)
-	defer errwrap.Close(unpacker, "unpacker", &e)
+	defer errorsx.Close(unpacker, &e, "unpacker")
 
 	// and read the value
 	decoder := json.NewDecoder(unpacker)
@@ -198,14 +198,14 @@ func (*Server) encode(dest io.WriteCloser, code string) (e error) {
 
 	// base64 encode all the things!
 	encoder := base64.NewEncoder(base64.StdEncoding, dest)
-	defer errwrap.Close(encoder, "encoder", &e)
+	defer errorsx.Close(encoder, &e, "encoder")
 
 	// compress all the things!
 	compressor, err := flate.NewWriter(encoder, 9)
 	if err != nil {
 		return fmt.Errorf("failed to create compressor: %w", err)
 	}
-	defer errwrap.Close(compressor, "compressor", &e)
+	defer errorsx.Close(compressor, &e, "compressor")
 
 	// do the write!
 	_, e = compressor.Write([]byte(code))

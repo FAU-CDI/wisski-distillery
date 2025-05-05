@@ -14,8 +14,8 @@ import (
 	"io/fs"
 	"os"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/gliderlabs/ssh"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 
 	gossh "golang.org/x/crypto/ssh"
@@ -133,7 +133,7 @@ func (ssh2 *SSH2) makeHostKey(progress io.Writer, ctx context.Context, key HostK
 	if err != nil {
 		return fmt.Errorf("failed to create private key file: %w", err)
 	}
-	defer errwrap.Close(privateKeyFile, "private key file", &e)
+	defer errorsx.Close(privateKeyFile, &e, "private key file")
 
 	if err := pem.Encode(privateKeyFile, privateKeyPEM); err != nil {
 		return fmt.Errorf("failed to encode private key: %w", err)

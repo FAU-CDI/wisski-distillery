@@ -12,8 +12,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 type TRB struct {
@@ -47,11 +47,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 	defer func() {
 		if _, e := logging.LogMessage(out, "Restarting instance"); e != nil {
 			e = fmt.Errorf("failed to log message: %w", err)
-			if err == nil {
-				err = e
-			} else {
-				err = errors.Join(err, e)
-			}
+			err = errorsx.Combine(err, e)
 			return
 		}
 
@@ -59,11 +55,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 		if e2 == nil {
 			return
 		}
-		if err == nil {
-			err = e2
-		} else {
-			err = errors.Join(err, e2)
-		}
+		err = errorsx.Combine(err, e2)
 	}()
 
 	// make the backup
@@ -116,11 +108,11 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 	if err != nil {
 		return "", 0, fmt.Errorf("failed to create temporary file: %w", err)
 	}
-	defer errwrap.Close(file, "file", &e)
+	defer errorsx.Close(file, &e, "file")
 
 	// create a new writer
 	zippedFile := gzip.NewWriter(file)
-	defer errwrap.Close(zippedFile, "zipped file", &e)
+	defer errorsx.Close(zippedFile, &e, "zipped file")
 
 	{
 		liquid := ingredient.GetLiquid(trb)
@@ -142,13 +134,13 @@ func (trb *TRB) restoreBackup(ctx context.Context, path string) (e error) {
 	if err != nil {
 		return fmt.Errorf("failed to restore database: %w", err)
 	}
-	defer errwrap.Close(reader, "temporary backup file", &e)
+	defer errorsx.Close(reader, &e, "temporary backup file")
 
 	decompressedReader, err := gzip.NewReader(reader)
 	if err != nil {
 		return fmt.Errorf("failed to create gzip reader: %w", err)
 	}
-	defer errwrap.Close(decompressedReader, "gzip reader", &e)
+	defer errorsx.Close(decompressedReader, &e, "gzip reader")
 
 	liquid := ingredient.GetLiquid(trb)
 	if err := liquid.TS.RestoreDB(ctx, liquid.GraphDBRepository, decompressedReader); err != nil {

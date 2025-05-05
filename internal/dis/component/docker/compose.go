@@ -9,10 +9,10 @@ import (
 	"slices"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 // Containers loads the compose project at path, connects to the docker daemon, and then lists all containers belonging to the given services.
@@ -27,7 +27,7 @@ func (docker *Docker) Containers(ctx context.Context, path string, services ...s
 	if err != nil {
 		return nil, fmt.Errorf("failed to create docker client: %w", err)
 	}
-	defer errwrap.Close(client, "docker client", &e)
+	defer errorsx.Close(client, &e, "docker client")
 
 	return docker.containers(ctx, proj, client, false, services...)
 }

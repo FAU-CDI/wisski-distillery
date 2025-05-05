@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/contextx"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
@@ -90,7 +91,7 @@ func (sockets *Sockets) regularAction(a actions.WebsocketAction) (actions.Action
 	return meta, &actionable{
 		Validate: func(r *http.Request, args ...string) error {
 			if err := sockets.dependencies.Auth.CheckScope(meta.ScopeParam, meta.Scope, r); err != nil {
-				return errors.Join(err, proto.ErrHandlerAuthorizationDenied)
+				return errorsx.Combine(err, proto.ErrHandlerAuthorizationDenied)
 			}
 
 			if len(args) != meta.NumParams {

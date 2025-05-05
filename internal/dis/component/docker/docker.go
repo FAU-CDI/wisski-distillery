@@ -7,11 +7,11 @@ import (
 	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 type Docker struct {
@@ -35,7 +35,7 @@ func (docker *Docker) Ping(ctx context.Context) (p types.Ping, e error) {
 	if err != nil {
 		return types.Ping{}, fmt.Errorf("failed to create docker client: %w", err)
 	}
-	defer errwrap.Close(client, "docker client", &e)
+	defer errorsx.Close(client, &e, "docker client")
 
 	ping, err := client.Ping(ctx)
 	if err != nil {
@@ -54,7 +54,7 @@ func (docker *Docker) CreateNetwork(ctx context.Context, name string) (id string
 	if err != nil {
 		return "", false, fmt.Errorf("failed to create docker client: %w", err)
 	}
-	defer errwrap.Close(client, "docker client", &e)
+	defer errorsx.Close(client, &e, "docker client")
 
 	// check if the network exists, by listing the network name
 	list, err := client.NetworkList(ctx, network.ListOptions{Filters: filters.NewArgs(filters.KeyValuePair{Key: "name", Value: name})})

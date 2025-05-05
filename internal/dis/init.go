@@ -8,9 +8,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/cgo"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 var (
@@ -64,7 +64,7 @@ func NewDistillery(params cli.Params, flags cli.Flags, req cli.Requirements) (di
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", errOpenConfig, err)
 	}
-	defer errwrap.Close(f, "config file", &e)
+	defer errorsx.Close(f, &e, "config file")
 
 	// unmarshal the config
 	dis.Config = &config.Config{

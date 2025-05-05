@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/sqlx"
 )
 
@@ -19,7 +20,7 @@ func (sql *SQL) Provision(ctx context.Context, instance models.Instance, domain 
 
 // Purge purges sql-specific resources for the given instance.
 func (sql *SQL) Purge(ctx context.Context, instance models.Instance, domain string) error {
-	return errors.Join(
+	return errorsx.Combine(
 		sql.PurgeDatabase(instance.SqlDatabase),
 		sql.PurgeUser(ctx, instance.SqlUsername),
 	)

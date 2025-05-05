@@ -9,8 +9,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	wstatus "github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/status"
 )
 
@@ -123,7 +123,7 @@ func (du drupalUser) checkCommonPassword(context wisski_distillery.Context, inst
 			if err != nil {
 				return fmt.Errorf("failed to get password validator: %w", err)
 			}
-			defer errwrap.Close(pv, "password validator", &e)
+			defer errorsx.Close(pv, &e, "password validator")
 
 			return pv.CheckDictionary(context.Context, writer)
 		},
@@ -138,7 +138,7 @@ func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context,
 	if err != nil {
 		return fmt.Errorf("failed to get password validator: %w", err)
 	}
-	defer errwrap.Close(validator, "validator", &e)
+	defer errorsx.Close(validator, &e, "validator")
 
 	for {
 		context.Printf("Enter a password to check:")

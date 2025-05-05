@@ -14,9 +14,9 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/stream"
@@ -243,7 +243,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 	if err := addComposeFileHeader(dockerComposeYML); err != nil {
 		err = fmt.Errorf("failed to update docker compose yml: %w", err)
 		if _, err2 := fmt.Fprintf(progress, "[update] %s\n", dockerComposeYML); err2 != nil {
-			err = errors.Join(
+			err = errorsx.Combine(
 				err,
 				fmt.Errorf("failed to log progress: %w", err2),
 			)
@@ -355,7 +355,7 @@ func addComposeFileHeader(path string) (e error) {
 	if err != nil {
 		return fmt.Errorf("failed to open compose file: %w", err)
 	}
-	defer errwrap.Close(f, "file", &e)
+	defer errorsx.Close(f, &e, "file")
 
 	// write the header
 	if _, err := f.WriteString(composeFileHeader); err != nil {
@@ -433,7 +433,7 @@ func writeEnvFile(path string, perm fs.FileMode, variables map[string]string) (e
 	if err != nil {
 		return fmt.Errorf("failed to create env file: %w", err)
 	}
-	defer errwrap.Close(file, "file", &e)
+	defer errorsx.Close(file, &e, "file")
 
 	// write the file!
 	_, err = compose.WriteEnvFile(file, variables)

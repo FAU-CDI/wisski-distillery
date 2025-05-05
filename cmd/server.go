@@ -2,7 +2,6 @@ package cmd
 
 //spellchecker:words errors slog http sync github wisski distillery internal wdlog goprogram exit
 import (
-	"errors"
 	"fmt"
 	"log/slog"
 	"net"
@@ -14,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 // Server is the 'server' command.
@@ -144,7 +144,7 @@ func (s server) Run(context wisski_distillery.Context) error {
 		shutdownInternal()
 	}()
 
-	err = errors.Join(<-internalC, <-publicC, err)
+	err = errorsx.Combine(<-internalC, <-publicC, err)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errServerListen, err)
 	}

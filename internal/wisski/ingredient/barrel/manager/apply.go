@@ -4,12 +4,12 @@ package manager
 //spellchecker:words context github wisski distillery internal ingredient barrel composer logging pkglib stream
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/composer"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/stream"
 )
 
@@ -109,11 +109,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 		defer func() {
 			if _, err := logging.LogMessage(progress, "Resetting permissions"); err != nil {
 				err = fmt.Errorf("failed to log message: %w", err)
-				if e == nil {
-					e = err
-				} else {
-					e = errors.Join(e, err)
-				}
+				e = errorsx.Combine(e, err)
 				return
 			}
 
@@ -125,11 +121,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 				} {
 					if err := manager.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...); err != nil {
 						err = fmt.Errorf("failed to reset permissions after update: %w", err)
-						if e == nil {
-							e = err
-						} else {
-							e = errors.Join(e, err)
-						}
+						e = errorsx.Combine(e, err)
 					}
 				}
 			}

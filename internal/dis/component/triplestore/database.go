@@ -16,7 +16,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/timex"
 )
 
@@ -167,7 +167,7 @@ func (ts Triplestore) PurgeUser(ctx context.Context, user string) (e error) {
 	if err != nil {
 		return err
 	}
-	defer errwrap.Close(res.Body, "response body", &e)
+	defer errorsx.Close(res.Body, &e, "response body")
 	if res.StatusCode != http.StatusNoContent && res.StatusCode != http.StatusNotFound {
 		return fmt.Errorf("%w: %d", errPurgeReturnedCode, res.StatusCode)
 	}
@@ -183,7 +183,7 @@ func (ts Triplestore) PurgeRepo(ctx context.Context, repo string) (e error) {
 	if err != nil {
 		return err
 	}
-	defer errwrap.Close(res.Body, "response body", &e)
+	defer errorsx.Close(res.Body, &e, "response body")
 	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusNotFound {
 		return fmt.Errorf("%w: %d", errDeleteReturnedCode, res.StatusCode)
 	}

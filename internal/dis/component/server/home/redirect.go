@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 func (home *Home) loadRedirect(context.Context) (redirect Redirect, e error) {
@@ -29,7 +29,7 @@ func (home *Home) loadRedirect(context.Context) (redirect Redirect, e error) {
 	if err != nil {
 		return redirect, fmt.Errorf("failed to open overrides file: %w", err)
 	}
-	defer errwrap.Close(overrides, "overrides file", &e)
+	defer errorsx.Close(overrides, &e, "overrides file")
 
 	// decode the overrides file
 	if err := json.NewDecoder(overrides).Decode(&redirect.Overrides); err != nil {

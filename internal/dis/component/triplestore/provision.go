@@ -5,7 +5,6 @@ package triplestore
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -14,7 +13,7 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 var errWrongEndpointStatusCode = fmt.Errorf("endpoint request did not return status code %d", http.StatusCreated)
@@ -39,7 +38,7 @@ func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, 
 }
 
 func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, domain string) error {
-	return errors.Join(
+	return errorsx.Combine(
 		ts.PurgeRepo(ctx, instance.GraphDBRepository),
 		ts.PurgeUser(ctx, instance.GraphDBUsername),
 	)
@@ -66,7 +65,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 		if err != nil {
 			return fmt.Errorf("repository create endpoint failed: %w", err)
 		}
-		defer errwrap.Close(res.Body, "response body", &e)
+		defer errorsx.Close(res.Body, &e, "response body")
 		if res.StatusCode != http.StatusCreated {
 			return fmt.Errorf("failed to create repository: %w", errWrongEndpointStatusCode)
 		}
@@ -92,7 +91,7 @@ func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user,
 		if err != nil {
 			return fmt.Errorf("user create endpoint failed: %w", err)
 		}
-		defer errwrap.Close(res.Body, "response body", &e)
+		defer errorsx.Close(res.Body, &e, "response body")
 
 		if res.StatusCode != http.StatusCreated {
 			return fmt.Errorf("failed to create user: %w", errWrongEndpointStatusCode)

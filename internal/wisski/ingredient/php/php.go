@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 type PHP struct {
@@ -36,7 +36,7 @@ type PHP struct {
 func (php *PHP) ExecScript(ctx context.Context, server *phpx.Server, value any, code string, entrypoint string, args ...any) (err error) {
 	if server == nil {
 		server = php.NewServer()
-		defer errwrap.Close(server, "server", &err)
+		defer errorsx.Close(server, &err, "server")
 	}
 
 	if code != "" {
@@ -54,7 +54,7 @@ func (php *PHP) ExecScript(ctx context.Context, server *phpx.Server, value any, 
 func (php *PHP) EvalCode(ctx context.Context, server *phpx.Server, value any, code string) (err error) {
 	if server == nil {
 		server = php.NewServer()
-		defer errwrap.Close(server, "server", &err)
+		defer errorsx.Close(server, &err, "server")
 	}
 
 	if err := server.MarshalEval(ctx, value, code); err != nil {

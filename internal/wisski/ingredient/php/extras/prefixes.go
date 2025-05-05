@@ -16,8 +16,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
-	"github.com/FAU-CDI/wisski-distillery/pkg/errwrap"
 	"github.com/tkw1536/pkglib/collection"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx"
 
 	_ "embed"
@@ -170,7 +170,7 @@ func (wisski *Prefixes) filePrefixes() (prefixes []string, e error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open prefix file: %w", err)
 	}
-	defer errwrap.Close(file, "prefix file", &e)
+	defer errorsx.Close(file, &e, "prefix file")
 
 	// scan each line
 	scanner := bufio.NewScanner(file)
