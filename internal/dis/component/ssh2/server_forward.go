@@ -91,6 +91,10 @@ func (ssh2 *SSH2) getForwardDest(req component.HostPort, ctx ssh.Context) (ok bo
 }
 
 // handleDirectTCP handles a direct tcp connection for the server.
+//
+// #nosec G104
+//
+//nolint:errcheck // no way to report error
 func (ssh2 *SSH2) handleDirectTCP(srv *ssh.Server, conn *gossh.ServerConn, newChan gossh.NewChannel, ctx ssh.Context) {
 	d := localForwardChannelData{}
 	if err := gossh.Unmarshal(newChan.ExtraData(), &d); err != nil {
@@ -123,6 +127,7 @@ func (ssh2 *SSH2) handleDirectTCP(srv *ssh.Server, conn *gossh.ServerConn, newCh
 		defer dconn.Close()
 		io.Copy(ch, dconn)
 	}()
+
 	go func() {
 		defer ch.Close()
 		defer dconn.Close()

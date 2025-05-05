@@ -4,8 +4,10 @@ package proto
 //spellchecker:words errors github wisski distillery internal component auth pkglib websocketx
 import (
 	"errors"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/websocketx"
 )
 
@@ -25,8 +27,11 @@ func (am ActionMap) Handle(auth *auth.Auth, conn *websocketx.Connection) (name s
 	case "":
 		return am.handleV1Protocol(auth, conn)
 	default:
-		conn.WritePrepared(msgUnknownSubprotocol)
-		return "", errUnknownSubprotocol
+		errWrite := conn.WritePrepared(msgUnknownSubprotocol)
+		if errWrite != nil {
+			errWrite = fmt.Errorf("unable to report unknown subprotocol to client: %w", errWrite)
+		}
+		return "", errorsx.Combine(errUnknownSubprotocol, errWrite)
 	}
 }
 

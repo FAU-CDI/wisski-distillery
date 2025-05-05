@@ -26,7 +26,9 @@ func (drush *Drush) Cron(ctx context.Context, progress io.Writer) error {
 		code := ee.Code()
 
 		// keep going, because we want to run as many crons as possible
-		fmt.Fprintf(progress, "failed to run cron script for instance %q: exited with code %d", ingredient.GetLiquid(drush).Slug, code)
+		if _, err := fmt.Fprintf(progress, "failed to run cron script for instance %q: exited with code %d", ingredient.GetLiquid(drush).Slug, code); err != nil {
+			return fmt.Errorf("failed to report progress: %w", err)
+		}
 	}
 
 	return nil

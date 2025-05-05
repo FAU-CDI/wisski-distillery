@@ -32,7 +32,7 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocketx.Connectio
 	defer func() {
 		// close the underlying connection, and then wait for everything to finish!
 		defer wg.Wait()
-		defer conn.Close()
+		defer errorsx.Close(conn, &err, "connection")
 
 		// recover from any errors
 		if e := recovery.Recover(recover()); e != nil {
@@ -62,7 +62,10 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocketx.Connectio
 		}
 
 		// and tell the client about it!
-		conn.Write(message)
+		if e := conn.Write(message); e != nil {
+			e = fmt.Errorf("failed to write result message: %w", e)
+			err = errorsx.Combine(err, e)
+		}
 	}()
 
 	// create channels to receive text and bytes messages
@@ -154,7 +157,7 @@ func (am ActionMap) handleV1Protocol(auth *auth.Auth, conn *websocketx.Connectio
 		defer wg.Done()
 
 		for text := range textMessages {
-			inputW.Write([]byte(text))
+			_, _ = inputW.Write([]byte(text)) // no way to report this error
 		}
 	}()
 

@@ -16,11 +16,12 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/composer"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/contextx"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/stream"
 )
 
 // Provision applies defaults to flags, to ensure some values are set.
-func (manager *Manager) Provision(ctx context.Context, progress io.Writer, system models.System, flags Profile) error {
+func (manager *Manager) Provision(ctx context.Context, progress io.Writer, system models.System, flags Profile) (e error) {
 	// Force building and applying the system!
 	if err := manager.dependencies.SystemManager.ApplyInitial(ctx, progress, system); err != nil {
 		return fmt.Errorf("failed to apply initial configuration: %w", err)
@@ -55,7 +56,10 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 		defer cancel()
 
 		// stop the container (even if the context was cancelled)
-		manager.dependencies.Barrel.Stack().DownAll(anyways, progress)
+		if err := manager.dependencies.Barrel.Stack().DownAll(anyways, progress); err != nil {
+			err = fmt.Errorf("unable to down stack: %w", err)
+			e = errorsx.Combine(e, err)
+		}
 	}()
 
 	return manager.bootstrap(ctx, progress, flags)

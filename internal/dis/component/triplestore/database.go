@@ -150,7 +150,7 @@ func (ts Triplestore) Wait(ctx context.Context) error {
 		if err != nil {
 			return false
 		}
-		defer res.Body.Close() // no way to report error
+		defer res.Body.Close() //nolint:errcheck // no way to report error
 		return true
 	}, ctx, ts.PollInterval); err != nil {
 		return fmt.Errorf("failed to wait for triplestore: %w", err)

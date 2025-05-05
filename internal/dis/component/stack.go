@@ -216,7 +216,8 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 			is.ContextPath,
 			is.Resources,
 			func(dst, src string) {
-				fmt.Fprintf(progress, "[install] %s\n", dst)
+				// #nosec G103
+				fmt.Fprintf(progress, "[install] %s\n", dst) //nolint:errcheck // no way to report error
 			},
 		); err != nil {
 			return fmt.Errorf("failed to install directory: %w", err)
@@ -291,7 +292,9 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		dst := filepath.Join(is.Dir, name)
 
 		// copy over file from context
-		fmt.Fprintf(progress, "[copy]    %s (from %s)\n", dst, src)
+		if _, err := fmt.Fprintf(progress, "[copy]    %s (from %s)\n", dst, src); err != nil {
+			return fmt.Errorf("failed to report progress: %w", err)
+		}
 		if err := umaskfree.CopyFile(ctx, dst, src); err != nil {
 			return fmt.Errorf("unable to copy file %s: %w", src, err)
 		}
@@ -302,7 +305,9 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		// find the destination!
 		dst := filepath.Join(is.Dir, name)
 
-		fmt.Fprintf(progress, "[touch]   %s\n", dst)
+		if _, err := fmt.Fprintf(progress, "[touch]   %s\n", dst); err != nil {
+			return fmt.Errorf("failed to report progress: %w", err)
+		}
 		if err := umaskfree.Touch(dst, umaskfree.DefaultFilePerm); err != nil {
 			return fmt.Errorf("failed to touch %q: %w", dst, err)
 		}
@@ -319,18 +324,24 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 
 		// create the file if it doesn't exist
 		if !exists {
-			fmt.Fprintf(progress, "[create]   %s\n", dst)
+			if _, err := fmt.Fprintf(progress, "[create]   %s\n", dst); err != nil {
+				return fmt.Errorf("failed to report progress: %w", err)
+			}
 			if err := umaskfree.WriteFile(dst, []byte(content), umaskfree.DefaultFilePerm); err != nil {
 				return fmt.Errorf("failed to write destination file: %w", err)
 			}
 		} else {
-			fmt.Fprintf(progress, "[skip]   %s\n", dst)
+			if _, err := fmt.Fprintf(progress, "[skip]   %s\n", dst); err != nil {
+				return fmt.Errorf("failed to report progress: %w", err)
+			}
 		}
 	}
 
 	// check that the stack can be loaded
 	{
-		fmt.Fprintln(progress, "[checking]")
+		if _, err := fmt.Fprintln(progress, "[checking]"); err != nil {
+			return fmt.Errorf("failed to report progress: %w", err)
+		}
 		_, err := compose.Open(is.Dir)
 		if err != nil {
 			return fmt.Errorf("failed to open directory: %w", err)
