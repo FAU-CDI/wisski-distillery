@@ -32,7 +32,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	}
 	instance, err := purger.dependencies.Instances.WissKI(ctx, slug)
 	if errors.Is(err, instances.ErrWissKINotFound) {
-		fmt.Fprintln(out, "Not found in bookkeeping table, assuming defaults")
+		_, _ = fmt.Fprintln(out, "Not found in bookkeeping table, assuming defaults")
 		instance, err = purger.dependencies.Instances.Create(slug, models.System{})
 	}
 	if err != nil {
@@ -44,7 +44,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := instance.Barrel().Stack().Down(ctx, out); err != nil {
-		fmt.Fprintln(out, err)
+		_, _ = fmt.Fprintln(out, err)
 	}
 
 	// remove the filesystem
@@ -52,7 +52,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := os.RemoveAll(instance.FilesystemBase); err != nil {
-		fmt.Fprintln(out, err)
+		_, _ = fmt.Fprintln(out, err) // already handling error
 	}
 
 	// purge all the instance specific resources
@@ -78,7 +78,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := instance.Bookkeeping().Delete(ctx); err != nil {
-		fmt.Fprintln(out, err)
+		_, _ = fmt.Fprintln(out, err)
 	}
 
 	// remove the filesystem
@@ -86,7 +86,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	if instance.Locker().TryUnlock(ctx) {
-		fmt.Fprintln(out, "instance was not locked")
+		_, _ = fmt.Fprintln(out, "instance was not locked")
 	}
 
 	return nil

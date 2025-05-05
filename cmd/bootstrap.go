@@ -69,7 +69,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 		if err := cli.WriteBaseDirectory(root); err != nil {
 			return fmt.Errorf("%q: %w: %w", root, errBootstrapFailedToSaveDirectory, err)
 		}
-		context.Println(root)
+		_, _ = context.Println(root)
 	}
 
 	// TODO: Should we read an existing configuration file?
@@ -99,7 +99,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 		if err != nil && !errors.Is(err, umaskfree.ErrCopySameFile) {
 			return fmt.Errorf("%w: %w", errBoostrapFailedToCopyExe, err)
 		}
-		context.Println(wdcliPath)
+		_, _ = context.Println(wdcliPath)
 	}
 
 	{
@@ -113,7 +113,9 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 
 			// write out all the extra config files
 			if err := logging.LogOperation(func() error {
-				context.Println(cfg.Paths.OverridesJSON)
+				if _, err := context.Println(cfg.Paths.OverridesJSON); err != nil {
+					return fmt.Errorf("failed to write text: %w", err)
+				}
 				if err := umaskfree.WriteFile(
 					cfg.Paths.OverridesJSON,
 					bootstrap.DefaultOverridesJSON,
@@ -122,7 +124,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 					return fmt.Errorf("failed to write overrides file: %w", err)
 				}
 
-				context.Println(cfg.Paths.ResolverBlocks)
+				_, _ = context.Println(cfg.Paths.ResolverBlocks)
 				if err := umaskfree.WriteFile(
 					cfg.Paths.ResolverBlocks,
 					bootstrap.DefaultResolverBlockedTXT,
@@ -178,16 +180,24 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	if err := cfg.Unmarshal(f); err != nil {
 		return fmt.Errorf("%w: %w", errBootstrapOpenConfig, err)
 	}
-	context.Println(cfg)
+	_, _ = context.Println(cfg)
 
 	// Tell the user how to proceed
 	if _, err := logging.LogMessage(context.Stderr, "Bootstrap is complete"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	context.Printf("Adjust the configuration file at %s\n", cfgPath)
-	context.Printf("Then make sure 'docker compose' is installed.\n")
-	context.Printf("Finally grab a GraphDB zipped source file and run:\n")
-	context.Printf("%s system_update /path/to/graphdb.zip\n", wdcliPath)
+	if _, err := context.Printf("Adjust the configuration file at %s\n", cfgPath); err != nil {
+		return fmt.Errorf("failed to report progress: %w", err)
+	}
+	if _, err := context.Printf("Then make sure 'docker compose' is installed.\n"); err != nil {
+		return fmt.Errorf("failed to report progress: %w", err)
+	}
+	if _, err := context.Printf("Finally grab a GraphDB zipped source file and run:\n"); err != nil {
+		return fmt.Errorf("failed to report progress: %w", err)
+	}
+	if _, err := context.Printf("%s system_update /path/to/graphdb.zip\n", wdcliPath); err != nil {
+		return fmt.Errorf("failed to report progress: %w", err)
+	}
 
 	return nil
 }

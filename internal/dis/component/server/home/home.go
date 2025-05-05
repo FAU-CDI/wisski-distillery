@@ -63,10 +63,10 @@ func (home *Home) serveWissKI(w http.ResponseWriter, slug string, _ *http.Reques
 	if _, ok := home.dependencies.ListInstances.Names()[slug]; !ok {
 		// Get(nil) guaranteed to work by precondition
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "WissKI %q not found\n", slug)
+		_, _ = fmt.Fprintf(w, "WissKI %q not found\n", slug)
 		return
 	}
 
 	w.WriteHeader(http.StatusBadGateway)
-	fmt.Fprintf(w, "WissKI %q is currently offline\n", slug)
+	_, _ = fmt.Fprintf(w, "WissKI %q is currently offline\n", slug)
 }

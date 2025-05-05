@@ -31,7 +31,7 @@ var errMarshalConfig = exit.NewErrorWithCode("unable to marshal config", exit.Ex
 func (cfg cfg) Run(context wisski_distillery.Context) error {
 	if cfg.Human {
 		human := context.Environment.Config.MarshalSensitive()
-		context.Println(human)
+		_, _ = context.Println(human)
 		return nil
 	}
 	if err := context.Environment.Config.Marshal(context.Stdout); err != nil {

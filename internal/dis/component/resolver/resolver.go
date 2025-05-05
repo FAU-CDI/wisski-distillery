@@ -116,7 +116,13 @@ func (resolver *Resolver) HandleRoute(ctx context.Context, route string) (http.H
 			if resolver.dependencies.Auth.CheckScope("", scopes.ScopeUserValid, r) != nil {
 				ctx.Prefixes = nil
 			}
-			resolver.dependencies.Handling.WriteHTML(tpl.Context(r, ctx), nil, t, w, r)
+			if err := resolver.dependencies.Handling.WriteHTML(tpl.Context(r, ctx), nil, t, w, r); err != nil {
+				logger.Error(
+					"failed to write resolver html",
+					"error", err,
+					"url", context.URL,
+				)
+			}
 		},
 
 		Resolver: resolvers.InOrder{

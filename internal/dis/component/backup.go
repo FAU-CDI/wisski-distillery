@@ -66,7 +66,7 @@ func (bc *StagingContext) sendPath(path string) {
 		var err error
 		path, err = bc.resolve(path)
 		if err != nil {
-			fmt.Fprintf(bc.progress, "path resolve error: %s", err)
+			_, _ = fmt.Fprintf(bc.progress, "path resolve error: %s", err)
 			return
 		}
 	}

@@ -56,7 +56,7 @@ func (ds setting) Run(context wisski_distillery.Context) error {
 		}
 
 		// finish with a newline
-		context.Println("")
+		_, _ = context.Println("")
 		return nil
 	}
 

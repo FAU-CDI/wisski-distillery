@@ -37,13 +37,13 @@ var (
 func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
-	context.Printf("Username>")
+	_, _ = context.Printf("Username>")
 	username, err := context.ReadLine()
 	if err != nil {
 		return fmt.Errorf("%w: %w", errUnableToReadUsername, err)
 	}
 
-	context.Printf("Password>")
+	_, _ = context.Printf("Password>")
 	password, err := context.ReadPassword()
 	if err != nil {
 		return fmt.Errorf("%w: %w", errUnableToReadPassword, err)

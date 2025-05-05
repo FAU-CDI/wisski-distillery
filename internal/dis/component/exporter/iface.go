@@ -95,8 +95,8 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	if !task.StagingOnly && archivePath == "" {
 		archivePath = exporter.NewArchivePath(Slug)
 	}
-	fmt.Fprintf(progress, "Staging Directory: %s\n", stagingDir)
-	fmt.Fprintf(progress, "Archive Path:      %s\n", archivePath)
+	_, _ = fmt.Fprintf(progress, "Staging Directory: %s\n", stagingDir)
+	_, _ = fmt.Fprintf(progress, "Archive Path:      %s\n", archivePath)
 
 	// create the staging directory
 	if _, err := logging.LogMessage(progress, "Creating staging directory"); err != nil {
@@ -113,7 +113,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		defer func() {
 			// #nosec G104
 			logging.LogMessage(progress, "Removing staging directory") //nolint:errcheck // no way to report error
-			os.RemoveAll(stagingDir)
+			_ = os.RemoveAll(stagingDir)
 		}()
 	}
 
@@ -121,7 +121,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	// write out the report
 	// and retain a log entry
 	var entry models.Export
-	logging.LogOperation(func() error {
+	_ = logging.LogOperation(func() error {
 		var export export
 		if task.Instance == nil {
 			task.BackupDescription.Dest = stagingDir
@@ -139,7 +139,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		// write the machine report
 		{
 			reportPath := filepath.Join(stagingDir, ReportMachinePath)
-			fmt.Fprintln(progress, reportPath)
+			_, _ = fmt.Fprintln(progress, reportPath)
 
 			report, err := umaskfree.Create(reportPath, umaskfree.DefaultFilePerm)
 			if err != nil {
@@ -154,7 +154,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 		// write the plaintext report
 		{
 			reportPath := filepath.Join(stagingDir, ReportPlainPath)
-			fmt.Fprintln(progress, reportPath)
+			_, _ = fmt.Fprintln(progress, reportPath)
 
 			report, err := umaskfree.Create(reportPath, umaskfree.DefaultFilePerm)
 			if err != nil {
@@ -172,7 +172,7 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 	// if we only requested staging
 	// all that is left is to write the log entry
 	if task.StagingOnly {
-		fmt.Fprintln(progress, "Writing Log Entry")
+		_, _ = fmt.Fprintln(progress, "Writing Log Entry")
 
 		// write out the log entry
 		entry.Path = stagingDir
@@ -181,13 +181,15 @@ func (exporter *Exporter) MakeExport(ctx context.Context, progress io.Writer, ta
 			return fmt.Errorf("failed to add log entry entry: %w", err)
 		}
 
-		fmt.Fprintf(progress, "Wrote %s\n", stagingDir)
+		if _, err := fmt.Fprintf(progress, "Wrote %s\n", stagingDir); err != nil {
+			return fmt.Errorf("failed to report progress: %w", err)
+		}
 		return nil
 	}
 
 	if err := logging.LogOperation(func() error {
 		var count int64
-		defer func() { fmt.Fprintf(progress, "Wrote %d byte(s) to %s\n", count, archivePath) }()
+		defer func() { _, _ = fmt.Fprintf(progress, "Wrote %d byte(s) to %s\n", count, archivePath) }()
 
 		st := status.NewWithCompat(progress, 1)
 		st.Start()

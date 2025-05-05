@@ -12,9 +12,10 @@ linters:
       ignore-package-globs:
         - github.com/tkw1536/pkglib/errorsx
         - github.com/tkw1536/goprogram/exit
+  disable:
+    - bodyclose
   enable:
     - bidichk
-    - bodyclose
     - canonicalheader
     - containedctx
     - contextcheck

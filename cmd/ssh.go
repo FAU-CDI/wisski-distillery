@@ -40,7 +40,7 @@ func (s ssh) Run(context wisski_distillery.Context) error {
 		return fmt.Errorf("%w: %w", errSSHServer, err)
 	}
 
-	context.Printf("Listening on %s\n", s.Bind)
+	_, _ = context.Printf("Listening on %s\n", s.Bind)
 
 	// make a new listener
 	listener, err := net.Listen("tcp", s.Bind)
@@ -50,7 +50,7 @@ func (s ssh) Run(context wisski_distillery.Context) error {
 
 	go func() {
 		<-context.Context.Done()
-		listener.Close()
+		_ = listener.Close() // it is either closed or it isn't
 	}()
 
 	// and serve that listener

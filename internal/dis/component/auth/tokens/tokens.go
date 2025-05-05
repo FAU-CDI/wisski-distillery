@@ -116,7 +116,9 @@ func (tok *Tokens) Add(ctx context.Context, user string, description string, sco
 		User:        user,
 		Description: description,
 	}
-	mk.SetScopes(scopes)
+	if err := mk.SetScopes(scopes); err != nil {
+		return nil, fmt.Errorf("failed to set scopes: %w", err)
+	}
 
 	// generate a new id for the token
 	{

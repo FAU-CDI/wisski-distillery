@@ -23,7 +23,8 @@ var runtimeResources embed.FS
 // Update installs or updates runtime components needed by this component.
 func (instances *Instances) Update(ctx context.Context, progress io.Writer) error {
 	err := unpack.InstallDir(component.GetStill(instances).Config.Paths.RuntimeDir(), "runtime", runtimeResources, func(dst, src string) {
-		fmt.Fprintf(progress, "[copy]  %s\n", dst)
+		// no sensible way to report errors
+		_, _ = fmt.Fprintf(progress, "[copy]  %s\n", dst)
 	})
 	if err != nil {
 		return fmt.Errorf("%w: %w", errBootstrapFailedRuntime, err)

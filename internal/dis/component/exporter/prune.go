@@ -49,7 +49,7 @@ func (exporter *Exporter) PruneExports(ctx context.Context, progress io.Writer) 
 
 		// assemble path, and then remove the file!
 		path := filepath.Join(sPath, entry.Name())
-		fmt.Fprintf(progress, "Removing %s cause it is older than %d days\n", path, component.GetStill(exporter).Config.MaxBackupAge)
+		_, _ = fmt.Fprintf(progress, "Removing %s cause it is older than %d days\n", path, component.GetStill(exporter).Config.MaxBackupAge)
 
 		if err := os.Remove(path); err != nil {
 			return fmt.Errorf("failed to remove snapshot: %w", err)

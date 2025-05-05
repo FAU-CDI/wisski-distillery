@@ -29,7 +29,7 @@ func (license) AfterParse() error {
 }
 
 func (license) Run(context wisski_distillery.Context) error {
-	context.Printf(stringLicenseInfo, wisski_distillery.License, cli.LegalNotices, assets.Disclaimer)
+	_, _ = context.Printf(stringLicenseInfo, wisski_distillery.License, cli.LegalNotices, assets.Disclaimer)
 	return nil
 }
 

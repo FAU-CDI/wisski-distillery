@@ -101,7 +101,7 @@ func (du drupalUser) login(context wisski_distillery.Context, instance *wisski.W
 	if err != nil {
 		return fmt.Errorf("failed to login user: %w", err)
 	}
-	context.Println(link)
+	_, _ = context.Println(link)
 	return nil
 }
 
@@ -141,21 +141,25 @@ func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context,
 	defer errorsx.Close(validator, &e, "validator")
 
 	for {
-		context.Printf("Enter a password to check:")
+		if _, err := context.Printf("Enter a password to check:"); err != nil {
+			return fmt.Errorf("failed to write text: %w", err)
+		}
 		candidate, err := context.ReadPassword()
 		if err != nil {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
-		context.Println()
+		if _, err := context.Println(); err != nil {
+			return fmt.Errorf("failed to write text: %w", err)
+		}
 
 		if candidate == "" {
 			break
 		}
 
 		if validator.Check(context.Context, candidate) {
-			context.Println("check passed")
+			_, _ = context.Println("check passed")
 		} else {
-			context.Println("check did not pass")
+			_, _ = context.Println("check did not pass")
 		}
 	}
 
@@ -163,19 +167,23 @@ func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context,
 }
 
 func (du drupalUser) resetPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
-	context.Printf("Enter new password for user %s:", du.Positionals.User)
+	if _, err := context.Printf("Enter new password for user %s:", du.Positionals.User); err != nil {
+		return fmt.Errorf("failed to write text: %w", err)
+	}
 	passwd1, err := context.ReadPassword()
 	if err != nil {
 		return fmt.Errorf("failed to read password: %w", err)
 	}
-	context.Println()
+	_, _ = context.Println()
 
-	context.Printf("Enter the same password again:")
+	if _, err := context.Printf("Enter the same password again:"); err != nil {
+		return fmt.Errorf("failed to write text: %w", err)
+	}
 	passwd2, err := context.ReadPassword()
 	if err != nil {
 		return fmt.Errorf("failed to read password: %w", err)
 	}
-	context.Println()
+	_, _ = context.Println()
 
 	if passwd1 != passwd2 {
 		return errPasswordsNotIdentical

@@ -49,7 +49,7 @@ func (pb pathbuilders) Run(context wisski_distillery.Context) error {
 			return fmt.Errorf("%w: %w", errPathbuildersExport, err)
 		}
 		for _, name := range names {
-			context.Println(name)
+			_, _ = context.Println(name)
 		}
 		return nil
 	}
@@ -62,7 +62,7 @@ func (pb pathbuilders) Run(context wisski_distillery.Context) error {
 	if err != nil {
 		return fmt.Errorf("%w: %w", errPathbuildersExport, err)
 	}
-	context.Printf("%s", xml)
+	_, _ = context.Printf("%s", xml)
 
 	return nil
 }

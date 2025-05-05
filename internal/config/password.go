@@ -14,7 +14,7 @@ import (
 func (cfg Config) NewPassword() (string, error) {
 	pass, err := password.Generate(rand.Reader, cfg.PasswordLength, passwordx.Safe)
 	if err != nil {
-		return pass, fmt.Errorf("failed to generate password")
+		return pass, fmt.Errorf("failed to generate password: %w", err)
 	}
 	return pass, nil
 }

@@ -60,9 +60,15 @@ func (p *Provision) Act(ctx context.Context, in io.Reader, out io.Writer, params
 		DrupalPassword: instance.DrupalPassword,
 	}
 
-	fmt.Fprintf(out, "URL:      %s\n", result.URL)
-	fmt.Fprintf(out, "Username: %s\n", result.DrupalUsername)
-	fmt.Fprintf(out, "Password: %s\n", result.DrupalPassword)
+	if _, err := fmt.Fprintf(out, "URL:      %s\n", result.URL); err != nil {
+		return nil, fmt.Errorf("failed to report progress: %w", err)
+	}
+	if _, err := fmt.Fprintf(out, "Username: %s\n", result.DrupalUsername); err != nil {
+		return nil, fmt.Errorf("failed to report progress: %w", err)
+	}
+	if _, err := fmt.Fprintf(out, "Password: %s\n", result.DrupalPassword); err != nil {
+		return nil, fmt.Errorf("failed to report progress: %w", err)
+	}
 
 	return result, nil
 }

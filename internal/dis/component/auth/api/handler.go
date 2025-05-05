@@ -160,7 +160,7 @@ func (handler *Handler[T]) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// encode the result into json and send it as the response
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(result)
+	_ = json.NewEncoder(w).Encode(result) //nolint:errchkjson // TODO: no way to report this error
 }
 
 // Response objects cache response serialization.

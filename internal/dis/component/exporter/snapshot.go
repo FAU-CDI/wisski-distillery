@@ -21,6 +21,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/contextx"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/status"
 )
 
@@ -68,8 +69,8 @@ func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.Wiss
 	logging.LogMessage(progress, "Locking instance") //nolint:errcheck // no way to report error
 	if !instance.Locker().TryLock(ctx) {
 		err := locker.ErrLocked
-		fmt.Fprintln(progress, err)
-		fmt.Fprintln(progress, "Aborting snapshot creation")
+		_, _ = fmt.Fprintln(progress, err)
+		_, _ = fmt.Fprintln(progress, "Aborting snapshot creation")
 
 		return Snapshot{
 			ErrPanic: err,
@@ -96,7 +97,7 @@ func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.Wiss
 	}()
 
 	// do the create keeping track of time!
-	logging.LogOperation(func() error {
+	_ = logging.LogOperation(func() error {
 		snapshot.StartTime = time.Now().UTC()
 
 		wboxerr, wboxmsg := snapshot.makeParts(ctx, progress, exporter, instance, false)
@@ -168,11 +169,11 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, _ *
 	if !needsRunning && !snapshot.Description.Keepalive {
 		stack := instance.Barrel().Stack()
 
-		logging.LogMessage(progress, "Stopping instance") //nolint:errcheck no way to report error
+		_, _ = logging.LogMessage(progress, "Stopping instance")
 		snapshot.ErrStop = stack.Down(ctx, progress)
 
 		defer func() {
-			logging.LogMessage(progress, "Starting instance") //nolint:errcheck no way to report error
+			_, _ = logging.LogMessage(progress, "Starting instance")
 			snapshot.ErrStart = stack.Up(ctx, progress)
 		}()
 	}
@@ -239,7 +240,10 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, _ *
 		}
 
 		// delete it, but store the content in the results
-		os.Remove(logfile)
+		if err := os.Remove(logfile); err != nil {
+			err = fmt.Errorf("failed to remove logfile: %w", err)
+			errmap[name] = errorsx.Combine(errmap[name], err)
+		}
 		logmap[name] = string(bytes)
 	}
 

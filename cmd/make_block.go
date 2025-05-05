@@ -93,7 +93,7 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 		})
 
 		if err != nil {
-			context.EPrintln(err.Error())
+			_, _ = context.EPrintln(err.Error())
 			return errBlocksGeneric
 		}
 	}

@@ -37,7 +37,7 @@ func (l ls) Run(context wisski_distillery.Context) error {
 	}
 
 	for _, instance := range instances {
-		context.Println(instance.Slug)
+		_, _ = context.Println(instance.Slug)
 	}
 
 	return nil

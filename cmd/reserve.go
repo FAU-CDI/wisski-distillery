@@ -98,7 +98,7 @@ func (r reserve) run(context wisski_distillery.Context) (err error) {
 	if _, err := logging.LogMessage(context.Stderr, "Instance has been reserved"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	context.Printf("URL:      %s\n", instance.URL().String())
+	_, _ = context.Printf("URL:      %s\n", instance.URL().String())
 
 	return nil
 }

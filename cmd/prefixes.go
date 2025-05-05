@@ -45,7 +45,7 @@ func (p prefixes) Run(context wisski_distillery.Context) error {
 	}
 
 	for _, p := range prefixes {
-		context.Println(p)
+		_, _ = context.Println(p)
 	}
 
 	return nil

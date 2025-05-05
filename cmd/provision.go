@@ -80,9 +80,9 @@ func (p pv) Run(context wisski_distillery.Context) error {
 	if _, err := logging.LogMessage(context.Stderr, "Instance has been provisioned"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	context.Printf("URL:      %s\n", instance.URL().String())
-	context.Printf("Username: %s\n", instance.DrupalUsername)
-	context.Printf("Password: %s\n", instance.DrupalPassword)
+	_, _ = context.Printf("URL:      %s\n", instance.URL().String())
+	_, _ = context.Printf("Username: %s\n", instance.DrupalUsername)
+	_, _ = context.Printf("Password: %s\n", instance.DrupalPassword)
 
 	return nil
 }

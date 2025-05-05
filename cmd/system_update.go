@@ -101,7 +101,7 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 		dis.Exporter().ArchivePath(),
 		dis.Templating().CustomAssetsPath(),
 	} {
-		context.Println(d)
+		_, _ = context.Println(d)
 		if err := umaskfree.MkdirAll(d, umaskfree.DefaultDirPerm); err != nil {
 			return fmt.Errorf("%q: %w: %w", d, errBoostrapFailedToCreateDirectory, err)
 		}
@@ -141,7 +141,7 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 		if err != nil {
 			return fmt.Errorf("%w: %w", errDockerUnreachable, err)
 		}
-		context.Printf("API Version:     %s (experimental: %t)\nBuilder Version: %s\n", ping.APIVersion, ping.Experimental, ping.BuilderVersion)
+		_, _ = context.Printf("API Version:     %s (experimental: %t)\nBuilder Version: %s\n", ping.APIVersion, ping.Experimental, ping.BuilderVersion)
 	}
 
 	{
@@ -165,9 +165,9 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 				return fmt.Errorf("%w: %w", errNetworkCreateFailed, err)
 			}
 			if existed {
-				context.Printf("Network %s (id %s) already existed\n", name, id)
+				_, _ = context.Printf("Network %s (id %s) already existed\n", name, id)
 			} else {
-				context.Printf("Network %s (id %s) created\n", name, id)
+				_, _ = context.Printf("Network %s (id %s) created\n", name, id)
 			}
 		}
 	}
@@ -222,7 +222,7 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 			if err := logging.LogOperation(func() error {
 				_, ok := updated[item.ID()]
 				if ok {
-					context.Println("Already updated")
+					_, _ = context.Println("Already updated")
 					return nil
 				}
 				return item.Update(context.Context, context.Stderr)

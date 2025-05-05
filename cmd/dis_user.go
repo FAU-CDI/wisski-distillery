@@ -134,7 +134,7 @@ func (du disUser) Run(context wisski_distillery.Context) (err error) {
 }
 
 func (du disUser) runInfo(context wisski_distillery.Context, user *auth.AuthUser) error {
-	context.Println(user)
+	_, _ = context.Println(user)
 	return nil
 }
 
@@ -144,7 +144,7 @@ func (du disUser) runCreate(context wisski_distillery.Context) error {
 		return fmt.Errorf("failed to create user: %w", err)
 	}
 
-	context.Println(user)
+	_, _ = context.Println(user)
 	return nil
 }
 
@@ -160,19 +160,25 @@ var errPasswordPolicy = exit.NewErrorWithCode("password policy failed: %s", exit
 func (du disUser) runSetPassword(context wisski_distillery.Context, user *auth.AuthUser) error {
 	var passwd string
 	{
-		context.Printf("Enter new password for user %s:", du.Positionals.User)
+		if _, err := context.Printf("Enter new password for user %s:", du.Positionals.User); err != nil {
+			return fmt.Errorf("failed to write text: %w", err)
+		}
 		passwd1, err := context.ReadPassword()
 		if err != nil {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
-		context.Println()
+		if _, err := context.Println(); err != nil {
+			return fmt.Errorf("failed to write text: %w", err)
+		}
 
-		context.Printf("Enter the same password again:")
+		if _, err := context.Printf("Enter the same password again:"); err != nil {
+			return fmt.Errorf("failed to write text: %w", err)
+		}
 		passwd, err = context.ReadPassword()
 		if err != nil {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
-		context.Println()
+		_, _ = context.Println()
 
 		if passwd != passwd1 {
 			return errPasswordsNotIdentical
@@ -196,13 +202,15 @@ func (du disUser) runUnsetPassword(context wisski_distillery.Context, user *auth
 }
 
 func (du disUser) runCheckPassword(context wisski_distillery.Context, user *auth.AuthUser) error {
-	context.Printf("Enter password for %s:", du.Positionals.User)
+	if _, err := context.Printf("Enter password for %s:", du.Positionals.User); err != nil {
+		return fmt.Errorf("failed to write text: %w", err)
+	}
 
 	candidate, err := context.ReadPassword()
 	if err != nil {
 		return fmt.Errorf("failed to read password: %w", err)
 	}
-	context.Println()
+	_, _ = context.Println()
 
 	var passcode string
 	if user.IsTOTPEnabled() {
@@ -210,7 +218,7 @@ func (du disUser) runCheckPassword(context wisski_distillery.Context, user *auth
 		if err != nil {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
-		context.Println()
+		_, _ = context.Println()
 	}
 
 	if err := user.CheckCredentials(context.Context, []byte(candidate), passcode); err != nil {
@@ -225,7 +233,7 @@ func (du disUser) runListUsers(context wisski_distillery.Context) error {
 		return fmt.Errorf("failed to list all users: %w", err)
 	}
 	for _, user := range users {
-		context.Println(user)
+		_, _ = context.Println(user)
 	}
 	return nil
 }
@@ -242,15 +250,21 @@ func (du disUser) runEnableTOTP(context wisski_distillery.Context, user *auth.Au
 	if err != nil {
 		return fmt.Errorf("failed to generate totp link: %w", err)
 	}
-	context.Println(url)
+	if _, err := context.Println(url); err != nil {
+		return fmt.Errorf("failed to write text: %w", err)
+	}
 
 	// request the passcode
-	context.Printf("Enter passcode for %s:", du.Positionals.User)
+	if _, err := context.Printf("Enter passcode for %s:", du.Positionals.User); err != nil {
+		return fmt.Errorf("failed to write text: %w", err)
+	}
 	passcode, err := context.ReadPassword()
 	if err != nil {
 		return fmt.Errorf("failed to read passcode: %w", err)
 	}
-	context.Println()
+	if _, err := context.Println(); err != nil {
+		return fmt.Errorf("failed to write text: %w", err)
+	}
 
 	// and enter it
 	if err := user.EnableTOTP(context.Context, passcode); err != nil {

@@ -88,7 +88,9 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 	}
 
 	// log out what we're doing!
-	fmt.Fprintf(progress, "%#v", flags)
+	if _, err := fmt.Fprintf(progress, "%#v", flags); err != nil {
+		return nil, fmt.Errorf("failed to report progress: %w", err)
+	}
 
 	// make it in-memory
 	instance, err := pv.dependencies.Instances.Create(flags.Slug, flags.System)

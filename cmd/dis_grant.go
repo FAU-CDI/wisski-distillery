@@ -130,7 +130,9 @@ func (dg disGrant) runAddAll(context wisski_distillery.Context) error {
 	}
 
 	for _, instance := range instances {
-		context.Printf("Adding grant for user %s to %s\n", dg.Positionals.User, instance.Slug)
+		if _, err := context.Printf("Adding grant for user %s to %s\n", dg.Positionals.User, instance.Slug); err != nil {
+			return fmt.Errorf("failed to write text: %w", err)
+		}
 		if err := policy.Set(context.Context, models.Grant{
 			User:            dg.Positionals.User,
 			Slug:            instance.Slug,

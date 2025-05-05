@@ -43,13 +43,13 @@ func (s cStatus) Run(context wisski_distillery.Context) error {
 		return nil
 	}
 
-	context.Printf("Total Instances:      %v\n", status.TotalCount)
-	context.Printf("      (running):      %v\n", status.RunningCount)
-	context.Printf("      (stopped):      %v\n", status.StoppedCount)
+	_, _ = context.Printf("Total Instances:      %v\n", status.TotalCount)
+	_, _ = context.Printf("      (running):      %v\n", status.RunningCount)
+	_, _ = context.Printf("      (stopped):      %v\n", status.StoppedCount)
 
-	context.Printf("Backups: (count %d)\n", len(status.Backups))
+	_, _ = context.Printf("Backups: (count %d)\n", len(status.Backups))
 	for _, s := range status.Backups {
-		context.Printf("- %s (slug %q, taken %s, packed %v)\n", s.Path, s.Slug, s.Created.String(), s.Packed)
+		_, _ = context.Printf("- %s (slug %q, taken %s, packed %v)\n", s.Path, s.Slug, s.Created.String(), s.Packed)
 	}
 
 	return nil

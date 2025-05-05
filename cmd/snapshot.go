@@ -47,7 +47,7 @@ func (sn snapshot) Run(context wisski_distillery.Context) error {
 	// list available parts
 	if sn.List {
 		for _, part := range dis.Exporter().Parts() {
-			context.Println(part)
+			_, _ = context.Println(part)
 		}
 		return nil
 	}

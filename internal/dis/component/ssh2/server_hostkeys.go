@@ -82,6 +82,11 @@ func (ssh2 *SSH2) ReadOrMakeHostKey(progress io.Writer, ctx context.Context, pri
 	return hostKey, nil
 }
 
+var (
+	errNoPrivateKeyBytes = errors.New("no bytes were read from the private key")
+	errPEMDecodeNil      = errors.New("pem.Decode() returned nil")
+)
+
 // loadHostKey loadsa host key.
 func (ssh2 *SSH2) loadHostKey(progress io.Writer, _ context.Context, key HostKey, path string) (err error) {
 	if _, err := fmt.Fprintf(progress, "Loading hostkey (algorithm %s) from %q\n", key.Algorithm(), path); err != nil {
@@ -97,14 +102,14 @@ func (ssh2 *SSH2) loadHostKey(progress io.Writer, _ context.Context, key HostKey
 
 	// if the length is nil, return
 	if len(privateKeyBytes) == 0 {
-		err = errors.New("no bytes were read from the private key")
+		err = errNoPrivateKeyBytes
 		return
 	}
 
 	// decode the pem and unmarshal it
 	privateKeyPEM, _ := pem.Decode(privateKeyBytes)
 	if privateKeyPEM == nil {
-		err = errors.New("pem.Decode() returned nil")
+		err = errPEMDecodeNil
 		return
 	}
 	if err := key.UnmarshalPEM(privateKeyPEM); err != nil {
@@ -295,9 +300,14 @@ func (rk *rsaHostKey) MarshalPEM() (block *pem.Block, err error) {
 	return
 }
 
+var (
+	errExpectedRSAPrivateKey = errors.New("expected an rsa.PrivateKey")
+	errExpectedPEMFormatKey  = errors.New("expected 'RSA PRIVATE KEY' in PEM format")
+)
+
 func (rk *rsaHostKey) UnmarshalPEM(block *pem.Block) (err error) {
 	if block.Type != "RSA PRIVATE KEY" {
-		err = errors.New("expected 'RSA PRIVATE KEY' in PEM format")
+		err = errExpectedPEMFormatKey
 		return
 	}
 
@@ -312,7 +322,7 @@ func (rk *rsaHostKey) UnmarshalPEM(block *pem.Block) (err error) {
 
 	pk, isRSA := parsedKey.(*rsa.PrivateKey)
 	if !isRSA {
-		err = errors.New("expected an rsa.PrivateKey")
+		err = errExpectedRSAPrivateKey
 		return
 	}
 

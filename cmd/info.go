@@ -57,74 +57,74 @@ func (i info) run(context wisski_distillery.Context) (err error) {
 		}
 	}
 
-	context.Printf("Slug:                 %v\n", info.Slug)
-	context.Printf("URL:                  %v\n", info.URL)
+	_, _ = context.Printf("Slug:                 %v\n", info.Slug)
+	_, _ = context.Printf("URL:                  %v\n", info.URL)
 
-	context.Printf("Base directory:       %v\n", instance.FilesystemBase)
+	_, _ = context.Printf("Base directory:       %v\n", instance.FilesystemBase)
 
-	context.Printf("SQL Database:         %v\n", instance.SqlDatabase)
-	context.Printf("SQL Username:         %v\n", instance.SqlUsername)
-	context.Printf("SQL Password:         %v\n", instance.SqlPassword)
+	_, _ = context.Printf("SQL Database:         %v\n", instance.SqlDatabase)
+	_, _ = context.Printf("SQL Username:         %v\n", instance.SqlUsername)
+	_, _ = context.Printf("SQL Password:         %v\n", instance.SqlPassword)
 
-	context.Printf("GraphDB Repository:   %v\n", instance.GraphDBRepository)
-	context.Printf("GraphDB Username:     %v\n", instance.GraphDBUsername)
-	context.Printf("GraphDB Password:     %v\n", instance.GraphDBPassword)
+	_, _ = context.Printf("GraphDB Repository:   %v\n", instance.GraphDBRepository)
+	_, _ = context.Printf("GraphDB Username:     %v\n", instance.GraphDBUsername)
+	_, _ = context.Printf("GraphDB Password:     %v\n", instance.GraphDBPassword)
 
-	context.Printf("Running:              %v\n", info.Running)
-	context.Printf("Locked:               %v\n", info.Locked)
-	context.Printf("Last Rebuild:         %v\n", info.LastRebuild.String())
-	context.Printf("Last Update:          %v\n", info.LastUpdate.String())
-	context.Printf("Last Cron:            %v\n", info.LastCron.String())
+	_, _ = context.Printf("Running:              %v\n", info.Running)
+	_, _ = context.Printf("Locked:               %v\n", info.Locked)
+	_, _ = context.Printf("Last Rebuild:         %v\n", info.LastRebuild.String())
+	_, _ = context.Printf("Last Update:          %v\n", info.LastUpdate.String())
+	_, _ = context.Printf("Last Cron:            %v\n", info.LastCron.String())
 
-	context.Printf("Drupal Version:       %v\n", info.DrupalVersion)
-	context.Printf("Theme:                %v\n", info.Theme)
+	_, _ = context.Printf("Drupal Version:       %v\n", info.DrupalVersion)
+	_, _ = context.Printf("Theme:                %v\n", info.Theme)
 
-	context.Printf("Bundles: (count %d)\n", info.Statistics.Bundles.TotalBundles)
+	_, _ = context.Printf("Bundles: (count %d)\n", info.Statistics.Bundles.TotalBundles)
 	for _, bundle := range info.Statistics.Bundles.Bundles {
 		if bundle.Count == 0 {
 			continue
 		}
-		context.Printf("- %s %d %v\n", bundle.Label, bundle.Count, bundle.MainBundle)
+		_, _ = context.Printf("- %s %d %v\n", bundle.Label, bundle.Count, bundle.MainBundle)
 	}
-	context.Printf("Graphs: (count %d)\n", len(info.Statistics.Triplestore.Graphs))
+	_, _ = context.Printf("Graphs: (count %d)\n", len(info.Statistics.Triplestore.Graphs))
 	for _, graph := range info.Statistics.Triplestore.Graphs {
-		context.Printf("- %s %d\n", graph.URI, graph.Count)
+		_, _ = context.Printf("- %s %d\n", graph.URI, graph.Count)
 	}
 
-	context.Printf("SSH Keys: (count %d)\n", len(info.SSHKeys))
+	_, _ = context.Printf("SSH Keys: (count %d)\n", len(info.SSHKeys))
 	for _, key := range info.SSHKeys {
-		context.Printf("- %s\n", key)
+		_, _ = context.Printf("- %s\n", key)
 	}
 
-	context.Printf("Skip Prefixes:        %v\n", info.NoPrefixes)
-	context.Printf("Prefixes: (count %d)\n", len(info.Prefixes))
+	_, _ = context.Printf("Skip Prefixes:        %v\n", info.NoPrefixes)
+	_, _ = context.Printf("Prefixes: (count %d)\n", len(info.Prefixes))
 	for _, prefix := range info.Prefixes {
-		context.Printf("- %s\n", prefix)
+		_, _ = context.Printf("- %s\n", prefix)
 	}
 
-	context.Printf("Snapshots: (count %d)\n", len(info.Snapshots))
+	_, _ = context.Printf("Snapshots: (count %d)\n", len(info.Snapshots))
 	for _, s := range info.Snapshots {
-		context.Printf("- %s (taken %s, packed %v)\n", s.Path, s.Created.String(), s.Packed)
+		_, _ = context.Printf("- %s (taken %s, packed %v)\n", s.Path, s.Created.String(), s.Packed)
 	}
 
-	context.Printf("Pathbuilders: (count %d)\n", len(info.Pathbuilders))
+	_, _ = context.Printf("Pathbuilders: (count %d)\n", len(info.Pathbuilders))
 	for name, data := range collection.IterSorted(info.Pathbuilders) {
-		context.Printf("- %s (%d bytes)\n", name, len(data))
+		_, _ = context.Printf("- %s (%d bytes)\n", name, len(data))
 	}
 
-	context.Printf("Users: (count %d)\n", len(info.Users))
+	_, _ = context.Printf("Users: (count %d)\n", len(info.Users))
 	for _, user := range info.Users {
-		context.Printf("- %v\n", user)
+		_, _ = context.Printf("- %v\n", user)
 	}
 
-	context.Printf("Grants: (count %d)\n", len(info.Grants))
+	_, _ = context.Printf("Grants: (count %d)\n", len(info.Grants))
 	for _, grant := range info.Grants {
-		context.Printf("- %v\n", grant)
+		_, _ = context.Printf("- %v\n", grant)
 	}
 
-	context.Printf("Requirements: (count %d)\n", len(info.Requirements))
+	_, _ = context.Printf("Requirements: (count %d)\n", len(info.Requirements))
 	for _, req := range info.Requirements {
-		context.Printf("- %v\n", req)
+		_, _ = context.Printf("- %v\n", req)
 	}
 
 	return nil
