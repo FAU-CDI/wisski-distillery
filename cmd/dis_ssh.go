@@ -17,13 +17,13 @@ import (
 var DisSSH wisski_distillery.Command = disSSH{}
 
 type disSSH struct {
-	Add     bool   `short:"a" long:"add" description:"add key to user"`
-	Remove  bool   `short:"r" long:"remove" description:"remove key from user"`
-	Comment string `short:"c" long:"comment" description:"comment of new key"`
+	Add     bool   `description:"add key to user"      long:"add"     short:"a"`
+	Remove  bool   `description:"remove key from user" long:"remove"  short:"r"`
+	Comment string `description:"comment of new key"   long:"comment" short:"c"`
 
 	Positionals struct {
-		User string `positional-arg-name:"USER" required:"1-1" description:"distillery username"`
-		Path string `positional-arg-name:"PATH" required:"1-1" description:"path of key to add"`
+		User string `description:"distillery username" positional-arg-name:"USER" required:"1-1"`
+		Path string `description:"path of key to add"  positional-arg-name:"PATH" required:"1-1"`
 	} `positional-args:"true"`
 }
 

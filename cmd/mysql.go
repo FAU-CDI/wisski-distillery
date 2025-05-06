@@ -15,7 +15,7 @@ var Mysql wisski_distillery.Command = mysql{}
 
 type mysql struct {
 	Positionals struct {
-		Args []string `positional-arg-name:"ARGS" description:"arguments to pass to the mysql command"`
+		Args []string `description:"arguments to pass to the mysql command" positional-arg-name:"ARGS"`
 	} `positional-args:"true"`
 }
 

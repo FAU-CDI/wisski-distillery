@@ -14,7 +14,7 @@ var Prefixes wisski_distillery.Command = prefixes{}
 
 type prefixes struct {
 	Positionals struct {
-		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to show prefixes for"`
+		Slug string `description:"slug of instance to show prefixes for" positional-arg-name:"SLUG" required:"1-1"`
 	} `positional-args:"true"`
 }
 

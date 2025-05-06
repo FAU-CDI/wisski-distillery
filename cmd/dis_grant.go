@@ -15,16 +15,16 @@ import (
 var DisGrant wisski_distillery.Command = disGrant{}
 
 type disGrant struct {
-	AddAll     bool `short:"m" long:"add-all" description:"add grant to all WissKIs"`
-	AddUser    bool `short:"a" long:"add" description:"add or update a user to a given wisski"`
-	RemoveUser bool `short:"r" long:"remove" description:"remove a user from a given wisski"`
+	AddAll     bool `description:"add grant to all WissKIs"               long:"add-all" short:"m"`
+	AddUser    bool `description:"add or update a user to a given wisski" long:"add"     short:"a"`
+	RemoveUser bool `description:"remove a user from a given wisski"      long:"remove"  short:"r"`
 
-	DrupalAdmin bool `short:"A" long:"admin" description:"grant user the admin role"`
+	DrupalAdmin bool `description:"grant user the admin role" long:"admin" short:"A"`
 
 	Positionals struct {
-		User       string `positional-arg-name:"USER" required:"1-1" description:"distillery username"`
-		Slug       string `positional-arg-name:"SLUG" description:"WissKI instance"`
-		DrupalUser string `positional-arg-name:"DRUPAL" description:"drupal username"`
+		User       string `description:"distillery username" positional-arg-name:"USER"   required:"1-1"`
+		Slug       string `description:"WissKI instance"     positional-arg-name:"SLUG"`
+		DrupalUser string `description:"drupal username"     positional-arg-name:"DRUPAL"`
 	} `positional-args:"true"`
 }
 

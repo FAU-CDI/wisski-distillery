@@ -19,8 +19,8 @@ import (
 var SystemPause wisski_distillery.Command = systempause{}
 
 type systempause struct {
-	Stop  bool `short:"d" long:"stop" description:"stop all the components"`
-	Start bool `short:"u" long:"start" description:"start all the components"`
+	Stop  bool `description:"stop all the components"  long:"stop"  short:"d"`
+	Start bool `description:"start all the components" long:"start" short:"u"`
 }
 
 func (systempause) Description() wisski_distillery.Description {

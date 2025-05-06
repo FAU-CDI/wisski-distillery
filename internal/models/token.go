@@ -14,7 +14,7 @@ const TokensTable = "tokens"
 type Token struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 
-	Token   string `json:"-" gorm:"column:token;unique:true;not null"` // token used by the actual api (shown only once)
+	Token   string `gorm:"column:token;unique:true;not null" json:"-"` // token used by the actual api (shown only once)
 	TokenID string `gorm:"column:id;unique:true;not null"`             // token id (displayed to user, used for finding it)
 
 	User string `gorm:"column:user;not null"` // (distillery) username

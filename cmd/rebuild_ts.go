@@ -12,9 +12,9 @@ import (
 var RebuildTS wisski_distillery.Command = rebuildTS{}
 
 type rebuildTS struct {
-	AllowEmptyRepository bool `short:"a" long:"allow-empty" description:"don't abort if repository is empty"`
+	AllowEmptyRepository bool `description:"don't abort if repository is empty" long:"allow-empty" short:"a"`
 	Positionals          struct {
-		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to rebuild triplestore for"`
+		Slug string `description:"slug of instance to rebuild triplestore for" positional-arg-name:"SLUG" required:"1-1"`
 	} `positional-args:"true"`
 }
 

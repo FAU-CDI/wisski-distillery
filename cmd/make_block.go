@@ -18,12 +18,12 @@ import (
 var MakeBlock wisski_distillery.Command = makeBlock{}
 
 type makeBlock struct {
-	Title  string `short:"t" long:"title" description:"title of block to create"`
-	Region string `short:"r" long:"region" description:"optional region to assign block to"`
-	Footer bool   `short:"f" long:"footer" description:"create block in the footer region"`
+	Title  string `description:"title of block to create"           long:"title"  short:"t"`
+	Region string `description:"optional region to assign block to" long:"region" short:"r"`
+	Footer bool   `description:"create block in the footer region"  long:"footer" short:"f"`
 
 	Positionals struct {
-		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to create legal block for"`
+		Slug string `description:"slug of instance to create legal block for" positional-arg-name:"SLUG" required:"1-1"`
 	} `positional-args:"true"`
 }
 

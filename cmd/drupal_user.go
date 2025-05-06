@@ -18,13 +18,13 @@ import (
 var DrupalUser wisski_distillery.Command = drupalUser{}
 
 type drupalUser struct {
-	CheckCommonPasswords   bool `short:"d" long:"check-common-passwords" description:"check for most common passwords. operates on all users concurrently."`
-	CheckPasswdInteractive bool `short:"c" long:"check-password" description:"interactively check user password"`
-	ResetPasswd            bool `short:"r" long:"reset-password" description:"reset password for user"`
-	Login                  bool `short:"l" long:"login" description:"print url to login as"`
+	CheckCommonPasswords   bool `description:"check for most common passwords. operates on all users concurrently." long:"check-common-passwords" short:"d"`
+	CheckPasswdInteractive bool `description:"interactively check user password"                                    long:"check-password"         short:"c"`
+	ResetPasswd            bool `description:"reset password for user"                                              long:"reset-password"         short:"r"`
+	Login                  bool `description:"print url to login as"                                                long:"login"                  short:"l"`
 	Positionals            struct {
-		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to manage"`
-		User string `positional-arg-name:"USER" description:"username to manage. may be omitted for some actions"`
+		Slug string `description:"slug of instance to manage"                          positional-arg-name:"SLUG" required:"1-1"`
+		User string `description:"username to manage. may be omitted for some actions" positional-arg-name:"USER"`
 	} `positional-args:"true"`
 }
 

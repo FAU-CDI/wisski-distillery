@@ -17,7 +17,7 @@ import (
 var UpdatePrefixConfig wisski_distillery.Command = updateprefixconfig{}
 
 type updateprefixconfig struct {
-	Parallel int `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
+	Parallel int `default:"1" description:"run on (at most) this many instances in parallel. 0 for no limit." long:"parallel" short:"p"`
 }
 
 func (updateprefixconfig) Description() wisski_distillery.Description {

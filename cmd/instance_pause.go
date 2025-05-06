@@ -13,10 +13,10 @@ import (
 var InstancePause wisski_distillery.Command = instancepause{}
 
 type instancepause struct {
-	Stop        bool `short:"d" long:"stop" description:"stop instance"`
-	Start       bool `short:"u" long:"start" description:"start (or restart) instance"`
+	Stop        bool `description:"stop instance"               long:"stop"  short:"d"`
+	Start       bool `description:"start (or restart) instance" long:"start" short:"u"`
 	Positionals struct {
-		Slug string `positional-arg-name:"slug" required:"1-1" description:"name of instance to purge"`
+		Slug string `description:"name of instance to purge" positional-arg-name:"slug" required:"1-1"`
 	} `positional-args:"true"`
 }
 

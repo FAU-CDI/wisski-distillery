@@ -22,9 +22,9 @@ import (
 var SystemUpdate wisski_distillery.Command = systemupdate{}
 
 type systemupdate struct {
-	InstallDocker bool "short:\"a\" long:\"install-docker\" description:\"try to automatically install docker. assumes `apt-get` as a package manager\""
+	InstallDocker bool `description:"try to automatically install docker. assumes 'apt-get' as a package manager" long:"install-docker" short:"a"`
 	Positionals   struct {
-		GraphdbZip string `positional-arg-name:"PATH_TO_GRAPHDB_ZIP" required:"1-1" description:"path to the graphdb.zip file"`
+		GraphdbZip string `description:"path to the graphdb.zip file" positional-arg-name:"PATH_TO_GRAPHDB_ZIP" required:"1-1"`
 	} `positional-args:"true"`
 }
 

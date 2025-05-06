@@ -7,8 +7,8 @@ import "github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 type Flags struct {
 	//lint:ignore SA5008 required by the argument framework
 	//nolint:staticcheck
-	LogLevel   wdlog.Flag `short:"l" long:"loglevel" description:"log level" default:"info" choice:"trace" choice:"debug" choice:"info" choice:"warn" choice:"error" choice:"fatal" choice:"panic"`
-	ConfigPath string     `short:"c" long:"config" description:"path to distillery configuration file"`
+	LogLevel   wdlog.Flag `choice:"trace"                                      choice:"debug" choice:"info" choice:"warn" choice:"error" choice:"fatal" choice:"panic" default:"info" description:"log level" long:"loglevel" short:"l"`
+	ConfigPath string     `description:"path to distillery configuration file" long:"config"  short:"c"`
 
-	InternalInDocker bool `long:"internal-in-docker" description:"internal flag to signal the shell that it is running inside a docker stack belonging to the distillery"`
+	InternalInDocker bool `description:"internal flag to signal the shell that it is running inside a docker stack belonging to the distillery" long:"internal-in-docker"`
 }

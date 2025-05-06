@@ -15,9 +15,9 @@ var DrupalSetting wisski_distillery.Command = setting{}
 
 type setting struct {
 	Positionals struct {
-		Slug    string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to get or set value for"`
-		Setting string `positional-arg-name:"SETTING" require:"1-1" description:"name of setting to read or write"`
-		Value   string `positional-arg-name:"VALUE" description:"json serialization of value to write"`
+		Slug    string `description:"slug of instance to get or set value for" positional-arg-name:"SLUG"    required:"1-1"`
+		Setting string `description:"name of setting to read or write"         positional-arg-name:"SETTING" require:"1-1"`
+		Value   string `description:"json serialization of value to write"     positional-arg-name:"VALUE"`
 	} `positional-args:"true"`
 }
 

@@ -14,15 +14,15 @@ import (
 var Snapshot wisski_distillery.Command = snapshot{}
 
 type snapshot struct {
-	Keepalive   bool `short:"k" long:"keepalive" description:"keep instance running while taking a backup. might lead to inconsistent state"`
-	StagingOnly bool `short:"s" long:"staging-only" description:"do not package into a snapshot archive, but only create a staging directory"`
+	Keepalive   bool `description:"keep instance running while taking a backup. might lead to inconsistent state" long:"keepalive"    short:"k"`
+	StagingOnly bool `description:"do not package into a snapshot archive, but only create a staging directory"   long:"staging-only" short:"s"`
 
-	Parts []string `short:"p" long:"parts" description:"parts to include in snapshots. defaults to all parts, use l to list all available parts"`
-	List  bool     `short:"l" long:"list-parts" description:"list available parts"`
+	Parts []string `description:"parts to include in snapshots. defaults to all parts, use l to list all available parts" long:"parts"      short:"p"`
+	List  bool     `description:"list available parts"                                                                    long:"list-parts" short:"l"`
 
 	Positionals struct {
-		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to take a snapshot of"`
-		Dest string "positional-arg-name:\"DEST\" description:\"destination path to write snapshot archive to. defaults to the `snapshots/archives/` directory\""
+		Slug string `description:"slug of instance to take a snapshot of"                                                         positional-arg-name:"SLUG" required:"1-1"`
+		Dest string `description:"destination path to write snapshot archive to. defaults to the 'snapshots/archives/' directory" positional-arg-name:"DEST"`
 	} `positional-args:"true"`
 }
 

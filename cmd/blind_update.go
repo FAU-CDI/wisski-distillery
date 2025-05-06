@@ -17,10 +17,10 @@ import (
 var BlindUpdate wisski_distillery.Command = blindUpdate{}
 
 type blindUpdate struct {
-	Parallel    int  `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit" default:"1"`
-	Force       bool "short:\"f\" long:\"force\" description:\"force running blind-update even if `AutoBlindUpdate` is set to false\""
+	Parallel    int  `default:"1"                                                                        description:"run on (at most) this many instances in parallel. 0 for no limit" long:"parallel" short:"p"`
+	Force       bool `description:"force running blind-update even if 'AutoBlindUpdate' is set to false" long:"force"                                                                   short:"f"`
 	Positionals struct {
-		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instances to update"`
+		Slug []string `description:"slug of instances to update" positional-arg-name:"SLUG" required:"0"`
 	} `positional-args:"true"`
 }
 

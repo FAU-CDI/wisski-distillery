@@ -12,11 +12,11 @@ type ListenConfig struct {
 	// Ports are the public addresses to bind to.
 	// Each address is automatically multiplexed to serve http, https and ssh traffic.
 	// This should typically be port 80 and port 443.
-	Ports []uint16 `yaml:"ports" default:"80" validate:"ports"`
+	Ports []uint16 `default:"80" validate:"ports" yaml:"ports"`
 
 	// SSHPort is the port that shows up as the ssh port in various places in the interface.
 	// It is automaticalled added to the ports to listen to.
-	SSHPort uint16 `yaml:"ssh" default:"80" validate:"port"`
+	SSHPort uint16 `default:"80" validate:"port" yaml:"ssh"`
 }
 
 // ComposePorts returns a list of ports to be used within a docker-compose.yml file.

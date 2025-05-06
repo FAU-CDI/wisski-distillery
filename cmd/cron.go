@@ -16,10 +16,10 @@ import (
 var Cron wisski_distillery.Command = cron{}
 
 type cron struct {
-	Parallel int `short:"p" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
+	Parallel int `default:"1" description:"run on (at most) this many instances in parallel. 0 for no limit." long:"parallel" short:"p"`
 
 	Positionals struct {
-		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instances to run cron in"`
+		Slug []string `description:"slug of instances to run cron in" positional-arg-name:"SLUG" required:"0"`
 	} `positional-args:"true"`
 }
 

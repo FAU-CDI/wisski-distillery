@@ -20,9 +20,9 @@ import (
 var Server wisski_distillery.Command = server{}
 
 type server struct {
-	Trigger      bool   `short:"t" long:"trigger" description:"instead of running on the existing server, simply trigger a cron run"`
-	Bind         string `short:"b" long:"bind" description:"address to listen on" default:"127.0.0.1:8888"`
-	InternalBind string `short:"i" long:"internal-bind" description:"address to listen on for internal server" default:"127.0.0.1:9999"`
+	Trigger      bool   `description:"instead of running on the existing server, simply trigger a cron run" long:"trigger"                                         short:"t"`
+	Bind         string `default:"127.0.0.1:8888"                                                           description:"address to listen on"                     long:"bind"          short:"b"`
+	InternalBind string `default:"127.0.0.1:9999"                                                           description:"address to listen on for internal server" long:"internal-bind" short:"i"`
 }
 
 func (s server) Description() wisski_distillery.Description {

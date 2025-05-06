@@ -17,11 +17,11 @@ import (
 var Backup wisski_distillery.Command = backup{}
 
 type backup struct {
-	NoPrune             bool `short:"n" long:"no-prune" description:"do not prune older backup archives"`
-	StagingOnly         bool `short:"s" long:"staging-only" description:"do not package into a backup archive, but only create a staging directory"`
-	ConcurrentSnapshots int  `short:"c" long:"concurrent-snapshots" description:"maximum number of concurrent snapshots" default:"2"`
+	NoPrune             bool `description:"do not prune older backup archives"                                        long:"no-prune"                                      short:"n"`
+	StagingOnly         bool `description:"do not package into a backup archive, but only create a staging directory" long:"staging-only"                                  short:"s"`
+	ConcurrentSnapshots int  `default:"2"                                                                             description:"maximum number of concurrent snapshots" long:"concurrent-snapshots" short:"c"`
 	Positionals         struct {
-		Dest string "positional-arg-name:\"DEST\" description:\"destination path to write backup archive to. defaults to the `snapshots/archives/` directory\""
+		Dest string `description:"destination path to write backup archive to. defaults to the 'snapshots/archives/' directory" positional-arg-name:"DEST"`
 	} `positional-args:"true"`
 }
 

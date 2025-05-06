@@ -17,17 +17,17 @@ import (
 var Rebuild wisski_distillery.Command = rebuild{}
 
 type rebuild struct {
-	Parallel int `short:"a" long:"parallel" description:"run on (at most) this many instances in parallel. 0 for no limit." default:"1"`
+	Parallel int `default:"1" description:"run on (at most) this many instances in parallel. 0 for no limit." long:"parallel" short:"a"`
 
-	System                bool   `short:"s" long:"system-update" description:"Update the system configuration according to other flags"`
-	PHPVersion            string `short:"p" long:"php" description:"update to specific php version to use for instance. See 'provision --list-php-versions' for available versions. "`
-	IIPServer             bool   `short:"i" long:"iip-server" description:"enable iip-server inside this instance"`
-	OPCacheDevelopment    bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
-	Flavor                string `short:"f" long:"flavor" description:"Use specific flavor. Use 'provision --list-flavors' to list flavors. "`
-	ContentSecurityPolicy string `short:"c" long:"content-security-policy" description:"Setup ContentSecurityPolicy"`
+	System                bool   `description:"Update the system configuration according to other flags"                                                         long:"system-update"           short:"s"`
+	PHPVersion            string `description:"update to specific php version to use for instance. See 'provision --list-php-versions' for available versions. " long:"php"                     short:"p"`
+	IIPServer             bool   `description:"enable iip-server inside this instance"                                                                           long:"iip-server"              short:"i"`
+	OPCacheDevelopment    bool   `description:"Include opcache development configuration"                                                                        long:"opcache-devel"           short:"o"`
+	Flavor                string `description:"Use specific flavor. Use 'provision --list-flavors' to list flavors. "                                            long:"flavor"                  short:"f"`
+	ContentSecurityPolicy string `description:"Setup ContentSecurityPolicy"                                                                                      long:"content-security-policy" short:"c"`
 
 	Positionals struct {
-		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slug of instance or instances to run rebuild"`
+		Slug []string `description:"slug of instance or instances to run rebuild" positional-arg-name:"SLUG" required:"0"`
 	} `positional-args:"true"`
 }
 

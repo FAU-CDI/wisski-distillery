@@ -18,15 +18,15 @@ import (
 var Provision wisski_distillery.Command = pv{}
 
 type pv struct {
-	PHPVersion            string `short:"p" long:"php" description:"specific php version to use for instance. See 'provision --list-php-versions' for available versions. "`
-	ListPHPVersions       bool   `long:"list-php-versions" description:"List available php versions"`
-	IIPServer             bool   `short:"i" long:"iip-server" description:"enable iip-server inside this instance"`
-	OPCacheDevelopment    bool   `short:"o" long:"opcache-devel" description:"Include opcache development configuration"`
-	Flavor                string `short:"f" long:"flavor" description:"Use specific flavor. Use '--list-flavors' to list flavors. "`
-	ListFlavors           bool   `short:"l" long:"list-flavors" description:"List all known flavors"`
-	ContentSecurityPolicy string `short:"c" long:"content-security-policy" description:"Setup ContentSecurityPolicy"`
+	PHPVersion            string `description:"specific php version to use for instance. See 'provision --list-php-versions' for available versions. " long:"php"                     short:"p"`
+	ListPHPVersions       bool   `description:"List available php versions"                                                                            long:"list-php-versions"`
+	IIPServer             bool   `description:"enable iip-server inside this instance"                                                                 long:"iip-server"              short:"i"`
+	OPCacheDevelopment    bool   `description:"Include opcache development configuration"                                                              long:"opcache-devel"           short:"o"`
+	Flavor                string `description:"Use specific flavor. Use '--list-flavors' to list flavors. "                                            long:"flavor"                  short:"f"`
+	ListFlavors           bool   `description:"List all known flavors"                                                                                 long:"list-flavors"            short:"l"`
+	ContentSecurityPolicy string `description:"Setup ContentSecurityPolicy"                                                                            long:"content-security-policy" short:"c"`
 	Positionals           struct {
-		Slug string `positional-arg-name:"slug" description:"slug of instance to create"`
+		Slug string `description:"slug of instance to create" positional-arg-name:"slug"`
 	} `positional-args:"true"`
 }
 

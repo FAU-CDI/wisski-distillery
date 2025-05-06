@@ -14,7 +14,7 @@ var Ls wisski_distillery.Command = ls{}
 
 type ls struct {
 	Positionals struct {
-		Slug []string `positional-arg-name:"SLUG" required:"0" description:"slugs of instances to list. if empty, list all instances"`
+		Slug []string `description:"slugs of instances to list. if empty, list all instances" positional-arg-name:"SLUG" required:"0"`
 	} `positional-args:"true"`
 }
 

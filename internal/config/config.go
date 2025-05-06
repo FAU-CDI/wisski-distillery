@@ -28,28 +28,28 @@ import (
 //
 //nolint:recvcheck
 type Config struct {
-	Listen ListenConfig `yaml:"listen" recurse:"true"`
-	Paths  PathsConfig  `yaml:"paths" recurse:"true"`
-	HTTP   HTTPConfig   `yaml:"http" recurse:"true"`
-	Home   HomeConfig   `yaml:"home" recurse:"true"`
-	Docker DockerConfig `yaml:"docker" recurse:"true"`
+	Listen ListenConfig `recurse:"true" yaml:"listen"`
+	Paths  PathsConfig  `recurse:"true" yaml:"paths"`
+	HTTP   HTTPConfig   `recurse:"true" yaml:"http"`
+	Home   HomeConfig   `recurse:"true" yaml:"home"`
+	Docker DockerConfig `recurse:"true" yaml:"docker"`
 
-	SQL SQLConfig `yaml:"sql" recurse:"true"`
-	TS  TSConfig  `yaml:"triplestore" recurse:"true"`
+	SQL SQLConfig `recurse:"true" yaml:"sql"`
+	TS  TSConfig  `recurse:"true" yaml:"triplestore"`
 
 	// Maximum age for backup in days
-	MaxBackupAge time.Duration `yaml:"age" validate:"duration"`
+	MaxBackupAge time.Duration `validate:"duration" yaml:"age"`
 
 	// Various components use password-based-authentication.
 	// These passwords are generated automatically.
 	// This variable can be used to determine their length.
-	PasswordLength int `yaml:"password_length" default:"64" validate:"positive"`
+	PasswordLength int `default:"64" validate:"positive" yaml:"password_length"`
 
 	// session secret holds the secret for login
-	SessionSecret string `yaml:"session_secret" validate:"nonempty" sensitive:"true"`
+	SessionSecret string `sensitive:"true" validate:"nonempty" yaml:"session_secret"`
 
 	// interval to trigger distillery cron tasks in
-	CronInterval time.Duration `yaml:"cron_interval" default:"10m" validate:"duration"`
+	CronInterval time.Duration `default:"10m" validate:"duration" yaml:"cron_interval"`
 
 	// ConfigPath is the path this configuration was loaded from (if any)
 	ConfigPath string `yaml:"-"`

@@ -16,35 +16,35 @@ type HTTPConfig struct {
 	// Each created Drupal Instance corresponds to a single domain name.
 	// These domain names should either be a complete domain name or a sub-domain of a default domain.
 	// This setting configures the default domain-name to create subdomains of.
-	PrimaryDomain string `yaml:"domain" default:"localhost.kwarc.info" validate:"domain"`
+	PrimaryDomain string `default:"localhost.kwarc.info" validate:"domain" yaml:"domain"`
 
 	// By default, only the 'self' domain above is caught.
 	// To catch additional domains, add them here (comma separated)
-	ExtraDomains []string `yaml:"domains" validate:"domains"`
+	ExtraDomains []string `validate:"domains" yaml:"domains"`
 
 	// The system can support setting up certificate(s) automatically.
 	// It can be enabled by setting an email for certbot certificates.
 	// This email address can be configured here.
-	CertbotEmail string `yaml:"certbot_email" validate:"email"`
+	CertbotEmail string `validate:"email" yaml:"certbot_email"`
 
 	// Debug determines if error messages should be written as html pages with stack traces to http clients.
 	// This potentially exposes sensitive information and may cause certain API responses to be of content type 'text/html' unexpectedly.
-	Debug validators.NullableBool `yaml:"debug" validate:"bool" default:"false"`
+	Debug validators.NullableBool `default:"false" validate:"bool" yaml:"debug"`
 
 	// Also serve the panel on the toplevel domain.
 	// Note that the panel is *always* servered under the "panel" domain.
 	// Disabling this is not recommended.
-	Panel validators.NullableBool `yaml:"panel" validate:"bool" default:"true"`
+	Panel validators.NullableBool `default:"true" validate:"bool" yaml:"panel"`
 
 	// API determines if the API is enabled.
 	// In a future version of the distillery, it will be enabled by default.
-	API validators.NullableBool `yaml:"api" validate:"bool" default:"false"`
+	API validators.NullableBool `default:"false" validate:"bool" yaml:"api"`
 
 	// TS determintes if the special Triplestore domain is enabled.
-	TS validators.NullableBool `yaml:"ts" validate:"bool" default:"false"`
+	TS validators.NullableBool `default:"false" validate:"bool" yaml:"ts"`
 
 	// PhpMyAdmin determines if the special PhpMyAdmin domain is enabled.
-	PhpMyAdmin validators.NullableBool `yaml:"phpmyadmin" validate:"bool" default:"false"`
+	PhpMyAdmin validators.NullableBool `default:"false" validate:"bool" yaml:"phpmyadmin"`
 }
 
 // PanelDomain is the primary domain name where the control panel runs.

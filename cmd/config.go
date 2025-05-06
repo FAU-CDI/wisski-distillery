@@ -13,7 +13,7 @@ import (
 var Config wisski_distillery.Command = cfg{}
 
 type cfg struct {
-	Human bool `long:"human" description:"Print configuration in human-readable format"`
+	Human bool `description:"Print configuration in human-readable format" long:"human"`
 }
 
 func (c cfg) Description() wisski_distillery.Description {

@@ -14,10 +14,10 @@ import (
 var InstanceLock wisski_distillery.Command = instanceLock{}
 
 type instanceLock struct {
-	Lock        bool `short:"l" long:"lock" description:"lock the provided instance"`
-	Unlock      bool `short:"u" long:"unlock" description:"unlock the provided instance"`
+	Lock        bool `description:"lock the provided instance"   long:"lock"   short:"l"`
+	Unlock      bool `description:"unlock the provided instance" long:"unlock" short:"u"`
 	Positionals struct {
-		Slug string `positional-arg-name:"SLUG" required:"1-1" description:"slug of instance to lock or unlock"`
+		Slug string `description:"slug of instance to lock or unlock" positional-arg-name:"SLUG" required:"1-1"`
 	} `positional-args:"true"`
 }
 

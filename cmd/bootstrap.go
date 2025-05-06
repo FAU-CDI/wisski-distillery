@@ -24,8 +24,8 @@ import (
 var Bootstrap wisski_distillery.Command = cBootstrap{}
 
 type cBootstrap struct {
-	Directory string `short:"r" long:"root-directory" description:"path to the root deployment directory" default:"/var/www/deploy"`
-	Hostname  string `short:"h" long:"hostname" description:"default hostname of the distillery (default: system hostname)"`
+	Directory string `default:"/var/www/deploy"                                                   description:"path to the root deployment directory" long:"root-directory" short:"r"`
+	Hostname  string `description:"default hostname of the distillery (default: system hostname)" long:"hostname"                                     short:"h"`
 }
 
 func (cBootstrap) Description() wisski_distillery.Description {

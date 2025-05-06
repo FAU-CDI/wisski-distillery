@@ -7,25 +7,25 @@ import "github.com/FAU-CDI/wisski-distillery/internal/config/validators"
 type DatabaseConfig struct {
 	// Credentials for the admin user.
 	// Is automatically created if it does not exist.
-	AdminUsername string `yaml:"username" default:"admin" validate:"nonempty"`
-	AdminPassword string `yaml:"password" validate:"nonempty"  sensitive:"****"`
+	AdminUsername string `default:"admin"  validate:"nonempty" yaml:"username"`
+	AdminPassword string `sensitive:"****" validate:"nonempty" yaml:"password"`
 
 	// Prefix for new users and data setss
-	UserPrefix string `yaml:"user_prefix" default:"wisski-distillery-" validate:"slug"`
-	DataPrefix string `yaml:"data_prefix" default:"wisski-distillery-" validate:"slug"`
+	UserPrefix string `default:"wisski-distillery-" validate:"slug" yaml:"user_prefix"`
+	DataPrefix string `default:"wisski-distillery-" validate:"slug" yaml:"data_prefix"`
 }
 
 type SQLConfig struct {
-	DatabaseConfig `yaml:",inline" recurse:"true"`
+	DatabaseConfig `recurse:"true" yaml:",inline"`
 
 	// Database to use to store distillery datastructures
-	Database string `yaml:"database" default:"distillery" validate:"slug"`
+	Database string `default:"distillery" validate:"slug" yaml:"database"`
 }
 
 type TSConfig struct {
-	DatabaseConfig `yaml:",inline" recurse:"true"`
+	DatabaseConfig `recurse:"true" yaml:",inline"`
 
 	// DangerouslyUseAdapterPrefixes inidicates if scanning for prefixes should just use prefixes declared in all adapters.
 	// This may not reflect what is actually in the database.
-	DangerouslyUseAdapterPrefixes validators.NullableBool `yaml:"dangerously_use_adapter_prefixes" default:"false" validate:"bool"`
+	DangerouslyUseAdapterPrefixes validators.NullableBool `default:"false" validate:"bool" yaml:"dangerously_use_adapter_prefixes"`
 }

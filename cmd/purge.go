@@ -13,9 +13,9 @@ import (
 var Purge wisski_distillery.Command = purge{}
 
 type purge struct {
-	Yes         bool `short:"y" long:"yes" description:"do not ask for confirmation"`
+	Yes         bool `description:"do not ask for confirmation" long:"yes" short:"y"`
 	Positionals struct {
-		Slug string `positional-arg-name:"slug" required:"1-1" description:"name of instance to purge"`
+		Slug string `description:"name of instance to purge" positional-arg-name:"slug" required:"1-1"`
 	} `positional-args:"true"`
 }
 

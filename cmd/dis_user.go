@@ -14,24 +14,24 @@ import (
 var DisUser wisski_distillery.Command = disUser{}
 
 type disUser struct {
-	CreateUser bool `short:"c" long:"create" description:"create a new user"`
-	DeleteUser bool `short:"d" long:"delete" description:"delete a user"`
+	CreateUser bool `description:"create a new user" long:"create" short:"c"`
+	DeleteUser bool `description:"delete a user"     long:"delete" short:"d"`
 
-	MakeAdmin   bool `short:"a" long:"add-admin" description:"add admin permission to user"`
-	RemoveAdmin bool `short:"A" long:"remove-admin" description:"remove admin permission from user"`
+	MakeAdmin   bool `description:"add admin permission to user"      long:"add-admin"    short:"a"`
+	RemoveAdmin bool `description:"remove admin permission from user" long:"remove-admin" short:"A"`
 
-	InfoUser  bool `short:"i" long:"info" description:"show information about a user"`
-	ListUsers bool `short:"l" long:"list" description:"list all users"`
+	InfoUser  bool `description:"show information about a user" long:"info" short:"i"`
+	ListUsers bool `description:"list all users"                long:"list" short:"l"`
 
-	SetPassword   bool `short:"s" long:"set-password" description:"interactively set a user password"`
-	UnsetPassword bool `short:"u" long:"unset-password" description:"delete a users password and block the account"`
-	CheckPassword bool `short:"p" long:"check-password" description:"interactively check a user credential"`
+	SetPassword   bool `description:"interactively set a user password"             long:"set-password"   short:"s"`
+	UnsetPassword bool `description:"delete a users password and block the account" long:"unset-password" short:"u"`
+	CheckPassword bool `description:"interactively check a user credential"         long:"check-password" short:"p"`
 
-	EnableTOTP  bool `short:"t" long:"enable-totp" description:"interactively enroll a user in totp"`
-	DisableTOTP bool `short:"v" long:"disable-totp" description:"disable totp for a user"`
+	EnableTOTP  bool `description:"interactively enroll a user in totp" long:"enable-totp"  short:"t"`
+	DisableTOTP bool `description:"disable totp for a user"             long:"disable-totp" short:"v"`
 
 	Positionals struct {
-		User string `positional-arg-name:"USER" description:"username to manage. may be omitted for some actions"`
+		User string `description:"username to manage. may be omitted for some actions" positional-arg-name:"USER"`
 	} `positional-args:"true"`
 }
 

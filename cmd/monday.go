@@ -14,10 +14,10 @@ import (
 var Monday wisski_distillery.Command = monday{}
 
 type monday struct {
-	UpdateInstances bool `short:"u" long:"update-instances" description:"fully update instances. may take a long time, and is potentially breaking"`
-	SkipBackup      bool `long:"skip-backup" description:"skip making a backup. dangerous"`
+	UpdateInstances bool `description:"fully update instances. may take a long time, and is potentially breaking" long:"update-instances" short:"u"`
+	SkipBackup      bool `description:"skip making a backup. dangerous"                                           long:"skip-backup"`
 	Positionals     struct {
-		GraphdbZip string "positional-arg-name:\"PATH_TO_GRAPHDB_ZIP\" required:\"1-1\" description:\"path to the `graphdb.zip` file\""
+		GraphdbZip string `description:"path to the 'graphdb.zip' file" positional-arg-name:"PATH_TO_GRAPHDB_ZIP" required:"1-1"`
 	} `positional-args:"true"`
 }
 
