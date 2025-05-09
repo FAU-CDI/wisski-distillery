@@ -17,7 +17,7 @@ import (
 var Backup wisski_distillery.Command = backup{}
 
 type backup struct {
-	NoPrune             bool `description:"do not prune older backup archives"                                        long:"no-prune"                                      short:"n"`
+	Prune               bool `description:"prune older backup archives"                                        long:"prune"                                      short:"n"`
 	StagingOnly         bool `description:"do not package into a backup archive, but only create a staging directory" long:"staging-only"                                  short:"s"`
 	ConcurrentSnapshots int  `default:"2"                                                                             description:"maximum number of concurrent snapshots" long:"concurrent-snapshots" short:"c"`
 	Positionals         struct {
@@ -41,7 +41,7 @@ func (bk backup) Run(context wisski_distillery.Context) error {
 	dis := context.Environment
 
 	// prune old backups
-	if !bk.NoPrune {
+	if bk.Prune {
 		defer func() {
 			err := logging.LogOperation(func() error {
 				return dis.Exporter().PruneExports(context.Context, context.Stderr)

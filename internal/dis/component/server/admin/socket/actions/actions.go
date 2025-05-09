@@ -11,7 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 )
 
-// Routeable is a component that is servable.
+// WebsocketAction is a component that can be run via the websocket api.
 type WebsocketAction interface {
 	component.Component
 
@@ -19,6 +19,7 @@ type WebsocketAction interface {
 	Act(ctx context.Context, in io.Reader, out io.Writer, params ...string) (any, error)
 }
 
+// WebsocketInstanceAction is like [WebsocketAction] but is specific to a WissKI instance.
 type WebsocketInstanceAction interface {
 	component.Component
 

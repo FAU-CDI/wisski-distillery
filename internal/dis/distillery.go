@@ -233,6 +233,7 @@ func (dis *Distillery) allComponents(context *lifetime.Registry[component.Compon
 	lifetime.Place[*actions.Start](context)
 	lifetime.Place[*actions.Stop](context)
 	lifetime.Place[*actions.Purge](context)
+	lifetime.Place[*actions.Prune](context)
 	lifetime.Place[*actions.RebuildTriplestore](context)
 
 	// Cron

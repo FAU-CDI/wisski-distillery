@@ -1,13 +1,21 @@
 <div class="pure-u-1">
     <h2 id="backups">Backups</h2>
     <p>
-        <button class="remote-action pure-button pure-button-action" data-action="backup" data-buffer="1000" data-force-reload>Make a Backup</button>
+        <em>Backups</em> contain data about the distillery as a whole.
+        <em>Snapshots</em> contain information about a single instance.
+    </p>
+    <p>
+        You can see the existing list of backups in the list below and <button class="remote-action pure-button pure-button-action pure-button-small" data-action="backup" data-buffer="1000" data-force-reload>Make A New Backup</button>.
+    </p>
+    <p>
+        Both backups and snapshots are kept for <code>{{ .Config.MaxBackupAge }}</code>.
+        Old snapshots can be removed by clicking <button class="remote-action pure-button pure-button-small pure-button-action" data-action="prune" data-buffer="1000" data-force-reload>Prune Backups And Snapshots</button>.
     </p>
 </div>
 
 <div class="pure-u-1">
     <table class="pure-table pure-table-bordered padding">
-        <thead>
+    <thead>
             <tr>
                 <th>Path</th>
                 <th>Created</th>
