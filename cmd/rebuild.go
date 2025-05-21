@@ -22,7 +22,7 @@ type rebuild struct {
 	System                bool   `description:"Update the system configuration according to other flags"                                                         long:"system-update"           short:"s"`
 	PHPVersion            string `description:"update to specific php version to use for instance. See 'provision --list-php-versions' for available versions. " long:"php"                     short:"p"`
 	IIPServer             bool   `description:"enable iip-server inside this instance"                                                                           long:"iip-server"              short:"i"`
-	PHPDevelopment        bool   `description:"Include php development configuration"                                                                            long:"php-devel"               short:"p"`
+	PHPDevelopment        bool   `description:"Include php development configuration"                                                                            long:"php-devel"               short:"d"`
 	Flavor                string `description:"Use specific flavor. Use 'provision --list-flavors' to list flavors. "                                            long:"flavor"                  short:"f"`
 	ContentSecurityPolicy string `description:"Setup ContentSecurityPolicy"                                                                                      long:"content-security-policy" short:"c"`
 

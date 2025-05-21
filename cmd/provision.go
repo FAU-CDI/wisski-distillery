@@ -21,7 +21,7 @@ type pv struct {
 	PHPVersion            string `description:"specific php version to use for instance. See 'provision --list-php-versions' for available versions. " long:"php"                     short:"p"`
 	ListPHPVersions       bool   `description:"List available php versions"                                                                            long:"list-php-versions"`
 	IIPServer             bool   `description:"enable iip-server inside this instance"                                                                 long:"iip-server"              short:"i"`
-	PHPDevelopment        bool   `description:"Include php development configuration"                                                                  long:"php-devel"               short:"p"`
+	PHPDevelopment        bool   `description:"Include php development configuration"                                                                  long:"php-devel"               short:"d"`
 	Flavor                string `description:"Use specific flavor. Use '--list-flavors' to list flavors. "                                            long:"flavor"                  short:"f"`
 	ListFlavors           bool   `description:"List all known flavors"                                                                                 long:"list-flavors"            short:"l"`
 	ContentSecurityPolicy string `description:"Setup ContentSecurityPolicy"                                                                            long:"content-security-policy" short:"c"`
