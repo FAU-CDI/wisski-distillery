@@ -58,17 +58,18 @@
                     PHP Development Configuration
                 </label>
                 <span class="pure-form-message-inline">
-                   Toggle the PHP Development configuration.
-                   <br />
-                   This turns on <a href="https://xdebug.org/" target="_blank" rel="noopener noreferer">XDebug</a> when set to development.
-                   Set your client to listen on <code>127.0.0.1</code> on port <code>9003</code>.
-                   <br />
-                   This also toggles the <a href="https://www.php.net/manual/en/book.opcache.php" target="_blank" rel="noopener noreferer">OPcache</a> configuration.
-                   By default the distillery enables the <a href="https://www.php.net/manual/en/opcache.installation.php#opcache.installation.recommended" target="_blank" rel="noopener noreferer">recommended settings</a> for production.
-                   When checked a more lenient caching approach intended for development is configured.
-                   This may lead to a decrease in performance.
-                   <br />
-                   Changing the configuration is possible at any time. 
+                    Toggle the PHP Development configuration.
+                    <br />
+                    This turns on <a href="https://xdebug.org/" target="_blank" rel="noopener noreferer">XDebug</a> when set to development.
+                    It is set to listen for clients on <code>127.0.0.1</code> port <code>9003</code>.
+                    It sets <code>xdebug.start_with_request=trigger</code>, see XDebug documentation for <a href="https://xdebug.org/docs/step_debug#manual-init" target="_blank" rel="noopener noreferer">how to trigger a debug session</a>.
+                    <br />
+                    This also toggles the <a href="https://www.php.net/manual/en/book.opcache.php" target="_blank" rel="noopener noreferer">OPcache</a> configuration.
+                    By default the distillery enables the <a href="https://www.php.net/manual/en/opcache.installation.php#opcache.installation.recommended" target="_blank" rel="noopener noreferer">recommended settings</a> for production.
+                    When checked a more lenient caching approach intended for development is configured.
+                    This may lead to a decrease in performance.
+                    <br />
+                    Changing the configuration is possible at any time. 
                 </span>
             </div>
 

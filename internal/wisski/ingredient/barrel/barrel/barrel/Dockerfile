@@ -65,7 +65,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     pecl install xmlrpc-1.0.0RC3 && \
     pecl install ssh2-1.3.1 && \
     pecl install apcu-5.1.21 && \
-    pecl install xdebug-3.4.3 && \
+    (([ "$PHP_CONFIG_MODE" = "devel" ] && pecl install xdebug-3.4.3) || true) && \
     docker-php-ext-enable \
         apcu \
         curl \
