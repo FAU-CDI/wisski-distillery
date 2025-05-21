@@ -53,13 +53,17 @@
                 </span>
             </div>
             <div class="pure-controls">
-                <label for="opcacheDevelopment" class="pure-checkbox">
-                    <input {{ if $rebuild }}{{ if .System.OpCacheDevelopment }}checked{{end}}{{end}} type="checkbox" id="opcacheDevelopment" />
-                    OPcache Development Configuration
+                <label for="phpDevelopment" class="pure-checkbox">
+                    <input {{ if $rebuild }}{{ if .System.PHPDevelopment }}checked{{end}}{{end}} type="checkbox" id="phpDevelopment" />
+                    PHP Development Configuration
                 </label>
                 <span class="pure-form-message-inline">
-                   Toggle the <a href="https://www.php.net/manual/en/book.opcache.php" target="_blank" rel="noopener noreferer">OPcache</a> configuration.
+                   Toggle the PHP Development configuration.
                    <br />
+                   This turns on <a href="https://xdebug.org/" target="_blank" rel="noopener noreferer">XDebug</a> when set to development.
+                   Set your client to listen on <code>127.0.0.1</code> on port <code>9003</code>.
+                   <br />
+                   This also toggles the <a href="https://www.php.net/manual/en/book.opcache.php" target="_blank" rel="noopener noreferer">OPcache</a> configuration.
                    By default the distillery enables the <a href="https://www.php.net/manual/en/opcache.installation.php#opcache.installation.recommended" target="_blank" rel="noopener noreferer">recommended settings</a> for production.
                    When checked a more lenient caching approach intended for development is configured.
                    This may lead to a decrease in performance.

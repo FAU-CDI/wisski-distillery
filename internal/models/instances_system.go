@@ -5,9 +5,9 @@ package models
 // It is embedded into the instances struct by gorm.
 type System struct {
 	// NOTE(twiesing): Any changes here should be reflected in instance_{provision,rebuild}.html and remote/api.ts.
-	PHP                string `gorm:"column:php;not null"`                    // php version to use
-	IIPServer          bool   `gorm:"column:iipimage;not null;default:false"` // should we enable the IIPServer?
-	OpCacheDevelopment bool   `gorm:"column:opcache_devel;not null"`          // opcache development
+	PHP            string `gorm:"column:php;not null"`                    // php version to use
+	IIPServer      bool   `gorm:"column:iipimage;not null;default:false"` // should we enable the IIPServer?
+	PHPDevelopment bool   `gorm:"column:opcache_devel;not null"`          // php development (sql field name is legacy)
 
 	ContentSecurityPolicy string `gorm:"column:csp;not null"` // content security policy for the system
 }
@@ -17,9 +17,9 @@ const (
 	imageSuffix = "-apache-bullseye"
 )
 
-// OpCacheMode returns the name of the `opcache-*.ini` configuration being included in the docker image.
-func (system System) OpCacheMode() string {
-	if system.OpCacheDevelopment {
+// PHPDevelopmentMode returns the name of the `php-*.ini` configuration being included in the docker image.
+func (system System) PHPDevelopmentMode() string {
+	if system.PHPDevelopment {
 		return "devel"
 	}
 	return "prod"

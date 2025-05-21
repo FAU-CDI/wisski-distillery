@@ -60,7 +60,7 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 
 			"BARREL_BASE_IMAGE":       liquid.GetDockerBaseImage(),
 			"IIP_SERVER_ENABLED":      liquid.GetIIPServerEnabled(),
-			"OPCACHE_MODE":            liquid.OpCacheMode(),
+			"PHP_CONFIG_MODE":         liquid.PHPDevelopmentMode(),
 			"CONTENT_SECURITY_POLICY": liquid.ContentSecurityPolicy,
 		},
 

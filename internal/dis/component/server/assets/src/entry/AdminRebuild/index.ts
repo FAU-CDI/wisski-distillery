@@ -6,7 +6,7 @@ import { Rebuild } from '~/src/lib/remote/api'
 const system = document.getElementById('system') as HTMLFormElement
 const slug = document.getElementById('slug') as HTMLInputElement
 const php = document.getElementById('php') as HTMLSelectElement
-const opcacheDevelopment = document.getElementById('opcacheDevelopment') as HTMLInputElement
+const phpDevelopment = document.getElementById('phpDevelopment') as HTMLInputElement
 const contentSecurityPolicy = document.getElementById('contentsecuritypolicy') as HTMLInputElement
 const iipserver = document.getElementById('iipserver') as HTMLInputElement
 
@@ -14,7 +14,7 @@ const iipserver = document.getElementById('iipserver') as HTMLInputElement
 system.addEventListener('submit', (evt) => {
   evt.preventDefault()
 
-  Rebuild(slug.value, { PHP: php.value, IIPServer: iipserver.checked, OpCacheDevelopment: opcacheDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value })
+  Rebuild(slug.value, { PHP: php.value, IIPServer: iipserver.checked, PHPDevelopment: phpDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value })
     .then(slug => {
       location.href = '/admin/instance/' + slug
     })

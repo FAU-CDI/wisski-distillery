@@ -17,7 +17,7 @@ import (
 var Backup wisski_distillery.Command = backup{}
 
 type backup struct {
-	Prune               bool `description:"prune older backup archives"                                        long:"prune"                                      short:"n"`
+	Prune               bool `description:"prune older backup archives"                                               long:"prune"                                         short:"n"`
 	StagingOnly         bool `description:"do not package into a backup archive, but only create a staging directory" long:"staging-only"                                  short:"s"`
 	ConcurrentSnapshots int  `default:"2"                                                                             description:"maximum number of concurrent snapshots" long:"concurrent-snapshots" short:"c"`
 	Positionals         struct {

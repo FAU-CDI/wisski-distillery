@@ -22,7 +22,7 @@ type rebuild struct {
 	System                bool   `description:"Update the system configuration according to other flags"                                                         long:"system-update"           short:"s"`
 	PHPVersion            string `description:"update to specific php version to use for instance. See 'provision --list-php-versions' for available versions. " long:"php"                     short:"p"`
 	IIPServer             bool   `description:"enable iip-server inside this instance"                                                                           long:"iip-server"              short:"i"`
-	OPCacheDevelopment    bool   `description:"Include opcache development configuration"                                                                        long:"opcache-devel"           short:"o"`
+	PHPDevelopment        bool   `description:"Include php development configuration"                                                                            long:"php-devel"               short:"p"`
 	Flavor                string `description:"Use specific flavor. Use 'provision --list-flavors' to list flavors. "                                            long:"flavor"                  short:"f"`
 	ContentSecurityPolicy string `description:"Setup ContentSecurityPolicy"                                                                                      long:"content-security-policy" short:"c"`
 
@@ -37,7 +37,7 @@ func (rb rebuild) AfterParse() error {
 	if rb.System {
 		return nil
 	}
-	if rb.PHPVersion != "" || rb.OPCacheDevelopment || rb.ContentSecurityPolicy != "" {
+	if rb.PHPVersion != "" || rb.PHPDevelopment || rb.ContentSecurityPolicy != "" {
 		return errRebuildNoSystem
 	}
 	return nil
@@ -71,7 +71,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 			sys = models.System{
 				PHP:                   rb.PHPVersion,
 				IIPServer:             rb.IIPServer,
-				OpCacheDevelopment:    rb.OPCacheDevelopment,
+				PHPDevelopment:        rb.PHPDevelopment,
 				ContentSecurityPolicy: rb.ContentSecurityPolicy,
 			}
 		}

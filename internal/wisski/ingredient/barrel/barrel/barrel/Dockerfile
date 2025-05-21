@@ -14,6 +14,7 @@ WORKDIR /var/www
 
 # install and enable the various required php extensions and dropbear ssh server
 ARG IIP_SERVER_ENABLED=
+ARG PHP_CONFIG_MODE=prod
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         curl \
         default-mysql-client \
@@ -64,6 +65,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     pecl install xmlrpc-1.0.0RC3 && \
     pecl install ssh2-1.3.1 && \
     pecl install apcu-5.1.21 && \
+    pecl install xdebug-3.4.3 && \
     docker-php-ext-enable \
         apcu \
         curl \
@@ -96,11 +98,10 @@ RUN curl -sS https://getcomposer.org/installer | php -- --version=$COMPOSER_VERS
 ENV PATH "/usr/local/bin:/var/www/data/project/vendor/bin:$PATH"
 
 # Configure PHP
-ADD php.ini.d/wisski.ini /usr/local/etc/php/conf.d/wisski.ini
+ADD php.ini.d/wisski.ini /usr/local/etc/php/conf.d/01_wisski.ini
 
-# Configure opcache with whatever the user configured
-ARG OPCACHE_MODE=prod
-ADD php.ini.d/opcache-$OPCACHE_MODE.ini /usr/local/etc/php/conf.d/opcache.ini
+# Configure the php config with prod or devel
+ADD php.ini.d/php-$PHP_CONFIG_MODE.ini /usr/local/etc/php/conf.d/02_mode.ini
 
 ARG CONTENT_SECURITY_POLICY=
 ENV CONTENT_SECURITY_POLICY=${CONTENT_SECURITY_POLICY}
