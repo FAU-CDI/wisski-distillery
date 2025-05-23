@@ -42,7 +42,11 @@
                                 <button class="remote-action pure-button pure-button-danger" data-action="stop" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload>
                                     Stop
                                 </button>
+                                <button class="remote-action pure-button" {% if .Info.Running %}{% else %}disabled="disabled"{% end %} data-action="instance_log" data-param="{{ .Instance.Slug }}" data-buffer="1000" data-force-reload data-cancel-text="Stop">
+                                Logs
+                            </button>
                             </div>
+
                             
                         </td>
                     </tr>

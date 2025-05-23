@@ -24,18 +24,18 @@ var AssetsUser = Assets{
 
 // AssetsAdmin contains assets for the 'Admin' entrypoint.
 var AssetsAdmin = Assets{
-	Scripts: `<script nomodule defer src="/⛰/User.f26d7f81.js"></script><script type="module" src="/⛰/User.d674675a.js"></script><script type="module" src="/⛰/Default.6170ef04.js"></script><script src="/⛰/Default.45b6b656.js" nomodule defer></script><script type="module" src="/⛰/Admin.a47cba35.js"></script><script src="/⛰/Admin.33322d11.js" nomodule defer></script>`,
+	Scripts: `<script nomodule defer src="/⛰/User.f26d7f81.js"></script><script type="module" src="/⛰/User.d674675a.js"></script><script type="module" src="/⛰/Default.6170ef04.js"></script><script src="/⛰/Default.45b6b656.js" nomodule defer></script><script type="module" src="/⛰/Admin.d7d0f956.js"></script><script src="/⛰/Admin.1af51d40.js" nomodule defer></script>`,
 	Styles:  `<link rel="stylesheet" href="/⛰/Default.a087dcd9.css"><link rel="stylesheet" href="/⛰/User.540c0bee.css"><link rel="stylesheet" href="/⛰/User.1664d889.css"><link rel="stylesheet" href="/⛰/Admin.7d5bb717.css"><link rel="stylesheet" href="/⛰/Admin.d1020143.css">`,	
 }
 
 // AssetsAdminProvision contains assets for the 'AdminProvision' entrypoint.
 var AssetsAdminProvision = Assets{
-	Scripts: `<script nomodule defer src="/⛰/User.f26d7f81.js"></script><script nomodule defer src="/⛰/Admin.33322d11.js"></script><script type="module" src="/⛰/User.d674675a.js"></script><script type="module" src="/⛰/Admin.a47cba35.js"></script><script type="module" src="/⛰/Default.6170ef04.js"></script><script src="/⛰/Default.45b6b656.js" nomodule defer></script><script type="module" src="/⛰/AdminProvision.5a27bfa6.js"></script><script src="/⛰/AdminProvision.2d1fac6e.js" nomodule defer></script>`,
+	Scripts: `<script nomodule defer src="/⛰/User.f26d7f81.js"></script><script nomodule defer src="/⛰/Admin.1af51d40.js"></script><script type="module" src="/⛰/User.d674675a.js"></script><script type="module" src="/⛰/Admin.d7d0f956.js"></script><script type="module" src="/⛰/Default.6170ef04.js"></script><script src="/⛰/Default.45b6b656.js" nomodule defer></script><script type="module" src="/⛰/AdminProvision.3ebaf9f0.js"></script><script src="/⛰/AdminProvision.2d1fac6e.js" nomodule defer></script>`,
 	Styles:  `<link rel="stylesheet" href="/⛰/Default.a087dcd9.css"><link rel="stylesheet" href="/⛰/User.540c0bee.css"><link rel="stylesheet" href="/⛰/User.1664d889.css"><link rel="stylesheet" href="/⛰/Admin.7d5bb717.css"><link rel="stylesheet" href="/⛰/Admin.d1020143.css"><link rel="stylesheet" href="/⛰/AdminProvision.8569d237.css">`,	
 }
 
 // AssetsAdminRebuild contains assets for the 'AdminRebuild' entrypoint.
 var AssetsAdminRebuild = Assets{
-	Scripts: `<script nomodule defer src="/⛰/User.f26d7f81.js"></script><script nomodule defer src="/⛰/Admin.33322d11.js"></script><script type="module" src="/⛰/User.d674675a.js"></script><script type="module" src="/⛰/Admin.a47cba35.js"></script><script type="module" src="/⛰/Default.6170ef04.js"></script><script src="/⛰/Default.45b6b656.js" nomodule defer></script><script type="module" src="/⛰/AdminRebuild.fe2414d3.js"></script><script src="/⛰/AdminRebuild.1d0647a6.js" nomodule defer></script>`,
+	Scripts: `<script nomodule defer src="/⛰/User.f26d7f81.js"></script><script nomodule defer src="/⛰/Admin.1af51d40.js"></script><script type="module" src="/⛰/User.d674675a.js"></script><script type="module" src="/⛰/Admin.d7d0f956.js"></script><script type="module" src="/⛰/Default.6170ef04.js"></script><script src="/⛰/Default.45b6b656.js" nomodule defer></script><script type="module" src="/⛰/AdminRebuild.1a0dc3df.js"></script><script src="/⛰/AdminRebuild.1d0647a6.js" nomodule defer></script>`,
 	Styles:  `<link rel="stylesheet" href="/⛰/Default.a087dcd9.css"><link rel="stylesheet" href="/⛰/User.540c0bee.css"><link rel="stylesheet" href="/⛰/User.1664d889.css"><link rel="stylesheet" href="/⛰/Admin.7d5bb717.css"><link rel="stylesheet" href="/⛰/Admin.d1020143.css"><link rel="stylesheet" href="/⛰/AdminRebuild.e554824e.css">`,	
 }

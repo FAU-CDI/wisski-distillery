@@ -8,20 +8,13 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/compose-spec/compose-go/errdefs"
 )
 
 // Running checks if this WissKI is currently running.
 func (barrel *Barrel) Running(ctx context.Context) (bool, error) {
-	containers, err := ingredient.GetLiquid(barrel).Docker.Containers(ctx, barrel.Stack().Dir)
+	containers, err := barrel.Stack().Containers(ctx)
 	if err != nil {
-		// The compose file is gone => the stack doesn't exist.
-		// Probably means some purging got interrupted.
-		if errdefs.IsNotFoundError(err) {
-			return false, nil
-		}
-
-		return false, fmt.Errorf("failed to get barrel containers: %w", err)
+		return false, fmt.Errorf("failed to get containers: %w", err)
 	}
 	return len(containers) > 0, nil
 }

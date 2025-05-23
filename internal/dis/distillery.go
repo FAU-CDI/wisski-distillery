@@ -230,6 +230,7 @@ func (dis *Distillery) allComponents(context *lifetime.Registry[component.Compon
 	lifetime.Place[*actions.Cron](context)
 	lifetime.Place[*actions.InstallColorboxJS](context)
 	lifetime.Place[*actions.InstallDompurifyJS](context)
+	lifetime.Place[*actions.InstanceLog](context)
 	lifetime.Place[*actions.Start](context)
 	lifetime.Place[*actions.Stop](context)
 	lifetime.Place[*actions.Purge](context)

@@ -80,6 +80,7 @@ export default function setup (): void {
     const action = element.getAttribute('data-action') as string
     const reload = element.getAttribute('data-force-reload')
     const param = element.getAttribute('data-param') as string | undefined
+    const cancelText = element.getAttribute('data-cancel-text') as string | undefined
 
     const confirmElementName = element.getAttribute('data-confirm-param')
     const confirmElement = typeof confirmElementName === 'string' ? document.querySelector(confirmElementName) : null
@@ -140,6 +141,7 @@ export default function setup (): void {
       const params = (typeof param === 'string') ? [param] : []
       createModal(action, params, {
         onClose,
+        cancelText,
         bufferSize
       })
     })
@@ -148,6 +150,7 @@ export default function setup (): void {
 
 interface ModalOptions {
   bufferSize: number
+  cancelText: string
   onClose: ((success: true, data: any) => void) & ((success: false, message: string) => void)
 }
 export function createModal (action: string, params: string[], opts: Partial<ModalOptions>): void {
@@ -187,7 +190,7 @@ export function createModal (action: string, params: string[], opts: Partial<Mod
   const cancelButton = document.createElement('button')
   cancelButton.className = 'pure-button pure-button-danger'
   cancelButton.setAttribute('disabled', 'disabled')
-  cancelButton.append('Cancel')
+  cancelButton.append(opts?.cancelText ?? 'Cancel')
   modal.append(cancelButton)
 
   const onbeforeunload = window.onbeforeunload
