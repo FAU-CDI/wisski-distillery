@@ -1,13 +1,14 @@
 //spellchecker:words server
 package server
 
-//spellchecker:words context http github wisski distillery internal component server handling templating models wdlog pkglib contextx httpx wrap recovery gorilla csrf
+//spellchecker:words context http github wisski distillery internal component docker server handling templating models wdlog pkglib contextx httpx wrap recovery gorilla csrf
 import (
 	"context"
 	"io"
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -29,6 +30,8 @@ type Server struct {
 
 		Templating *templating.Templating
 		Handleing  *handling.Handling
+
+		Docker *docker.Docker
 	}
 }
 

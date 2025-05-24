@@ -1,12 +1,14 @@
 //spellchecker:words reserve
 package reserve
 
-//spellchecker:words embed path filepath github wisski distillery internal component ingredient
+//spellchecker:words embed github wisski distillery internal component ingredient dockerx
 import (
 	"embed"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 )
 
 // Reserve implements reserving a WissKI Instance
@@ -19,13 +21,17 @@ type Reserve struct {
 var reserveResources embed.FS
 
 // Stack returns a stack representing the reserve instance.
-func (reserve *Reserve) Stack() component.StackWithResources {
+func (reserve *Reserve) OpenStack() (component.StackWithResources, error) {
 	liquid := ingredient.GetLiquid(reserve)
 	config := ingredient.GetStill(reserve).Config
+
+	stack, err := dockerx.NewStack(liquid.Docker, liquid.FilesystemBase)
+	if err != nil {
+		return component.StackWithResources{}, fmt.Errorf("failed to create stack: %w", err)
+	}
+
 	return component.StackWithResources{
-		Stack: component.Stack{
-			Dir: liquid.FilesystemBase,
-		},
+		Stack: stack,
 
 		Resources:   reserveResources,
 		ContextPath: "reserve",
@@ -37,5 +43,5 @@ func (reserve *Reserve) Stack() component.StackWithResources {
 			"HOST_RULE":     liquid.HostRule(),
 			"HTTPS_ENABLED": config.HTTP.HTTPSEnabledEnv(),
 		},
-	}
+	}, nil
 }

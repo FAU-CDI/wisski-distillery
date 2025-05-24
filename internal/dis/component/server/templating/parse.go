@@ -1,7 +1,7 @@
 //spellchecker:words templating
 package templating
 
-//spellchecker:words html template reflect golang slices
+//spellchecker:words html template reflect slices
 import (
 	"html/template"
 	"reflect"

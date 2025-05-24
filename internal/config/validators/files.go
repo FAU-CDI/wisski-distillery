@@ -1,7 +1,7 @@
 //spellchecker:words validators
 package validators
 
-//spellchecker:words github errors pkglib
+//spellchecker:words github pkglib
 import (
 	"fmt"
 	"io/fs"

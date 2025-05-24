@@ -1,6 +1,6 @@
 package sql
 
-//spellchecker:words embed path filepath time github wisski distillery internal config package component pkglib umaskfree yamlx gopkg yaml
+//spellchecker:words embed path filepath time github wisski distillery internal config package component docker pkglib umaskfree yamlx gopkg yaml
 import (
 	"embed"
 	"fmt"
@@ -9,6 +9,7 @@ import (
 
 	config_package "github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
@@ -18,6 +19,7 @@ type SQL struct {
 	component.Base
 	dependencies struct {
 		Tables []component.Table
+		Docker *docker.Docker
 	}
 
 	ServerURL string // upstream server url
@@ -44,9 +46,9 @@ func (*SQL) Context(parent component.InstallationContext) component.Installation
 //go:embed all:sql
 var resources embed.FS
 
-func (sql *SQL) Stack() component.StackWithResources {
+func (sql *SQL) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(sql).Config
-	return component.MakeStack(sql, component.StackWithResources{
+	return component.OpenStack(sql, sql.dependencies.Docker, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "sql",
 

@@ -1,11 +1,12 @@
 package web
 
-//spellchecker:words path filepath github wisski distillery internal component gopkg yaml embed
+//spellchecker:words path filepath github wisski distillery internal component docker gopkg yaml embed
 import (
 	"fmt"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"gopkg.in/yaml.v3"
 
 	_ "embed"
@@ -16,6 +17,9 @@ import (
 // It consists of an nginx docker container and an optional letsencrypt container.
 type Web struct {
 	component.Base
+	dependencies struct {
+		Docker *docker.Docker
+	}
 }
 
 var (
@@ -36,7 +40,7 @@ var dockerComposeHTTP []byte
 //go:embed docker-compose-https.yml
 var dockerComposeHTTPS []byte
 
-func (web *Web) Stack() component.StackWithResources {
+func (web *Web) OpenStack() (component.StackWithResources, error) {
 	var stack component.StackWithResources
 
 	config := component.GetStill(web).Config
@@ -53,7 +57,7 @@ func (web *Web) Stack() component.StackWithResources {
 		stack.ComposerYML = readYaml(dockerComposeHTTP)
 	}
 
-	return component.MakeStack(web, stack)
+	return component.OpenStack(web, web.dependencies.Docker, stack)
 }
 
 func readYaml(bytes []byte) func(*yaml.Node) (*yaml.Node, error) {

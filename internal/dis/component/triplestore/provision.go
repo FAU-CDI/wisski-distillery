@@ -1,7 +1,7 @@
 //spellchecker:words triplestore
 package triplestore
 
-//spellchecker:words bytes context errors http text template embed github wisski distillery internal models goprogram exit
+//spellchecker:words bytes context http text template embed github wisski distillery internal models pkglib errorsx
 import (
 	"bytes"
 	"context"

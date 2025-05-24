@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal component logging goprogram exit pkglib status
+//spellchecker:words github wisski distillery internal component logging goprogram exit pkglib errorsx status
 import (
 	"fmt"
 	"io"
@@ -12,6 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/status"
 )
 
@@ -69,8 +70,14 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 		},
 		PrefixAlign: true,
 
-		Handler: func(item component.Installable, index int, writer io.Writer) error {
-			return item.Stack().Up(context.Context, writer)
+		Handler: func(item component.Installable, index int, writer io.Writer) (e error) {
+			stack, err := item.OpenStack()
+			if err != nil {
+				return fmt.Errorf("failed to open stack: %w", err)
+			}
+			defer errorsx.Close(stack, &e, "stack")
+
+			return stack.Up(context.Context, writer)
 		},
 	}, dis.Installable()); err != nil {
 		return fmt.Errorf("failed to start components: %w", err)
@@ -93,8 +100,14 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 		},
 		PrefixAlign: true,
 
-		Handler: func(item *wisski.WissKI, index int, writer io.Writer) error {
-			return item.Barrel().Stack().Up(context.Context, writer)
+		Handler: func(item *wisski.WissKI, index int, writer io.Writer) (e error) {
+			stack, err := item.Barrel().OpenStack()
+			if err != nil {
+				return fmt.Errorf("failed to open stack: %w", err)
+			}
+			defer errorsx.Close(stack, &e, "stack")
+
+			return stack.Up(context.Context, writer)
 		},
 	}, wissKIs); err != nil {
 		return fmt.Errorf("failed to start instances: %w", err)
@@ -121,8 +134,14 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 		},
 		PrefixAlign: true,
 
-		Handler: func(item *wisski.WissKI, index int, writer io.Writer) error {
-			return item.Barrel().Stack().Down(context.Context, writer)
+		Handler: func(item *wisski.WissKI, index int, writer io.Writer) (e error) {
+			stack, err := item.Barrel().OpenStack()
+			if err != nil {
+				return fmt.Errorf("failed to open stack: %w", err)
+			}
+			defer errorsx.Close(stack, &e, "stack")
+
+			return stack.Down(context.Context, writer)
 		},
 	}, wissKIs); err != nil {
 		return fmt.Errorf("failed to shutdown instances: %w", err)
@@ -139,8 +158,14 @@ func (sp systempause) stop(context wisski_distillery.Context, dis *dis.Distiller
 		},
 		PrefixAlign: true,
 
-		Handler: func(item component.Installable, index int, writer io.Writer) error {
-			return item.Stack().Down(context.Context, writer)
+		Handler: func(item component.Installable, index int, writer io.Writer) (e error) {
+			stack, err := item.OpenStack()
+			if err != nil {
+				return fmt.Errorf("failed to open stack: %w", err)
+			}
+			defer errorsx.Close(stack, &e, "stack")
+
+			return stack.Down(context.Context, writer)
 		},
 	}, dis.Installable()); err != nil {
 		return fmt.Errorf("failed to shutdown core instances: %w", err)

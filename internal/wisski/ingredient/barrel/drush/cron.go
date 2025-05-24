@@ -1,7 +1,7 @@
 //spellchecker:words drush
 package drush
 
-//spellchecker:words context time github wisski distillery internal phpx status ingredient barrel goprogram exit
+//spellchecker:words context errors time github wisski distillery internal phpx status ingredient barrel
 import (
 	"context"
 	"errors"

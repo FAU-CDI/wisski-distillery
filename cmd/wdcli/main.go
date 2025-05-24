@@ -43,6 +43,7 @@ func init() {
 	wdcli.Register(cmd.Info)
 	wdcli.Register(cmd.InstanceLock)
 	wdcli.Register(cmd.InstancePause)
+	wdcli.Register(cmd.InstanceLog)
 
 	// instance tasks
 	wdcli.Register(cmd.Shell)

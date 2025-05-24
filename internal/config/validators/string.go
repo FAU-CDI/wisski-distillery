@@ -1,6 +1,7 @@
 //spellchecker:words validators
 package validators
 
+//spellchecker:words errors
 import "errors"
 
 //spellchecker:words github errors

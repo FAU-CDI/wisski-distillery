@@ -1,6 +1,6 @@
 package ssh2
 
-//spellchecker:words context crypto rand encoding github gliderlabs pkglib umaskfree errors golang gossh
+//spellchecker:words context crypto rand encoding errors github gliderlabs pkglib errorsx umaskfree golang gossh
 import (
 	"context"
 	"crypto/ed25519"

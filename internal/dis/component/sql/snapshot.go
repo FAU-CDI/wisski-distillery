@@ -1,6 +1,6 @@
 package sql
 
-//spellchecker:words context github wisski distillery internal component models pkglib stream
+//spellchecker:words context github wisski distillery internal component models pkglib errorsx stream
 import (
 	"context"
 	"fmt"
@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/stream"
 )
 
@@ -33,8 +34,14 @@ func (sql *SQL) Snapshot(wisski models.Instance, scontext *component.StagingCont
 }
 
 // SnapshotDB makes a backup of the sql database into dest.
-func (sql *SQL) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Writer, database string) error {
-	code := sql.Stack().Exec(ctx, stream.NewIOStream(dest, progress, nil), "sql", SQlDumpExecutable, "--databases", database)()
+func (sql *SQL) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Writer, database string) (e error) {
+	stack, err := sql.OpenStack()
+	if err != nil {
+		return fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	code := stack.Exec(ctx, stream.NewIOStream(dest, progress, nil), "sql", SQlDumpExecutable, "--databases", database)()
 	if code != 0 {
 		return errSQLBackup
 	}

@@ -1,7 +1,7 @@
 //spellchecker:words manager
 package manager
 
-//spellchecker:words context time github wisski distillery internal component models ingredient barrel composer extras logging pkglib contextx stream
+//spellchecker:words context errors time github wisski distillery internal models ingredient barrel composer dockerx logging pkglib contextx errorsx stream
 import (
 	"context"
 	"errors"
@@ -9,11 +9,11 @@ import (
 	"io"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/composer"
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/contextx"
 	"github.com/tkw1536/pkglib/errorsx"
@@ -27,12 +27,19 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 		return fmt.Errorf("failed to apply initial configuration: %w", err)
 	}
 
+	stack, err := manager.dependencies.Barrel.OpenStack()
+	if err != nil {
+		return fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
 	// Create the composer directory!
 	if _, err := logging.LogMessage(progress, "Creating required directories"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	{
-		code, err := manager.dependencies.Barrel.Stack().Run(ctx, stream.FromNil(), component.RunFlags{Detach: true, AutoRemove: true}, "barrel", "sudo", "-u", "www-data", "mkdir", "-p", barrel.ComposerDirectory)
+
+		code, err := stack.Run(ctx, stream.FromNil(), dockerx.RunFlags{Detach: true, AutoRemove: true}, "barrel", "sudo", "-u", "www-data", "mkdir", "-p", barrel.ComposerDirectory)
 		if code != 0 {
 			err = barrel.ExitError(code)
 		}
@@ -42,7 +49,7 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 	}
 
 	// start the container, and have it do nothing!
-	code, err := manager.dependencies.Barrel.Stack().Run(ctx, stream.FromNil(), component.RunFlags{Detach: true, AutoRemove: true}, "barrel", "tail", "-f", "/dev/null")
+	code, err := stack.Run(ctx, stream.FromNil(), dockerx.RunFlags{Detach: true, AutoRemove: true}, "barrel", "tail", "-f", "/dev/null")
 	if code != 0 {
 		err = barrel.ExitError(code)
 	}
@@ -56,7 +63,7 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 		defer cancel()
 
 		// stop the container (even if the context was cancelled)
-		if err := manager.dependencies.Barrel.Stack().DownAll(anyways, progress); err != nil {
+		if err := stack.DownAll(anyways, progress); err != nil {
 			err = fmt.Errorf("unable to down stack: %w", err)
 			e = errorsx.Combine(e, err)
 		}

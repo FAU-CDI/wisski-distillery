@@ -1,7 +1,7 @@
 //spellchecker:words validators
 package validators
 
-//spellchecker:words github errors
+//spellchecker:words errors
 import (
 	"fmt"
 	"net/url"

@@ -1,7 +1,7 @@
 //spellchecker:words exporter
 package exporter
 
-//spellchecker:words context path filepath time github wisski distillery internal component models wdlog ingredient locker logging pkglib collection contextx status golang maps slices
+//spellchecker:words context path filepath time maps slices github wisski distillery internal component models wdlog ingredient locker logging pkglib collection contextx errorsx status
 import (
 	"context"
 	"fmt"
@@ -167,16 +167,22 @@ func (snapshots *Exporter) resolveParts(ctx context.Context, parts []string, sna
 
 func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, _ *Exporter, instance *wisski.WissKI, needsRunning bool) (errmap map[string]error, logmap map[string]string) {
 	if !needsRunning && !snapshot.Description.Keepalive {
-		stack := instance.Barrel().Stack()
+		stack, err := instance.Barrel().OpenStack()
+		if err == nil {
+			defer errorsx.Close(stack, &snapshot.ErrStop, "stack")
 
-		_, _ = logging.LogMessage(progress, "Stopping instance")
-		snapshot.ErrStop = stack.Down(ctx, progress)
+			_, _ = logging.LogMessage(progress, "Stopping instance")
+			snapshot.ErrStop = stack.Down(ctx, progress)
 
-		defer func() {
-			_, _ = logging.LogMessage(progress, "Starting instance")
-			snapshot.ErrStart = stack.Up(ctx, progress)
-		}()
+			defer func() {
+				_, _ = logging.LogMessage(progress, "Starting instance")
+				snapshot.ErrStart = stack.Up(ctx, progress)
+			}()
+		} else {
+			snapshot.ErrStart = fmt.Errorf("failed to stop stack: %w", err)
+		}
 	}
+
 	// handle writing the manifest!
 	manifest, done := snapshot.handleManifest(snapshot.Description.Dest)
 	defer done()

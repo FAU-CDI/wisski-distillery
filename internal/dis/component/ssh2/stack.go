@@ -16,9 +16,9 @@ func (ssh *SSH2) Path() string {
 //go:embed all:ssh2
 var resources embed.FS
 
-func (ssh *SSH2) Stack() component.StackWithResources {
+func (ssh *SSH2) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(ssh).Config
-	return component.MakeStack(ssh, component.StackWithResources{
+	return component.OpenStack(ssh, ssh.dependencies.Docker, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "ssh2",
 

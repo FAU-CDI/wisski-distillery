@@ -1,7 +1,7 @@
 //spellchecker:words admin
 package admin
 
-//spellchecker:words context embed html template http github wisski distillery internal component server assets templating pkglib httpx julienschmidt httprouter
+//spellchecker:words context embed html template http github wisski distillery internal component server assets templating pkglib errorsx httpx julienschmidt httprouter
 import (
 	"context"
 	_ "embed"

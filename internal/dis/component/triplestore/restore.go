@@ -1,7 +1,7 @@
 //spellchecker:words triplestore
 package triplestore
 
-//spellchecker:words context http github errors
+//spellchecker:words context errors http github pkglib errorsx
 import (
 	"context"
 	"errors"

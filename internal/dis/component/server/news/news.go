@@ -1,7 +1,7 @@
 //spellchecker:words news
 package news
 
-//spellchecker:words context embed html template http strings time github wisski distillery internal component server assets handling templating wdlog yuin goldmark meta gmmeta parser golang slices
+//spellchecker:words context embed html template http strings time slices github wisski distillery internal component server assets handling templating wdlog yuin goldmark meta gmmeta parser
 import (
 	"context"
 	"embed"

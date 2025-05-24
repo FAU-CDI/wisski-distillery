@@ -1,6 +1,6 @@
 package trb
 
-//spellchecker:words compress gzip context errors github wisski distillery internal ingredient barrel logging
+//spellchecker:words compress gzip context errors github wisski distillery internal ingredient barrel extras logging pkglib errorsx
 import (
 	"compress/gzip"
 	"context"
@@ -27,7 +27,7 @@ type TRB struct {
 
 // RebuildTriplestore rebuilds the triplestore by making a backup, storing it on disk, purging the triplestore, and restoring the backup.
 // Returns the size of the backup dump in bytes.
-func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmptyRepository bool) (size int, err error) {
+func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmptyRepository bool) (size int, e error) {
 	// re-create the default adapter
 	if _, err := logging.LogMessage(out, "Re-creating adapter"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
@@ -40,7 +40,14 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 	if _, err := logging.LogMessage(out, "Shutting down instance"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := trb.dependencies.Barrel.Stack().Down(ctx, out); err != nil {
+
+	stack, err := trb.dependencies.Barrel.OpenStack()
+	if err != nil {
+		return 0, fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	if err := stack.Down(ctx, out); err != nil {
 		return 0, fmt.Errorf("failed to shut down stack: %w", err)
 	}
 
@@ -51,7 +58,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 			return
 		}
 
-		e2 := trb.dependencies.Barrel.Stack().Up(ctx, out)
+		e2 := stack.Up(ctx, out)
 		if e2 == nil {
 			return
 		}

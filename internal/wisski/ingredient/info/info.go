@@ -1,7 +1,7 @@
 //spellchecker:words info
 package info
 
-//spellchecker:words context reflect sync atomic time github wisski distillery internal phpx status wdlog ingredient pkglib sema golang errgroup
+//spellchecker:words context slog reflect sync atomic time github wisski distillery internal phpx status wdlog ingredient pkglib sema golang errgroup
 import (
 	"context"
 	"fmt"

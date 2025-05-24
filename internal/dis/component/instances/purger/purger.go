@@ -1,7 +1,7 @@
 //spellchecker:words purger
 package purger
 
-//spellchecker:words context github wisski distillery internal component instances models logging goprogram exit
+//spellchecker:words context errors github wisski distillery internal component instances models logging pkglib errorsx
 import (
 	"context"
 	"errors"
@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 // Purger purges instances from the distillery.
@@ -26,7 +27,7 @@ type Purger struct {
 
 // Purge permanently purges an instance from the distillery.
 // The instance does not have to exist; in which case the resources are also deleted.
-func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) error {
+func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) (e error) {
 	if _, err := logging.LogMessage(out, "Checking bookkeeping table"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
@@ -43,7 +44,14 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) err
 	if _, err := logging.LogMessage(out, "Stopping and removing docker container"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := instance.Barrel().Stack().Down(ctx, out); err != nil {
+
+	stack, err := instance.Barrel().OpenStack()
+	if err != nil {
+		return fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	if err := stack.Down(ctx, out); err != nil {
 		_, _ = fmt.Fprintln(out, err)
 	}
 

@@ -1,7 +1,7 @@
 //spellchecker:words instances
 package instances
 
-//spellchecker:words context errors path filepath github wisski distillery internal component instances malt models goprogram exit gorm clause
+//spellchecker:words context errors path filepath github wisski distillery internal component instances malt models gorm clause
 import (
 	"context"
 	"errors"

@@ -1,19 +1,23 @@
 //spellchecker:words binder
 package binder
 
-//spellchecker:words embed path filepath github wisski distillery internal component pkglib yamlx gopkg yaml
+//spellchecker:words embed path filepath github wisski distillery internal component docker pkglib yamlx gopkg yaml
 import (
 	"embed"
 	"fmt"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"github.com/tkw1536/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
 )
 
 type Binder struct {
 	component.Base
+	dependencies struct {
+		Docker *docker.Docker
+	}
 }
 
 var (
@@ -31,10 +35,10 @@ func (binder *Binder) Context(parent component.InstallationContext) component.In
 //go:embed docker-compose.yml
 var composeTemplate embed.FS
 
-func (binder *Binder) Stack() component.StackWithResources {
+func (binder *Binder) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(binder).Config
 
-	return component.MakeStack(binder, component.StackWithResources{
+	return component.OpenStack(binder, binder.dependencies.Docker, component.StackWithResources{
 		ContextPath: ".",
 		Resources:   composeTemplate,
 

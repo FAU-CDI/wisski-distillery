@@ -1,7 +1,7 @@
 //spellchecker:words logging
 package logging
 
-//spellchecker:words errors strings golang term
+//spellchecker:words strings github pkglib errorsx golang term
 import (
 	"fmt"
 	"io"

@@ -1,7 +1,7 @@
 //spellchecker:words tokens
 package tokens
 
-//spellchecker:words errors http strings github wisski distillery internal component models golang slices
+//spellchecker:words errors http strings slices github wisski distillery internal component models pkglib errorsx
 import (
 	"errors"
 	"net/http"

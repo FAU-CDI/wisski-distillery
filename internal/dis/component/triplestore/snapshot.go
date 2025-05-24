@@ -1,7 +1,7 @@
 //spellchecker:words triplestore
 package triplestore
 
-//spellchecker:words context http github wisski distillery internal component models errors
+//spellchecker:words context errors http github wisski distillery internal component models pkglib errorsx
 import (
 	"context"
 	"errors"

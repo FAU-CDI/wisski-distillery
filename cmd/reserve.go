@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal component models logging goprogram exit pkglib
+//spellchecker:words github wisski distillery internal component models logging goprogram exit pkglib errorsx
 import (
 	"fmt"
 
@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx"
 )
 
@@ -37,6 +38,7 @@ func (reserve) Description() wisski_distillery.Description {
 var (
 	errReserveAlreadyExists = exit.NewErrorWithCode("instance already exists", exit.ExitGeneric)
 	errReserveGeneric       = exit.NewErrorWithCode("unable to provision instance", exit.ExitGeneric)
+	errReserveStack         = exit.NewErrorWithCode("failed to open stack", exit.ExitGeneric)
 )
 
 func (r reserve) Run(context wisski_distillery.Context) (err error) {
@@ -46,7 +48,7 @@ func (r reserve) Run(context wisski_distillery.Context) (err error) {
 	return nil
 }
 
-func (r reserve) run(context wisski_distillery.Context) (err error) {
+func (r reserve) run(context wisski_distillery.Context) (e error) {
 	dis := context.Environment
 	slug := r.Positionals.Slug
 
@@ -78,8 +80,13 @@ func (r reserve) run(context wisski_distillery.Context) (err error) {
 		}
 	}
 
-	// setup docker stack
-	s := instance.Reserve().Stack()
+	// get the stack
+	s, err := instance.Reserve().OpenStack()
+	if err != nil {
+		return fmt.Errorf("%w: %w", errReserveStack, err)
+	}
+	defer errorsx.Close(s, &e, "stack")
+
 	{
 		if err := logging.LogOperation(func() error {
 			return s.Install(context.Context, context.Stderr, component.InstallationContext{})

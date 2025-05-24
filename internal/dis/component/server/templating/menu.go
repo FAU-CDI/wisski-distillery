@@ -1,7 +1,7 @@
 //spellchecker:words templating
 package templating
 
-//spellchecker:words html template http github wisski distillery internal component pkglib httpx golang slices
+//spellchecker:words html template http slices github wisski distillery internal component pkglib httpx
 import (
 	"html/template"
 	"net/http"

@@ -1,7 +1,7 @@
 //spellchecker:words actions
 package actions
 
-//spellchecker:words context github wisski distillery internal component auth scopes
+//spellchecker:words context github wisski distillery internal component auth scopes pkglib errorsx
 import (
 	"context"
 	"fmt"
@@ -10,6 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 type Start struct {
@@ -30,8 +31,14 @@ func (*Start) Action() InstanceAction {
 	}
 }
 
-func (*Start) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
-	if err := instance.Barrel().Stack().Up(ctx, out); err != nil {
+func (*Start) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (a any, e error) {
+	stack, err := instance.Barrel().OpenStack()
+	if err != nil {
+		return nil, fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	if err := stack.Up(ctx, out); err != nil {
 		return nil, fmt.Errorf("failed to start barrel: %w", err)
 	}
 	return nil, nil

@@ -1,12 +1,13 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal goprogram exit
+//spellchecker:words github wisski distillery internal goprogram exit pkglib errorsx
 import (
 	"fmt"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 // InstancePause is the 'instance_pause' command.
@@ -37,15 +38,23 @@ func (i instancepause) AfterParse() error {
 	return nil
 }
 
-var errInstancePauseWissKI = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
+var (
+	errInstancePauseWissKI = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
+	errInstancePauseStack  = exit.NewErrorWithCode("unable to get stack", exit.ExitGeneric)
+)
 
-func (i instancepause) Run(context wisski_distillery.Context) error {
+func (i instancepause) Run(context wisski_distillery.Context) (e error) {
 	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errInstancePauseWissKI, err)
 	}
 
-	stack := instance.Barrel().Stack()
+	stack, err := instance.Barrel().OpenStack()
+	if err != nil {
+		return fmt.Errorf("%w: %w", errInstancePauseStack, err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
 	if i.Stop {
 		if err := stack.Down(context.Context, context.Stdout); err != nil {
 			return fmt.Errorf("failed to stop instance: %w", err)

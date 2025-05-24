@@ -1,7 +1,7 @@
 //spellchecker:words server
 package server
 
-//spellchecker:words context embed path filepath syscall github wisski distillery internal bootstrap component
+//spellchecker:words context embed path filepath syscall github wisski distillery internal bootstrap component pkglib errorsx
 import (
 	"context"
 	"embed"
@@ -12,6 +12,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 func (server *Server) Path() string {
@@ -21,10 +22,10 @@ func (server *Server) Path() string {
 //go:embed all:server
 var resources embed.FS
 
-func (server *Server) Stack() component.StackWithResources {
+func (server *Server) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(server).Config
 
-	return component.MakeStack(server, component.StackWithResources{
+	return component.OpenStack(server, server.dependencies.Docker, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "server",
 
@@ -47,8 +48,14 @@ func (server *Server) Stack() component.StackWithResources {
 }
 
 // Trigger triggers the active cron run to immediatly invoke cron.
-func (server *Server) Trigger(ctx context.Context) error {
-	if err := server.Stack().Kill(ctx, io.Discard, "control", syscall.SIGHUP); err != nil {
+func (server *Server) Trigger(ctx context.Context) (e error) {
+	stack, err := server.OpenStack()
+	if err != nil {
+		return fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	if err := stack.Kill(ctx, io.Discard, "control", syscall.SIGHUP); err != nil {
 		return fmt.Errorf("failed to trigger 'control' service: %w", err)
 	}
 	return nil

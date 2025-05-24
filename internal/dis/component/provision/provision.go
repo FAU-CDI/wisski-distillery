@@ -1,7 +1,7 @@
 //spellchecker:words provision
 package provision
 
-//spellchecker:words context errors github wisski distillery internal component instances models ingredient barrel manager logging pkglib
+//spellchecker:words context errors github wisski distillery internal component instances models ingredient barrel manager logging pkglib errorsx
 import (
 	"context"
 	"errors"
@@ -14,6 +14,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/manager"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx"
 )
 
@@ -73,7 +74,7 @@ func (pv *Provision) validate(flags Flags) error {
 }
 
 // Provision provisions a new docker compose instance.
-func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Flags) (*wisski.WissKI, error) {
+func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Flags) (w *wisski.WissKI, e error) {
 	// validate that everything is correct
 	if err := pv.validate(flags); err != nil {
 		return nil, fmt.Errorf("failed to validate flags: %w", err)
@@ -152,7 +153,13 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 	if _, err := logging.LogMessage(progress, "Starting Container"); err != nil {
 		return nil, fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := instance.Barrel().Stack().Up(ctx, progress); err != nil {
+	stack, err := instance.Barrel().OpenStack()
+	if err != nil {
+		return nil, fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	if err := stack.Up(ctx, progress); err != nil {
 		return nil, fmt.Errorf("failed to restart container: %w", err)
 	}
 

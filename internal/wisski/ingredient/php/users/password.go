@@ -1,7 +1,7 @@
 //spellchecker:words users
 package users
 
-//spellchecker:words context errors github wisski distillery internal passwordx phpx pkglib password
+//spellchecker:words context errors github wisski distillery internal passwordx phpx pkglib errorsx password
 import (
 	"context"
 	"errors"

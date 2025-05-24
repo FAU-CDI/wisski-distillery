@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal ingredient barrel goprogram exit parser
+//spellchecker:words errors github wisski distillery internal ingredient barrel goprogram exit parser
 import (
 	"errors"
 	"fmt"

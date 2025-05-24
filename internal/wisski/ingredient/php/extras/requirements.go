@@ -1,7 +1,7 @@
 //spellchecker:words extras
 package extras
 
-//spellchecker:words context strings github wisski distillery internal phpx status ingredient golang slices embed
+//spellchecker:words context strings github wisski distillery internal phpx status ingredient slices embed
 import (
 	"context"
 	"strings"

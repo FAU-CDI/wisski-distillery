@@ -1,6 +1,6 @@
 package php
 
-//spellchecker:words context strings github wisski distillery internal phpx ingredient barrel
+//spellchecker:words context strings github wisski distillery internal phpx ingredient barrel pkglib errorsx
 import (
 	"context"
 	"fmt"

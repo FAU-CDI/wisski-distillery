@@ -1,7 +1,7 @@
 //spellchecker:words composer
 package composer
 
-//spellchecker:words context time github wisski distillery internal component meta status ingredient mstore logging goprogram exit
+//spellchecker:words context errors time github wisski distillery internal component meta status ingredient mstore logging
 import (
 	"context"
 	"errors"

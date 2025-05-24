@@ -1,7 +1,7 @@
 //spellchecker:words config
 package config
 
-//spellchecker:words golang slices
+//spellchecker:words slices
 import (
 	"fmt"
 

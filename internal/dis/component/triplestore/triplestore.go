@@ -1,7 +1,7 @@
 //spellchecker:words triplestore
 package triplestore
 
-//spellchecker:words embed path filepath time github wisski distillery internal config package component pkglib yamlx gopkg yaml
+//spellchecker:words embed path filepath time github wisski distillery internal config package component docker pkglib yamlx gopkg yaml
 import (
 	"embed"
 	"fmt"
@@ -10,6 +10,7 @@ import (
 
 	config_package "github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"github.com/tkw1536/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
 )
@@ -21,6 +22,10 @@ type Triplestore struct {
 	BaseURL string // upstream server url
 
 	PollInterval time.Duration // duration to wait for during wait
+
+	dependencies struct {
+		Docker *docker.Docker
+	}
 }
 
 var (
@@ -41,9 +46,9 @@ func (Triplestore) Context(parent component.InstallationContext) component.Insta
 //go:embed all:triplestore
 var resources embed.FS
 
-func (ts *Triplestore) Stack() component.StackWithResources {
+func (ts *Triplestore) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(ts).Config
-	return component.MakeStack(ts, component.StackWithResources{
+	return component.OpenStack(ts, ts.dependencies.Docker, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "triplestore",
 

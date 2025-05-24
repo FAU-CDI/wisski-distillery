@@ -1,7 +1,7 @@
 //spellchecker:words triplestore
 package triplestore
 
-//spellchecker:words bytes context encoding json mime multipart http time github wisski distillery internal component wdlog errors pkglib timex
+//spellchecker:words bytes context encoding json errors mime multipart http time github wisski distillery internal component wdlog pkglib errorsx timex
 import (
 	"bytes"
 	"context"

@@ -1,7 +1,7 @@
 //spellchecker:words extras
 package extras
 
-//spellchecker:words bufio context path filepath strings github wisski distillery internal phpx status ingredient mstore pkglib collection golang slices embed
+//spellchecker:words bufio context path filepath slices strings github wisski distillery internal phpx status ingredient mstore pkglib collection errorsx embed
 import (
 	"bufio"
 	"context"

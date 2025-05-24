@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words sync github wisski distillery internal component execx logging goprogram exit parser pkglib umaskfree status
+//spellchecker:words sync github wisski distillery internal component execx logging goprogram exit parser pkglib errorsx umaskfree status
 import (
 	"fmt"
 	"io"
@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/goprogram/parser"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
 	"github.com/tkw1536/pkglib/status"
@@ -56,43 +57,23 @@ func (s systemupdate) AfterParse() error {
 	return nil
 }
 
-var errBoostrapFailedToCreateDirectory = exit.NewErrorWithCode(
-	"failed to create directory", exit.ExitGeneric,
+var (
+	errSystemUpdateFailedToLog           = exit.NewErrorWithCode("failed to log message", exit.ExitGeneric)
+	errBoostrapFailedToCreateDirectory   = exit.NewErrorWithCode("failed to create directory", exit.ExitGeneric)
+	errBootstrapComponent                = exit.NewErrorWithCode("unable to bootstrap", exit.ExitGeneric)
+	errNetworkCreateFailed               = exit.NewErrorWithCode("unable to create docker network", exit.ExitGeneric)
+	errSystemUpdateFailedToPing          = exit.NewErrorWithCode("failed to ping docker client", exit.ExitGeneric)
+	errSystemUpdateDockerClient          = exit.NewErrorWithCode("failed to create docker client", exit.ExitGeneric)
+	errSystemUpdateFailedStackUpdate     = exit.NewErrorWithCode("failed to perform stack updates", exit.ExitGeneric)
+	errSystemUpdateFailedComponentUpdate = exit.NewErrorWithCode("failed to perform component updates", exit.ExitGeneric)
 )
 
-var errBootstrapComponent = exit.NewErrorWithCode(
-	"unable to bootstrap",
-	exit.ExitGeneric,
-)
-
-var errDockerUnreachable = exit.NewErrorWithCode(
-	"unable to reach docker api",
-	exit.ExitGeneric,
-)
-
-var errNetworkCreateFailed = exit.NewErrorWithCode(
-	"unable to create docker network",
-	exit.ExitGeneric,
-)
-
-var errSystemUpdateGeneric = exit.NewErrorWithCode(
-	"generic system update error",
-	exit.ExitGeneric,
-)
-
-func (si systemupdate) Run(context wisski_distillery.Context) (err error) {
-	if err := si.run(context); err != nil {
-		return fmt.Errorf("%w: %w", errSystemUpdateGeneric, err)
-	}
-	return nil
-}
-
-func (si systemupdate) run(context wisski_distillery.Context) (err error) {
+func (si systemupdate) Run(context wisski_distillery.Context) (e error) {
 	dis := context.Environment
 
 	// create all the other directories
 	if _, err := logging.LogMessage(context.Stderr, "Ensuring distillery installation directories exist"); err != nil {
-		return fmt.Errorf("failed to log message: %w", err)
+		return fmt.Errorf("%w: %w", errSystemUpdateFailedToLog, err)
 	}
 	for _, d := range []string{
 		dis.Config.Paths.Root,
@@ -110,7 +91,7 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 	if si.InstallDocker {
 		// install system updates
 		if _, err := logging.LogMessage(context.Stderr, "Updating Operating System Packages"); err != nil {
-			return fmt.Errorf("failed to log message: %w", err)
+			return fmt.Errorf("%w: %w", errSystemUpdateFailedToLog, err)
 		}
 		if err := si.mustExec(context, "", "apt-get", "update"); err != nil {
 			return err
@@ -121,7 +102,7 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 
 		// install docker
 		if _, err := logging.LogMessage(context.Stderr, "Installing / Updating Docker"); err != nil {
-			return fmt.Errorf("failed to log message: %w", err)
+			return fmt.Errorf("%w: %w", errSystemUpdateFailedToLog, err)
 		}
 		if err := si.mustExec(context, "", "apt-get", "install", "curl"); err != nil {
 			return err
@@ -132,14 +113,24 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 		}
 	}
 
+	// create the docker client!
+	client, err := dis.Docker().NewClient()
+	if err != nil {
+		return fmt.Errorf("%w: %w", errSystemUpdateDockerClient, err)
+	}
+	defer errorsx.Close(client, &e, "client")
+
+	// TODO: close
+
 	// check that the docker api is available
 	{
 		if _, err := logging.LogMessage(context.Stderr, "Checking that the 'docker' api is reachable"); err != nil {
-			return fmt.Errorf("failed to log message: %w", err)
+			return fmt.Errorf("%w: %w", errSystemUpdateFailedToLog, err)
 		}
-		ping, err := dis.Docker().Ping(context.Context)
+
+		ping, err := client.Ping(context.Context)
 		if err != nil {
-			return fmt.Errorf("%w: %w", errDockerUnreachable, err)
+			return fmt.Errorf("%w: %w", errSystemUpdateFailedToPing, err)
 		}
 		_, _ = context.Printf("API Version:     %s (experimental: %t)\nBuilder Version: %s\n", ping.APIVersion, ping.Experimental, ping.BuilderVersion)
 	}
@@ -160,7 +151,7 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 		}
 
 		for _, name := range dis.Config.Docker.Networks() {
-			id, existed, err := dis.Docker().CreateNetwork(context.Context, name)
+			id, existed, err := client.NetworkCreate(context.Context, name)
 			if err != nil {
 				return fmt.Errorf("%w: %w", errNetworkCreateFailed, err)
 			}
@@ -187,8 +178,12 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 			},
 			PrefixAlign: true,
 
-			Handler: func(item component.Installable, index int, writer io.Writer) error {
-				stack := item.Stack()
+			Handler: func(item component.Installable, index int, writer io.Writer) (e error) {
+				stack, err := item.OpenStack()
+				if err != nil {
+					return fmt.Errorf("failed open stack: %w", err)
+				}
+				defer errorsx.Close(stack, &e, "stack")
 
 				if err := stack.Install(context.Context, writer, item.Context(ctx)); err != nil {
 					return fmt.Errorf("failed to install stack: %w", err)
@@ -213,7 +208,7 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 			},
 		}, dis.Installable())
 	}, context.Stderr, "Performing Stack Updates"); err != nil {
-		return fmt.Errorf("failed to perform stack updates: %w", err)
+		return fmt.Errorf("%w: %w", errSystemUpdateFailedStackUpdate, err)
 	}
 
 	if err := logging.LogOperation(func() error {
@@ -232,11 +227,11 @@ func (si systemupdate) run(context wisski_distillery.Context) (err error) {
 		}
 		return nil
 	}, context.Stderr, "Performing Component Updates"); err != nil {
-		return fmt.Errorf("failed to preform component updates: %w", err)
+		return fmt.Errorf("%w: %w", errSystemUpdateFailedComponentUpdate, err)
 	}
 
 	if _, err := logging.LogMessage(context.Stderr, "System has been updated"); err != nil {
-		return fmt.Errorf("failed to log message: %w", err)
+		return fmt.Errorf("%w: %w", errSystemUpdateFailedToLog, err)
 	}
 	return nil
 }

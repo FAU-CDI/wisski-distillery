@@ -1,13 +1,15 @@
 //spellchecker:words barrel
 package barrel
 
-//spellchecker:words embed path filepath github wisski distillery internal component ingredient
+//spellchecker:words embed path filepath github wisski distillery internal component ingredient dockerx
 import (
 	"embed"
+	"fmt"
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 )
 
 //go:embed all:barrel
@@ -24,14 +26,17 @@ const phpIniName = "custom.ini"
 var phpIniTemplate string
 
 // Barrel returns a stack representing the running WissKI Instance.
-func (barrel *Barrel) Stack() component.StackWithResources {
+func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 	liquid := ingredient.GetLiquid(barrel)
 	config := ingredient.GetStill(barrel).Config
 
+	stack, err := dockerx.NewStack(liquid.Docker, liquid.FilesystemBase)
+	if err != nil {
+		return component.StackWithResources{}, fmt.Errorf("failed to get docker client: %w", err)
+	}
+
 	return component.StackWithResources{
-		Stack: component.Stack{
-			Dir: liquid.FilesystemBase,
-		},
+		Stack: stack,
 
 		Resources:   barrelResources,
 		ContextPath: "barrel",
@@ -65,5 +70,5 @@ func (barrel *Barrel) Stack() component.StackWithResources {
 		},
 
 		MakeDirs: []string{"data", ".composer"},
-	}
+	}, nil
 }

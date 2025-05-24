@@ -1,6 +1,6 @@
 package sql
 
-//spellchecker:words context errors github wisski distillery internal component pkglib stream
+//spellchecker:words context errors github wisski distillery internal component pkglib errorsx stream
 import (
 	"context"
 	"errors"
@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/stream"
 )
 
@@ -19,8 +20,14 @@ func (*SQL) BackupName() string {
 
 // Backup makes a backup of all SQL databases into the path dest.
 func (sql *SQL) Backup(scontext *component.StagingContext) error {
-	if err := scontext.AddFile("", func(ctx context.Context, file io.Writer) error {
-		code := sql.Stack().Exec(ctx, stream.NewIOStream(file, scontext.Progress(), nil), "sql", SQlDumpExecutable, "--all-databases")()
+	if err := scontext.AddFile("", func(ctx context.Context, file io.Writer) (e error) {
+		stack, err := sql.OpenStack()
+		if err != nil {
+			return fmt.Errorf("failed to open stack: %w", err)
+		}
+		defer errorsx.Close(stack, &e, "stack")
+
+		code := stack.Exec(ctx, stream.NewIOStream(file, scontext.Progress(), nil), "sql", SQlDumpExecutable, "--all-databases")()
 		if code != 0 {
 			return errSQLBackup
 		}

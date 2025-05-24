@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words errors slog http sync github wisski distillery internal wdlog goprogram exit
+//spellchecker:words slog http sync time github wisski distillery internal wdlog goprogram exit pkglib errorsx
 import (
 	"fmt"
 	"log/slog"

@@ -3,248 +3,29 @@
 //spellchecker:words component
 package component
 
-//spellchecker:words context path filepath github wisski distillery compose execx unpack errors pkglib umaskfree stream gopkg yaml
+//spellchecker:words context errors path filepath github wisski distillery compose dockerx unpack pkglib errorsx umaskfree gopkg yaml
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
-	"slices"
-	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
-	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
-	"github.com/docker/docker/api/types/container"
 	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/fsx"
 	"github.com/tkw1536/pkglib/fsx/umaskfree"
-	"github.com/tkw1536/pkglib/stream"
 	"gopkg.in/yaml.v3"
 )
-
-// Stack represents a 'docker compose' stack living in a specific directory
-//
-// NOTE(twiesing): In the current implementation this requires a 'docker' executable on the system.
-// This executable must be capable of the 'docker compose' command.
-// In the future the idea is to replace this with a native docker compose client.
-type Stack struct {
-	Dir string // Directory this Stack is located in
-
-	DockerExecutable string // Path to the native docker executable to use
-}
-
-var errStackKill = errors.New("Stack.Kill: Kill returned non-zero exit code")
-
-func (ds Stack) Kill(ctx context.Context, progress io.Writer, service string, signal os.Signal) error {
-	code := ds.compose(ctx, stream.NonInteractive(progress), "kill", service, "-s", signal.String())()
-	if code != 0 {
-		return errStackKill
-	}
-	return nil
-}
-
-var errStackPs = errors.New("Stack.Update: Ps returned non-zero error")
-
-func (ds Stack) Containers(ctx context.Context, services ...string) (containers []container.Summary, err error) {
-	var buffer strings.Builder
-
-	psFormatJSON := append([]string{"ps", "--format", "json", "--"}, services...)
-	if code := ds.compose(ctx, stream.NewIOStream(&buffer, nil, nil), psFormatJSON...)(); code != 0 {
-		return nil, fmt.Errorf("%w: %d", errStackPs, code)
-	}
-
-	// get the output as a string
-	containerJSON := strings.TrimSpace(buffer.String())
-
-	// in some versions of compose this is already an array.
-	// if it isn't create one with each container on its' own line.
-	if !strings.HasPrefix(containerJSON, "[") {
-		containerJSON = "[" + strings.ReplaceAll(containerJSON, "\n", ",") + "]"
-	}
-
-	// and unmarshal the array!
-	if err := json.Unmarshal([]byte(containerJSON), &containers); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal container summary: %w", err)
-	}
-	return containers, nil
-}
-
-var errStackUpdatePull = errors.New("Stack.Update: Pull returned non-zero exit code")
-var errStackUpdateBuild = errors.New("Stack.Update: Build returned non-zero exit code")
-
-// Update pulls, builds, and then optionally starts this stack.
-// This does not have a direct 'docker compose' shell equivalent.
-//
-// See also Up.
-func (ds Stack) Update(ctx context.Context, progress io.Writer, start bool) error {
-	if code := ds.compose(ctx, stream.NonInteractive(progress), "pull")(); code != 0 {
-		return errStackUpdatePull
-	}
-
-	if code := ds.compose(ctx, stream.NonInteractive(progress), "build", "--pull")(); code != 0 {
-		return errStackUpdateBuild
-	}
-
-	if start {
-		return ds.Up(ctx, progress)
-	}
-	return nil
-}
-
-var (
-	errStackAttach                   = errors.New("Stack.Attach: Attach returned non-zero exit code")
-	errStackAttachNoRunningContainer = errors.New("no running containers")
-)
-
-// Attach attaches to the standard output (and optionally input streams) and redirects them to io until context is closed.
-// When multiple running containers exist, picks the first one.
-func (ds Stack) Attach(ctx context.Context, io stream.IOStream, interactive bool, service string) error {
-	containers, err := ds.Containers(ctx, service)
-	if err != nil {
-		return fmt.Errorf("failed to get containers: %w", err)
-	}
-
-	runningIndex := slices.IndexFunc(containers, func(c container.Summary) bool { return c.State == "running" })
-	if runningIndex < 0 {
-		return errStackAttachNoRunningContainer
-	}
-
-	// build the attach command line
-	attachContainerCmd := []string{"attach", "--sig-proxy=false"}
-	if !interactive {
-		io = io.NonInteractive()
-		attachContainerCmd = append(attachContainerCmd, "--no-stdin")
-	}
-	attachContainerCmd = append(attachContainerCmd, containers[runningIndex].ID)
-
-	// run the command!
-	code := ds.docker(ctx, io, attachContainerCmd...)()
-	if err := ctx.Err(); err != nil {
-		// if the context was closed, then return code 0
-		code = 0
-	}
-	if code != 0 {
-		return fmt.Errorf("%w: %d", errStackAttach, code)
-	}
-	return nil
-}
-
-var errStackUp = errors.New("Stack.Up: Up returned non-zero exit code")
-
-// Up creates and starts the containers in this Stack.
-// It is equivalent to 'docker compose up --force-recreate --remove-orphans --detach' on the shell.
-func (ds Stack) Up(ctx context.Context, progress io.Writer) error {
-	if code := ds.compose(ctx, stream.NonInteractive(progress), "up", "--force-recreate", "--remove-orphans", "--detach")(); code != 0 {
-		return fmt.Errorf("%w: %d", errStackUp, code)
-	}
-	return nil
-}
-
-// Exec executes an executable in the provided running service.
-// It is equivalent to 'docker compose exec $service $executable $args...'.
-//
-// It returns the exit code of the process.
-func (ds Stack) Exec(ctx context.Context, io stream.IOStream, service, executable string, args ...string) func() int {
-	compose := []string{"exec"}
-	if !io.StdinIsATerminal() {
-		compose = append(compose, "-T")
-	}
-
-	compose = append(compose, service)
-	compose = append(compose, executable)
-	compose = append(compose, args...)
-
-	return ds.compose(ctx, io, compose...)
-}
-
-type RunFlags struct {
-	AutoRemove bool
-	Detach     bool
-}
-
-// Run runs a command in a running container with the given executable.
-// It is equivalent to 'docker compose run [--rm] $service $executable $args...'.
-//
-// It returns the exit code of the process.
-func (ds Stack) Run(ctx context.Context, io stream.IOStream, flags RunFlags, service, command string, args ...string) (int, error) {
-	compose := []string{"run"}
-	if flags.AutoRemove {
-		compose = append(compose, "--rm")
-	}
-	if !io.StdinIsATerminal() {
-		compose = append(compose, "--no-TTY")
-	}
-	if flags.Detach {
-		compose = append(compose, "--detach")
-	}
-
-	compose = append(compose, service, command)
-	compose = append(compose, args...)
-
-	code := ds.compose(ctx, io, compose...)()
-	return code, nil
-}
-
-var errStackRestart = errors.New("Stack.Restart: Restart returned non-zero exit code")
-
-// Restart restarts all containers in this Stack.
-// It is equivalent to 'docker compose restart' on the shell.
-func (ds Stack) Restart(ctx context.Context, progress io.Writer) error {
-	code := ds.compose(ctx, stream.NonInteractive(progress), "restart")()
-	if code != 0 {
-		return errStackRestart
-	}
-	return nil
-}
-
-var errStackDown = errors.New("Stack.Down: Down returned non-zero exit code")
-
-// Down stops and removes all containers in this Stack.
-// It is equivalent to 'docker compose down -v' on the shell.
-func (ds Stack) Down(ctx context.Context, progress io.Writer) error {
-	code := ds.compose(ctx, stream.NonInteractive(progress), "down", "-v")()
-	if code != 0 {
-		return errStackDown
-	}
-	return nil
-}
-
-// DownAll stops and removes all containers in this Stack, and those not defined in the compose file.
-// It is equivalent to 'docker compose down -v --remove-orphans' on the shell.
-func (ds Stack) DownAll(ctx context.Context, progress io.Writer) error {
-	code := ds.compose(ctx, stream.NonInteractive(progress), "down", "-v", "--remove-orphans")()
-	if code != 0 {
-		return errStackDown
-	}
-	return nil
-}
-
-// compose executes a 'docker compose' command on this stack.
-func (ds Stack) compose(ctx context.Context, io stream.IOStream, args ...string) func() int {
-	return ds.docker(ctx, io, append([]string{"compose"}, args...)...)
-}
-
-// docker executes a 'docker' command in the directory of this stack.
-func (ds Stack) docker(ctx context.Context, io stream.IOStream, args ...string) func() int {
-	if ds.DockerExecutable == "" {
-		var err error
-		ds.DockerExecutable, err = execx.LookPathAbs("docker")
-		if err != nil {
-			return execx.CommandErrorFunc
-		}
-	}
-	return execx.Exec(ctx, io, ds.Dir, ds.DockerExecutable, args...)
-}
 
 // StackWithResources represents a Stack that can be automatically installed from a set of resources.
 // See the [Install] method.
 type StackWithResources struct {
-	Stack
+	*dockerx.Stack
 
 	// Installable enabled installing several resources from a (potentially embedded) filesystem.
 	//

@@ -1,18 +1,25 @@
 //spellchecker:words barrel
 package barrel
 
-//spellchecker:words context github wisski distillery internal status ingredient compose spec errdefs
+//spellchecker:words context github wisski distillery internal status ingredient pkglib errorsx
 import (
 	"context"
 	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/tkw1536/pkglib/errorsx"
 )
 
 // Running checks if this WissKI is currently running.
-func (barrel *Barrel) Running(ctx context.Context) (bool, error) {
-	containers, err := barrel.Stack().Containers(ctx)
+func (barrel *Barrel) Running(ctx context.Context) (r bool, e error) {
+	stack, err := barrel.OpenStack()
+	if err != nil {
+		return false, fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	containers, err := stack.Containers(ctx, false)
 	if err != nil {
 		return false, fmt.Errorf("failed to get containers: %w", err)
 	}

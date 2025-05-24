@@ -1,7 +1,7 @@
 //spellchecker:words manager
 package manager
 
-//spellchecker:words context github wisski distillery internal ingredient barrel composer logging pkglib stream
+//spellchecker:words context github wisski distillery internal ingredient barrel composer logging pkglib errorsx stream
 import (
 	"context"
 	"fmt"

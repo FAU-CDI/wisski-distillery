@@ -1,7 +1,7 @@
 //spellchecker:words home
 package home
 
-//spellchecker:words context encoding json http strings github wisski distillery internal component
+//spellchecker:words context encoding json http strings github wisski distillery internal component pkglib errorsx
 import (
 	"context"
 	"encoding/json"

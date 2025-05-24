@@ -1,10 +1,13 @@
 //spellchecker:words component
 package component
 
-//spellchecker:words context
+//spellchecker:words context github wisski distillery dockerx
 import (
 	"context"
+	"fmt"
 	"io"
+
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 )
 
 // Installable implements an installable component.
@@ -15,20 +18,24 @@ type Installable interface {
 	// By convention it is /var/www/deploy/internal/core/${Name()}
 	Path() string
 
-	// Stack can be used to gain access to the "docker compose" stack.
+	// OpenStack can be used to gain access to the "docker compose" stack.
 	//
 	// This should internally call [ComponentBase.MakeStack]
-	Stack() StackWithResources
+	OpenStack() (StackWithResources, error)
 
 	// Context returns a new InstallationContext to be used during installation from the command line.
 	// Typically this should just pass through the parent, but might perform other tasks.
 	Context(parent InstallationContext) InstallationContext
 }
 
-// MakeStack registers the Installable as a stack.
-func MakeStack(component Installable, stack StackWithResources) StackWithResources {
-	stack.Dir = component.Path()
-	return stack
+// OpenStack can be used to implement stack as an installable
+func OpenStack(component Installable, factory dockerx.Factory, stack StackWithResources) (StackWithResources, error) {
+	dockerStack, err := dockerx.NewStack(factory, component.Path())
+	if err != nil {
+		return StackWithResources{}, fmt.Errorf("failed to create stack: %w", err)
+	}
+	stack.Stack = dockerStack
+	return stack, nil
 }
 
 // Updatable represents a component with an Update method.

@@ -1,7 +1,7 @@
 //spellchecker:words status
 package status
 
-//spellchecker:words encoding json strings time github wisski distillery internal phpx golang slices
+//spellchecker:words encoding json strings time slices github wisski distillery internal phpx
 import (
 	"encoding/json"
 	"fmt"

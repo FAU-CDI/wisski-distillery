@@ -1,6 +1,6 @@
 package sql
 
-//spellchecker:words context errors github wisski distillery internal models pkglib sqlx
+//spellchecker:words context errors github wisski distillery internal models pkglib errorsx sqlx
 import (
 	"context"
 	"errors"

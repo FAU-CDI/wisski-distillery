@@ -1,6 +1,6 @@
 package sql
 
-//spellchecker:words context errors reflect time github wisski distillery internal component logging goprogram exit pkglib sqlx stream timex
+//spellchecker:words context errors reflect time github wisski distillery internal component execx logging pkglib sqlx stream timex
 import (
 	"context"
 	"errors"
@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/sqlx"
 	"github.com/tkw1536/pkglib/stream"
@@ -20,7 +21,15 @@ import (
 //
 // NOTE(twiesing): This command should not be used to connect to the database or execute queries except in known situations.
 func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) int {
-	return sql.Stack().Exec(ctx, io, "sql", "mariadb", argv...)()
+	stack, err := sql.OpenStack()
+	if err != nil {
+		return execx.CommandError
+	}
+	defer func() {
+		_ = stack.Close()
+	}()
+
+	return stack.Exec(ctx, io, "sql", "mariadb", argv...)()
 }
 
 var errSQLNotFound = errors.New("internal error: unsafeWaitShell: sql client not found")

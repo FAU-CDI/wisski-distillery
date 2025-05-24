@@ -1,13 +1,14 @@
 //spellchecker:words barrel
 package barrel
 
-//spellchecker:words context github alessio shellescape goprogram exit pkglib stream
+//spellchecker:words context github alessio shellescape goprogram exit pkglib errorsx stream
 import (
 	"context"
 	"fmt"
 
 	"github.com/alessio/shellescape"
 	"github.com/tkw1536/goprogram/exit"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/stream"
 )
 
@@ -23,8 +24,14 @@ func (ee ExitError) Code() exit.ExitCode {
 
 // Shell executes a shell with the given command line arguments inside the container.
 // If an error occurs, it is of type ExitError.
-func (barrel *Barrel) Shell(ctx context.Context, io stream.IOStream, argv ...string) error {
-	code := barrel.Stack().Exec(ctx, io, "barrel", "/bin/sh", append([]string{"/user_shell.sh"}, argv...)...)()
+func (barrel *Barrel) Shell(ctx context.Context, io stream.IOStream, argv ...string) (e error) {
+	stack, err := barrel.OpenStack()
+	if err != nil {
+		return fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	code := stack.Exec(ctx, io, "barrel", "/bin/sh", append([]string{"/user_shell.sh"}, argv...)...)()
 	if code != 0 {
 		return ExitError(code)
 	}

@@ -1,7 +1,7 @@
 //spellchecker:words validators
 package validators
 
-//spellchecker:words regexp strings github errors
+//spellchecker:words regexp strings
 import (
 	"fmt"
 	"regexp"

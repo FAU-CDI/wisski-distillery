@@ -5,7 +5,7 @@ package execx
 
 // TODO: Move this to an external package
 
-//spellchecker:words context exec path filepath github wisski distillery internal wdlog pkglib stream
+//spellchecker:words context errors exec path filepath time github wisski distillery internal wdlog pkglib stream
 import (
 	"context"
 	"errors"

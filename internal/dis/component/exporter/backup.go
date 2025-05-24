@@ -1,7 +1,7 @@
 //spellchecker:words exporter
 package exporter
 
-//spellchecker:words context errors slog path filepath strings time github wisski distillery internal component wdlog logging pkglib umaskfree status golang slices
+//spellchecker:words context slog path filepath slices strings time github wisski distillery internal component wdlog logging pkglib errorsx umaskfree status
 import (
 	"context"
 	"fmt"
