@@ -38,6 +38,7 @@ var composeTemplate embed.FS
 func (binder *Binder) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(binder).Config
 
+	//nolint:wrapcheck
 	return component.OpenStack(binder, binder.dependencies.Docker, component.StackWithResources{
 		ContextPath: ".",
 		Resources:   composeTemplate,

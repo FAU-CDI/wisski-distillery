@@ -11,7 +11,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-// Client represents a docker client with additional functionality
+// Client represents a docker client with additional functionality.
 type Client struct {
 	*client.Client
 }

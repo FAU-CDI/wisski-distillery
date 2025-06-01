@@ -10,7 +10,7 @@ import (
 	"github.com/docker/docker/client"
 )
 
-// Docker implements [dockerx.Factory]
+// Docker implements [dockerx.Factory].
 type Docker struct {
 	component.Base
 }

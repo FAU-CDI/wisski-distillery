@@ -23,6 +23,8 @@ import (
 // NOTE(twiesing): In the current implementation this requires a 'docker' executable on the system.
 // This executable must be capable of the 'docker compose' command.
 // In the future the idea is to replace this with a native docker compose client.
+//
+//nolint:recvcheck
 type Stack struct {
 	Dir string // Directory this Stack is located in
 
@@ -39,7 +41,7 @@ func (stack *Stack) Close() error {
 	return nil
 }
 
-// Project returns the underlying compose project
+// Project returns the underlying compose project.
 func (stack *Stack) Project() (compose.Project, error) {
 	proj, err := compose.Open(stack.Dir)
 	if err != nil {
@@ -111,7 +113,7 @@ func (stack *Stack) Containers(ctx context.Context, includeStoppedContainers boo
 	return slices.Clip(result), nil
 }
 
-// Kill kills containers belonging to the given service
+// Kill kills containers belonging to the given service.
 func (ds *Stack) Kill(ctx context.Context, progress io.Writer, service string, signal os.Signal) error {
 	containers, err := ds.Containers(ctx, false, service)
 	if err != nil {

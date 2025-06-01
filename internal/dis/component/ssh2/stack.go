@@ -18,6 +18,7 @@ var resources embed.FS
 
 func (ssh *SSH2) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(ssh).Config
+	//nolint:wrapcheck
 	return component.OpenStack(ssh, ssh.dependencies.Docker, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "ssh2",

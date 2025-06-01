@@ -24,7 +24,7 @@ var resources embed.FS
 
 func (server *Server) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(server).Config
-
+	//nolint:wrapcheck
 	return component.OpenStack(server, server.dependencies.Docker, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "server",

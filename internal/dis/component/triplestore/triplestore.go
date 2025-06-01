@@ -48,6 +48,7 @@ var resources embed.FS
 
 func (ts *Triplestore) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(ts).Config
+	//nolint:wrapcheck
 	return component.OpenStack(ts, ts.dependencies.Docker, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "triplestore",

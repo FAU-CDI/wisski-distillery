@@ -48,6 +48,7 @@ var resources embed.FS
 
 func (sql *SQL) OpenStack() (component.StackWithResources, error) {
 	config := component.GetStill(sql).Config
+	//nolint:wrapcheck
 	return component.OpenStack(sql, sql.dependencies.Docker, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "sql",

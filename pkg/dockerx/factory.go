@@ -10,12 +10,12 @@ import (
 	"github.com/tkw1536/pkglib/errorsx"
 )
 
-// Factory can create docker clients
+// Factory can create docker clients.
 type Factory interface {
 	NewClient() (*Client, error)
 }
 
-// NewStack creates a stack from a factory and a directory
+// NewStack creates a stack from a factory and a directory.
 func NewStack(factory Factory, dir string) (*Stack, error) {
 	client, err := factory.NewClient()
 	if err != nil {
@@ -42,7 +42,7 @@ func WithFunc[T any](factory Factory, f func(*Client) (T, error)) (t T, e error)
 	return res, nil
 }
 
-// WithFunc0 execpt that func only returns an error
+// WithFunc0 execpt that func only returns an error.
 func WithFunc0(factory Factory, f func(*Client) error) (e error) {
 	client, err := factory.NewClient()
 	if err != nil {

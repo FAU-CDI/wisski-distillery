@@ -39,6 +39,7 @@ func (*Solr) Context(parent component.InstallationContext) component.Installatio
 var resources embed.FS
 
 func (solr *Solr) OpenStack() (component.StackWithResources, error) {
+	//nolint:wrapcheck
 	return component.OpenStack(solr, solr.dependencies.Docker, component.StackWithResources{
 		Resources:   resources,
 		ContextPath: "solr",

@@ -38,7 +38,6 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	{
-
 		code, err := stack.Run(ctx, stream.FromNil(), dockerx.RunFlags{Detach: true, AutoRemove: true}, "barrel", "sudo", "-u", "www-data", "mkdir", "-p", barrel.ComposerDirectory)
 		if code != 0 {
 			err = barrel.ExitError(code)

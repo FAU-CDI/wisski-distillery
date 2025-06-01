@@ -57,6 +57,7 @@ func (web *Web) OpenStack() (component.StackWithResources, error) {
 		stack.ComposerYML = readYaml(dockerComposeHTTP)
 	}
 
+	//nolint:wrapcheck
 	return component.OpenStack(web, web.dependencies.Docker, stack)
 }
 

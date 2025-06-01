@@ -28,7 +28,7 @@ type Installable interface {
 	Context(parent InstallationContext) InstallationContext
 }
 
-// OpenStack can be used to implement stack as an installable
+// OpenStack can be used to implement stack as an installable.
 func OpenStack(component Installable, factory dockerx.Factory, stack StackWithResources) (StackWithResources, error) {
 	dockerStack, err := dockerx.NewStack(factory, component.Path())
 	if err != nil {

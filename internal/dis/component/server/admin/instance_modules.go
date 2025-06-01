@@ -5,6 +5,7 @@ package admin
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
@@ -62,7 +63,7 @@ func (admin *Admin) instanceModules(context.Context) http.Handler {
 		// get all the modules
 		ctx.Modules, err = ctx.Instance.Modules().Get(r.Context(), nil)
 		if err != nil {
-			return ctx, nil, err
+			return ctx, nil, fmt.Errorf("%w: failed to get modules: %w", httpx.ErrInternalServerError, err)
 		}
 
 		for _, m := range ctx.Modules {

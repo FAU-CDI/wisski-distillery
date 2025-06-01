@@ -81,7 +81,6 @@ func (modules *Modules) Get(ctx context.Context, server *phpx.Server) (infos []D
 		}
 
 		return strings.Compare(left.Name, right.Name)
-
 	})
 	return
 }
