@@ -3,6 +3,6 @@
 
 # allow the following files:
 !apache.d/*
-!scripts/*
+!etc/*
 !ssh/*
 !php.ini.d/*

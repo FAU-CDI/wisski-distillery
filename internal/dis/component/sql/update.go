@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/sqlx"
@@ -29,7 +30,14 @@ func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) i
 		_ = stack.Close()
 	}()
 
-	return stack.Exec(ctx, io, "sql", "mariadb", argv...)()
+	return stack.Exec(
+		ctx, io,
+		dockerx.ExecOptions{
+			Service: "sql",
+			Cmd:     "mariadb",
+			Args:    argv,
+		},
+	)()
 }
 
 var errSQLNotFound = errors.New("internal error: unsafeWaitShell: sql client not found")

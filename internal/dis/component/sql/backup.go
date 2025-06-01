@@ -8,6 +8,7 @@ import (
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/stream"
 )
@@ -27,7 +28,15 @@ func (sql *SQL) Backup(scontext *component.StagingContext) error {
 		}
 		defer errorsx.Close(stack, &e, "stack")
 
-		code := stack.Exec(ctx, stream.NewIOStream(file, scontext.Progress(), nil), "sql", SQlDumpExecutable, "--all-databases")()
+		code := stack.Exec(
+			ctx, stream.NewIOStream(file, scontext.Progress(), nil),
+			dockerx.ExecOptions{
+				Service: "sql",
+
+				Cmd:  SQlDumpExecutable,
+				Args: []string{"--all-databases"},
+			},
+		)()
 		if code != 0 {
 			return errSQLBackup
 		}

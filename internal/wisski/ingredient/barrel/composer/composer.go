@@ -38,7 +38,7 @@ func (composer *Composer) ExecWissKI(ctx context.Context, progress io.Writer, co
 }
 
 func (composer *Composer) exec(ctx context.Context, progress io.Writer, command ...string) error {
-	if err := composer.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), append([]string{"composer", "--no-interaction"}, command...)...); err != nil {
+	if err := composer.dependencies.Barrel.BashScript(ctx, stream.NonInteractive(progress), append([]string{"composer", "--no-interaction"}, command...)...); err != nil {
 		return fmt.Errorf("composer command returned error: %w", err)
 	}
 	return nil
@@ -48,7 +48,7 @@ func (composer *Composer) exec(ctx context.Context, progress io.Writer, command 
 // This needs to be run after every installation of a composer module.
 func (composer *Composer) FixPermission(ctx context.Context, progress io.Writer) error {
 	// TODO: Do we want this to error out if it fails?
-	_ = composer.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "chmod", "-R", "u+w", barrel.SitesDirectory)
+	_ = composer.dependencies.Barrel.BashScript(ctx, stream.NonInteractive(progress), "chmod", "-R", "u+w", barrel.SitesDirectory)
 	return nil
 }
 

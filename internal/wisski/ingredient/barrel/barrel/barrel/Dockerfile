@@ -123,24 +123,23 @@ ADD apache.d/mods-available/iipsrv.conf /etc/apache2/mods-available/iipsrv.conf
 # enable it
 RUN a2ensite wisski
 
-# volumes for composer
+# volumes for all the things
 VOLUME /var/www/.composer
 VOLUME /var/www/data
+VOLUME /ssh/hostkeys/
 
 # Add and configure the entrypoint
-ADD scripts/entrypoint.sh /entrypoint.sh
+ADD etc/entrypoint.sh /entrypoint.sh
+ADD etc/profile_path.sh /etc/profile.d/path.sh
+ADD ssh/ /ssh/
+
+RUN chmod 500 /ssh/keys.sh && \
+    chmod 500 /ssh/start.sh && \
+    chmod 444 /etc/profile.d/path.sh && \
+    chmod 400 /entrypoint.sh && \
+    chsh www-data --shell /bin/bash
 
 ENTRYPOINT [ "/bin/bash", "/entrypoint.sh" ]
+
 CMD ["apache2-foreground"]
-
-# Add the user_shell.sh
-ADD scripts/user_shell.sh /user_shell.sh
-ADD ssh/ /ssh/
-VOLUME /ssh/hostkeys/
-RUN chmod 700 /ssh/keys.sh && \
-    chmod 700 /ssh/start.sh && \
-    chmod 777 /user_shell.sh && \
-    chsh www-data --shell /user_shell.sh
-
-# expose port 8080
 EXPOSE 8080

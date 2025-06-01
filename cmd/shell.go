@@ -44,7 +44,8 @@ func (sh shell) Run(context wisski_distillery.Context) error {
 	}
 
 	{
-		err := instance.Barrel().Shell(context.Context, context.IOStream, sh.Positionals.Args...)
+		args := append([]string{"/bin/bash"}, sh.Positionals.Args...)
+		err := instance.Barrel().BashScript(context.Context, context.IOStream, args...)
 		if err != nil {
 			var ee barrel.ExitError
 			if !(errors.As(err, &ee)) {

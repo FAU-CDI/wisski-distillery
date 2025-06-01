@@ -203,19 +203,31 @@ func (ds Stack) Up(ctx context.Context, progress io.Writer) error {
 	return nil
 }
 
+type ExecOptions struct {
+	Service string
+	User    string
+
+	Cmd  string
+	Args []string
+}
+
 // Exec executes an executable in the provided running service.
 // It is equivalent to 'docker compose exec $service $executable $args...'.
 //
 // It returns the exit code of the process.
-func (ds *Stack) Exec(ctx context.Context, io stream.IOStream, service, executable string, args ...string) func() int {
+func (ds *Stack) Exec(ctx context.Context, io stream.IOStream, options ExecOptions) func() int {
 	compose := []string{"exec"}
 	if !io.StdinIsATerminal() {
-		compose = append(compose, "-T")
+		compose = append(compose, "--no-TTY")
 	}
 
-	compose = append(compose, service)
-	compose = append(compose, executable)
-	compose = append(compose, args...)
+	if options.User != "" {
+		compose = append(compose, "--user", options.User)
+	}
+
+	compose = append(compose, options.Service)
+	compose = append(compose, options.Cmd)
+	compose = append(compose, options.Args...)
 
 	return ds.compose(ctx, io, compose...)
 }

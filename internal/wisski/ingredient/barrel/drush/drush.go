@@ -32,7 +32,7 @@ func (drush *Drush) Enable(ctx context.Context, progress io.Writer, modules ...s
 
 func (drush *Drush) Exec(ctx context.Context, progress io.Writer, command ...string) error {
 	script := append([]string{"drush"}, command...)
-	if err := drush.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...); err != nil {
+	if err := drush.dependencies.Barrel.BashScript(ctx, stream.NonInteractive(progress), script...); err != nil {
 		return fmt.Errorf("drush returned error: %w", err)
 	}
 	return nil

@@ -99,7 +99,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 				{"chmod", "666", "web/sites/default/*settings.php"},
 				{"chmod", "666", "web/sites/default/*services.php"},
 			} {
-				err := manager.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...)
+				err := manager.dependencies.Barrel.BashScript(ctx, stream.NonInteractive(progress), script...)
 				if err != nil {
 					return fmt.Errorf("failed to change permissions before update: %w", err)
 				}
@@ -119,7 +119,7 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 					{"chmod", "644", "web/sites/default/*settings.php"},
 					{"chmod", "644", "web/sites/default/*services.php"},
 				} {
-					if err := manager.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), script...); err != nil {
+					if err := manager.dependencies.Barrel.BashScript(ctx, stream.NonInteractive(progress), script...); err != nil {
 						err = fmt.Errorf("failed to reset permissions after update: %w", err)
 						e = errorsx.Combine(e, err)
 					}

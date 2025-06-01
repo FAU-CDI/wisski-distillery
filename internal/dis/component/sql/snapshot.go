@@ -8,6 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/stream"
 )
@@ -41,7 +42,15 @@ func (sql *SQL) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Writ
 	}
 	defer errorsx.Close(stack, &e, "stack")
 
-	code := stack.Exec(ctx, stream.NewIOStream(dest, progress, nil), "sql", SQlDumpExecutable, "--databases", database)()
+	code := stack.Exec(
+		ctx,
+		stream.NewIOStream(dest, progress, nil),
+		dockerx.ExecOptions{
+			Service: "sql",
+			Cmd:     SQlDumpExecutable,
+			Args:    []string{"--databases", database},
+		},
+	)()
 	if code != 0 {
 		return errSQLBackup
 	}

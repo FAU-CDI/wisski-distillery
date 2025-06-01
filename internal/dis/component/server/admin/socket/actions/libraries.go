@@ -34,7 +34,7 @@ func (*InstallColorboxJS) Action() InstanceAction {
 }
 
 func (*InstallColorboxJS) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
-	if err := instance.Barrel().Shell(ctx, stream.NewIOStream(out, out, nil), "/runtime/install_colorbox.sh"); err != nil {
+	if err := instance.Barrel().BashScript(ctx, stream.NewIOStream(out, out, nil), "/bin/bash", "/runtime/install_colorbox.sh"); err != nil {
 		return nil, fmt.Errorf("failed to install colorbox: %w", err)
 	}
 	return nil, nil
@@ -59,7 +59,7 @@ func (*InstallDompurifyJS) Action() InstanceAction {
 }
 
 func (*InstallDompurifyJS) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
-	if err := instance.Barrel().Shell(ctx, stream.NewIOStream(out, out, nil), "/runtime/install_dompurify.sh"); err != nil {
+	if err := instance.Barrel().BashScript(ctx, stream.NewIOStream(out, out, nil), "/bin/bash", "/runtime/install_dompurify.sh"); err != nil {
 		return nil, fmt.Errorf("failed to install dompurify: %w", err)
 	}
 	return nil, nil

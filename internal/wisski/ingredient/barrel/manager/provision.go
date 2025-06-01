@@ -163,7 +163,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 		return fmt.Errorf("failed to log progress: %w", err)
 	}
 	{
-		if err := provision.dependencies.Barrel.ShellScript(ctx, stream.NonInteractive(progress), "mkdir", "-p", barrel.OntologyDirectory); err != nil {
+		if err := provision.dependencies.Barrel.BashScript(ctx, stream.NonInteractive(progress), "mkdir", "-p", barrel.OntologyDirectory); err != nil {
 			return fmt.Errorf("failed to create directory: %w", err)
 		}
 	}
