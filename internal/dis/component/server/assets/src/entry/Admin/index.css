@@ -25,6 +25,9 @@
 .disabled {
     color: gray;
 }
+.warning {
+    background-color: #FFE4B5;
+}
 
 .overflow {
     overflow: auto;

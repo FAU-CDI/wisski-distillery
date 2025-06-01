@@ -87,6 +87,7 @@ func (admin *Admin) instanceTabs(slugEscaped string, active string) templating.F
 			{Title: "Users & Grants", Path: template.URL("/admin/instance/" + slugEscaped + "/users"), Active: active == "users"},
 			{Title: "Triplestore", Path: template.URL("/admin/instance/" + slugEscaped + "/triplestore"), Active: active == "triplestore"},
 			{Title: "Drupal", Path: template.URL("/admin/instance/" + slugEscaped + "/drupal"), Active: active == "drupal"},
+			{Title: "Modules", Path: template.URL("/admin/instance/" + slugEscaped + "/modules"), Active: active == "modules"},
 			{Title: "WissKI Data", Path: template.URL("/admin/instance/" + slugEscaped + "/data"), Active: active == "data"},
 			{Title: "WissKI Stats", Path: template.URL("/admin/instance/" + slugEscaped + "/stats"), Active: active == "stats"},
 			{Title: "SSH", Path: template.URL("/admin/instance/" + slugEscaped + "/ssh"), Active: active == "ssh"},

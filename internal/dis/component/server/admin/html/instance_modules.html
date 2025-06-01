@@ -1,0 +1,123 @@
+
+<div class="pure-u-1">
+    <div class="h-md-padding">
+        <table class="pure-table pure-table-bordered">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>
+                        Total
+                    </th>
+                    <th>
+                        Custom
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        Enabled
+                    </td>
+                    <td>
+                        {{ .EnabledCount }}
+                    </td>
+                    <td>
+                        {{ .CustomEnabledCount }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Disabled
+                    </td>
+                    <td>
+                        {{ .DisabledCount }}
+                    </td>
+                    <td>
+                        {{ .CustomDisabledCount }}
+                    </td> 
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="pure-u-1">
+    <div class="h-md-padding">
+        <table class="pure-table pure-table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        Display Name
+                    </th>
+                    <th>
+                        Name
+                    </th>
+
+                    <th>
+                        Type
+                    </th>
+                    <th>
+                        Enabled
+                    </th>
+
+                    <th>
+                        Version
+                    </th>
+
+                    <th>
+                        Composer Module
+                    </th>
+                    <th>
+                        Composer Version
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range $module := .Modules }}
+                <tr
+                    class="
+                        {{ if not $module.HasComposer }} warning {{ end }}
+                        {{ if not $module.Enabled }} disabled {{ end }}
+                    "
+                >
+                    <td>
+                        
+                        {{ $module.DisplayName }}
+                    </td>
+                    <td>
+                        <code>{{ $module.Name }}</code>
+                    </td>
+
+                    <td>
+                        <code>{{ $module.Type }}</code>
+                    </td>
+
+                    <td>
+                        <code>{{ $module.Enabled }}</code> 
+                    </td>
+
+                    <td>
+                        <code>{{ $module.Version }}</code>
+                    </td>
+
+                    {{ if $module.Composer }}
+                        <td>
+                            <code>{{ $module.Composer.Name }}</code>
+                        </td>
+                        <td>
+                            <code>{{ $module.Composer.Version }}</code>
+                        </td>
+                    {{ else }}
+                    <td colspan="2">
+                        <code>
+                            <i>(not from composer)</i>
+                        </code>
+                    </td>
+                    {{ end }}
+                    
+
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    </div>
+</div>

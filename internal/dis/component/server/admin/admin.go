@@ -179,6 +179,11 @@ func (admin *Admin) HandleRoute(ctx context.Context, route string) (handler http
 		router.Handler(http.MethodGet, route+"instance/:slug/drupal", drupal)
 	}
 
+	{
+		modules := admin.instanceModules(ctx)
+		router.Handler(http.MethodGet, route+"instance/:slug/modules", modules)
+	}
+
 	// add a router for the login page
 	router.Handler(http.MethodPost, route+"login", admin.loginHandler(ctx))
 
