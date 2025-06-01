@@ -49,6 +49,9 @@ type WissKI struct {
 	Pathbuilders map[string]string // all the pathbuilders
 	Users        []DrupalUser      // all the known users
 	Grants       []models.Grant
+
+	// installed drupal modules
+	Modules []DrushExtendedModuleInfo
 }
 
 // Requirement represents a drupal requirement or status check.
@@ -159,4 +162,29 @@ func (bs BundleStatistics) Summary() string {
 	}
 
 	return fmt.Sprintf("%d %s in %d %s", totalCount, entitySubject, len(bs.Bundles), bundleSubject)
+}
+
+type DrushExtendedModuleInfo struct {
+	DrushModuleInfo
+	Composer *ComposerModuleInfo `json:"composer"`
+}
+
+func (demi DrushExtendedModuleInfo) HasComposer() bool {
+	return demi.Composer != nil
+}
+
+type DrushModuleInfo struct {
+	Name        string `json:"name"`
+	DisplayName string `json:"display_name"`
+
+	Type    string `json:"type"`
+	Path    string `json:"path"`
+	Enabled bool   `json:"enabled"`
+	Version string `json:"version"`
+}
+
+type ComposerModuleInfo struct {
+	Name    string `json:"name"`
+	Path    string `json:"path"`
+	Version string `json:"version"`
 }

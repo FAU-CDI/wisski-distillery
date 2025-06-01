@@ -55,6 +55,7 @@ func (i info) run(context wisski_distillery.Context) (err error) {
 		if err := json.NewEncoder(context.Stdout).Encode(info); err != nil {
 			return fmt.Errorf("failed to encode info as json: %w", err)
 		}
+		return nil
 	}
 
 	_, _ = context.Printf("Slug:                 %v\n", info.Slug)
