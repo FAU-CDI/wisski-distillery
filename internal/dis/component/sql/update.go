@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/sqlx"
 	"github.com/tkw1536/pkglib/stream"
 	"github.com/tkw1536/pkglib/timex"
@@ -42,8 +43,8 @@ func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) i
 
 var errSQLNotFound = errors.New("internal error: unsafeWaitShell: sql client not found")
 
-// unsafeWaitShell waits for a connection via the database shell to succeed.
-func (sql *SQL) unsafeWaitShell(ctx context.Context) (err error) {
+// waitDatabase waits for a simple query on the database to successfully execute
+func (sql *SQL) waitDatabase(ctx context.Context) (err error) {
 	defer func() {
 		// catch the errSQLNotFound
 		r := recover()
@@ -59,24 +60,38 @@ func (sql *SQL) unsafeWaitShell(ctx context.Context) (err error) {
 	}()
 
 	if err := timex.TickUntilFunc(func(time.Time) bool {
-		code := sql.Shell(ctx, stream.FromNil(), "-e", "select 1;")
-
-		// special case: executable was not found in the docker container.
-		// so bail out immediately; as there is no hope of recovery.
-		if code == 127 || code == 126 {
-			panic(errSQLNotFound)
+		conn, err := sql.openConnection("")
+		if err != nil {
+			return false
 		}
-		return code == 0
+		defer conn.Close()
+
+		if _, err := conn.QueryContext(ctx, "select 1;"); err != nil {
+			return false
+		}
+		return true
 	}, ctx, sql.PollInterval); err != nil {
 		return fmt.Errorf("failed to wait for sql: %w", err)
 	}
 	return nil
 }
 
-// unsafeQuery shell executes a raw database query.
-func (sql *SQL) unsafeQueryShell(ctx context.Context, query string) bool {
-	code := sql.Shell(ctx, stream.FromNil(), "-e", query)
-	return code == 0
+// directQuery opens a new connection to the database and executes the given queries in order.
+// Once the queries have been executed, the connection is closed.
+func (sql *SQL) directQuery(ctx context.Context, queries ...string) (e error) {
+	conn, err := sql.openConnection("")
+	if err != nil {
+		return fmt.Errorf("failed to establish connection: %w")
+	}
+	defer errorsx.Close(conn, &e, "connection")
+
+	for _, query := range queries {
+		if _, err := conn.ExecContext(ctx, query); err != nil {
+			return fmt.Errorf("failed to execute query: %w", err)
+		}
+	}
+
+	return nil
 }
 
 var (
@@ -90,7 +105,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 
 	// unsafely create the admin user!
 	{
-		if err := sql.unsafeWaitShell(ctx); err != nil {
+		if err := sql.waitDatabase(ctx); err != nil {
 			return err
 		}
 		if _, err := logging.LogMessage(progress, "Creating administrative user"); err != nil {

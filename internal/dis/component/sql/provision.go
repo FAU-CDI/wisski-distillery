@@ -4,6 +4,7 @@ package sql
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/pkglib/errorsx"
@@ -32,7 +33,7 @@ func (sql *SQL) Purge(ctx context.Context, instance models.Instance, domain stri
 // Provision internally waits for the database to become available.
 func (sql *SQL) CreateDatabase(ctx context.Context, name, user, password string) error {
 	// NOTE(twiesing): We shouldn't use string concat to build sql queries.
-	// But the driver doesn't support using query params for this particular query.
+	// But the driver doesn't support using query params for these queries.
 	// Apparently it's a "feature", see https://github.com/go-sql-driver/mysql/issues/398#issuecomment-169951763.
 
 	// quick and dirty check to make sure that all the names won't sql inject.
@@ -40,21 +41,18 @@ func (sql *SQL) CreateDatabase(ctx context.Context, name, user, password string)
 		return errProvisionInvalidDatabaseParams
 	}
 
-	// We use the sql shell here, because not only can we not use query params, but the driver outright rejects queries.
-	// Queries of the form "CREATE USER 'test'@'%' IDENTIFIED BY 'test'; FLUSH PRIVILEGES;" return error 1064 when using driver, but are fine with the shell.
-	// This should be fixed eventually, but I have no idea how.
-
-	if err := sql.unsafeWaitShell(ctx); err != nil {
+	if err := sql.waitDatabase(ctx); err != nil {
 		return err
 	}
 
-	query := "CREATE DATABASE `" + name + "`;" +
-		"CREATE USER '" + user + "'@'%' IDENTIFIED BY '" + password + "';" +
-		"GRANT ALL PRIVILEGES ON `" + name + "`.* TO `" + user + "`@`%`; FLUSH PRIVILEGES;"
-	if !sql.unsafeQueryShell(ctx, query) {
-		return errProvisionInvalidGrant
+	if err := sql.directQuery(ctx,
+		"CREATE DATABASE `"+name+"`;",
+		"CREATE USER '"+user+"'@'%' IDENTIFIED BY '"+password+"';",
+		"GRANT ALL PRIVILEGES ON `"+name+"`.* TO `"+user+"`@`%`;",
+		"FLUSH PRIVILEGES;",
+	); err != nil {
+		return fmt.Errorf("%w: %w", errProvisionInvalidGrant, err)
 	}
-
 	return nil
 }
 
@@ -75,7 +73,7 @@ func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allo
 		return errProvisionInvalidDatabaseParams
 	}
 
-	if err := sql.unsafeWaitShell(ctx); err != nil {
+	if err := sql.waitDatabase(ctx); err != nil {
 		return err
 	}
 
@@ -84,12 +82,13 @@ func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allo
 		IfNotExists = "IF NOT EXISTS"
 	}
 
-	query := "CREATE USER " + IfNotExists + " '" + user + "'@'%' IDENTIFIED BY '" + password + "';" +
-		"GRANT ALL PRIVILEGES ON *.* TO '" + user + "'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
-	if !sql.unsafeQueryShell(ctx, query) {
-		return errCreateSuperuserGrant
+	if err := sql.directQuery(ctx,
+		"CREATE USER "+IfNotExists+" '"+user+"'@'%' IDENTIFIED BY '"+password+"';",
+		"GRANT ALL PRIVILEGES ON *.* TO '"+user+"'@'%' WITH GRANT OPTION;",
+		"FLUSH PRIVILEGES;",
+	); err != nil {
+		return fmt.Errorf("%w: %w", errCreateSuperuserGrant, err)
 	}
-
 	return nil
 }
 
@@ -101,10 +100,11 @@ func (sql *SQL) PurgeUser(ctx context.Context, user string) error {
 		return errPurgeUser
 	}
 
-	query := "DROP USER IF EXISTS '" + user + "'@'%';" +
-		"FLUSH PRIVILEGES;"
-	if !sql.unsafeQueryShell(ctx, query) {
-		return errPurgeUser
+	if err := sql.directQuery(ctx,
+		"DROP USER IF EXISTS '"+user+"'@'%';",
+		"FLUSH PRIVILEGES;",
+	); err != nil {
+		return fmt.Errorf("%w: %w", errPurgeUser, err)
 	}
 
 	return nil
