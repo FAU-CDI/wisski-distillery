@@ -13,12 +13,14 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/tkw1536/pkglib/password"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 // ErrUserNotFound is returned when a user is not found.
@@ -34,16 +36,15 @@ func (auth *Auth) TableInfo() component.TableInfo {
 // Users returns all users in the database.
 func (auth *Auth) Users(ctx context.Context) (users []*AuthUser, err error) {
 	// query the user table
-	table, err := auth.dependencies.SQL.QueryTable(ctx, auth)
+	table, err := sql.QueryTable[models.User](ctx, auth.dependencies.SQL, auth)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 
 	// find all the users
-	var dUsers []models.User
-	err = table.Find(&dUsers).Error
+	dUsers, err := table.Find(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to find users: %w", err)
 	}
 
 	// and map them to high-level user objects
@@ -59,34 +60,27 @@ func (auth *Auth) Users(ctx context.Context) (users []*AuthUser, err error) {
 }
 
 // User returns a single user.
-// If the user does not exist, returns ErrUserNotFound.
-func (auth *Auth) User(ctx context.Context, name string) (user *AuthUser, err error) {
+// If the user does not exist, returns [ErrUserNotFound].
+func (auth *Auth) User(ctx context.Context, name string) (au *AuthUser, err error) {
 	// quick and dirty check for the empty username (which is not allowed)
 	if name == "" {
 		return nil, ErrUserNotFound
 	}
 
-	// return the user
-	table, err := auth.dependencies.SQL.QueryTable(ctx, auth)
+	table, err := sql.QueryTable[models.User](ctx, auth.dependencies.SQL, auth)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
 
-	user = &AuthUser{}
-
-	// find the user
-	res := table.Where(&models.User{User: name}).Find(&user.User)
-	err = res.Error
+	au.User, err = table.Where(&models.User{User: name}).First(ctx)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("%w: %w", ErrUserNotFound, err)
+	}
 	if err != nil {
-		return
+		return nil, fmt.Errorf("failed to find user: %w", err)
 	}
 
-	// check if the user was not found
-	if res.RowsAffected == 0 {
-		return nil, ErrUserNotFound
-	}
-
-	user.auth = auth
+	au.auth = auth
 
 	return
 }
@@ -95,7 +89,7 @@ func (auth *Auth) User(ctx context.Context, name string) (user *AuthUser, err er
 // The user is not associated to any WissKIs, and has no password set.
 func (auth *Auth) CreateUser(ctx context.Context, name string) (user *AuthUser, err error) {
 	// return the user
-	table, err := auth.dependencies.SQL.QueryTable(ctx, auth)
+	table, err := auth.dependencies.SQL.QueryTableLegacy(ctx, auth)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -330,7 +324,7 @@ func (au *AuthUser) MakeRegular(ctx context.Context) error {
 
 // Save saves the given user in the database.
 func (au *AuthUser) Save(ctx context.Context) error {
-	table, err := au.auth.dependencies.SQL.QueryTable(ctx, au.auth)
+	table, err := au.auth.dependencies.SQL.QueryTableLegacy(ctx, au.auth)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}
@@ -339,7 +333,7 @@ func (au *AuthUser) Save(ctx context.Context) error {
 
 // Delete deletes the user from the database.
 func (au *AuthUser) Delete(ctx context.Context) error {
-	table, err := au.auth.dependencies.SQL.QueryTable(ctx, au.auth)
+	table, err := au.auth.dependencies.SQL.QueryTableLegacy(ctx, au.auth)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}

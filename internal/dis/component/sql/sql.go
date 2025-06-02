@@ -2,9 +2,11 @@ package sql
 
 //spellchecker:words embed path filepath time github wisski distillery internal config package component docker pkglib umaskfree yamlx gopkg yaml
 import (
+	"database/sql"
 	"embed"
 	"fmt"
 	"path/filepath"
+	"sync"
 	"time"
 
 	config_package "github.com/FAU-CDI/wisski-distillery/internal/config"
@@ -21,6 +23,9 @@ type SQL struct {
 		Tables []component.Table
 		Docker *docker.Docker
 	}
+
+	m  sync.Mutex // m protects db
+	db *sql.DB
 
 	ServerURL string // upstream server url
 

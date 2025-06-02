@@ -17,7 +17,7 @@ type Bookkeeping struct {
 // Save saves this instance in the bookkeeping table.
 func (bk *Bookkeeping) Save(ctx context.Context) error {
 	liquid := ingredient.GetLiquid(bk)
-	sdb, err := ingredient.GetLiquid(bk).SQL.QueryTable(ctx, liquid.InstanceTable)
+	sdb, err := ingredient.GetLiquid(bk).SQL.QueryTableLegacy(ctx, liquid.InstanceTable)
 	if err != nil {
 		return fmt.Errorf("failed to get bookkeeping data: %w", err)
 	}
@@ -40,7 +40,7 @@ func (bk *Bookkeeping) Save(ctx context.Context) error {
 // Delete deletes this instance from the bookkeeping table.
 func (bk *Bookkeeping) Delete(ctx context.Context) error {
 	liquid := ingredient.GetLiquid(bk)
-	sdb, err := liquid.SQL.QueryTable(ctx, liquid.InstanceTable)
+	sdb, err := liquid.SQL.QueryTableLegacy(ctx, liquid.InstanceTable)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}

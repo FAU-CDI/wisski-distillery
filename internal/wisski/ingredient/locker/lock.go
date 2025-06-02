@@ -27,7 +27,7 @@ var ErrLocked = errors.New("instance is locked for administrative operations")
 func (lock *Locker) TryLock(ctx context.Context) bool {
 	liquid := ingredient.GetLiquid(lock)
 
-	table, err := liquid.SQL.QueryTable(ctx, liquid.LockTable)
+	table, err := liquid.SQL.QueryTableLegacy(ctx, liquid.LockTable)
 	if err != nil {
 		return false
 	}
@@ -44,7 +44,7 @@ func (lock *Locker) TryUnlock(ctx context.Context) bool {
 	ctx, cancel := contextx.Anyways(ctx, time.Second)
 	defer cancel()
 
-	table, err := liquid.SQL.QueryTable(ctx, liquid.LockTable)
+	table, err := liquid.SQL.QueryTableLegacy(ctx, liquid.LockTable)
 	if err != nil {
 		return false
 	}

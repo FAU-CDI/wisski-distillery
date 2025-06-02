@@ -4,7 +4,9 @@ package sql
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
+	"reflect"
 	"time"
 
 	"gorm.io/driver/mysql"
@@ -13,6 +15,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/timex"
 )
 
@@ -21,12 +24,13 @@ import (
 //
 
 // Exec executes a database-independent database query.
-func (sql *SQL) Exec(query string, args ...interface{}) error {
+func (sql *SQL) Exec(query string, args ...interface{}) (e error) {
 	// connect to the server
-	conn, err := sql.connect("")
+	conn, err := sql.openConnection("")
 	if err != nil {
 		return err
 	}
+	defer errorsx.Close(conn, &e, "connection")
 
 	// do the query!
 	{
@@ -42,14 +46,39 @@ func (sql *SQL) Exec(query string, args ...interface{}) error {
 // ========== connection via gorm ==========
 //
 
-// QueryTable returns a gorm.DB to connect to the provided table of the given model.
-func (sql *SQL) QueryTable(ctx context.Context, table component.Table) (*gorm.DB, error) {
-	return sql.queryTable(ctx, false, table.TableInfo().Name)
+// QueryTableLegacy returns a gorm.DB to connect to the provided table of the given model.
+// Deprecated: Use QueryTable instead.
+func (sql *SQL) QueryTableLegacy(ctx context.Context, table component.Table) (*gorm.DB, error) {
+	return sql.queryTable(ctx, queryTableOpts{
+		table: table.TableInfo().Name,
+	})
+}
+
+var errWrongGenericType = errors.New("wrong generic type for table")
+
+// QueryTable returns a gorm.Context that has connected to the database.
+func QueryTable[T any](ctx context.Context, sql *SQL, table component.Table) (gorm.Interface[T], error) {
+	info := table.TableInfo()
+	if got := reflect.TypeFor[T](); got != info.Model {
+		return nil, fmt.Errorf("%w: got %v, expected %v", errWrongGenericType, got, info.Model)
+	}
+
+	db, err := sql.queryTable(ctx, queryTableOpts{table: info.Name})
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to table: %w", err)
+	}
+
+	return gorm.G[T](db), nil
+}
+
+type queryTableOpts struct {
+	silent bool
+	table  string
 }
 
 // queryTable returns a gorm.DB to connect to the provided distillery database table.
-func (sql *SQL) queryTable(ctx context.Context, silent bool, table string) (*gorm.DB, error) {
-	conn, err := sql.connect(component.GetStill(sql).Config.SQL.Database)
+func (sql *SQL) queryTable(ctx context.Context, opts queryTableOpts) (*gorm.DB, error) {
+	conn, err := sql.connect()
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +87,7 @@ func (sql *SQL) queryTable(ctx context.Context, silent bool, table string) (*gor
 	config := &gorm.Config{
 		Logger: newGormLogger(),
 	}
-	if silent {
+	if opts.silent {
 		config.Logger = config.Logger.LogMode(logger.Silent)
 	} else {
 		config.Logger = config.Logger.LogMode(logger.Info)
@@ -78,7 +107,7 @@ func (sql *SQL) queryTable(ctx context.Context, silent bool, table string) (*gor
 	}
 
 	// set the table
-	db = db.WithContext(ctx).Table(table)
+	db = db.WithContext(ctx).Table(opts.table)
 
 	// check that nothing went wrong
 	if db.Error != nil {
@@ -92,7 +121,7 @@ func (sql *SQL) WaitQueryTable(ctx context.Context) error {
 	// TODO: Establish a convention on when to wait for this!
 	if err := timex.TickUntilFunc(func(time.Time) bool {
 		// TODO: Use a different table here
-		_, err := sql.queryTable(ctx, true, models.InstanceTable)
+		_, err := sql.queryTable(ctx, queryTableOpts{table: models.InstanceTable})
 		return err == nil
 	}, ctx, sql.PollInterval); err != nil {
 		return fmt.Errorf("failed to wait for connection: %w", err)
@@ -104,15 +133,35 @@ func (sql *SQL) WaitQueryTable(ctx context.Context) error {
 // ========== low-level database connection ==========
 //
 
-func (ssql *SQL) connect(database string) (*sql.DB, error) {
-	conn, err := sql.Open("mysql", ssql.dsn(database))
+// connect establishes a connection to the sql database.
+// the first succesfull connection is cached, and re-used automatically.
+func (ssql *SQL) connect() (*sql.DB, error) {
+	ssql.m.Lock()
+	defer ssql.m.Unlock()
+
+	if ssql.db != nil {
+		return ssql.db, nil
+	}
+
+	database := component.GetStill(ssql).Config.SQL.Database
+	dsn := ssql.dsn(database)
+
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return nil, fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	return db, nil
+}
+
+// openConnection opens a new sql connection to the given database.
+// The caller should manage the connection, and take care of its' lifecycle.
+func (ssql *SQL) openConnection(database string) (*sql.DB, error) {
+	db, err := sql.Open("mysql", ssql.dsn(database))
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to sql: %w", err)
 	}
-
-	conn.SetMaxIdleConns(0)
-
-	return conn, nil
+	return db, nil
 }
 
 // dsn returns a dsn fof connecting to the database.

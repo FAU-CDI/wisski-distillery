@@ -14,7 +14,7 @@ import (
 func (lock *Locker) Locked(ctx context.Context) (locked bool) {
 	liquid := ingredient.GetLiquid(lock)
 
-	table, err := liquid.SQL.QueryTable(ctx, liquid.LockTable)
+	table, err := liquid.SQL.QueryTableLegacy(ctx, liquid.LockTable)
 	if err != nil {
 		return false
 	}

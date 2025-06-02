@@ -53,7 +53,7 @@ func (log *Logger) For(ctx context.Context, slug string) (exports []models.Expor
 // Log retrieves (and prunes) all entries in the snapshot log.
 func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 	// query the table!
-	table, err := log.dependencies.SQL.QueryTable(ctx, log)
+	table, err := log.dependencies.SQL.QueryTableLegacy(ctx, log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -85,7 +85,7 @@ func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 // AddToExportLog adds the provided export to the log.
 func (log *Logger) Add(ctx context.Context, export models.Export) error {
 	// find the table
-	table, err := log.dependencies.SQL.QueryTable(ctx, log)
+	table, err := log.dependencies.SQL.QueryTableLegacy(ctx, log)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}

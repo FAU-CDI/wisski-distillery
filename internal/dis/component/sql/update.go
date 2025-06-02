@@ -135,7 +135,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 			if _, err := logging.LogMessage(progress, "migrating %q table", table.Name()); err != nil {
 				return fmt.Errorf("failed to log message: %w", err)
 			}
-			db, err := sql.queryTable(ctx, false, info.Name)
+			db, err := sql.queryTable(ctx, queryTableOpts{table: info.Name})
 			if err != nil {
 				return fmt.Errorf("failed to access table %q for migration: %w", table.Name(), err)
 			}

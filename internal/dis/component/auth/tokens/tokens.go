@@ -38,7 +38,7 @@ func (tok *Tokens) TableInfo() component.TableInfo {
 }
 
 func (tok *Tokens) table(ctx context.Context) (*gorm.DB, error) {
-	conn, err := tok.dependencies.SQL.QueryTable(ctx, tok)
+	conn, err := tok.dependencies.SQL.QueryTableLegacy(ctx, tok)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}

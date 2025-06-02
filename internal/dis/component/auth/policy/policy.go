@@ -37,7 +37,7 @@ func (pol *Policy) TableInfo() component.TableInfo {
 }
 
 func (pol *Policy) table(ctx context.Context) (*gorm.DB, error) {
-	conn, err := pol.dependencies.SQL.QueryTable(ctx, pol)
+	conn, err := pol.dependencies.SQL.QueryTableLegacy(ctx, pol)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}

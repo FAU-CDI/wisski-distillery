@@ -53,7 +53,7 @@ func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wi
 		return nil, fmt.Errorf("failed to wait for database: %w", err)
 	}
 
-	table, err := sql.QueryTable(ctx, instances.dependencies.InstanceTable)
+	table, err := sql.QueryTableLegacy(ctx, instances.dependencies.InstanceTable)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -93,7 +93,7 @@ func (instances *Instances) Has(ctx context.Context, slug string) (ok bool, err 
 		return false, fmt.Errorf("failed to wait for database: %w", err)
 	}
 
-	table, err := sql.QueryTable(ctx, instances.dependencies.InstanceTable)
+	table, err := sql.QueryTableLegacy(ctx, instances.dependencies.InstanceTable)
 	if err != nil {
 		return false, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -138,7 +138,7 @@ func (instances *Instances) find(ctx context.Context, order bool, query func(tab
 	}
 
 	// open the bookkeeping table
-	table, err := sql.QueryTable(ctx, instances.dependencies.InstanceTable)
+	table, err := sql.QueryTableLegacy(ctx, instances.dependencies.InstanceTable)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
