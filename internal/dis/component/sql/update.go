@@ -43,7 +43,7 @@ func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) i
 
 var errSQLNotFound = errors.New("internal error: unsafeWaitShell: sql client not found")
 
-// waitDatabase waits for a simple query on the database to successfully execute
+// waitDatabase waits for a simple query on the database to succeed.
 func (sql *SQL) waitDatabase(ctx context.Context) (err error) {
 	defer func() {
 		// catch the errSQLNotFound
@@ -81,7 +81,7 @@ func (sql *SQL) waitDatabase(ctx context.Context) (err error) {
 func (sql *SQL) directQuery(ctx context.Context, queries ...string) (e error) {
 	conn, err := sql.openConnection("")
 	if err != nil {
-		return fmt.Errorf("failed to establish connection: %w")
+		return fmt.Errorf("failed to establish connection: %w", err)
 	}
 	defer errorsx.Close(conn, &e, "connection")
 
