@@ -193,7 +193,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		if _, err := fmt.Fprintln(progress, "[checking]"); err != nil {
 			return fmt.Errorf("failed to report progress: %w", err)
 		}
-		_, err := compose.Open(is.Dir)
+		_, err := compose.Open(ctx, is.Dir)
 		if err != nil {
 			return fmt.Errorf("failed to open directory: %w", err)
 		}

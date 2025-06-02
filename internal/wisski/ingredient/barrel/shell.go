@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 
+	"al.essio.dev/pkg/shellescape"
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
-	"github.com/alessio/shellescape"
 	"github.com/tkw1536/goprogram/exit"
 	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/stream"

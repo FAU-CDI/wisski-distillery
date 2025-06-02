@@ -42,8 +42,8 @@ func (stack *Stack) Close() error {
 }
 
 // Project returns the underlying compose project.
-func (stack *Stack) Project() (compose.Project, error) {
-	proj, err := compose.Open(stack.Dir)
+func (stack *Stack) Project(ctx context.Context) (compose.Project, error) {
+	proj, err := compose.Open(ctx, stack.Dir)
 	if err != nil {
 		return nil, fmt.Errorf("compose.Open(%q) failed: %w", stack.Dir, err)
 	}
@@ -60,7 +60,7 @@ const (
 // includeStoppedContainers indicates if non-running contains should be included.
 // services optionally filters by service name.
 func (stack *Stack) Containers(ctx context.Context, includeStoppedContainers bool, services ...string) ([]container.Summary, error) {
-	project, err := stack.Project()
+	project, err := stack.Project(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open project: %w", err)
 	}
