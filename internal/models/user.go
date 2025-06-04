@@ -4,6 +4,8 @@ package models
 var _ Model = User{}
 
 // User represents a distillery user.
+//
+//nolint:recvcheck
 type User struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 

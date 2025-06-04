@@ -3,8 +3,9 @@
 //spellchecker:words models
 package models
 
-// Model represents an abitrary database model
+import "gorm.io/gorm/schema"
+
+// Model represents an abitrary database model.
 type Model interface {
-	//
-	TableName() string
+	schema.Tabler
 }

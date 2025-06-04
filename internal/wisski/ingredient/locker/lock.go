@@ -78,6 +78,6 @@ func (lock *Locker) Unlock(ctx context.Context) {
 	wdlog.Of(ctx).Error(
 		"Unlock() failed",
 		"error", err,
-		"slug", ingredient.GetLiquid(lock).Instance.Slug,
+		"slug", ingredient.GetLiquid(lock).Slug,
 	)
 }

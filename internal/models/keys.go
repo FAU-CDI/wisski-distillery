@@ -10,6 +10,8 @@ import (
 var _ Model = Keys{}
 
 // Keys represents a distillery ssh key.
+//
+//nolint:recvcheck
 type Keys struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 

@@ -10,6 +10,8 @@ import (
 var _ Model = Token{}
 
 // Token represents an access token for a specific user.
+//
+//nolint:recvcheck
 type Token struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 

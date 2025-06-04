@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm/logger"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/timex"
 )
@@ -49,9 +50,25 @@ func (sql *SQL) Wait(ctx context.Context) (err error) {
 		if err != nil {
 			return false
 		}
-		defer conn.Close()
+
+		defer func() {
+			err := conn.Close()
+			if err == nil {
+				return
+			}
+
+			wdlog.Of(ctx).Error(
+				"Wait: failed to close connection",
+				"error", err,
+			)
+		}()
 
 		if _, err := conn.QueryContext(ctx, "select 1;"); err != nil {
+			wdlog.Of(ctx).Debug(
+				"Wait: failed to get select query",
+				"error", err,
+			)
+
 			return false
 		}
 		return true

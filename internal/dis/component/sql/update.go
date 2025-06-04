@@ -39,12 +39,12 @@ func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) i
 	)()
 }
 
-// unsafeQuoteBacktick quotes value using a backtick.
+// unsafeQuoteBacktick quotes value using backticks.
 func unsafeQuoteBacktick(value string) string {
 	return "`" + strings.ReplaceAll(value, "`", "``") + "`"
 }
 
-// unsafeQuoteSingle quotes value using a single tickmark
+// unsafeQuoteSingle quotes value using single quotes.
 func unsafeQuoteSingle(value string) string {
 	var builder strings.Builder
 	_, _ = builder.WriteRune('\'')
