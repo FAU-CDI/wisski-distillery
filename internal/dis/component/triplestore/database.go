@@ -141,6 +141,8 @@ func (ts *Triplestore) DoRestWithReader(ctx context.Context, timeout time.Durati
 // Wait waits for the connection to the Triplestore to succeed.
 // This is achieved using a polling strategy.
 func (ts Triplestore) Wait(ctx context.Context) error {
+	// TODO: Log
+
 	if err := timex.TickUntilFunc(func(time.Time) bool {
 		res, err := ts.DoRest(ctx, tsTrivialTimeout, http.MethodGet, "/rest/repositories", nil)
 		wdlog.Of(ctx).Debug(
@@ -150,6 +152,7 @@ func (ts Triplestore) Wait(ctx context.Context) error {
 		if err != nil {
 			return false
 		}
+
 		defer res.Body.Close() //nolint:errcheck // no way to report error
 		return true
 	}, ctx, ts.PollInterval); err != nil {

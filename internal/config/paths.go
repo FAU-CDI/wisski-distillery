@@ -36,6 +36,7 @@ func (pcfg PathsConfig) ExecutablePath() string {
 
 // UsingDistilleryExecutable checks if the current process is using the distillery executable.
 func (pcfg PathsConfig) UsingDistilleryExecutable() bool {
+	// TODO: Log
 	exe, err := os.Executable()
 	if err != nil {
 		return false
