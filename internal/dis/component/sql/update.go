@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
@@ -64,7 +65,14 @@ func (sql *SQL) waitDatabase(ctx context.Context) (err error) {
 		if err != nil {
 			return false
 		}
-		defer conn.Close()
+		defer func() {
+			if err := conn.Close(); err != nil {
+				wdlog.Of(ctx).Error(
+					"waitDatabase: failed to close connection",
+					"error", err,
+				)
+			}
+		}()
 
 		if _, err := conn.QueryContext(ctx, "select 1;"); err != nil {
 			return false
