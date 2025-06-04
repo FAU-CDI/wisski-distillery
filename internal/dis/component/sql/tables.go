@@ -2,8 +2,6 @@ package sql
 
 //spellchecker:words reflect github wisski distillery internal component models
 import (
-	"reflect"
-
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
@@ -20,8 +18,7 @@ var (
 
 func (*InstanceTable) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflect.TypeFor[models.Instance](),
-		Name:  models.InstanceTable,
+		Model: models.Instance{},
 	}
 }
 
@@ -35,7 +32,6 @@ var (
 
 func (*LockTable) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflect.TypeFor[models.Lock](),
-		Name:  models.LockTable,
+		Model: models.Lock{},
 	}
 }

@@ -84,12 +84,17 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 	if _, err := logging.LogMessage(progress, "Provisioning new WissKI instance %s", flags.Slug); err != nil {
 		return nil, fmt.Errorf("failed to log message: %w", err)
 	}
-	if exists, err := pv.dependencies.Instances.Has(ctx, flags.Slug); err != nil || exists {
+
+	exists, err := pv.dependencies.Instances.Has(ctx, flags.Slug)
+	if err != nil {
+		return nil, fmt.Errorf("failed to check if instance exists: %w", err)
+	}
+	if exists {
 		return nil, ErrInstanceAlreadyExists
 	}
 
 	// log out what we're doing!
-	if _, err := fmt.Fprintf(progress, "%#v", flags); err != nil {
+	if _, err := fmt.Fprintf(progress, "%#v\n", flags); err != nil {
 		return nil, fmt.Errorf("failed to report progress: %w", err)
 	}
 

@@ -93,9 +93,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) (e 
 	if _, err := logging.LogMessage(out, "Remove lock data"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	if instance.Locker().TryUnlock(ctx) {
-		_, _ = fmt.Fprintln(out, "instance was not locked")
-	}
+	instance.Locker().Unlock(ctx)
 
 	return nil
 }

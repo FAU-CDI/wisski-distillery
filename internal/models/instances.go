@@ -8,8 +8,7 @@ import (
 	"time"
 )
 
-// InstanceTable is the name of the table the 'Instance' model is stored in.
-const InstanceTable = "distillery"
+var _ Model = Instance{}
 
 // Instance is a WissKI Instance stored inside the sql database.
 //
@@ -48,6 +47,10 @@ type Instance struct {
 	GraphDBRepository string `gorm:"column:graphdb_repository;not null"`
 	GraphDBUsername   string `gorm:"column:graphdb_user;not null"`
 	GraphDBPassword   string `gorm:"column:graphdb_password;not null"`
+}
+
+func (Instance) TableName() string {
+	return "distillery"
 }
 
 func (i Instance) IsBlindUpdateEnabled() bool {

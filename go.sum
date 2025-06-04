@@ -703,6 +703,8 @@ github.com/tkw1536/goprogram v0.9.2 h1:qTglTb7t+CgXnhbtrqGNH9i7yVa3hNz1jlqnCjxf2
 github.com/tkw1536/goprogram v0.9.2/go.mod h1:9FlYjfdr6vEoqvHj+tT9/VSfjJEsBNcCPz75LLa5VlY=
 github.com/tkw1536/pkglib v0.0.0-20250530100725-9937079fcf44 h1:pJtJHIgEc9tN50c+0CSEoAW0zbpxkKrdBi1SspZ/wy8=
 github.com/tkw1536/pkglib v0.0.0-20250530100725-9937079fcf44/go.mod h1:HxuAxgG8Qx6WRRQEOHbAmuCJHgpaMusAAcj3jw0y1As=
+github.com/tkw1536/pkglib v0.0.0-20250602222333-22f4408e793a h1:O6zsBDsDLqeYPQnj7OEqn7psS+ovxwl7JMp2Xm1HPTg=
+github.com/tkw1536/pkglib v0.0.0-20250602222333-22f4408e793a/go.mod h1:HxuAxgG8Qx6WRRQEOHbAmuCJHgpaMusAAcj3jw0y1As=
 github.com/tomarrell/wrapcheck/v2 v2.10.0 h1:SzRCryzy4IrAH7bVGG4cK40tNUhmVmMDuJujy4XwYDg=
 github.com/tomarrell/wrapcheck/v2 v2.10.0/go.mod h1:g9vNIyhb5/9TQgumxQyOEqDHsmGYcGsVMOx/xGkqdMo=
 github.com/tommy-muehle/go-mnd/v2 v2.5.1 h1:NowYhSdyE/1zwK9QCLeRb6USWdoif80Ie+v+yU8u1Zw=

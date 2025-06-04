@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
-	"reflect"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
@@ -31,8 +30,7 @@ var (
 
 func (*Logger) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Model: reflect.TypeFor[models.Export](),
-		Name:  models.ExportTable,
+		Model: models.Export{},
 	}
 }
 
@@ -53,7 +51,7 @@ func (log *Logger) For(ctx context.Context, slug string) (exports []models.Expor
 // Log retrieves (and prunes) all entries in the snapshot log.
 func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 	// query the table!
-	table, err := log.dependencies.SQL.QueryTableLegacy(ctx, log)
+	table, err := log.dependencies.SQL.OpenTable(ctx, log)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -85,7 +83,7 @@ func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 // AddToExportLog adds the provided export to the log.
 func (log *Logger) Add(ctx context.Context, export models.Export) error {
 	// find the table
-	table, err := log.dependencies.SQL.QueryTableLegacy(ctx, log)
+	table, err := log.dependencies.SQL.OpenTable(ctx, log)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}

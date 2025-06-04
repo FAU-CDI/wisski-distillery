@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"image/png"
-	"reflect"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -28,17 +27,16 @@ var ErrUserNotFound = errors.New("user not found")
 
 func (auth *Auth) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Name:  models.UserTable,
-		Model: reflect.TypeFor[models.User](),
+		Model: models.User{},
 	}
 }
 
 // Users returns all users in the database.
 func (auth *Auth) Users(ctx context.Context) (users []*AuthUser, err error) {
 	// query the user table
-	table, err := sql.QueryTable[models.User](ctx, auth.dependencies.SQL, auth)
+	table, err := sql.OpenInterface[models.User](ctx, auth.dependencies.SQL, auth)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to open interface: %w", err)
 	}
 
 	// find all the users
@@ -67,11 +65,12 @@ func (auth *Auth) User(ctx context.Context, name string) (au *AuthUser, err erro
 		return nil, ErrUserNotFound
 	}
 
-	table, err := sql.QueryTable[models.User](ctx, auth.dependencies.SQL, auth)
+	table, err := sql.OpenInterface[models.User](ctx, auth.dependencies.SQL, auth)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to open interface: %w", err)
 	}
 
+	au = &AuthUser{}
 	au.User, err = table.Where(&models.User{User: name}).First(ctx)
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("%w: %w", ErrUserNotFound, err)
@@ -89,7 +88,7 @@ func (auth *Auth) User(ctx context.Context, name string) (au *AuthUser, err erro
 // The user is not associated to any WissKIs, and has no password set.
 func (auth *Auth) CreateUser(ctx context.Context, name string) (user *AuthUser, err error) {
 	// return the user
-	table, err := auth.dependencies.SQL.QueryTableLegacy(ctx, auth)
+	table, err := auth.dependencies.SQL.OpenTable(ctx, auth)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}
@@ -324,16 +323,23 @@ func (au *AuthUser) MakeRegular(ctx context.Context) error {
 
 // Save saves the given user in the database.
 func (au *AuthUser) Save(ctx context.Context) error {
-	table, err := au.auth.dependencies.SQL.QueryTableLegacy(ctx, au.auth)
+	table, err := sql.OpenInterface[models.User](ctx, au.auth.dependencies.SQL, au.auth)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}
-	return table.Select("*").Updates(&au.User).Error
+
+	{
+		_, err := table.Select("*").Updates(ctx, au.User)
+		if err != nil {
+			return fmt.Errorf("failed to save user: %w", err)
+		}
+	}
+	return nil
 }
 
 // Delete deletes the user from the database.
 func (au *AuthUser) Delete(ctx context.Context) error {
-	table, err := au.auth.dependencies.SQL.QueryTableLegacy(ctx, au.auth)
+	table, err := au.auth.dependencies.SQL.OpenTable(ctx, au.auth)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}

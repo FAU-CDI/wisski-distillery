@@ -4,8 +4,7 @@ package models
 //spellchecker:words time
 import "time"
 
-// NOTE(twiesing): It is called snapshot for legacy reasons.
-const ExportTable = "snapshot"
+var _ Model = Export{}
 
 // Export represents an entry in the export log.
 type Export struct {
@@ -16,4 +15,8 @@ type Export struct {
 
 	Path   string `gorm:"column:path;not null"`   // path the export is stored at
 	Packed bool   `gorm:"column:packed;not null"` // was the export packed, or was it staging only?
+}
+
+func (Export) TableName() string {
+	return "snapshot"
 }

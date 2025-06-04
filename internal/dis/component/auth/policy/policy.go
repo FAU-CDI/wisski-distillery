@@ -5,7 +5,6 @@ package policy
 import (
 	"context"
 	"fmt"
-	"reflect"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
@@ -31,15 +30,22 @@ var (
 
 func (pol *Policy) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Name:  models.GrantTable,
-		Model: reflect.TypeFor[models.Grant](),
+		Model: models.Grant{},
 	}
 }
 
-func (pol *Policy) table(ctx context.Context) (*gorm.DB, error) {
-	conn, err := pol.dependencies.SQL.QueryTableLegacy(ctx, pol)
+func (pol *Policy) openInterface(ctx context.Context) (gorm.Interface[models.Grant], error) {
+	table, err := sql.OpenInterface[models.Grant](ctx, pol.dependencies.SQL, pol)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to open interface: %w", err)
+	}
+	return table, nil
+}
+
+func (pol *Policy) openDB(ctx context.Context) (*gorm.DB, error) {
+	conn, err := pol.dependencies.SQL.OpenTable(ctx, pol)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open interface: %w", err)
 	}
 	return conn, nil
 }

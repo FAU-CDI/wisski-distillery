@@ -41,14 +41,20 @@ func (sql *SQL) CreateDatabase(ctx context.Context, name, user, password string)
 		return errProvisionInvalidDatabaseParams
 	}
 
-	if err := sql.waitDatabase(ctx); err != nil {
+	if err := sql.Wait(ctx); err != nil {
 		return err
 	}
 
+	var (
+		nameQuoted = unsafeQuoteBacktick(name)
+		userQuoted = unsafeQuoteSingle(user)
+		passQuoted = unsafeQuoteSingle(password)
+	)
+
 	if err := sql.directQuery(ctx,
-		"CREATE DATABASE `"+name+"`;",
-		"CREATE USER '"+user+"'@'%' IDENTIFIED BY '"+password+"';",
-		"GRANT ALL PRIVILEGES ON `"+name+"`.* TO `"+user+"`@`%`;",
+		"CREATE DATABASE "+nameQuoted+";",
+		"CREATE USER "+userQuoted+"@`%` IDENTIFIED BY "+passQuoted+";",
+		"GRANT ALL PRIVILEGES ON "+nameQuoted+".* TO "+userQuoted+"@`%`;",
 		"FLUSH PRIVILEGES;",
 	); err != nil {
 		return fmt.Errorf("%w: %w", errProvisionInvalidGrant, err)
@@ -73,7 +79,7 @@ func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allo
 		return errProvisionInvalidDatabaseParams
 	}
 
-	if err := sql.waitDatabase(ctx); err != nil {
+	if err := sql.Wait(ctx); err != nil {
 		return err
 	}
 
@@ -82,9 +88,14 @@ func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allo
 		IfNotExists = "IF NOT EXISTS"
 	}
 
+	var (
+		userQuoted = unsafeQuoteSingle(user)
+		passQuoted = unsafeQuoteSingle(password)
+	)
+
 	if err := sql.directQuery(ctx,
-		"CREATE USER "+IfNotExists+" '"+user+"'@'%' IDENTIFIED BY '"+password+"';",
-		"GRANT ALL PRIVILEGES ON *.* TO '"+user+"'@'%' WITH GRANT OPTION;",
+		"CREATE USER "+IfNotExists+" "+userQuoted+"@'%' IDENTIFIED BY "+passQuoted+";",
+		"GRANT ALL PRIVILEGES ON *.* TO "+userQuoted+"@'%' WITH GRANT OPTION;",
 		"FLUSH PRIVILEGES;",
 	); err != nil {
 		return fmt.Errorf("%w: %w", errCreateSuperuserGrant, err)
@@ -100,8 +111,10 @@ func (sql *SQL) PurgeUser(ctx context.Context, user string) error {
 		return errPurgeUser
 	}
 
+	var userQuoted = unsafeQuoteSingle(user)
+
 	if err := sql.directQuery(ctx,
-		"DROP USER IF EXISTS '"+user+"'@'%';",
+		"DROP USER IF EXISTS "+userQuoted+"@'%';",
 		"FLUSH PRIVILEGES;",
 	); err != nil {
 		return fmt.Errorf("%w: %w", errPurgeUser, err)

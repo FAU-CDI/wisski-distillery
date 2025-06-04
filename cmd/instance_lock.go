@@ -51,8 +51,8 @@ func (l instanceLock) Run(context wisski_distillery.Context) error {
 	}
 
 	if l.Unlock {
-		if !instance.Locker().TryUnlock(context.Context) {
-			return errNotUnlock
+		if err := instance.Locker().TryUnlock(context.Context); err != nil {
+			return fmt.Errorf("%w: %w", errNotUnlock, err)
 		}
 		_, _ = context.Println("unlocked")
 		return nil

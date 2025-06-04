@@ -6,7 +6,6 @@ import (
 	"context"
 	"crypto/rand"
 	"fmt"
-	"reflect"
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -32,13 +31,12 @@ var (
 
 func (tok *Tokens) TableInfo() component.TableInfo {
 	return component.TableInfo{
-		Name:  models.TokensTable,
-		Model: reflect.TypeFor[models.Token](),
+		Model: models.Token{},
 	}
 }
 
 func (tok *Tokens) table(ctx context.Context) (*gorm.DB, error) {
-	conn, err := tok.dependencies.SQL.QueryTableLegacy(ctx, tok)
+	conn, err := tok.dependencies.SQL.OpenTable(ctx, tok)
 	if err != nil {
 		return nil, fmt.Errorf("failed to query table: %w", err)
 	}

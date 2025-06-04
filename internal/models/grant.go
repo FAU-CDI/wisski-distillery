@@ -1,8 +1,7 @@
 //spellchecker:words models
 package models
 
-// GrantTable is the name of the table the 'Grant' model is stored in.
-const GrantTable = "grant"
+var _ Model = Grant{}
 
 // Grant represents an access grant to a specific user.
 type Grant struct {
@@ -13,4 +12,8 @@ type Grant struct {
 
 	DrupalUsername  string `gorm:"column:drupal_user;not null;index:drupal_slug,unique"` // drupal username
 	DrupalAdminRole bool   `gorm:"column:admin;not null"`                                // drupal admin rights
+}
+
+func (Grant) TableName() string {
+	return "grant"
 }

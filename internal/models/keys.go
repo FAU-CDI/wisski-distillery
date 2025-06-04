@@ -7,8 +7,7 @@ import (
 	gossh "golang.org/x/crypto/ssh"
 )
 
-// KeysTable is the name of the table the [Keys] model is stored in.
-const KeysTable = "keys"
+var _ Model = Keys{}
 
 // Keys represents a distillery ssh key.
 type Keys struct {
@@ -18,6 +17,10 @@ type Keys struct {
 
 	Signature []byte `gorm:"column:signature;not null"` // signature of the ssh key
 	Comment   string `gorm:"column:comment"`
+}
+
+func (Keys) TableName() string {
+	return "keys"
 }
 
 // PublicKey returns the public key corresponding to this keys.

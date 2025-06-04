@@ -40,7 +40,7 @@ func (p purge) Run(context wisski_distillery.Context) error {
 
 	// check the confirmation from the user
 	if !p.Yes {
-		_, _ = context.Printf("About to remove repository %s. This cannot be undone.\n", slug)
+		_, _ = context.Printf("About to remove instance %q. This cannot be undone.\n", slug)
 		_, _ = context.Printf("Type 'yes' to continue: ")
 		line, err := context.ReadLine()
 		if err != nil || line != "yes" {

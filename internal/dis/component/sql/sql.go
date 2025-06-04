@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	config_package "github.com/FAU-CDI/wisski-distillery/internal/config"
@@ -24,8 +25,9 @@ type SQL struct {
 		Docker *docker.Docker
 	}
 
-	m  sync.Mutex // m protects db
-	db *sql.DB
+	dbOpen atomic.Bool // for fast path
+	m      sync.Mutex  // m protects db
+	db     *sql.DB
 
 	ServerURL string // upstream server url
 

@@ -1,8 +1,7 @@
 //spellchecker:words models
 package models
 
-// UserTable is the name of the table the [`User`] model is stored in.
-const UserTable = "users"
+var _ Model = User{}
 
 // User represents a distillery user.
 type User struct {
@@ -16,6 +15,10 @@ type User struct {
 
 	Enabled *bool `gorm:"enabled;not null"      json:"enabled"`
 	Admin   *bool `gorm:"column:admin;not null" json:"admin"`
+}
+
+func (User) TableName() string {
+	return "users"
 }
 
 func (user *User) HasPassword() bool {

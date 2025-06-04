@@ -15,7 +15,7 @@ require (
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/pquerna/otp v1.5.0
 	github.com/tkw1536/goprogram v0.9.2
-	github.com/tkw1536/pkglib v0.0.0-20250530100725-9937079fcf44
+	github.com/tkw1536/pkglib v0.0.0-20250602222333-22f4408e793a
 	github.com/yuin/goldmark v1.7.12
 	github.com/yuin/goldmark-meta v1.1.0
 	golang.org/x/crypto v0.38.0

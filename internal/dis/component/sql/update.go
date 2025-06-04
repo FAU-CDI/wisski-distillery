@@ -6,18 +6,15 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"reflect"
-	"time"
+	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/errorsx"
 	"github.com/tkw1536/pkglib/sqlx"
 	"github.com/tkw1536/pkglib/stream"
-	"github.com/tkw1536/pkglib/timex"
 )
 
 // Shell runs a mysql shell with the provided databases.
@@ -42,52 +39,30 @@ func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) i
 	)()
 }
 
-var errSQLNotFound = errors.New("internal error: unsafeWaitShell: sql client not found")
+// unsafeQuoteBacktick quotes value using a backtick.
+func unsafeQuoteBacktick(value string) string {
+	return "`" + strings.ReplaceAll(value, "`", "``") + "`"
+}
 
-// waitDatabase waits for a simple query on the database to succeed.
-func (sql *SQL) waitDatabase(ctx context.Context) (err error) {
-	defer func() {
-		// catch the errSQLNotFound
-		r := recover()
-		if r == nil {
-			return
+// unsafeQuoteSingle quotes value using a single tickmark
+func unsafeQuoteSingle(value string) string {
+	var builder strings.Builder
+	_, _ = builder.WriteRune('\'')
+	for _, r := range value {
+		if r == '\'' || r == '\\' {
+			builder.WriteRune('\\')
 		}
-
-		// if we simply didn't find the sql, don't panic!
-		if e, ok := r.(error); ok && errors.Is(e, errSQLNotFound) {
-			err = e
-			return
-		}
-	}()
-
-	if err := timex.TickUntilFunc(func(time.Time) bool {
-		conn, err := sql.openConnection("")
-		if err != nil {
-			return false
-		}
-		defer func() {
-			if err := conn.Close(); err != nil {
-				wdlog.Of(ctx).Error(
-					"waitDatabase: failed to close connection",
-					"error", err,
-				)
-			}
-		}()
-
-		if _, err := conn.QueryContext(ctx, "select 1;"); err != nil {
-			return false
-		}
-		return true
-	}, ctx, sql.PollInterval); err != nil {
-		return fmt.Errorf("failed to wait for sql: %w", err)
+		_, _ = builder.WriteRune(r)
 	}
-	return nil
+
+	_, _ = builder.WriteRune('\'')
+	return builder.String()
 }
 
 // directQuery opens a new connection to the database and executes the given queries in order.
 // Once the queries have been executed, the connection is closed.
 func (sql *SQL) directQuery(ctx context.Context, queries ...string) (e error) {
-	conn, err := sql.openConnection("")
+	conn, err := sql.openSQL("")
 	if err != nil {
 		return fmt.Errorf("failed to establish connection: %w", err)
 	}
@@ -113,7 +88,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 
 	// unsafely create the admin user!
 	{
-		if err := sql.waitDatabase(ctx); err != nil {
+		if err := sql.Wait(ctx); err != nil {
 			return err
 		}
 		if _, err := logging.LogMessage(progress, "Creating administrative user"); err != nil {
@@ -124,7 +99,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 			username := config.AdminUsername
 			password := config.AdminPassword
 			if err := sql.CreateSuperuser(ctx, username, password, true); err != nil {
-				return errSQLUnableToCreateUser
+				return fmt.Errorf("%w: %w", errSQLUnableToCreateUser, err)
 			}
 		}
 	}
@@ -146,8 +121,9 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	// wait for the database to come up
 	if _, err := logging.LogMessage(progress, "Waiting for database update to be complete"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
-	} //  shouldn't abort cause logging failed
-	if err := sql.WaitQueryTable(ctx); err != nil {
+	}
+
+	if err := sql.Wait(ctx); err != nil {
 		return fmt.Errorf("failed to wait for database: %w", err)
 	}
 
@@ -155,18 +131,19 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 	if err := logging.LogOperation(func() error {
 		for _, table := range sql.dependencies.Tables {
 			info := table.TableInfo()
-			if _, err := logging.LogMessage(progress, "migrating %q table", table.Name()); err != nil {
+			table := info.Name()
+
+			if _, err := logging.LogMessage(progress, "migrating %q table", table); err != nil {
 				return fmt.Errorf("failed to log message: %w", err)
 			}
-			db, err := sql.queryTable(ctx, queryTableOpts{table: info.Name})
+
+			db, err := sql.connectGorm(ctx)
 			if err != nil {
-				return fmt.Errorf("failed to access table %q for migration: %w", table.Name(), err)
+				return fmt.Errorf("failed to connect to table %q: %w", table, err)
 			}
 
-			tp := reflect.New(info.Model).Interface()
-
-			if err := db.AutoMigrate(tp); err != nil {
-				return fmt.Errorf("failed auto migration for table %q: %w", table.Name(), err)
+			if err := db.AutoMigrate(info.Model); err != nil {
+				return fmt.Errorf("failed auto migration for table %q: %w", table, err)
 			}
 		}
 		return nil

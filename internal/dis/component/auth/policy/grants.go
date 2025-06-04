@@ -37,7 +37,7 @@ func (policy *Policy) Set(ctx context.Context, grant models.Grant) error {
 	}
 
 	// get the table
-	table, err := policy.table(ctx)
+	table, err := policy.openDB(ctx)
 	if err != nil {
 		return err
 	}
@@ -57,7 +57,7 @@ func (policy *Policy) Remove(ctx context.Context, username string, slug string) 
 	}
 
 	// get the table
-	table, err := policy.table(ctx)
+	table, err := policy.openDB(ctx)
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (policy *Policy) User(ctx context.Context, username string) (grants []model
 	}
 
 	// get the table
-	table, err := policy.table(ctx)
+	table, err := policy.openDB(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (policy *Policy) Instance(ctx context.Context, slug string) (grants []model
 	}
 
 	// get the table
-	table, err := policy.table(ctx)
+	table, err := policy.openDB(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (policy *Policy) Has(ctx context.Context, username string, slug string) (gr
 	}
 
 	// get the table
-	table, err := policy.table(ctx)
+	table, err := policy.openDB(ctx)
 	if err != nil {
 		return grant, err
 	}

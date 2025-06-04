@@ -7,8 +7,7 @@ import (
 	"fmt"
 )
 
-// TokensTable is the name of the table the 'Token' model is stored in.
-const TokensTable = "tokens"
+var _ Model = Token{}
 
 // Token represents an access token for a specific user.
 type Token struct {
@@ -23,6 +22,10 @@ type Token struct {
 
 	AllScopes bool   `gorm:"column:all;not null"`
 	Scopes    []byte `gorm:"column:scopes;not null"` // comma-seperated list of scopes
+}
+
+func (Token) TableName() string {
+	return "tokens"
 }
 
 // GetScopes returns the scopes associated with this Token.

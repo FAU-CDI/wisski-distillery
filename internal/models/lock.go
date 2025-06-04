@@ -1,12 +1,15 @@
 //spellchecker:words models
 package models
 
-// LockTable is the name of the table the 'Metadatum' model is stored in.
-const LockTable = "locks"
+var _ Model = Lock{}
 
-// Lock represents a log on WissKI Instances.
+// Lock represents a lock on WissKI Instances.
 type Lock struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 
 	Slug string `gorm:"column:slug;not null"` // slug of instance
+}
+
+func (Lock) TableName() string {
+	return "locks"
 }

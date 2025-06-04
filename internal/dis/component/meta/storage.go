@@ -32,7 +32,7 @@ type Storage struct {
 // Get retrieves metadata with the provided key and deserializes the first one into target.
 // If no metadatum exists, returns [ErrMetadatumNotSet].
 func (s Storage) Get(ctx context.Context, key Key, target any) error {
-	table, err := sql.QueryTable[models.Metadatum](ctx, s.sql, s.table)
+	table, err := sql.OpenInterface[models.Metadatum](ctx, s.sql, s.table)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}
@@ -59,7 +59,7 @@ func (s Storage) Get(ctx context.Context, key Key, target any) error {
 //
 // When no metadatum exists, targets is not called, and nil error is returned.
 func (s Storage) GetAll(ctx context.Context, key Key, target func(index, total int) any) error {
-	table, err := s.sql.QueryTableLegacy(ctx, s.table)
+	table, err := s.sql.OpenTable(ctx, s.table)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}
@@ -86,7 +86,7 @@ func (s Storage) GetAll(ctx context.Context, key Key, target func(index, total i
 
 // Delete deletes all metadata with the provided key.
 func (s Storage) Delete(ctx context.Context, key Key) error {
-	table, err := s.sql.QueryTableLegacy(ctx, s.table)
+	table, err := s.sql.OpenTable(ctx, s.table)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}
@@ -108,9 +108,9 @@ func (s Storage) Set(ctx context.Context, key Key, value any) error {
 		return fmt.Errorf("failed to marshal value: %w", err)
 	}
 
-	table, err := s.sql.QueryTableLegacy(ctx, s.table)
+	table, err := s.sql.OpenTable(ctx, s.table)
 	if err != nil {
-		return fmt.Errorf("failed to query table: %w", err)
+		return fmt.Errorf("failed to open table: %w", err)
 	}
 
 	if err := table.Transaction(func(tx *gorm.DB) error {
@@ -140,7 +140,7 @@ func (s Storage) Set(ctx context.Context, key Key, value any) error {
 // Set serializes values and stores them with the provided key.
 // Any other metadata with the same key is deleted.
 func (s Storage) SetAll(ctx context.Context, key Key, values ...any) error {
-	table, err := s.sql.QueryTableLegacy(ctx, s.table)
+	table, err := s.sql.OpenTable(ctx, s.table)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}
@@ -177,7 +177,7 @@ func (s Storage) SetAll(ctx context.Context, key Key, values ...any) error {
 
 // Purge removes all metadata, regardless of key.
 func (s Storage) Purge(ctx context.Context) error {
-	table, err := s.sql.QueryTableLegacy(ctx, s.table)
+	table, err := s.sql.OpenTable(ctx, s.table)
 	if err != nil {
 		return fmt.Errorf("failed to query table: %w", err)
 	}
