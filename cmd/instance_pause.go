@@ -60,7 +60,7 @@ func (i instancepause) Run(context wisski_distillery.Context) (e error) {
 			return fmt.Errorf("failed to stop instance: %w", err)
 		}
 	} else {
-		if err := stack.Up(context.Context, context.Stdout); err != nil {
+		if err := stack.Start(context.Context, context.Stdout); err != nil {
 			return fmt.Errorf("failed to start instance: %w", err)
 		}
 	}

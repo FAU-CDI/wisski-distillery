@@ -38,7 +38,7 @@ func (*Start) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, ou
 	}
 	defer errorsx.Close(stack, &e, "stack")
 
-	if err := stack.Up(ctx, out); err != nil {
+	if err := stack.Start(ctx, out); err != nil {
 		return nil, fmt.Errorf("failed to start barrel: %w", err)
 	}
 	return nil, nil

@@ -58,7 +58,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 			return
 		}
 
-		e2 := stack.Up(ctx, out)
+		e2 := stack.Start(ctx, out)
 		if e2 == nil {
 			return
 		}

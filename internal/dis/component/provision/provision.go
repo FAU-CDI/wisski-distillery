@@ -159,7 +159,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 	}
 	defer errorsx.Close(stack, &e, "stack")
 
-	if err := stack.Up(ctx, progress); err != nil {
+	if err := stack.Start(ctx, progress); err != nil {
 		return nil, fmt.Errorf("failed to restart container: %w", err)
 	}
 

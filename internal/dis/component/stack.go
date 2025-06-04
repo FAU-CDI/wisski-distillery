@@ -13,7 +13,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/FAU-CDI/wisski-distillery/pkg/compose"
+	"github.com/FAU-CDI/wisski-distillery/internal/dockerenv"
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
 	"github.com/tkw1536/pkglib/errorsx"
@@ -193,9 +193,9 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		if _, err := fmt.Fprintln(progress, "[checking]"); err != nil {
 			return fmt.Errorf("failed to report progress: %w", err)
 		}
-		_, err := compose.Open(ctx, is.Dir)
+		_, err := is.Project(ctx)
 		if err != nil {
-			return fmt.Errorf("failed to open directory: %w", err)
+			return fmt.Errorf("failed to validate project: %w", err)
 		}
 	}
 
@@ -298,7 +298,7 @@ func writeEnvFile(path string, perm fs.FileMode, variables map[string]string) (e
 	defer errorsx.Close(file, &e, "file")
 
 	// write the file!
-	_, err = compose.WriteEnvFile(file, variables)
+	_, err = dockerenv.WriteEnvFile(file, variables)
 	if err != nil {
 		return fmt.Errorf("failed to write env file: %w", err)
 	}

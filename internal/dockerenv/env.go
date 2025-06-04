@@ -1,5 +1,5 @@
 //spellchecker:words compose
-package compose
+package dockerenv
 
 //spellchecker:words strings github pkglib collection
 import (

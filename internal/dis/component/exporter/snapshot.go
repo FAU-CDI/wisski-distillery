@@ -176,7 +176,7 @@ func (snapshot *Snapshot) makeParts(ctx context.Context, progress io.Writer, _ *
 
 			defer func() {
 				_, _ = logging.LogMessage(progress, "Starting instance")
-				snapshot.ErrStart = stack.Up(ctx, progress)
+				snapshot.ErrStart = stack.Start(ctx, progress)
 			}()
 		} else {
 			snapshot.ErrStart = fmt.Errorf("failed to stop stack: %w", err)

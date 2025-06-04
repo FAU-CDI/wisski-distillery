@@ -77,7 +77,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 			}
 			defer errorsx.Close(stack, &e, "stack")
 
-			return stack.Up(context.Context, writer)
+			return stack.Start(context.Context, writer)
 		},
 	}, dis.Installable()); err != nil {
 		return fmt.Errorf("failed to start components: %w", err)
@@ -107,7 +107,7 @@ func (sp systempause) start(context wisski_distillery.Context, dis *dis.Distille
 			}
 			defer errorsx.Close(stack, &e, "stack")
 
-			return stack.Up(context.Context, writer)
+			return stack.Start(context.Context, writer)
 		},
 	}, wissKIs); err != nil {
 		return fmt.Errorf("failed to start instances: %w", err)
