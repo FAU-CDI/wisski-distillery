@@ -19,15 +19,16 @@ import (
 func (lock *Locker) Locked(ctx context.Context) (locked bool) {
 	liquid := ingredient.GetLiquid(lock)
 	locked, err := lock.locked(ctx, liquid)
-	if err != nil {
-		wdlog.Of(ctx).Error(
-			"failed to check for locked state, returning false",
-			"slug", liquid.Slug,
-			"error", err,
-		)
-		return false
+	if err == nil {
+		return locked
 	}
-	return locked
+
+	wdlog.Of(ctx).Error(
+		"failed to check for locked state, returning false",
+		"slug", liquid.Slug,
+		"error", err,
+	)
+	return false
 }
 
 func (lock *Locker) locked(ctx context.Context, liquid *liquid.Liquid) (locked bool, err error) {
@@ -41,6 +42,10 @@ func (lock *Locker) locked(ctx context.Context, liquid *liquid.Liquid) (locked b
 	}
 	return res > 0, nil
 }
+
+var (
+	_ ingredient.WissKIFetcher = (*Locker)(nil)
+)
 
 func (locker *Locker) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
 	info.Locked = locker.Locked(flags.Context)

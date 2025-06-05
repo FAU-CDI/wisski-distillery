@@ -7,7 +7,7 @@ var _ Model = Lock{}
 type Lock struct {
 	Pk uint `gorm:"column:pk;primaryKey"`
 
-	Slug string `gorm:"column:slug;not null"` // slug of instance
+	Slug string `gorm:"column:slug;not null;unique"` // slug of instance
 }
 
 func (Lock) TableName() string {

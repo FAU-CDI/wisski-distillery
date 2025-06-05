@@ -13,7 +13,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
 	"github.com/tkw1536/pkglib/errorsx"
 )
@@ -22,8 +21,8 @@ import (
 //
 // It also logs the current time into the metadata belonging to this instance.
 func (barrel *Barrel) Build(ctx context.Context, progress io.Writer, start bool) (e error) {
-	if !barrel.dependencies.Locker.TryLock(ctx) {
-		return locker.ErrLocked
+	if err := barrel.dependencies.Locker.TryLock(ctx); err != nil {
+		return fmt.Errorf("unable to lock instance: %w", err)
 	}
 	defer barrel.dependencies.Locker.Unlock(ctx)
 

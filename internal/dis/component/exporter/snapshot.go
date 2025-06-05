@@ -17,7 +17,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/locker"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/tkw1536/pkglib/collection"
 	"github.com/tkw1536/pkglib/contextx"
@@ -67,8 +66,7 @@ type Snapshot struct {
 func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.WissKI, progress io.Writer, desc SnapshotDescription) (snapshot Snapshot) {
 	// #nosec G104
 	logging.LogMessage(progress, "Locking instance") //nolint:errcheck // no way to report error
-	if !instance.Locker().TryLock(ctx) {
-		err := locker.ErrLocked
+	if err := instance.Locker().TryLock(ctx); err != nil {
 		_, _ = fmt.Fprintln(progress, err)
 		_, _ = fmt.Fprintln(progress, "Aborting snapshot creation")
 

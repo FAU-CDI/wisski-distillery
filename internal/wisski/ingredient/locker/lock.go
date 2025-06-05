@@ -8,10 +8,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
+	"github.com/go-sql-driver/mysql"
 	"github.com/tkw1536/pkglib/contextx"
+	"gorm.io/gorm"
 )
 
 // Locker provides facitilites for locking this WissKI instance.
@@ -19,52 +22,79 @@ type Locker struct {
 	ingredient.Base
 }
 
-// TODO: Use new SQL api here
-// TODO: Make both TryLock and TryUnlock return errors
-// TODO: Make both Lock and Unlock log errors
+// Timeout for an unlock operation when the context is already cancelled.
+// The value of this constant may change in the future.
+const UnlockAnywaysTimeout = 10 * time.Second
 
 var (
-	_ ingredient.WissKIFetcher = (*Locker)(nil)
+	ErrLocked    = errors.New("instance is locked for administrative operations")
+	ErrNotLocked = errors.New("instance is not locked for administrative operations")
 )
 
-var ErrLocked = errors.New("instance is locked for administrative operations")
-
-// TryLock attemps to lock this WissKI and returns if it suceeded.
-func (lock *Locker) TryLock(ctx context.Context) bool {
+// TryLock attemps to lock this WissKI and returns nil if it succeeded.
+// If the instance is already locked, returns an error wrapping [ErrLocked].
+func (lock *Locker) TryLock(ctx context.Context) error {
 	liquid := ingredient.GetLiquid(lock)
 
-	table, err := liquid.SQL.OpenTable(ctx, liquid.LockTable)
+	table, err := sql.OpenInterface[models.Lock](ctx, liquid.SQL, liquid.LockTable)
 	if err != nil {
+		return fmt.Errorf("failed to open interface: %w", err)
+	}
+
+	{
+		err := table.Create(ctx, &models.Lock{Slug: liquid.Slug})
+		if isDuplicateKeyEntryError(err) {
+			return fmt.Errorf("%w: %w", ErrLocked, err)
+		}
+		if err != nil {
+			return fmt.Errorf("failed to lock instance: %w %#v", err, err)
+		}
+	}
+
+	return nil
+}
+
+// Error number representing a duplicate entry.
+// See [mysqldocs].
+//
+// mysqldocs: https://dev.mysql.com/doc/mysql-errors/5.7/en/server-error-reference.html#error_er_dup_entry
+const mysqlDupErrorNumber = 1062
+
+// isDuplicateKeyEntryError checks if the given error has a duplicated primary key.
+func isDuplicateKeyEntryError(err error) bool {
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		return true
+	}
+
+	var mysqlErr *mysql.MySQLError
+	if !errors.As(err, &mysqlErr) {
 		return false
 	}
 
-	result := table.FirstOrCreate(&models.Lock{}, models.Lock{Slug: liquid.Slug})
-	return result.Error == nil && result.RowsAffected == 1
+	return mysqlErr.Number == mysqlDupErrorNumber
 }
 
-var (
-	errNotLocked = errors.New("not locked")
-)
-
 // TryUnlock attempts to unlock this WissKI and returns nil if it succeeded.
-// An Unlock is also attempted when ctx is already cancelled.
+// As a special case to avoid deadlocks, an unlock is also attempted when ctx is already cancelled.
+// In such a case, the timeout for the unlock is [UnlockAnywaysTimeout].
 func (lock *Locker) TryUnlock(ctx context.Context) error {
-	liquid := ingredient.GetLiquid(lock)
-
-	ctx, cancel := contextx.Anyways(ctx, time.Second)
+	ctx, cancel := contextx.Anyways(ctx, UnlockAnywaysTimeout)
 	defer cancel()
 
-	table, err := liquid.SQL.OpenTable(ctx, liquid.LockTable)
+	liquid := ingredient.GetLiquid(lock)
+	table, err := sql.OpenInterface[models.Lock](ctx, liquid.SQL, liquid.LockTable)
 	if err != nil {
-		return fmt.Errorf("failed to connect to table: %w", err)
+		return fmt.Errorf("failed to open interface: %w", err)
 	}
-	result := table.Where("slug = ?", liquid.Slug).Delete(&models.Lock{})
-	if result.Error == nil {
+
+	count, err := table.Where("slug = ?", liquid.Slug).Delete(ctx)
+	if err != nil {
 		return fmt.Errorf("unable to delete from table: %w", err)
 	}
-	if result.RowsAffected != 1 {
-		return errNotLocked
+	if count == 0 {
+		return ErrNotLocked
 	}
+
 	return nil
 }
 
