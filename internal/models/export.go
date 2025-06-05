@@ -2,7 +2,12 @@
 package models
 
 //spellchecker:words time
-import "time"
+import (
+	"fmt"
+	"time"
+
+	"github.com/tkw1536/pkglib/fsx"
+)
 
 var _ Model = Export{}
 
@@ -19,4 +24,17 @@ type Export struct {
 
 func (Export) TableName() string {
 	return "snapshot"
+}
+
+// Exists checks if the given export exists on disk.
+func (e Export) Exists() (bool, error) {
+	if e.Path == "" {
+		return false, nil
+	}
+
+	exists, err := fsx.Exists(e.Path)
+	if err != nil {
+		return false, fmt.Errorf("unable to check existence: %w", err)
+	}
+	return exists, nil
 }
