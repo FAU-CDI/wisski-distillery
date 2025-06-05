@@ -87,16 +87,13 @@ func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 
 // AddToExportLog adds the provided export to the log.
 func (log *Logger) Add(ctx context.Context, export models.Export) error {
-	// find the table
-	table, err := log.dependencies.SQL.OpenTable(ctx, log)
+	table, err := sql.OpenInterface[models.Export](ctx, log.dependencies.SQL, log)
 	if err != nil {
-		return fmt.Errorf("failed to query table: %w", err)
+		return fmt.Errorf("failed to open interface: %w", err)
 	}
 
-	// and save it!
-	res := table.Create(&export)
-	if res.Error != nil {
-		return res.Error
+	if err := table.Create(ctx, &export); err != nil {
+		return fmt.Errorf("failed to add log: %w", err)
 	}
 	return nil
 }
