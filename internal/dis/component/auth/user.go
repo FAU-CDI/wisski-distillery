@@ -87,28 +87,25 @@ func (auth *Auth) User(ctx context.Context, name string) (au *AuthUser, err erro
 // CreateUser creates a new user and returns it.
 // The user is not associated to any WissKIs, and has no password set.
 func (auth *Auth) CreateUser(ctx context.Context, name string) (user *AuthUser, err error) {
-	// return the user
-	table, err := auth.dependencies.SQL.OpenTable(ctx, auth)
-	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
-	}
-
 	user = &AuthUser{
 		User: models.User{
 			User: name,
 		},
+		auth: auth,
 	}
 	user.SetAdmin(false)
 	user.SetEnabled(false)
 	user.SetTOTPEnabled(false)
 
-	// do the create statement
-	err = table.Select("*").Create(&user.User).Error
+	table, err := sql.OpenInterface[models.User](ctx, auth.dependencies.SQL, auth)
 	if err != nil {
+		return nil, fmt.Errorf("failed to open interface: %w", err)
+	}
+
+	if err := table.Create(ctx, &user.User); err != nil {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	user.auth = auth
 	return user, nil
 }
 
@@ -339,11 +336,6 @@ func (au *AuthUser) Save(ctx context.Context) error {
 
 // Delete deletes the user from the database.
 func (au *AuthUser) Delete(ctx context.Context) error {
-	table, err := au.auth.dependencies.SQL.OpenTable(ctx, au.auth)
-	if err != nil {
-		return fmt.Errorf("failed to query table: %w", err)
-	}
-
 	// run all the user delete hooks
 	for _, c := range au.auth.dependencies.UserDeleteHooks {
 		if err := c.OnUserDelete(ctx, &au.User); err != nil {
@@ -351,5 +343,13 @@ func (au *AuthUser) Delete(ctx context.Context) error {
 		}
 	}
 
-	return table.Delete(&au.User).Error
+	table, err := sql.OpenInterface[models.User](ctx, au.auth.dependencies.SQL, au.auth)
+	if err != nil {
+		return fmt.Errorf("failed to query table: %w", err)
+	}
+
+	if _, err := table.Where("pk = ?", au.User.Pk).Delete(ctx); err != nil {
+		return fmt.Errorf("failed to delete user from db: %w", err)
+	}
+	return nil
 }
