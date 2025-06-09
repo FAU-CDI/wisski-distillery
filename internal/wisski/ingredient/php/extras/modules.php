@@ -1,10 +1,7 @@
 <?php
 
 
-function build_extended_infos(): array {
-    $COMPOSER='composer';
-    $DRUSH='drush';
-
+function build_extended_infos(string $COMPOSER = 'composer', string $DRUSH = 'drush'): array {
     $root = drush_root($DRUSH);
     $drush_infos = drush_infos($DRUSH, $root);
     $composer_infos = composer_infos($COMPOSER, normpath($root, '..'));
