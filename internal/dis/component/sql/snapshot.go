@@ -47,7 +47,7 @@ func (sql *SQL) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Writ
 		stream.NewIOStream(dest, progress, nil),
 		dockerx.ExecOptions{
 			Service: "sql",
-			Cmd:     SQlDumpExecutable,
+			Cmd:     dumpExecutable,
 			Args:    []string{"--databases", database},
 		},
 	)()

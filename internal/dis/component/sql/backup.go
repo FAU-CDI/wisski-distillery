@@ -33,7 +33,7 @@ func (sql *SQL) Backup(scontext *component.StagingContext) error {
 			dockerx.ExecOptions{
 				Service: "sql",
 
-				Cmd:  SQlDumpExecutable,
+				Cmd:  dumpExecutable,
 				Args: []string{"--all-databases"},
 			},
 		)()

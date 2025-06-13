@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"path/filepath"
 	"sync"
-	"sync/atomic"
 	"time"
 
 	config_package "github.com/FAU-CDI/wisski-distillery/internal/config"
@@ -25,9 +24,8 @@ type SQL struct {
 		Docker *docker.Docker
 	}
 
-	dbOpen atomic.Bool // for fast path
-	m      sync.Mutex  // m protects db
-	db     *sql.DB
+	m  sync.Mutex // m protects db
+	db *sql.DB
 
 	ServerURL string // upstream server url
 
@@ -49,6 +47,11 @@ func (sql *SQL) Path() string {
 func (*SQL) Context(parent component.InstallationContext) component.InstallationContext {
 	return parent
 }
+
+const (
+	queryExecutable = "mariadb"      // "mysql"-compatible executable for raw sql queries.
+	dumpExecutable  = "mariadb-dump" // "mysqldump"-compatible executable for dumping an entire database.
+)
 
 //go:embed all:sql
 var resources embed.FS
@@ -89,11 +92,3 @@ func (sql *SQL) OpenStack() (component.StackWithResources, error) {
 		},
 	})
 }
-
-const (
-	// "mysql"-compatible executable for raw sql queries.
-	SQLQueryExecutable = "mariadb"
-
-	// "mysqldump"-compatible executable for dumping an entire database.
-	SQlDumpExecutable = "mariadb-dump"
-)

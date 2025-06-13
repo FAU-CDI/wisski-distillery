@@ -72,7 +72,7 @@ This will create a deployment directory (`/var/www/deploy` by default).
 Next, edit the configuration file `/var/www/deploy/.env` and customize it to your liking.
 Usually it only requires adjustment in very few places.
 
-Next, download a [GraphDB](https://graphdb.ontotext.com/) zip file, and bring the distillery online using:
+Next, download a [GraphDB](https://graphdb.ontotext.com/) 10.x zip file, and bring the distillery online using:
 
 ```bash
 /var/www/deploy/wdcli system_update /path/to/graphdb.zip

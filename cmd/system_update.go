@@ -120,8 +120,6 @@ func (si systemupdate) Run(context wisski_distillery.Context) (e error) {
 	}
 	defer errorsx.Close(client, &e, "client")
 
-	// TODO: close
-
 	// check that the docker api is available
 	{
 		if _, err := logging.LogMessage(context.Stderr, "Checking that the 'docker' api is reachable"); err != nil {

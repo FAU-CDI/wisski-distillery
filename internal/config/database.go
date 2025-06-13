@@ -6,7 +6,6 @@ import "github.com/FAU-CDI/wisski-distillery/internal/config/validators"
 
 type DatabaseConfig struct {
 	// Credentials for the admin user.
-	// Is automatically created if it does not exist.
 	AdminUsername string `default:"admin"  validate:"nonempty" yaml:"username"`
 	AdminPassword string `sensitive:"****" validate:"nonempty" yaml:"password"`
 

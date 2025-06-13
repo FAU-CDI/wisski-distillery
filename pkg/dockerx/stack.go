@@ -131,6 +131,15 @@ func (stack Stack) Containers(ctx context.Context, includeStoppedContainers bool
 	return slices.Clip(result), nil
 }
 
+// Running returns true if the container is running, false otherwise.
+func (ds Stack) Running(ctx context.Context) (r bool, e error) {
+	containers, err := ds.Containers(ctx, false)
+	if err != nil {
+		return false, fmt.Errorf("failed to list containers: %w", err)
+	}
+	return len(containers) > 0, nil
+}
+
 // Kill kills containers belonging to the given service.
 func (ds Stack) Kill(ctx context.Context, progress io.Writer, service string, signal os.Signal) error {
 	containers, err := ds.Containers(ctx, false, service)

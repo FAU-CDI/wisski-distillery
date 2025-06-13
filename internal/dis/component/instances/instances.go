@@ -42,32 +42,29 @@ func (instances *Instances) use(wisski *wisski.WissKI) {
 }
 
 // WissKI returns the WissKI with the provided slug, if it exists.
-// It the WissKI does not exist, returns ErrWissKINotFound.
+// It the WissKI does not exist, returns an error wrapping [ErrWissKINotFound].
 func (instances *Instances) WissKI(ctx context.Context, slug string) (wissKI *wisski.WissKI, err error) {
 	if slug == "" {
 		return nil, ErrWissKINotFound
 	}
 
-	sql := instances.dependencies.SQL
-	if err := sql.Wait(ctx); err != nil {
+	if err := instances.dependencies.SQL.Wait(ctx); err != nil {
 		return nil, fmt.Errorf("failed to wait for database: %w", err)
 	}
 
-	table, err := sql.OpenTable(ctx, instances.dependencies.InstanceTable)
+	table, err := sql.OpenInterface[models.Instance](ctx, instances.dependencies.SQL, instances.dependencies.InstanceTable)
 	if err != nil {
-		return nil, fmt.Errorf("failed to query table: %w", err)
+		return nil, fmt.Errorf("failed to open interface: %w", err)
 	}
 
-	// create a struct
 	wissKI = new(wisski.WissKI)
 
-	// find the instance by slug
-	query := table.Find(&wissKI.Instance, &models.Instance{Slug: slug})
-	switch {
-	case query.Error != nil:
-		return nil, fmt.Errorf("failed to find instance: %w", query.Error)
-	case query.RowsAffected == 0:
-		return nil, ErrWissKINotFound
+	wissKI.Instance, err = table.Where("slug = ?", slug).First(ctx)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, fmt.Errorf("%w: %w", ErrWissKINotFound, err)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("failed to find instance: %w", err)
 	}
 
 	// use the wissKI instance

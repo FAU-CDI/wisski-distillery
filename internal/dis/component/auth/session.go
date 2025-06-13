@@ -214,7 +214,7 @@ func (auth *Auth) authLogin(ctx context.Context) http.Handler {
 		Template: tpl.Template(),
 		TemplateContext: func(ctx form.FormContext, r *http.Request) any {
 			if ctx.Err != nil {
-				ctx.Err = errLoginFailed
+				ctx.Err = fmt.Errorf("%w: %w", errLoginFailed, ctx.Err)
 			}
 			return tpl.Context(r, templating.NewFormContext(ctx))
 		},

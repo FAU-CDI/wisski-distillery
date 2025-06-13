@@ -159,7 +159,6 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 					return fmt.Errorf("failed to write config yml: %w", err)
 				}
 				return nil
-
 			}, context.Stderr, "Installing primary configuration file"); err != nil {
 				return fmt.Errorf("%w: %w", err, errBootstrapWriteConfig)
 			}
@@ -180,7 +179,6 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	if err := cfg.Unmarshal(f); err != nil {
 		return fmt.Errorf("%w: %w", errBootstrapOpenConfig, err)
 	}
-	_, _ = context.Println(cfg)
 
 	// Tell the user how to proceed
 	if _, err := logging.LogMessage(context.Stderr, "Bootstrap is complete"); err != nil {
@@ -192,7 +190,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	if _, err := context.Printf("Then make sure 'docker compose' is installed.\n"); err != nil {
 		return fmt.Errorf("failed to report progress: %w", err)
 	}
-	if _, err := context.Printf("Finally grab a GraphDB zipped source file and run:\n"); err != nil {
+	if _, err := context.Printf("Finally grab a GraphDB 10.x zipped source file and run:\n"); err != nil {
 		return fmt.Errorf("failed to report progress: %w", err)
 	}
 	if _, err := context.Printf("%s system_update /path/to/graphdb.zip\n", wdcliPath); err != nil {

@@ -46,7 +46,7 @@ func (log *Logger) For(ctx context.Context, slug string) (exports []models.Expor
 	}), nil
 }
 
-// Log retrieves and cleans up all entries in the snapshot log
+// Log retrieves and cleans up all entries in the snapshot log.
 func (log *Logger) Log(ctx context.Context) ([]models.Export, error) {
 	table, err := sql.OpenInterface[models.Export](ctx, log.dependencies.SQL, log)
 	if err != nil {

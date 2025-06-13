@@ -47,7 +47,7 @@ func (lock *Locker) TryLock(ctx context.Context) error {
 			return fmt.Errorf("%w: %w", ErrLocked, err)
 		}
 		if err != nil {
-			return fmt.Errorf("failed to lock instance: %w %#v", err, err)
+			return fmt.Errorf("failed to lock instance: %w", err)
 		}
 	}
 

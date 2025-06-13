@@ -5,82 +5,58 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/sqlx"
+	"github.com/tkw1536/pkglib/stream"
+	"github.com/tkw1536/pkglib/timex"
 )
-
-var errProvisionInvalidDatabaseParams = errors.New("`Provision': invalid parameters")
-var errProvisionInvalidGrant = errors.New("`Provision': grant failed")
 
 // Provision provisions sql-specific resource for the given instance.
 func (sql *SQL) Provision(ctx context.Context, instance models.Instance, domain string) error {
-	return sql.CreateDatabase(ctx, instance.SqlDatabase, instance.SqlUsername, instance.SqlPassword)
+	return sql.CreateDatabase(ctx, CreateOpts{
+		Name: instance.SqlDatabase,
+
+		CreateUser: true,
+		Username:   instance.SqlUsername,
+		Password:   instance.SqlPassword,
+	})
 }
 
 // Purge purges sql-specific resources for the given instance.
 func (sql *SQL) Purge(ctx context.Context, instance models.Instance, domain string) error {
 	return errorsx.Combine(
-		sql.PurgeDatabase(instance.SqlDatabase),
-		sql.PurgeUser(ctx, instance.SqlUsername),
+		sql.DropDatabase(ctx, instance.SqlDatabase),
+		sql.DropUser(ctx, instance.SqlUsername),
 	)
-}
-
-// CreateDatabase creates a new database with the given name.
-// It then generates a new user, with the name 'user' and the password 'password', that is then granted access to this database.
-//
-// Provision internally waits for the database to become available.
-func (sql *SQL) CreateDatabase(ctx context.Context, name, user, password string) error {
-	// NOTE(twiesing): We shouldn't use string concat to build sql queries.
-	// But the driver doesn't support using query params for these queries.
-	// Apparently it's a "feature", see https://github.com/go-sql-driver/mysql/issues/398#issuecomment-169951763.
-
-	// quick and dirty check to make sure that all the names won't sql inject.
-	if !sqlx.IsSafeDatabaseLiteral(name) || !sqlx.IsSafeDatabaseSingleQuote(user) || !sqlx.IsSafeDatabaseSingleQuote(password) {
-		return errProvisionInvalidDatabaseParams
-	}
-
-	if err := sql.Wait(ctx); err != nil {
-		return err
-	}
-
-	var (
-		nameQuoted = unsafeQuoteBacktick(name)
-		userQuoted = unsafeQuoteSingle(user)
-		passQuoted = unsafeQuoteSingle(password)
-	)
-
-	if err := sql.directQuery(ctx,
-		"CREATE DATABASE "+nameQuoted+";",
-		"CREATE USER "+userQuoted+"@`%` IDENTIFIED BY "+passQuoted+";",
-		"GRANT ALL PRIVILEGES ON "+nameQuoted+".* TO "+userQuoted+"@`%`;",
-		"FLUSH PRIVILEGES;",
-	); err != nil {
-		return fmt.Errorf("%w: %w", errProvisionInvalidGrant, err)
-	}
-	return nil
 }
 
 var errCreateSuperuserGrant = errors.New("`CreateSuperUser': grant failed")
 
 // CreateSuperuser createsa new user, with the name 'user' and the password 'password'.
-// It then grants this user superuser status in the database.
-//
-// CreateSuperuser internally waits for the database to become available.
-func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allowExisting bool) error {
-	// NOTE(twiesing): This function unsafely uses the shell directly to create a superuser.
-	// This is for two reasons:
-	// (1) this is used during bootstraping
-	// (2) The underlying driver doesn't support "GRANT ALL PRIVILEGES"
-	// See also [sql.Provision].
-
-	if !sqlx.IsSafeDatabaseSingleQuote(user) || !sqlx.IsSafeDatabaseSingleQuote(password) {
-		return errProvisionInvalidDatabaseParams
-	}
-
-	if err := sql.Wait(ctx); err != nil {
+// CreateSuperuser always waits for the database to become available, and then uses the internal 'mysql' executable of the container.
+func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allowExisting bool) (e error) {
+	stack, err := sql.OpenStack()
+	if err != nil {
 		return err
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	nilStream := stream.FromNil()
+
+	// wait to connect to the databse and for the 'select 1' query to succeed
+	if err := timex.TickUntilFunc(func(time.Time) bool {
+		running, err := stack.Running(ctx)
+		if err != nil || !running {
+			return false
+		}
+
+		code := sql.Shell(ctx, nilStream, "-e", "select 1;")
+		return code == 0
+	}, ctx, sql.PollInterval); err != nil {
+		return fmt.Errorf("failed to wait for sql: %w", err)
 	}
 
 	var IfNotExists string
@@ -89,46 +65,19 @@ func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allo
 	}
 
 	var (
-		userQuoted = unsafeQuoteSingle(user)
-		passQuoted = unsafeQuoteSingle(password)
+		userQuoted = quoteSingle(user)
+		passQuoted = quoteSingle(password)
 	)
 
-	if err := sql.directQuery(ctx,
-		"CREATE USER "+IfNotExists+" "+userQuoted+"@'%' IDENTIFIED BY "+passQuoted+";",
-		"GRANT ALL PRIVILEGES ON *.* TO "+userQuoted+"@'%' WITH GRANT OPTION;",
-		"FLUSH PRIVILEGES;",
-	); err != nil {
-		return fmt.Errorf("%w: %w", errCreateSuperuserGrant, err)
+	var builder strings.Builder
+	code := sql.Shell(
+		ctx, stream.NewIOStream(nil, &builder, nil), "-e",
+		"CREATE USER "+IfNotExists+" "+userQuoted+"@'%' IDENTIFIED BY "+passQuoted+";"+
+			"GRANT ALL PRIVILEGES ON *.* TO "+userQuoted+"@'%' WITH GRANT OPTION;"+
+			"FLUSH PRIVILEGES;",
+	)
+	if code != 0 {
+		return fmt.Errorf("%w: %s", errCreateSuperuserGrant, builder.String())
 	}
 	return nil
-}
-
-var errPurgeUser = errors.New("`PurgeUser': failed to drop user")
-
-// SQLPurgeUser deletes the specified user from the database.
-func (sql *SQL) PurgeUser(ctx context.Context, user string) error {
-	if !sqlx.IsSafeDatabaseSingleQuote(user) {
-		return errPurgeUser
-	}
-
-	var userQuoted = unsafeQuoteSingle(user)
-
-	if err := sql.directQuery(ctx,
-		"DROP USER IF EXISTS "+userQuoted+"@'%';",
-		"FLUSH PRIVILEGES;",
-	); err != nil {
-		return fmt.Errorf("%w: %w", errPurgeUser, err)
-	}
-
-	return nil
-}
-
-var errSQLPurgeDB = errors.New("unable to drop database: unsafe database name")
-
-// SQLPurgeDatabase deletes the specified db from the database.
-func (sql *SQL) PurgeDatabase(db string) error {
-	if !sqlx.IsSafeDatabaseLiteral(db) {
-		return errSQLPurgeDB
-	}
-	return sql.Exec("DROP DATABASE IF EXISTS `" + db + "`")
 }
