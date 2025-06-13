@@ -12,3 +12,7 @@ node_modules
 .entry-cache
 yarn-error.log
 TODO
+
+# debug executables
+.vscode
+__debug_*

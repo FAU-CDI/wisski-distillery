@@ -1,8 +1,5 @@
 .PHONY: clean all deps live tslint tsfix lint
 
-live:
-	sudo CGO_ENABLED=0 go run -trimpath ./cmd/wdcli $(ARGS)
-
 all: wdcli
 
 lint:
