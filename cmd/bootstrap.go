@@ -155,11 +155,11 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 				if err != nil {
 					return fmt.Errorf("failed to marshal configuration file: %w", err)
 				}
-
-				{
-					_, err := configYML.Write(bytes)
+				if _, err := configYML.Write(bytes); err != nil {
 					return fmt.Errorf("failed to write config yml: %w", err)
 				}
+				return nil
+
 			}, context.Stderr, "Installing primary configuration file"); err != nil {
 				return fmt.Errorf("%w: %w", err, errBootstrapWriteConfig)
 			}
