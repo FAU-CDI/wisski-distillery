@@ -79,7 +79,8 @@ func (sql *SQL) DropDatabase(ctx context.Context, db string) error {
 	var (
 		dbQuoted = quoteBacktick(db)
 	)
-	return sql.Query(ctx, "DROP DATABASE IF EXISTS "+dbQuoted+";")
+
+	return sql.directQuery(ctx, "DROP DATABASE IF EXISTS "+dbQuoted+";")
 }
 
 // DropUser drops the given user if it exists.
@@ -88,5 +89,9 @@ func (sql *SQL) DropUser(ctx context.Context, user string) error {
 		userQuoted = quoteSingle(user)
 	)
 
-	return sql.Query(ctx, "DROP USER IF EXISTS "+userQuoted+"@'%';", "FLUSH PRIVILEGES;")
+	return sql.directQuery(
+		ctx,
+		"DROP USER IF EXISTS "+userQuoted+"@'%';",
+		"FLUSH PRIVILEGES;",
+	)
 }
