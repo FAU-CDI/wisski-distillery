@@ -28,13 +28,14 @@
 
 {{range .Instances}}
 <div class="pure-u-1 pure-u-xl-2-3">
-    <div class="wisski {{ if .Running }}running{{ else }}stopped{{ end }}">
+    <div class="wisski {{ if .Running }}running{{ else }}stopped{{ end }} {{ if not .OK }}broken{{end}}">
         <h3>
             {{.Slug}}
             {{ if not .Running }}&nbsp;<small>not running</small>{{ end }}
+            
         </h3>
         <p>
-            <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br>
+            <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br>           
 
             <a class="pure-button" href="/admin/instance/{{.Slug}}">Details</a>
         </p>

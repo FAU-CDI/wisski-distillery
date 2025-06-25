@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"sync"
 	"time"
 
 	_ "embed"
@@ -14,6 +15,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -31,21 +33,28 @@ func (admin *Admin) Status(ctx context.Context, quick bool) (target status.Disti
 
 		// get all of their info!
 		information = make([]status.WissKI, len(all))
-		for i, instance := range all {
-			{
-				i := i
-				instance := instance
 
-				// store the info for this group!
-				group.Go(func() (err error) {
-					information[i], err = instance.Info().Information(ctx, true)
-					if err != nil {
-						return fmt.Errorf("instance %q: %w", instance.Slug, err)
-					}
-					return
-				})
-			}
+		var wg sync.WaitGroup
+		wg.Add(len(all))
+		for i, instance := range all {
+			go func() {
+				defer wg.Done()
+
+				var err error
+				information[i], err = instance.Info().Information(ctx, true)
+
+				if err != nil {
+					wdlog.Of(ctx).Warn(
+						"failed to fetch information for instance",
+						"error", err,
+						"slug", all[i].Slug,
+					)
+				}
+			}()
 		}
+
+		wg.Wait()
+
 		return nil
 	})
 

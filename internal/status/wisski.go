@@ -14,7 +14,8 @@ import (
 
 // WissKI provides information about a single WissKI.
 type WissKI struct {
-	Time time.Time // Time this info was built
+	Time  time.Time // Time this info was built
+	Error error     // error during fetching this information
 
 	Slug string // slug
 	URL  string // complete URL, including http(s)
@@ -52,6 +53,11 @@ type WissKI struct {
 
 	// installed drupal modules
 	Modules []DrushExtendedModuleInfo
+}
+
+// Checks if this information is ok OK
+func (wisski WissKI) OK() bool {
+	return wisski.Error == nil
 }
 
 // Requirement represents a drupal requirement or status check.

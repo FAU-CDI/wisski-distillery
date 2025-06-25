@@ -16,6 +16,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
+	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/julienschmidt/httprouter"
 	"github.com/tkw1536/pkglib/httpx"
 
@@ -37,7 +38,7 @@ type instanceContext struct {
 	Info     status.WissKI
 }
 
-func (admin *Admin) instance(context.Context) http.Handler {
+func (admin *Admin) instance(ctx context.Context) http.Handler {
 	tpl := instanceTemplate.Prepare(
 		admin.dependencies.Templating,
 		templating.Crumbs(
@@ -63,7 +64,12 @@ func (admin *Admin) instance(context.Context) http.Handler {
 		// get some more info about the wisski
 		ic.Info, err = instance.Info().Information(r.Context(), true)
 		if err != nil {
-			return ic, nil, fmt.Errorf("failed to get information: %w", err)
+			wdlog.Of(ctx).Warn(
+				"failed to fetch information for instance",
+				"error", err,
+				"slug", slug,
+			)
+			err = nil
 		}
 
 		escapedSlug := url.PathEscape(slug)

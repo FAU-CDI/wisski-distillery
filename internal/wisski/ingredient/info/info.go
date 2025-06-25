@@ -111,6 +111,11 @@ func (nfo *Info) Information(ctx context.Context, quick bool) (info status.WissK
 		times[fetcher.Name()] = fetcherTimes[i]
 	}
 
+	// record any error that occurred
+	if err != nil {
+		info.Error = err
+	}
+
 	// compute the ratio taken
 	tookRatio := float64(took) / float64(tookSum)
 
