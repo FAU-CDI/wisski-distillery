@@ -59,7 +59,7 @@ var (
 			Description: "Legacy Version Of Drupal",
 
 			Drupal: "^10",
-			WissKI: "",
+			WissKI: "^3.16",
 			InstallModules: []string{
 				"drupal/inline_entity_form:^1.0@RC",
 				"drupal/imagemagick",
@@ -78,7 +78,7 @@ var (
 			Description: "Current Version of Drupal with default packages",
 
 			Drupal: "^11",
-			WissKI: "",
+			WissKI: "4.x-dev#ad9ad9a4d95c3e189ff0eb3d2f278d1c8ee27d69",
 			InstallModules: []string{
 				"drupal/inline_entity_form:^3.0@RC",
 				"drupal/imagemagick",
