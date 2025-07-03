@@ -20,6 +20,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         default-mysql-client \
         git \
         imagemagick \
+        libavif-dev \
         libcurl4-openssl-dev \
         libfreetype6-dev \
         libicu-dev \
@@ -43,6 +44,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     pear config-set php_ini "$PHP_INI_DIR/php.ini" && \
     docker-php-ext-configure gd \
         --enable-gd \
+        --with-avif \
         --with-webp \
         --with-jpeg \
         --with-xpm \
@@ -62,6 +64,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         xsl \
         zip \
     && \
+    pecl install uploadprogress-2.0.2 && \
     pecl install xmlrpc-1.0.0RC3 && \
     pecl install ssh2-1.4.1 && \
     pecl install apcu-5.1.24 && \
@@ -77,6 +80,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         pdo_mysql \
         soap \
         ssh2 \
+        uploadprogress \
         xml \
         xmlrpc \
         xmlwriter \
