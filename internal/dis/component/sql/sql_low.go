@@ -106,7 +106,7 @@ func (sql *SQL) connectSQL(ctx context.Context) (*databaseSQL.DB, error) {
 }
 
 // actual implemention of connecting to the sql.
-// Use [sql.connectSQL]
+// Use [sql.connectSQL].
 func (sql *SQL) connectSQLImpl(ctx context.Context) (*databaseSQL.DB, error) {
 	db, err := sql.openSQL(
 		component.GetStill(sql).Config.SQL.Database,

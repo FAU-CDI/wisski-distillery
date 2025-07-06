@@ -23,6 +23,8 @@ import (
 	_ "embed"
 )
 
+//spellchecker:words nolint contextcheck
+
 //go:embed "html/instance.html"
 var instanceHTML []byte
 var instanceTemplate = templating.Parse[instanceContext](
@@ -49,10 +51,10 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 	)
 
 	return tpl.HTMLHandlerWithFlags(admin.dependencies.Handling, func(r *http.Request) (ic instanceContext, funcs []templating.FlagFunc, err error) {
-		slug := httprouter.ParamsFromContext(r.Context()).ByName("slug")
+		slug := httprouter.ParamsFromContext(r.Context()).ByName("slug") //nolint:contextcheck
 
 		// find the instance itself!
-		instance, err := admin.dependencies.Instances.WissKI(r.Context(), slug)
+		instance, err := admin.dependencies.Instances.WissKI(r.Context(), slug) //nolint:contextcheck
 		if errors.Is(err, instances.ErrWissKINotFound) {
 			return ic, nil, httpx.ErrNotFound
 		}
@@ -62,7 +64,7 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 		ic.Instance = instance.Instance
 
 		// get some more info about the wisski
-		ic.Info, err = instance.Info().Information(r.Context(), true)
+		ic.Info, err = instance.Info().Information(r.Context(), true) //nolint:contextcheck
 		if err != nil {
 			wdlog.Of(ctx).Warn(
 				"failed to fetch information for instance",
