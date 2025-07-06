@@ -15,7 +15,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php"
-	"github.com/tkw1536/pkglib/sema"
+	"go.tkw01536.de/pkglib/sema"
 	"golang.org/x/sync/errgroup"
 )
 

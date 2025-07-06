@@ -18,7 +18,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
-	"github.com/tkw1536/pkglib/httpx"
+	"go.tkw01536.de/pkglib/httpx"
 )
 
 type Admin struct {

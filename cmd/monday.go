@@ -7,7 +7,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/pkglib/fsx"
+	"go.tkw01536.de/pkglib/fsx"
 )
 
 // Monday is the 'monday' command.

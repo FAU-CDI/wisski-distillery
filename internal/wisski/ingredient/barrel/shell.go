@@ -8,9 +8,9 @@ import (
 
 	"al.essio.dev/pkg/shellescape"
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
-	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/stream"
+	"go.tkw01536.de/goprogram/exit"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 type ExitError int

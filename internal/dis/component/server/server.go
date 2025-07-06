@@ -13,10 +13,10 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/tkw1536/pkglib/contextx"
-	"github.com/tkw1536/pkglib/httpx/mux"
-	"github.com/tkw1536/pkglib/httpx/wrap"
-	"github.com/tkw1536/pkglib/recovery"
+	"go.tkw01536.de/pkglib/contextx"
+	"go.tkw01536.de/pkglib/httpx/mux"
+	"go.tkw01536.de/pkglib/httpx/wrap"
+	"go.tkw01536.de/pkglib/recovery"
 
 	"github.com/gorilla/csrf"
 )

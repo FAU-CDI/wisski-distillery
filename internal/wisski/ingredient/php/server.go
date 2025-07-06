@@ -6,7 +6,7 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
-	"github.com/tkw1536/pkglib/stream"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 // NewServer returns a new server that can execute code within this distillery.

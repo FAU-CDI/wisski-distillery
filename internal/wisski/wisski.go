@@ -24,7 +24,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/reserve"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/trb"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/liquid"
-	"github.com/tkw1536/pkglib/lifetime"
+	"go.tkw01536.de/pkglib/lifetime"
 )
 
 // A WissKI may not be copied.

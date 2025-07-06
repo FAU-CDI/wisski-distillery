@@ -8,7 +8,7 @@ import (
 	"slices"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/tkw1536/pkglib/httpx/mux"
+	"go.tkw01536.de/pkglib/httpx/mux"
 )
 
 // buildMenu builds the manu for this request for all known components in this distillery.

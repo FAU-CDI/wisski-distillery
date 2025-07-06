@@ -11,8 +11,8 @@ import (
 	"errors"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/fsx/umaskfree"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/fsx/umaskfree"
 )
 
 // Backupable represents a component with a Backup method.

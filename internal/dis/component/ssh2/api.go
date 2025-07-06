@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/tkw1536/pkglib/httpx"
+	"go.tkw01536.de/pkglib/httpx"
 	gossh "golang.org/x/crypto/ssh"
 )
 

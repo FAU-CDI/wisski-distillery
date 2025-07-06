@@ -18,7 +18,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/julienschmidt/httprouter"
-	"github.com/tkw1536/pkglib/httpx"
+	"go.tkw01536.de/pkglib/httpx"
 
 	_ "embed"
 )

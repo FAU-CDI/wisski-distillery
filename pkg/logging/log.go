@@ -7,7 +7,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 	"golang.org/x/term"
 )
 

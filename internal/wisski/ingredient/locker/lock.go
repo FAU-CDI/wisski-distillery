@@ -13,7 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/go-sql-driver/mysql"
-	"github.com/tkw1536/pkglib/contextx"
+	"go.tkw01536.de/pkglib/contextx"
 	"gorm.io/gorm"
 )
 

@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/stream"
-	"github.com/tkw1536/pkglib/timex"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/stream"
+	"go.tkw01536.de/pkglib/timex"
 )
 
 // Provision provisions sql-specific resource for the given instance.

@@ -7,8 +7,8 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/collection"
+	"go.tkw01536.de/goprogram/exit"
+	"go.tkw01536.de/pkglib/collection"
 )
 
 // Info is then 'info' command.

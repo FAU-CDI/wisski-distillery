@@ -11,7 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/manager"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/exit"
+	"go.tkw01536.de/goprogram/exit"
 )
 
 // Provision is the 'provision' command.

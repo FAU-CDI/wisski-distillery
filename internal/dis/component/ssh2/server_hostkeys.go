@@ -15,8 +15,8 @@ import (
 	"os"
 
 	"github.com/gliderlabs/ssh"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/fsx/umaskfree"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/fsx/umaskfree"
 
 	gossh "golang.org/x/crypto/ssh"
 )

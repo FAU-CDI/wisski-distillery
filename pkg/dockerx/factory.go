@@ -7,7 +7,7 @@ package dockerx
 import (
 	"fmt"
 
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 // Factory can create docker clients.

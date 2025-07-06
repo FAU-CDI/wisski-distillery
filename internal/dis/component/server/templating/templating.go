@@ -4,7 +4,7 @@ package templating
 //spellchecker:words github wisski distillery internal component pkglib lazy
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/tkw1536/pkglib/lazy"
+	"go.tkw01536.de/pkglib/lazy"
 )
 
 // Templating implements templating customization.

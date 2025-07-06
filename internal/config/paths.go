@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
-	"github.com/tkw1536/pkglib/fsx"
+	"go.tkw01536.de/pkglib/fsx"
 )
 
 type PathsConfig struct {

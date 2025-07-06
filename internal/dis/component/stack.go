@@ -16,9 +16,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dockerenv"
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/unpack"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/fsx"
-	"github.com/tkw1536/pkglib/fsx/umaskfree"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/fsx"
+	"go.tkw01536.de/pkglib/fsx/umaskfree"
 	"gopkg.in/yaml.v3"
 )
 

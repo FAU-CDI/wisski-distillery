@@ -8,7 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/goprogram/exit"
+	"go.tkw01536.de/goprogram/exit"
 )
 
 // DisGrant is the 'dis_grant' command.

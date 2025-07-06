@@ -13,7 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 type TRB struct {

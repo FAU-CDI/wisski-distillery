@@ -18,10 +18,10 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/pkglib/collection"
-	"github.com/tkw1536/pkglib/contextx"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/status"
+	"go.tkw01536.de/pkglib/collection"
+	"go.tkw01536.de/pkglib/contextx"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/status"
 )
 
 // SnapshotDescription is a description for a snapshot.

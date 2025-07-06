@@ -6,8 +6,8 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/goprogram/exit"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 // InstancePause is the 'instance_pause' command.

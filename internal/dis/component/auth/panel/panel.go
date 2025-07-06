@@ -19,7 +19,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/julienschmidt/httprouter"
-	"github.com/tkw1536/pkglib/httpx/form"
+	"go.tkw01536.de/pkglib/httpx/form"
 )
 
 type UserPanel struct {

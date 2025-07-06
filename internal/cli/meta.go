@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
-	"github.com/tkw1536/pkglib/fsx/umaskfree"
+	"go.tkw01536.de/pkglib/fsx/umaskfree"
 )
 
 // metaConfigFile is the path to a configuration file that contains the path to the last used wdcli executable.

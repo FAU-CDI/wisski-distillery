@@ -12,8 +12,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/lazy"
+	"go.tkw01536.de/pkglib/httpx"
+	"go.tkw01536.de/pkglib/lazy"
 )
 
 // Handler represents an API handler that returns a REST response.

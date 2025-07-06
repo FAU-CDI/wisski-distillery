@@ -13,8 +13,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/fsx/umaskfree"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/fsx/umaskfree"
 )
 
 // Package packages the source directory into a 'tar.gz' file into destination.

@@ -12,7 +12,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")

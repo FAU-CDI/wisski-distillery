@@ -8,9 +8,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/cgo"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/goprogram/exit"
+	"go.tkw01536.de/pkglib/cgo"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 var (

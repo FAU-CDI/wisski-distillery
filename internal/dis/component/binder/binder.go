@@ -9,7 +9,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
-	"github.com/tkw1536/pkglib/yamlx"
+	"go.tkw01536.de/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
 )
 

@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/api"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
-	"github.com/tkw1536/pkglib/httpx"
+	"go.tkw01536.de/pkglib/httpx"
 )
 
 type API struct {

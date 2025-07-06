@@ -6,7 +6,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/tkw1536/pkglib/httpx/mux"
+	"go.tkw01536.de/pkglib/httpx/mux"
 )
 
 // Routeable is a component that is servable.

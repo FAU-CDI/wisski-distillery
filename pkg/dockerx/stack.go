@@ -15,8 +15,8 @@ import (
 	"github.com/compose-spec/compose-go/v2/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/stream"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 // Stack represents a 'docker compose' stack in the provided directory.

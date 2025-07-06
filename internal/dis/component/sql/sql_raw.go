@@ -6,7 +6,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
-	"github.com/tkw1536/pkglib/stream"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 // Shell directly executes a mysql command inside the container.

@@ -13,9 +13,9 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
 	"github.com/gorilla/websocket"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/recovery"
-	"github.com/tkw1536/pkglib/websocketx"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/recovery"
+	"go.tkw01536.de/pkglib/websocketx"
 )
 
 var (

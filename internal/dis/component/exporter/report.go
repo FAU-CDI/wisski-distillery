@@ -8,7 +8,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/tkw1536/pkglib/sequence"
+	"go.tkw01536.de/pkglib/sequence"
 )
 
 func (snapshot Snapshot) String() string {

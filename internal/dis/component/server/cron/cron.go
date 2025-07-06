@@ -13,7 +13,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/tkw1536/pkglib/timex"
+	"go.tkw01536.de/pkglib/timex"
 )
 
 type Cron struct {

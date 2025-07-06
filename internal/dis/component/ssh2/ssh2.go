@@ -8,7 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
-	"github.com/tkw1536/pkglib/lazy"
+	"go.tkw01536.de/pkglib/lazy"
 )
 
 type SSH2 struct {

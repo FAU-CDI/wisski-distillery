@@ -18,10 +18,10 @@ import (
 
 	_ "embed"
 
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/lazy"
-	"github.com/tkw1536/pkglib/status"
-	"github.com/tkw1536/pkglib/stream"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/lazy"
+	"go.tkw01536.de/pkglib/status"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 // Server represents a server that executes PHP code.

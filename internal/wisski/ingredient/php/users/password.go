@@ -10,8 +10,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/password"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/password"
 )
 
 var errGetValidator = errors.New("`GetPasswordValidator': unknown error")

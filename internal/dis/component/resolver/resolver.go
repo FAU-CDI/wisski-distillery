@@ -18,7 +18,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/tkw1536/pkglib/lazy"
+	"go.tkw01536.de/pkglib/lazy"
 
 	_ "embed"
 )

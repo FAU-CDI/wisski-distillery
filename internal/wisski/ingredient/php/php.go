@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/phpx"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 type PHP struct {

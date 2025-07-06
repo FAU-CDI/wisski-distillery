@@ -19,7 +19,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/pkglib/lazy"
+	"go.tkw01536.de/pkglib/lazy"
 )
 
 type Sockets struct {

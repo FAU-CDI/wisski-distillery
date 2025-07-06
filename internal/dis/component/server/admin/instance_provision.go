@@ -9,7 +9,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/manager"
-	"github.com/tkw1536/pkglib/collection"
+	"go.tkw01536.de/pkglib/collection"
 
 	_ "embed"
 )

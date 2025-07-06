@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tkw1536/pkglib/fsx"
+	"go.tkw01536.de/pkglib/fsx"
 )
 
 var _ Model = Export{}

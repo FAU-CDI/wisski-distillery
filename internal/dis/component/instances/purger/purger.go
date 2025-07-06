@@ -13,7 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 // Purger purges instances from the distillery.

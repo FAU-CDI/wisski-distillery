@@ -11,7 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/pkglib/collection"
+	"go.tkw01536.de/pkglib/collection"
 	"gorm.io/gorm"
 )
 

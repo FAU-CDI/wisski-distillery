@@ -13,7 +13,7 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 var errWrongEndpointStatusCode = fmt.Errorf("endpoint request did not return status code %d", http.StatusCreated)

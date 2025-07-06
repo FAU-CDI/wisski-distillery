@@ -2,7 +2,7 @@
 package passwordx
 
 //spellchecker:words github pkglib password
-import "github.com/tkw1536/pkglib/password"
+import "go.tkw01536.de/pkglib/password"
 
 // Safe is a charset used for generating passwords that can be safely passed without having to be escaped.
 const Safe = password.DefaultCharSet

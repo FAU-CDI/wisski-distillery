@@ -10,7 +10,7 @@ import (
 	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 func (ts *Triplestore) BackupName() string { return "triplestore" }

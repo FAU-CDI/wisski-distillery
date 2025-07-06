@@ -12,8 +12,8 @@ import (
 	"github.com/FAU-CDI/process_over_websocket/proto"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/tkw1536/pkglib/contextx"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/contextx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {

@@ -8,7 +8,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 // Running checks if this WissKI is currently running.

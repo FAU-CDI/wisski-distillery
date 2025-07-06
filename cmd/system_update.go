@@ -11,12 +11,12 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/parser"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/fsx"
-	"github.com/tkw1536/pkglib/fsx/umaskfree"
-	"github.com/tkw1536/pkglib/status"
+	"go.tkw01536.de/goprogram/exit"
+	"go.tkw01536.de/goprogram/parser"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/fsx"
+	"go.tkw01536.de/pkglib/fsx/umaskfree"
+	"go.tkw01536.de/pkglib/status"
 )
 
 // SystemUpdate is the 'system_update' command.

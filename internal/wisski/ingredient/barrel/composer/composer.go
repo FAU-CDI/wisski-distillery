@@ -12,7 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/drush"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
-	"github.com/tkw1536/pkglib/stream"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 // Drush implements commands related to drush.

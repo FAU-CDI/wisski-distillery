@@ -11,7 +11,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/tkw1536/pkglib/collection"
+	"go.tkw01536.de/pkglib/collection"
 )
 
 // Logger is responsible for logging backups and snapshots.

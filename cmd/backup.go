@@ -10,7 +10,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/exit"
+	"go.tkw01536.de/goprogram/exit"
 )
 
 // Backup is the 'backup' command.

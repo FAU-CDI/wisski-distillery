@@ -11,8 +11,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/tkw1536/pkglib/reflectx"
-	"github.com/tkw1536/pkglib/yamlx"
+	"go.tkw01536.de/pkglib/reflectx"
+	"go.tkw01536.de/pkglib/yamlx"
 	"golang.org/x/crypto/scrypt"
 	"gopkg.in/yaml.v3"
 

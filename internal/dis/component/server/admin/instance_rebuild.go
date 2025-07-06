@@ -17,7 +17,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/julienschmidt/httprouter"
-	"github.com/tkw1536/pkglib/httpx"
+	"go.tkw01536.de/pkglib/httpx"
 
 	_ "embed"
 )

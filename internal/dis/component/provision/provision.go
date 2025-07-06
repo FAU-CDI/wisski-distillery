@@ -14,8 +14,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/manager"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/fsx"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/fsx"
 )
 
 type Provision struct {

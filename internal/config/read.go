@@ -7,7 +7,7 @@ import (
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/config/validators"
-	"github.com/tkw1536/pkglib/validator"
+	"go.tkw01536.de/pkglib/validator"
 	"gopkg.in/yaml.v3"
 )
 

@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/tkw1536/pkglib/stream"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 // CommandError is returned by Exec when a command could not be executed.

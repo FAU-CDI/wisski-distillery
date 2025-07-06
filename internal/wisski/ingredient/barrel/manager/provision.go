@@ -15,9 +15,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel/composer"
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/pkglib/contextx"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/stream"
+	"go.tkw01536.de/pkglib/contextx"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 // Provision applies defaults to flags, to ensure some values are set.

@@ -14,7 +14,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/mstore"
-	"github.com/tkw1536/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/errorsx"
 )
 
 // Build builds or rebuilds the barrel connected to this instance.

@@ -11,9 +11,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/errorsx"
-	"github.com/tkw1536/pkglib/status"
+	"go.tkw01536.de/goprogram/exit"
+	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/status"
 )
 
 // SystemPause is the 'system_pause' command.

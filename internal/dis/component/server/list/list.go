@@ -13,7 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/tkw1536/pkglib/lazy"
+	"go.tkw01536.de/pkglib/lazy"
 	"golang.org/x/sync/errgroup"
 )
 

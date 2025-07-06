@@ -9,7 +9,7 @@ import (
 	"net/url"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/tkw1536/pkglib/httpx"
+	"go.tkw01536.de/pkglib/httpx"
 )
 
 // Protect returns a new handler which requires a user to be logged in and have the provided scope.

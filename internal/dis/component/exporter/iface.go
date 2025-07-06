@@ -16,9 +16,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/FAU-CDI/wisski-distillery/pkg/targz"
-	"github.com/tkw1536/pkglib/collection"
-	"github.com/tkw1536/pkglib/fsx/umaskfree"
-	"github.com/tkw1536/pkglib/status"
+	"go.tkw01536.de/pkglib/collection"
+	"go.tkw01536.de/pkglib/fsx/umaskfree"
+	"go.tkw01536.de/pkglib/status"
 )
 
 // See [Exporter.MakeExport].

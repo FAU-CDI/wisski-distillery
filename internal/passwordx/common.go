@@ -5,7 +5,7 @@ package passwordx
 import (
 	"embed"
 
-	"github.com/tkw1536/pkglib/password"
+	"go.tkw01536.de/pkglib/password"
 )
 
 //go:embed common

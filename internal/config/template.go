@@ -11,7 +11,7 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
-	"github.com/tkw1536/pkglib/password"
+	"go.tkw01536.de/pkglib/password"
 )
 
 // Template is used to generate a configuration file.

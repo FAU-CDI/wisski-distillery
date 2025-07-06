@@ -8,8 +8,8 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
-	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/goprogram/parser"
+	"go.tkw01536.de/goprogram/exit"
+	"go.tkw01536.de/goprogram/parser"
 )
 
 // Shell is the 'shell' command.

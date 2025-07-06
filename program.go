@@ -13,9 +13,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/tkw1536/goprogram"
-	"github.com/tkw1536/goprogram/exit"
-	"github.com/tkw1536/pkglib/cgo"
+	"go.tkw01536.de/goprogram"
+	"go.tkw01536.de/goprogram/exit"
+	"go.tkw01536.de/pkglib/cgo"
 )
 
 // none of these are strictly needed, they're just around for convenience.

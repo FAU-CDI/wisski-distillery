@@ -44,7 +44,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/web"
-	"github.com/tkw1536/pkglib/lifetime"
+	"go.tkw01536.de/pkglib/lifetime"
 )
 
 // Distillery represents a WissKI Distillery

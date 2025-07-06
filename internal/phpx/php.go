@@ -7,7 +7,7 @@ package phpx
 import (
 	"context"
 
-	"github.com/tkw1536/pkglib/stream"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 // Executor represents anything that can spawn.

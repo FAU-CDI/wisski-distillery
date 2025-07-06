@@ -18,8 +18,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"github.com/tkw1536/pkglib/httpx"
-	"github.com/tkw1536/pkglib/httpx/form/field"
+	"go.tkw01536.de/pkglib/httpx"
+	"go.tkw01536.de/pkglib/httpx/form/field"
 
 	"maps"
 	"slices"

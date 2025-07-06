@@ -12,7 +12,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/gorilla/sessions"
 	"github.com/julienschmidt/httprouter"
-	"github.com/tkw1536/pkglib/lazy"
+	"go.tkw01536.de/pkglib/lazy"
 )
 
 type Auth struct {

@@ -8,7 +8,7 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"github.com/tkw1536/goprogram/exit"
+	"go.tkw01536.de/goprogram/exit"
 
 	gossh "golang.org/x/crypto/ssh"
 )

@@ -15,9 +15,9 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/passwordx"
-	"github.com/tkw1536/pkglib/fsx"
-	"github.com/tkw1536/pkglib/fsx/umaskfree"
-	"github.com/tkw1536/pkglib/password"
+	"go.tkw01536.de/pkglib/fsx"
+	"go.tkw01536.de/pkglib/fsx/umaskfree"
+	"go.tkw01536.de/pkglib/password"
 )
 
 // Exporter manages snapshots and backups.
