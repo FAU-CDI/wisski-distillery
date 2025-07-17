@@ -8,7 +8,7 @@ lint:
 	go tool golangci-lint run ./...
 
 wdcli:
-	go generate ./internal/dis/component/control/static/
+	go generate ./internal/dis/component/server/assets/
 	CGO_ENABLED=0 go build -trimpath -o ./wdcli ./cmd/wdcli
 
 tslint:
