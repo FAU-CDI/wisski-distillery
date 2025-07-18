@@ -5,15 +5,20 @@
 # This image is intended to be built like:
 #   docker build --build-arg graphdb_src=graphdb.zip .
 
+
 # We first make a base image to base further builds on. 
 # We don't use alpine here, as that uses significantly slower musl instead of glibc. 
-FROM adoptopenjdk/openjdk11:debian-slim as base
+FROM debian:bookworm-slim AS base
+
+ENV JAVA_HOME=/opt/java/openjdk
+COPY --from=eclipse-temurin:21 $JAVA_HOME $JAVA_HOME
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 # Create a user called graphdb
 RUN useradd -ms /bin/bash graphdb
 
 # make a base images, to add the sources to. 
-FROM base as sources
+FROM base AS sources
 
 # install unzip
 RUN apt-get update && apt-get install -y unzip
@@ -30,7 +35,7 @@ RUN mv "/unpack"/* /opt/graphdb
 RUN chown -R graphdb:graphdb /opt/graphdb
 
 # finally make an image that will run
-FROM base as final
+FROM base AS final
 
 # add the entrypoint script
 ADD entrypoint.sh /entrypoint.sh
