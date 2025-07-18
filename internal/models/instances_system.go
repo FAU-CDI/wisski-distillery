@@ -14,7 +14,6 @@ type System struct {
 
 const (
 	imagePrefix = "docker.io/library/php:"
-	imageSuffix = "-apache-bullseye"
 )
 
 // PHPDevelopmentMode returns the name of the `php-*.ini` configuration being included in the docker image.
@@ -36,6 +35,15 @@ var (
 	})()
 )
 
+func getImageSuffix(version string) string {
+	switch version {
+	case "8.1", "8.2":
+		return "-apache-bullseye"
+	default:
+		return "-apache-bookworm"
+	}
+}
+
 // DefaultPHPVersion is the default php version.
 const DefaultPHPVersion = "8.3"
 
@@ -50,7 +58,7 @@ func (system System) GetDockerBaseImage() string {
 	if _, ok := phpVersionMap[system.PHP]; ok {
 		version = system.PHP
 	}
-	return imagePrefix + version + imageSuffix
+	return imagePrefix + version + getImageSuffix(version)
 }
 
 // GetIIPServerEnabled returns if the IIPServer was enabled.

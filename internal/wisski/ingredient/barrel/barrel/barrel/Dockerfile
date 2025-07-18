@@ -6,7 +6,7 @@
 # to be used for individual WissKIs.
 
 # Start from a base image (configured by the build argument).
-ARG BARREL_BASE_IMAGE=docker.io/library/php:8.1-apache-bullseye
+ARG BARREL_BASE_IMAGE=docker.io/library/php:8.3-apache-bookworm
 FROM $BARREL_BASE_IMAGE
 
 # Setup in /var/www
