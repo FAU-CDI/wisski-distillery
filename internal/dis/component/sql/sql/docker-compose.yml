@@ -1,6 +1,6 @@
 services:
     sql:
-        image: mariadb:11.0
+        image: mariadb:11.8
         volumes:
             - "./data/:/var/lib/mysql"
             - "./conf.d/:/etc/mysql/conf.d:ro"
