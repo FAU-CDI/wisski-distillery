@@ -139,6 +139,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 			"standard", "--yes", "--site-name="+liquid.Domain(),
 			"--account-name="+liquid.DrupalUsername, "--account-pass="+liquid.DrupalPassword,
 			"--db-url="+sqlDBURL,
+			"-vvv",
 		); err != nil {
 			return fmt.Errorf("failed to execute drush site-install command: %w", err)
 		}
