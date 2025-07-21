@@ -13,7 +13,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"go.tkw01536.de/pkglib/contextx"
 	"go.tkw01536.de/pkglib/httpx/mux"
 	"go.tkw01536.de/pkglib/httpx/wrap"
 	"go.tkw01536.de/pkglib/recovery"
@@ -57,13 +56,20 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 			// determine if we are on a slug from a host
 			slug, ok := component.GetStill(server).Config.HTTP.NormSlugFromHost(r.Host)
 
-			rctx := component.WithRouteContext(r.Context(), component.RouteContext{
-				DefaultDomain: slug == "" && ok,
-			})
-			ctx := contextx.WithValuesOf(rctx, ctx)
+			// copy over the route context and the logger
+			// into the child context
+			rctx := wdlog.Set(
+				component.WithRouteContext(
+					r.Context(),
+					component.RouteContext{
+						DefaultDomain: slug == "" && ok,
+					},
+				),
+				wdlog.Of(ctx),
+			)
 
 			// serve with the next context
-			h.ServeHTTP(w, r.WithContext(ctx))
+			h.ServeHTTP(w, r.WithContext(rctx))
 		})
 	}
 
