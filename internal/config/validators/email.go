@@ -9,7 +9,7 @@ import (
 	"errors"
 )
 
-var regexpEmail = regexp.MustCompile(`^([-a-zA-Z0-9]+)\@([a-zA-Z0-9][-a-zA-Z0-9]*\.)*[a-zA-Z0-9][-a-zA-Z0-9]*$`) // TODO: Make this regexp nicer!
+var regexpEmail = regexp.MustCompile(`^([-a-zA-Z0-9\.]+)\@([a-zA-Z0-9][-a-zA-Z0-9]*\.)*[a-zA-Z0-9][-a-zA-Z0-9]*$`) // TODO: Make this regexp nicer!
 
 var errNotAValidEmail = errors.New("not a valid email")
 
