@@ -1,13 +1,13 @@
 module github.com/FAU-CDI/wisski-distillery
 
-go 1.24.4
+go 1.24.5
 
 require (
 	al.essio.dev/pkg/shellescape v1.6.0
 	github.com/FAU-CDI/process_over_websocket v0.0.0-20250706100041-7cd7dfdfd025
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
 	github.com/compose-spec/compose-go/v2 v2.7.1
-	github.com/docker/docker v28.3.1+incompatible
+	github.com/docker/docker v28.3.2+incompatible
 	github.com/gliderlabs/ssh v0.3.8
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/gorilla/csrf v1.7.3
@@ -15,14 +15,14 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/pquerna/otp v1.5.0
-	github.com/yuin/goldmark v1.7.12
+	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-meta v1.1.0
-	go.tkw01536.de/goprogram v0.9.6
-	go.tkw01536.de/pkglib v0.0.0-20250705112844-d018fd9467cb
-	golang.org/x/crypto v0.39.0
-	golang.org/x/net v0.41.0
-	golang.org/x/sync v0.15.0
-	golang.org/x/term v0.32.0
+	go.tkw01536.de/goprogram v0.9.7
+	go.tkw01536.de/pkglib v0.0.0-20250723034259-c700e9efafac
+	golang.org/x/crypto v0.40.0
+	golang.org/x/net v0.42.0
+	golang.org/x/sync v0.16.0
+	golang.org/x/term v0.33.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.6.0
 	gorm.io/gorm v1.30.0
@@ -57,7 +57,7 @@ require (
 	github.com/bkielbasa/cyclop v1.2.3 // indirect
 	github.com/blizzy78/varnamelen v0.8.0 // indirect
 	github.com/bombsimon/wsl/v4 v4.7.0 // indirect
-	github.com/boombuler/barcode v1.0.2 // indirect
+	github.com/boombuler/barcode v1.1.0 // indirect
 	github.com/breml/bidichk v0.3.3 // indirect
 	github.com/breml/errchkjson v0.4.1 // indirect
 	github.com/butuzov/ireturn v0.4.0 // indirect
@@ -103,7 +103,7 @@ require (
 	github.com/go-toolsmith/astp v1.1.0 // indirect
 	github.com/go-toolsmith/strparse v1.1.0 // indirect
 	github.com/go-toolsmith/typep v1.1.0 // indirect
-	github.com/go-viper/mapstructure/v2 v2.3.0 // indirect
+	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/go-xmlfmt/xmlfmt v1.1.3 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gofrs/flock v0.12.1 // indirect
@@ -225,7 +225,7 @@ require (
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/swaggest/swgui v1.8.4 // indirect
 	github.com/tdakkota/asciicheck v0.4.1 // indirect
-	github.com/tdewolff/minify/v2 v2.23.8 // indirect
+	github.com/tdewolff/minify/v2 v2.23.10 // indirect
 	github.com/tdewolff/parse/v2 v2.8.1 // indirect
 	github.com/tetafro/godot v1.5.1 // indirect
 	github.com/timakin/bodyclose v0.0.0-20241222091800-1db5c5ca4d67 // indirect
@@ -259,13 +259,13 @@ require (
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
-	golang.org/x/exp v0.0.0-20250620022241-b7579e27df2b // indirect
+	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20250210185358-939b2ce775ac // indirect
-	golang.org/x/mod v0.25.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/telemetry v0.0.0-20241220003058-cc96b6e0d3d9 // indirect
-	golang.org/x/text v0.26.0 // indirect
-	golang.org/x/tools v0.34.0 // indirect
+	golang.org/x/mod v0.26.0 // indirect
+	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/telemetry v0.0.0-20250710130107-8d8967aff50b // indirect
+	golang.org/x/text v0.27.0 // indirect
+	golang.org/x/tools v0.35.0 // indirect
 	golang.org/x/vuln v1.1.4 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect

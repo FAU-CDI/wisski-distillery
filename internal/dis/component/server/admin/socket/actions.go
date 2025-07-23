@@ -12,7 +12,6 @@ import (
 	"github.com/FAU-CDI/process_over_websocket/proto"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/admin/socket/actions"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"go.tkw01536.de/pkglib/contextx"
 	"go.tkw01536.de/pkglib/errorsx"
 )
 
@@ -78,10 +77,7 @@ func (sockets *Sockets) Actions(ctx context.Context) proto.Handler {
 		}
 
 		return proto.ProcessFunc(func(ictx context.Context, input io.Reader, output io.Writer, args ...string) (res any, err error) {
-			// defer func() {
-			//	logger.Err(err).Str("action", name).Msg("finished pow action")
-			// }()
-			return action.Run(contextx.WithValuesOf(ictx, ctx), input, output, args...)
+			return action.Run(wdlog.Set(ctx, wdlog.Of(ictx)), input, output, args...)
 		}), nil
 	})
 }
