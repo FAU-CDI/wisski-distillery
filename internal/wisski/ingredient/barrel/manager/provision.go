@@ -135,8 +135,6 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 	{
 		if err := provision.dependencies.Drush.Exec(
 			ctx, progress,
-			"-d", "display_errors=1",
-			"-d", "error_reporting=E_ALL",
 			"site-install",
 			"standard", "--yes", "--site-name="+liquid.Domain(),
 			"--account-name="+liquid.DrupalUsername, "--account-pass="+liquid.DrupalPassword,
