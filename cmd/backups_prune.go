@@ -13,21 +13,16 @@ func NewBackupsPruneCommand() *cobra.Command {
 	impl := new(backupsPrune)
 
 	cmd := &cobra.Command{
-		Use:     "backups_prune",
-		Short:   "prunes old backup archives",
-		Args:    cobra.NoArgs,
-		PreRunE: impl.ParseArgs,
-		RunE:    impl.Exec,
+		Use:   "backups_prune",
+		Short: "prunes old backup archives",
+		Args:  cobra.NoArgs,
+		RunE:  impl.Exec,
 	}
 
 	return cmd
 }
 
 type backupsPrune struct{}
-
-func (bp *backupsPrune) ParseArgs(cmd *cobra.Command, args []string) error {
-	return nil
-}
 
 var errPruneFailed = exit.NewErrorWithCode("failed to prune backups", exit.ExitGeneric)
 

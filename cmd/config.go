@@ -13,11 +13,10 @@ func NewConfigCommand() *cobra.Command {
 	impl := new(cfg)
 
 	cmd := &cobra.Command{
-		Use:     "config",
-		Short:   "prints information about configuration",
-		Args:    cobra.NoArgs,
-		PreRunE: impl.ParseArgs,
-		RunE:    impl.Exec,
+		Use:   "config",
+		Short: "prints information about configuration",
+		Args:  cobra.NoArgs,
+		RunE:  impl.Exec,
 	}
 
 	flags := cmd.Flags()
@@ -28,10 +27,6 @@ func NewConfigCommand() *cobra.Command {
 
 type cfg struct {
 	Human bool
-}
-
-func (c *cfg) ParseArgs(cmd *cobra.Command, args []string) error {
-	return nil
 }
 
 var errMarshalConfig = exit.NewErrorWithCode("unable to marshal config", exit.ExitGeneric)

@@ -16,11 +16,10 @@ func NewUpdatePrefixConfigCommand() *cobra.Command {
 	impl := new(updateprefixconfig)
 
 	cmd := &cobra.Command{
-		Use:     "update_prefix_config",
-		Short:   "updates the prefix configuration",
-		Args:    cobra.NoArgs,
-		PreRunE: impl.ParseArgs,
-		RunE:    impl.Exec,
+		Use:   "update_prefix_config",
+		Short: "updates the prefix configuration",
+		Args:  cobra.NoArgs,
+		RunE:  impl.Exec,
 	}
 
 	flags := cmd.Flags()
@@ -31,10 +30,6 @@ func NewUpdatePrefixConfigCommand() *cobra.Command {
 
 type updateprefixconfig struct {
 	Parallel int
-}
-
-func (upc *updateprefixconfig) ParseArgs(cmd *cobra.Command, args []string) error {
-	return nil
 }
 
 var errPrefixUpdateFailed = exit.NewErrorWithCode("failed to update prefix configuration", exit.ExitGeneric)

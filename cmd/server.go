@@ -20,11 +20,10 @@ func NewServerCommand() *cobra.Command {
 	impl := new(server)
 
 	cmd := &cobra.Command{
-		Use:     "server",
-		Short:   "starts a server with information about this distillery",
-		Args:    cobra.NoArgs,
-		PreRunE: impl.ParseArgs,
-		RunE:    impl.Exec,
+		Use:   "server",
+		Short: "starts a server with information about this distillery",
+		Args:  cobra.NoArgs,
+		RunE:  impl.Exec,
 	}
 
 	flags := cmd.Flags()
@@ -39,10 +38,6 @@ type server struct {
 	Trigger      bool
 	Bind         string
 	InternalBind string
-}
-
-func (s *server) ParseArgs(cmd *cobra.Command, args []string) error {
-	return nil
 }
 
 var errServerTrigger = exit.NewErrorWithCode("failed to trigger", exit.ExitGeneric)

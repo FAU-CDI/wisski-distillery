@@ -23,11 +23,10 @@ func NewBootstrapCommand() *cobra.Command {
 	impl := new(cBootstrap)
 
 	cmd := &cobra.Command{
-		Use:     "bootstrap",
-		Short:   "bootstraps the installation of a distillery system",
-		Args:    cobra.NoArgs,
-		PreRunE: impl.ParseArgs,
-		RunE:    impl.Exec,
+		Use:   "bootstrap",
+		Short: "bootstraps the installation of a distillery system",
+		Args:  cobra.NoArgs,
+		RunE:  impl.Exec,
 	}
 
 	flags := cmd.Flags()
@@ -40,10 +39,6 @@ func NewBootstrapCommand() *cobra.Command {
 type cBootstrap struct {
 	Directory string
 	Hostname  string
-}
-
-func (bs *cBootstrap) ParseArgs(cmd *cobra.Command, args []string) error {
-	return nil
 }
 
 var (

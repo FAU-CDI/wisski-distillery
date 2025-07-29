@@ -14,11 +14,10 @@ func NewSSHCommand() *cobra.Command {
 	impl := new(ssh)
 
 	cmd := &cobra.Command{
-		Use:     "ssh",
-		Short:   "starts the ssh server to allow clients to connect to this distillery",
-		Args:    cobra.NoArgs,
-		PreRunE: impl.ParseArgs,
-		RunE:    impl.Exec,
+		Use:   "ssh",
+		Short: "starts the ssh server to allow clients to connect to this distillery",
+		Args:  cobra.NoArgs,
+		RunE:  impl.Exec,
 	}
 
 	flags := cmd.Flags()
@@ -34,10 +33,6 @@ func NewSSHCommand() *cobra.Command {
 type ssh struct {
 	Bind           string
 	PrivateKeyPath string
-}
-
-func (s *ssh) ParseArgs(cmd *cobra.Command, args []string) error {
-	return nil
 }
 
 var (

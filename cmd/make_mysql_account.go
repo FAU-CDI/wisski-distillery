@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal goprogram exit parser
+//spellchecker:words strings github wisski distillery internal cobra pkglib exit nobufio
 import (
 	"fmt"
 	"strings"
@@ -15,21 +15,16 @@ func NewMakeMysqlAccountCommand() *cobra.Command {
 	impl := new(makeMysqlAccount)
 
 	cmd := &cobra.Command{
-		Use:     "make_mysql_account",
-		Short:   "creates a MySQL account",
-		Args:    cobra.NoArgs,
-		PreRunE: impl.ParseArgs,
-		RunE:    impl.Exec,
+		Use:   "make_mysql_account",
+		Short: "creates a MySQL account",
+		Args:  cobra.NoArgs,
+		RunE:  impl.Exec,
 	}
 
 	return cmd
 }
 
 type makeMysqlAccount struct{}
-
-func (mma *makeMysqlAccount) ParseArgs(cmd *cobra.Command, args []string) error {
-	return nil
-}
 
 var (
 	errUnableToReadUsername = exit.NewErrorWithCode("unable to read username", exit.ExitGeneric)
