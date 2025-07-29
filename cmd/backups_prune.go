@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -28,16 +27,6 @@ type backupsPrune struct{}
 
 func (bp *backupsPrune) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
-}
-
-func (*backupsPrune) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "backups_prune",
-		Description: "prunes old backup archives",
-	}
 }
 
 var errPruneFailed = exit.NewErrorWithCode("failed to prune backups", exit.ExitGeneric)

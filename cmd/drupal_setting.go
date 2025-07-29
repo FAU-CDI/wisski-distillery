@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -40,16 +39,6 @@ func (ds *setting) ParseArgs(cmd *cobra.Command, args []string) error {
 		ds.Positionals.Value = args[2]
 	}
 	return nil
-}
-
-func (*setting) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "drupal_setting",
-		Description: "get or set a drupal setting",
-	}
 }
 
 var (

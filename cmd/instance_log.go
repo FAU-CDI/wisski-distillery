@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/errorsx"
@@ -34,16 +33,6 @@ type instanceLog struct {
 func (i *instanceLog) ParseArgs(cmd *cobra.Command, args []string) error {
 	i.Positionals.Slug = args[0]
 	return nil
-}
-
-func (*instanceLog) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "instance_log",
-		Description: "follows logs for a given instance",
-	}
 }
 
 var (

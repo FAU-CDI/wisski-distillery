@@ -5,11 +5,9 @@ import (
 	"errors"
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
 	"github.com/spf13/cobra"
-	"go.tkw01536.de/goprogram/parser"
 	"go.tkw01536.de/pkglib/exit"
 )
 
@@ -40,19 +38,6 @@ func (sh *shell) ParseArgs(cmd *cobra.Command, args []string) error {
 		sh.Positionals.Args = args[1:]
 	}
 	return nil
-}
-
-func (*shell) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		ParserConfig: parser.Config{
-			IncludeUnknown: true,
-		},
-		Command:     "shell",
-		Description: "open a shell in the provided instance",
-	}
 }
 
 var errShellWissKI = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)

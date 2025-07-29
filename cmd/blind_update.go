@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/spf13/cobra"
@@ -43,16 +42,6 @@ type blindUpdate struct {
 func (bu *blindUpdate) ParseArgs(cmd *cobra.Command, args []string) error {
 	bu.Positionals.Slug = args
 	return nil
-}
-
-func (*blindUpdate) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "blind_update",
-		Description: "runs the blind update in the provided instances",
-	}
 }
 
 var errBlindUpdateFailed = exit.NewErrorWithCode("failed to run blind update", exit.ExitGeneric)

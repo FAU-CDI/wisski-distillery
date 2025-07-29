@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -33,16 +32,6 @@ type ls struct {
 func (l *ls) ParseArgs(cmd *cobra.Command, args []string) error {
 	l.Positionals.Slug = args
 	return nil
-}
-
-func (*ls) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "ls",
-		Description: "lists instances",
-	}
 }
 
 var errLsWissKI = exit.NewErrorWithCode("unable to get WissKIs", exit.ExitGeneric)

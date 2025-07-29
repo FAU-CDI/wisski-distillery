@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -39,16 +38,6 @@ type reserve struct {
 func (r *reserve) ParseArgs(cmd *cobra.Command, args []string) error {
 	r.Positionals.Slug = args[0]
 	return nil
-}
-
-func (*reserve) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "reserve",
-		Description: "reserves a new instance",
-	}
 }
 
 // TODO: AfterParse to check instance!

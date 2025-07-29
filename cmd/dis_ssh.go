@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
@@ -64,16 +63,6 @@ func (ds *disSSH) ParseArgs(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-func (*disSSH) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "dis_ssh",
-		Description: "add or remove an ssh key from a user",
-	}
 }
 
 var errSSHManageFailed = exit.NewErrorWithCode("unable to manage ssh keys", exit.ExitCommandArguments)

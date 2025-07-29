@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/spf13/cobra"
@@ -51,16 +50,6 @@ func (m *monday) ParseArgs(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("%q: %w", m.Positionals.GraphdbZip, errNoGraphDBZip)
 	}
 	return nil
-}
-
-func (*monday) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "monday",
-		Description: "runs regular monday tasks",
-	}
 }
 
 var errNoGraphDBZip = errors.New("not a regular file")

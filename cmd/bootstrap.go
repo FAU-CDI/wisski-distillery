@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
@@ -45,16 +44,6 @@ type cBootstrap struct {
 
 func (bs *cBootstrap) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
-}
-
-func (*cBootstrap) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: false,
-		},
-		Command:     "bootstrap",
-		Description: "bootstraps the installation of a distillery system",
-	}
 }
 
 var (

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -41,16 +40,6 @@ func (p *purge) ParseArgs(cmd *cobra.Command, args []string) error {
 		p.Positionals.Slug = args[0]
 	}
 	return nil
-}
-
-func (*purge) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "purge",
-		Description: "purges an instance",
-	}
 }
 
 var (

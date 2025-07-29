@@ -9,7 +9,6 @@ import (
 	"sync"
 	"time"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/spf13/cobra"
@@ -44,16 +43,6 @@ type server struct {
 
 func (s *server) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
-}
-
-func (*server) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "server",
-		Description: "starts a server with information about this distillery",
-	}
 }
 
 var errServerTrigger = exit.NewErrorWithCode("failed to trigger", exit.ExitGeneric)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -39,16 +38,6 @@ type ssh struct {
 
 func (s *ssh) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
-}
-
-func (*ssh) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "ssh",
-		Description: "starts the ssh server to allow clients to connect to this distillery",
-	}
 }
 
 var (

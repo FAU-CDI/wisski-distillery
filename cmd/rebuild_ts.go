@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 )
@@ -38,16 +37,6 @@ func (rts *rebuildTS) ParseArgs(cmd *cobra.Command, args []string) error {
 		rts.Positionals.Slug = args[0]
 	}
 	return nil
-}
-
-func (*rebuildTS) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "rebuild_ts",
-		Description: "rebuild the triplestore for a specific instance",
-	}
 }
 
 func (rts *rebuildTS) Exec(cmd *cobra.Command, args []string) error {

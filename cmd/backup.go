@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
@@ -48,16 +47,6 @@ func (bk *backup) ParseArgs(cmd *cobra.Command, args []string) error {
 		bk.Positionals.Dest = args[0]
 	}
 	return nil
-}
-
-func (*backup) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "backup",
-		Description: "makes a backup of the entire distillery",
-	}
 }
 
 var errBackupFailed = exit.NewErrorWithCode("failed to make a backup", exit.ExitGeneric)

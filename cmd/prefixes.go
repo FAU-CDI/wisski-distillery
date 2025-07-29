@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -33,16 +32,6 @@ type prefixes struct {
 func (p *prefixes) ParseArgs(cmd *cobra.Command, args []string) error {
 	p.Positionals.Slug = args[0]
 	return nil
-}
-
-func (*prefixes) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "prefixes",
-		Description: "list all prefixes for a specific instance",
-	}
 }
 
 var (

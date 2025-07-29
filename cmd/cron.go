@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/spf13/cobra"
@@ -40,16 +39,6 @@ type cron struct {
 func (cr *cron) ParseArgs(cmd *cobra.Command, args []string) error {
 	cr.Positionals.Slug = args
 	return nil
-}
-
-func (*cron) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "cron",
-		Description: "runs the cron script for several instances",
-	}
 }
 
 var errCronFailed = exit.NewErrorWithCode("failed to run cron", exit.ExitGeneric)

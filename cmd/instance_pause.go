@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/errorsx"
@@ -44,16 +43,6 @@ func (i *instancepause) ParseArgs(cmd *cobra.Command, args []string) error {
 		return errStopStartExcluded
 	}
 	return nil
-}
-
-func (*instancepause) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "instance_pause",
-		Description: "stops or starts a single instance",
-	}
 }
 
 var errStopStartExcluded = exit.NewErrorWithCode("stop and start are mutually exclusive", exit.ExitCommandArguments)

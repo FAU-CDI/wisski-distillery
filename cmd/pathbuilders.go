@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -37,16 +36,6 @@ func (pb *pathbuilders) ParseArgs(cmd *cobra.Command, args []string) error {
 		pb.Positionals.Name = args[1]
 	}
 	return nil
-}
-
-func (*pathbuilders) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "pathbuilder",
-		Description: "list pathbuilders of a specific instance",
-	}
 }
 
 var (

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/provision"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -58,16 +57,6 @@ func (p *pv) ParseArgs(cmd *cobra.Command, args []string) error {
 		return errProvisionMissingSlug
 	}
 	return nil
-}
-
-func (*pv) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "provision",
-		Description: "creates a new instance",
-	}
 }
 
 var errProvisionMissingSlug = exit.NewErrorWithCode("must provide a slug", exit.ExitCommandArguments)

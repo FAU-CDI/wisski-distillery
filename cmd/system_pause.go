@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
@@ -45,16 +44,6 @@ func (sp *systempause) ParseArgs(cmd *cobra.Command, args []string) error {
 		return errPauseArguments
 	}
 	return nil
-}
-
-func (*systempause) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "system_pause",
-		Description: "stops or starts the entire distillery system",
-	}
 }
 
 var (

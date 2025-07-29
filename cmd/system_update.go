@@ -6,14 +6,12 @@ import (
 	"io"
 	"sync"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"github.com/spf13/cobra"
-	"go.tkw01536.de/goprogram/parser"
 	"go.tkw01536.de/pkglib/errorsx"
 	"go.tkw01536.de/pkglib/exit"
 	"go.tkw01536.de/pkglib/fsx"
@@ -57,20 +55,6 @@ func (s *systemupdate) ParseArgs(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("%q: %w", s.Positionals.GraphdbZip, exit.NewErrorWithCode("does not exist", exit.ExitCommandArguments))
 	}
 	return nil
-}
-
-func (*systemupdate) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-			FailOnCgo:       true,
-		},
-		ParserConfig: parser.Config{
-			IncludeUnknown: true,
-		},
-		Command:     "system_update",
-		Description: "installs and updates components of the distillery system",
-	}
 }
 
 var (

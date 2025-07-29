@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	wstatus "github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
@@ -73,16 +72,6 @@ func (du *drupalUser) ParseArgs(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-func (*drupalUser) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "drupal_user",
-		Description: "set a password for a specific user",
-	}
 }
 
 var (

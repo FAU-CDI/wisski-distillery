@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -34,16 +33,6 @@ type cStatus struct {
 
 func (s *cStatus) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
-}
-
-func (*cStatus) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "status",
-		Description: "provide information about the distillery as a whole",
-	}
 }
 
 var errStatusGeneric = exit.NewErrorWithCode("unable to get status", exit.ExitGeneric)

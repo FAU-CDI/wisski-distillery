@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
@@ -75,16 +74,6 @@ func (dg *disGrant) ParseArgs(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-func (*disGrant) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "dis_grant",
-		Description: "grant distillery users access to specific WissKIs",
-	}
 }
 
 var errNoSlugSelect = exit.NewErrorWithCode("slug not provided", exit.ExitCommandArguments)

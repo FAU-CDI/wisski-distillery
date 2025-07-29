@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
@@ -62,16 +61,6 @@ func (rb *rebuild) ParseArgs(cmd *cobra.Command, args []string) error {
 		return errRebuildNoSystem
 	}
 	return nil
-}
-
-func (*rebuild) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "rebuild",
-		Description: "runs the rebuild script for several instances",
-	}
 }
 
 var errRebuildNoSystem = exit.NewErrorWithCode("flags for system reconfiguration have been set, but `--system' was not provided", exit.ExitCommandArguments)

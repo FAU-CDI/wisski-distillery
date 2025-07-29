@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
@@ -92,16 +91,6 @@ func (du *disUser) ParseArgs(cmd *cobra.Command, args []string) error {
 	}
 
 	return nil
-}
-
-func (*disUser) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "dis_user",
-		Description: "manage distillery users",
-	}
 }
 
 var errUserRequired = exit.NewErrorWithCode("`USER` argument is required", exit.ExitCommandArguments)

@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
 	"github.com/spf13/cobra"
@@ -48,16 +47,6 @@ func (sn *snapshot) ParseArgs(cmd *cobra.Command, args []string) error {
 		sn.Positionals.Dest = args[1]
 	}
 	return nil
-}
-
-func (*snapshot) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "snapshot",
-		Description: "generates a snapshot archive for the provided instance",
-	}
 }
 
 var (

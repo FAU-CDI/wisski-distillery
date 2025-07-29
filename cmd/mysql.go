@@ -4,10 +4,8 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
-	"go.tkw01536.de/goprogram/parser"
 	"go.tkw01536.de/pkglib/exit"
 )
 
@@ -34,19 +32,6 @@ type mysql struct {
 func (ms *mysql) ParseArgs(cmd *cobra.Command, args []string) error {
 	ms.Positionals.Args = args
 	return nil
-}
-
-func (*mysql) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		ParserConfig: parser.Config{
-			IncludeUnknown: true,
-		},
-		Command:     "mysql",
-		Description: "opens a mysql shell",
-	}
 }
 
 func (ms *mysql) Exec(cmd *cobra.Command, args []string) error {

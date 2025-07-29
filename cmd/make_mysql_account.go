@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -30,16 +29,6 @@ type makeMysqlAccount struct{}
 
 func (mma *makeMysqlAccount) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
-}
-
-func (*makeMysqlAccount) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "make_mysql_account",
-		Description: "creates a MySQL account",
-	}
 }
 
 var (

@@ -7,7 +7,6 @@ import (
 	"io"
 	"time"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
@@ -52,16 +51,6 @@ func (mb *makeBlock) ParseArgs(cmd *cobra.Command, args []string) error {
 		return errFooterAndRegion
 	}
 	return nil
-}
-
-func (*makeBlock) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "make_block",
-		Description: "Creates a block with html content provided on stdin",
-	}
 }
 
 var errFooterAndRegion = exit.NewErrorWithCode("`--footer` and `--region` provided", exit.ExitCommandArguments)

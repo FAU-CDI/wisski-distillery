@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -33,16 +32,6 @@ type cfg struct {
 
 func (c *cfg) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
-}
-
-func (*cfg) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "config",
-		Description: "prints information about configuration",
-	}
 }
 
 var errMarshalConfig = exit.NewErrorWithCode("unable to marshal config", exit.ExitGeneric)

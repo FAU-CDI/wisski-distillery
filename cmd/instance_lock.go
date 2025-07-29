@@ -4,7 +4,6 @@ package cmd
 import (
 	"fmt"
 
-	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
@@ -43,16 +42,6 @@ func (l *instanceLock) ParseArgs(cmd *cobra.Command, args []string) error {
 		return exit.NewErrorWithCode("exactly one of `--lock` and `--unlock` must be provied", exit.ExitCommandArguments)
 	}
 	return nil
-}
-
-func (*instanceLock) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "instance_lock",
-		Description: "locks or unlocks an instance",
-	}
 }
 
 var (
