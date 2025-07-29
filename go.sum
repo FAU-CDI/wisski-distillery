@@ -770,8 +770,8 @@ go.opentelemetry.io/proto/otlp v1.5.0 h1:xJvq7gMzB31/d406fB8U5CBdyQGw4P399D1aQWU
 go.opentelemetry.io/proto/otlp v1.5.0/go.mod h1:keN8WnHxOy8PG0rQZjJJ5A2ebUoafqWp0eVQ4yIXvJ4=
 go.tkw01536.de/goprogram v0.9.7 h1:ZtdtgNsYNEeBetGLerkEP/a4c8rg1rKE9aU7uGYQyUU=
 go.tkw01536.de/goprogram v0.9.7/go.mod h1:MXhFKI5AfzcueW33mBmt1jF+kbcGxk94gUtUMjTct4M=
-go.tkw01536.de/pkglib v0.0.0-20250723034259-c700e9efafac h1:mensZiRFDvUrs8z7VkdQqPNvpKyIz7CUh3QNQh5hxn8=
-go.tkw01536.de/pkglib v0.0.0-20250723034259-c700e9efafac/go.mod h1:rr2UESCvnDkLbaMeTszcs7JB7mriK4U3Vux+AMIaojU=
+go.tkw01536.de/pkglib v0.0.0-20250727115718-875a680e4409 h1:JYXd4x8U5izs0C1bTeGY3B/h1ABAjVjYJISr04NmUsw=
+go.tkw01536.de/pkglib v0.0.0-20250727115718-875a680e4409/go.mod h1:rr2UESCvnDkLbaMeTszcs7JB7mriK4U3Vux+AMIaojU=
 go.uber.org/atomic v1.9.0 h1:ECmE8Bn/WFTYwEW/bpKD3M8VtR/zQVbavAoalC1PYyE=
 go.uber.org/atomic v1.9.0/go.mod h1:fEN4uk6kAWBTFdckzkM89CLk9XfWZrxpCo0nPH17wJc=
 go.uber.org/automaxprocs v1.6.0 h1:O3y2/QNTOdbF+e/dpXNNW7Rx2hZ4sTIPyybbxyNqTUs=

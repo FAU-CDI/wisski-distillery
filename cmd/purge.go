@@ -2,24 +2,47 @@ package cmd
 
 //spellchecker:words github wisski distillery internal goprogram exit
 import (
+	"bufio"
 	"fmt"
+	"strings"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// Provision is the 'provision' command.
-var Purge wisski_distillery.Command = purge{}
+func NewPurgeCommand() *cobra.Command {
+	impl := new(purge)
 
-type purge struct {
-	Yes         bool `description:"do not ask for confirmation" long:"yes" short:"y"`
-	Positionals struct {
-		Slug string `description:"name of instance to purge" positional-arg-name:"slug" required:"1-1"`
-	} `positional-args:"true"`
+	cmd := &cobra.Command{
+		Use:     "purge",
+		Short:   "purges an instance",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	flags := cmd.Flags()
+	flags.BoolVar(&impl.Yes, "yes", false, "do not ask for confirmation")
+
+	return cmd
 }
 
-func (purge) Description() wisski_distillery.Description {
+type purge struct {
+	Yes         bool
+	Positionals struct {
+		Slug string
+	}
+}
+
+func (p *purge) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		p.Positionals.Slug = args[0]
+	}
+	return nil
+}
+
+func (*purge) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -34,22 +57,30 @@ var (
 	errPurgeFailed         = exit.NewErrorWithCode("failed to run purge", exit.ExitGeneric)
 )
 
-func (p purge) Run(context wisski_distillery.Context) error {
-	dis := context.Environment
+func (p *purge) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errPurgeFailed, err)
+	}
+
 	slug := p.Positionals.Slug
 
 	// check the confirmation from the user
 	if !p.Yes {
-		_, _ = context.Printf("About to remove instance %q. This cannot be undone.\n", slug)
-		_, _ = context.Printf("Type 'yes' to continue: ")
-		line, err := context.ReadLine()
-		if err != nil || line != "yes" {
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "About to remove instance %q. This cannot be undone.\n", slug)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Type 'yes' to continue: ")
+		reader := bufio.NewReader(cmd.InOrStdin())
+		line, err := reader.ReadString('\n')
+		if err != nil || strings.TrimSpace(line) != "yes" {
 			return errPurgeNoConfirmation
 		}
 	}
 
 	// do the purge!
-	if err := dis.Purger().Purge(context.Context, context.Stdout, slug); err != nil {
+	if err := dis.Purger().Purge(cmd.Context(), cmd.OutOrStdout(), slug); err != nil {
 		return fmt.Errorf("%w: %w", errPurgeFailed, err)
 	}
 	return nil

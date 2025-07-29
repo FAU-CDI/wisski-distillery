@@ -6,21 +6,47 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// InstanceLock is then 'instance_lock' command.
-var InstanceLock wisski_distillery.Command = instanceLock{}
+func NewInstanceLockCommand() *cobra.Command {
+	impl := new(instanceLock)
 
-type instanceLock struct {
-	Lock        bool `description:"lock the provided instance"   long:"lock"   short:"l"`
-	Unlock      bool `description:"unlock the provided instance" long:"unlock" short:"u"`
-	Positionals struct {
-		Slug string `description:"slug of instance to lock or unlock" positional-arg-name:"SLUG" required:"1-1"`
-	} `positional-args:"true"`
+	cmd := &cobra.Command{
+		Use:     "instance_lock",
+		Short:   "locks or unlocks an instance",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	flags := cmd.Flags()
+	flags.BoolVar(&impl.Lock, "lock", false, "lock the provided instance")
+	flags.BoolVar(&impl.Unlock, "unlock", false, "unlock the provided instance")
+
+	return cmd
 }
 
-func (instanceLock) Description() wisski_distillery.Description {
+type instanceLock struct {
+	Lock        bool
+	Unlock      bool
+	Positionals struct {
+		Slug string
+	}
+}
+
+func (l *instanceLock) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		l.Positionals.Slug = args[0]
+	}
+
+	if l.Lock == l.Unlock {
+		return exit.NewErrorWithCode("exactly one of `--lock` and `--unlock` must be provied", exit.ExitCommandArguments)
+	}
+	return nil
+}
+
+func (*instanceLock) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -30,37 +56,36 @@ func (instanceLock) Description() wisski_distillery.Description {
 	}
 }
 
-func (l instanceLock) AfterParse() error {
-	if l.Lock == l.Unlock {
-		return errLockUnlockExcluded
-	}
-	return nil
-}
-
 var (
-	errLockUnlockExcluded = exit.NewErrorWithCode("exactly one of `--lock` and `--unlock` must be provied", exit.ExitCommandArguments)
-	errLockNoInstance     = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
-	errLockFailed         = exit.NewErrorWithCode("failed to update instance lock", exit.ExitGeneric)
+	errLockNoInstance = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
+	errLockFailed     = exit.NewErrorWithCode("failed to update instance lock", exit.ExitGeneric)
 )
 
-func (l instanceLock) Run(context wisski_distillery.Context) error {
-	instance, err := context.Environment.Instances().WissKI(context.Context, l.Positionals.Slug)
+func (l *instanceLock) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+	if err != nil {
+		return fmt.Errorf("%w %q: %w", errLockNoInstance, l.Positionals.Slug, err)
+	}
+
+	instance, err := dis.Instances().WissKI(cmd.Context(), l.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("%w %q: %w", errLockNoInstance, l.Positionals.Slug, err)
 	}
 
 	if l.Unlock {
-		if err := instance.Locker().TryUnlock(context.Context); err != nil {
+		if err := instance.Locker().TryUnlock(cmd.Context()); err != nil {
 			return fmt.Errorf("%w: %w", errLockFailed, err)
 		}
-		_, _ = context.Println("unlocked")
+		_, _ = fmt.Fprintln(cmd.OutOrStdout(), "unlocked")
 		return nil
 	}
 
-	if err := instance.Locker().TryLock(context.Context); err != nil {
+	if err := instance.Locker().TryLock(cmd.Context()); err != nil {
 		return fmt.Errorf("%w: %w", errLockFailed, err)
 	}
 
-	_, _ = context.Println("locked")
+	_, _ = fmt.Fprintln(cmd.OutOrStdout(), "locked")
 	return nil
 }

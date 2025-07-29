@@ -11,7 +11,7 @@ linters:
     wrapcheck:
       ignore-package-globs:
         - go.tkw01536.de/pkglib/errorsx
-        - go.tkw01536.de/goprogram/exit
+        - go.tkw01536.de/pkglib/exit
   disable:
     - bodyclose
   enable:

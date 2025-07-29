@@ -7,26 +7,51 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// Snapshot creates a snapshot of an instance.
-var Snapshot wisski_distillery.Command = snapshot{}
+func NewSnapshotCommand() *cobra.Command {
+	impl := new(snapshot)
 
-type snapshot struct {
-	Keepalive   bool `description:"keep instance running while taking a backup. might lead to inconsistent state" long:"keepalive"    short:"k"`
-	StagingOnly bool `description:"do not package into a snapshot archive, but only create a staging directory"   long:"staging-only" short:"s"`
+	cmd := &cobra.Command{
+		Use:     "snapshot",
+		Short:   "generates a snapshot archive for the provided instance",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
 
-	Parts []string `description:"parts to include in snapshots. defaults to all parts, use l to list all available parts" long:"parts"      short:"p"`
-	List  bool     `description:"list available parts"                                                                    long:"list-parts" short:"l"`
+	flags := cmd.Flags()
+	flags.BoolVar(&impl.Keepalive, "keepalive", false, "keep instance running while taking a backup. might lead to inconsistent state")
+	flags.BoolVar(&impl.StagingOnly, "staging-only", false, "do not package into a snapshot archive, but only create a staging directory")
+	flags.StringSliceVar(&impl.Parts, "parts", nil, "parts to include in snapshots. defaults to all parts, use l to list all available parts")
+	flags.BoolVar(&impl.List, "list-parts", false, "list available parts")
 
-	Positionals struct {
-		Slug string `description:"slug of instance to take a snapshot of"                                                         positional-arg-name:"SLUG" required:"1-1"`
-		Dest string `description:"destination path to write snapshot archive to. defaults to the 'snapshots/archives/' directory" positional-arg-name:"DEST"`
-	} `positional-args:"true"`
+	return cmd
 }
 
-func (snapshot) Description() wisski_distillery.Description {
+type snapshot struct {
+	Keepalive   bool
+	StagingOnly bool
+	Parts       []string
+	List        bool
+	Positionals struct {
+		Slug string
+		Dest string
+	}
+}
+
+func (sn *snapshot) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		sn.Positionals.Slug = args[0]
+	}
+	if len(args) >= 2 {
+		sn.Positionals.Dest = args[1]
+	}
+	return nil
+}
+
+func (*snapshot) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -41,25 +66,31 @@ var (
 	errSnapshotWissKI = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)
 )
 
-func (sn snapshot) Run(context wisski_distillery.Context) error {
-	dis := context.Environment
+func (sn *snapshot) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errSnapshotFailed, err)
+	}
 
 	// list available parts
 	if sn.List {
 		for _, part := range dis.Exporter().Parts() {
-			_, _ = context.Println(part)
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), part)
 		}
 		return nil
 	}
 
 	// find the instance!
-	instance, err := dis.Instances().WissKI(context.Context, sn.Positionals.Slug)
+	instance, err := dis.Instances().WissKI(cmd.Context(), sn.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errSnapshotWissKI, err)
 	}
 
 	// do a snapshot of it!
-	err = dis.Exporter().MakeExport(context.Context, context.Stderr, exporter.ExportTask{
+	err = dis.Exporter().MakeExport(cmd.Context(), cmd.ErrOrStderr(), exporter.ExportTask{
 		Dest:        sn.Positionals.Dest,
 		StagingOnly: sn.StagingOnly,
 

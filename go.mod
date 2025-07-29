@@ -15,10 +15,11 @@ require (
 	github.com/gorilla/websocket v1.5.3
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/pquerna/otp v1.5.0
+	github.com/spf13/cobra v1.9.1
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-meta v1.1.0
 	go.tkw01536.de/goprogram v0.9.7
-	go.tkw01536.de/pkglib v0.0.0-20250723034259-c700e9efafac
+	go.tkw01536.de/pkglib v0.0.0-20250727115718-875a680e4409
 	golang.org/x/crypto v0.40.0
 	golang.org/x/net v0.42.0
 	golang.org/x/sync v0.16.0
@@ -215,7 +216,6 @@ require (
 	github.com/sourcegraph/go-diff v0.7.0 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
-	github.com/spf13/cobra v1.9.1 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/spf13/viper v1.20.1 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect

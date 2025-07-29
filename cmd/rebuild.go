@@ -9,31 +9,51 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 	"go.tkw01536.de/pkglib/status"
 )
 
-// Cron is the 'cron' command.
-var Rebuild wisski_distillery.Command = rebuild{}
+func NewRebuildCommand() *cobra.Command {
+	impl := new(rebuild)
 
-type rebuild struct {
-	Parallel int `default:"1" description:"run on (at most) this many instances in parallel. 0 for no limit." long:"parallel" short:"a"`
+	cmd := &cobra.Command{
+		Use:     "rebuild",
+		Short:   "runs the rebuild script for several instances",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
 
-	System                bool   `description:"Update the system configuration according to other flags"                                                         long:"system-update"           short:"s"`
-	PHPVersion            string `description:"update to specific php version to use for instance. See 'provision --list-php-versions' for available versions. " long:"php"                     short:"p"`
-	IIPServer             bool   `description:"enable iip-server inside this instance"                                                                           long:"iip-server"              short:"i"`
-	PHPDevelopment        bool   `description:"Include php development configuration"                                                                            long:"php-devel"               short:"d"`
-	Flavor                string `description:"Use specific flavor. Use 'provision --list-flavors' to list flavors. "                                            long:"flavor"                  short:"f"`
-	ContentSecurityPolicy string `description:"Setup ContentSecurityPolicy"                                                                                      long:"content-security-policy" short:"c"`
+	flags := cmd.Flags()
+	flags.IntVar(&impl.Parallel, "parallel", 1, "run on (at most) this many instances in parallel. 0 for no limit.")
+	flags.BoolVar(&impl.System, "system-update", false, "Update the system configuration according to other flags")
+	flags.StringVar(&impl.PHPVersion, "php", "", "update to specific php version to use for instance. See 'provision --list-php-versions' for available versions.")
+	flags.BoolVar(&impl.IIPServer, "iip-server", false, "enable iip-server inside this instance")
+	flags.BoolVar(&impl.PHPDevelopment, "php-devel", false, "Include php development configuration")
+	flags.StringVar(&impl.Flavor, "flavor", "", "Use specific flavor. Use 'provision --list-flavors' to list flavors.")
+	flags.StringVar(&impl.ContentSecurityPolicy, "content-security-policy", "", "Setup ContentSecurityPolicy")
 
-	Positionals struct {
-		Slug []string `description:"slug of instance or instances to run rebuild" positional-arg-name:"SLUG" required:"0"`
-	} `positional-args:"true"`
+	return cmd
 }
 
-var errRebuildNoSystem = exit.NewErrorWithCode("flags for system reconfiguration have been set, but `--system' was not provided", exit.ExitCommandArguments)
+type rebuild struct {
+	Parallel int
 
-func (rb rebuild) AfterParse() error {
+	System                bool
+	PHPVersion            string
+	IIPServer             bool
+	PHPDevelopment        bool
+	Flavor                string
+	ContentSecurityPolicy string
+
+	Positionals struct {
+		Slug []string
+	}
+}
+
+func (rb *rebuild) ParseArgs(cmd *cobra.Command, args []string) error {
+	rb.Positionals.Slug = args
+
 	if rb.System {
 		return nil
 	}
@@ -43,7 +63,7 @@ func (rb rebuild) AfterParse() error {
 	return nil
 }
 
-func (rebuild) Description() wisski_distillery.Description {
+func (*rebuild) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -53,19 +73,25 @@ func (rebuild) Description() wisski_distillery.Description {
 	}
 }
 
+var errRebuildNoSystem = exit.NewErrorWithCode("flags for system reconfiguration have been set, but `--system' was not provided", exit.ExitCommandArguments)
 var errRebuildFailed = exit.NewErrorWithCode("failed to run rebuild", exit.ExitGeneric)
 
-func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
-	dis := context.Environment
+func (rb *rebuild) Exec(cmd *cobra.Command, args []string) (err error) {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+	if err != nil {
+		return fmt.Errorf("%w: failed to get instances: %w", errRebuildFailed, err)
+	}
 
 	// find the instances
-	wissKIs, err := dis.Instances().Load(context.Context, rb.Positionals.Slug...)
+	wissKIs, err := dis.Instances().Load(cmd.Context(), rb.Positionals.Slug...)
 	if err != nil {
 		return fmt.Errorf("%w: failed to get instances: %w", errRebuildFailed, err)
 	}
 
 	// and do the actual rebuild
-	if err := status.WriterGroup(context.Stderr, rb.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+	if err := status.WriterGroup(cmd.ErrOrStderr(), rb.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
 		sys := instance.System
 		if rb.System {
 			sys = models.System{
@@ -76,7 +102,7 @@ func (rb rebuild) Run(context wisski_distillery.Context) (err error) {
 			}
 		}
 
-		return instance.SystemManager().Apply(context.Context, writer, sys)
+		return instance.SystemManager().Apply(cmd.Context(), writer, sys)
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("rebuild %q", item.Slug)
 	})); err != nil {

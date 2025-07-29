@@ -8,21 +8,42 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
 	"go.tkw01536.de/goprogram/parser"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// Shell is the 'shell' command.
-var Shell wisski_distillery.Command = shell{}
+func NewShellCommand() *cobra.Command {
+	impl := new(shell)
+
+	cmd := &cobra.Command{
+		Use:     "shell",
+		Short:   "open a shell in the provided instance",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	return cmd
+}
 
 type shell struct {
 	Positionals struct {
-		Slug string   `description:"slug of instance to run shell in" positional-arg-name:"SLUG" required:"1-1"`
-		Args []string `description:"arguments to pass to the shell"   positional-arg-name:"ARGS"`
-	} `positional-args:"true"`
+		Slug string
+		Args []string
+	}
 }
 
-func (shell) Description() wisski_distillery.Description {
+func (sh *shell) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		sh.Positionals.Slug = args[0]
+	}
+	if len(args) >= 2 {
+		sh.Positionals.Args = args[1:]
+	}
+	return nil
+}
+
+func (*shell) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -37,15 +58,22 @@ func (shell) Description() wisski_distillery.Description {
 
 var errShellWissKI = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)
 
-func (sh shell) Run(context wisski_distillery.Context) error {
-	instance, err := context.Environment.Instances().WissKI(context.Context, sh.Positionals.Slug)
+func (sh *shell) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+	if err != nil {
+		return fmt.Errorf("%w: %w", errShellWissKI, err)
+	}
+
+	instance, err := dis.Instances().WissKI(cmd.Context(), sh.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errShellWissKI, err)
 	}
 
 	{
 		args := append([]string{"/bin/bash"}, sh.Positionals.Args...)
-		err := instance.Barrel().BashScript(context.Context, context.IOStream, args...)
+		err := instance.Barrel().BashScript(cmd.Context(), streamFromCommand(cmd), args...)
 		if err != nil {
 			var ee barrel.ExitError
 			if !(errors.As(err, &ee)) {

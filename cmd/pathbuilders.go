@@ -6,20 +6,41 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// Pathbuilders is the 'pathbuilders' command.
-var Pathbuilders wisski_distillery.Command = pathbuilders{}
+func NewPathbuildersCommand() *cobra.Command {
+	impl := new(pathbuilders)
+
+	cmd := &cobra.Command{
+		Use:     "pathbuilders",
+		Short:   "list pathbuilders of a specific instance",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	return cmd
+}
 
 type pathbuilders struct {
 	Positionals struct {
-		Slug string `description:"slug of instance to export pathbuilders of"                              positional-arg-name:"SLUG" required:"1-1"`
-		Name string `description:"name of pathbuilder to get. if omitted, show a list of all pathbuilders" positional-arg-name:"NAME"`
-	} `positional-args:"true"`
+		Slug string
+		Name string
+	}
 }
 
-func (pathbuilders) Description() wisski_distillery.Description {
+func (pb *pathbuilders) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		pb.Positionals.Slug = args[0]
+	}
+	if len(args) >= 2 {
+		pb.Positionals.Name = args[1]
+	}
+	return nil
+}
+
+func (*pathbuilders) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -35,34 +56,42 @@ var (
 	errPathbuildersWissKI  = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)
 )
 
-func (pb pathbuilders) Run(context wisski_distillery.Context) error {
+func (pb *pathbuilders) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errPathbuildersWissKI, err)
+	}
+
 	// get the wisski
-	instance, err := context.Environment.Instances().WissKI(context.Context, pb.Positionals.Slug)
+	instance, err := dis.Instances().WissKI(cmd.Context(), pb.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errPathbuildersWissKI, err)
 	}
 
 	// get all of the pathbuilders
 	if pb.Positionals.Name == "" {
-		names, err := instance.Pathbuilder().All(context.Context, nil)
+		names, err := instance.Pathbuilder().All(cmd.Context(), nil)
 		if err != nil {
 			return fmt.Errorf("%w: %w", errPathbuildersExport, err)
 		}
 		for _, name := range names {
-			_, _ = context.Println(name)
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), name)
 		}
 		return nil
 	}
 
 	// get all the pathbuilders
-	xml, err := instance.Pathbuilder().Get(context.Context, nil, pb.Positionals.Name)
+	xml, err := instance.Pathbuilder().Get(cmd.Context(), nil, pb.Positionals.Name)
 	if xml == "" {
 		return fmt.Errorf("%q: %w", pb.Positionals.Name, errPathbuildersNoExist)
 	}
 	if err != nil {
 		return fmt.Errorf("%w: %w", errPathbuildersExport, err)
 	}
-	_, _ = context.Printf("%s", xml)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "%s", xml)
 
 	return nil
 }

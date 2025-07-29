@@ -9,41 +9,51 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	wstatus "github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/exit"
+	"go.tkw01536.de/pkglib/nobufio"
 	"go.tkw01536.de/pkglib/status"
 )
 
-// DrupalUser is the 'drupal_user' setting.
-var DrupalUser wisski_distillery.Command = drupalUser{}
+func NewDrupalUserCommand() *cobra.Command {
+	impl := new(drupalUser)
 
-type drupalUser struct {
-	CheckCommonPasswords   bool `description:"check for most common passwords. operates on all users concurrently." long:"check-common-passwords" short:"d"`
-	CheckPasswdInteractive bool `description:"interactively check user password"                                    long:"check-password"         short:"c"`
-	ResetPasswd            bool `description:"reset password for user"                                              long:"reset-password"         short:"r"`
-	Login                  bool `description:"print url to login as"                                                long:"login"                  short:"l"`
-	Positionals            struct {
-		Slug string `description:"slug of instance to manage"                          positional-arg-name:"SLUG" required:"1-1"`
-		User string `description:"username to manage. may be omitted for some actions" positional-arg-name:"USER"`
-	} `positional-args:"true"`
+	cmd := &cobra.Command{
+		Use:     "drupal_user",
+		Short:   "set a password for a specific user",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	flags := cmd.Flags()
+	flags.BoolVar(&impl.CheckCommonPasswords, "check-common-passwords", false, "check for most common passwords. operates on all users concurrently.")
+	flags.BoolVar(&impl.CheckPasswdInteractive, "check-password", false, "interactively check user password")
+	flags.BoolVar(&impl.ResetPasswd, "reset-password", false, "reset password for user")
+	flags.BoolVar(&impl.Login, "login", false, "print url to login as")
+
+	return cmd
 }
 
-func (drupalUser) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "drupal_user",
-		Description: "set a password for a specific user",
+type drupalUser struct {
+	CheckCommonPasswords   bool
+	CheckPasswdInteractive bool
+	ResetPasswd            bool
+	Login                  bool
+	Positionals            struct {
+		Slug string
+		User string
 	}
 }
 
-var (
-	errNoActionSelected = exit.NewErrorWithCode("exactly one action must be selected", exit.ExitGeneric)
-	errUserParameter    = exit.NewErrorWithCode("incorrect username parameter", exit.ExitGeneric)
-)
+func (du *drupalUser) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		du.Positionals.Slug = args[0]
+	}
+	if len(args) >= 2 {
+		du.Positionals.User = args[1]
+	}
 
-func (du drupalUser) AfterParse() error {
 	var count int
 	for _, s := range []bool{
 		du.CheckCommonPasswords,
@@ -66,26 +76,44 @@ func (du drupalUser) AfterParse() error {
 	return nil
 }
 
+func (*drupalUser) Description() wisski_distillery.Description {
+	return wisski_distillery.Description{
+		Requirements: cli.Requirements{
+			NeedsDistillery: true,
+		},
+		Command:     "drupal_user",
+		Description: "set a password for a specific user",
+	}
+}
+
 var (
-	errPasswordsNotIdentical  = exit.NewErrorWithCode("passwords are not identical", exit.ExitGeneric)
+	errUserParameter = exit.NewErrorWithCode("incorrect username parameter", exit.ExitGeneric)
+
 	errDrupalUserActionFailed = exit.NewErrorWithCode("action failed", exit.ExitGeneric)
 )
 
-func (du drupalUser) Run(context wisski_distillery.Context) (err error) {
-	instance, err := context.Environment.Instances().WissKI(context.Context, du.Positionals.Slug)
+func (du *drupalUser) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+	if err != nil {
+		return fmt.Errorf("%w: failed to get WissKI: %w", errDrupalUserActionFailed, err)
+	}
+
+	instance, err := dis.Instances().WissKI(cmd.Context(), du.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("%w: failed to get WissKI: %w", errDrupalUserActionFailed, err)
 	}
 
 	switch {
 	case du.CheckCommonPasswords:
-		err = du.checkCommonPassword(context, instance)
+		err = du.checkCommonPassword(cmd, instance)
 	case du.CheckPasswdInteractive:
-		err = du.checkPasswordInteractive(context, instance)
+		err = du.checkPasswordInteractive(cmd, instance)
 	case du.ResetPasswd:
-		err = du.resetPassword(context, instance)
+		err = du.resetPassword(cmd, instance)
 	case du.Login:
-		err = du.login(context, instance)
+		err = du.login(cmd, instance)
 	default:
 		panic("never reached")
 	}
@@ -96,36 +124,36 @@ func (du drupalUser) Run(context wisski_distillery.Context) (err error) {
 	return nil
 }
 
-func (du drupalUser) login(context wisski_distillery.Context, instance *wisski.WissKI) error {
-	link, err := instance.Users().Login(context.Context, nil, du.Positionals.User)
+func (du *drupalUser) login(cmd *cobra.Command, instance *wisski.WissKI) error {
+	link, err := instance.Users().Login(cmd.Context(), nil, du.Positionals.User)
 	if err != nil {
 		return fmt.Errorf("failed to login user: %w", err)
 	}
-	_, _ = context.Println(link)
+	_, _ = fmt.Fprintln(cmd.OutOrStdout(), link)
 	return nil
 }
 
-func (du drupalUser) checkCommonPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
+func (du *drupalUser) checkCommonPassword(cmd *cobra.Command, instance *wisski.WissKI) error {
 	users := instance.Users()
 
-	entities, err := users.All(context.Context, nil)
+	entities, err := users.All(cmd.Context(), nil)
 	if err != nil {
 		return fmt.Errorf("failed to list all users: %w", err)
 	}
 
-	if err := status.RunErrorGroup(context.Stderr, status.Group[wstatus.DrupalUser, error]{
+	if err := status.RunErrorGroup(cmd.ErrOrStderr(), status.Group[wstatus.DrupalUser, error]{
 		PrefixString: func(item wstatus.DrupalUser, index int) string {
 			return fmt.Sprintf("User[%q]: ", item.Name)
 		},
 		PrefixAlign: true,
 		Handler: func(user wstatus.DrupalUser, index int, writer io.Writer) (e error) {
-			pv, err := users.GetPasswordValidator(context.Context, string(user.Name))
+			pv, err := users.GetPasswordValidator(cmd.Context(), string(user.Name))
 			if err != nil {
 				return fmt.Errorf("failed to get password validator: %w", err)
 			}
 			defer errorsx.Close(pv, &e, "password validator")
 
-			return pv.CheckDictionary(context.Context, writer)
+			return pv.CheckDictionary(cmd.Context(), writer)
 		},
 	}, entities); err != nil {
 		return fmt.Errorf("failed to get check for common passwords: %w", err)
@@ -133,22 +161,22 @@ func (du drupalUser) checkCommonPassword(context wisski_distillery.Context, inst
 	return nil
 }
 
-func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context, instance *wisski.WissKI) (e error) {
-	validator, err := instance.Users().GetPasswordValidator(context.Context, du.Positionals.User)
+func (du *drupalUser) checkPasswordInteractive(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
+	validator, err := instance.Users().GetPasswordValidator(cmd.Context(), du.Positionals.User)
 	if err != nil {
 		return fmt.Errorf("failed to get password validator: %w", err)
 	}
 	defer errorsx.Close(validator, &e, "validator")
 
 	for {
-		if _, err := context.Printf("Enter a password to check:"); err != nil {
+		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Enter a password to check:"); err != nil {
 			return fmt.Errorf("failed to write text: %w", err)
 		}
-		candidate, err := context.ReadPassword()
+		candidate, err := nobufio.ReadPassword(cmd.InOrStdin())
 		if err != nil {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
-		if _, err := context.Println(); err != nil {
+		if _, err := fmt.Fprintln(cmd.OutOrStdout()); err != nil {
 			return fmt.Errorf("failed to write text: %w", err)
 		}
 
@@ -156,40 +184,40 @@ func (du drupalUser) checkPasswordInteractive(context wisski_distillery.Context,
 			break
 		}
 
-		if validator.Check(context.Context, candidate) {
-			_, _ = context.Println("check passed")
+		if validator.Check(cmd.Context(), candidate) {
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), "check passed")
 		} else {
-			_, _ = context.Println("check did not pass")
+			_, _ = fmt.Fprintln(cmd.OutOrStdout(), "check did not pass")
 		}
 	}
 
 	return nil
 }
 
-func (du drupalUser) resetPassword(context wisski_distillery.Context, instance *wisski.WissKI) error {
-	if _, err := context.Printf("Enter new password for user %s:", du.Positionals.User); err != nil {
+func (du *drupalUser) resetPassword(cmd *cobra.Command, instance *wisski.WissKI) error {
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Enter new password for user %s:", du.Positionals.User); err != nil {
 		return fmt.Errorf("failed to write text: %w", err)
 	}
-	passwd1, err := context.ReadPassword()
+	passwd1, err := nobufio.ReadPassword(cmd.InOrStdin())
 	if err != nil {
 		return fmt.Errorf("failed to read password: %w", err)
 	}
-	_, _ = context.Println()
+	_, _ = fmt.Fprintln(cmd.OutOrStdout())
 
-	if _, err := context.Printf("Enter the same password again:"); err != nil {
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Enter the same password again:"); err != nil {
 		return fmt.Errorf("failed to write text: %w", err)
 	}
-	passwd2, err := context.ReadPassword()
+	passwd2, err := nobufio.ReadPassword(cmd.InOrStdin())
 	if err != nil {
 		return fmt.Errorf("failed to read password: %w", err)
 	}
-	_, _ = context.Println()
+	_, _ = fmt.Fprintln(cmd.OutOrStdout())
 
 	if passwd1 != passwd2 {
 		return errPasswordsNotIdentical
 	}
 
-	if err := instance.Users().SetPassword(context.Context, nil, du.Positionals.User, passwd1); err != nil {
+	if err := instance.Users().SetPassword(cmd.Context(), nil, du.Positionals.User, passwd1); err != nil {
 		return fmt.Errorf("failed to set password: %w", err)
 	}
 	return nil

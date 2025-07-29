@@ -8,19 +8,36 @@ import (
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
-
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 	"go.tkw01536.de/pkglib/status"
 )
 
-// Cron is the 'cron' command.
-var UpdatePrefixConfig wisski_distillery.Command = updateprefixconfig{}
+func NewUpdatePrefixConfigCommand() *cobra.Command {
+	impl := new(updateprefixconfig)
 
-type updateprefixconfig struct {
-	Parallel int `default:"1" description:"run on (at most) this many instances in parallel. 0 for no limit." long:"parallel" short:"p"`
+	cmd := &cobra.Command{
+		Use:     "update_prefix_config",
+		Short:   "updates the prefix configuration",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	flags := cmd.Flags()
+	flags.IntVar(&impl.Parallel, "parallel", 1, "run on (at most) this many instances in parallel. 0 for no limit.")
+
+	return cmd
 }
 
-func (updateprefixconfig) Description() wisski_distillery.Description {
+type updateprefixconfig struct {
+	Parallel int
+}
+
+func (upc *updateprefixconfig) ParseArgs(cmd *cobra.Command, args []string) error {
+	return nil
+}
+
+func (*updateprefixconfig) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -32,19 +49,24 @@ func (updateprefixconfig) Description() wisski_distillery.Description {
 
 var errPrefixUpdateFailed = exit.NewErrorWithCode("failed to update prefix configuration", exit.ExitGeneric)
 
-func (upc updateprefixconfig) Run(context wisski_distillery.Context) (err error) {
-	dis := context.Environment
-
-	wissKIs, err := dis.Instances().All(context.Context)
+func (upc *updateprefixconfig) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
 	if err != nil {
 		return fmt.Errorf("%w: failed to get all instances: %w", errPrefixUpdateFailed, err)
 	}
 
-	if err := status.WriterGroup(context.Stderr, upc.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
+	wissKIs, err := dis.Instances().All(cmd.Context())
+	if err != nil {
+		return fmt.Errorf("%w: failed to get all instances: %w", errPrefixUpdateFailed, err)
+	}
+
+	if err := status.WriterGroup(cmd.ErrOrStderr(), upc.Parallel, func(instance *wisski.WissKI, writer io.Writer) error {
 		if _, err := io.WriteString(writer, "reading prefixes"); err != nil {
 			return fmt.Errorf("failed to log progress: %w", err)
 		}
-		return instance.Prefixes().Update(context.Context)
+		return instance.Prefixes().Update(cmd.Context())
 	}, wissKIs, status.SmartMessage(func(item *wisski.WissKI) string {
 		return fmt.Sprintf("update_prefix %q", item.Slug)
 	})); err != nil {

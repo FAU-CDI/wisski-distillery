@@ -8,8 +8,8 @@ import (
 
 	"al.essio.dev/pkg/shellescape"
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
-	"go.tkw01536.de/goprogram/exit"
 	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/exit"
 	"go.tkw01536.de/pkglib/stream"
 )
 

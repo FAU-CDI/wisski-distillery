@@ -12,23 +12,42 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/bootstrap"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
-
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/exit"
 	"go.tkw01536.de/pkglib/fsx"
 	"go.tkw01536.de/pkglib/fsx/umaskfree"
 )
 
-// Bootstrap is the 'bootstrap' command.
-var Bootstrap wisski_distillery.Command = cBootstrap{}
+func NewBootstrapCommand() *cobra.Command {
+	impl := new(cBootstrap)
 
-type cBootstrap struct {
-	Directory string `default:"/var/www/deploy"                                                   description:"path to the root deployment directory" long:"root-directory" short:"r"`
-	Hostname  string `description:"default hostname of the distillery (default: system hostname)" long:"hostname"                                     short:"h"`
+	cmd := &cobra.Command{
+		Use:     "bootstrap",
+		Short:   "bootstraps the installation of a distillery system",
+		Args:    cobra.NoArgs,
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	flags := cmd.Flags()
+	flags.StringVar(&impl.Directory, "root-directory", "/var/www/deploy", "path to the root deployment directory")
+	flags.StringVar(&impl.Hostname, "hostname", "", "default hostname of the distillery (default: system hostname)")
+
+	return cmd
 }
 
-func (cBootstrap) Description() wisski_distillery.Description {
+type cBootstrap struct {
+	Directory string
+	Hostname  string
+}
+
+func (bs *cBootstrap) ParseArgs(cmd *cobra.Command, args []string) error {
+	return nil
+}
+
+func (*cBootstrap) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: false,
@@ -48,7 +67,7 @@ var (
 	errBootstrapCreateFile              = exit.NewErrorWithCode("failed to touch configuration file", exit.ExitGeneric)
 )
 
-func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
+func (bs *cBootstrap) Exec(cmd *cobra.Command, args []string) (e error) {
 	root := bs.Directory
 
 	// check that we didn't get a different base directory
@@ -60,7 +79,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	}
 
 	{
-		if _, err := logging.LogMessage(context.Stderr, "Creating root deployment directory"); err != nil {
+		if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Creating root deployment directory"); err != nil {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 		if err := umaskfree.MkdirAll(root, umaskfree.DefaultDirPerm); err != nil {
@@ -69,7 +88,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 		if err := cli.WriteBaseDirectory(root); err != nil {
 			return fmt.Errorf("%q: %w: %w", root, errBootstrapFailedToSaveDirectory, err)
 		}
-		_, _ = context.Println(root)
+		_, _ = fmt.Fprintln(cmd.OutOrStdout(), root)
 	}
 
 	// TODO: Should we read an existing configuration file?
@@ -87,7 +106,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	}
 
 	{
-		if _, err := logging.LogMessage(context.Stderr, "Copying over wdcli executable"); err != nil {
+		if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Copying over wdcli executable"); err != nil {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 		exe, err := os.Executable()
@@ -95,11 +114,11 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 			return fmt.Errorf("%w: %w", errBoostrapFailedToCopyExe, err)
 		}
 
-		err = umaskfree.CopyFile(context.Context, wdcliPath, exe)
+		err = umaskfree.CopyFile(cmd.Context(), wdcliPath, exe)
 		if err != nil && !errors.Is(err, umaskfree.ErrCopySameFile) {
 			return fmt.Errorf("%w: %w", errBoostrapFailedToCopyExe, err)
 		}
-		_, _ = context.Println(wdcliPath)
+		_, _ = fmt.Fprintln(cmd.OutOrStdout(), wdcliPath)
 	}
 
 	{
@@ -113,7 +132,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 
 			// write out all the extra config files
 			if err := logging.LogOperation(func() error {
-				if _, err := context.Println(cfg.Paths.OverridesJSON); err != nil {
+				if _, err := fmt.Fprintln(cmd.OutOrStdout(), cfg.Paths.OverridesJSON); err != nil {
 					return fmt.Errorf("failed to write text: %w", err)
 				}
 				if err := umaskfree.WriteFile(
@@ -124,7 +143,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 					return fmt.Errorf("failed to write overrides file: %w", err)
 				}
 
-				_, _ = context.Println(cfg.Paths.ResolverBlocks)
+				_, _ = fmt.Fprintln(cmd.OutOrStdout(), cfg.Paths.ResolverBlocks)
 				if err := umaskfree.WriteFile(
 					cfg.Paths.ResolverBlocks,
 					bootstrap.DefaultResolverBlockedTXT,
@@ -134,7 +153,7 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 				}
 
 				return nil
-			}, context.Stderr, "Creating custom config files"); err != nil {
+			}, cmd.ErrOrStderr(), "Creating custom config files"); err != nil {
 				return fmt.Errorf("%w: %w", errBootstrapCreateFile, err)
 			}
 
@@ -159,14 +178,14 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 					return fmt.Errorf("failed to write config yml: %w", err)
 				}
 				return nil
-			}, context.Stderr, "Installing primary configuration file"); err != nil {
+			}, cmd.ErrOrStderr(), "Installing primary configuration file"); err != nil {
 				return fmt.Errorf("%w: %w", err, errBootstrapWriteConfig)
 			}
 		}
 	}
 
 	// re-read the configuration and print it!
-	if _, err := logging.LogMessage(context.Stderr, "Configuration is now complete"); err != nil {
+	if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Configuration is now complete"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	f, err := os.Open(cfgPath) // #nosec G304 -- intended
@@ -181,19 +200,19 @@ func (bs cBootstrap) Run(context wisski_distillery.Context) (e error) {
 	}
 
 	// Tell the user how to proceed
-	if _, err := logging.LogMessage(context.Stderr, "Bootstrap is complete"); err != nil {
+	if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Bootstrap is complete"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	if _, err := context.Printf("Adjust the configuration file at %s\n", cfgPath); err != nil {
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Adjust the configuration file at %s\n", cfgPath); err != nil {
 		return fmt.Errorf("failed to report progress: %w", err)
 	}
-	if _, err := context.Printf("Then make sure 'docker compose' is installed.\n"); err != nil {
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Then make sure 'docker compose' is installed.\n"); err != nil {
 		return fmt.Errorf("failed to report progress: %w", err)
 	}
-	if _, err := context.Printf("Finally grab a GraphDB 10.x zipped source file and run:\n"); err != nil {
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Finally grab a GraphDB 10.x zipped source file and run:\n"); err != nil {
 		return fmt.Errorf("failed to report progress: %w", err)
 	}
-	if _, err := context.Printf("%s system_update /path/to/graphdb.zip\n", wdcliPath); err != nil {
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "%s system_update /path/to/graphdb.zip\n", wdcliPath); err != nil {
 		return fmt.Errorf("failed to report progress: %w", err)
 	}
 

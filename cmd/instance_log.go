@@ -6,20 +6,38 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// InstancePause is the 'instance_log' command.
-var InstanceLog wisski_distillery.Command = instanceLog{}
+func NewInstanceLogCommand() *cobra.Command {
+	impl := new(instanceLog)
+
+	cmd := &cobra.Command{
+		Use:     "instance_log",
+		Short:   "follows logs for a given instance",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	return cmd
+}
 
 type instanceLog struct {
 	Positionals struct {
-		Slug string `description:"name of instance to follow logs for" positional-arg-name:"slug" required:"1-1"`
-	} `positional-args:"true"`
+		Slug string
+	}
 }
 
-func (instanceLog) Description() wisski_distillery.Description {
+func (i *instanceLog) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		i.Positionals.Slug = args[0]
+	}
+	return nil
+}
+
+func (*instanceLog) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -35,8 +53,15 @@ var (
 	errInstanceLogAttach = exit.NewErrorWithCode("unable to attach to stack", exit.ExitGeneric)
 )
 
-func (i instanceLog) Run(context wisski_distillery.Context) (e error) {
-	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)
+func (i *instanceLog) Exec(cmd *cobra.Command, args []string) (e error) {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+	if err != nil {
+		return fmt.Errorf("%w: %w", errInstanceLogWissKI, err)
+	}
+
+	instance, err := dis.Instances().WissKI(cmd.Context(), i.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errInstanceLogWissKI, err)
 	}
@@ -47,7 +72,7 @@ func (i instanceLog) Run(context wisski_distillery.Context) (e error) {
 	}
 	defer errorsx.Close(stack, &e, "stack")
 
-	if err := stack.Attach(context.Context, context.IOStream, false); err != nil {
+	if err := stack.Attach(cmd.Context(), streamFromCommand(cmd), false); err != nil {
 		return fmt.Errorf("%w: %w", errInstanceLogAttach, err)
 	}
 	return nil

@@ -14,8 +14,8 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"go.tkw01536.de/goprogram"
-	"go.tkw01536.de/goprogram/exit"
 	"go.tkw01536.de/pkglib/cgo"
+	"go.tkw01536.de/pkglib/exit"
 )
 
 // none of these are strictly needed, they're just around for convenience.
@@ -90,6 +90,7 @@ func NewProgram() Program {
 		},
 
 		NewContext: func(params *wdcliParameters, parent context.Context) (context.Context, ContextCleanupFunc, error) {
+			// TODO: migrate this over to cobra
 			if params == nil {
 				return parent, nil, nil
 			}
@@ -105,7 +106,7 @@ func NewProgram() Program {
 		},
 
 		NewEnvironment: func(params wdcliParameters, context Context) (e wdcliEnv, err error) {
-			return dis.NewDistillery(params, context.Args.Flags, context.Description.Requirements)
+			return cli.NewDistillery(params, context.Args.Flags, context.Description.Requirements)
 		},
 	}
 }

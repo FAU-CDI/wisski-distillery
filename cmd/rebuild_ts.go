@@ -6,19 +6,40 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/spf13/cobra"
 )
 
-// RebuildTS is the 'rebuild_ts' setting.
-var RebuildTS wisski_distillery.Command = rebuildTS{}
+func NewRebuildTSCommand() *cobra.Command {
+	impl := new(rebuildTS)
 
-type rebuildTS struct {
-	AllowEmptyRepository bool `description:"don't abort if repository is empty" long:"allow-empty" short:"a"`
-	Positionals          struct {
-		Slug string `description:"slug of instance to rebuild triplestore for" positional-arg-name:"SLUG" required:"1-1"`
-	} `positional-args:"true"`
+	cmd := &cobra.Command{
+		Use:     "rebuild_ts",
+		Short:   "rebuild the triplestore for a specific instance",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	flags := cmd.Flags()
+	flags.BoolVar(&impl.AllowEmptyRepository, "allow-empty", false, "don't abort if repository is empty")
+
+	return cmd
 }
 
-func (rebuildTS) Description() wisski_distillery.Description {
+type rebuildTS struct {
+	AllowEmptyRepository bool
+	Positionals          struct {
+		Slug string
+	}
+}
+
+func (rts *rebuildTS) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		rts.Positionals.Slug = args[0]
+	}
+	return nil
+}
+
+func (*rebuildTS) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -28,13 +49,20 @@ func (rebuildTS) Description() wisski_distillery.Description {
 	}
 }
 
-func (rts rebuildTS) Run(context wisski_distillery.Context) (err error) {
-	instance, err := context.Environment.Instances().WissKI(context.Context, rts.Positionals.Slug)
+func (rts *rebuildTS) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
 	if err != nil {
 		return fmt.Errorf("failed to get WissKI: %w", err)
 	}
 
-	_, err = instance.TRB().RebuildTriplestore(context.Context, context.Stdout, rts.AllowEmptyRepository)
+	instance, err := dis.Instances().WissKI(cmd.Context(), rts.Positionals.Slug)
+	if err != nil {
+		return fmt.Errorf("failed to get WissKI: %w", err)
+	}
+
+	_, err = instance.TRB().RebuildTriplestore(cmd.Context(), cmd.OutOrStdout(), rts.AllowEmptyRepository)
 	if err != nil {
 		return fmt.Errorf("failed to rebuild triplestore: %w", err)
 	}

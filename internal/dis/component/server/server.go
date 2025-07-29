@@ -69,7 +69,7 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 			)
 
 			// serve with the next context
-			h.ServeHTTP(w, r.WithContext(rctx))
+			h.ServeHTTP(w, r.WithContext(rctx)) //nolint:contextcheck // intentional
 		})
 	}
 

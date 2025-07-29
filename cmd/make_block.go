@@ -11,32 +11,49 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// MakeBlock is the 'make_block' command.
-var MakeBlock wisski_distillery.Command = makeBlock{}
+func NewMakeBlockCommand() *cobra.Command {
+	impl := new(makeBlock)
 
-type makeBlock struct {
-	Title  string `description:"title of block to create"           long:"title"  short:"t"`
-	Region string `description:"optional region to assign block to" long:"region" short:"r"`
-	Footer bool   `description:"create block in the footer region"  long:"footer" short:"f"`
+	cmd := &cobra.Command{
+		Use:     "make_block",
+		Short:   "Creates a block with html content provided on stdin",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
 
-	Positionals struct {
-		Slug string `description:"slug of instance to create legal block for" positional-arg-name:"SLUG" required:"1-1"`
-	} `positional-args:"true"`
+	flags := cmd.Flags()
+	flags.StringVar(&impl.Title, "title", "", "title of block to create")
+	flags.StringVar(&impl.Region, "region", "", "optional region to assign block to")
+	flags.BoolVar(&impl.Footer, "footer", false, "create block in the footer region")
+
+	return cmd
 }
 
-var errFooterAndRegion = exit.NewErrorWithCode("`--footer` and `--region` provided", exit.ExitCommandArguments)
+type makeBlock struct {
+	Title       string
+	Region      string
+	Footer      bool
+	Positionals struct {
+		Slug string
+	}
+}
 
-func (mb makeBlock) AfterParse() error {
+func (mb *makeBlock) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		mb.Positionals.Slug = args[0]
+	}
+
 	if mb.Region != "" && mb.Footer {
 		return errFooterAndRegion
 	}
 	return nil
 }
 
-func (makeBlock) Description() wisski_distillery.Description {
+func (*makeBlock) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -46,6 +63,7 @@ func (makeBlock) Description() wisski_distillery.Description {
 	}
 }
 
+var errFooterAndRegion = exit.NewErrorWithCode("`--footer` and `--region` provided", exit.ExitCommandArguments)
 var (
 	errBlocksGeneric      = exit.NewErrorWithCode("unable to create block", exit.ExitGeneric)
 	errBlocksFooterFailed = exit.NewErrorWithCode("unable to determine footer block", exit.ExitGeneric)
@@ -53,17 +71,25 @@ var (
 	errBlocksNoContent    = exit.NewErrorWithCode("unable to read content from standard input", exit.ExitCommandArguments)
 )
 
-func (mb makeBlock) Run(context wisski_distillery.Context) error {
+func (mb *makeBlock) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errPathbuildersWissKI, err)
+	}
+
 	// get the wisski
-	instance, err := context.Environment.Instances().WissKI(context.Context, mb.Positionals.Slug)
+	instance, err := dis.Instances().WissKI(cmd.Context(), mb.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errPathbuildersWissKI, err)
 	}
 
 	// get the footer (if any)
 	if mb.Footer {
-		wdlog.Of(context.Context).Info("checking for footer")
-		region, err := instance.Blocks().GetFooterRegion(context.Context, nil)
+		wdlog.Of(cmd.Context()).Info("checking for footer")
+		region, err := instance.Blocks().GetFooterRegion(cmd.Context(), nil)
 		if err != nil {
 			return fmt.Errorf("%w: %w", errBlocksFooterFailed, err)
 		}
@@ -78,13 +104,13 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 	}
 
 	// read the content
-	content, err := io.ReadAll(context.Stdin)
+	content, err := io.ReadAll(cmd.InOrStdin())
 	if err != nil {
 		return fmt.Errorf("%w: %w", errBlocksNoContent, err)
 	}
 
 	{
-		err := instance.Blocks().Create(context.Context, nil, extras.Block{
+		err := instance.Blocks().Create(cmd.Context(), nil, extras.Block{
 			Info:    mb.Title,
 			Content: template.HTML(content), // #nosec G203 -- intended to be read from stdin
 
@@ -93,7 +119,7 @@ func (mb makeBlock) Run(context wisski_distillery.Context) error {
 		})
 
 		if err != nil {
-			_, _ = context.EPrintln(err.Error())
+			_, _ = fmt.Fprintln(cmd.ErrOrStderr(), err.Error())
 			return errBlocksGeneric
 		}
 	}

@@ -7,17 +7,35 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// Info is then 'info' command.
-var Status wisski_distillery.Command = cStatus{}
+func NewStatusCommand() *cobra.Command {
+	impl := new(cStatus)
 
-type cStatus struct {
-	JSON bool `description:"print status as JSON instead of as string" long:"json" short:"j"`
+	cmd := &cobra.Command{
+		Use:     "status",
+		Short:   "provide information about the distillery as a whole",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	flags := cmd.Flags()
+	flags.BoolVar(&impl.JSON, "json", false, "print status as JSON instead of as string")
+
+	return cmd
 }
 
-func (cStatus) Description() wisski_distillery.Description {
+type cStatus struct {
+	JSON bool
+}
+
+func (s *cStatus) ParseArgs(cmd *cobra.Command, args []string) error {
+	return nil
+}
+
+func (*cStatus) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -29,27 +47,35 @@ func (cStatus) Description() wisski_distillery.Description {
 
 var errStatusGeneric = exit.NewErrorWithCode("unable to get status", exit.ExitGeneric)
 
-func (s cStatus) Run(context wisski_distillery.Context) error {
-	status, _, err := context.Environment.Info().Status(context.Context, true)
+func (s *cStatus) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errStatusGeneric, err)
+	}
+
+	status, _, err := dis.Info().Status(cmd.Context(), true)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errStatusGeneric, err)
 	}
 
 	if s.JSON {
-		err := json.NewEncoder(context.Stdout).Encode(status)
+		err := json.NewEncoder(cmd.OutOrStdout()).Encode(status)
 		if err != nil {
 			return fmt.Errorf("%w: %w", errStatusGeneric, err)
 		}
 		return nil
 	}
 
-	_, _ = context.Printf("Total Instances:      %v\n", status.TotalCount)
-	_, _ = context.Printf("      (running):      %v\n", status.RunningCount)
-	_, _ = context.Printf("      (stopped):      %v\n", status.StoppedCount)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Total Instances:      %v\n", status.TotalCount)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "      (running):      %v\n", status.RunningCount)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "      (stopped):      %v\n", status.StoppedCount)
 
-	_, _ = context.Printf("Backups: (count %d)\n", len(status.Backups))
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Backups: (count %d)\n", len(status.Backups))
 	for _, s := range status.Backups {
-		_, _ = context.Printf("- %s (slug %q, taken %s, packed %v)\n", s.Path, s.Slug, s.Created.String(), s.Packed)
+		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "- %s (slug %q, taken %s, packed %v)\n", s.Path, s.Slug, s.Created.String(), s.Packed)
 	}
 
 	return nil

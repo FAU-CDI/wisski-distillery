@@ -2,52 +2,67 @@ package cmd
 
 //spellchecker:words github wisski distillery internal component auth goprogram exit
 import (
+	"bufio"
 	"fmt"
+	"strings"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// DisUser is the 'dis_user' command.
-var DisUser wisski_distillery.Command = disUser{}
+func NewDisUserCommand() *cobra.Command {
+	impl := new(disUser)
 
-type disUser struct {
-	CreateUser bool `description:"create a new user" long:"create" short:"c"`
-	DeleteUser bool `description:"delete a user"     long:"delete" short:"d"`
+	cmd := &cobra.Command{
+		Use:     "dis_user",
+		Short:   "manage distillery users",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
 
-	MakeAdmin   bool `description:"add admin permission to user"      long:"add-admin"    short:"a"`
-	RemoveAdmin bool `description:"remove admin permission from user" long:"remove-admin" short:"A"`
+	flags := cmd.Flags()
+	flags.BoolVar(&impl.CreateUser, "create", false, "create a new user")
+	flags.BoolVar(&impl.DeleteUser, "delete", false, "delete a user")
+	flags.BoolVar(&impl.MakeAdmin, "add-admin", false, "add admin permission to user")
+	flags.BoolVar(&impl.RemoveAdmin, "remove-admin", false, "remove admin permission from user")
+	flags.BoolVar(&impl.InfoUser, "info", false, "show information about a user")
+	flags.BoolVar(&impl.ListUsers, "list", false, "list all users")
+	flags.BoolVar(&impl.SetPassword, "set-password", false, "interactively set a user password")
+	flags.BoolVar(&impl.UnsetPassword, "unset-password", false, "delete a users password and block the account")
+	flags.BoolVar(&impl.CheckPassword, "check-password", false, "interactively check a user credential")
+	flags.BoolVar(&impl.EnableTOTP, "enable-totp", false, "interactively enroll a user in totp")
+	flags.BoolVar(&impl.DisableTOTP, "disable-totp", false, "disable totp for a user")
 
-	InfoUser  bool `description:"show information about a user" long:"info" short:"i"`
-	ListUsers bool `description:"list all users"                long:"list" short:"l"`
-
-	SetPassword   bool `description:"interactively set a user password"             long:"set-password"   short:"s"`
-	UnsetPassword bool `description:"delete a users password and block the account" long:"unset-password" short:"u"`
-	CheckPassword bool `description:"interactively check a user credential"         long:"check-password" short:"p"`
-
-	EnableTOTP  bool `description:"interactively enroll a user in totp" long:"enable-totp"  short:"t"`
-	DisableTOTP bool `description:"disable totp for a user"             long:"disable-totp" short:"v"`
-
-	Positionals struct {
-		User string `description:"username to manage. may be omitted for some actions" positional-arg-name:"USER"`
-	} `positional-args:"true"`
+	return cmd
 }
 
-func (disUser) Description() wisski_distillery.Description {
-	return wisski_distillery.Description{
-		Requirements: cli.Requirements{
-			NeedsDistillery: true,
-		},
-		Command:     "dis_user",
-		Description: "manage distillery users",
+type disUser struct {
+	CreateUser    bool
+	DeleteUser    bool
+	MakeAdmin     bool
+	RemoveAdmin   bool
+	InfoUser      bool
+	ListUsers     bool
+	SetPassword   bool
+	UnsetPassword bool
+	CheckPassword bool
+	EnableTOTP    bool
+	DisableTOTP   bool
+	Positionals   struct {
+		User string
 	}
 }
 
-var errUserRequired = exit.NewErrorWithCode("`USER` argument is required", exit.ExitCommandArguments)
+func (du *disUser) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		du.Positionals.User = args[0]
+	}
 
-func (du disUser) AfterParse() error {
+	// Validate arguments
 	var counter int
 	for _, action := range []bool{
 		du.CreateUser,
@@ -78,11 +93,36 @@ func (du disUser) AfterParse() error {
 	return nil
 }
 
-var errDisUserActionFailed = exit.NewErrorWithCode("action failed", exit.ExitGeneric)
+func (*disUser) Description() wisski_distillery.Description {
+	return wisski_distillery.Description{
+		Requirements: cli.Requirements{
+			NeedsDistillery: true,
+		},
+		Command:     "dis_user",
+		Description: "manage distillery users",
+	}
+}
 
-func (du disUser) Run(context wisski_distillery.Context) (err error) {
-	var userAction func(wisski_distillery.Context, *auth.AuthUser) error
-	var genericAction func(wisski_distillery.Context) error
+var errUserRequired = exit.NewErrorWithCode("`USER` argument is required", exit.ExitCommandArguments)
+var errDisUserActionFailed = exit.NewErrorWithCode("action failed", exit.ExitGeneric)
+var errPasswordsNotIdentical = exit.NewErrorWithCode("passwords not identical", exit.ExitGeneric)
+
+type (
+	_userAction    = func(*cobra.Command, *dis.Distillery, *auth.AuthUser) error
+	_genericAction = func(*cobra.Command, *dis.Distillery) error
+)
+
+func (du *disUser) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errDisUserActionFailed, err)
+	}
+
+	var userAction _userAction
+	var genericAction _genericAction
 
 	switch {
 	case du.ListUsers:
@@ -113,18 +153,18 @@ func (du disUser) Run(context wisski_distillery.Context) (err error) {
 
 	switch {
 	case genericAction != nil:
-		if err := genericAction(context); err != nil {
+		if err := genericAction(cmd, dis); err != nil {
 			return fmt.Errorf("%w: %w", errDisUserActionFailed, err)
 		}
 		return nil
 
 	case userAction != nil:
-		user, err := context.Environment.Auth().User(context.Context, du.Positionals.User)
+		user, err := dis.Auth().User(cmd.Context(), du.Positionals.User)
 		if err != nil {
 			return fmt.Errorf("%w: failed to get user: %w", errDisUserActionFailed, err)
 		}
 
-		if err := userAction(context, user); err != nil {
+		if err := userAction(cmd, dis, user); err != nil {
 			return fmt.Errorf("%w: %w", errDisUserActionFailed, err)
 		}
 		return nil
@@ -133,23 +173,23 @@ func (du disUser) Run(context wisski_distillery.Context) (err error) {
 	panic("never reached")
 }
 
-func (du disUser) runInfo(context wisski_distillery.Context, user *auth.AuthUser) error {
-	_, _ = context.Println(user)
+func (du *disUser) runInfo(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
+	_, _ = fmt.Fprintln(cmd.OutOrStdout(), user)
 	return nil
 }
 
-func (du disUser) runCreate(context wisski_distillery.Context) error {
-	user, err := context.Environment.Auth().CreateUser(context.Context, du.Positionals.User)
+func (du *disUser) runCreate(cmd *cobra.Command, dis *dis.Distillery) error {
+	user, err := dis.Auth().CreateUser(cmd.Context(), du.Positionals.User)
 	if err != nil {
 		return fmt.Errorf("failed to create user: %w", err)
 	}
 
-	_, _ = context.Println(user)
+	_, _ = fmt.Fprintln(cmd.OutOrStdout(), user)
 	return nil
 }
 
-func (du disUser) runDelete(context wisski_distillery.Context, user *auth.AuthUser) error {
-	if err := user.Delete(context.Context); err != nil {
+func (du *disUser) runDelete(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
+	if err := user.Delete(cmd.Context()); err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
 	return nil
@@ -157,28 +197,31 @@ func (du disUser) runDelete(context wisski_distillery.Context, user *auth.AuthUs
 
 var errPasswordPolicy = exit.NewErrorWithCode("password policy failed: %s", exit.ExitGeneric)
 
-func (du disUser) runSetPassword(context wisski_distillery.Context, user *auth.AuthUser) error {
+func (du *disUser) runSetPassword(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
 	var passwd string
 	{
-		if _, err := context.Printf("Enter new password for user %s:", du.Positionals.User); err != nil {
+		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Enter new password for user %s:", du.Positionals.User); err != nil {
 			return fmt.Errorf("failed to write text: %w", err)
 		}
-		passwd1, err := context.ReadPassword()
+		reader := bufio.NewReader(cmd.InOrStdin())
+		passwd1, err := reader.ReadString('\n')
 		if err != nil {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
-		if _, err := context.Println(); err != nil {
+		passwd1 = strings.TrimSpace(passwd1)
+		if _, err := fmt.Fprintln(cmd.OutOrStdout()); err != nil {
 			return fmt.Errorf("failed to write text: %w", err)
 		}
 
-		if _, err := context.Printf("Enter the same password again:"); err != nil {
+		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Enter the same password again:"); err != nil {
 			return fmt.Errorf("failed to write text: %w", err)
 		}
-		passwd, err = context.ReadPassword()
+		passwd, err = reader.ReadString('\n')
 		if err != nil {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
-		_, _ = context.Println()
+		passwd = strings.TrimSpace(passwd)
+		_, _ = fmt.Fprintln(cmd.OutOrStdout())
 
 		if passwd != passwd1 {
 			return errPasswordsNotIdentical
@@ -188,59 +231,62 @@ func (du disUser) runSetPassword(context wisski_distillery.Context, user *auth.A
 		}
 	}
 
-	if err := user.SetPassword(context.Context, []byte(passwd)); err != nil {
+	if err := user.SetPassword(cmd.Context(), []byte(passwd)); err != nil {
 		return fmt.Errorf("failed to set password: %w", err)
 	}
 	return nil
 }
 
-func (du disUser) runUnsetPassword(context wisski_distillery.Context, user *auth.AuthUser) error {
-	if err := user.UnsetPassword(context.Context); err != nil {
+func (du *disUser) runUnsetPassword(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
+	if err := user.UnsetPassword(cmd.Context()); err != nil {
 		return fmt.Errorf("failed to unset password: %w", err)
 	}
 	return nil
 }
 
-func (du disUser) runCheckPassword(context wisski_distillery.Context, user *auth.AuthUser) error {
-	if _, err := context.Printf("Enter password for %s:", du.Positionals.User); err != nil {
+func (du *disUser) runCheckPassword(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Enter password for %s:", du.Positionals.User); err != nil {
 		return fmt.Errorf("failed to write text: %w", err)
 	}
 
-	candidate, err := context.ReadPassword()
+	reader := bufio.NewReader(cmd.InOrStdin())
+	candidate, err := reader.ReadString('\n')
 	if err != nil {
 		return fmt.Errorf("failed to read password: %w", err)
 	}
-	_, _ = context.Println()
+	candidate = strings.TrimSpace(candidate)
+	_, _ = fmt.Fprintln(cmd.OutOrStdout())
 
 	var passcode string
 	if user.IsTOTPEnabled() {
-		passcode, err = context.ReadPassword()
+		passcode, err = reader.ReadString('\n')
 		if err != nil {
 			return fmt.Errorf("failed to read password: %w", err)
 		}
-		_, _ = context.Println()
+		passcode = strings.TrimSpace(passcode)
+		_, _ = fmt.Fprintln(cmd.OutOrStdout())
 	}
 
-	if err := user.CheckCredentials(context.Context, []byte(candidate), passcode); err != nil {
+	if err := user.CheckCredentials(cmd.Context(), []byte(candidate), passcode); err != nil {
 		return fmt.Errorf("failed to check credentials: %w", err)
 	}
 	return nil
 }
 
-func (du disUser) runListUsers(context wisski_distillery.Context) error {
-	users, err := context.Environment.Auth().Users(context.Context)
+func (du *disUser) runListUsers(cmd *cobra.Command, dis *dis.Distillery) error {
+	users, err := dis.Auth().Users(cmd.Context())
 	if err != nil {
 		return fmt.Errorf("failed to list all users: %w", err)
 	}
 	for _, user := range users {
-		_, _ = context.Println(user)
+		_, _ = fmt.Fprintln(cmd.OutOrStdout(), user)
 	}
 	return nil
 }
 
-func (du disUser) runEnableTOTP(context wisski_distillery.Context, user *auth.AuthUser) error {
+func (du *disUser) runEnableTOTP(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
 	// get the secret
-	key, err := user.NewTOTP(context.Context)
+	key, err := user.NewTOTP(cmd.Context())
 	if err != nil {
 		return fmt.Errorf("failed to generate new totp: %w", err)
 	}
@@ -250,45 +296,47 @@ func (du disUser) runEnableTOTP(context wisski_distillery.Context, user *auth.Au
 	if err != nil {
 		return fmt.Errorf("failed to generate totp link: %w", err)
 	}
-	if _, err := context.Println(url); err != nil {
+	if _, err := fmt.Fprintln(cmd.OutOrStdout(), url); err != nil {
 		return fmt.Errorf("failed to write text: %w", err)
 	}
 
 	// request the passcode
-	if _, err := context.Printf("Enter passcode for %s:", du.Positionals.User); err != nil {
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Enter passcode for %s:", du.Positionals.User); err != nil {
 		return fmt.Errorf("failed to write text: %w", err)
 	}
-	passcode, err := context.ReadPassword()
+	reader := bufio.NewReader(cmd.InOrStdin())
+	passcode, err := reader.ReadString('\n')
 	if err != nil {
 		return fmt.Errorf("failed to read passcode: %w", err)
 	}
-	if _, err := context.Println(); err != nil {
+	passcode = strings.TrimSpace(passcode)
+	if _, err := fmt.Fprintln(cmd.OutOrStdout()); err != nil {
 		return fmt.Errorf("failed to write text: %w", err)
 	}
 
 	// and enter it
-	if err := user.EnableTOTP(context.Context, passcode); err != nil {
+	if err := user.EnableTOTP(cmd.Context(), passcode); err != nil {
 		return fmt.Errorf("failed to emable totp: %w", err)
 	}
 	return nil
 }
 
-func (du disUser) runDisableTOTP(context wisski_distillery.Context, user *auth.AuthUser) error {
-	if err := user.DisableTOTP(context.Context); err != nil {
+func (du *disUser) runDisableTOTP(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
+	if err := user.DisableTOTP(cmd.Context()); err != nil {
 		return fmt.Errorf("failed to disable totp: %w", err)
 	}
 	return nil
 }
 
-func (du disUser) runMakeAdmin(context wisski_distillery.Context, user *auth.AuthUser) error {
-	if err := user.MakeAdmin(context.Context); err != nil {
+func (du *disUser) runMakeAdmin(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
+	if err := user.MakeAdmin(cmd.Context()); err != nil {
 		return fmt.Errorf("failed to make admin: %w", err)
 	}
 	return nil
 }
 
-func (du disUser) runRemoveAdmin(context wisski_distillery.Context, user *auth.AuthUser) error {
-	if err := user.MakeRegular(context.Context); err != nil {
+func (du *disUser) runRemoveAdmin(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
+	if err := user.MakeRegular(cmd.Context()); err != nil {
 		return fmt.Errorf("failed to make regular user: %w", err)
 	}
 	return nil

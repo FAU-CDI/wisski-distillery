@@ -6,19 +6,35 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// Ls is the 'ls' command.
-var Ls wisski_distillery.Command = ls{}
+func NewLsCommand() *cobra.Command {
+	impl := new(ls)
+
+	cmd := &cobra.Command{
+		Use:     "ls",
+		Short:   "lists instances",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	return cmd
+}
 
 type ls struct {
 	Positionals struct {
-		Slug []string `description:"slugs of instances to list. if empty, list all instances" positional-arg-name:"SLUG" required:"0"`
-	} `positional-args:"true"`
+		Slug []string
+	}
 }
 
-func (ls) Description() wisski_distillery.Description {
+func (l *ls) ParseArgs(cmd *cobra.Command, args []string) error {
+	l.Positionals.Slug = args
+	return nil
+}
+
+func (*ls) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -30,14 +46,22 @@ func (ls) Description() wisski_distillery.Description {
 
 var errLsWissKI = exit.NewErrorWithCode("unable to get WissKIs", exit.ExitGeneric)
 
-func (l ls) Run(context wisski_distillery.Context) error {
-	instances, err := context.Environment.Instances().Load(context.Context, l.Positionals.Slug...)
+func (l *ls) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errLsWissKI, err)
+	}
+
+	instances, err := dis.Instances().Load(cmd.Context(), l.Positionals.Slug...)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errLsWissKI, err)
 	}
 
 	for _, instance := range instances {
-		_, _ = context.Println(instance.Slug)
+		_, _ = fmt.Fprintln(cmd.OutOrStdout(), instance.Slug)
 	}
 
 	return nil

@@ -6,24 +6,43 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/exit"
 	"go.tkw01536.de/pkglib/fsx"
 )
 
-// Reserve is the 'reserve' command.
-var Reserve wisski_distillery.Command = reserve{}
+func NewReserveCommand() *cobra.Command {
+	impl := new(reserve)
+
+	cmd := &cobra.Command{
+		Use:     "reserve",
+		Short:   "reserves a new instance",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	return cmd
+}
 
 type reserve struct {
 	Positionals struct {
-		Slug string `description:"name of instance to reserve" positional-arg-name:"slug" required:"1-1"`
-	} `positional-args:"true"`
+		Slug string
+	}
 }
 
-func (reserve) Description() wisski_distillery.Description {
+func (r *reserve) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		r.Positionals.Slug = args[0]
+	}
+	return nil
+}
+
+func (*reserve) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -39,24 +58,32 @@ var (
 	errReserveAlreadyExists = exit.NewErrorWithCode("instance already exists", exit.ExitGeneric)
 	errReserveGeneric       = exit.NewErrorWithCode("unable to provision instance", exit.ExitGeneric)
 	errReserveStack         = exit.NewErrorWithCode("failed to open stack", exit.ExitGeneric)
+	errProvisionGeneric     = exit.NewErrorWithCode("unable to provision instance", exit.ExitGeneric)
 )
 
-func (r reserve) Run(context wisski_distillery.Context) (err error) {
-	if err := r.run(context); err != nil {
+func (r *reserve) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errReserveGeneric, err)
+	}
+
+	if err := r.run(cmd, dis); err != nil {
 		return fmt.Errorf("%w: %w", errReserveGeneric, err)
 	}
 	return nil
 }
 
-func (r reserve) run(context wisski_distillery.Context) (e error) {
-	dis := context.Environment
+func (r *reserve) run(cmd *cobra.Command, dis *dis.Distillery) (e error) {
 	slug := r.Positionals.Slug
 
 	// check that it doesn't already exist
-	if _, err := logging.LogMessage(context.Stderr, "Reserving new WissKI instance %s", slug); err != nil {
+	if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Reserving new WissKI instance %s", slug); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	if exists, err := dis.Instances().Has(context.Context, slug); err != nil || exists {
+	if exists, err := dis.Instances().Has(cmd.Context(), slug); err != nil || exists {
 		return fmt.Errorf("%q: %w: ", slug, errReserveAlreadyExists)
 	}
 
@@ -68,7 +95,7 @@ func (r reserve) run(context wisski_distillery.Context) (e error) {
 
 	// check that the base directory does not exist
 	{
-		if _, err := logging.LogMessage(context.Stderr, "Checking that base directory %s does not exist", instance.FilesystemBase); err != nil {
+		if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Checking that base directory %s does not exist", instance.FilesystemBase); err != nil {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 		exists, err := fsx.Exists(instance.FilesystemBase)
@@ -89,23 +116,23 @@ func (r reserve) run(context wisski_distillery.Context) (e error) {
 
 	{
 		if err := logging.LogOperation(func() error {
-			return s.Install(context.Context, context.Stderr, component.InstallationContext{})
-		}, context.Stderr, "Installing docker stack"); err != nil {
+			return s.Install(cmd.Context(), cmd.ErrOrStderr(), component.InstallationContext{})
+		}, cmd.ErrOrStderr(), "Installing docker stack"); err != nil {
 			return fmt.Errorf("failed to install docker stack: %w", err)
 		}
 
 		if err := logging.LogOperation(func() error {
-			return s.Update(context.Context, context.Stderr, true)
-		}, context.Stderr, "Updating docker stack"); err != nil {
+			return s.Update(cmd.Context(), cmd.ErrOrStderr(), true)
+		}, cmd.ErrOrStderr(), "Updating docker stack"); err != nil {
 			return fmt.Errorf("failed to update docker stack: %w", err)
 		}
 	}
 
 	// and we're done!
-	if _, err := logging.LogMessage(context.Stderr, "Instance has been reserved"); err != nil {
+	if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Instance has been reserved"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	_, _ = context.Printf("URL:      %s\n", instance.URL().String())
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "URL:      %s\n", instance.URL().String())
 
 	return nil
 }

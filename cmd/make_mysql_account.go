@@ -3,28 +3,42 @@ package cmd
 //spellchecker:words github wisski distillery internal goprogram exit parser
 import (
 	"fmt"
+	"strings"
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"go.tkw01536.de/goprogram/exit"
-	"go.tkw01536.de/goprogram/parser"
+	"github.com/spf13/cobra"
+	"go.tkw01536.de/pkglib/exit"
+	"go.tkw01536.de/pkglib/nobufio"
 )
 
-// Shell is the 'shell' command.
-var MakeMysqlAccount wisski_distillery.Command = makeMysqlAccount{}
+func NewMakeMysqlAccountCommand() *cobra.Command {
+	impl := new(makeMysqlAccount)
+
+	cmd := &cobra.Command{
+		Use:     "make_mysql_account",
+		Short:   "creates a MySQL account",
+		Args:    cobra.NoArgs,
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	return cmd
+}
 
 type makeMysqlAccount struct{}
 
-func (makeMysqlAccount) Description() wisski_distillery.Description {
+func (mma *makeMysqlAccount) ParseArgs(cmd *cobra.Command, args []string) error {
+	return nil
+}
+
+func (*makeMysqlAccount) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
 		},
-		ParserConfig: parser.Config{
-			IncludeUnknown: true,
-		},
 		Command:     "make_mysql_account",
-		Description: "opens a shell in the provided instance",
+		Description: "creates a MySQL account",
 	}
 }
 
@@ -34,22 +48,29 @@ var (
 	errUnableToMakeAccount  = exit.NewErrorWithCode("unable to create account", exit.ExitGeneric)
 )
 
-func (mma makeMysqlAccount) Run(context wisski_distillery.Context) error {
-	dis := context.Environment
+func (mma *makeMysqlAccount) Exec(cmd *cobra.Command, args []string) error {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
 
-	_, _ = context.Printf("Username>")
-	username, err := context.ReadLine()
+	if err != nil {
+		return fmt.Errorf("%w: %w", errUnableToMakeAccount, err)
+	}
+
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Username>")
+	username, err := nobufio.ReadLine(cmd.InOrStdin())
 	if err != nil {
 		return fmt.Errorf("%w: %w", errUnableToReadUsername, err)
 	}
+	username = strings.TrimSpace(username)
 
-	_, _ = context.Printf("Password>")
-	password, err := context.ReadPassword()
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Password>")
+	password, err := nobufio.ReadPassword(cmd.InOrStdin())
 	if err != nil {
 		return fmt.Errorf("%w: %w", errUnableToReadPassword, err)
 	}
 
-	if err := dis.SQL().CreateSuperuser(context.Context, username, password, false); err != nil {
+	if err := dis.SQL().CreateSuperuser(cmd.Context(), username, password, false); err != nil {
 		return fmt.Errorf("%w: %w", errUnableToMakeAccount, err)
 	}
 

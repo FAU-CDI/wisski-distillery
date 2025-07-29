@@ -6,22 +6,48 @@ import (
 
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
-	"go.tkw01536.de/goprogram/exit"
+	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/exit"
 )
 
-// InstancePause is the 'instance_pause' command.
-var InstancePause wisski_distillery.Command = instancepause{}
+func NewInstancePauseCommand() *cobra.Command {
+	impl := new(instancepause)
 
-type instancepause struct {
-	Stop        bool `description:"stop instance"               long:"stop"  short:"d"`
-	Start       bool `description:"start (or restart) instance" long:"start" short:"u"`
-	Positionals struct {
-		Slug string `description:"name of instance to purge" positional-arg-name:"slug" required:"1-1"`
-	} `positional-args:"true"`
+	cmd := &cobra.Command{
+		Use:     "instance_pause",
+		Short:   "stops or starts a single instance",
+		PreRunE: impl.ParseArgs,
+		RunE:    impl.Exec,
+	}
+
+	flags := cmd.Flags()
+	flags.BoolVar(&impl.Stop, "stop", false, "stop instance")
+	flags.BoolVar(&impl.Start, "start", false, "start (or restart) instance")
+
+	return cmd
 }
 
-func (instancepause) Description() wisski_distillery.Description {
+type instancepause struct {
+	Stop        bool
+	Start       bool
+	Positionals struct {
+		Slug string
+	}
+}
+
+func (i *instancepause) ParseArgs(cmd *cobra.Command, args []string) error {
+	if len(args) >= 1 {
+		i.Positionals.Slug = args[0]
+	}
+
+	if i.Stop == i.Start {
+		return errStopStartExcluded
+	}
+	return nil
+}
+
+func (*instancepause) Description() wisski_distillery.Description {
 	return wisski_distillery.Description{
 		Requirements: cli.Requirements{
 			NeedsDistillery: true,
@@ -31,20 +57,20 @@ func (instancepause) Description() wisski_distillery.Description {
 	}
 }
 
-func (i instancepause) AfterParse() error {
-	if i.Stop == i.Start {
-		return errStopStartExcluded
+var errStopStartExcluded = exit.NewErrorWithCode("stop and start are mutually exclusive", exit.ExitCommandArguments)
+var errInstancePauseWissKI = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
+var errInstancePauseStack = exit.NewErrorWithCode("unable to get stack", exit.ExitGeneric)
+
+func (i *instancepause) Exec(cmd *cobra.Command, args []string) (e error) {
+	dis, err := cli.GetDistillery(cmd, cli.Requirements{
+		NeedsDistillery: true,
+	})
+
+	if err != nil {
+		return fmt.Errorf("%w: %w", errInstancePauseWissKI, err)
 	}
-	return nil
-}
 
-var (
-	errInstancePauseWissKI = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
-	errInstancePauseStack  = exit.NewErrorWithCode("unable to get stack", exit.ExitGeneric)
-)
-
-func (i instancepause) Run(context wisski_distillery.Context) (e error) {
-	instance, err := context.Environment.Instances().WissKI(context.Context, i.Positionals.Slug)
+	instance, err := dis.Instances().WissKI(cmd.Context(), i.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errInstancePauseWissKI, err)
 	}
@@ -56,11 +82,11 @@ func (i instancepause) Run(context wisski_distillery.Context) (e error) {
 	defer errorsx.Close(stack, &e, "stack")
 
 	if i.Stop {
-		if err := stack.Down(context.Context, context.Stdout); err != nil {
+		if err := stack.Down(cmd.Context(), cmd.OutOrStdout()); err != nil {
 			return fmt.Errorf("failed to stop instance: %w", err)
 		}
 	} else {
-		if err := stack.Start(context.Context, context.Stdout); err != nil {
+		if err := stack.Start(cmd.Context(), cmd.OutOrStdout()); err != nil {
 			return fmt.Errorf("failed to start instance: %w", err)
 		}
 	}

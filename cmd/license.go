@@ -2,15 +2,27 @@ package cmd
 
 //spellchecker:words github wisski distillery internal component server assets
 import (
+	"fmt"
+
 	wisski_distillery "github.com/FAU-CDI/wisski-distillery"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
+	"github.com/FAU-CDI/wisski-distillery/internal/notices"
+	"github.com/spf13/cobra"
 )
 
-// License is the 'wdcli license' command.
-//
-// The license command prints to standard output legal notices about the wdcli program.
-var License wisski_distillery.Command = license{}
+func NewLicenseCommand() *cobra.Command {
+	impl := new(license)
+
+	cmd := &cobra.Command{
+		Use:   "license",
+		Short: "print licensing information about wdcli and exit",
+		Args:  cobra.NoArgs,
+		RunE:  impl.Exec,
+	}
+
+	return cmd
+}
 
 type license struct{}
 
@@ -24,12 +36,8 @@ func (license) Description() wisski_distillery.Description {
 	}
 }
 
-func (license) AfterParse() error {
-	return nil
-}
-
-func (license) Run(context wisski_distillery.Context) error {
-	_, _ = context.Printf(stringLicenseInfo, wisski_distillery.License, cli.LegalNotices, assets.Disclaimer)
+func (license) Exec(cmd *cobra.Command, args []string) error {
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), stringLicenseInfo, wisski_distillery.License, notices.LegalNotices, assets.Disclaimer)
 	return nil
 }
 
