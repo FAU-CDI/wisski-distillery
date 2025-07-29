@@ -14,7 +14,7 @@ func NewPrefixesCommand() *cobra.Command {
 	impl := new(prefixes)
 
 	cmd := &cobra.Command{
-		Use:     "prefixes",
+		Use:     "prefixes SLUG",
 		Short:   "list all prefixes for a specific instance",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,

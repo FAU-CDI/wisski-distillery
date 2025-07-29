@@ -19,7 +19,7 @@ func NewProvisionCommand() *cobra.Command {
 	impl := new(pv)
 
 	cmd := &cobra.Command{
-		Use:     "provision",
+		Use:     "provision SLUG",
 		Short:   "creates a new instance",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,

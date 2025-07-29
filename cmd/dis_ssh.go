@@ -19,7 +19,7 @@ func NewDisSSHCommand() *cobra.Command {
 	impl := new(disSSH)
 
 	cmd := &cobra.Command{
-		Use:     "dis_ssh",
+		Use:     "dis_ssh USER PATH",
 		Short:   "add or remove an ssh key from a user",
 		Args:    cobra.ExactArgs(2),
 		PreRunE: impl.ParseArgs,

@@ -16,7 +16,7 @@ func NewMondayCommand() *cobra.Command {
 	impl := new(monday)
 
 	cmd := &cobra.Command{
-		Use:     "monday",
+		Use:     "monday GRAPHDB_ZIP",
 		Short:   "runs regular monday tasks",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,

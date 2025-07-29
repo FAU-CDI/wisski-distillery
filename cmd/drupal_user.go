@@ -20,7 +20,7 @@ func NewDrupalUserCommand() *cobra.Command {
 	impl := new(drupalUser)
 
 	cmd := &cobra.Command{
-		Use:     "drupal_user",
+		Use:     "drupal_user SLUG [USER]",
 		Short:   "set a password for a specific user",
 		Args:    cobra.RangeArgs(1, 2),
 		PreRunE: impl.ParseArgs,

@@ -16,7 +16,7 @@ func NewPurgeCommand() *cobra.Command {
 	impl := new(purge)
 
 	cmd := &cobra.Command{
-		Use:     "purge",
+		Use:     "purge SLUG",
 		Short:   "purges an instance",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,

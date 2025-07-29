@@ -15,7 +15,7 @@ func NewDrupalSettingCommand() *cobra.Command {
 	impl := new(setting)
 
 	cmd := &cobra.Command{
-		Use:     "drupal_setting",
+		Use:     "drupal_setting SLUG SETTING [VALUE]",
 		Short:   "get or set a drupal setting",
 		Args:    cobra.RangeArgs(2, 3),
 		PreRunE: impl.ParseArgs,

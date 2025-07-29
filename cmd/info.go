@@ -17,7 +17,7 @@ func NewInfoCommand() *cobra.Command {
 	impl := new(info)
 
 	cmd := &cobra.Command{
-		Use:     "info",
+		Use:     "info SLUG",
 		Short:   "provide information about a single instance",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,

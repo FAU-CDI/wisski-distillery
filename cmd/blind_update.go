@@ -18,7 +18,7 @@ func NewBlindUpdateCommand() *cobra.Command {
 	impl := new(blindUpdate)
 
 	cmd := &cobra.Command{
-		Use:     "blind_update",
+		Use:     "blind_update SLUG...",
 		Short:   "runs the blind update in the provided instances",
 		Args:    cobra.ArbitraryArgs,
 		PreRunE: impl.ParseArgs,

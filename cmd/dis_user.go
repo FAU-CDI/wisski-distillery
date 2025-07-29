@@ -18,7 +18,7 @@ func NewDisUserCommand() *cobra.Command {
 	impl := new(disUser)
 
 	cmd := &cobra.Command{
-		Use:     "dis_user",
+		Use:     "dis_user [USER]",
 		Short:   "manage distillery users",
 		Args:    cobra.MaximumNArgs(1),
 		PreRunE: impl.ParseArgs,

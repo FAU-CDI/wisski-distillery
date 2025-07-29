@@ -15,7 +15,7 @@ func NewInstancePauseCommand() *cobra.Command {
 	impl := new(instancepause)
 
 	cmd := &cobra.Command{
-		Use:     "instance_pause",
+		Use:     "instance_pause SLUG",
 		Short:   "stops or starts a single instance",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,

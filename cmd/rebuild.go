@@ -18,7 +18,7 @@ func NewRebuildCommand() *cobra.Command {
 	impl := new(rebuild)
 
 	cmd := &cobra.Command{
-		Use:     "rebuild",
+		Use:     "rebuild SLUG...",
 		Short:   "runs the rebuild script for several instances",
 		Args:    cobra.ArbitraryArgs,
 		PreRunE: impl.ParseArgs,

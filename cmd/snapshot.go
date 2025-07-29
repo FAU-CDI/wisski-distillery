@@ -15,7 +15,7 @@ func NewSnapshotCommand() *cobra.Command {
 	impl := new(snapshot)
 
 	cmd := &cobra.Command{
-		Use:     "snapshot",
+		Use:     "snapshot SLUG [DEST]",
 		Short:   "generates a snapshot archive for the provided instance",
 		Args:    cobra.RangeArgs(1, 2),
 		PreRunE: impl.ParseArgs,

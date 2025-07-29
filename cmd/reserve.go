@@ -20,7 +20,7 @@ func NewReserveCommand() *cobra.Command {
 	impl := new(reserve)
 
 	cmd := &cobra.Command{
-		Use:     "reserve",
+		Use:     "reserve SLUG",
 		Short:   "reserves a new instance",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,

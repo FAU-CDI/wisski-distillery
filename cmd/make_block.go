@@ -19,7 +19,7 @@ func NewMakeBlockCommand() *cobra.Command {
 	impl := new(makeBlock)
 
 	cmd := &cobra.Command{
-		Use:     "make_block",
+		Use:     "make_block [SLUG]",
 		Short:   "Creates a block with html content provided on stdin",
 		Args:    cobra.MaximumNArgs(1),
 		PreRunE: impl.ParseArgs,

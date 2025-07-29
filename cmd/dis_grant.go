@@ -17,7 +17,7 @@ func NewDisGrantCommand() *cobra.Command {
 	impl := new(disGrant)
 
 	cmd := &cobra.Command{
-		Use:     "dis_grant",
+		Use:     "dis_grant USER [SLUG] [DRUPAL_USER]",
 		Short:   "grant distillery users access to specific WissKIs",
 		Args:    cobra.RangeArgs(1, 3),
 		PreRunE: impl.ParseArgs,

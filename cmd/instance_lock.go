@@ -14,7 +14,7 @@ func NewInstanceLockCommand() *cobra.Command {
 	impl := new(instanceLock)
 
 	cmd := &cobra.Command{
-		Use:     "instance_lock",
+		Use:     "instance_lock SLUG",
 		Short:   "locks or unlocks an instance",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,

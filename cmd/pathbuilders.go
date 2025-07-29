@@ -14,7 +14,7 @@ func NewPathbuildersCommand() *cobra.Command {
 	impl := new(pathbuilders)
 
 	cmd := &cobra.Command{
-		Use:     "pathbuilders",
+		Use:     "pathbuilders SLUG [NAME]",
 		Short:   "list pathbuilders of a specific instance",
 		Args:    cobra.RangeArgs(1, 2),
 		PreRunE: impl.ParseArgs,

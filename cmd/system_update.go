@@ -25,7 +25,7 @@ func NewSystemUpdateCommand() *cobra.Command {
 	impl := new(systemupdate)
 
 	cmd := &cobra.Command{
-		Use:     "system_update",
+		Use:     "system_update GRAPHDB_ZIP",
 		Short:   "installs and updates components of the distillery system",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,

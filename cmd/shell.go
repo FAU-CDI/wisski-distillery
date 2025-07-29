@@ -17,7 +17,7 @@ func NewShellCommand() *cobra.Command {
 	impl := new(shell)
 
 	cmd := &cobra.Command{
-		Use:     "shell",
+		Use:     "shell SLUG [ARGS...]",
 		Short:   "open a shell in the provided instance",
 		Args:    cobra.MinimumNArgs(1),
 		PreRunE: impl.ParseArgs,

@@ -15,7 +15,7 @@ func NewInstanceLogCommand() *cobra.Command {
 	impl := new(instanceLog)
 
 	cmd := &cobra.Command{
-		Use:     "instance_log",
+		Use:     "instance_log SLUG",
 		Short:   "follows logs for a given instance",
 		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
