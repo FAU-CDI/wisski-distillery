@@ -27,6 +27,7 @@ func NewSystemUpdateCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "system_update",
 		Short:   "installs and updates components of the distillery system",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -45,9 +46,7 @@ type systemupdate struct {
 }
 
 func (s *systemupdate) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		s.Positionals.GraphdbZip = args[0]
-	}
+	s.Positionals.GraphdbZip = args[0]
 
 	isFile, err := fsx.IsRegular(s.Positionals.GraphdbZip, true)
 	if err != nil {

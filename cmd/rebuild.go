@@ -20,6 +20,7 @@ func NewRebuildCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "rebuild",
 		Short:   "runs the rebuild script for several instances",
+		Args:    cobra.ArbitraryArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

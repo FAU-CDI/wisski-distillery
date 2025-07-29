@@ -19,6 +19,7 @@ func NewDisGrantCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "dis_grant",
 		Short:   "grant distillery users access to specific WissKIs",
+		Args:    cobra.RangeArgs(1, 3),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -45,9 +46,7 @@ type disGrant struct {
 }
 
 func (dg *disGrant) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		dg.Positionals.User = args[0]
-	}
+	dg.Positionals.User = args[0]
 	if len(args) >= 2 {
 		dg.Positionals.Slug = args[1]
 	}

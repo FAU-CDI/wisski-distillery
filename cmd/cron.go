@@ -19,6 +19,7 @@ func NewCronCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "cron",
 		Short:   "runs the cron script for several instances",
+		Args:    cobra.ArbitraryArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

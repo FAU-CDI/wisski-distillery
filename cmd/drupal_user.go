@@ -22,6 +22,7 @@ func NewDrupalUserCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "drupal_user",
 		Short:   "set a password for a specific user",
+		Args:    cobra.RangeArgs(1, 2),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -47,9 +48,7 @@ type drupalUser struct {
 }
 
 func (du *drupalUser) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		du.Positionals.Slug = args[0]
-	}
+	du.Positionals.Slug = args[0]
 	if len(args) >= 2 {
 		du.Positionals.User = args[1]
 	}

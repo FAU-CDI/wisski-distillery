@@ -21,6 +21,7 @@ func NewProvisionCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "provision",
 		Short:   "creates a new instance",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -51,9 +52,7 @@ type pv struct {
 }
 
 func (p *pv) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		p.Positionals.Slug = args[0]
-	}
+	p.Positionals.Slug = args[0]
 
 	if !p.ListFlavors && !p.ListPHPVersions && p.Positionals.Slug == "" {
 		return errProvisionMissingSlug

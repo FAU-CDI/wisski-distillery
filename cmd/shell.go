@@ -19,6 +19,7 @@ func NewShellCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "shell",
 		Short:   "open a shell in the provided instance",
+		Args:    cobra.MinimumNArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -34,9 +35,7 @@ type shell struct {
 }
 
 func (sh *shell) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		sh.Positionals.Slug = args[0]
-	}
+	sh.Positionals.Slug = args[0]
 	if len(args) >= 2 {
 		sh.Positionals.Args = args[1:]
 	}

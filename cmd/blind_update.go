@@ -20,6 +20,7 @@ func NewBlindUpdateCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "blind_update",
 		Short:   "runs the blind update in the provided instances",
+		Args:    cobra.ArbitraryArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

@@ -17,6 +17,7 @@ func NewDrupalSettingCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "drupal_setting",
 		Short:   "get or set a drupal setting",
+		Args:    cobra.RangeArgs(2, 3),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -33,12 +34,8 @@ type setting struct {
 }
 
 func (ds *setting) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		ds.Positionals.Slug = args[0]
-	}
-	if len(args) >= 2 {
-		ds.Positionals.Setting = args[1]
-	}
+	ds.Positionals.Slug = args[0]
+	ds.Positionals.Setting = args[1]
 	if len(args) >= 3 {
 		ds.Positionals.Value = args[2]
 	}

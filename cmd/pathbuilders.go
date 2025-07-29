@@ -16,6 +16,7 @@ func NewPathbuildersCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "pathbuilders",
 		Short:   "list pathbuilders of a specific instance",
+		Args:    cobra.RangeArgs(1, 2),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -31,9 +32,7 @@ type pathbuilders struct {
 }
 
 func (pb *pathbuilders) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		pb.Positionals.Slug = args[0]
-	}
+	pb.Positionals.Slug = args[0]
 	if len(args) >= 2 {
 		pb.Positionals.Name = args[1]
 	}

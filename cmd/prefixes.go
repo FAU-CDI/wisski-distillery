@@ -16,6 +16,7 @@ func NewPrefixesCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "prefixes",
 		Short:   "list all prefixes for a specific instance",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -30,9 +31,7 @@ type prefixes struct {
 }
 
 func (p *prefixes) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		p.Positionals.Slug = args[0]
-	}
+	p.Positionals.Slug = args[0]
 	return nil
 }
 

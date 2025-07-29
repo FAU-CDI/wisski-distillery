@@ -18,6 +18,7 @@ func NewMondayCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "monday",
 		Short:   "runs regular monday tasks",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

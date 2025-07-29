@@ -21,6 +21,7 @@ func NewDisSSHCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "dis_ssh",
 		Short:   "add or remove an ssh key from a user",
+		Args:    cobra.ExactArgs(2),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -44,12 +45,8 @@ type disSSH struct {
 }
 
 func (ds *disSSH) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		ds.Positionals.User = args[0]
-	}
-	if len(args) >= 2 {
-		ds.Positionals.Path = args[1]
-	}
+	ds.Positionals.User = args[0]
+	ds.Positionals.Path = args[1]
 
 	// Validate arguments
 	var counter int

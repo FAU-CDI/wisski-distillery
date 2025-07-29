@@ -17,6 +17,7 @@ func NewInstanceLogCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "instance_log",
 		Short:   "follows logs for a given instance",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -31,9 +32,7 @@ type instanceLog struct {
 }
 
 func (i *instanceLog) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		i.Positionals.Slug = args[0]
-	}
+	i.Positionals.Slug = args[0]
 	return nil
 }
 

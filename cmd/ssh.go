@@ -17,6 +17,7 @@ func NewSSHCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "ssh",
 		Short:   "starts the ssh server to allow clients to connect to this distillery",
+		Args:    cobra.NoArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

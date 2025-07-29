@@ -19,6 +19,7 @@ func NewUpdatePrefixConfigCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "update_prefix_config",
 		Short:   "updates the prefix configuration",
+		Args:    cobra.NoArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

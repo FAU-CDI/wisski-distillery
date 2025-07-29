@@ -17,6 +17,7 @@ func NewMysqlCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "mysql",
 		Short:   "opens a mysql shell",
+		Args:    cobra.ArbitraryArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

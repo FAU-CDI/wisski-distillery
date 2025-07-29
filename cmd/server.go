@@ -23,6 +23,7 @@ func NewServerCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "server",
 		Short:   "starts a server with information about this distillery",
+		Args:    cobra.NoArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

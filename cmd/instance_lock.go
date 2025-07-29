@@ -16,6 +16,7 @@ func NewInstanceLockCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "instance_lock",
 		Short:   "locks or unlocks an instance",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -36,9 +37,7 @@ type instanceLock struct {
 }
 
 func (l *instanceLock) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		l.Positionals.Slug = args[0]
-	}
+	l.Positionals.Slug = args[0]
 
 	if l.Lock == l.Unlock {
 		return exit.NewErrorWithCode("exactly one of `--lock` and `--unlock` must be provied", exit.ExitCommandArguments)

@@ -17,6 +17,7 @@ func NewInstancePauseCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "instance_pause",
 		Short:   "stops or starts a single instance",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -37,9 +38,7 @@ type instancepause struct {
 }
 
 func (i *instancepause) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		i.Positionals.Slug = args[0]
-	}
+	i.Positionals.Slug = args[0]
 
 	if i.Stop == i.Start {
 		return errStopStartExcluded

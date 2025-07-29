@@ -17,6 +17,7 @@ func NewStatusCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "status",
 		Short:   "provide information about the distillery as a whole",
+		Args:    cobra.NoArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

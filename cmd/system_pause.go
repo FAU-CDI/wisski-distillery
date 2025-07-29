@@ -23,6 +23,7 @@ func NewSystemPauseCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "system_pause",
 		Short:   "stops or starts the entire distillery system",
+		Args:    cobra.NoArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

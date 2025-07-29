@@ -22,6 +22,7 @@ func NewReserveCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "reserve",
 		Short:   "reserves a new instance",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -36,9 +37,7 @@ type reserve struct {
 }
 
 func (r *reserve) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		r.Positionals.Slug = args[0]
-	}
+	r.Positionals.Slug = args[0]
 	return nil
 }
 

@@ -17,6 +17,7 @@ func NewSnapshotCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "snapshot",
 		Short:   "generates a snapshot archive for the provided instance",
+		Args:    cobra.RangeArgs(1, 2),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -42,9 +43,7 @@ type snapshot struct {
 }
 
 func (sn *snapshot) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		sn.Positionals.Slug = args[0]
-	}
+	sn.Positionals.Slug = args[0]
 	if len(args) >= 2 {
 		sn.Positionals.Dest = args[1]
 	}

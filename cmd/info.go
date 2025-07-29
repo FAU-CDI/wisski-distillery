@@ -19,6 +19,7 @@ func NewInfoCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "info",
 		Short:   "provide information about a single instance",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
@@ -37,9 +38,7 @@ type info struct {
 }
 
 func (i *info) ParseArgs(cmd *cobra.Command, args []string) error {
-	if len(args) >= 1 {
-		i.Positionals.Slug = args[0]
-	}
+	i.Positionals.Slug = args[0]
 	return nil
 }
 

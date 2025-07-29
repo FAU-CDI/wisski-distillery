@@ -16,6 +16,7 @@ func NewLsCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "ls",
 		Short:   "lists instances",
+		Args:    cobra.ArbitraryArgs,
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}

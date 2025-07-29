@@ -15,6 +15,7 @@ func NewRebuildTSCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "rebuild_ts",
 		Short:   "rebuild the triplestore for a specific instance",
+		Args:    cobra.ExactArgs(1),
 		PreRunE: impl.ParseArgs,
 		RunE:    impl.Exec,
 	}
