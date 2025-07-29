@@ -1,7 +1,7 @@
 //spellchecker:words meta
 package meta
 
-//spellchecker:words reflect sync github wisski distillery internal component models
+//spellchecker:words sync github wisski distillery internal component models
 import (
 	"sync"
 

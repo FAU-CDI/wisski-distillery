@@ -1,7 +1,7 @@
 //spellchecker:words phpx
 package phpx
 
-//spellchecker:words encoding json math strconv strings github pkglib collection
+//spellchecker:words encoding json math strconv strings pkglib collection
 import (
 	"encoding/json"
 	"fmt"

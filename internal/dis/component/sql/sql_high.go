@@ -1,5 +1,6 @@
 package sql
 
+//spellchecker:words context errors
 import (
 	"context"
 	"errors"

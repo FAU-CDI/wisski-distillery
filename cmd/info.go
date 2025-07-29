@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words encoding json github wisski distillery internal goprogram exit pkglib collection
+//spellchecker:words encoding json github wisski distillery internal cobra pkglib collection exit
 import (
 	"encoding/json"
 	"fmt"

@@ -1,7 +1,7 @@
 //spellchecker:words unpack
 package unpack
 
-//spellchecker:words errors path filepath github pkglib errorsx umaskfree
+//spellchecker:words errors path filepath pkglib errorsx umaskfree
 import (
 	"errors"
 	"fmt"

@@ -1,7 +1,7 @@
-//spellchecker:words compose
+//spellchecker:words dockerenv
 package dockerenv
 
-//spellchecker:words strings github pkglib collection
+//spellchecker:words strings pkglib collection
 import (
 	"fmt"
 	"io"

@@ -1,7 +1,7 @@
 //spellchecker:words legal
 package legal
 
-//spellchecker:words context http github wisski distillery internal component server assets handling templating embed
+//spellchecker:words context http github wisski distillery internal component server assets handling templating notices embed
 import (
 	"context"
 	"net/http"

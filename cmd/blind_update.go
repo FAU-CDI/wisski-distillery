@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal goprogram exit pkglib collection status
+//spellchecker:words github wisski distillery internal cobra pkglib collection exit status
 import (
 	"fmt"
 	"io"

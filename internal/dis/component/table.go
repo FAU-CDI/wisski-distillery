@@ -1,6 +1,7 @@
 //spellchecker:words component
 package component
 
+//spellchecker:words github wisski distillery internal models
 import "github.com/FAU-CDI/wisski-distillery/internal/models"
 
 //spellchecker:words reflect

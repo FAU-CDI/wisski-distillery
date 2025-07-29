@@ -1,7 +1,7 @@
 //spellchecker:words sshkeys
 package sshkeys
 
-//spellchecker:words context reflect github wisski distillery internal component models gliderlabs
+//spellchecker:words context github wisski distillery internal component models gliderlabs
 import (
 	"context"
 	"fmt"

@@ -1,7 +1,7 @@
 //spellchecker:words barrel
 package barrel
 
-//spellchecker:words context errors time github wisski distillery internal component meta status ingredient locker mstore pkglib errorsx
+//spellchecker:words context errors time github wisski distillery internal component meta status ingredient mstore pkglib errorsx
 import (
 	"context"
 	"errors"

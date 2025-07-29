@@ -1,5 +1,6 @@
 package cmd
 
+//spellchecker:words context user github wisski distillery internal wdlog cobra pkglib exit stream
 import (
 	"context"
 	"fmt"

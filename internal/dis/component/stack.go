@@ -3,7 +3,7 @@
 //spellchecker:words component
 package component
 
-//spellchecker:words context errors path filepath github wisski distillery compose dockerx unpack pkglib errorsx umaskfree gopkg yaml
+//spellchecker:words context errors path filepath github wisski distillery internal dockerenv dockerx unpack pkglib errorsx umaskfree gopkg yaml
 import (
 	"context"
 	"errors"

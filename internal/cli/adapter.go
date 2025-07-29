@@ -1,6 +1,6 @@
 package cli
 
-//spellchecker:words context github cobra
+//spellchecker:words context github wisski distillery internal cobra
 import (
 	"context"
 

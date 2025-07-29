@@ -1,5 +1,6 @@
 package sql
 
+//spellchecker:words context strings github wisski distillery dockerx execx pkglib stream
 import (
 	"context"
 	"strings"

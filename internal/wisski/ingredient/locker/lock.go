@@ -1,7 +1,7 @@
 //spellchecker:words locker
 package locker
 
-//spellchecker:words context errors time github wisski distillery internal models ingredient pkglib contextx
+//spellchecker:words context errors time github wisski distillery internal component models wdlog ingredient driver mysql pkglib contextx gorm
 import (
 	"context"
 	"errors"

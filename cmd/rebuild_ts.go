@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal
+//spellchecker:words github wisski distillery internal cobra
 import (
 	"fmt"
 

@@ -3,6 +3,7 @@
 //spellchecker:words models
 package models
 
+//spellchecker:words gorm schema
 import "gorm.io/gorm/schema"
 
 // Model represents an abitrary database model.

@@ -1,6 +1,6 @@
 package sql
 
-//spellchecker:words context github wisski distillery internal component models pkglib errorsx stream
+//spellchecker:words context github wisski distillery internal component models dockerx pkglib errorsx stream
 import (
 	"context"
 	"fmt"

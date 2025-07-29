@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal status wstatus goprogram exit pkglib errorsx
+//spellchecker:words github wisski distillery internal status wstatus cobra pkglib errorsx exit nobufio
 import (
 	"fmt"
 	"io"

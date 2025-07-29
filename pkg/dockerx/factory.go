@@ -3,7 +3,7 @@
 //spellchecker:words dockerx
 package dockerx
 
-//spellchecker:words github pkglib errorsx
+//spellchecker:words pkglib errorsx
 import (
 	"fmt"
 

@@ -1,7 +1,7 @@
 //spellchecker:words barrel
 package barrel
 
-//spellchecker:words context github alessio shellescape goprogram exit pkglib errorsx stream
+//spellchecker:words context essio shellescape github wisski distillery dockerx pkglib errorsx exit stream
 import (
 	"context"
 	"fmt"

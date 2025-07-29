@@ -1,6 +1,6 @@
 package cli
 
-//spellchecker:words github wisski distillery internal config component goprogram exit pkglib errorsx
+//spellchecker:words github wisski distillery internal config component pkglib errorsx exit
 import (
 	"fmt"
 	"os"

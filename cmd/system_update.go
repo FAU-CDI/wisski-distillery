@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words sync github wisski distillery internal component execx logging goprogram exit parser pkglib errorsx umaskfree status
+//spellchecker:words sync github wisski distillery internal component execx logging cobra pkglib errorsx exit umaskfree status
 import (
 	"fmt"
 	"io"

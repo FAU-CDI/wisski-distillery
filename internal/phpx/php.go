@@ -3,7 +3,7 @@
 //spellchecker:words phpx
 package phpx
 
-//spellchecker:words context github pkglib stream
+//spellchecker:words context pkglib stream
 import (
 	"context"
 

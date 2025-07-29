@@ -1,7 +1,7 @@
 //spellchecker:words locker
 package locker
 
-//spellchecker:words context github wisski distillery internal status ingredient
+//spellchecker:words context github wisski distillery internal component models status wdlog ingredient liquid
 import (
 	"context"
 	"fmt"

@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal ingredient locker goprogram exit
+//spellchecker:words github wisski distillery internal cobra pkglib exit
 import (
 	"fmt"
 

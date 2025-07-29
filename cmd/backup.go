@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words slog github wisski distillery internal component exporter wdlog logging goprogram exit
+//spellchecker:words slog github wisski distillery internal component exporter wdlog logging cobra pkglib exit
 import (
 	"fmt"
 	"log/slog"

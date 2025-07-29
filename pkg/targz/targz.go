@@ -3,7 +3,7 @@
 //spellchecker:words targz
 package targz
 
-//spellchecker:words archive compress gzip path filepath github pkglib errorsx umaskfree
+//spellchecker:words archive compress gzip path filepath pkglib errorsx umaskfree
 import (
 	"archive/tar"
 	"compress/gzip"

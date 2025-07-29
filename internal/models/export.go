@@ -1,7 +1,7 @@
 //spellchecker:words models
 package models
 
-//spellchecker:words time
+//spellchecker:words time pkglib
 import (
 	"fmt"
 	"time"

@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal component models logging goprogram exit pkglib errorsx
+//spellchecker:words github wisski distillery internal component models logging cobra pkglib errorsx exit
 import (
 	"fmt"
 

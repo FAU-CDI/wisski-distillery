@@ -1,6 +1,6 @@
 package sql
 
-//spellchecker:words context database time gorm driver mysql logger github wisski distillery internal component models pkglib timex
+//spellchecker:words context errors reflect gorm driver mysql logger github wisski distillery internal component
 import (
 	"context"
 	"errors"

@@ -1,7 +1,7 @@
 //spellchecker:words component
 package component
 
-//spellchecker:words context http github pkglib httpx
+//spellchecker:words context http pkglib httpx
 import (
 	"context"
 	"net/http"

@@ -1,7 +1,7 @@
 //spellchecker:words validators
 package validators
 
-//spellchecker:words github pkglib validator
+//spellchecker:words pkglib validator
 import (
 	"go.tkw01536.de/pkglib/validator"
 )

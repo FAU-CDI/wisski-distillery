@@ -1,7 +1,7 @@
 //spellchecker:words dockerx
 package dockerx
 
-//spellchecker:words context errors slices github wisski distillery compose execx docker types container filters pkglib errorsx stream
+//spellchecker:words context errors slices github wisski distillery execx compose spec types docker container filters pkglib errorsx stream
 import (
 	"context"
 	"errors"

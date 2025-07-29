@@ -1,7 +1,7 @@
 //spellchecker:words auth
 package auth
 
-//spellchecker:words bytes context encoding base errors image reflect strings github wisski distillery internal component models passwordx pquerna totp pkglib password golang crypto bcrypt
+//spellchecker:words bytes context encoding base errors image strings github wisski distillery internal component models passwordx pquerna totp pkglib password golang crypto bcrypt gorm
 import (
 	"bytes"
 	"context"

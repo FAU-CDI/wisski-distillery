@@ -1,7 +1,7 @@
 //spellchecker:words server
 package server
 
-//spellchecker:words context http github wisski distillery internal component docker server handling templating models wdlog pkglib contextx httpx wrap recovery gorilla csrf
+//spellchecker:words context http github wisski distillery internal component docker server handling templating models wdlog pkglib httpx wrap recovery gorilla csrf
 import (
 	"context"
 	"io"

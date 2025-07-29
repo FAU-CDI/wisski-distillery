@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words errors path filepath github wisski distillery internal bootstrap config logging goprogram exit pkglib errorsx umaskfree
+//spellchecker:words errors path filepath github wisski distillery internal bootstrap config logging cobra pkglib errorsx exit umaskfree
 import (
 	"errors"
 	"fmt"

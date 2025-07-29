@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal component auth goprogram exit
+//spellchecker:words bufio strings github wisski distillery internal component auth cobra pkglib exit
 import (
 	"bufio"
 	"fmt"

@@ -1,6 +1,6 @@
 package sql
 
-//spellchecker:words context errors reflect time github wisski distillery internal component execx logging pkglib sqlx stream timex
+//spellchecker:words context github wisski distillery internal component logging
 import (
 	"context"
 	"fmt"

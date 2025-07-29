@@ -1,5 +1,6 @@
 package sql
 
+//spellchecker:words context database errors time github driver mysql wisski distillery internal component wdlog pkglib errorsx timex
 import (
 	"context"
 	databaseSQL "database/sql"

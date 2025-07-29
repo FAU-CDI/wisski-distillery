@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal logging pkglib
+//spellchecker:words errors github wisski distillery internal logging cobra pkglib
 import (
 	"errors"
 	"fmt"

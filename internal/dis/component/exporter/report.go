@@ -1,7 +1,7 @@
 //spellchecker:words exporter
 package exporter
 
-//spellchecker:words encoding json strings github pkglib sequence
+//spellchecker:words encoding json strings pkglib sequence
 import (
 	"encoding/json"
 	"fmt"

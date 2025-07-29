@@ -1,6 +1,6 @@
 package cmd
 
-//spellchecker:words github wisski distillery internal component auth goprogram exit golang crypto gossh
+//spellchecker:words github wisski distillery internal component auth cobra pkglib exit golang crypto gossh
 import (
 	"fmt"
 	"os"

@@ -1,6 +1,6 @@
 package sql
 
-//spellchecker:words reflect github wisski distillery internal component models
+//spellchecker:words github wisski distillery internal component models
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"

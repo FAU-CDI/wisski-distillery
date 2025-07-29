@@ -18,7 +18,6 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-meta v1.1.0
-	go.tkw01536.de/goprogram v0.9.7
 	go.tkw01536.de/pkglib v0.0.0-20250727115718-875a680e4409
 	golang.org/x/crypto v0.40.0
 	golang.org/x/net v0.42.0
@@ -139,7 +138,6 @@ require (
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jellydator/ttlcache/v3 v3.4.0 // indirect
-	github.com/jessevdk/go-flags v1.6.1 // indirect
 	github.com/jgautheron/goconst v1.8.1 // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
