@@ -8,6 +8,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/cgo"
 	"go.tkw01536.de/pkglib/errorsx"
 	"go.tkw01536.de/pkglib/exit"
@@ -19,8 +20,12 @@ var (
 	errCGoEnabled   = exit.NewErrorWithCode("this functionality is only available when cgo support is disabled. Set `CGO_ENABLED=0' at build time and try again", exit.ExitGeneralArguments)
 )
 
-// NewDistillery creates a new distillery from the provided flags.
-func NewDistillery(params Params, flags Flags, req Requirements) (d *dis.Distillery, e error) {
+// GetDistillery gets the distillery for the currently running command.
+// [SetFlags] and [SetParameters] must have been called.
+func GetDistillery(cmd *cobra.Command, req Requirements) (d *dis.Distillery, e error) {
+	flags := get[Flags](cmd, flagsKey)
+	params := get[Params](cmd, parametersKey)
+
 	// check cgo support to prevent weird error messages
 	// this has to happen either when we are inside docker, or when explicity requested by the command.
 	if cgo.Enabled && (flags.InternalInDocker || req.FailOnCgo) {

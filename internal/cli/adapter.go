@@ -4,7 +4,6 @@ package cli
 import (
 	"context"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/spf13/cobra"
 )
 
@@ -14,13 +13,6 @@ const (
 	flagsKey cobraKey = iota
 	parametersKey
 )
-
-// GetDistillery gets the distillery for the currently running command.
-// [SetFlags] and [SetParameters] must have been called.
-func GetDistillery(cmd *cobra.Command, requirements Requirements) (*dis.Distillery, error) {
-	// TODO: merge these functions together
-	return NewDistillery(get[Params](cmd, parametersKey), get[Flags](cmd, flagsKey), requirements)
-}
 
 // SetFlags sets the value for a cobra command from a set of flags.
 func SetFlags(cmd *cobra.Command, flags *Flags) {
