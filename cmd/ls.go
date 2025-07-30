@@ -34,7 +34,7 @@ func (l *ls) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errLsWissKI = exit.NewErrorWithCode("unable to get WissKIs", exit.ExitGeneric)
+var errLsWissKI = exit.NewErrorWithCode("unable to get WissKIs", cli.ExitGeneric)
 
 func (l *ls) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

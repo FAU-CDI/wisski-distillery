@@ -47,8 +47,8 @@ func (sp *systempause) ParseArgs(cmd *cobra.Command, args []string) error {
 }
 
 var (
-	errPauseGeneric   = exit.NewErrorWithCode("unable to pause or resume system", exit.ExitGeneric)
-	errPauseArguments = exit.NewErrorWithCode("exactly one of `--stop` and `--start` must be provided", exit.ExitCommandArguments)
+	errPauseGeneric   = exit.NewErrorWithCode("unable to pause or resume system", cli.ExitGeneric)
+	errPauseArguments = exit.NewErrorWithCode("exactly one of `--stop` and `--start` must be provided", cli.ExitCommandArguments)
 )
 
 func (sp *systempause) Exec(cmd *cobra.Command, args []string) error {

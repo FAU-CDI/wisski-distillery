@@ -49,7 +49,7 @@ func (bk *backup) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errBackupFailed = exit.NewErrorWithCode("failed to make a backup", exit.ExitGeneric)
+var errBackupFailed = exit.NewErrorWithCode("failed to make a backup", cli.ExitGeneric)
 
 func (bk *backup) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

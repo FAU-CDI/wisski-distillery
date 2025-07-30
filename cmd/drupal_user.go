@@ -75,9 +75,9 @@ func (du *drupalUser) ParseArgs(cmd *cobra.Command, args []string) error {
 }
 
 var (
-	errUserParameter = exit.NewErrorWithCode("incorrect username parameter", exit.ExitGeneric)
+	errUserParameter = exit.NewErrorWithCode("incorrect username parameter", cli.ExitGeneric)
 
-	errDrupalUserActionFailed = exit.NewErrorWithCode("action failed", exit.ExitGeneric)
+	errDrupalUserActionFailed = exit.NewErrorWithCode("action failed", cli.ExitGeneric)
 )
 
 func (du *drupalUser) Exec(cmd *cobra.Command, args []string) error {

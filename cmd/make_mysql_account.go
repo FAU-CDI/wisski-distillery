@@ -27,9 +27,9 @@ func NewMakeMysqlAccountCommand() *cobra.Command {
 type makeMysqlAccount struct{}
 
 var (
-	errUnableToReadUsername = exit.NewErrorWithCode("unable to read username", exit.ExitGeneric)
-	errUnableToReadPassword = exit.NewErrorWithCode("unable to read password", exit.ExitGeneric)
-	errUnableToMakeAccount  = exit.NewErrorWithCode("unable to create account", exit.ExitGeneric)
+	errUnableToReadUsername = exit.NewErrorWithCode("unable to read username", cli.ExitGeneric)
+	errUnableToReadPassword = exit.NewErrorWithCode("unable to read password", cli.ExitGeneric)
+	errUnableToMakeAccount  = exit.NewErrorWithCode("unable to create account", cli.ExitGeneric)
 )
 
 func (mma *makeMysqlAccount) Exec(cmd *cobra.Command, args []string) error {

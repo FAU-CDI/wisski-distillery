@@ -41,7 +41,7 @@ func (i *info) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errInfoFailed = exit.NewErrorWithCode("failed to get info", exit.ExitGeneric)
+var errInfoFailed = exit.NewErrorWithCode("failed to get info", cli.ExitGeneric)
 
 func (i *info) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

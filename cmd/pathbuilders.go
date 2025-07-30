@@ -39,9 +39,9 @@ func (pb *pathbuilders) ParseArgs(cmd *cobra.Command, args []string) error {
 }
 
 var (
-	errPathbuildersExport  = exit.NewErrorWithCode("unable to export pathbuilder", exit.ExitGeneric)
-	errPathbuildersNoExist = exit.NewErrorWithCode("pathbuilder does not exist", exit.ExitGeneric)
-	errPathbuildersWissKI  = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)
+	errPathbuildersExport  = exit.NewErrorWithCode("unable to export pathbuilder", cli.ExitGeneric)
+	errPathbuildersNoExist = exit.NewErrorWithCode("pathbuilder does not exist", cli.ExitGeneric)
+	errPathbuildersWissKI  = exit.NewErrorWithCode("unable to find WissKI", cli.ExitGeneric)
 )
 
 func (pb *pathbuilders) Exec(cmd *cobra.Command, args []string) error {

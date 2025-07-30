@@ -29,7 +29,7 @@ type cfg struct {
 	Human bool
 }
 
-var errMarshalConfig = exit.NewErrorWithCode("unable to marshal config", exit.ExitGeneric)
+var errMarshalConfig = exit.NewErrorWithCode("unable to marshal config", cli.ExitGeneric)
 
 func (c *cfg) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

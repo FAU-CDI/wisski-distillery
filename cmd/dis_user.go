@@ -93,9 +93,9 @@ func (du *disUser) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errUserRequired = exit.NewErrorWithCode("`USER` argument is required", exit.ExitCommandArguments)
-var errDisUserActionFailed = exit.NewErrorWithCode("action failed", exit.ExitGeneric)
-var errPasswordsNotIdentical = exit.NewErrorWithCode("passwords not identical", exit.ExitGeneric)
+var errUserRequired = exit.NewErrorWithCode("`USER` argument is required", cli.ExitCommandArguments)
+var errDisUserActionFailed = exit.NewErrorWithCode("action failed", cli.ExitGeneric)
+var errPasswordsNotIdentical = exit.NewErrorWithCode("passwords not identical", cli.ExitGeneric)
 
 type (
 	_userAction    = func(*cobra.Command, *dis.Distillery, *auth.AuthUser) error
@@ -185,7 +185,7 @@ func (du *disUser) runDelete(cmd *cobra.Command, dis *dis.Distillery, user *auth
 	return nil
 }
 
-var errPasswordPolicy = exit.NewErrorWithCode("password policy failed: %s", exit.ExitGeneric)
+var errPasswordPolicy = exit.NewErrorWithCode("password policy failed: %s", cli.ExitGeneric)
 
 func (du *disUser) runSetPassword(cmd *cobra.Command, dis *dis.Distillery, user *auth.AuthUser) error {
 	var passwd string

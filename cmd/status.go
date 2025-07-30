@@ -30,7 +30,7 @@ type cStatus struct {
 	JSON bool
 }
 
-var errStatusGeneric = exit.NewErrorWithCode("unable to get status", exit.ExitGeneric)
+var errStatusGeneric = exit.NewErrorWithCode("unable to get status", cli.ExitGeneric)
 
 func (s *cStatus) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

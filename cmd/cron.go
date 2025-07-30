@@ -41,7 +41,7 @@ func (cr *cron) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errCronFailed = exit.NewErrorWithCode("failed to run cron", exit.ExitGeneric)
+var errCronFailed = exit.NewErrorWithCode("failed to run cron", cli.ExitGeneric)
 
 func (cr *cron) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

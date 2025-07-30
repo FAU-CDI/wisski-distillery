@@ -40,7 +40,7 @@ func (sh *shell) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errShellWissKI = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)
+var errShellWissKI = exit.NewErrorWithCode("unable to find WissKI", cli.ExitGeneric)
 
 func (sh *shell) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

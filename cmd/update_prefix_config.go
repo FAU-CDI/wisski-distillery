@@ -32,7 +32,7 @@ type updateprefixconfig struct {
 	Parallel int
 }
 
-var errPrefixUpdateFailed = exit.NewErrorWithCode("failed to update prefix configuration", exit.ExitGeneric)
+var errPrefixUpdateFailed = exit.NewErrorWithCode("failed to update prefix configuration", cli.ExitGeneric)
 
 func (upc *updateprefixconfig) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

@@ -50,8 +50,8 @@ func (sn *snapshot) ParseArgs(cmd *cobra.Command, args []string) error {
 }
 
 var (
-	errSnapshotFailed = exit.NewErrorWithCode("failed to make a snapshot", exit.ExitGeneric)
-	errSnapshotWissKI = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)
+	errSnapshotFailed = exit.NewErrorWithCode("failed to make a snapshot", cli.ExitGeneric)
+	errSnapshotWissKI = exit.NewErrorWithCode("unable to find WissKI", cli.ExitGeneric)
 )
 
 func (sn *snapshot) Exec(cmd *cobra.Command, args []string) error {

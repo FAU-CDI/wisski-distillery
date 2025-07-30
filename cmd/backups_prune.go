@@ -24,7 +24,7 @@ func NewBackupsPruneCommand() *cobra.Command {
 
 type backupsPrune struct{}
 
-var errPruneFailed = exit.NewErrorWithCode("failed to prune backups", exit.ExitGeneric)
+var errPruneFailed = exit.NewErrorWithCode("failed to prune backups", cli.ExitGeneric)
 
 func (bp *backupsPrune) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

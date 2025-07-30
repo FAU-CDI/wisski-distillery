@@ -40,8 +40,8 @@ type server struct {
 	InternalBind string
 }
 
-var errServerTrigger = exit.NewErrorWithCode("failed to trigger", exit.ExitGeneric)
-var errServerGeneric = exit.NewErrorWithCode("unable to instantiate server", exit.ExitGeneric)
+var errServerTrigger = exit.NewErrorWithCode("failed to trigger", cli.ExitGeneric)
+var errServerGeneric = exit.NewErrorWithCode("unable to instantiate server", cli.ExitGeneric)
 
 func (s *server) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

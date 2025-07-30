@@ -6,8 +6,8 @@ require (
 	al.essio.dev/pkg/shellescape v1.6.0
 	github.com/FAU-CDI/process_over_websocket v0.0.0-20250706100041-7cd7dfdfd025
 	github.com/FAU-CDI/wdresolve v0.0.0-20230108072141-c9c6779d7c41
-	github.com/compose-spec/compose-go/v2 v2.7.1
-	github.com/docker/docker v28.3.2+incompatible
+	github.com/compose-spec/compose-go/v2 v2.8.1
+	github.com/docker/docker v28.3.3+incompatible
 	github.com/gliderlabs/ssh v0.3.8
 	github.com/go-sql-driver/mysql v1.9.3
 	github.com/gorilla/csrf v1.7.3
@@ -18,14 +18,14 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/yuin/goldmark v1.7.13
 	github.com/yuin/goldmark-meta v1.1.0
-	go.tkw01536.de/pkglib v0.0.0-20250727115718-875a680e4409
+	go.tkw01536.de/pkglib v0.0.0-20250730090648-983bb9e96507
 	golang.org/x/crypto v0.40.0
 	golang.org/x/net v0.42.0
 	golang.org/x/sync v0.16.0
 	golang.org/x/term v0.33.0
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/mysql v1.6.0
-	gorm.io/gorm v1.30.0
+	gorm.io/gorm v1.30.1
 )
 
 require (
@@ -214,7 +214,7 @@ require (
 	github.com/sourcegraph/go-diff v0.7.0 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
-	github.com/spf13/pflag v1.0.6 // indirect
+	github.com/spf13/pflag v1.0.7 // indirect
 	github.com/spf13/viper v1.20.1 // indirect
 	github.com/ssgreg/nlreturn/v2 v2.2.1 // indirect
 	github.com/stbenjam/no-sprintf-host-port v0.2.0 // indirect
@@ -257,6 +257,7 @@ require (
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
+	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/exp v0.0.0-20250718183923-645b1fa84792 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20250210185358-939b2ce775ac // indirect
 	golang.org/x/mod v0.26.0 // indirect

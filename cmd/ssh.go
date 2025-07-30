@@ -36,9 +36,9 @@ type ssh struct {
 }
 
 var (
-	errSSHServer    = exit.NewErrorWithCode("unable to listen server", exit.ExitGeneric)
-	errSSHListen    = exit.NewErrorWithCode("unable to listen", exit.ExitGeneric)
-	errServerListen = exit.NewErrorWithCode("server listen error", exit.ExitGeneric)
+	errSSHServer    = exit.NewErrorWithCode("unable to listen server", cli.ExitGeneric)
+	errSSHListen    = exit.NewErrorWithCode("unable to listen", cli.ExitGeneric)
+	errServerListen = exit.NewErrorWithCode("server listen error", cli.ExitGeneric)
 )
 
 func (s *ssh) Exec(cmd *cobra.Command, args []string) error {

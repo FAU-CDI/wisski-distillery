@@ -16,9 +16,9 @@ import (
 
 //spellchecker:words contextcheck unsynced pflags shellrc GGROOT
 var (
-	errInvalidFlags        = exit.NewErrorWithCode("unknown flags passed", exit.ExitGeneralArguments)
-	errNoArgumentsProvided = exit.NewErrorWithCode("need at least one argument. use `wdcli license` to view licensing information", exit.ExitGeneralArguments)
-	errUserIsNotRoot       = exit.NewErrorWithCode("this command has to be executed as root. the current user is not root", exit.ExitGeneralArguments)
+	errInvalidFlags        = exit.NewErrorWithCode("unknown flags passed", cli.ExitGeneralArguments)
+	errNoArgumentsProvided = exit.NewErrorWithCode("need at least one argument. use `wdcli license` to view licensing information", cli.ExitGeneralArguments)
+	errUserIsNotRoot       = exit.NewErrorWithCode("this command has to be executed as root. the current user is not root", cli.ExitGeneralArguments)
 )
 
 const warnCGoEnabled = "Warning: This executable has been built with cgo enabled. This means certain commands may not work. \n"
@@ -154,7 +154,7 @@ func NewCommand(ctx context.Context, parameters cli.Params) *cobra.Command {
 	return root
 }
 
-var errInvalidArguments = exit.NewErrorWithCode("invalid arguments passed", exit.ExitCommandArguments)
+var errInvalidArguments = exit.NewErrorWithCode("invalid arguments passed", cli.ExitCommandArguments)
 
 // wrapArgs wraps a [cobra.PositionalArgs] error with the given error.
 // The wrapping occurs by calling [fmt.Errorf] with a string of "%w: %w" and [errInvalidArguments].

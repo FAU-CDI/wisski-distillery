@@ -35,8 +35,8 @@ func (p *prefixes) ParseArgs(cmd *cobra.Command, args []string) error {
 }
 
 var (
-	errPrefixesGeneric = exit.NewErrorWithCode("unable to load prefixes", exit.ExitGeneric)
-	errPrefixesWissKI  = exit.NewErrorWithCode("unable to find WissKI", exit.ExitGeneric)
+	errPrefixesGeneric = exit.NewErrorWithCode("unable to load prefixes", cli.ExitGeneric)
+	errPrefixesWissKI  = exit.NewErrorWithCode("unable to find WissKI", cli.ExitGeneric)
 )
 
 func (p *prefixes) Exec(cmd *cobra.Command, args []string) error {

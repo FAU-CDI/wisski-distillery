@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	errNoConfigFile = exit.NewErrorWithCode("configuration file does not exist", exit.ExitGeneralArguments)
-	errOpenConfig   = exit.NewErrorWithCode("error loading configuration file", exit.ExitGeneralArguments)
-	errCGoEnabled   = exit.NewErrorWithCode("this functionality is only available when cgo support is disabled. Set `CGO_ENABLED=0' at build time and try again", exit.ExitGeneralArguments)
+	errNoConfigFile = exit.NewErrorWithCode("configuration file does not exist", ExitGeneralArguments)
+	errOpenConfig   = exit.NewErrorWithCode("error loading configuration file", ExitGeneralArguments)
+	errCGoEnabled   = exit.NewErrorWithCode("this functionality is only available when cgo support is disabled. Set `CGO_ENABLED=0' at build time and try again", ExitGeneralArguments)
 )
 
 // GetDistillery gets the distillery for the currently running command.

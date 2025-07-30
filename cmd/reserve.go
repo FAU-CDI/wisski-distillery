@@ -43,10 +43,10 @@ func (r *reserve) ParseArgs(cmd *cobra.Command, args []string) error {
 // TODO: AfterParse to check instance!
 
 var (
-	errReserveAlreadyExists = exit.NewErrorWithCode("instance already exists", exit.ExitGeneric)
-	errReserveGeneric       = exit.NewErrorWithCode("unable to provision instance", exit.ExitGeneric)
-	errReserveStack         = exit.NewErrorWithCode("failed to open stack", exit.ExitGeneric)
-	errProvisionGeneric     = exit.NewErrorWithCode("unable to provision instance", exit.ExitGeneric)
+	errReserveAlreadyExists = exit.NewErrorWithCode("instance already exists", cli.ExitGeneric)
+	errReserveGeneric       = exit.NewErrorWithCode("unable to provision instance", cli.ExitGeneric)
+	errReserveStack         = exit.NewErrorWithCode("failed to open stack", cli.ExitGeneric)
+	errProvisionGeneric     = exit.NewErrorWithCode("unable to provision instance", cli.ExitGeneric)
 )
 
 func (r *reserve) Exec(cmd *cobra.Command, args []string) error {

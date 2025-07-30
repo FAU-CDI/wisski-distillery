@@ -28,7 +28,7 @@ func main() {
 	// and run the command
 	cmd := cmd.NewCommand(ctx, params)
 	if err := cmd.Execute(); err != nil {
-		code, _ := exit.CodeFromError(err)
+		code, _ := exit.CodeFromError(err, cli.ExitGeneric)
 		_, _ = fmt.Fprintln(cmd.ErrOrStderr(), err)
 		code.Return()
 	}

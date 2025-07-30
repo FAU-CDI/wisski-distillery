@@ -65,7 +65,7 @@ func (ds *disSSH) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errSSHManageFailed = exit.NewErrorWithCode("unable to manage ssh keys", exit.ExitCommandArguments)
+var errSSHManageFailed = exit.NewErrorWithCode("unable to manage ssh keys", cli.ExitCommandArguments)
 
 func (ds *disSSH) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{
@@ -85,7 +85,7 @@ func (ds *disSSH) Exec(cmd *cobra.Command, args []string) error {
 	panic("never reached")
 }
 
-var errNoKey = exit.NewErrorWithCode("unable to parse key", exit.ExitCommandArguments)
+var errNoKey = exit.NewErrorWithCode("unable to parse key", cli.ExitCommandArguments)
 
 func (ds *disSSH) parseOpts(cmd *cobra.Command, dis *dis.Distillery) (user *auth.AuthUser, key gossh.PublicKey, err error) {
 	user, err = dis.Auth().User(cmd.Context(), ds.Positionals.User)

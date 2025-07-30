@@ -42,9 +42,9 @@ func (ds *setting) ParseArgs(cmd *cobra.Command, args []string) error {
 }
 
 var (
-	errSettingGet    = exit.NewErrorWithCode("unable to get setting", exit.ExitGeneric)
-	errSettingSet    = exit.NewErrorWithCode("unable to set setting", exit.ExitGeneric)
-	errSettingWissKI = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
+	errSettingGet    = exit.NewErrorWithCode("unable to get setting", cli.ExitGeneric)
+	errSettingSet    = exit.NewErrorWithCode("unable to set setting", cli.ExitGeneric)
+	errSettingWissKI = exit.NewErrorWithCode("unable to get WissKI", cli.ExitGeneric)
 )
 
 func (ds *setting) Exec(cmd *cobra.Command, args []string) error {

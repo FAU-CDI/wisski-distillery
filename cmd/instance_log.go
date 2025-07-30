@@ -36,9 +36,9 @@ func (i *instanceLog) ParseArgs(cmd *cobra.Command, args []string) error {
 }
 
 var (
-	errInstanceLogWissKI = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
-	errInstanceLogStack  = exit.NewErrorWithCode("unable to get stack", exit.ExitGeneric)
-	errInstanceLogAttach = exit.NewErrorWithCode("unable to attach to stack", exit.ExitGeneric)
+	errInstanceLogWissKI = exit.NewErrorWithCode("unable to get WissKI", cli.ExitGeneric)
+	errInstanceLogStack  = exit.NewErrorWithCode("unable to get stack", cli.ExitGeneric)
+	errInstanceLogAttach = exit.NewErrorWithCode("unable to attach to stack", cli.ExitGeneric)
 )
 
 func (i *instanceLog) Exec(cmd *cobra.Command, args []string) (e error) {

@@ -52,20 +52,20 @@ func (s *systemupdate) ParseArgs(cmd *cobra.Command, args []string) error {
 	}
 
 	if !isFile {
-		return fmt.Errorf("%q: %w", s.Positionals.GraphdbZip, exit.NewErrorWithCode("does not exist", exit.ExitCommandArguments))
+		return fmt.Errorf("%q: %w", s.Positionals.GraphdbZip, exit.NewErrorWithCode("does not exist", cli.ExitCommandArguments))
 	}
 	return nil
 }
 
 var (
-	errSystemUpdateFailedToLog           = exit.NewErrorWithCode("failed to log message", exit.ExitGeneric)
-	errBoostrapFailedToCreateDirectory   = exit.NewErrorWithCode("failed to create directory", exit.ExitGeneric)
-	errBootstrapComponent                = exit.NewErrorWithCode("unable to bootstrap", exit.ExitGeneric)
-	errNetworkCreateFailed               = exit.NewErrorWithCode("unable to create docker network", exit.ExitGeneric)
-	errSystemUpdateFailedToPing          = exit.NewErrorWithCode("failed to ping docker client", exit.ExitGeneric)
-	errSystemUpdateDockerClient          = exit.NewErrorWithCode("failed to create docker client", exit.ExitGeneric)
-	errSystemUpdateFailedStackUpdate     = exit.NewErrorWithCode("failed to perform stack updates", exit.ExitGeneric)
-	errSystemUpdateFailedComponentUpdate = exit.NewErrorWithCode("failed to perform component updates", exit.ExitGeneric)
+	errSystemUpdateFailedToLog           = exit.NewErrorWithCode("failed to log message", cli.ExitGeneric)
+	errBoostrapFailedToCreateDirectory   = exit.NewErrorWithCode("failed to create directory", cli.ExitGeneric)
+	errBootstrapComponent                = exit.NewErrorWithCode("unable to bootstrap", cli.ExitGeneric)
+	errNetworkCreateFailed               = exit.NewErrorWithCode("unable to create docker network", cli.ExitGeneric)
+	errSystemUpdateFailedToPing          = exit.NewErrorWithCode("failed to ping docker client", cli.ExitGeneric)
+	errSystemUpdateDockerClient          = exit.NewErrorWithCode("failed to create docker client", cli.ExitGeneric)
+	errSystemUpdateFailedStackUpdate     = exit.NewErrorWithCode("failed to perform stack updates", cli.ExitGeneric)
+	errSystemUpdateFailedComponentUpdate = exit.NewErrorWithCode("failed to perform component updates", cli.ExitGeneric)
 )
 
 func (s *systemupdate) Exec(cmd *cobra.Command, args []string) (e error) {

@@ -43,8 +43,8 @@ func (p *purge) ParseArgs(cmd *cobra.Command, args []string) error {
 }
 
 var (
-	errPurgeNoConfirmation = exit.NewErrorWithCode("aborting after request was not confirmed. either type `yes` or pass `--yes` on the command line", exit.ExitGeneric)
-	errPurgeFailed         = exit.NewErrorWithCode("failed to run purge", exit.ExitGeneric)
+	errPurgeNoConfirmation = exit.NewErrorWithCode("aborting after request was not confirmed. either type `yes` or pass `--yes` on the command line", cli.ExitGeneric)
+	errPurgeFailed         = exit.NewErrorWithCode("failed to run purge", cli.ExitGeneric)
 )
 
 func (p *purge) Exec(cmd *cobra.Command, args []string) error {

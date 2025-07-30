@@ -45,9 +45,9 @@ func (i *instancepause) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errStopStartExcluded = exit.NewErrorWithCode("stop and start are mutually exclusive", exit.ExitCommandArguments)
-var errInstancePauseWissKI = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
-var errInstancePauseStack = exit.NewErrorWithCode("unable to get stack", exit.ExitGeneric)
+var errStopStartExcluded = exit.NewErrorWithCode("stop and start are mutually exclusive", cli.ExitCommandArguments)
+var errInstancePauseWissKI = exit.NewErrorWithCode("unable to get WissKI", cli.ExitGeneric)
+var errInstancePauseStack = exit.NewErrorWithCode("unable to get stack", cli.ExitGeneric)
 
 func (i *instancepause) Exec(cmd *cobra.Command, args []string) (e error) {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

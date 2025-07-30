@@ -39,14 +39,14 @@ func (l *instanceLock) ParseArgs(cmd *cobra.Command, args []string) error {
 	l.Positionals.Slug = args[0]
 
 	if l.Lock == l.Unlock {
-		return exit.NewErrorWithCode("exactly one of `--lock` and `--unlock` must be provied", exit.ExitCommandArguments)
+		return exit.NewErrorWithCode("exactly one of `--lock` and `--unlock` must be provied", cli.ExitCommandArguments)
 	}
 	return nil
 }
 
 var (
-	errLockNoInstance = exit.NewErrorWithCode("unable to get WissKI", exit.ExitGeneric)
-	errLockFailed     = exit.NewErrorWithCode("failed to update instance lock", exit.ExitGeneric)
+	errLockNoInstance = exit.NewErrorWithCode("unable to get WissKI", cli.ExitGeneric)
+	errLockFailed     = exit.NewErrorWithCode("failed to update instance lock", cli.ExitGeneric)
 )
 
 func (l *instanceLock) Exec(cmd *cobra.Command, args []string) error {

@@ -59,7 +59,7 @@ func (p *pv) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errProvisionMissingSlug = exit.NewErrorWithCode("must provide a slug", exit.ExitCommandArguments)
+var errProvisionMissingSlug = exit.NewErrorWithCode("must provide a slug", cli.ExitCommandArguments)
 
 // TODO: AfterParse to check instance!
 

@@ -44,7 +44,7 @@ func (bu *blindUpdate) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errBlindUpdateFailed = exit.NewErrorWithCode("failed to run blind update", exit.ExitGeneric)
+var errBlindUpdateFailed = exit.NewErrorWithCode("failed to run blind update", cli.ExitGeneric)
 
 func (bu *blindUpdate) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

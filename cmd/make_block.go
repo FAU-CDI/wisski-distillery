@@ -53,12 +53,12 @@ func (mb *makeBlock) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errFooterAndRegion = exit.NewErrorWithCode("`--footer` and `--region` provided", exit.ExitCommandArguments)
+var errFooterAndRegion = exit.NewErrorWithCode("`--footer` and `--region` provided", cli.ExitCommandArguments)
 var (
-	errBlocksGeneric      = exit.NewErrorWithCode("unable to create block", exit.ExitGeneric)
-	errBlocksFooterFailed = exit.NewErrorWithCode("unable to determine footer block", exit.ExitGeneric)
-	errBlocksNoFooter     = exit.NewErrorWithCode("no footer known for region", exit.ExitGeneric)
-	errBlocksNoContent    = exit.NewErrorWithCode("unable to read content from standard input", exit.ExitCommandArguments)
+	errBlocksGeneric      = exit.NewErrorWithCode("unable to create block", cli.ExitGeneric)
+	errBlocksFooterFailed = exit.NewErrorWithCode("unable to determine footer block", cli.ExitGeneric)
+	errBlocksNoFooter     = exit.NewErrorWithCode("no footer known for region", cli.ExitGeneric)
+	errBlocksNoContent    = exit.NewErrorWithCode("unable to read content from standard input", cli.ExitCommandArguments)
 )
 
 func (mb *makeBlock) Exec(cmd *cobra.Command, args []string) error {

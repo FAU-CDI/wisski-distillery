@@ -76,9 +76,9 @@ func (dg *disGrant) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errNoSlugSelect = exit.NewErrorWithCode("slug not provided", exit.ExitCommandArguments)
-var errNoActionSelected = exit.NewErrorWithCode("no action selected", exit.ExitCommandArguments)
-var errFailedGrant = exit.NewErrorWithCode("unable to manage grants", exit.ExitGeneric)
+var errNoSlugSelect = exit.NewErrorWithCode("slug not provided", cli.ExitCommandArguments)
+var errNoActionSelected = exit.NewErrorWithCode("no action selected", cli.ExitCommandArguments)
+var errFailedGrant = exit.NewErrorWithCode("unable to manage grants", cli.ExitGeneric)
 
 func (dg *disGrant) Exec(cmd *cobra.Command, args []string) error {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

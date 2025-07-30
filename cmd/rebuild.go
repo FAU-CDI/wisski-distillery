@@ -63,8 +63,8 @@ func (rb *rebuild) ParseArgs(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-var errRebuildNoSystem = exit.NewErrorWithCode("flags for system reconfiguration have been set, but `--system' was not provided", exit.ExitCommandArguments)
-var errRebuildFailed = exit.NewErrorWithCode("failed to run rebuild", exit.ExitGeneric)
+var errRebuildNoSystem = exit.NewErrorWithCode("flags for system reconfiguration have been set, but `--system' was not provided", cli.ExitCommandArguments)
+var errRebuildFailed = exit.NewErrorWithCode("failed to run rebuild", cli.ExitGeneric)
 
 func (rb *rebuild) Exec(cmd *cobra.Command, args []string) (err error) {
 	dis, err := cli.GetDistillery(cmd, cli.Requirements{

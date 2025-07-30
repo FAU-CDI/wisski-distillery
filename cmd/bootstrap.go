@@ -42,13 +42,13 @@ type cBootstrap struct {
 }
 
 var (
-	errBootstrapDifferent               = exit.NewErrorWithCode("refusing to bootstrap: base directory is already set to", exit.ExitGeneric)
-	errBootstrapFailedToCreateDirectory = exit.NewErrorWithCode("failed to create directory", exit.ExitGeneric)
-	errBootstrapFailedToSaveDirectory   = exit.NewErrorWithCode("failed to register base directory", exit.ExitGeneric)
-	errBoostrapFailedToCopyExe          = exit.NewErrorWithCode("failed to copy wdcli executable", exit.ExitGeneric)
-	errBootstrapWriteConfig             = exit.NewErrorWithCode("failed to write configuration file", exit.ExitGeneric)
-	errBootstrapOpenConfig              = exit.NewErrorWithCode("failed to open configuration file", exit.ExitGeneric)
-	errBootstrapCreateFile              = exit.NewErrorWithCode("failed to touch configuration file", exit.ExitGeneric)
+	errBootstrapDifferent               = exit.NewErrorWithCode("refusing to bootstrap: base directory is already set to", cli.ExitGeneric)
+	errBootstrapFailedToCreateDirectory = exit.NewErrorWithCode("failed to create directory", cli.ExitGeneric)
+	errBootstrapFailedToSaveDirectory   = exit.NewErrorWithCode("failed to register base directory", cli.ExitGeneric)
+	errBoostrapFailedToCopyExe          = exit.NewErrorWithCode("failed to copy wdcli executable", cli.ExitGeneric)
+	errBootstrapWriteConfig             = exit.NewErrorWithCode("failed to write configuration file", cli.ExitGeneric)
+	errBootstrapOpenConfig              = exit.NewErrorWithCode("failed to open configuration file", cli.ExitGeneric)
+	errBootstrapCreateFile              = exit.NewErrorWithCode("failed to touch configuration file", cli.ExitGeneric)
 )
 
 func (bs *cBootstrap) Exec(cmd *cobra.Command, args []string) (e error) {
