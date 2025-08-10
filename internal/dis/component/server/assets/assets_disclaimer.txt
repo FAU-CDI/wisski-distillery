@@ -2,33 +2,6 @@ THE FOLLOWING SETS FORTH ATTRIBUTION NOTICES FOR THIRD PARTY SOFTWARE THAT MAY B
 
 -----
 
-The following software may be included in this product: @babel/code-frame, @babel/helper-validator-identifier. A copy of the source code may be downloaded from https://github.com/babel/babel.git (@babel/code-frame), https://github.com/babel/babel.git (@babel/helper-validator-identifier). This software contains the following license and notice below:
-
-MIT License
-
-Copyright (c) 2014-present Sebastian McKenzie and other contributors
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-"Software"), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
------
-
 The following software may be included in this product: @eslint-community/eslint-utils, @eslint-community/regexpp, eslint-plugin-es, eslint-utils, regexpp. A copy of the source code may be downloaded from https://github.com/eslint-community/eslint-utils (@eslint-community/eslint-utils), https://github.com/eslint-community/regexpp (@eslint-community/regexpp), git+https://github.com/mysticatea/eslint-plugin-es.git (eslint-plugin-es), git+https://github.com/mysticatea/eslint-utils.git (eslint-utils), git+https://github.com/mysticatea/regexpp.git (regexpp). This software contains the following license and notice below:
 
 MIT License
@@ -397,7 +370,7 @@ SOFTWARE.
 
 -----
 
-The following software may be included in this product: @parcel/bundler-default, @parcel/cache, @parcel/codeframe, @parcel/compressor-raw, @parcel/config-default, @parcel/core, @parcel/diagnostic, @parcel/error-overlay, @parcel/events, @parcel/feature-flags, @parcel/fs, @parcel/graph, @parcel/logger, @parcel/markdown-ansi, @parcel/namer-default, @parcel/node-resolver-core, @parcel/optimizer-css, @parcel/optimizer-htmlnano, @parcel/optimizer-image, @parcel/optimizer-svgo, @parcel/optimizer-swc, @parcel/package-manager, @parcel/packager-css, @parcel/packager-html, @parcel/packager-js, @parcel/packager-raw, @parcel/packager-svg, @parcel/packager-wasm, @parcel/plugin, @parcel/profiler, @parcel/reporter-cli, @parcel/reporter-dev-server, @parcel/reporter-tracer, @parcel/resolver-default, @parcel/runtime-browser-hmr, @parcel/runtime-js, @parcel/runtime-rsc, @parcel/runtime-service-worker, @parcel/rust, @parcel/transformer-babel, @parcel/transformer-css, @parcel/transformer-html, @parcel/transformer-image, @parcel/transformer-js, @parcel/transformer-json, @parcel/transformer-node, @parcel/transformer-postcss, @parcel/transformer-posthtml, @parcel/transformer-raw, @parcel/transformer-react-refresh-wrap, @parcel/transformer-svg, @parcel/types, @parcel/types-internal, @parcel/utils, @parcel/watcher, @parcel/watcher-linux-x64-glibc, @parcel/watcher-linux-x64-musl, @parcel/workers, parcel. A copy of the source code may be downloaded from https://github.com/parcel-bundler/parcel.git (@parcel/bundler-default), https://github.com/parcel-bundler/parcel.git (@parcel/cache), https://github.com/parcel-bundler/parcel.git (@parcel/codeframe), https://github.com/parcel-bundler/parcel.git (@parcel/compressor-raw), https://github.com/parcel-bundler/parcel.git (@parcel/config-default), https://github.com/parcel-bundler/parcel.git (@parcel/core), https://github.com/parcel-bundler/parcel.git (@parcel/diagnostic), https://github.com/parcel-bundler/parcel.git (@parcel/error-overlay), https://github.com/parcel-bundler/parcel.git (@parcel/events), https://github.com/parcel-bundler/parcel.git (@parcel/feature-flags), https://github.com/parcel-bundler/parcel.git (@parcel/fs), https://github.com/parcel-bundler/parcel.git (@parcel/graph), https://github.com/parcel-bundler/parcel.git (@parcel/logger), https://github.com/parcel-bundler/parcel.git (@parcel/markdown-ansi), https://github.com/parcel-bundler/parcel.git (@parcel/namer-default), https://github.com/parcel-bundler/parcel.git (@parcel/node-resolver-core), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-css), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-htmlnano), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-image), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-svgo), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-swc), https://github.com/parcel-bundler/parcel.git (@parcel/package-manager), https://github.com/parcel-bundler/parcel.git (@parcel/packager-css), https://github.com/parcel-bundler/parcel.git (@parcel/packager-html), https://github.com/parcel-bundler/parcel.git (@parcel/packager-js), https://github.com/parcel-bundler/parcel.git (@parcel/packager-raw), https://github.com/parcel-bundler/parcel.git (@parcel/packager-svg), https://github.com/parcel-bundler/parcel.git (@parcel/packager-wasm), https://github.com/parcel-bundler/parcel.git (@parcel/plugin), https://github.com/parcel-bundler/parcel.git (@parcel/profiler), https://github.com/parcel-bundler/parcel.git (@parcel/reporter-cli), https://github.com/parcel-bundler/parcel.git (@parcel/reporter-dev-server), https://github.com/parcel-bundler/parcel.git (@parcel/reporter-tracer), https://github.com/parcel-bundler/parcel.git (@parcel/resolver-default), https://github.com/parcel-bundler/parcel.git (@parcel/runtime-browser-hmr), https://github.com/parcel-bundler/parcel.git (@parcel/runtime-js), https://github.com/parcel-bundler/parcel.git (@parcel/runtime-rsc), https://github.com/parcel-bundler/parcel.git (@parcel/runtime-service-worker), https://github.com/parcel-bundler/parcel.git (@parcel/rust), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-babel), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-css), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-html), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-image), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-js), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-json), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-node), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-postcss), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-posthtml), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-raw), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-react-refresh-wrap), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-svg), https://github.com/parcel-bundler/parcel.git (@parcel/types), https://github.com/parcel-bundler/parcel.git (@parcel/types-internal), https://github.com/parcel-bundler/parcel.git (@parcel/utils), https://github.com/parcel-bundler/watcher.git (@parcel/watcher), https://github.com/parcel-bundler/watcher.git (@parcel/watcher-linux-x64-glibc), https://github.com/parcel-bundler/watcher.git (@parcel/watcher-linux-x64-musl), https://github.com/parcel-bundler/parcel.git (@parcel/workers), https://github.com/parcel-bundler/parcel.git (parcel). This software contains the following license and notice below:
+The following software may be included in this product: @parcel/bundler-default, @parcel/cache, @parcel/codeframe, @parcel/compressor-raw, @parcel/config-default, @parcel/core, @parcel/diagnostic, @parcel/error-overlay, @parcel/events, @parcel/feature-flags, @parcel/fs, @parcel/graph, @parcel/logger, @parcel/markdown-ansi, @parcel/namer-default, @parcel/node-resolver-core, @parcel/optimizer-css, @parcel/optimizer-html, @parcel/optimizer-image, @parcel/optimizer-svg, @parcel/optimizer-swc, @parcel/package-manager, @parcel/packager-css, @parcel/packager-html, @parcel/packager-js, @parcel/packager-raw, @parcel/packager-svg, @parcel/packager-wasm, @parcel/plugin, @parcel/profiler, @parcel/reporter-cli, @parcel/reporter-dev-server, @parcel/reporter-tracer, @parcel/resolver-default, @parcel/runtime-browser-hmr, @parcel/runtime-js, @parcel/runtime-rsc, @parcel/runtime-service-worker, @parcel/rust, @parcel/rust-linux-x64-gnu, @parcel/rust-linux-x64-musl, @parcel/transformer-babel, @parcel/transformer-css, @parcel/transformer-html, @parcel/transformer-image, @parcel/transformer-js, @parcel/transformer-json, @parcel/transformer-node, @parcel/transformer-postcss, @parcel/transformer-posthtml, @parcel/transformer-raw, @parcel/transformer-react-refresh-wrap, @parcel/transformer-svg, @parcel/types, @parcel/types-internal, @parcel/utils, @parcel/watcher, @parcel/watcher-linux-x64-glibc, @parcel/watcher-linux-x64-musl, @parcel/workers, parcel. A copy of the source code may be downloaded from https://github.com/parcel-bundler/parcel.git (@parcel/bundler-default), https://github.com/parcel-bundler/parcel.git (@parcel/cache), https://github.com/parcel-bundler/parcel.git (@parcel/codeframe), https://github.com/parcel-bundler/parcel.git (@parcel/compressor-raw), https://github.com/parcel-bundler/parcel.git (@parcel/config-default), https://github.com/parcel-bundler/parcel.git (@parcel/core), https://github.com/parcel-bundler/parcel.git (@parcel/diagnostic), https://github.com/parcel-bundler/parcel.git (@parcel/error-overlay), https://github.com/parcel-bundler/parcel.git (@parcel/events), https://github.com/parcel-bundler/parcel.git (@parcel/feature-flags), https://github.com/parcel-bundler/parcel.git (@parcel/fs), https://github.com/parcel-bundler/parcel.git (@parcel/graph), https://github.com/parcel-bundler/parcel.git (@parcel/logger), https://github.com/parcel-bundler/parcel.git (@parcel/markdown-ansi), https://github.com/parcel-bundler/parcel.git (@parcel/namer-default), https://github.com/parcel-bundler/parcel.git (@parcel/node-resolver-core), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-css), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-html), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-image), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-svg), https://github.com/parcel-bundler/parcel.git (@parcel/optimizer-swc), https://github.com/parcel-bundler/parcel.git (@parcel/package-manager), https://github.com/parcel-bundler/parcel.git (@parcel/packager-css), https://github.com/parcel-bundler/parcel.git (@parcel/packager-html), https://github.com/parcel-bundler/parcel.git (@parcel/packager-js), https://github.com/parcel-bundler/parcel.git (@parcel/packager-raw), https://github.com/parcel-bundler/parcel.git (@parcel/packager-svg), https://github.com/parcel-bundler/parcel.git (@parcel/packager-wasm), https://github.com/parcel-bundler/parcel.git (@parcel/plugin), https://github.com/parcel-bundler/parcel.git (@parcel/profiler), https://github.com/parcel-bundler/parcel.git (@parcel/reporter-cli), https://github.com/parcel-bundler/parcel.git (@parcel/reporter-dev-server), https://github.com/parcel-bundler/parcel.git (@parcel/reporter-tracer), https://github.com/parcel-bundler/parcel.git (@parcel/resolver-default), https://github.com/parcel-bundler/parcel.git (@parcel/runtime-browser-hmr), https://github.com/parcel-bundler/parcel.git (@parcel/runtime-js), https://github.com/parcel-bundler/parcel.git (@parcel/runtime-rsc), https://github.com/parcel-bundler/parcel.git (@parcel/runtime-service-worker), https://github.com/parcel-bundler/parcel.git (@parcel/rust), https://github.com/parcel-bundler/parcel.git (@parcel/rust-linux-x64-gnu), https://github.com/parcel-bundler/parcel.git (@parcel/rust-linux-x64-musl), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-babel), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-css), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-html), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-image), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-js), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-json), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-node), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-postcss), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-posthtml), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-raw), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-react-refresh-wrap), https://github.com/parcel-bundler/parcel.git (@parcel/transformer-svg), https://github.com/parcel-bundler/parcel.git (@parcel/types), https://github.com/parcel-bundler/parcel.git (@parcel/types-internal), https://github.com/parcel-bundler/parcel.git (@parcel/utils), https://github.com/parcel-bundler/watcher.git (@parcel/watcher), https://github.com/parcel-bundler/watcher.git (@parcel/watcher-linux-x64-glibc), https://github.com/parcel-bundler/watcher.git (@parcel/watcher-linux-x64-musl), https://github.com/parcel-bundler/parcel.git (@parcel/workers), https://github.com/parcel-bundler/parcel.git (parcel). This software contains the following license and notice below:
 
 MIT License
 
@@ -887,7 +860,7 @@ SOFTWARE.
 
 -----
 
-The following software may be included in this product: ansi-regex, ansi-styles, array-union, callsites, chalk, env-paths, find-up, get-port, globby, has-flag, is-path-inside, load-json-file, locate-path, p-limit, p-locate, p-try, parent-module, parse-json, path-exists, path-key, path-type, pify, pkg-conf, resolve-from, shebang-regex, slash, strip-ansi, supports-color, type-fest, xdg-basedir. A copy of the source code may be downloaded from https://github.com/chalk/ansi-regex.git (ansi-regex), https://github.com/chalk/ansi-styles.git (ansi-styles), https://github.com/sindresorhus/array-union.git (array-union), https://github.com/sindresorhus/callsites.git (callsites), https://github.com/chalk/chalk.git (chalk), https://github.com/sindresorhus/env-paths.git (env-paths), https://github.com/sindresorhus/find-up.git (find-up), https://github.com/sindresorhus/get-port.git (get-port), https://github.com/sindresorhus/globby.git (globby), https://github.com/sindresorhus/has-flag.git (has-flag), https://github.com/sindresorhus/is-path-inside.git (is-path-inside), https://github.com/sindresorhus/load-json-file.git (load-json-file), https://github.com/sindresorhus/locate-path.git (locate-path), https://github.com/sindresorhus/p-limit.git (p-limit), https://github.com/sindresorhus/p-locate.git (p-locate), https://github.com/sindresorhus/p-try.git (p-try), https://github.com/sindresorhus/parent-module.git (parent-module), https://github.com/sindresorhus/parse-json.git (parse-json), https://github.com/sindresorhus/path-exists.git (path-exists), https://github.com/sindresorhus/path-key.git (path-key), https://github.com/sindresorhus/path-type.git (path-type), https://github.com/sindresorhus/pify.git (pify), https://github.com/sindresorhus/pkg-conf.git (pkg-conf), https://github.com/sindresorhus/resolve-from.git (resolve-from), https://github.com/sindresorhus/shebang-regex.git (shebang-regex), https://github.com/sindresorhus/slash.git (slash), https://github.com/chalk/strip-ansi.git (strip-ansi), https://github.com/chalk/supports-color.git (supports-color), https://github.com/sindresorhus/type-fest.git (type-fest), https://github.com/sindresorhus/xdg-basedir.git (xdg-basedir). This software contains the following license and notice below:
+The following software may be included in this product: ansi-regex, ansi-styles, array-union, callsites, chalk, find-up, get-port, globby, has-flag, is-path-inside, load-json-file, locate-path, p-limit, p-locate, p-try, parent-module, parse-json, path-exists, path-key, path-type, pify, pkg-conf, resolve-from, shebang-regex, slash, strip-ansi, supports-color, type-fest, xdg-basedir. A copy of the source code may be downloaded from https://github.com/chalk/ansi-regex.git (ansi-regex), https://github.com/chalk/ansi-styles.git (ansi-styles), https://github.com/sindresorhus/array-union.git (array-union), https://github.com/sindresorhus/callsites.git (callsites), https://github.com/chalk/chalk.git (chalk), https://github.com/sindresorhus/find-up.git (find-up), https://github.com/sindresorhus/get-port.git (get-port), https://github.com/sindresorhus/globby.git (globby), https://github.com/sindresorhus/has-flag.git (has-flag), https://github.com/sindresorhus/is-path-inside.git (is-path-inside), https://github.com/sindresorhus/load-json-file.git (load-json-file), https://github.com/sindresorhus/locate-path.git (locate-path), https://github.com/sindresorhus/p-limit.git (p-limit), https://github.com/sindresorhus/p-locate.git (p-locate), https://github.com/sindresorhus/p-try.git (p-try), https://github.com/sindresorhus/parent-module.git (parent-module), https://github.com/sindresorhus/parse-json.git (parse-json), https://github.com/sindresorhus/path-exists.git (path-exists), https://github.com/sindresorhus/path-key.git (path-key), https://github.com/sindresorhus/path-type.git (path-type), https://github.com/sindresorhus/pify.git (pify), https://github.com/sindresorhus/pkg-conf.git (pkg-conf), https://github.com/sindresorhus/resolve-from.git (resolve-from), https://github.com/sindresorhus/shebang-regex.git (shebang-regex), https://github.com/sindresorhus/slash.git (slash), https://github.com/chalk/strip-ansi.git (strip-ansi), https://github.com/chalk/supports-color.git (supports-color), https://github.com/sindresorhus/type-fest.git (type-fest), https://github.com/sindresorhus/xdg-basedir.git (xdg-basedir). This software contains the following license and notice below:
 
 MIT License
 
@@ -2227,32 +2200,6 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 -----
 
-The following software may be included in this product: cosmiconfig. A copy of the source code may be downloaded from git+https://github.com/cosmiconfig/cosmiconfig.git. This software contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright (c) 2015 David Clark
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------
-
 The following software may be included in this product: cross-spawn. A copy of the source code may be downloaded from git@github.com:moxystudio/node-cross-spawn.git. This software contains the following license and notice below:
 
 The MIT License (MIT)
@@ -2295,7 +2242,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----
 
-The following software may be included in this product: data-view-buffer, define-data-property, safe-array-concat, typed-array-buffer. A copy of the source code may be downloaded from git+https://github.com/inspect-js/data-view-buffer.git (data-view-buffer), git+https://github.com/ljharb/define-data-property.git (define-data-property), git+https://github.com/ljharb/safe-array-concat.git (safe-array-concat), git+https://github.com/inspect-js/typed-array-buffer.git (typed-array-buffer). This software contains the following license and notice below:
+The following software may be included in this product: data-view-buffer, define-data-property, safe-array-concat, stop-iteration-iterator, typed-array-buffer. A copy of the source code may be downloaded from git+https://github.com/inspect-js/data-view-buffer.git (data-view-buffer), git+https://github.com/ljharb/define-data-property.git (define-data-property), git+https://github.com/ljharb/safe-array-concat.git (safe-array-concat), git+https://github.com/ljharb/stop-iteration-iterator.git (stop-iteration-iterator), git+https://github.com/inspect-js/typed-array-buffer.git (typed-array-buffer). This software contains the following license and notice below:
 
 MIT License
 
@@ -2822,7 +2769,7 @@ END OF TERMS AND CONDITIONS
 
 -----
 
-The following software may be included in this product: dom-serializer. A copy of the source code may be downloaded from git://github.com/cheeriojs/dom-renderer.git. This software contains the following license and notice below:
+The following software may be included in this product: dom-serializer. A copy of the source code may be downloaded from git://github.com/cheeriojs/dom-serializer.git. This software contains the following license and notice below:
 
 License
 
@@ -3074,7 +3021,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 -----
 
-The following software may be included in this product: escape-string-regexp, find-up, get-stdin, globals, import-fresh, load-json-file, locate-path, p-limit, p-locate, parse-json, path-exists, pkg-conf, srcset, strip-json-comments, term-size, yocto-queue. A copy of the source code may be downloaded from https://github.com/sindresorhus/escape-string-regexp.git (escape-string-regexp), https://github.com/sindresorhus/find-up.git (find-up), https://github.com/sindresorhus/get-stdin.git (get-stdin), https://github.com/sindresorhus/globals.git (globals), https://github.com/sindresorhus/import-fresh.git (import-fresh), https://github.com/sindresorhus/load-json-file.git (load-json-file), https://github.com/sindresorhus/locate-path.git (locate-path), https://github.com/sindresorhus/p-limit.git (p-limit), https://github.com/sindresorhus/p-locate.git (p-locate), https://github.com/sindresorhus/parse-json.git (parse-json), https://github.com/sindresorhus/path-exists.git (path-exists), https://github.com/sindresorhus/pkg-conf.git (pkg-conf), https://github.com/sindresorhus/srcset.git (srcset), https://github.com/sindresorhus/strip-json-comments.git (strip-json-comments), https://github.com/sindresorhus/term-size.git (term-size), https://github.com/sindresorhus/yocto-queue.git (yocto-queue). This software contains the following license and notice below:
+The following software may be included in this product: escape-string-regexp, find-up, get-stdin, globals, import-fresh, load-json-file, locate-path, p-limit, p-locate, path-exists, pkg-conf, strip-json-comments, term-size, yocto-queue. A copy of the source code may be downloaded from https://github.com/sindresorhus/escape-string-regexp.git (escape-string-regexp), https://github.com/sindresorhus/find-up.git (find-up), https://github.com/sindresorhus/get-stdin.git (get-stdin), https://github.com/sindresorhus/globals.git (globals), https://github.com/sindresorhus/import-fresh.git (import-fresh), https://github.com/sindresorhus/load-json-file.git (load-json-file), https://github.com/sindresorhus/locate-path.git (locate-path), https://github.com/sindresorhus/p-limit.git (p-limit), https://github.com/sindresorhus/p-locate.git (p-locate), https://github.com/sindresorhus/path-exists.git (path-exists), https://github.com/sindresorhus/pkg-conf.git (pkg-conf), https://github.com/sindresorhus/strip-json-comments.git (strip-json-comments), https://github.com/sindresorhus/term-size.git (term-size), https://github.com/sindresorhus/yocto-queue.git (yocto-queue). This software contains the following license and notice below:
 
 MIT License
 
@@ -4166,55 +4113,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 -----
 
-The following software may be included in this product: htmlnano. A copy of the source code may be downloaded from git://github.com/posthtml/htmlnano.git. This software contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright (c) 2016 Kirill Maltsev <maltsevkirill@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------
-
-The following software may be included in this product: htmlparser2. A copy of the source code may be downloaded from git://github.com/fb55/htmlparser2.git. This software contains the following license and notice below:
-
-Copyright 2010, 2011, Chris Winberry <chris@winberry.net>. All rights reserved.
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to
-deal in the Software without restriction, including without limitation the
-rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
-sell copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
- 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
- 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-IN THE SOFTWARE.
-
------
-
 The following software may be included in this product: ieee754. A copy of the source code may be downloaded from git://github.com/feross/ieee754.git. This software contains the following license and notice below:
 
 Copyright 2008 Fair Oaks Labs, Inc.
@@ -4425,7 +4323,7 @@ THE SOFTWARE.
 
 -----
 
-The following software may be included in this product: is-generator-function, is-regex. A copy of the source code may be downloaded from git://github.com/inspect-js/is-generator-function.git (is-generator-function), git://github.com/inspect-js/is-regex.git (is-regex). This software contains the following license and notice below:
+The following software may be included in this product: is-generator-function, is-negative-zero, is-regex. A copy of the source code may be downloaded from git://github.com/inspect-js/is-generator-function.git (is-generator-function), git://github.com/inspect-js/is-negative-zero.git (is-negative-zero), git://github.com/inspect-js/is-regex.git (is-regex). This software contains the following license and notice below:
 
 The MIT License (MIT)
 
@@ -4473,26 +4371,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
------
-
-The following software may be included in this product: is-json. A copy of the source code may be downloaded from git@github.com:joaquimserafim/is-json.git. This software contains the following license and notice below:
-
-The ISC License
-
-Copyright (c) Joaquim José F. Serafim
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
-IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 -----
 
@@ -4630,36 +4508,6 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
------
-
-The following software may be included in this product: json-parse-even-better-errors. A copy of the source code may be downloaded from https://github.com/npm/json-parse-even-better-errors. This software contains the following license and notice below:
-
-Copyright 2017 Kat Marchán
-Copyright npm, Inc.
-
-Permission is hereby granted, free of charge, to any person obtaining a
-copy of this software and associated documentation files (the "Software"),
-to deal in the Software without restriction, including without limitation
-the rights to use, copy, modify, merge, publish, distribute, sublicense,
-and/or sell copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-DEALINGS IN THE SOFTWARE.
-
----
-
-This library is a fork of 'better-json-errors' by Kat Marchán, extended and
-distributed under the terms of the MIT license above.
 
 -----
 
@@ -5135,32 +4983,6 @@ defined by the Mozilla Public License, v. 2.0.
 
 -----
 
-The following software may be included in this product: lines-and-columns. A copy of the source code may be downloaded from https://github.com/eventualbuddha/lines-and-columns.git. This software contains the following license and notice below:
-
-The MIT License (MIT)
-
-Copyright (c) 2015 Brian Donovan
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-
------
-
 The following software may be included in this product: lmdb. A copy of the source code may be downloaded from git+ssh://git@github.com/kriszyp/lmdb-js.git. This software contains the following license and notice below:
 
 The MIT License (MIT)
@@ -5351,7 +5173,7 @@ The following software may be included in this product: modern-isomorphic-ws. A 
 
 MIT License
 
-Copyright (c) 2022 - 2023 Andrew Molchanov
+Copyright (c) 2022 - present Andrew Molchanov
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -5763,86 +5585,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 -----
 
-The following software may be included in this product: posthtml. A copy of the source code may be downloaded from https://github.com/posthtml/posthtml.git. This software contains the following license and notice below:
-
-MIT License
-
-Copyright (c) 2015 PostHTML
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
------
-
-The following software may be included in this product: posthtml-parser. A copy of the source code may be downloaded from https://github.com/posthtml/posthtml-parser.git. This software contains the following license and notice below:
-
-(The MIT License)
-
-Copyright (c) 2015 Ivan Voischev <voischev.ivan@ya.ru>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
------
-
-The following software may be included in this product: posthtml-render. A copy of the source code may be downloaded from https://github.com/posthtml/posthtml-render.git. This software contains the following license and notice below:
-
-License (MIT)
-
-Copyright (c) 2017 Ivan Voischev <voischev.ivan@ya.ru>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
------
-
 The following software may be included in this product: prop-types. A copy of the source code may be downloaded from https://github.com/facebook/prop-types.git. This software contains the following license and notice below:
 
 MIT License
@@ -6185,32 +5927,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
------
-
-The following software may be included in this product: timsort. A copy of the source code may be downloaded from https://github.com/mziccard/node-timsort.git. This software contains the following license and notice below:
-
-The MIT License
-
-Copyright (c) 2015 Marco Ziccardi
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 
 -----
 

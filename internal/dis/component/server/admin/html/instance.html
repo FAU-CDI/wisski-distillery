@@ -73,6 +73,22 @@
                             <code>{{ .Info.Locked }}</code>
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            PHP Version
+                        </td>
+                        <td>
+                            <code>{{ .Info.PHPVersion }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Drupal Version
+                        </td>
+                        <td>
+                            <code>{{ .Info.DrupalVersion }}</code>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -139,7 +155,6 @@
     </div>
 </div>
 
-
 <div class="pure-u-1 pure-u-xl-1-2">
     <div class="h-md-padding">
         <div class="overflow">
@@ -147,66 +162,52 @@
                 <thead>
                     <tr>
                         <th colspan="2">
-                            Component Settings
+                            System
+                            <small>
+                                (use <em>Rebuild</em> to edit)
+                            </small>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>
-                            Directory
+                            Docker Base Image
                         </td>
                         <td>
-                            <code class="overflow">{{ .Instance.FilesystemBase }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            SQL DB
-                        </td>
-                        <td>
-                            <code class="copy">{{ .Instance.SqlDatabase }}</code>
+                            <code>{{ .Instance.System.GetDockerBaseImage }}</code>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            SQL User
+                            PHP Version
                         </td>
                         <td>
-                            <code class="copy">{{ .Instance.SqlUsername }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            SQL Password
-                        </td>
-                        <td>
-                            <span data-reveal="{{ .Instance.SqlPassword }}"></span>
+                            <code>{{ .Instance.System.PHP }}</code>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            TS Repo
+                            IIP Image Server
                         </td>
                         <td>
-                            <code class="copy">{{ .Instance.GraphDBRepository }}</code>
+                            <code>{{ .Instance.System.IIPServer }}</code>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            TS User
+                            PHP Development Config
                         </td>
                         <td>
-                            <code class="copy">{{ .Instance.GraphDBUsername }}</code>
+                            <code>{{ .Instance.System.PHPDevelopment }}</code>
                         </td>
                     </tr>
-
                     <tr>
                         <td>
-                            TS Password
+                            Content Security Policy
                         </td>
                         <td>
-                            <span data-reveal="{{ .Instance.GraphDBPassword }}"></span>
+                            <code>{{ .Instance.System.ContentSecurityPolicy }}</code>
                         </td>
                     </tr>
                 </tbody>
@@ -214,6 +215,8 @@
         </div>
     </div>
 </div>
+
+
 
 <div class="pure-u-1 pure-u-xl-1-2">
     <div class="h-md-padding">

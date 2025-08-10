@@ -32,6 +32,7 @@ type WissKI struct {
 	LastUpdate  time.Time
 	LastCron    time.Time
 
+	PHPVersion    string // current php version
 	DrupalVersion string // current drupal version
 	Theme         string // current default theme
 

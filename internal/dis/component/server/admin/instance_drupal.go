@@ -35,8 +35,10 @@ type instanceDrupalContext struct {
 
 	Instance *wisski.WissKI
 
+	PHPVersion    string
 	DrupalVersion string
-	DefaultTheme  string
+
+	DefaultTheme string
 
 	Requirements []status.Requirement
 
@@ -75,7 +77,7 @@ func (admin *Admin) instanceDrupal(context.Context) http.Handler {
 		// get the drupal version
 		//nolint:contextcheck
 		eg.Go(func() (err error) {
-			ctx.DrupalVersion, err = ctx.Instance.Version().Get(r.Context(), nil)
+			ctx.DrupalVersion, ctx.PHPVersion, err = ctx.Instance.Version().Get(r.Context(), nil)
 			return
 		})
 
