@@ -48,7 +48,14 @@
             <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br>
             <code>Drupal {{ .DrupalVersion }} / PHP {{ .PHPVersion }}</code><br />
 
-            <a class="pure-button" href="/admin/instance/{{.Slug}}">Details</a>
+            <div class="actions">
+                <div class="pure-button-group" role="group">
+                    {{ if .Running }}
+                        <a class="pure-button pure-button-action" href="{{ .LoginURL }}" target="_blank" rel="noopener noreferer">Login</a>
+                    {{ end }}
+                    <a class="pure-button" href="/admin/instance/{{.Slug}}">Details</a>
+                </div>
+            </div>
         </p>
     </div>
 </div>

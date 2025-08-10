@@ -84,11 +84,15 @@ func (admin *Admin) instanceModules(context.Context) http.Handler {
 		}
 
 		escapedSlug := url.PathEscape(ctx.Instance.Slug)
+		presentFunc, presentErr := admin.preparePanelInstancePage(r, ctx.Instance, "modules")
+		if presentErr != nil {
+			return ctx, nil, presentErr
+		}
 		return ctx, []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),          // #nosec G203 -- escaped and safe
 			templating.ReplaceCrumb(menuPurge, component.MenuItem{Title: "Modules", Path: template.URL("/admin/instance/" + escapedSlug + "/modules")}), // #nosec G203 -- escaped and safe
 			templating.Title(ctx.Instance.Slug + " - Modules"),
-			admin.instanceTabs(escapedSlug, "modules"),
+			presentFunc,
 		}, nil
 	})
 }

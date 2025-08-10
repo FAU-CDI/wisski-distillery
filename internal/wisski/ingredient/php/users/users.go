@@ -48,6 +48,7 @@ func (u *Users) Login(ctx context.Context, server *phpx.Server, username string)
 
 type LoginOptions struct {
 	Destination     string
+	Implicit        bool
 	CreateIfMissing bool
 	GrantAdminRole  bool
 }
@@ -56,7 +57,11 @@ type LoginOptions struct {
 func (u *Users) LoginWithOpt(ctx context.Context, server *phpx.Server, username string, opts LoginOptions) (dest *url.URL, err error) {
 	// generate a (relative) link
 	var path string
-	err = u.dependencies.PHP.ExecScript(ctx, server, &path, usersPHP, "get_login_link", username, opts.Destination, opts.CreateIfMissing, opts.GrantAdminRole)
+	if !opts.Implicit {
+		err = u.dependencies.PHP.ExecScript(ctx, server, &path, usersPHP, "get_login_link", username, opts.Destination, opts.CreateIfMissing, opts.GrantAdminRole)
+	} else {
+		err = u.dependencies.PHP.ExecScript(ctx, server, &path, usersPHP, "get_root_login_link", opts.Destination)
+	}
 
 	// if something went wrong, return
 	if err != nil {

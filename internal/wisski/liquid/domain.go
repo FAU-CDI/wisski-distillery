@@ -25,10 +25,14 @@ func (liquid *Liquid) HostRule() string {
 
 // URL returns the public URL of this instance.
 func (liquid *Liquid) URL() *url.URL {
+	return liquid.URLTo("/")
+}
+
+func (liquid *Liquid) URLTo(path string) *url.URL {
 	// setup domain and path
 	url := &url.URL{
 		Host: liquid.Domain(),
-		Path: "/",
+		Path: path,
 	}
 
 	// use http or https scheme depending on if the distillery has it enabled

@@ -15,6 +15,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/auth/scopes"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/users"
 	"go.tkw01536.de/pkglib/httpx"
@@ -36,6 +37,7 @@ var (
 
 func (next *Next) Routes() component.Routes {
 	return component.Routes{
+		// when updating this, remember to also update [status.NextURL]
 		Prefix:    "/next/",
 		Decorator: next.dependencies.Auth.Require(true, scopes.ScopeUserValid, nil),
 	}
@@ -50,7 +52,7 @@ func (next *Next) Next(context context.Context, slug, path string) (string, erro
 
 	target := wisski.URL()
 	target.Path = path
-	return "/next/?next=" + url.PathEscape(target.String()), nil
+	return status.NextURL(target.String()), nil
 }
 
 func (next *Next) getInstance(r *http.Request) (wisski *wisski.WissKI, path string, err error) {
@@ -91,9 +93,15 @@ func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, e
 		}
 
 		// check if they have a grant
+		var isImplicitGrant bool
 		grant, err := next.dependencies.Policy.Has(r.Context(), user.User.User, instance.Slug)
 		if errors.Is(err, policy.ErrNoAccess) {
-			return "", 0, httpx.ErrForbidden
+			// if the user is an admin, assume an implicit grant
+			if !user.User.IsAdmin() {
+				return "", 0, httpx.ErrForbidden
+			}
+			isImplicitGrant = true
+			err = nil
 		}
 		if err != nil {
 			return "", 0, fmt.Errorf("failed to check access: %w", err)
@@ -101,6 +109,7 @@ func (next *Next) HandleRoute(ctx context.Context, path string) (http.Handler, e
 
 		// perform the login
 		dest, err := instance.Users().LoginWithOpt(r.Context(), nil, grant.DrupalUsername, users.LoginOptions{
+			Implicit:        isImplicitGrant,
 			Destination:     path,
 			CreateIfMissing: true,
 			GrantAdminRole:  grant.DrupalAdminRole,

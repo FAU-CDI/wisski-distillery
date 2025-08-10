@@ -21,6 +21,7 @@
             <table class="pure-table pure-table-bordered">
                 <thead>
                     <tr>
+                        <th></th>
                         <th>
                             ID
                         </th>
@@ -43,9 +44,6 @@
                         <th>
                             Last Login
                         </th>
-                        <th>
-                            Action
-                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -53,6 +51,14 @@
                     {{ $csrf := .CSRF }}
                     {{ range $index, $user := .Users }}
                     <tr {{ if not $user.Status }}class="disabled" aria-disabled="true"{{ end }}>
+                        <td>
+                            <form action="/admin/login" method="POST" target="_blank">
+                                <input type="hidden" name="slug" value="{{ $slug }}">
+                                <input type="hidden" name="user" value="{{ $user.Name }}">
+                                <input type="submit" class="pure-button pure-button-action" value="Impersonate">
+                                {{ $csrf }}
+                            </form>
+                        </td>
                         <td>
                             <code>{{ $user.UID }}</code>
                         </td>
@@ -80,14 +86,6 @@
                         </td>
                         <td>
                             <code class="date">{{ $user.Login.Time.Format "2006-01-02T15:04:05Z07:00" }}</code>
-                        </td>
-                        <td>
-                            <form action="/admin/login" method="POST" target="_blank">
-                                <input type="hidden" name="slug" value="{{ $slug }}">
-                                <input type="hidden" name="user" value="{{ $user.Name }}">
-                                <input type="submit" class="pure-button pure-button-action" value="Login in new window">
-                                {{ $csrf }}
-                            </form>
                         </td>
                     </tr>
                     {{ end }}

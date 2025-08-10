@@ -62,11 +62,15 @@ func (admin *Admin) instanceStats(context.Context) http.Handler {
 		}
 
 		escapedSlug := url.PathEscape(ctx.Instance.Slug)
+		presentFunc, presentErr := admin.preparePanelInstancePage(r, ctx.Instance, "stats")
+		if presentErr != nil {
+			return ctx, nil, presentErr
+		}
 		return ctx, []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),    // #nosec G203 -- escaped and safe
 			templating.ReplaceCrumb(menuStats, component.MenuItem{Title: "SSH", Path: template.URL("/admin/instance/" + escapedSlug + "/stats")}), // #nosec G203 -- escaped and safe
 			templating.Title(ctx.Instance.Slug + " - Stats"),
-			admin.instanceTabs(escapedSlug, "stats"),
+			presentFunc,
 		}, nil
 	})
 }

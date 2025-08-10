@@ -53,11 +53,15 @@ func (admin *Admin) instancePurge(context.Context) http.Handler {
 		}
 
 		escapedSlug := url.PathEscape(ctx.Instance.Slug)
+		presentFunc, presentErr := admin.preparePanelInstancePage(r, ctx.Instance, "purge")
+		if presentErr != nil {
+			return ctx, nil, presentErr
+		}
 		return ctx, []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),      // #nosec G203 -- escaped and safe
 			templating.ReplaceCrumb(menuPurge, component.MenuItem{Title: "Purge", Path: template.URL("/admin/instance/" + escapedSlug + "/purge")}), // #nosec G203 -- escaped and safe
 			templating.Title(ctx.Instance.Slug + " - Purge"),
-			admin.instanceTabs(escapedSlug, "purge"),
+			presentFunc,
 		}, nil
 	})
 }

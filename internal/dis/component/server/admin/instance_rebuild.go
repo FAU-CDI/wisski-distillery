@@ -87,11 +87,15 @@ func (admin *Admin) instanceRebuild(context.Context) http.Handler {
 
 		// replace the menu item
 		escapedSlug := url.PathEscape(instance.Slug)
+		presentFunc, presentErr := admin.preparePanelInstancePage(r, instance, "rebuild")
+		if presentErr != nil {
+			return isc, nil, presentErr
+		}
 		funcs = []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),            // #nosec G203 -- escaped and safe
 			templating.ReplaceCrumb(menuRebuild, component.MenuItem{Title: "Rebuild", Path: template.URL("/admin/instance/" + escapedSlug + "/rebuild")}), // #nosec G203 -- escaped and safe
 			templating.Title(instance.Slug + " - Rebuild"),
-			admin.instanceTabs(escapedSlug, "rebuild"),
+			presentFunc,
 		}
 
 		isc.prepare(true)

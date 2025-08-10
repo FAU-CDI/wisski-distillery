@@ -5,6 +5,7 @@ package status
 import (
 	"fmt"
 	"html/template"
+	"net/url"
 	"strconv"
 	"time"
 
@@ -54,6 +55,17 @@ type WissKI struct {
 
 	// installed drupal modules
 	Modules []DrushExtendedModuleInfo
+}
+
+// NextURL returns a URL that will forward authorized users to the given target.
+func NextURL(target string) string {
+	return "/next/?next=" + url.PathEscape(target)
+}
+
+// LoginURL returns a URL that will forward authorized users to the given slug and path.
+func (wisski WissKI) LoginURL() template.URL {
+	// #nosec G203 -- we explicitly want this
+	return template.URL(NextURL(wisski.URL))
 }
 
 // Checks if this information is ok OK.

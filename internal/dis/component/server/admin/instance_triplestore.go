@@ -56,11 +56,15 @@ func (admin *Admin) instanceTS(context.Context) http.Handler {
 		ctx.Adapters = ctx.Instance.Adapters().Adapters()
 
 		escapedSlug := url.PathEscape(ctx.Instance.Slug)
+		presentFunc, presentErr := admin.preparePanelInstancePage(r, ctx.Instance, "triplestore")
+		if presentErr != nil {
+			return ctx, nil, presentErr
+		}
 		return ctx, []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),                        // #nosec G203 -- escaped and safe
 			templating.ReplaceCrumb(menuTriplestore, component.MenuItem{Title: "Triplestore", Path: template.URL("/admin/instance/" + escapedSlug + "/triplestore")}), // #nosec G203 -- escaped and safe
 			templating.Title(ctx.Instance.Slug + " - Triplestore"),
-			admin.instanceTabs(escapedSlug, "triplestore"),
+			presentFunc,
 		}, nil
 	})
 }

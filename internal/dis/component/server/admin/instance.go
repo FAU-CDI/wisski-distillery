@@ -17,6 +17,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/julienschmidt/httprouter"
 	"go.tkw01536.de/pkglib/httpx"
 
@@ -71,23 +72,60 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 				"error", err,
 				"slug", slug,
 			)
-			err = nil
 		}
 
 		escapedSlug := url.PathEscape(slug)
+		var presentInstanceFunc templating.FlagFunc
+		presentInstanceFunc, err = admin.preparePanelInstancePage(r, instance, "overview")
+		if err != nil {
+			return ic, nil, fmt.Errorf("failed to prepare instance page: %w", err)
+		}
 		funcs = []templating.FlagFunc{
 			templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}), // #nosec G203 -- escaped and safe
 			templating.Title(instance.Slug),
-
-			admin.instanceTabs(escapedSlug, "overview"),
+			presentInstanceFunc,
 		}
 
 		return
 	})
 }
 
+// preparePanelInstancePage prepares an instance page for the panel.
+// It sets up the menu and actions.
+//
+//nolint:unparam // reserved for future use, could eventually return an error
+func (admin *Admin) preparePanelInstancePage(_ *http.Request, instance *wisski.WissKI, active string) (templating.FlagFunc, error) {
+	menuFunc := admin.instanceMenu(url.PathEscape(instance.Slug), active)
+
+	instanceLink := func(title string, path string) (item component.MenuItem) {
+		item.Title = title
+		item.Path = template.URL(instance.URLTo(path).String()) // #nosec G203 -- attacker cannot control the path
+		return
+	}
+
+	return func(flags templating.Flags, r *http.Request) templating.Flags {
+		flags = menuFunc(flags, r)
+
+		flags.Actions = []component.MenuItem{
+			{
+				Title: "Instance Login",
+				Path:  template.URL(status.NextURL(instance.URL().String())), // #nosec G203 -- attacker cannot control the url
+			},
+
+			instanceLink("Front", "/"),
+			instanceLink("Structure", "/admin/structure/wisski_core"),
+			instanceLink("Pathbuilders", "/admin/config/wisski/pathbuilder"),
+			instanceLink("People", "/admin/people"),
+			instanceLink("Status Report", "/admin/reports/status"),
+			instanceLink("Logs", "/admin/reports/dblog"),
+		}
+
+		return flags
+	}, nil
+}
+
 // #nosec G203 -- escaped and safe
-func (admin *Admin) instanceTabs(slugEscaped string, active string) templating.FlagFunc {
+func (admin *Admin) instanceMenu(slugEscaped string, active string) templating.FlagFunc {
 	return func(flags templating.Flags, r *http.Request) templating.Flags {
 		flags.Tabs = []component.MenuItem{
 			{Title: "Overview", Path: template.URL("/admin/instance/" + slugEscaped), Active: active == "overview"},

@@ -145,11 +145,15 @@ func (gc *instanceUsersContext) use(r *http.Request, slug string, admin *Admin) 
 
 	// replace the functions
 	escapedSlug := url.PathEscape(slug)
+	presentFunc, presentErr := admin.preparePanelInstancePage(r, gc.instance, "users")
+	if presentErr != nil {
+		return nil, presentErr
+	}
 	funcs = []templating.FlagFunc{
 		templating.ReplaceCrumb(menuInstance, component.MenuItem{Title: "Instance", Path: template.URL("/admin/instance/" + escapedSlug)}),                // #nosec G203 -- escaped and safe
 		templating.ReplaceCrumb(menuGrants, component.MenuItem{Title: "Users & Grants", Path: template.URL("/admin/instance/" + escapedSlug + "/users")}), // #nosec G203 -- escaped and safe
 		templating.Title(gc.Instance.Slug + " - Users & Grants"),
-		admin.instanceTabs(escapedSlug, "users"),
+		presentFunc,
 	}
 	return funcs, nil
 }

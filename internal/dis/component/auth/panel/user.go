@@ -89,7 +89,7 @@ func (panel *UserPanel) routeUser(context.Context) http.Handler {
 			templating.Title(uc.User.User),
 		}
 
-		// find the grants
+		// find explicit grants
 		grants, err := panel.dependencies.Policy.User(r.Context(), uc.User.User)
 		if err != nil {
 			return uc, nil, fmt.Errorf("failed to get user grants: %w", err)
@@ -101,6 +101,30 @@ func (panel *UserPanel) routeUser(context.Context) http.Handler {
 			uc.Grants[i].Explicit = true
 			uc.Grants[i].Grant = grant
 			explicitSlugs[grant.Slug] = struct{}{}
+		}
+
+		// if the user is an admin, also add implicit grants
+		if uc.IsAdmin() {
+			instances, err := panel.dependencies.Instances.All(r.Context())
+			if err != nil {
+				return uc, nil, fmt.Errorf("failed to get instances: %w", err)
+			}
+
+			for _, instance := range instances {
+				if _, ok := explicitSlugs[instance.Slug]; ok {
+					continue
+				}
+				uc.Grants = append(uc.Grants, GrantWithURL{
+					Explicit: false,
+					Grant: models.Grant{
+						Slug: instance.Slug,
+					},
+				})
+			}
+		}
+
+		// setup urls for all the grants
+		for i, grant := range uc.Grants {
 			url, err := panel.dependencies.Next.Next(r.Context(), grant.Slug, "/")
 			if err != nil {
 				return uc, nil, fmt.Errorf("failed to get forward url: %w", err)
@@ -108,31 +132,10 @@ func (panel *UserPanel) routeUser(context.Context) http.Handler {
 			uc.Grants[i].URL = template.URL(url) // #nosec G203 -- safe
 		}
 
-		if !uc.AuthUser.IsAdmin() {
-			return uc, funcs, nil
-		}
-
-		// add implicit grants
-		instances, err := panel.dependencies.Instances.All(r.Context())
-		if err != nil {
-			return uc, nil, fmt.Errorf("failed to get instances: %w", err)
-		}
-
-		for _, instance := range instances {
-			if _, ok := explicitSlugs[instance.Slug]; ok {
-				continue
-			}
-			uc.Grants = append(uc.Grants, GrantWithURL{
-				Explicit: false,
-				Grant: models.Grant{
-					Slug: instance.Slug,
-				},
-			})
-		}
+		// sort the grants by slug
 		slices.SortFunc(uc.Grants, func(a, b GrantWithURL) int {
 			return strings.Compare(a.Slug, b.Slug)
 		})
 		return uc, funcs, nil
-
 	})
 }

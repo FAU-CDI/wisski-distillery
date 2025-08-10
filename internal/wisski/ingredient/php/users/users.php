@@ -35,7 +35,7 @@ function check_password_hash($password, $hash): bool {
     return \Drupal::service('password')->check($password, $hash);
 }
 
-function get_login_link($name, $destination = "", $update_user = FALSE, $grant_admin = FALSE): string {
+function get_login_link(string $name, string $destination = "", bool $update_user = FALSE, bool $grant_admin = FALSE): string {
     $account = user_load_by_name($name);
     if (!$account) {
         if (!$update_user) return "";
@@ -50,7 +50,30 @@ function get_login_link($name, $destination = "", $update_user = FALSE, $grant_a
         $account->save();
     }
 
+    return do_login_link($account, $destination);
+}
+
+function get_root_login_link(string $destination = ""): string {
+    $uids = \Drupal::entityQuery('user')
+        ->condition('status', 1)
+        ->condition('roles', 'administrator')
+        ->sort('uid', 'ASC')
+        ->range(0, 1)
+        ->accessCheck(FALSE)
+        ->execute();
+
+    if (empty($uids)) {
+        throw new \Exception("No root user");
+    };
+    $root = User::load(reset($uids));
+    if (empty($uids)) {
+        throw new \Exception("failed to load root user");
+    };
     
+    return do_login_link($root, $destination);
+}
+
+function do_login_link(User $account, string $destination = ""): string {
     $timestamp = \Drupal::time()->getRequestTime();
     return Url::fromRoute(
         'user.reset.login',
