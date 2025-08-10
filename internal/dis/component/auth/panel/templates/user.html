@@ -38,6 +38,10 @@
         This is a page of WissKIs you have access to.
         Click on the button containing the name to login.
     </p>
+    <form class="pure-form">
+        <label for="search">Filter Instances:</label>
+        <input type="text" id="search" data-filter-list="data-slug" />
+    </form>
 </div>
 <div class="pure-u-1">
     <div class="h-md-padding">
@@ -46,7 +50,10 @@
                 <thead>
                     <tr>
                         <th>
-                            WissKI Slug
+                           Instance 
+                        </th>
+                        <th>
+                            Actions
                         </th>
                         <th>
                             Drupal Username
@@ -54,33 +61,48 @@
                         <th>
                             Admin
                         </th>
-                        {{ if $showAdminURLs }}
-                            <th>
-                                Distillery Admin Link
-                            </th>
-                        {{ end }}
                     </tr>
                 </thead>
                 <tbody>
                     {{ range $id, $grant := .Grants }}
-                    <tr>
-                        <td>
-                            <a href="{{ $grant.URL }}" class="pure-button" target="_blank" rel="noopener noreferer">
-                                {{ $grant.Slug }}
-                            </a>
-                        </td>
-                        <td>
-                            {{ $grant.DrupalUsername }}
-                        </td>
-                        <td>
-                            {{ $grant.DrupalAdminRole }}
-                        </td>
-                        {{ if $showAdminURLs }}
+                    <tr data-slug="{{ $grant.Slug }}">
+                        {{ if $grant.Explicit }}
                             <td>
-                                <a href="{{ $grant.AdminURL }}" class="pure-button" target="_blank" rel="noopener noreferer">
-                                    {{ $grant.AdminURL }}
-                                </a>
+                                {{ $grant.Slug }}
                             </td>
+                            <td>
+                                <div class="pure-button-group" role="group">
+                                    <a href="{{ $grant.URL }}" class="pure-button" target="_blank" rel="noopener noreferer">
+                                        Login
+                                    </a>
+                                    {{ if $showAdminURLs }}
+                                        <a href="{{ $grant.AdminURL }}" class="pure-button" target="_blank" rel="noopener noreferer">
+                                            Admin Panel
+                                        </a>
+                                    {{ end }}
+                                </div>
+                            </td>
+                            <td>
+                                {{ $grant.DrupalUsername }}
+                            </td>   
+                            <td>
+                                {{ $grant.DrupalAdminRole }}
+                            </td>
+                        {{ else }}
+                            <td>
+                                {{ $grant.Slug }}
+                            </td>
+                            <td>
+                                <div class="pure-button-group" role="group">
+                                    <a class="pure-button pure-button-disabled" target="_blank" rel="noopener noreferer">
+                                       Login
+                                    </a>
+                                    <a href="{{ $grant.AdminURL }}" class="pure-button" target="_blank" rel="noopener noreferer">
+                                        Admin Panel
+                                    </a>
+                                </div>
+                            </td>
+                            <td colspan="2"></td>
                         {{ end }}
                     </tr>
                     {{ end }}
