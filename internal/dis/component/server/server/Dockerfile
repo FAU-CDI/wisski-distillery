@@ -1,4 +1,4 @@
-FROM docker.io/library/docker:20.10-cli
+FROM docker.io/library/docker:28.5-cli
 
 COPY wdcli /wdcli
 EXPOSE 8888
