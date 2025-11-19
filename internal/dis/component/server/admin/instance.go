@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/assets"
@@ -36,6 +37,8 @@ var instanceTemplate = templating.Parse[instanceContext](
 
 type instanceContext struct {
 	templating.RuntimeFlags
+
+	DistilleryConfig *config.Config
 
 	Instance models.Instance
 	Info     status.WissKI
@@ -73,6 +76,8 @@ func (admin *Admin) instance(ctx context.Context) http.Handler {
 				"slug", slug,
 			)
 		}
+
+		ic.DistilleryConfig = component.GetStill(admin).Config
 
 		escapedSlug := url.PathEscape(slug)
 		var presentInstanceFunc templating.FlagFunc

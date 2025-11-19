@@ -155,59 +155,85 @@
     </div>
 </div>
 
-<div class="pure-u-1 pure-u-xl-1-2">
+<div class="pure-u-1 pure-u-xl-2-3">
     <div class="h-md-padding">
         <div class="overflow">
             <table class="pure-table pure-table-bordered">
                 <thead>
                     <tr>
                         <th colspan="2">
-                            System
-                            <small>
-                                (use <em>Rebuild</em> to edit)
-                            </small>
+                            Component Settings
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
                         <td>
-                            Docker Base Image
+                            Directory
                         </td>
                         <td>
-                            <code>{{ .Instance.System.GetDockerBaseImage }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            PHP Version
-                        </td>
-                        <td>
-                            <code>{{ .Instance.System.PHP }}</code>
+                            <code class="overflow">{{ .Instance.FilesystemBase }}</code>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            IIP Image Server
+                            SQL DB
+
+                            {{ $pma := .DistilleryConfig.HTTP.PhpMyAdminURL }}
+                            {{ if $pma }}
+                                <br>
+                                <a href="{{ $pma }}" class="pure-button" target="_blank" rel="noopener noreferer">PHPMyAdmin</a>
+                            {{ end }}
                         </td>
                         <td>
-                            <code>{{ .Instance.System.IIPServer }}</code>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            PHP Development Config
-                        </td>
-                        <td>
-                            <code>{{ .Instance.System.PHPDevelopment }}</code>
+                            <code class="copy">{{ .Instance.SqlDatabase }}</code>
                         </td>
                     </tr>
                     <tr>
                         <td>
-                            Content Security Policy
+                            SQL User
                         </td>
                         <td>
-                            <code>{{ .Instance.System.ContentSecurityPolicy }}</code>
+                            <code class="copy">{{ .Instance.SqlUsername }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            SQL Password
+                        </td>
+                        <td>
+                            <span data-reveal="{{ .Instance.SqlPassword }}"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            TS Repo
+
+                            {{ $ts := .DistilleryConfig.HTTP.TSURL }}
+                            {{ if $ts }}
+                                <br>
+                                <a href="{{ $ts }}" class="pure-button" target="_blank" rel="noopener noreferer">Workbench</a>
+                            {{ end }}
+                        </td>
+                        <td>
+                            <code class="copy">{{ .Instance.GraphDBRepository }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            TS User
+                        </td>
+                        <td>
+                            <code class="copy">{{ .Instance.GraphDBUsername }}</code>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            TS Password
+                        </td>
+                        <td>
+                            <span data-reveal="{{ .Instance.GraphDBPassword }}"></span>
                         </td>
                     </tr>
                 </tbody>
@@ -218,7 +244,7 @@
 
 
 
-<div class="pure-u-1 pure-u-xl-1-2">
+<div class="pure-u-1 pure-u-xl-1-3">
     <div class="h-md-padding">
         <div class="overflow">
             <table class="pure-table pure-table-bordered">
