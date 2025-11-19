@@ -1,6 +1,6 @@
 services:
   http:
-    image: docker.io/library/traefik:v2.9
+    image: docker.io/library/traefik:v3.6
     command:
       - "--providers.docker"
       - "--providers.docker.exposedByDefault=false"
