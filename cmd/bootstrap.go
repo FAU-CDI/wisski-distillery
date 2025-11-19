@@ -98,7 +98,7 @@ func (bs *cBootstrap) Exec(cmd *cobra.Command, args []string) (e error) {
 			return fmt.Errorf("%w: %w", errBoostrapFailedToCopyExe, err)
 		}
 
-		err = umaskfree.CopyFile(cmd.Context(), wdcliPath, exe)
+		err = umaskfree.CopyFile(wdcliPath, exe)
 		if err != nil && !errors.Is(err, umaskfree.ErrCopySameFile) {
 			return fmt.Errorf("%w: %w", errBoostrapFailedToCopyExe, err)
 		}

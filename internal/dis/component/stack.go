@@ -146,7 +146,7 @@ func (is StackWithResources) Install(ctx context.Context, progress io.Writer, co
 		if _, err := fmt.Fprintf(progress, "[copy]    %s (from %s)\n", dst, src); err != nil {
 			return fmt.Errorf("failed to report progress: %w", err)
 		}
-		if err := umaskfree.CopyFile(ctx, dst, src); err != nil {
+		if err := umaskfree.CopyFile(dst, src); err != nil {
 			return fmt.Errorf("unable to copy file %s: %w", src, err)
 		}
 	}

@@ -152,7 +152,7 @@ func (sc *StagingContext) CopyFile(dst, src string) error {
 		return err
 	}
 	sc.sendPath(dst)
-	if err := umaskfree.CopyFile(sc.ctx, dstPath, src); err != nil {
+	if err := umaskfree.CopyFile(dstPath, src); err != nil {
 		return fmt.Errorf("failed to copy file: %w", err)
 	}
 	return nil
@@ -169,7 +169,7 @@ func (sc *StagingContext) CopyDirectory(dst, src string) error {
 		return err
 	}
 
-	if err := umaskfree.CopyDirectory(sc.ctx, dstPath, src, func(dst, src string) {
+	if err := umaskfree.CopyDirectory(dstPath, src, func(dst, src string) {
 		sc.sendPath(dst)
 	}); err != nil {
 		return fmt.Errorf("failed to copy directory: %w", err)
