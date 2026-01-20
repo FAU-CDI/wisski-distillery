@@ -7,6 +7,8 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
+	"github.com/FAU-CDI/wisski-distillery/internal/status"
+	"github.com/FAU-CDI/wisski-distillery/internal/wisski"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/collection"
 	"go.tkw01536.de/pkglib/exit"
@@ -57,6 +59,11 @@ func (i *info) Exec(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+type infoJSON struct {
+	Instance *wisski.WissKI
+	Info     status.WissKI
+}
+
 func (i *info) exec(cmd *cobra.Command, dis *dis.Distillery) (err error) {
 	instance, err := dis.Instances().WissKI(cmd.Context(), i.Positionals.Slug)
 	if err != nil {
@@ -69,7 +76,7 @@ func (i *info) exec(cmd *cobra.Command, dis *dis.Distillery) (err error) {
 	}
 
 	if i.JSON {
-		if err := json.NewEncoder(cmd.OutOrStdout()).Encode(info); err != nil {
+		if err := json.NewEncoder(cmd.OutOrStdout()).Encode(infoJSON{Instance: instance, Info: info}); err != nil {
 			return fmt.Errorf("failed to encode info as json: %w", err)
 		}
 		return nil
