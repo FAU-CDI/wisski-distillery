@@ -31,7 +31,7 @@ func (wsa *RebuildTriplestore) Action() InstanceAction {
 }
 
 func (wsa *RebuildTriplestore) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
-	size, err := instance.TRB().RebuildTriplestore(ctx, out, false)
+	size, err := instance.TRB().RebuildTriplestore(ctx, out, true)
 	if err != nil {
 		return 0, fmt.Errorf("failed to rebuild triplestore: %w", err)
 	}
