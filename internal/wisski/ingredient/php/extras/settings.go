@@ -42,6 +42,7 @@ func (settings *Settings) Set(ctx context.Context, server *phpx.Server, key stri
 var (
 	errFailedToSetTrustedDomain        = errors.New("failed to set trusted domain")
 	errFailedInstallDistillerySettings = errors.New("failed to install distillery settings")
+	errFailedToSetDefaultDBConnection  = errors.New("failed to set default database connection")
 )
 
 // SetTrustedDomain configures the trusted domain setting for the given instance.
@@ -52,6 +53,16 @@ func (settings *Settings) SetTrustedDomain(ctx context.Context, server *phpx.Ser
 	err := settings.dependencies.PHP.ExecScript(ctx, server, &ok, settingsPHP, "set_trusted_domain", domain)
 	if err == nil && !ok {
 		err = errFailedToSetTrustedDomain
+	}
+	return err
+}
+
+func (settings *Settings) SetDefaultDBConnection(ctx context.Context, server *phpx.Server, url string) error {
+	var ok bool
+
+	err := settings.dependencies.PHP.ExecScript(ctx, server, &ok, settingsPHP, "set_default_db_connection", url)
+	if err == nil && !ok {
+		err = errFailedToSetDefaultDBConnection
 	}
 	return err
 }

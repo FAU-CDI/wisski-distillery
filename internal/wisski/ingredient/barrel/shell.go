@@ -25,6 +25,10 @@ func (ee ExitError) Code() exit.ExitCode {
 
 // BashScript executes the given command as a bash script inside the container.
 func (barrel *Barrel) BashScript(ctx context.Context, io stream.IOStream, commands ...string) (e error) {
+	return barrel.BashScriptAs(ctx, "www-data", io, commands...)
+}
+
+func (barrel *Barrel) BashScriptAs(ctx context.Context, user string, io stream.IOStream, commands ...string) (e error) {
 	stack, err := barrel.OpenStack()
 	if err != nil {
 		return fmt.Errorf("failed to open stack: %w", err)
@@ -35,7 +39,7 @@ func (barrel *Barrel) BashScript(ctx context.Context, io stream.IOStream, comman
 		ctx, io,
 		dockerx.ExecOptions{
 			Service: "barrel",
-			User:    "www-data",
+			User:    user,
 
 			Cmd:  "/bin/bash",
 			Args: []string{"-c", shellescape.QuoteCommand(commands)},

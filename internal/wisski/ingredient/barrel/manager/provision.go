@@ -125,7 +125,7 @@ func (provision *Manager) bootstrap(ctx context.Context, progress io.Writer, fla
 
 	liquid := ingredient.GetLiquid(provision)
 
-	var sqlDBURL = "mysql://" + liquid.SqlUsername + ":" + liquid.SqlPassword + "@sql/" + liquid.SqlDatabase
+	var sqlDBURL = liquid.SQLURL()
 
 	// Use 'drush' to run the site-installation.
 	// Here we need to use the username, password and database creds we made above.
