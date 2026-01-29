@@ -433,17 +433,27 @@ func (parts archiveParts) restoreDataDirectory(cmd *cobra.Command, old string) (
 	return nil
 }
 
+// Copies a file from src to dst.
+// If it is a symlink, it is copied as a symlink.
 func copyFile(src, dst string) error {
+	srcInfo, err := os.Lstat(src)
+	if err != nil {
+		return err
+	}
+
+	if srcInfo.Mode()&os.ModeSymlink != 0 {
+		linkTarget, err := os.Readlink(src)
+		if err != nil {
+			return err
+		}
+		return os.Symlink(linkTarget, dst)
+	}
+
 	srcFile, err := os.Open(src)
 	if err != nil {
 		return err
 	}
 	defer srcFile.Close()
-
-	srcInfo, err := srcFile.Stat()
-	if err != nil {
-		return err
-	}
 
 	dstFile, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, srcInfo.Mode().Perm())
 	if err != nil {

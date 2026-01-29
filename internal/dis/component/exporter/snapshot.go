@@ -1,7 +1,7 @@
 //spellchecker:words exporter
 package exporter
 
-//spellchecker:words context path filepath time maps slices github wisski distillery internal component models wdlog logging pkglib collection contextx errorsx status
+//spellchecker:words context encoding json path filepath time maps slices github wisski distillery internal component models wdlog logging pkglib collection contextx errorsx status
 import (
 	"context"
 	"fmt"
