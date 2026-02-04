@@ -7,6 +7,7 @@ services:
       - "--providers.docker.network=${DOCKER_NETWORK_NAME}"
       - "--providers.docker.constraints=Label(`eu.wiss-ki.barrel.distillery`,`${DOCKER_NETWORK_NAME}`)"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.proxyProtocol.insecure=true"
 
       ## for debugging purposes, the following can be enabled.
       # - "--api.insecure=true"

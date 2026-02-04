@@ -90,7 +90,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     docker-php-source delete
 
 # enable the apache rewrite mod
-RUN a2enmod rewrite headers && \
+RUN a2enmod rewrite headers remoteip setenvif && \
     (([ "$PHP_CONFIG_MODE" = "devel" ] && touch /var/log/xdebug.log && chown www-data:www-data /var/log/xdebug.log) || true)
 
 # Install composer.

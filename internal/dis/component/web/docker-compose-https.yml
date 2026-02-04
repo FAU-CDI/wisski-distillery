@@ -11,7 +11,9 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.proxyProtocol.insecure=true"
       - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.proxyProtocol.insecure=true"
       
       - "--certificatesresolvers.distillery.acme.httpchallenge=true"
       - "--certificatesresolvers.distillery.acme.email=${CERT_EMAIL}"
