@@ -15,6 +15,7 @@ interface System {
   IIPServer: boolean
   PHPDevelopment: boolean
   ContentSecurityPolicy: string
+  IPAllowlist: string
 }
 
 /** Rebuild the specified instance */

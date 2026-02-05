@@ -36,6 +36,6 @@ var AssetsAdminProvision = Assets{
 
 // AssetsAdminRebuild contains assets for the 'AdminRebuild' entrypoint.
 var AssetsAdminRebuild = Assets{
-	Scripts: `<script type=module src=/⛰/User.ae7af732.js></script><script type=module src=/⛰/Admin.3b88bd90.js></script><script type=module src=/⛰/Default.6170ef04.js></script><script type=module src=/⛰/AdminRebuild.c84b59f3.js></script>`,
+	Scripts: `<script type=module src=/⛰/User.ae7af732.js></script><script type=module src=/⛰/Admin.3b88bd90.js></script><script type=module src=/⛰/Default.6170ef04.js></script><script type=module src=/⛰/AdminRebuild.d828919d.js></script>`,
 	Styles:  `<link rel=stylesheet href=/⛰/Default.588cd9f6.css><link rel=stylesheet href=/⛰/User.540c0bee.css><link rel=stylesheet href=/⛰/User.1664d889.css><link rel=stylesheet href=/⛰/Admin.7d5bb717.css><link rel=stylesheet href=/⛰/Admin.0e5ed001.css><link rel=stylesheet href=/⛰/AdminRebuild.e554824e.css>`,	
 }

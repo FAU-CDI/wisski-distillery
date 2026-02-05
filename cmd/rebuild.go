@@ -32,6 +32,7 @@ func NewRebuildCommand() *cobra.Command {
 	flags.BoolVar(&impl.PHPDevelopment, "php-devel", false, "Include php development configuration")
 	flags.StringVar(&impl.Flavor, "flavor", "", "Use specific flavor. Use 'provision --list-flavors' to list flavors.")
 	flags.StringVar(&impl.ContentSecurityPolicy, "content-security-policy", "", "Setup ContentSecurityPolicy")
+	flags.StringVar(&impl.IPAllowlist, "ip-allowlist", "", "Setup comman-separated IP (or IP block) allowlist")
 
 	return cmd
 }
@@ -45,6 +46,7 @@ type rebuild struct {
 	PHPDevelopment        bool
 	Flavor                string
 	ContentSecurityPolicy string
+	IPAllowlist           string
 
 	Positionals struct {
 		Slug []string
@@ -89,6 +91,7 @@ func (rb *rebuild) Exec(cmd *cobra.Command, args []string) (err error) {
 				IIPServer:             rb.IIPServer,
 				PHPDevelopment:        rb.PHPDevelopment,
 				ContentSecurityPolicy: rb.ContentSecurityPolicy,
+				IPAllowlist:           rb.IPAllowlist,
 			}
 		}
 

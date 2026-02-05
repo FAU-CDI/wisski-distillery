@@ -1,6 +1,8 @@
 //spellchecker:words models
 package models
 
+import "strings"
+
 // System represents system information.
 // It is embedded into the instances struct by gorm.
 type System struct {
@@ -8,6 +10,7 @@ type System struct {
 	PHP            string `gorm:"column:php;not null"`                    // php version to use
 	IIPServer      bool   `gorm:"column:iipimage;not null;default:false"` // should we enable the IIPServer?
 	PHPDevelopment bool   `gorm:"column:opcache_devel;not null"`          // php development (sql field name is legacy)
+	IPAllowlist    string `gorm:"column:ip_allowlist;not null"`
 
 	ContentSecurityPolicy string `gorm:"column:csp;not null"` // content security policy for the system
 }
@@ -50,6 +53,13 @@ const DefaultPHPVersion = "8.3"
 // KnownPHPVersions returns a slice of php versions.
 func KnownPHPVersions() []string {
 	return append([]string(nil), phpVersions...)
+}
+
+func (system System) GetIPAllowlist() []string {
+	if system.IPAllowlist == "" {
+		return nil
+	}
+	return strings.Split(system.IPAllowlist, ",")
 }
 
 // GetDockerBaseImage returns the docker base image used by the given system.

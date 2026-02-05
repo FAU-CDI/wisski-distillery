@@ -84,6 +84,15 @@
                     Changing the header is possible at any time. 
                 </span>
             </div>
+
+            <div class="pure-control-group">
+                <label for="ipallowlist">IP Allow List</label>
+                <input name="ipallowlist" id="ipallowlist" {{ if $rebuild }}value="{{ .System.IPAllowlist }}" {{ end }}>
+                <span class="pure-form-message-inline">
+                    Set a list of comma separated IP addresses or IP blocks that are allowed to access this instance.
+                    Leave blank to not set a list.
+                </span>
+            </div>
         
             {{ if not $rebuild }}
                 <div class="pure-controls">

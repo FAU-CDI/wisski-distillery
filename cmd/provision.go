@@ -33,6 +33,7 @@ func NewProvisionCommand() *cobra.Command {
 	flags.StringVar(&impl.Flavor, "flavor", "", "Use specific flavor. Use '--list-flavors' to list flavors.")
 	flags.BoolVar(&impl.ListFlavors, "list-flavors", false, "List all known flavors")
 	flags.StringVar(&impl.ContentSecurityPolicy, "content-security-policy", "", "Setup ContentSecurityPolicy")
+	flags.StringVar(&impl.IPAllowlist, "ip-allowlist", "", "Setup comman-separated IP (or IP block) allowlist")
 
 	return cmd
 }
@@ -44,6 +45,7 @@ type pv struct {
 	PHPDevelopment        bool
 	Flavor                string
 	ListFlavors           bool
+	IPAllowlist           string
 	ContentSecurityPolicy string
 	Positionals           struct {
 		Slug string
@@ -86,6 +88,7 @@ func (p *pv) Exec(cmd *cobra.Command, args []string) error {
 			IIPServer:             p.IIPServer,
 			PHPDevelopment:        p.PHPDevelopment,
 			ContentSecurityPolicy: p.ContentSecurityPolicy,
+			IPAllowlist:           p.IPAllowlist,
 		},
 	})
 	if err != nil {
