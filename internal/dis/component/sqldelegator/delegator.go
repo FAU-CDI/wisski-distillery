@@ -2,10 +2,12 @@ package sqldelegator
 
 import (
 	"context"
+	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 // Delegator delegates SQL operations for a specific instance
@@ -21,14 +23,13 @@ type DelegatedSQL interface {
 	Provision(ctx context.Context) error
 	Purge(ctx context.Context) error
 
-	/*
-		// Opens an sql shell for the given instance's sql database.
-		Shell(ctx context.Context, io stream.IOStream) error
+	// Shell opens a shell inside the given sql database.
+	Shell(ctx context.Context, io stream.IOStream, argv ...string) int
 
-		// Snapshot or restore databases belonging to the given instance.
-		Snapshot(ctx context.Context, progress io.Writer, dest io.Writer) error
-		Restore(ctx context.Context, progress io.Writer, src io.Reader) error
-	*/
+	// Snapshot makes a snapshot of the entire database.
+	Snapshot(ctx context.Context, progress io.Writer, dest io.Writer) error
+	// Restore restore the database from the given reader.
+	Restore(ctx context.Context, reader io.Reader, io stream.IOStream) error
 }
 
 type delegated struct {

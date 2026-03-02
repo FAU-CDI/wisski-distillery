@@ -7,19 +7,19 @@ import (
 	"go.tkw01536.de/pkglib/errorsx"
 )
 
-func (delegator *delegated) Provision(ctx context.Context) error {
-	return delegator.delegator.dependencies.SQL.CreateDatabase(ctx, sql.CreateOpts{
-		Name: delegator.instance.SqlDatabase,
+func (delegated *delegated) Provision(ctx context.Context) error {
+	return delegated.delegator.dependencies.SQL.CreateDatabase(ctx, sql.CreateOpts{
+		Name: delegated.instance.SqlDatabase,
 
 		CreateUser: true,
-		Username:   delegator.instance.SqlUsername,
-		Password:   delegator.instance.SqlPassword,
+		Username:   delegated.instance.SqlUsername,
+		Password:   delegated.instance.SqlPassword,
 	})
 }
 
-func (delegator *delegated) Purge(ctx context.Context) error {
+func (delegated *delegated) Purge(ctx context.Context) error {
 	return errorsx.Combine(
-		delegator.delegator.dependencies.SQL.DropDatabase(ctx, delegator.instance.SqlDatabase),
-		delegator.delegator.dependencies.SQL.DropUser(ctx, delegator.instance.SqlUsername),
+		delegated.delegator.dependencies.SQL.DropDatabase(ctx, delegated.instance.SqlDatabase),
+		delegated.delegator.dependencies.SQL.DropUser(ctx, delegated.instance.SqlUsername),
 	)
 }

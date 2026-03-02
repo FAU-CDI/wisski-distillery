@@ -10,7 +10,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 	"time"
@@ -298,8 +297,7 @@ func loadArchive(path string) (exporter.Snapshot, error) {
 type archiveParts struct {
 	DataPath string
 
-	SQLFilePath     string
-	SQLDatabaseName string
+	SQLFilePath string
 
 	TSFilePath string
 }
@@ -325,7 +323,6 @@ func readArchiveParts(cmd *cobra.Command, path string, archive exporter.Snapshot
 		if isFile, err := fsx.IsRegular(parts.SQLFilePath, false); !isFile {
 			return archiveParts{}, fmt.Errorf("sql data not found in snapshot: %w", cmp.Or(err, fs.ErrNotExist))
 		}
-		parts.SQLDatabaseName = archive.Instance.SqlDatabase
 	}
 
 	{
@@ -528,75 +525,10 @@ func (parts archiveParts) restoreSQL(cmd *cobra.Command, dis *dis.Distillery, in
 	}
 	defer file.Close()
 
-	replacedFile := replaceSqlDatabaseName(file, instance.SqlDatabase, parts.SQLDatabaseName)
-	defer replacedFile.Close()
-
-	//
-	code := dis.SQL().Shell(cmd.Context(), stream.NewIOStream(cmd.OutOrStdout(), cmd.ErrOrStderr(), replacedFile))
-	if code != 0 {
-		return fmt.Errorf("failed to restore SQL contents: exit code %d", code)
+	if err := liquid.DelegatedSQL().Restore(cmd.Context(), file, stream.NewIOStream(cmd.OutOrStdout(), cmd.ErrOrStderr(), nil)); err != nil {
+		return fmt.Errorf("failed to restore SQL contents: %w", err)
 	}
 	return nil
-}
-
-var (
-	reCreateDB = regexp.MustCompile(
-		`(?i)^\s*CREATE\s+DATABASE\b.*?` + "`" + `([^` + "`" + `]+)` + "`",
-	)
-	reUseDB = regexp.MustCompile(
-		`(?i)^\s*USE\s+(` + "`" + `([^` + "`" + `]+)` + "`" + `|([^\s;]+))`,
-	)
-)
-
-func replaceSqlDatabaseName(reader io.Reader, newDB string, oldDB string) io.ReadCloser {
-	// HACK HACK HACK: This restore code makes shit tons of assumptions about the SQL dump.
-	// In particular that it was created by mysqldump -- and only one 'CREATE DATABASE' statement exists.
-
-	pr, pw := io.Pipe()
-
-	go func() {
-		defer pw.Close()
-
-		scanner := bufio.NewScanner(reader)
-		// allow large lines (mysqldump can emit big INSERTs)
-		scanner.Buffer(make([]byte, 64*1024), 10*1024*1024)
-
-		for scanner.Scan() {
-			line := scanner.Text()
-
-			// CREATE DATABASE ... `oldDB`
-			if m := reCreateDB.FindStringSubmatchIndex(line); m != nil {
-				// group 1 = db name inside backticks
-				dbStart, dbEnd := m[2], m[3]
-				if line[dbStart:dbEnd] == oldDB {
-					line = line[:dbStart] + newDB + line[dbEnd:]
-				}
-			} else if m := reUseDB.FindStringSubmatchIndex(line); m != nil {
-				// USE `db`  -> group 2
-				// USE db    -> group 3
-				dbStart, dbEnd := -1, -1
-				if m[4] != -1 { // backticked
-					dbStart, dbEnd = m[4], m[5]
-				} else if m[6] != -1 { // bare
-					dbStart, dbEnd = m[6], m[7]
-				}
-				if dbStart != -1 && line[dbStart:dbEnd] == oldDB {
-					line = line[:dbStart] + newDB + line[dbEnd:]
-				}
-			}
-
-			if _, err := io.WriteString(pw, line+"\n"); err != nil {
-				_ = pw.CloseWithError(err)
-				return
-			}
-		}
-
-		if err := scanner.Err(); err != nil {
-			_ = pw.CloseWithError(err)
-		}
-	}()
-
-	return pr
 }
 
 func (parts archiveParts) restoreSQLConfig(cmd *cobra.Command, dis *dis.Distillery, instance *wisski.WissKI) (e error) {
