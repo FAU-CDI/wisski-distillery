@@ -12,9 +12,16 @@ import (
 type Provisionable interface {
 	Component
 
+	// ProvisionNeedsStack indicates if this provisionable should be provisioned after the inital stack is set up.
+	ProvisionNeedsStack(instance models.Instance) bool
+
 	// Provision provisions resources specific to the provided instance.
+	//
 	// Domain holds the full (unique) domain name of the given instance.
-	Provision(ctx context.Context, instance models.Instance, domain string) error
+	//
+	// If stack is nil, it is guaranteed that ProvisionNeedsStack() was called and returned false.
+	// If stack is not nil, either ProvisionNeedsStack() was called and returned true, or it was not called at all.
+	Provision(ctx context.Context, instance models.Instance, domain string, stack *StackWithResources) error
 
 	// Purge purges resources specific to the provided instance.
 	// Domain holds the full (unique) domain name of the given instance.

@@ -12,6 +12,7 @@ import (
 
 	_ "embed"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"go.tkw01536.de/pkglib/errorsx"
 )
@@ -33,8 +34,12 @@ type createRepoContext struct {
 	BaseURL      string
 }
 
-func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, domain string) error {
+func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
 	return ts.CreateRepository(ctx, instance.GraphDBRepository, domain, instance.GraphDBUsername, instance.GraphDBPassword)
+}
+
+func (ts *Triplestore) ProvisionNeedsStack(instance models.Instance) bool {
+	return false
 }
 
 func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, domain string) error {

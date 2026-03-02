@@ -87,7 +87,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 	if _, err := logging.LogMessage(out, "Provising triplestore"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := liquid.TS.Provision(ctx, liquid.Instance, liquid.Domain()); err != nil {
+	if err := liquid.TS.Provision(ctx, liquid.Instance, liquid.Domain(), &stack); err != nil {
 		return 0, fmt.Errorf("failed to provision triplestore: %w", err)
 	}
 

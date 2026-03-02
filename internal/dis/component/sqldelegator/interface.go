@@ -22,7 +22,11 @@ var (
 	_ component.Snapshotable  = (*Interface)(nil)
 )
 
-func (iface *Interface) Provision(ctx context.Context, instance models.Instance, domain string) error {
+func (iface *Interface) ProvisionNeedsStack(instance models.Instance) bool {
+	return true
+}
+
+func (iface *Interface) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
 	return iface.dependencies.delegator.For(instance).Provision(ctx)
 }
 
@@ -30,7 +34,7 @@ func (iface *Interface) Purge(ctx context.Context, instance models.Instance, dom
 	return iface.dependencies.delegator.For(instance).Purge(ctx)
 }
 
-func (*Interface) SnapshotNeedsRunning() bool { return false }
+func (*Interface) SnapshotNeedsRunning(wisski models.Instance) bool { return false }
 
 func (*Interface) SnapshotName() string { return "sql" }
 

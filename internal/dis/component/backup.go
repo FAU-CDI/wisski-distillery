@@ -31,7 +31,7 @@ type Snapshotable interface {
 	Component
 
 	// SnapshotNeedsRunning returns if this Snapshotable requires a running instance.
-	SnapshotNeedsRunning() bool
+	SnapshotNeedsRunning(wisski models.Instance) bool
 
 	// SnapshotName returns a new name to be used as an argument for path.
 	SnapshotName() string

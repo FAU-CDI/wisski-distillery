@@ -28,7 +28,8 @@ const phpIniName = "custom.ini"
 //go:embed custom.ini
 var phpIniTemplate string
 
-// Barrel returns a stack representing the running WissKI Instance.
+// Barrel returns a stack belonging to this WissKI instance.
+// The stack may or may not be running.
 func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 	liquid := ingredient.GetLiquid(barrel)
 	config := ingredient.GetStill(barrel).Config

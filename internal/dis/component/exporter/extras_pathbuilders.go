@@ -24,7 +24,7 @@ var (
 	_ component.Snapshotable = (*Pathbuilders)(nil)
 )
 
-func (Pathbuilders) SnapshotNeedsRunning() bool { return true }
+func (Pathbuilders) SnapshotNeedsRunning(wisski models.Instance) bool { return true }
 
 func (Pathbuilders) SnapshotName() string { return "pathbuilders" }
 

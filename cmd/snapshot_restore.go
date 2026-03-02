@@ -468,6 +468,12 @@ func copyFile(src, dst string) error {
 func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
 	liquid := ingredient.GetLiquid(instance.TRB())
 
+	stack, err := instance.Barrel().OpenStack()
+	if err != nil {
+		return fmt.Errorf("failed to open stack: %w", err)
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Purging triplestore repository"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
@@ -478,7 +484,7 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Re-provisioning triplestore repository"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := liquid.TS.Provision(cmd.Context(), liquid.Instance, liquid.Domain()); err != nil {
+	if err := liquid.TS.Provision(cmd.Context(), liquid.Instance, liquid.Domain(), &stack); err != nil {
 		return fmt.Errorf("failed to provision triplestore: %w", err)
 	}
 

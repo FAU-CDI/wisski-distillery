@@ -6,10 +6,15 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
-func (*Policy) Provision(ctx context.Context, instance models.Instance, domain string) error {
+func (*Policy) ProvisionNeedsStack(instance models.Instance) bool {
+	return false
+}
+
+func (*Policy) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
 	// component is purge-only
 	return nil
 }

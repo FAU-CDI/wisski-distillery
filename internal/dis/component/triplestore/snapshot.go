@@ -15,7 +15,7 @@ import (
 	"go.tkw01536.de/pkglib/errorsx"
 )
 
-func (Triplestore) SnapshotNeedsRunning() bool { return false }
+func (Triplestore) SnapshotNeedsRunning(wisski models.Instance) bool { return false }
 
 func (Triplestore) SnapshotName() string { return "triplestore" }
 

@@ -21,7 +21,7 @@ var (
 )
 
 // SnapshotNeedsRunning returns if this Snapshotable requires a running instance.
-func (Bookkeeping) SnapshotNeedsRunning() bool { return false }
+func (Bookkeeping) SnapshotNeedsRunning(wisski models.Instance) bool { return false }
 
 // SnapshotName returns a new name to be used as an argument for path.
 func (Bookkeeping) SnapshotName() string { return "bookkeeping.txt" }

@@ -9,6 +9,7 @@ import (
 	"io"
 	"time"
 
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient"
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/barrel"
@@ -21,7 +22,7 @@ import (
 )
 
 // Provision applies defaults to flags, to ensure some values are set.
-func (manager *Manager) Provision(ctx context.Context, progress io.Writer, system models.System, flags Profile) (e error) {
+func (manager *Manager) Provision(ctx context.Context, progress io.Writer, system models.System, flags Profile, lateProvisionables []component.Provisionable) (e error) {
 	// Force building and applying the system!
 	if err := manager.dependencies.SystemManager.ApplyInitial(ctx, progress, system); err != nil {
 		return fmt.Errorf("failed to apply initial configuration: %w", err)
@@ -32,6 +33,13 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 		return fmt.Errorf("failed to open stack: %w", err)
 	}
 	defer errorsx.Close(stack, &e, "stack")
+
+	liquid := ingredient.GetLiquid(manager)
+	for _, pc := range lateProvisionables {
+		if err := pc.Provision(ctx, liquid.Instance, liquid.Domain(), &stack); err != nil {
+			return fmt.Errorf("failed to provision %s: %w", pc.Name(), err)
+		}
+	}
 
 	// Create the composer directory!
 	if _, err := logging.LogMessage(progress, "Creating required directories"); err != nil {

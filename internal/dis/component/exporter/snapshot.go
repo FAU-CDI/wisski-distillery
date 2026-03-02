@@ -86,7 +86,7 @@ func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.Wiss
 
 	// setup the snapshot
 	snapshot.Description = desc
-	exporter.resolveParts(ctx, desc.Parts, &snapshot)
+	exporter.resolveParts(ctx, instance.Instance, desc.Parts, &snapshot)
 	snapshot.Instance = instance.Instance
 
 	// capture anything critical, and write the end time
@@ -117,7 +117,7 @@ func (exporter *Exporter) NewSnapshot(ctx context.Context, instance *wisski.Wiss
 // resolveParts resolves parts, and writes it into snapshot.Description.Parts.
 // Also sets up snapshot.partsRunning and snapshot.partsStopped.
 // sends a warning about unknown parts into the logger in context.
-func (snapshots *Exporter) resolveParts(ctx context.Context, parts []string, snapshot *Snapshot) {
+func (snapshots *Exporter) resolveParts(ctx context.Context, instance models.Instance, parts []string, snapshot *Snapshot) {
 	partMap := make(map[string]component.Snapshotable, len(snapshots.dependencies.Snapshotable))
 	for _, part := range snapshots.dependencies.Snapshotable {
 		partMap[part.SnapshotName()] = part
@@ -155,7 +155,7 @@ func (snapshots *Exporter) resolveParts(ctx context.Context, parts []string, sna
 	// and setup the map for running and stopped parts!
 	for _, name := range snapshot.Description.Parts {
 		part := partMap[name]
-		if part.SnapshotNeedsRunning() {
+		if part.SnapshotNeedsRunning(instance) {
 			snapshot.partsRunning = append(snapshot.partsRunning, part)
 		} else {
 			snapshot.partsStopped = append(snapshot.partsStopped, part)

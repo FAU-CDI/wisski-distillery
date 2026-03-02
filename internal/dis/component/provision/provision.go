@@ -129,14 +129,19 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 		return nil, fmt.Errorf("failed to update bookkeeping database: %w", err)
 	}
 
-	// create all the resources!
+	// Create all the resources we can create without a stack.
+	var lateProvisionables []component.Provisionable
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
 		for _, pc := range pv.dependencies.Provisionable {
+			if pc.ProvisionNeedsStack(instance.Instance) {
+				lateProvisionables = append(lateProvisionables, pc)
+				continue
+			}
 			if _, err := logging.LogMessage(progress, "Provisioning %s resources", pc.Name()); err != nil {
 				return fmt.Errorf("failed to log message: %w", err)
 			}
-			err := pc.Provision(ctx, instance.Instance, domain)
+			err := pc.Provision(ctx, instance.Instance, domain, nil)
 			if err != nil {
 				return fmt.Errorf("failed to provision instance: %w", err)
 			}
@@ -149,7 +154,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 
 	// run the provision script
 	if err := logging.LogOperation(func() error {
-		return instance.Manager().Provision(ctx, progress, flags.System, flags.Profile())
+		return instance.Manager().Provision(ctx, progress, flags.System, flags.Profile(), lateProvisionables)
 	}, progress, "Running setup scripts"); err != nil {
 		return nil, fmt.Errorf("failed to run setup scripts: %w", err)
 	}
