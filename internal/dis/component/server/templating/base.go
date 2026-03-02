@@ -13,9 +13,9 @@ import (
 	"strings"
 	"time"
 
+	csrf "filippo.io/csrf/gorilla"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/handling"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"github.com/gorilla/csrf"
 	"go.tkw01536.de/pkglib/httpx/content"
 	"go.tkw01536.de/pkglib/httpx/form"
 	"go.tkw01536.de/pkglib/httpx/wrap"

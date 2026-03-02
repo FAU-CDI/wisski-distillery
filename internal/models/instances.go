@@ -79,9 +79,3 @@ func (sb *SQLBit1) Scan(src interface{}) error {
 	}
 	return errBadBool
 }
-
-// SQLUrl returns an SQL connection string for this instance.
-// TODO: Delegate this to the delegated SQL.
-func (i Instance) SQLURL() string {
-	return "mysql://" + i.SqlUsername + ":" + i.SqlPassword + "@sql/" + i.SqlDatabase
-}

@@ -7,6 +7,10 @@ import (
 	"go.tkw01536.de/pkglib/errorsx"
 )
 
+func (delegated *delegated) SQLUrl() string {
+	return "mysql://" + delegated.instance.SqlUsername + ":" + delegated.instance.SqlPassword + "@sql/" + delegated.instance.SqlDatabase
+}
+
 func (delegated *delegated) Provision(ctx context.Context) error {
 	return delegated.delegator.dependencies.SQL.CreateDatabase(ctx, sql.CreateOpts{
 		Name: delegated.instance.SqlDatabase,

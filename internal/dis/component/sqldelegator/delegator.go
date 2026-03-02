@@ -19,6 +19,9 @@ type Delegator struct {
 }
 
 type DelegatedSQL interface {
+	// SQLUrl returns the SQL URL for the given instance.
+	SQLUrl() string
+
 	// Provision or purge databases belonging to a given instance.
 	Provision(ctx context.Context) error
 	Purge(ctx context.Context) error

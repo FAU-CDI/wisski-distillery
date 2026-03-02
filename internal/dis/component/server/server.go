@@ -17,7 +17,7 @@ import (
 	"go.tkw01536.de/pkglib/httpx/wrap"
 	"go.tkw01536.de/pkglib/recovery"
 
-	"github.com/gorilla/csrf"
+	csrf "filippo.io/csrf/gorilla"
 )
 
 // Server represents the running control server.

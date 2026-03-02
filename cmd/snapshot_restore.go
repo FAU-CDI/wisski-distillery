@@ -538,7 +538,8 @@ func (parts archiveParts) restoreSQL(cmd *cobra.Command, dis *dis.Distillery, in
 }
 
 func (parts archiveParts) restoreSQLConfig(cmd *cobra.Command, dis *dis.Distillery, instance *wisski.WissKI) (e error) {
-	if err := instance.Settings().SetDefaultDBConnection(cmd.Context(), nil, instance.SQLURL()); err != nil {
+
+	if err := instance.Settings().SetDefaultDBConnection(cmd.Context(), nil, instance.DelegatedSQL().SQLUrl()); err != nil {
 		return fmt.Errorf("failed to restore SQL config: %w", err)
 	}
 	return nil
