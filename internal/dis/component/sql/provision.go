@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"go.tkw01536.de/pkglib/errorsx"
 	"go.tkw01536.de/pkglib/stream"
 	"go.tkw01536.de/pkglib/timex"
 )
 
+/*
 // Provision provisions sql-specific resource for the given instance.
 func (sql *SQL) Provision(ctx context.Context, instance models.Instance, domain string) error {
 	return sql.CreateDatabase(ctx, CreateOpts{
@@ -25,6 +25,7 @@ func (sql *SQL) Provision(ctx context.Context, instance models.Instance, domain 
 	})
 }
 
+/*
 // Purge purges sql-specific resources for the given instance.
 func (sql *SQL) Purge(ctx context.Context, instance models.Instance, domain string) error {
 	return errorsx.Combine(
@@ -32,10 +33,11 @@ func (sql *SQL) Purge(ctx context.Context, instance models.Instance, domain stri
 		sql.DropUser(ctx, instance.SqlUsername),
 	)
 }
+*/
 
 var errCreateSuperuserGrant = errors.New("`CreateSuperUser': grant failed")
 
-// CreateSuperuser createsa new user, with the name 'user' and the password 'password'.
+// CreateSuperuser creates a new user, with the name 'user' and the password 'password'.
 // CreateSuperuser always waits for the database to become available, and then uses the internal 'mysql' executable of the container.
 func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allowExisting bool) (e error) {
 	stack, err := sql.OpenStack()

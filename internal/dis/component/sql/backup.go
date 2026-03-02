@@ -19,7 +19,7 @@ func (*SQL) BackupName() string {
 	return "sql.sql"
 }
 
-// Backup makes a backup of all SQL databases into the path dest.
+// Backup makes a backup of all global SQL databases into the path dest.
 func (sql *SQL) Backup(scontext *component.StagingContext) error {
 	if err := scontext.AddFile("", func(ctx context.Context, file io.Writer) (e error) {
 		stack, err := sql.OpenStack()

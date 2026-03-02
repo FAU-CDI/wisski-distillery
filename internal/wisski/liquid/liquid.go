@@ -6,6 +6,7 @@ package liquid
 //spellchecker:words github wisski distillery internal component instances malt models
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sqldelegator"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
@@ -16,4 +17,10 @@ type Liquid struct {
 
 	DrupalUsername string
 	DrupalPassword string
+}
+
+func (liquid *Liquid) DelegatedSQL() sqldelegator.DelegatedSQL {
+	// Note: We cannot cache here, as the implementation itself might switch between global and local sql
+	// depending on the configuration.
+	return liquid.Delegator.For(liquid.Instance)
 }

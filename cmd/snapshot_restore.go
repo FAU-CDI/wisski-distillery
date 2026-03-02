@@ -507,14 +507,14 @@ func (parts archiveParts) restoreSQL(cmd *cobra.Command, dis *dis.Distillery, in
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Purging SQL database"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := liquid.SQL.Purge(cmd.Context(), liquid.Instance, liquid.Domain()); err != nil {
+	if err := liquid.DelegatedSQL().Purge(cmd.Context()); err != nil {
 		return fmt.Errorf("failed to purge SQL database: %w", err)
 	}
 
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Re-provisioning SQL database"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := liquid.SQL.Provision(cmd.Context(), liquid.Instance, liquid.Domain()); err != nil {
+	if err := liquid.DelegatedSQL().Provision(cmd.Context()); err != nil {
 		return fmt.Errorf("failed to provision SQL database: %w", err)
 	}
 
