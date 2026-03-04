@@ -36,25 +36,6 @@ type Manager struct {
 var (
 	defaultProfile = "Drupal 11"
 	profiles       = map[string]Profile{
-		"Drupal 9": {
-			Description: "Legacy Version of Drupal",
-
-			Drupal: "^9",
-			WissKI: "",
-			InstallModules: []string{
-				"drupal/inline_entity_form:^1.0@RC",
-				"drupal/imagemagick",
-				"drupal/image_effects",
-				"drupal/colorbox",
-			},
-			EnableModules: []string{
-				"drupal/devel:^4.1",
-				"drupal/geofield:^1.40",
-				"drupal/geofield_map:^2.85",
-				"drupal/imce:^2.4",
-				"drupal/remove_generator:^2.0",
-			},
-		},
 		"Drupal 10": {
 			Description: "Legacy Version Of Drupal",
 

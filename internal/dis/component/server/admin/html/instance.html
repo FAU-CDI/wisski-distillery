@@ -185,10 +185,19 @@
                     </tr>
                     <tr>
                         <td>
+                            Dedicated SQL Server
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.DedicatedSQL }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             SQL DB
 
                             {{ $pma := .DistilleryConfig.HTTP.PhpMyAdminURL }}
-                            {{ if $pma }}
+                            {{ $globalsql := not .Instance.System.DedicatedSQL }}
+                            {{ if and $pma $globalsql }}
                                 <br>
                                 <a href="{{ $pma }}" class="pure-button" target="_blank" rel="noopener noreferer">PHPMyAdmin</a>
                             {{ end }}

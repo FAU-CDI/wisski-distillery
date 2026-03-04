@@ -16,6 +16,7 @@ interface System {
   PHPDevelopment: boolean
   ContentSecurityPolicy: string
   IPAllowlist: string
+  DedicatedSQL?: boolean
 }
 
 /** Rebuild the specified instance */

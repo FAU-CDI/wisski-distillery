@@ -1,7 +1,9 @@
 //spellchecker:words models
 package models
 
-import "strings"
+import (
+	"strings"
+)
 
 // System represents system information.
 // It is embedded into the instances struct by gorm.
@@ -13,6 +15,15 @@ type System struct {
 	IPAllowlist    string `gorm:"column:ip_allowlist;not null"`
 
 	ContentSecurityPolicy string `gorm:"column:csp;not null"` // content security policy for the system
+
+	DedicatedSQL bool `gorm:"column:dedicated_sql;not null;default:false"` // should we use a dedicated SQL server?
+}
+
+// Called to get the final System info for the given current configuration.
+// This ensures that specific fields cannot be changed.
+func (system System) ApplyTo(current System) System {
+	system.DedicatedSQL = current.DedicatedSQL
+	return system
 }
 
 const (

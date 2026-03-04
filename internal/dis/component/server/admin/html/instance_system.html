@@ -37,6 +37,20 @@
                     Changing the PHP version is possible at any time.
                 </span>
             </div>
+
+            {{ if not $rebuild }}
+                <div class="pure-controls">
+                    <label for="dedicatedsql" class="pure-checkbox">
+                        <input type="checkbox" id="dedicatedsql" />
+                        Dedicated SQL Server
+                    </label>
+                    <span class="pure-form-message-inline">
+                        Use a dedicated SQL server for this instance, instead of the shared distillery SQL server.
+                        This cannot be changed after creation.
+                    </span>
+                </div>
+            {{ end }}
+
             <div class="pure-controls">
                 <label for="iipserver" class="pure-checkbox">
                     <input {{ if $rebuild }}{{ if .System.IIPServer }}checked{{end}}{{end}} type="checkbox" id="iipserver" />
@@ -93,7 +107,8 @@
                     Leave blank to not set a list.
                 </span>
             </div>
-        
+
+
             {{ if not $rebuild }}
                 <div class="pure-controls">
                     <h5>Flavor</h5>

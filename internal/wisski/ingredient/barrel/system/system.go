@@ -26,7 +26,7 @@ type SystemManager struct {
 
 // Apply applies the given system configuration to this instance and (re-)starts the system.
 func (smanager *SystemManager) Apply(ctx context.Context, progress io.Writer, system models.System) (err error) {
-	if err := smanager.apply(ctx, progress, system, true); err != nil {
+	if err := smanager.apply(ctx, progress, system, true, false); err != nil {
 		return err
 	}
 
@@ -39,13 +39,22 @@ func (smanager *SystemManager) Apply(ctx context.Context, progress io.Writer, sy
 
 // ApplyInitial builds the base image, but does not start it.
 func (smanager *SystemManager) ApplyInitial(ctx context.Context, progress io.Writer, system models.System) error {
-	return smanager.apply(ctx, progress, system, false)
+	return smanager.apply(ctx, progress, system, false, true)
 }
 
 // start inidicates if the image should be started afterwards.
-func (smanager *SystemManager) apply(ctx context.Context, progress io.Writer, system models.System, start bool) error {
+func (smanager *SystemManager) apply(ctx context.Context, progress io.Writer, system models.System, start bool, initial bool) error {
+
+	// Apply the current configuration.
+	config := ingredient.GetLiquid(smanager).System
+	if initial {
+		config = system
+	} else {
+		config = system.ApplyTo(config)
+	}
+
 	// store the new system configuration
-	ingredient.GetLiquid(smanager).System = system
+	ingredient.GetLiquid(smanager).System = config
 	if err := smanager.dependencies.Bookkeeping.Save(ctx); err != nil {
 		return fmt.Errorf("failed to save bookkeeping: %w", err)
 	}

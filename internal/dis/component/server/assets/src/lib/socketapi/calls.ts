@@ -12,7 +12,7 @@ export function Backup (): CallSpec {
 
 interface ProvisionParams {
   Slug: string
-  Flavor?: 'Drupal 11' | 'Drupal 10' | 'Drupal 9'
+  Flavor?: 'Drupal 11' | 'Drupal 10'
   IIPServer?: string
   System: SystemParams
 }
