@@ -29,7 +29,7 @@ func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
 		}
 
 		config := component.GetStill(sql).Config.SQL
-		if err := sql.CreateDatabase(ctx, CreateOpts{
+		if err := sql.DeprecatedCreateDatabase(ctx, CreateOpts{
 			Name:        config.Database,
 			AllowExists: true,
 

@@ -7,18 +7,38 @@ import (
 	"io"
 	"regexp"
 
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"go.tkw01536.de/pkglib/stream"
 )
 
 func (delegated *delegated) Snapshot(ctx context.Context, progress io.Writer, dest io.Writer) error {
-	return delegated.delegator.dependencies.SQL.SnapshotDB(ctx, progress, dest, delegated.instance.SqlDatabase)
+	return delegated.Impl.SnapshotDB(ctx, progress, dest, delegated.instance.SqlDatabase)
+}
+
+// SnapshotDB makes a snapshot of the given database into dest.
+func (impl *Impl) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Writer, database string) (e error) {
+	return impl.whileRunning(ctx, progress, func(stack *dockerx.Stack) error {
+		code := stack.Exec(
+			ctx,
+			stream.NewIOStream(dest, progress, nil),
+			dockerx.ExecOptions{
+				Service: "sql",
+				Cmd:     impl.DumpExecutable,
+				Args:    []string{"--databases", database},
+			},
+		)()
+		if code != 0 {
+			return fmt.Errorf("failed to execute dump: exit code %d", code)
+		}
+		return nil
+	})
 }
 
 func (delegated *delegated) Restore(ctx context.Context, reader io.Reader, io stream.IOStream) error {
 	replacedFile := replaceSqlDatabaseName(reader, delegated.instance.SqlDatabase)
 	defer replacedFile.Close()
 
-	code := delegated.Shell(ctx, stream.NewIOStream(io.Stdout, io.Stderr, replacedFile))
+	code := delegated.Impl.Shell(ctx, stream.NewIOStream(io.Stdout, io.Stderr, replacedFile))
 	if code != 0 {
 		return fmt.Errorf("failed to restore SQL contents: exit code %d", code)
 	}

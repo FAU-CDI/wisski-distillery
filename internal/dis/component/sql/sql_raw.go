@@ -10,9 +10,9 @@ import (
 	"go.tkw01536.de/pkglib/stream"
 )
 
-// Shell directly executes a mysql command inside the container.
+// DeprecatedShell directly executes a mysql command inside the container.
 // This command should be used with caution.
-func (sql *SQL) Shell(ctx context.Context, io stream.IOStream, argv ...string) int {
+func (sql *SQL) DeprecatedShell(ctx context.Context, io stream.IOStream, argv ...string) int {
 	stack, err := sql.OpenStack()
 	if err != nil {
 		return execx.CommandError

@@ -132,8 +132,8 @@ func (stack Stack) Containers(ctx context.Context, includeStoppedContainers bool
 }
 
 // Running returns true if the container is running, false otherwise.
-func (ds Stack) Running(ctx context.Context) (r bool, e error) {
-	containers, err := ds.Containers(ctx, false)
+func (ds Stack) Running(ctx context.Context, services ...string) (r bool, e error) {
+	containers, err := ds.Containers(ctx, false, services...)
 	if err != nil {
 		return false, fmt.Errorf("failed to list containers: %w", err)
 	}
@@ -223,8 +223,9 @@ var errStackUp = errors.New("Stack.Up: Up returned non-zero exit code")
 
 // Start creates and starts the containers in this Stack.
 // It is equivalent to 'docker compose up --force-recreate --remove-orphans --detach' on the shell.
-func (ds Stack) Start(ctx context.Context, progress io.Writer) error {
-	if code := ds.compose(ctx, stream.NonInteractive(progress), "up", "--force-recreate", "--remove-orphans", "--detach")(); code != 0 {
+func (ds Stack) Start(ctx context.Context, progress io.Writer, services ...string) error {
+	cmd := append([]string{"up", "--force-recreate", "--remove-orphans", "--detach"}, services...)
+	if code := ds.compose(ctx, stream.NonInteractive(progress), cmd...)(); code != 0 {
 		return fmt.Errorf("%w: %d", errStackUp, code)
 	}
 	return nil
@@ -303,8 +304,9 @@ var errStackDown = errors.New("Stack.Down: Down returned non-zero exit code")
 
 // Down stops and removes all containers in this Stack.
 // It is equivalent to 'docker compose down -v' on the shell.
-func (ds Stack) Down(ctx context.Context, progress io.Writer) error {
-	code := ds.compose(ctx, stream.NonInteractive(progress), "down", "-v")()
+func (ds Stack) Down(ctx context.Context, progress io.Writer, services ...string) error {
+	cmd := append([]string{"down", "-v"}, services...)
+	code := ds.compose(ctx, stream.NonInteractive(progress), cmd...)()
 	if code != 0 {
 		return errStackDown
 	}

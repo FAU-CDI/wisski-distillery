@@ -13,28 +13,6 @@ import (
 	"go.tkw01536.de/pkglib/timex"
 )
 
-/*
-// Provision provisions sql-specific resource for the given instance.
-func (sql *SQL) Provision(ctx context.Context, instance models.Instance, domain string) error {
-	return sql.CreateDatabase(ctx, CreateOpts{
-		Name: instance.SqlDatabase,
-
-		CreateUser: true,
-		Username:   instance.SqlUsername,
-		Password:   instance.SqlPassword,
-	})
-}
-
-/*
-// Purge purges sql-specific resources for the given instance.
-func (sql *SQL) Purge(ctx context.Context, instance models.Instance, domain string) error {
-	return errorsx.Combine(
-		sql.DropDatabase(ctx, instance.SqlDatabase),
-		sql.DropUser(ctx, instance.SqlUsername),
-	)
-}
-*/
-
 var errCreateSuperuserGrant = errors.New("`CreateSuperUser': grant failed")
 
 // CreateSuperuser creates a new user, with the name 'user' and the password 'password'.
@@ -55,7 +33,7 @@ func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allo
 			return false
 		}
 
-		code := sql.Shell(ctx, nilStream, "-e", "select 1;")
+		code := sql.DeprecatedShell(ctx, nilStream, "-e", "select 1;")
 		return code == 0
 	}, ctx, sql.PollInterval); err != nil {
 		return fmt.Errorf("failed to wait for sql: %w", err)
@@ -72,7 +50,7 @@ func (sql *SQL) CreateSuperuser(ctx context.Context, user, password string, allo
 	)
 
 	var builder strings.Builder
-	code := sql.Shell(
+	code := sql.DeprecatedShell(
 		ctx, stream.NewIOStream(nil, &builder, nil), "-e",
 		"CREATE USER "+IfNotExists+" "+userQuoted+"@'%' IDENTIFIED BY "+passQuoted+";"+
 			"GRANT ALL PRIVILEGES ON *.* TO "+userQuoted+"@'%' WITH GRANT OPTION;"+

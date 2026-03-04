@@ -12,7 +12,6 @@ import (
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/wdlog"
-	"go.tkw01536.de/pkglib/errorsx"
 	"go.tkw01536.de/pkglib/timex"
 )
 
@@ -25,25 +24,6 @@ func (sql *SQL) Wait(ctx context.Context) (err error) {
 		return fmt.Errorf("failed to wait for sql: %w", err)
 	}
 	return nil
-}
-
-// Query executes a database-independent query.
-func (sql *SQL) Query(ctx context.Context, query string, args ...interface{}) (e error) {
-	// connect to the server
-	conn, err := sql.openSQL("")
-	if err != nil {
-		return err
-	}
-	defer errorsx.Close(conn, &e, "connection")
-
-	// do the query!
-	{
-		_, err := conn.ExecContext(ctx, query, args...)
-		if err != nil {
-			return fmt.Errorf("failed to execute query: %w", err)
-		}
-		return nil
-	}
 }
 
 // directQuery waits to establish a new connection to the database, and then executes the given queries in order.

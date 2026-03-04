@@ -55,7 +55,7 @@ func (ms *mysql) Exec(cmd *cobra.Command, args []string) error {
 }
 
 func (ms *mysql) globalShell(cmd *cobra.Command, dis *dis.Distillery) error {
-	code := dis.SQL().Shell(cmd.Context(), streamFromCommand(cmd), ms.Positionals.Args...)
+	code := dis.SQL().DeprecatedShell(cmd.Context(), streamFromCommand(cmd), ms.Positionals.Args...)
 
 	if code := exit.Code(code); code != 0 {
 		return exit.NewErrorWithCode(fmt.Sprintf("exit code %d", code), code)

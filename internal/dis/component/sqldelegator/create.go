@@ -1,10 +1,10 @@
-package sql
+package sqldelegator
 
-//spellchecker:words context errors
 import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 )
 
 // CreateOpts are options for [CreateOpts].
@@ -34,11 +34,11 @@ func (cd CreateOpts) Validate() error {
 	return nil
 }
 
-// DeprecatedCreateDatabase creates a new database with the given name.
+// CreateDatabase creates a new database with the given name.
 // If the user name is not the empty string, it then generates a new user and grants access to this database.
 //
 // Provision internally waits for the database to become available.
-func (sql *SQL) DeprecatedCreateDatabase(ctx context.Context, opts CreateOpts) error {
+func (impl *Impl) CreateDatabase(ctx context.Context, progress io.Writer, opts CreateOpts) error {
 	// NOTE(twiesing): We shouldn't use string concat to build sql queries.
 	// But the driver doesn't support using query params for these queries.
 	// Apparently it's a "feature", see https://github.com/go-sql-driver/mysql/issues/398#issuecomment-169951763.
@@ -72,5 +72,5 @@ func (sql *SQL) DeprecatedCreateDatabase(ctx context.Context, opts CreateOpts) e
 		)
 	}
 
-	return sql.directQuery(ctx, queries...)
+	return impl.queries(ctx, progress, queries...)
 }

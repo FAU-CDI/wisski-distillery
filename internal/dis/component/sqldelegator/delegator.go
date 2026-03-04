@@ -7,6 +7,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"go.tkw01536.de/pkglib/stream"
 )
 
@@ -36,6 +37,7 @@ type DelegatedSQL interface {
 }
 
 type delegated struct {
+	*Impl
 	instance  models.Instance
 	delegator *Delegator
 }
@@ -45,5 +47,13 @@ func (delegator *Delegator) For(instance models.Instance) DelegatedSQL {
 	return &delegated{
 		instance:  instance,
 		delegator: delegator,
+
+		Impl: NewImpl("sql", func() (*dockerx.Stack, error) {
+			stack, err := delegator.dependencies.SQL.OpenStack()
+			if err != nil {
+				return nil, err
+			}
+			return stack.Stack, nil
+		}),
 	}
 }
