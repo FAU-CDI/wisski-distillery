@@ -90,7 +90,8 @@ func (s *server) Exec(cmd *cobra.Command, args []string) error {
 			"bind", s.Bind,
 		)
 
-		publicL, err := net.Listen("tcp", s.Bind)
+		var lc net.ListenConfig
+		publicL, err := lc.Listen(cmd.Context(), "tcp", s.Bind)
 		if err != nil {
 			return fmt.Errorf("%w: %w", errServerListen, err)
 		}
@@ -122,7 +123,8 @@ func (s *server) Exec(cmd *cobra.Command, args []string) error {
 			"listening internal server",
 			"bind", s.InternalBind,
 		)
-		internalL, err := net.Listen("tcp", s.InternalBind)
+		var lc net.ListenConfig
+		internalL, err := lc.Listen(cmd.Context(), "tcp", s.InternalBind)
 		if err != nil {
 			return fmt.Errorf("%w: %w", errServerListen, err)
 		}

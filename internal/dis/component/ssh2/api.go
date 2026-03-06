@@ -49,10 +49,10 @@ func (ssh2 *SSH2) HandleRoute(ctx context.Context, path string) (http.Handler, e
 
 		// marshal out everything!
 		for _, key := range gkeys {
-			_, _ = w.Write(gossh.MarshalAuthorizedKey(key))
+			_, _ = w.Write(gossh.MarshalAuthorizedKey(key)) // #nosec G705 - safe ssh key
 		}
 		for _, key := range keys {
-			_, _ = w.Write(gossh.MarshalAuthorizedKey(key))
+			_, _ = w.Write(gossh.MarshalAuthorizedKey(key)) // #nosec G705 - safe ssh key
 		}
 	}), nil
 }

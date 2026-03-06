@@ -2,6 +2,7 @@ package sql
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 
@@ -26,9 +27,14 @@ func (iface *InstanceSQL) ProvisionNeedsStack(instance models.Instance) bool {
 	return true
 }
 
+var errFailedToProvision = errors.New("failed to provision sql database")
+
 func (iface *InstanceSQL) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
-	return iface.dependencies.SQL.For(instance).Provision(ctx)
+	provisionErr := iface.dependencies.SQL.For(instance).Provision(ctx)
+	return fmt.Errorf("%w: %w", errFailedToProvision, provisionErr)
 }
+
+var errFailedToPurge = errors.New("failed to purge sql database")
 
 func (iface *InstanceSQL) Purge(ctx context.Context, instance models.Instance, domain string) error {
 	purgeErr := iface.dependencies.SQL.For(instance).Purge(ctx)
@@ -37,7 +43,7 @@ func (iface *InstanceSQL) Purge(ctx context.Context, instance models.Instance, d
 	if instance.DedicatedSQL {
 		return nil
 	}
-	return purgeErr
+	return fmt.Errorf("%w: %w", errFailedToPurge, purgeErr)
 }
 
 func (*InstanceSQL) SnapshotNeedsRunning(wisski models.Instance) bool { return false }

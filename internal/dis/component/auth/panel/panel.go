@@ -44,6 +44,8 @@ var (
 	_ component.Menuable  = (*UserPanel)(nil)
 )
 
+const maxBodyFormBytes = 1024 * 1024 // 1 MB
+
 func (panel *UserPanel) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/user/",

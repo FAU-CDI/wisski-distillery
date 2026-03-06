@@ -38,7 +38,7 @@ func (config *Config) Validate() error {
 func (config *Config) Marshal(dest io.Writer) error {
 	encoder := yaml.NewEncoder(dest)
 	encoder.SetIndent(4)
-	if err := encoder.Encode(config); err != nil {
+	if err := encoder.Encode(config); err != nil { // #nosec G117 - censored on demand by other code
 		return fmt.Errorf("failed to marshal config: %w", err)
 	}
 	return nil

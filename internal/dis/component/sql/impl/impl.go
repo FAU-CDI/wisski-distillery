@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -128,6 +129,8 @@ func (sql *Impl) StartAndWait(ctx context.Context, progress io.Writer) (e error)
 	return sql.wait(ctx, progress, stack)
 }
 
+var errFailedToExecuteQueries = errors.New("failed to execute queries")
+
 // queries executes the given queries inside the sql implementation.
 // If the container is not running, it is started automatically.
 // They are run inside the default database, unless a different database is selected with a "USE database;" query.
@@ -141,7 +144,7 @@ func (sql *Impl) queries(ctx context.Context, progress io.Writer, queries ...str
 			Cmd:     sql.QueryExecutable,
 		})()
 		if code != 0 {
-			return fmt.Errorf("failed to execute queries: %d", code)
+			return fmt.Errorf("%w: exit code %d", errFailedToExecuteQueries, code)
 		}
 		return nil
 	})

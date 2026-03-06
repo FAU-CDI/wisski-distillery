@@ -2,6 +2,7 @@ package exporter
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -24,6 +25,8 @@ type snapshotJSON struct {
 	Logs     map[string]string `json:"Logs,omitempty"`
 	Manifest []string          `json:"Manifest,omitempty"`
 }
+
+var errFailedToMarshalSnapshotJSON = errors.New("failed to marshal snapshot json")
 
 func (s Snapshot) MarshalJSON() ([]byte, error) {
 	j := snapshotJSON{
@@ -54,20 +57,29 @@ func (s Snapshot) MarshalJSON() ([]byte, error) {
 		}
 	}
 
-	return json.Marshal(j)
+	data, err := json.Marshal(j)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w", errFailedToMarshalSnapshotJSON, err)
+	}
+	return data, nil
 }
 
+// marshalStrings marshals s as a json.RawMessage
+// If an error occurs, it returns "unknown error" instead.
 func marshalString(s string) json.RawMessage {
-	// we are only marshalling a string.
-	// which cannot cause any error.
-	value, _ := json.Marshal(s)
+	value, err := json.Marshal(s)
+	if err != nil {
+		value = []byte("\"unknown error\"")
+	}
 	return value
 }
+
+var errFailedToUnmarshalSnapshotJSON = errors.New("failed to unmarshal snapshot json")
 
 func (s *Snapshot) UnmarshalJSON(data []byte) error {
 	var j snapshotJSON
 	if err := json.Unmarshal(data, &j); err != nil {
-		return err
+		return fmt.Errorf("%w: %w", errFailedToUnmarshalSnapshotJSON, err)
 	}
 
 	// unmarshal all the fields, but skip the error fields.

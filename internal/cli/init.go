@@ -65,7 +65,7 @@ func GetDistillery(cmd *cobra.Command, req Requirements) (d *dis.Distillery, e e
 	}
 
 	// open the config file!
-	f, err := os.Open(params.ConfigPath)
+	f, err := os.Open(params.ConfigPath) // #nosec G703 -- intended
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w", errOpenConfig, err)
 	}

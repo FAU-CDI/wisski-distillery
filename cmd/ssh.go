@@ -57,7 +57,8 @@ func (s *ssh) Exec(cmd *cobra.Command, args []string) error {
 	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Listening on %s\n", s.Bind)
 
 	// make a new listener
-	listener, err := net.Listen("tcp", s.Bind)
+	var lc net.ListenConfig
+	listener, err := lc.Listen(cmd.Context(), "tcp", s.Bind)
 	if err != nil {
 		return fmt.Errorf("%w: %w", errSSHListen, err)
 	}

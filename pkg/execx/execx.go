@@ -35,7 +35,7 @@ func CommandErrorFunc() int { return CommandError }
 // If the command can not be executed, the returned function is [ExecCommandErrorFunc] and returns [ExecCommandError].
 func Exec(ctx context.Context, io stream.IOStream, workdir string, exe string, argv ...string) func() int {
 	// setup the command
-	cmd := exec.CommandContext(ctx, exe, argv...)
+	cmd := exec.CommandContext(ctx, exe, argv...) // #nosec G204 -- intended
 	cmd.WaitDelay = time.Second
 	cmd.Dir = workdir
 	cmd.Stdin = io.Stdin

@@ -141,14 +141,10 @@ func (server *Server) Server(ctx context.Context, progress io.Writer) (public ht
 func (server *Server) csrf() func(http.Handler) http.Handler {
 	config := component.GetStill(server).Config
 
-	var opts []csrf.Option
-	opts = append(opts, csrf.Secure(config.HTTP.HTTPSEnabled()))
-	opts = append(opts, csrf.SameSite(csrf.SameSiteStrictMode))
-	opts = append(opts, csrf.Path("/"))
-	opts = append(opts, csrf.CookieName(CSRFCookie))
-	opts = append(opts, csrf.FieldName(CSRFCookieField))
-	opts = append(opts, csrf.TrustedOrigins(config.HTTP.PanelDomains()))
-	return csrf.Protect(config.CSRFKey(), opts...)
+	return csrf.Protect(
+		config.CSRFKey(),
+		csrf.TrustedOrigins(config.HTTP.PanelDomains()),
+	)
 }
 
 // WithCSP adds a Content-Security-Policy header to every response.

@@ -15,16 +15,18 @@ var (
 	)
 )
 
-// ReplaceSqlDatabaseName replaces the database name in a SQL dump in the given reader using the given function.
+// replaceSqlDatabaseName replaces the database name in a SQL dump in the given reader using the given function.
 // If there are no database names to replace, the reader is returned unchanged.
-func ReplaceSqlDatabaseName(reader io.Reader, replaceFunc func(string) string) io.ReadCloser {
+func replaceSqlDatabaseName(reader io.Reader, replaceFunc func(string) string) io.ReadCloser {
 	// HACK HACK HACK: This restore code makes shit tons of assumptions about the SQL dump.
 	// In particular that it was created by mysqldump -- and only one 'CREATE DATABASE' statement exists.
 
 	pr, pw := io.Pipe()
 
 	go func() {
-		defer pw.Close()
+		defer func() {
+			_ = pw.Close() // no way to report this error
+		}()
 
 		scanner := bufio.NewScanner(reader)
 

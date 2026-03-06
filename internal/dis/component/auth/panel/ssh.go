@@ -103,6 +103,7 @@ var (
 func (panel *UserPanel) sshDeleteRoute(ctx context.Context) http.Handler {
 	logger := wdlog.Of(ctx)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, maxBodyFormBytes)
 		if err := r.ParseForm(); err != nil {
 			logger.Error(
 				"failed to parse form",

@@ -13,7 +13,6 @@ import (
 
 // Update initializes or updates the SQL database.
 func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
-
 	{
 		if _, err := logging.LogMessage(progress, "Creating administrative database and user"); err != nil {
 			return fmt.Errorf("failed to log message: %w", err)

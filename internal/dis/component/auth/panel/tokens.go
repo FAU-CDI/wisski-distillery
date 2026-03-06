@@ -76,6 +76,7 @@ func (panel *UserPanel) tokensRoute(context.Context) http.Handler {
 func (panel *UserPanel) tokensDeleteRoute(ctx context.Context) http.Handler {
 	logger := wdlog.Of(ctx)
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, maxBodyFormBytes)
 		if err := r.ParseForm(); err != nil {
 			logger.Error(
 				"failed to parse form",

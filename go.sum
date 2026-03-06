@@ -776,8 +776,8 @@ go.opentelemetry.io/proto/otlp v1.5.0 h1:xJvq7gMzB31/d406fB8U5CBdyQGw4P399D1aQWU
 go.opentelemetry.io/proto/otlp v1.5.0/go.mod h1:keN8WnHxOy8PG0rQZjJJ5A2ebUoafqWp0eVQ4yIXvJ4=
 go.tkw01536.de/gogenlicense v1.8.0 h1:bqnd4O3vAFrhOPi5UvPPB9xpS1pvE9HNI6zi6TMMJEA=
 go.tkw01536.de/gogenlicense v1.8.0/go.mod h1:sLY11OPYl5p4uQBB+hc2LUIlojRSwEgWF2SzdUvkexI=
-go.tkw01536.de/pkglib v0.0.0-20260306170826-504d1742e291 h1:4cAYmpKGoHyGSD6rakgir/tyImiXU7SMPJx20473p+I=
-go.tkw01536.de/pkglib v0.0.0-20260306170826-504d1742e291/go.mod h1:auATh4YL8YGo6ZXvCoefobPPXmPNkTSOJTB48xHNNIk=
+go.tkw01536.de/pkglib v0.0.0-20260306225428-91e42cd665ce h1:kdkIUlaIZm3kvprr6VL49sL9o1taqOEWsvKKiriRe18=
+go.tkw01536.de/pkglib v0.0.0-20260306225428-91e42cd665ce/go.mod h1:4qgwNGZbEeHrA48kzst2mGRJOAoltbKLm50cOt60Ihc=
 go.uber.org/goleak v1.3.0 h1:2K3zAYmnTNqV73imy9J1T3WC+gmCePx2hEGkimedGto=
 go.uber.org/goleak v1.3.0/go.mod h1:CoHD4mav9JJNrW/WLlf7HGZPjdw8EucARQHekz1X6bE=
 go.uber.org/multierr v1.10.0 h1:S0h4aNzvfcFsC3dRF1jLoaov7oRaKqRGC/pUEJ2yvPQ=

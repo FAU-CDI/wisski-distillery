@@ -42,5 +42,5 @@ func logOperation(progress io.Writer, indent int, format string, args ...interfa
 // streamIsTerminal checks if stream is a terminal.
 func streamIsTerminal(stream any) bool {
 	file, ok := stream.(interface{ Fd() uintptr })
-	return ok && term.IsTerminal(int(file.Fd()))
+	return ok && term.IsTerminal(int(file.Fd())) // #nosec G115 -- term api handles overflow
 }

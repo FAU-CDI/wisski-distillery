@@ -55,7 +55,7 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 			if err != nil {
 				return nil, fmt.Errorf("failed to find labels: %w", err)
 			}
-			var labels []string
+			var labels []string //nolint:prealloc
 			if err := labelsNode.Decode(&labels); err != nil {
 				return nil, fmt.Errorf("failed to decode labels: %w", err)
 			}
@@ -108,7 +108,6 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 }
 
 func (barrel *Barrel) makeMidlewares() []map[string]string {
-
 	middleswares := []map[string]string{
 		map[string]string{
 			"headers.customresponseheaders.x-drupal-cache":         "",
@@ -148,5 +147,4 @@ func makeMiddlewareLabels(middleswares ...map[string]string) (labels []string) {
 		labels = append(labels, "traefik.http.routers.wisski_${SLUG}.middlewares="+strings.Join(names, ","))
 	}
 	return labels
-
 }

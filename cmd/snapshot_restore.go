@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"cmp"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -98,18 +99,34 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 		return fmt.Errorf("failed to load snapshot: %w", err)
 	}
 
-	checkResult, err := readArchiveParts(cmd, sr.Positionals.Directory, snapshot)
+	checkResult, err := readArchiveParts(sr.Positionals.Directory, snapshot)
 	if err != nil {
 		return fmt.Errorf("snapshot is not suitable for restoration: %w", err)
 	}
-	fmt.Fprintf(cmd.OutOrStdout(), "================================================\n")
-	fmt.Fprintf(cmd.OutOrStdout(), "Instance: %s\n", instance.FilesystemBase)
-	fmt.Fprintf(cmd.OutOrStdout(), "Snapshot: %s\n", sr.Positionals.Directory)
-	fmt.Fprintf(cmd.OutOrStdout(), "================================================\n")
-	fmt.Fprintf(cmd.OutOrStdout(), "Data:        %s\n", checkResult.DataPath)
-	fmt.Fprintf(cmd.OutOrStdout(), "SQL:         %s\n", checkResult.SQLFilePath)
-	fmt.Fprintf(cmd.OutOrStdout(), "Triplestore: %s\n", checkResult.TSFilePath)
-	fmt.Fprintf(cmd.OutOrStdout(), "================================================\n")
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "================================================\n"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Instance: %s\n", instance.FilesystemBase); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Snapshot: %s\n", sr.Positionals.Directory); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "================================================\n"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Data:        %s\n", checkResult.DataPath); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "SQL:         %s\n", checkResult.SQLFilePath); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Triplestore: %s\n", checkResult.TSFilePath); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
+	if _, err := fmt.Fprintf(cmd.OutOrStdout(), "================================================\n"); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 
 	// check the confirmation from the user
 	if !sr.Yes {
@@ -140,8 +157,12 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 
 		oldDataDirectory := filepath.Join(instance.FilesystemBase, "data")
 
-		fmt.Fprintf(cmd.OutOrStdout(), "Old data directory: %s\n", oldDataDirectory)
-		fmt.Fprintf(cmd.OutOrStdout(), "New data directory: %s\n", checkResult.DataPath)
+		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Old data directory: %s\n", oldDataDirectory); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
+		if _, err := fmt.Fprintf(cmd.OutOrStdout(), "New data directory: %s\n", checkResult.DataPath); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 
 		if err := checkResult.restoreDataDirectory(cmd, oldDataDirectory); err != nil {
 			return fmt.Errorf("failed to restore data directory: %w", err)
@@ -149,7 +170,9 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 
 		// TODO: chown the data directory to the www-data user
 
-		fmt.Fprintln(cmd.OutOrStdout(), "Data directory restored.")
+		if _, err := fmt.Fprintln(cmd.OutOrStdout(), "Data directory restored."); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 	}
 
 	// Triplestore
@@ -160,18 +183,22 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 			return fmt.Errorf("failed to restore triplestore: %w", err)
 		}
 
-		fmt.Fprintln(cmd.OutOrStdout(), "Triplestore restored.")
+		if _, err := fmt.Fprintln(cmd.OutOrStdout(), "Triplestore restored."); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 	}
 
 	// SQL
 	{
 		if err := logging.LogOperation(func() error {
-			return checkResult.restoreSQL(cmd, dis, instance)
+			return checkResult.restoreSQL(cmd, instance)
 		}, cmd.ErrOrStderr(), "Restoring SQL"); err != nil {
 			return fmt.Errorf("failed to restore SQL database: %w", err)
 		}
 
-		fmt.Fprintln(cmd.OutOrStdout(), "SQL restored.")
+		if _, err := fmt.Fprintln(cmd.OutOrStdout(), "SQL restored."); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 	}
 
 	// Restart instance
@@ -188,7 +215,9 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 
 	// Re-set permissions
 	{
-		fmt.Fprintln(cmd.OutOrStdout(), "Re-setting permissions and ownership")
+		if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Re-setting permissions and ownership"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 
 		barrel := instance.Barrel()
 		for _, script := range [][]string{
@@ -206,7 +235,7 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 
-		if err := checkResult.restoreSQLConfig(cmd, dis, instance); err != nil {
+		if err := checkResult.restoreSQLConfig(cmd, instance); err != nil {
 			return fmt.Errorf("failed to restart instance: %w", err)
 		}
 	}
@@ -224,13 +253,17 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 
 	// Re-create Adapter
 	{
-		fmt.Fprintln(cmd.OutOrStdout(), "Re-Creating Adapter")
+		if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Re-Creating Adapter"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 
 		if _, err := instance.Adapters().SetAdapter(cmd.Context(), nil, instance.Adapters().DefaultAdapter()); err != nil {
 			return fmt.Errorf("failed to restore adapter: %w", err)
 		}
 
-		fmt.Fprintln(cmd.OutOrStdout(), "Adapter re-created.")
+		if _, err := fmt.Fprintln(cmd.OutOrStdout(), "Adapter re-created."); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 	}
 
 	// Re-build settings
@@ -246,13 +279,17 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 
 	// clear cache
 	{
-		fmt.Fprintln(cmd.OutOrStdout(), "Clearing cache.")
+		if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Clearing cache"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 
 		if err := instance.Drush().Exec(cmd.Context(), cmd.OutOrStdout(), "cr"); err != nil {
 			return fmt.Errorf("failed to run drush cr: %w", err)
 		}
 
-		fmt.Fprintln(cmd.OutOrStdout(), "Cache cleared.")
+		if _, err := fmt.Fprintln(cmd.OutOrStdout(), "Cache cleared."); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
 	}
 
 	// and do a final restart for good measure ...
@@ -266,29 +303,76 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 		}
 	}
 
-	fmt.Fprintln(cmd.OutOrStdout(), "Instance should be restored.")
+	if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Instance should be restored."); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
 	return nil
 }
 
-func loadArchive(path string) (exporter.Snapshot, error) {
+var (
+	errFailedToCheckDirectory = errors.New("failed to check if path is a directory")
+	errPathNotDirectory       = errors.New("path is not a directory")
+	errFailedToOpenReport     = errors.New("failed to open snapshot report")
+	errFailedToDecodeReport   = errors.New("failed to decode snapshot report")
+
+	errSnapshotMissingDataPart        = errors.New("data part is not present in the snapshot")
+	errSnapshotMissingSQLPart         = errors.New("sql part missing from snapshot manifest")
+	errSnapshotMissingTriplestorePart = errors.New("triplestore part missing from snapshot manifest")
+
+	errDataFolderNotDirectory        = errors.New("data folder is not a directory")
+	errSQLDataNotFoundInSnapshot     = errors.New("sql data not found in snapshot")
+	errTriplestoreDataNotRegularFile = errors.New("triplestore data not a regular file")
+
+	errFailedToOpenStack                    = errors.New("failed to open stack")
+	errFailedToCreateTemporaryDirectory     = errors.New("failed to create temporary directory")
+	errFailedToComputeRelativePath          = errors.New("failed to compute relative path")
+	errFailedToGetDirectoryInfo             = errors.New("failed to get directory info")
+	errFailedToCreateDirectory              = errors.New("failed to create directory")
+	errFailedToOpenFile                     = errors.New("failed to open file")
+	errFailedToCopyFile                     = errors.New("failed to copy file")
+	errFailedToCopyDirectory                = errors.New("failed to copy directory")
+	errFailedToRemoveOldDirectory           = errors.New("failed to remove old directory")
+	errFailedToMoveRestoredDirectoryInPlace = errors.New("failed to move restored directory into place")
+
+	errFailedToLogMessage                 = errors.New("failed to log message")
+	errFailedToPurgeTriplestoreData       = errors.New("failed to purge triplestore data")
+	errFailedToProvisionTriplestore       = errors.New("failed to provision triplestore")
+	errFailedToOpenTriplestoreBackup      = errors.New("failed to open triplestore backup")
+	errFailedToRestoreTriplestoreContents = errors.New("failed to restore triplestore contents")
+
+	errFailedToPurgeSQLDatabase     = errors.New("failed to purge SQL database")
+	errFailedToProvisionSQLDatabase = errors.New("failed to provision SQL database")
+	errFailedToOpenSQLBackup        = errors.New("failed to open SQL backup")
+	errFailedToRestoreSQLContents   = errors.New("failed to restore SQL contents")
+	errFailedToRestoreSQLConfig     = errors.New("failed to restore SQL config")
+
+	errFailedToLstat         = errors.New("failed to lstat")
+	errFailedToWalkDir       = errors.New("failed to walk dir")
+	errFailedToCreateSymlink = errors.New("failed to create symlink")
+
+	errFailedToShutdownInstance = errors.New("failed to shutdown instance")
+	errFailedToStartInstance    = errors.New("failed to start instance")
+)
+
+func loadArchive(path string) (s exporter.Snapshot, e error) {
 	isDirectory, err := fsx.IsDirectory(path, false)
 	if err != nil {
-		return exporter.Snapshot{}, fmt.Errorf("failed to check if path is a directory: %w", err)
+		return exporter.Snapshot{}, fmt.Errorf("%w: %w", errFailedToCheckDirectory, err)
 	}
 	if !isDirectory {
-		return exporter.Snapshot{}, fmt.Errorf("path is not a directory: %s", path)
+		return exporter.Snapshot{}, &fs.PathError{Op: "loadArchive", Path: path, Err: errPathNotDirectory}
 	}
 
 	reportPath := filepath.Join(path, exporter.ReportMachinePath)
-	reportFile, err := os.Open(reportPath)
+	reportFile, err := os.Open(reportPath) // #nosec G304 -- intended
 	if err != nil {
-		return exporter.Snapshot{}, fmt.Errorf("failed to open snapshot report: %w", err)
+		return exporter.Snapshot{}, fmt.Errorf("%w: %w", errFailedToOpenReport, &fs.PathError{Op: "open", Path: reportPath, Err: err})
 	}
-	defer reportFile.Close()
+	defer errorsx.Close(reportFile, &e, "report file")
 
 	var snapshot exporter.Snapshot
 	if err := json.NewDecoder(reportFile).Decode(&snapshot); err != nil {
-		return exporter.Snapshot{}, fmt.Errorf("failed to decode snapshot report: %w", err)
+		return exporter.Snapshot{}, fmt.Errorf("%w: %w", errFailedToDecodeReport, err)
 	}
 
 	return snapshot, nil
@@ -302,37 +386,37 @@ type archiveParts struct {
 	TSFilePath string
 }
 
-func readArchiveParts(cmd *cobra.Command, path string, archive exporter.Snapshot) (parts archiveParts, err error) {
+func readArchiveParts(path string, archive exporter.Snapshot) (parts archiveParts, err error) {
 	{
 		if !slices.Contains(archive.Description.Parts, "data") {
-			return archiveParts{}, fmt.Errorf("data part is not present in the snapshot")
+			return archiveParts{}, errSnapshotMissingDataPart
 		}
 
 		parts.DataPath = filepath.Join(path, "data", "data")
 		if isDirectory, err := fsx.IsDirectory(parts.DataPath, false); !isDirectory {
-			return archiveParts{}, fmt.Errorf("data folder is not a directory: %w", cmp.Or(err, fs.ErrNotExist))
+			return archiveParts{}, fmt.Errorf("%w: %w", errDataFolderNotDirectory, cmp.Or(err, fs.ErrNotExist))
 		}
 	}
 
 	{
 		if !slices.Contains(archive.Description.Parts, "sql") {
-			return archiveParts{}, fmt.Errorf("sql part missing from snapshot manifest")
+			return archiveParts{}, errSnapshotMissingSQLPart
 		}
 
 		parts.SQLFilePath = filepath.Join(path, "sql", archive.Instance.SqlDatabase+".sql")
 		if isFile, err := fsx.IsRegular(parts.SQLFilePath, false); !isFile {
-			return archiveParts{}, fmt.Errorf("sql data not found in snapshot: %w", cmp.Or(err, fs.ErrNotExist))
+			return archiveParts{}, fmt.Errorf("%w: %w", errSQLDataNotFoundInSnapshot, cmp.Or(err, fs.ErrNotExist))
 		}
 	}
 
 	{
 		if !slices.Contains(archive.Description.Parts, "triplestore") {
-			return archiveParts{}, fmt.Errorf("triplestore part missing from snapshot manifest")
+			return archiveParts{}, errSnapshotMissingTriplestorePart
 		}
 
 		parts.TSFilePath = filepath.Join(path, "triplestore", archive.Instance.GraphDBRepository+".nq")
 		if isFile, err := fsx.IsRegular(parts.TSFilePath, false); !isFile {
-			return archiveParts{}, fmt.Errorf("triplestore data not a regular file: %w", cmp.Or(err, fs.ErrNotExist))
+			return archiveParts{}, fmt.Errorf("%w: %w", errTriplestoreDataNotRegularFile, cmp.Or(err, fs.ErrNotExist))
 		}
 	}
 
@@ -342,23 +426,30 @@ func readArchiveParts(cmd *cobra.Command, path string, archive exporter.Snapshot
 func shutdownInstance(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
 	stack, err := instance.Barrel().OpenStack()
 	if err != nil {
-		return fmt.Errorf("failed to open stack: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToOpenStack, err)
 	}
 	defer errorsx.Close(stack, &e, "stack")
-	return stack.Down(cmd.Context(), cmd.OutOrStdout())
+
+	if err := stack.Down(cmd.Context(), cmd.OutOrStdout()); err != nil {
+		return fmt.Errorf("%w: %w", errFailedToShutdownInstance, err)
+	}
+	return nil
 }
 
 func startInstance(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
 	stack, err := instance.Barrel().OpenStack()
 	if err != nil {
-		return fmt.Errorf("failed to open stack: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToOpenStack, err)
 	}
 	defer errorsx.Close(stack, &e, "stack")
-	return stack.Start(cmd.Context(), cmd.OutOrStdout())
+	if err := stack.Start(cmd.Context(), cmd.OutOrStdout()); err != nil {
+		return fmt.Errorf("%w: %w", errFailedToStartInstance, err)
+	}
+	return nil
 }
 
 func (parts archiveParts) restoreDataDirectory(cmd *cobra.Command, old string) (e error) {
-	new := parts.DataPath
+	fresh := parts.DataPath
 
 	st := status.NewWithCompat(cmd.ErrOrStderr(), 1)
 	st.Start()
@@ -369,27 +460,30 @@ func (parts archiveParts) restoreDataDirectory(cmd *cobra.Command, old string) (
 	oldParent := filepath.Dir(old)
 	tempDir, err := os.MkdirTemp(oldParent, ".restore-*")
 	if err != nil {
-		return fmt.Errorf("failed to create temporary directory: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToCreateTemporaryDirectory, err)
 	}
 
 	// Clean up temporary directory on failure
 	defer func() {
 		if e != nil {
-			fmt.Fprintln(cmd.OutOrStdout(), "failed to restore, cleaning up")
-			os.RemoveAll(tempDir)
+			if _, err := logging.LogMessage(cmd.ErrOrStderr(), "failed to restore, cleaning up"); err != nil {
+				e = errorsx.Combine(e, fmt.Errorf("%w: %w", errFailedToLogMessage, err))
+			}
+			err := os.RemoveAll(tempDir)
+			e = errorsx.Combine(e, err)
 		}
 	}()
 
 	// Copy the new directory contents to the temporary directory
-	if err := filepath.WalkDir(new, func(path string, d fs.DirEntry, err error) error {
+	if err := filepath.WalkDir(fresh, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
 		// Compute relative path and destination
-		relPath, err := filepath.Rel(new, path)
+		relPath, err := filepath.Rel(fresh, path)
 		if err != nil {
-			return fmt.Errorf("failed to compute relative path: %w", err)
+			return fmt.Errorf("%w: %w", errFailedToComputeRelativePath, err)
 		}
 		destPath := filepath.Join(tempDir, relPath)
 
@@ -399,32 +493,32 @@ func (parts archiveParts) restoreDataDirectory(cmd *cobra.Command, old string) (
 			// Create directory with same permissions
 			info, err := d.Info()
 			if err != nil {
-				return fmt.Errorf("failed to get directory info: %w", err)
+				return fmt.Errorf("%w: %w", errFailedToGetDirectoryInfo, err)
 			}
 			if err := os.MkdirAll(destPath, info.Mode().Perm()); err != nil {
-				return fmt.Errorf("failed to create directory %s: %w", destPath, err)
+				return fmt.Errorf("%w: %w", errFailedToCreateDirectory, &fs.PathError{Op: "mkdirall", Path: destPath, Err: err})
 			}
 			return nil
 		}
 
 		// Copy regular file
 		if err := copyFile(path, destPath); err != nil {
-			return fmt.Errorf("failed to copy file %s: %w", relPath, err)
+			return fmt.Errorf("%w: %w", errFailedToCopyFile, &fs.PathError{Op: "copy", Path: relPath, Err: err})
 		}
 
 		return nil
 	}); err != nil {
-		return fmt.Errorf("failed to copy directory: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToCopyDirectory, err)
 	}
 
 	// Remove the old directory
 	if err := os.RemoveAll(old); err != nil {
-		return fmt.Errorf("failed to remove old directory: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToRemoveOldDirectory, err)
 	}
 
 	// Move the temporary directory to the old directory's place
 	if err := os.Rename(tempDir, old); err != nil {
-		return fmt.Errorf("failed to move restored directory into place: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToMoveRestoredDirectoryInPlace, err)
 	}
 
 	return nil
@@ -432,34 +526,37 @@ func (parts archiveParts) restoreDataDirectory(cmd *cobra.Command, old string) (
 
 // Copies a file from src to dst.
 // If it is a symlink, it is copied as a symlink.
-func copyFile(src, dst string) error {
+func copyFile(src, dst string) (e error) {
 	srcInfo, err := os.Lstat(src)
 	if err != nil {
-		return err
+		return fmt.Errorf("%w: %w", errFailedToLstat, err)
 	}
 
 	if srcInfo.Mode()&os.ModeSymlink != 0 {
 		linkTarget, err := os.Readlink(src)
 		if err != nil {
-			return err
+			return fmt.Errorf("%w: %w", errFailedToWalkDir, err)
 		}
-		return os.Symlink(linkTarget, dst)
+		if err := os.Symlink(linkTarget, dst); err != nil {
+			return fmt.Errorf("%w: %w", errFailedToCreateSymlink, err)
+		}
+		return nil
 	}
 
-	srcFile, err := os.Open(src)
+	srcFile, err := os.Open(src) // #nosec G304 -- intended
 	if err != nil {
-		return err
+		return fmt.Errorf("%w: %w", errFailedToOpenFile, err)
 	}
-	defer srcFile.Close()
+	defer errorsx.Close(srcFile, &e, "src file")
 
-	dstFile, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, srcInfo.Mode().Perm())
+	dstFile, err := os.OpenFile(dst, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, srcInfo.Mode().Perm()) // #nosec G304 -- intended
 	if err != nil {
-		return err
+		return fmt.Errorf("%w: %w", errFailedToOpenFile, err)
 	}
-	defer dstFile.Close()
+	defer errorsx.Close(dstFile, &e, "dst file")
 
 	if _, err := io.Copy(dstFile, srcFile); err != nil {
-		return err
+		return fmt.Errorf("%w: %w", errFailedToCopyFile, err)
 	}
 
 	return nil
@@ -470,77 +567,76 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 
 	stack, err := instance.Barrel().OpenStack()
 	if err != nil {
-		return fmt.Errorf("failed to open stack: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToOpenStack, err)
 	}
 	defer errorsx.Close(stack, &e, "stack")
 
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Purging triplestore repository"); err != nil {
-		return fmt.Errorf("failed to log message: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
 	if err := liquid.TS.Purge(cmd.Context(), liquid.Instance, liquid.Domain()); err != nil {
-		return fmt.Errorf("failed to purge triplestore data: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToPurgeTriplestoreData, err)
 	}
 
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Re-provisioning triplestore repository"); err != nil {
-		return fmt.Errorf("failed to log message: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
 	if err := liquid.TS.Provision(cmd.Context(), liquid.Instance, liquid.Domain(), &stack); err != nil {
-		return fmt.Errorf("failed to provision triplestore: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToProvisionTriplestore, err)
 	}
 
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Restoring triplestore contents"); err != nil {
-		return fmt.Errorf("failed to log message: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
 
 	file, err := os.Open(parts.TSFilePath)
 	if err != nil {
-		return fmt.Errorf("failed to open triplestore backup: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToOpenTriplestoreBackup, &fs.PathError{Op: "open", Path: parts.TSFilePath, Err: err})
 	}
-	defer file.Close()
+	defer errorsx.Close(file, &e, "file")
 
 	if err := liquid.TS.RestoreDB(cmd.Context(), liquid.GraphDBRepository, file); err != nil {
-		return fmt.Errorf("failed to restore triplestore contents: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToRestoreTriplestoreContents, err)
 	}
 	return nil
 }
 
-func (parts archiveParts) restoreSQL(cmd *cobra.Command, dis *dis.Distillery, instance *wisski.WissKI) (e error) {
+func (parts archiveParts) restoreSQL(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
 	liquid := ingredient.GetLiquid(instance.TRB())
 
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Purging SQL database"); err != nil {
-		return fmt.Errorf("failed to log message: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
 	if err := liquid.BoundSQL().Purge(cmd.Context()); err != nil {
-		return fmt.Errorf("failed to purge SQL database: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToPurgeSQLDatabase, err)
 	}
 
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Re-provisioning SQL database"); err != nil {
-		return fmt.Errorf("failed to log message: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
 	if err := liquid.BoundSQL().Provision(cmd.Context()); err != nil {
-		return fmt.Errorf("failed to provision SQL database: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToProvisionSQLDatabase, err)
 	}
 
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Restoring SQL contents"); err != nil {
-		return fmt.Errorf("failed to log message: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
 
 	file, err := os.Open(parts.SQLFilePath)
 	if err != nil {
-		return fmt.Errorf("failed to open SQL backup: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToOpenSQLBackup, &fs.PathError{Op: "open", Path: parts.SQLFilePath, Err: err})
 	}
-	defer file.Close()
+	defer errorsx.Close(file, &e, "file")
 
 	if err := liquid.BoundSQL().Restore(cmd.Context(), file, stream.NewIOStream(cmd.OutOrStdout(), cmd.ErrOrStderr(), nil)); err != nil {
-		return fmt.Errorf("failed to restore SQL contents: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToRestoreSQLContents, err)
 	}
 	return nil
 }
 
-func (parts archiveParts) restoreSQLConfig(cmd *cobra.Command, dis *dis.Distillery, instance *wisski.WissKI) (e error) {
-
+func (parts archiveParts) restoreSQLConfig(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
 	if err := instance.Settings().SetDefaultDBConnection(cmd.Context(), nil, instance.BoundSQL().SQLUrl()); err != nil {
-		return fmt.Errorf("failed to restore SQL config: %w", err)
+		return fmt.Errorf("%w: %w", errFailedToRestoreSQLConfig, err)
 	}
 	return nil
 }

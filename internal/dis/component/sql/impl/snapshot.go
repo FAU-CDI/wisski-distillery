@@ -2,12 +2,15 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
 	"go.tkw01536.de/pkglib/stream"
 )
+
+var errFailedToExecuteDump = errors.New("failed to execute dump")
 
 // SnapshotDB makes a snapshot of the given database into dest.
 func (impl *Impl) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Writer, database string) (e error) {
@@ -22,7 +25,7 @@ func (impl *Impl) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Wr
 			},
 		)()
 		if code != 0 {
-			return fmt.Errorf("failed to execute dump: exit code %d", code)
+			return fmt.Errorf("%w: exit code %d", errFailedToExecuteDump, code)
 		}
 		return nil
 	})

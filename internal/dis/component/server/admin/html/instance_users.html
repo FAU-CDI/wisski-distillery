@@ -1,4 +1,3 @@
-{{ $csrf := .CSRF }}
 {{ $slug := .Instance.Slug }}
 
 
@@ -48,7 +47,6 @@
                 </thead>
                 <tbody>
                     {{ $slug := .Instance.Slug }}
-                    {{ $csrf := .CSRF }}
                     {{ range $index, $user := .Users }}
                     <tr {{ if not $user.Status }}class="disabled" aria-disabled="true"{{ end }}>
                         <td>
@@ -56,7 +54,6 @@
                                 <input type="hidden" name="slug" value="{{ $slug }}">
                                 <input type="hidden" name="user" value="{{ $user.Name }}">
                                 <input type="submit" class="pure-button pure-button-action" value="Impersonate">
-                                {{ $csrf }}
                             </form>
                         </td>
                         <td>
@@ -165,13 +162,11 @@
                         <td>
                             <div class="pure-button-group" role="group">
                                 <form id="update-{{ $id }}" method="POST" action="/admin/grants/" class="pure-form-group" autocomplete="off">
-                                    {{ $csrf }}
                                     <input type="hidden" name="slug" value="{{ $slug }}">
                                     <input type="hidden" name="action" value="update">
                                     <input type="submit" class="pure-button" value="Update">
                                 </form>
                                 <form id="delete-{{ $id }}" method="POST" action="/admin/grants/" class="pure-form-group" autocomplete="off">
-                                    {{ $csrf }}
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="slug" value="{{ $slug }}">
                                     <input type="submit" class="pure-button pure-button-danger" value="Delete">
@@ -193,7 +188,6 @@
                         </td>
                         <td>
                             <form id="add-grant" method="POST" action="/admin/grants/" class="pure-form-group">
-                                {{ $csrf }}
                                 <input type="hidden" name="action" value="update">
                                 <input type="hidden" name="slug" value="{{ $slug }}">
                                 <input type="submit" class="pure-button" value="Add New">

@@ -81,7 +81,7 @@ func Package(dst, src string, onCopy func(rel string, src string)) (count int64,
 		}
 
 		// open the file
-		handle, err := os.Open(path) // #nosec G304 -- intended
+		handle, err := os.Open(path) // #nosec G304,G122 -- intended
 		if err != nil {
 			return fmt.Errorf("failed to open file: %w", err)
 		}

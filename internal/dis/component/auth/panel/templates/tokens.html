@@ -30,7 +30,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{ $csrf := .CSRF }}
                     {{ range .Tokens }}
                         <tr>
                             <td>
@@ -47,7 +46,6 @@
                                     <form action="/user/tokens/delete" method="POST" class="pure-form-group">
                                         <input type="hidden" name="id" value="{{ .TokenID }}">
                                         <input type="submit" class="pure-button pure-button-danger" value="Delete">
-                                        {{ $csrf }}
                                     </form>
                                 </div>
                             </td>

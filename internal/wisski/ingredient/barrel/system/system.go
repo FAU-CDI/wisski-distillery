@@ -44,7 +44,6 @@ func (smanager *SystemManager) ApplyInitial(ctx context.Context, progress io.Wri
 
 // start inidicates if the image should be started afterwards.
 func (smanager *SystemManager) apply(ctx context.Context, progress io.Writer, system models.System, start bool, initial bool) error {
-
 	// Apply the current configuration.
 	config := ingredient.GetLiquid(smanager).System
 	if initial {

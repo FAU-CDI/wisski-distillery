@@ -45,6 +45,8 @@ var (
 	_ component.Menuable          = (*Admin)(nil)
 )
 
+const maxBodyFormBytes = 1024 * 1024 // 1 MB
+
 func (admin *Admin) Routes() component.Routes {
 	return component.Routes{
 		Prefix:    "/admin/",

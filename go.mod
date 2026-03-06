@@ -1,6 +1,6 @@
 module github.com/FAU-CDI/wisski-distillery
 
-go 1.26.0
+go 1.26.1
 
 require (
 	al.essio.dev/pkg/shellescape v1.6.0
@@ -18,7 +18,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/yuin/goldmark v1.7.16
 	github.com/yuin/goldmark-meta v1.1.0
-	go.tkw01536.de/pkglib v0.0.0-20260306170826-504d1742e291
+	go.tkw01536.de/pkglib v0.0.0-20260306225428-91e42cd665ce
 	golang.org/x/crypto v0.48.0
 	golang.org/x/net v0.51.0
 	golang.org/x/sync v0.19.0

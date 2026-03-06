@@ -9,7 +9,6 @@ import (
 
 // For returns a new BoundSQL for the given instance.
 func (sql *SQL) For(instance models.Instance) *impl.Bound {
-
 	var service string
 	var openStack func() (*dockerx.Stack, error)
 	if instance.DedicatedSQL {

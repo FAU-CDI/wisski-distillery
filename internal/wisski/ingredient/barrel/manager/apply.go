@@ -132,9 +132,10 @@ func (manager *Manager) applyDrupal(ctx context.Context, progress io.Writer, dru
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 		{
-			args := []string{
+			args := make([]string, 0, 5)
+			args = append(args, []string{
 				"drupal/internal/core-recommended:", "drupal/internal/core-composer-scaffold:", "drupal/internal/core-project-message:",
-			}
+			}...)
 			for i, cm := range args {
 				args[i] = cm + drupal
 			}

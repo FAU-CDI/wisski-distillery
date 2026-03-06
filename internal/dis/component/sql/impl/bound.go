@@ -2,9 +2,11 @@ package impl
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 
+	"go.tkw01536.de/pkglib/errorsx"
 	"go.tkw01536.de/pkglib/stream"
 )
 
@@ -25,7 +27,6 @@ func (bound *Bound) SQLUrl() string {
 // Provision provisions a new database for the given instance.
 // It ensures that the database container is started and responding to queries afterwards.
 func (bound *Bound) Provision(ctx context.Context) error {
-
 	if err := bound.Impl.StartAndWait(ctx, stream.Null); err != nil {
 		return fmt.Errorf("failed to start and wait for database: %w", err)
 	}
@@ -54,15 +55,17 @@ func (bound *Bound) Snapshot(ctx context.Context, progress io.Writer, dest io.Wr
 	return bound.Impl.SnapshotDB(ctx, progress, dest, bound.Database)
 }
 
+var errFailedToRestoreSQLContents = errors.New("failed to restore SQL contents")
+
 // Restore restore the given database from the given reader.
 // The database name is replaced inside the SQL dump.
-func (bound *Bound) Restore(ctx context.Context, reader io.Reader, io stream.IOStream) error {
-	replacedFile := ReplaceSqlDatabaseName(reader, func(string) string { return bound.Database })
-	defer replacedFile.Close()
+func (bound *Bound) Restore(ctx context.Context, reader io.Reader, io stream.IOStream) (e error) {
+	replacedFile := replaceSqlDatabaseName(reader, func(string) string { return bound.Database })
+	defer errorsx.Close(replacedFile, &e, "replaced file")
 
 	code := bound.Impl.Shell(ctx, stream.NewIOStream(io.Stdout, io.Stderr, replacedFile))
 	if code != 0 {
-		return fmt.Errorf("failed to restore SQL contents: exit code %d", code)
+		return fmt.Errorf("%w: exit code %d", errFailedToRestoreSQLContents, code)
 	}
 	return nil
 }

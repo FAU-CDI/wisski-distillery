@@ -35,7 +35,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{ $csrf := .CSRF }}
                     {{ range .Users }}
                         <tr {{ if not .User.IsEnabled }}class="disabled"{{ end }}>
                             <td>
@@ -58,38 +57,31 @@
                                     <form action="/admin/users/toggleadmin" method="POST" class="pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
                                         <input type="submit" class="pure-button" value="{{ if .User.IsAdmin }}Remove Admin{{ else }} Make Admin{{ end }}">
-                                        {{ $csrf }}
                                     </form>
                                     <form action="/admin/users/password" method="POST" class="pure-form pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
                                         <input type="password" name="password" autocomplete="new-password"> &nbsp;
                                         <input type="submit" class="pure-button" value="Update Password">
-                                        {{ $csrf }}
                                     </form>
                                     <form action="/admin/users/unsetpassword" method="POST" class="pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
                                         <input type="submit" class="pure-button" value="Unset Password">
-                                        {{ $csrf }}
                                     </form>
                                     <form action="/admin/users/disable" method="POST" class="pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
                                         <input type="submit" class="pure-button" {{ if (not .User.IsEnabled) }}disabled{{ end }} value="Disable">
-                                        {{ $csrf }}
                                     </form>
                                     <form action="/admin/users/disabletotp" method="POST" class="pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
                                         <input type="submit" class="pure-button" {{ if (not .User.IsTOTPEnabled) }}disabled{{ end }} value="Remove Passcode">
-                                        {{ $csrf }}
                                     </form>
                                     <form action="/admin/users/delete" method="POST" class="pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
                                         <input type="submit" class="pure-button pure-button-danger" value="Delete">
-                                        {{ $csrf }}
                                     </form>
                                     <form action="/admin/users/impersonate" method="POST" class="pure-form-group">
                                         <input type="hidden" name="user" value="{{ .User.User }}">
                                         <input type="submit" class="pure-button" {{ if (not .User.IsEnabled) }}disabled{{ end }} value="Impersonate">
-                                        {{ $csrf }}
                                     </form>
                                 </div>
                             </td>

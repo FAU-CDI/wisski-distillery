@@ -33,7 +33,7 @@ func (cd CreateOpts) Validate() error {
 		return errCreateOptsCreateUser
 	}
 	if cd.Superuser && !cd.CreateUser {
-		return errCreateOptsCreateUser
+		return errCreateOptsSuperuser
 	}
 
 	return nil
