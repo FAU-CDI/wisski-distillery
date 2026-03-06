@@ -9,7 +9,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/exporter/logger"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/meta"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sqldelegator"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 )
@@ -18,10 +17,9 @@ import (
 type Malt struct {
 	component.Base
 
-	SQL           *sql.SQL                `inject:"true"`
-	Delegator     *sqldelegator.Delegator `inject:"true"`
-	InstanceTable *sql.InstanceTable      `inject:"true"`
-	LockTable     *sql.LockTable          `inject:"true"`
+	SQL           *sql.SQL           `inject:"true"`
+	InstanceTable *sql.InstanceTable `inject:"true"`
+	LockTable     *sql.LockTable     `inject:"true"`
 
 	TS          *triplestore.Triplestore `inject:"true"`
 	Meta        *meta.Meta               `inject:"true"`

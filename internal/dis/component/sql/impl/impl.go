@@ -1,4 +1,4 @@
-package sqldelegator
+package impl
 
 import (
 	"context"
@@ -13,23 +13,25 @@ import (
 	"go.tkw01536.de/pkglib/timex"
 )
 
-// Impl represents an sql implementation inside a docker container.
+// Impl wraps low-level SQL operations inside a docker container.
 type Impl struct {
-	Service   string
+	// OpenStack returns the stack for this implementation.
 	OpenStack func() (*dockerx.Stack, error)
 
-	QueryExecutable string
-	DumpExecutable  string
+	Service         string // Name of the databaase service
+	QueryExecutable string // the "mariadb" or "mysql" executable to user for querying
+	DumpExecutable  string // the "mariadb-dump" or "mysqldump" executable to use for dumping one or all databases
 
-	// Interval used to poll the sql database being available.
-	PollInterval time.Duration
-
-	// Timeout for waiting for the sql database to start.
-	StartTimeout time.Duration
+	PollInterval time.Duration // how often to poll the sql database being available
+	StartTimeout time.Duration // how long to wait before giving up on starting the database
 }
 
-// NewImpl creates a new sql implementation.
-func NewImpl(service string, openStack func() (*dockerx.Stack, error)) *Impl {
+// Returns a drupal-compatible SQL URL to this database, given further credentials.
+func (impl *Impl) URL(username, password, database string) string {
+	return "mysql://" + username + ":" + password + "@" + impl.Service + "/" + database
+}
+
+func New(service string, openStack func() (*dockerx.Stack, error)) *Impl {
 	return &Impl{
 		Service:   service,
 		OpenStack: openStack,
@@ -42,12 +44,12 @@ func NewImpl(service string, openStack func() (*dockerx.Stack, error)) *Impl {
 	}
 }
 
-// whileRunning executes the given function while the container is running, and the sql database itself is up.
+// do executes the given function while the container is running, and the sql database itself is up.
 //
 // If the container is not running, it starts it, runs the function, and then stops it again once the function returns.
 // If the container is already running, it simply waits for the sql database to be up, runs the function, and then returns.
 // It checks if the sql database is up by executing a 'select 1' query.
-func (sql *Impl) whileRunning(ctx context.Context, progress io.Writer, fn func(stack *dockerx.Stack) error) (e error) {
+func (sql *Impl) do(ctx context.Context, progress io.Writer, fn func(stack *dockerx.Stack) error) (e error) {
 	// Open the stack
 	stack, err := sql.OpenStack()
 	if err != nil {
@@ -73,8 +75,7 @@ func (sql *Impl) whileRunning(ctx context.Context, progress io.Writer, fn func(s
 		}()
 	}
 
-	// Set a hard timeout for the wait operation.
-	// This avoids having infinite loops.
+	// Set a hard timeout for the wait operation, avoiding infinite loops.
 	waitCtx, waitCtxCancel := context.WithTimeout(ctx, sql.StartTimeout)
 	defer waitCtxCancel()
 
@@ -99,7 +100,7 @@ func (sql *Impl) whileRunning(ctx context.Context, progress io.Writer, fn func(s
 // If the container is not running, it is started automatically.
 // They are run inside the default database, unless a different database is selected with a "USE database;" query.
 func (sql *Impl) queries(ctx context.Context, progress io.Writer, queries ...string) error {
-	return sql.whileRunning(ctx, progress, func(stack *dockerx.Stack) error {
+	return sql.do(ctx, progress, func(stack *dockerx.Stack) error {
 		input := strings.NewReader(strings.Join(queries, ";\n"))
 		io := stream.NewIOStream(progress, progress, input)
 
@@ -108,7 +109,7 @@ func (sql *Impl) queries(ctx context.Context, progress io.Writer, queries ...str
 			Cmd:     sql.QueryExecutable,
 		})()
 		if code != 0 {
-			return fmt.Errorf("failed to execute queries: %w", code)
+			return fmt.Errorf("failed to execute queries: %d", code)
 		}
 		return nil
 	})

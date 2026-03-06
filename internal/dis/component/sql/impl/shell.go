@@ -1,4 +1,4 @@
-package sqldelegator
+package impl
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 // Shell executes a mysql shell command inside the sql implementation.
 func (impl *Impl) Shell(ctx context.Context, io stream.IOStream, argv ...string) int {
 	code := execx.CommandError
-	err := impl.whileRunning(ctx, stream.Null, func(stack *dockerx.Stack) error {
+	err := impl.do(ctx, stream.Null, func(stack *dockerx.Stack) error {
 		code = stack.Exec(ctx, io, dockerx.ExecOptions{
 			Service: impl.Service,
 			Cmd:     impl.QueryExecutable,

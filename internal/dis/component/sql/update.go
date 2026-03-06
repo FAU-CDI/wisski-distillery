@@ -7,33 +7,27 @@ import (
 	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql/impl"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 )
 
 // Update initializes or updates the SQL database.
 func (sql *SQL) Update(ctx context.Context, progress io.Writer) error {
+
 	{
-		if _, err := logging.LogMessage(progress, "Creating administrative user"); err != nil {
+		if _, err := logging.LogMessage(progress, "Creating administrative database and user"); err != nil {
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 
 		config := component.GetStill(sql).Config.SQL
-		if err := sql.CreateSuperuser(ctx, config.AdminUsername, config.AdminPassword, true); err != nil {
-			return fmt.Errorf("failed to create administrative user: %w", err)
-		}
-	}
-
-	{
-		if _, err := logging.LogMessage(progress, "Creating administrative database"); err != nil {
-			return fmt.Errorf("failed to log message: %w", err)
-		}
-
-		config := component.GetStill(sql).Config.SQL
-		if err := sql.DeprecatedCreateDatabase(ctx, CreateOpts{
+		if err := sql.Global().Impl.CreateDatabase(ctx, progress, impl.CreateOpts{
 			Name:        config.Database,
 			AllowExists: true,
 
-			CreateUser: false,
+			CreateUser: true,
+			Superuser:  true,
+			Username:   config.AdminUsername,
+			Password:   config.AdminPassword,
 		}); err != nil {
 			return fmt.Errorf("failed to create administative database: %w", err)
 		}

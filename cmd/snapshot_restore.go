@@ -510,14 +510,14 @@ func (parts archiveParts) restoreSQL(cmd *cobra.Command, dis *dis.Distillery, in
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Purging SQL database"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := liquid.DelegatedSQL().Purge(cmd.Context()); err != nil {
+	if err := liquid.BoundSQL().Purge(cmd.Context()); err != nil {
 		return fmt.Errorf("failed to purge SQL database: %w", err)
 	}
 
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Re-provisioning SQL database"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := liquid.DelegatedSQL().Provision(cmd.Context()); err != nil {
+	if err := liquid.BoundSQL().Provision(cmd.Context()); err != nil {
 		return fmt.Errorf("failed to provision SQL database: %w", err)
 	}
 
@@ -531,7 +531,7 @@ func (parts archiveParts) restoreSQL(cmd *cobra.Command, dis *dis.Distillery, in
 	}
 	defer file.Close()
 
-	if err := liquid.DelegatedSQL().Restore(cmd.Context(), file, stream.NewIOStream(cmd.OutOrStdout(), cmd.ErrOrStderr(), nil)); err != nil {
+	if err := liquid.BoundSQL().Restore(cmd.Context(), file, stream.NewIOStream(cmd.OutOrStdout(), cmd.ErrOrStderr(), nil)); err != nil {
 		return fmt.Errorf("failed to restore SQL contents: %w", err)
 	}
 	return nil
@@ -539,7 +539,7 @@ func (parts archiveParts) restoreSQL(cmd *cobra.Command, dis *dis.Distillery, in
 
 func (parts archiveParts) restoreSQLConfig(cmd *cobra.Command, dis *dis.Distillery, instance *wisski.WissKI) (e error) {
 
-	if err := instance.Settings().SetDefaultDBConnection(cmd.Context(), nil, instance.DelegatedSQL().SQLUrl()); err != nil {
+	if err := instance.Settings().SetDefaultDBConnection(cmd.Context(), nil, instance.BoundSQL().SQLUrl()); err != nil {
 		return fmt.Errorf("failed to restore SQL config: %w", err)
 	}
 	return nil

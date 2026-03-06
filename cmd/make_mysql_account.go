@@ -6,9 +6,11 @@ import (
 	"strings"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql/impl"
 	"github.com/spf13/cobra"
 	"go.tkw01536.de/pkglib/exit"
 	"go.tkw01536.de/pkglib/nobufio"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 func NewMakeMysqlAccountCommand() *cobra.Command {
@@ -54,7 +56,15 @@ func (mma *makeMysqlAccount) Exec(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("%w: %w", errUnableToReadPassword, err)
 	}
 
-	if err := dis.SQL().CreateSuperuser(cmd.Context(), username, password, false); err != nil {
+	if err := dis.SQL().Global().Impl.CreateDatabase(cmd.Context(), stream.Null, impl.CreateOpts{
+		Name:        dis.SQL().Global().Database,
+		AllowExists: true,
+
+		CreateUser: true,
+		Superuser:  true,
+		Username:   username,
+		Password:   password,
+	}); err != nil {
 		return fmt.Errorf("%w: %w", errUnableToMakeAccount, err)
 	}
 

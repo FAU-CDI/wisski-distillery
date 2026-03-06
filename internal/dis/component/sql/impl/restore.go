@@ -1,49 +1,10 @@
-package sqldelegator
+package impl
 
 import (
 	"bufio"
-	"context"
-	"fmt"
 	"io"
 	"regexp"
-
-	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
-	"go.tkw01536.de/pkglib/stream"
 )
-
-func (delegated *delegated) Snapshot(ctx context.Context, progress io.Writer, dest io.Writer) error {
-	return delegated.Impl.SnapshotDB(ctx, progress, dest, delegated.instance.SqlDatabase)
-}
-
-// SnapshotDB makes a snapshot of the given database into dest.
-func (impl *Impl) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Writer, database string) (e error) {
-	return impl.whileRunning(ctx, progress, func(stack *dockerx.Stack) error {
-		code := stack.Exec(
-			ctx,
-			stream.NewIOStream(dest, progress, nil),
-			dockerx.ExecOptions{
-				Service: "sql",
-				Cmd:     impl.DumpExecutable,
-				Args:    []string{"--databases", database},
-			},
-		)()
-		if code != 0 {
-			return fmt.Errorf("failed to execute dump: exit code %d", code)
-		}
-		return nil
-	})
-}
-
-func (delegated *delegated) Restore(ctx context.Context, reader io.Reader, io stream.IOStream) error {
-	replacedFile := replaceSqlDatabaseName(reader, delegated.instance.SqlDatabase)
-	defer replacedFile.Close()
-
-	code := delegated.Impl.Shell(ctx, stream.NewIOStream(io.Stdout, io.Stderr, replacedFile))
-	if code != 0 {
-		return fmt.Errorf("failed to restore SQL contents: exit code %d", code)
-	}
-	return nil
-}
 
 var (
 	reCreateDB = regexp.MustCompile(
@@ -54,7 +15,9 @@ var (
 	)
 )
 
-func replaceSqlDatabaseName(reader io.Reader, newDB string) io.ReadCloser {
+// ReplaceSqlDatabaseName replaces the database name in a SQL dump in the given reader using the given function.
+// If there are no database names to replace, the reader is returned unchanged.
+func ReplaceSqlDatabaseName(reader io.Reader, replaceFunc func(string) string) io.ReadCloser {
 	// HACK HACK HACK: This restore code makes shit tons of assumptions about the SQL dump.
 	// In particular that it was created by mysqldump -- and only one 'CREATE DATABASE' statement exists.
 
@@ -77,7 +40,7 @@ func replaceSqlDatabaseName(reader io.Reader, newDB string) io.ReadCloser {
 				dbStart, dbEnd := m[2], m[3]
 
 				if line[dbStart:dbEnd] != "" {
-					line = line[:dbStart] + newDB + line[dbEnd:]
+					line = line[:dbStart] + replaceFunc(line[dbStart:dbEnd]) + line[dbEnd:]
 				}
 			} else if m := reUseDB.FindStringSubmatchIndex(line); m != nil {
 				// USE `db`  -> group 2
@@ -89,7 +52,7 @@ func replaceSqlDatabaseName(reader io.Reader, newDB string) io.ReadCloser {
 					dbStart, dbEnd = m[6], m[7]
 				}
 				if dbStart != -1 && dbEnd != -1 && line[dbStart:dbEnd] != "" {
-					line = line[:dbStart] + newDB + line[dbEnd:]
+					line = line[:dbStart] + replaceFunc(line[dbStart:dbEnd]) + line[dbEnd:]
 				}
 			}
 

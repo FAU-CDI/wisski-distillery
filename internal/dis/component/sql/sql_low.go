@@ -26,33 +26,6 @@ func (sql *SQL) Wait(ctx context.Context) (err error) {
 	return nil
 }
 
-// directQuery waits to establish a new connection to the database, and then executes the given queries in order.
-// Once the queries have been executed, the connection is closed.
-func (sql *SQL) directQuery(ctx context.Context, queries ...string) (e error) {
-	if err := ctx.Err(); err != nil {
-		return fmt.Errorf("failed to query: %w", err)
-	}
-
-loop:
-	conn, err := sql.openSQL("")
-	if err != nil {
-		select {
-		case <-ctx.Done():
-			return fmt.Errorf("failed to wait for sql: %w", ctx.Err())
-		case <-time.After(sql.PollInterval):
-			goto loop
-		}
-	}
-
-	for _, query := range queries {
-		if _, err := conn.ExecContext(ctx, query); err != nil {
-			return fmt.Errorf("failed to execute query: %w", err)
-		}
-	}
-
-	return nil
-}
-
 // connectSQL establishes a connection to the sql database.
 // The context is used to check connection validity, and not attached to the connection permanently.
 func (sql *SQL) connectSQL(ctx context.Context) (*databaseSQL.DB, error) {

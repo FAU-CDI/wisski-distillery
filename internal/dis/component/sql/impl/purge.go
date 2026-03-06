@@ -1,34 +1,21 @@
-package sql
+package impl
 
-//spellchecker:words context strings github wisski distillery dockerx execx pkglib stream
 import (
 	"context"
+	"io"
 	"strings"
-
-	"github.com/FAU-CDI/wisski-distillery/pkg/dockerx"
-	"github.com/FAU-CDI/wisski-distillery/pkg/execx"
-	"go.tkw01536.de/pkglib/stream"
 )
 
-// DeprecatedShell directly executes a mysql command inside the container.
-// This command should be used with caution.
-func (sql *SQL) DeprecatedShell(ctx context.Context, io stream.IOStream, argv ...string) int {
-	stack, err := sql.OpenStack()
-	if err != nil {
-		return execx.CommandError
-	}
-	defer func() {
-		_ = stack.Close()
-	}()
-
-	return stack.Exec(
-		ctx, io,
-		dockerx.ExecOptions{
-			Service: "sql",
-			Cmd:     queryExecutable,
-			Args:    argv,
-		},
-	)()
+// Purge purges the given database and user.
+// If they do not exist, they are not purged.
+func (impl *Impl) Purge(ctx context.Context, progress io.Writer, database string, user string) error {
+	return impl.queries(
+		ctx,
+		progress,
+		"DROP DATABASE IF EXISTS "+quoteBacktick(database)+";",
+		"DROP USER IF EXISTS "+quoteSingle(user)+"@'%';",
+		"FLUSH PRIVILEGES;",
+	)
 }
 
 // quoteBacktick quotes value using backticks.
