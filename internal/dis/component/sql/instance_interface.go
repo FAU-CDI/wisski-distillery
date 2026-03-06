@@ -31,6 +31,9 @@ var errFailedToProvision = errors.New("failed to provision sql database")
 
 func (iface *InstanceSQL) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
 	provisionErr := iface.dependencies.SQL.For(instance).Provision(ctx)
+	if provisionErr == nil {
+		return nil
+	}
 	return fmt.Errorf("%w: %w", errFailedToProvision, provisionErr)
 }
 
