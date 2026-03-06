@@ -23,7 +23,13 @@ func (bound *Bound) SQLUrl() string {
 }
 
 // Provision provisions a new database for the given instance.
+// It ensures that the database container is started and responding to queries afterwards.
 func (bound *Bound) Provision(ctx context.Context) error {
+
+	if err := bound.Impl.StartAndWait(ctx, stream.Null); err != nil {
+		return fmt.Errorf("failed to start and wait for database: %w", err)
+	}
+
 	return bound.Impl.CreateDatabase(ctx, stream.Null, CreateOpts{
 		Name: bound.Database,
 

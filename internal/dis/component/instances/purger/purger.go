@@ -55,14 +55,6 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) (e 
 		_, _ = fmt.Fprintln(out, err)
 	}
 
-	// remove the filesystem
-	if _, err := logging.LogMessage(out, "Removing from filesystem %s", instance.FilesystemBase); err != nil {
-		return fmt.Errorf("failed to log message: %w", err)
-	}
-	if err := os.RemoveAll(instance.FilesystemBase); err != nil {
-		_, _ = fmt.Fprintln(out, err) // already handling error
-	}
-
 	// purge all the instance specific resources
 	if err := logging.LogOperation(func() error {
 		domain := instance.Domain()
@@ -79,6 +71,14 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) (e 
 		return nil
 	}, out, "Purging instance-specific resources"); err != nil {
 		return fmt.Errorf("unable to purge instance %q: %w", slug, err)
+	}
+
+	// remove the filesystem
+	if _, err := logging.LogMessage(out, "Removing from filesystem %s", instance.FilesystemBase); err != nil {
+		return fmt.Errorf("failed to log message: %w", err)
+	}
+	if err := os.RemoveAll(instance.FilesystemBase); err != nil {
+		_, _ = fmt.Fprintln(out, err) // already handling error
 	}
 
 	// remove from bookkeeping

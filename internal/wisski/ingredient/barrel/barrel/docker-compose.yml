@@ -36,8 +36,33 @@ services:
       - ${DATA_PATH}/hostkeys:/ssh/hostkeys:rw
       - ${LOCAL_SETTINGS_PATH}:${LOCAL_SETTINGS_MOUNT}:ro
       - ${PHP_INI_PATH}:${PHP_INI_MOUNT}:ro
+    
+    networks:
+      - local
+      - global
+ 
+    depends_on:
+      - dedicatedsql
+
+  # Dedicated SQL server.
+  # This service is removed when not in use. 
+  dedicatedsql:
+    image: mariadb:11.8
+    volumes:
+        - "${DATA_PATH}/sql:/var/lib/mysql"
+        - "${DATA_PATH}/sql_config/conf.d/:/etc/mysql/conf.d:ro"
+        - "${DATA_PATH}/sql_imports/:/imports/"
+    environment:
+        # This combination of environment variables will configure a passwordless root user
+        # that can only connect to the container from 'localhost'.
+        # This means we can only connect using 'docker-compose exec sql mysql -C '...' '. 
+        - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
+        - "MYSQL_ROOT_HOST=localhost"
+    networks:
+      - local
 
 networks:
-  default:
+  global:
     name: ${DOCKER_NETWORK_NAME}
     external: true
+  local:

@@ -40,7 +40,6 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/server/templating"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/solr"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql/delegator"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/ssh2/sshkeys"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
@@ -160,8 +159,7 @@ func (dis *Distillery) allComponents(context *lifetime.Registry[component.Compon
 		sql.ServerURL = dis.Upstream.SQLAddr()
 		sql.PollInterval = time.Second
 	})
-	lifetime.Place[*delegator.Delegator](context)
-	lifetime.Place[*delegator.InstanceInterface](context)
+	lifetime.Place[*sql.InstanceSQL](context)
 	lifetime.Place[*sql.LockTable](context)
 	lifetime.Place[*sql.InstanceTable](context)
 

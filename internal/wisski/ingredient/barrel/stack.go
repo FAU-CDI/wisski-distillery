@@ -68,6 +68,15 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 				return nil, fmt.Errorf("failed to replace labels: %w", err)
 			}
 
+			// If not in use, remove the dedicated sql service from the docker-compose.yml file.
+			if !liquid.DedicatedSQL {
+				if err := yamlx.Remove(root, "services", "dedicatedsql"); err != nil {
+					return nil, fmt.Errorf("failed to remove dedicatedsql service: %w", err)
+				}
+				if err := yamlx.Remove(root, "services", "barrel", "depends_on"); err != nil {
+					return nil, fmt.Errorf("failed to remove depends_on: %w", err)
+				}
+			}
 			return root, nil
 		},
 

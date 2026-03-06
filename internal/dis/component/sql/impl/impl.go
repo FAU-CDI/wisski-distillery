@@ -75,6 +75,16 @@ func (sql *Impl) do(ctx context.Context, progress io.Writer, fn func(stack *dock
 		}()
 	}
 
+	if err := sql.wait(ctx, progress, stack); err != nil {
+		return fmt.Errorf("failed to wait for sql database to be up: %w", err)
+	}
+
+	// and run the actual function
+	return fn(stack)
+}
+
+// wait waits for the sql database to be up and responding to queries.
+func (sql *Impl) wait(ctx context.Context, progress io.Writer, stack *dockerx.Stack) (e error) {
 	// Set a hard timeout for the wait operation, avoiding infinite loops.
 	waitCtx, waitCtxCancel := context.WithTimeout(ctx, sql.StartTimeout)
 	defer waitCtxCancel()
@@ -89,11 +99,33 @@ func (sql *Impl) do(ctx context.Context, progress io.Writer, fn func(stack *dock
 		})() == 0
 	}, waitCtx, sql.PollInterval)
 	if connectErr != nil {
-		return fmt.Errorf("failed to wait for sql database to be up: %w", connectErr)
+		return fmt.Errorf("TickUntilFunc: %w", connectErr)
+	}
+	return nil
+}
+
+// StartAndWait starts the sql container and waits for it to be running and responding to queries.
+func (sql *Impl) StartAndWait(ctx context.Context, progress io.Writer) (e error) {
+	// Open the stack
+	stack, err := sql.OpenStack()
+	if err != nil {
+		return err
+	}
+	defer errorsx.Close(stack, &e, "stack")
+
+	running, err := stack.Running(ctx, sql.Service)
+	if err != nil {
+		return fmt.Errorf("failed to check if container is running: %w", err)
 	}
 
-	// and run the actual function
-	return fn(stack)
+	// Start the containiner if it is not running
+	if !running {
+		if err := stack.Start(ctx, progress, sql.Service); err != nil {
+			return fmt.Errorf("failed to start container: %w", err)
+		}
+	}
+
+	return sql.wait(ctx, progress, stack)
 }
 
 // queries executes the given queries inside the sql implementation.
