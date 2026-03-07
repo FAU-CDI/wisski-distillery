@@ -39,6 +39,11 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 		return component.StackWithResources{}, fmt.Errorf("failed to get docker client: %w", err)
 	}
 
+	makeDirs := []string{"data", ".composer"}
+	if liquid.DedicatedSQL {
+		makeDirs = append(makeDirs, "sql")
+	}
+
 	return component.StackWithResources{
 		Stack: stack,
 
@@ -76,6 +81,14 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 				if err := yamlx.Remove(root, "services", "barrel", "depends_on"); err != nil {
 					return nil, fmt.Errorf("failed to remove depends_on: %w", err)
 				}
+
+				// remove network 'local' because we don't need it.
+				if err := yamlx.Remove(root, "networks", "local"); err != nil {
+					return nil, fmt.Errorf("failed to remove local network: %w", err)
+				}
+				if err := yamlx.ReplaceWith(root, []string{"global"}, "services", "barrel", "networks"); err != nil {
+					return nil, fmt.Errorf("failed to update networks: %w", err)
+				}
 			}
 			return root, nil
 		},
@@ -89,6 +102,7 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 			"HTTPS_ENABLED":   config.HTTP.HTTPSEnabledEnv(),
 
 			"DATA_PATH":   filepath.Join(liquid.FilesystemBase, "data"),
+			"SQL_PATH":    filepath.Join(liquid.FilesystemBase, "sql"),
 			"RUNTIME_DIR": config.Paths.RuntimeDir(),
 
 			"LOCAL_SETTINGS_PATH":  filepath.Join(liquid.FilesystemBase, localSettingsName),
@@ -103,7 +117,7 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 			"CONTENT_SECURITY_POLICY": liquid.ContentSecurityPolicy,
 		},
 
-		MakeDirs: []string{"data", ".composer"},
+		MakeDirs: makeDirs,
 	}, nil
 }
 
