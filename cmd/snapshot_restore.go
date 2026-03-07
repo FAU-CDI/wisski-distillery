@@ -277,6 +277,17 @@ func (sr *snapshotRestore) exec(cmd *cobra.Command, dis *dis.Distillery) error {
 		}
 	}
 
+	// Wait for SQL
+	{
+		if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Waiting for SQL"); err != nil {
+			return fmt.Errorf("failed to log message: %w", err)
+		}
+
+		if err := waitSQL(cmd, instance); err != nil {
+			return fmt.Errorf("failed to wait for SQL: %w", err)
+		}
+	}
+
 	// clear cache
 	{
 		if _, err := logging.LogMessage(cmd.ErrOrStderr(), "Clearing cache"); err != nil {
@@ -352,6 +363,7 @@ var (
 
 	errFailedToShutdownInstance = errors.New("failed to shutdown instance")
 	errFailedToStartInstance    = errors.New("failed to start instance")
+	errFailedToWaitSQL          = errors.New("failed to wait for SQL")
 )
 
 func loadArchive(path string) (s exporter.Snapshot, e error) {
@@ -399,13 +411,14 @@ func readArchiveParts(path string, archive exporter.Snapshot) (parts archivePart
 	}
 
 	{
-		if !slices.Contains(archive.Description.Parts, "sql") {
-			return archiveParts{}, errSnapshotMissingSQLPart
+		local, err := findSQLPath(archive)
+		if err != nil {
+			return archiveParts{}, err
 		}
 
-		parts.SQLFilePath = filepath.Join(path, "sql", archive.Instance.SqlDatabase+".sql")
+		parts.SQLFilePath = filepath.Join(path, local)
 		if isFile, err := fsx.IsRegular(parts.SQLFilePath, false); !isFile {
-			return archiveParts{}, fmt.Errorf("%w: %w", errSQLDataNotFoundInSnapshot, cmp.Or(err, fs.ErrNotExist))
+			return archiveParts{}, fmt.Errorf("%w: %s: %w", errSQLDataNotFoundInSnapshot, parts.SQLFilePath, cmp.Or(err, fs.ErrNotExist))
 		}
 	}
 
@@ -421,6 +434,37 @@ func readArchiveParts(path string, archive exporter.Snapshot) (parts archivePart
 	}
 
 	return parts, nil
+}
+
+func findSQLPath(archive exporter.Snapshot) (string, error) {
+	hasSQLPart := false
+	for _, part := range archive.Description.Parts {
+		if part != "sql" {
+			continue
+		}
+		hasSQLPart = true
+	}
+	if !hasSQLPart {
+		return "", errSnapshotMissingSQLPart
+	}
+
+	var candidates []string
+	for _, path := range archive.Manifest {
+		// TODO: This is a very ugly search of the manifest
+		// But it's good enough for now.
+		if !strings.HasPrefix(path, "sql/") || !strings.HasSuffix(path, ".sql") {
+			continue
+		}
+		candidates = append(candidates, path)
+	}
+
+	if len(candidates) == 0 {
+		return "", fmt.Errorf("%w: No sql files found in manifest", errSQLDataNotFoundInSnapshot)
+	}
+	if len(candidates) > 1 {
+		return "", fmt.Errorf("%w: Multiple sql files found in manifest", errSQLDataNotFoundInSnapshot)
+	}
+	return candidates[0], nil
 }
 
 func shutdownInstance(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
@@ -444,6 +488,15 @@ func startInstance(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
 	defer errorsx.Close(stack, &e, "stack")
 	if err := stack.Start(cmd.Context(), cmd.OutOrStdout()); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToStartInstance, err)
+	}
+
+	return waitSQL(cmd, instance)
+}
+
+func waitSQL(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
+	// wait for the sql to be up
+	if err := instance.BoundSQL().Impl.StartAndWait(cmd.Context(), cmd.OutOrStdout()); err != nil {
+		return fmt.Errorf("%w: %w", errFailedToWaitSQL, err)
 	}
 	return nil
 }
@@ -593,7 +646,7 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 	if err != nil {
 		return fmt.Errorf("%w: %w", errFailedToOpenTriplestoreBackup, &fs.PathError{Op: "open", Path: parts.TSFilePath, Err: err})
 	}
-	defer errorsx.Close(file, &e, "file")
+	defer file.Close()
 
 	if err := liquid.TS.RestoreDB(cmd.Context(), liquid.GraphDBRepository, file); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToRestoreTriplestoreContents, err)

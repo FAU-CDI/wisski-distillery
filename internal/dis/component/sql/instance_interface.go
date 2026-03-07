@@ -10,27 +10,19 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
-// InstanceSQL implements all global component hooks for the delegator.
-type InstanceSQL struct {
-	component.Base
-	dependencies struct {
-		SQL *SQL
-	}
-}
-
 var (
-	_ component.Provisionable = (*InstanceSQL)(nil)
-	_ component.Snapshotable  = (*InstanceSQL)(nil)
+	_ component.Provisionable = (*SQL)(nil)
+	_ component.Snapshotable  = (*SQL)(nil)
 )
 
-func (iface *InstanceSQL) ProvisionNeedsStack(instance models.Instance) bool {
-	return true
+func (sql *SQL) ProvisionNeedsStack(instance models.Instance) bool {
+	return instance.DedicatedSQL
 }
 
 var errFailedToProvision = errors.New("failed to provision sql database")
 
-func (iface *InstanceSQL) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
-	provisionErr := iface.dependencies.SQL.For(instance).Provision(ctx)
+func (sql *SQL) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
+	provisionErr := sql.For(instance).Provision(ctx)
 	if provisionErr == nil {
 		return nil
 	}
@@ -39,22 +31,25 @@ func (iface *InstanceSQL) Provision(ctx context.Context, instance models.Instanc
 
 var errFailedToPurge = errors.New("failed to purge sql database")
 
-func (iface *InstanceSQL) Purge(ctx context.Context, instance models.Instance, domain string) error {
-	purgeErr := iface.dependencies.SQL.For(instance).Purge(ctx)
+func (sql *SQL) Purge(ctx context.Context, instance models.Instance, domain string) error {
+	purgeErr := sql.For(instance).Purge(ctx)
 	// ignore error while purging if we are using a dedicated sql server.
 	// because it'll be deleted anyways by deleting the stack.
 	if instance.DedicatedSQL {
 		return nil
 	}
+	if purgeErr == nil {
+		return nil
+	}
 	return fmt.Errorf("%w: %w", errFailedToPurge, purgeErr)
 }
 
-func (*InstanceSQL) SnapshotNeedsRunning(wisski models.Instance) bool { return false }
+func (sql *SQL) SnapshotNeedsRunning(wisski models.Instance) bool { return false }
 
-func (*InstanceSQL) SnapshotName() string { return "sql" }
+func (sql *SQL) SnapshotName() string { return "sql" }
 
-func (iface *InstanceSQL) Snapshot(instance models.Instance, scontext *component.StagingContext) error {
-	delegated := iface.dependencies.SQL.For(instance)
+func (sql *SQL) Snapshot(instance models.Instance, scontext *component.StagingContext) error {
+	delegated := sql.For(instance)
 	if err := scontext.AddDirectory(".", func(ctx context.Context) error {
 		if err := scontext.AddFile("database.sql", func(ctx context.Context, file io.Writer) error {
 			if err := delegated.Snapshot(ctx, scontext.Progress(), file); err != nil {

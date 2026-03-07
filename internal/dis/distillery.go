@@ -159,7 +159,6 @@ func (dis *Distillery) allComponents(context *lifetime.Registry[component.Compon
 		sql.ServerURL = dis.Upstream.SQLAddr()
 		sql.PollInterval = time.Second
 	})
-	lifetime.Place[*sql.InstanceSQL](context)
 	lifetime.Place[*sql.LockTable](context)
 	lifetime.Place[*sql.InstanceTable](context)
 

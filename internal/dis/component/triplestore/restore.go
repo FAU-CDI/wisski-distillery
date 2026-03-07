@@ -9,8 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-
-	"go.tkw01536.de/pkglib/errorsx"
 )
 
 var errTSRestoreWrongStatusCode = errors.New("Triplestore.Restore: Wrong status code")
@@ -22,7 +20,7 @@ func (ts Triplestore) RestoreDB(ctx context.Context, repo string, reader io.Read
 	if err != nil {
 		return err
 	}
-	defer errorsx.Close(res.Body, &e, "request body")
+	defer res.Body.Close()
 
 	if res.StatusCode != http.StatusNoContent {
 		message, _ := io.ReadAll(res.Body)

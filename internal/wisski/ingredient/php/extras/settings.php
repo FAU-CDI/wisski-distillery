@@ -8,6 +8,15 @@ function get_setting($name) {
     return Settings::get($name);
 }
 
+function find_settings_php(): string {
+    try {
+       return DRUPAL_ROOT . "/" . \Drupal::getContainer()->getParameter("site.path") . "/settings.php";
+    } catch(ContainerNotInitializedException $t) {
+        // Fallback to sites/default/settings.php
+        return DRUPAL_ROOT . '/sites/default/settings.php';
+    }
+}
+
 /** sets a setting in 'settings.php' */
 function set_setting(string $name, mixed $value): bool {
     $settings["settings"][$name] = (object)[
@@ -61,12 +70,7 @@ function set_default_db_connection(string $url): bool {
 
 function do_set_setting(array $settings): bool {
     // find settings.php
-    try {
-        $filename = DRUPAL_ROOT . "/" . \Drupal::getContainer()->getParameter("site.path") . "/settings.php";
-    } catch(ContainerNotInitializedException $t) {
-        // Fallback to sites/default/settings.php
-        $filename = DRUPAL_ROOT . '/sites/default/settings.php';
-    }
+    $filename = find_settings_php();
 
     // setup user write permissions for the file
     $old = fileperms($filename);
@@ -121,7 +125,7 @@ function set_trusted_domain(string $domain): bool {
 /** Sets up including a settings.php file from the given path */
 function install_settings_include(array $paths): bool {
     // find the original filename
-    $filename = DRUPAL_ROOT . "/" . \Drupal::getContainer()->getParameter("site.path") . "/settings.php";
+    $filename = find_settings_php();
     
     // read the original file
     $original_content = file_get_contents($filename);
