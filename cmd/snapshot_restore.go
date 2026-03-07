@@ -646,8 +646,9 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 	if err != nil {
 		return fmt.Errorf("%w: %w", errFailedToOpenTriplestoreBackup, &fs.PathError{Op: "open", Path: parts.TSFilePath, Err: err})
 	}
-	defer file.Close()
-
+	defer func() {
+		_ = file.Close()
+	}()
 	if err := liquid.TS.RestoreDB(cmd.Context(), liquid.GraphDBRepository, file); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToRestoreTriplestoreContents, err)
 	}

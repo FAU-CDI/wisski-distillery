@@ -20,7 +20,9 @@ func (ts Triplestore) RestoreDB(ctx context.Context, repo string, reader io.Read
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	if res.StatusCode != http.StatusNoContent {
 		message, _ := io.ReadAll(res.Body)
