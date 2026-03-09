@@ -3,6 +3,7 @@ package triplestore
 
 //spellchecker:words embed path filepath time github wisski distillery internal config package component docker pkglib yamlx gopkg yaml
 import (
+	"context"
 	"embed"
 	"fmt"
 	"path/filepath"
@@ -11,6 +12,7 @@ import (
 	config_package "github.com/FAU-CDI/wisski-distillery/internal/config"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
+	"github.com/FAU-CDI/wisski-distillery/internal/models"
 	"go.tkw01536.de/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
 )
@@ -41,6 +43,10 @@ func (ts *Triplestore) Path() string {
 
 func (Triplestore) Context(parent component.InstallationContext) component.InstallationContext {
 	return parent
+}
+
+func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, domain string) error {
+	return ts.For(instance).Purge(ctx)
 }
 
 //go:embed all:triplestore

@@ -30,9 +30,11 @@ type DistilleryAdapter struct {
 	Description    string
 	InstanceDomain string
 
-	GraphDBRepository string
-	GraphDBUsername   string
-	GraphDBPassword   string
+	ReadURL  string
+	WriteURL string
+
+	GraphDBUsername string
+	GraphDBPassword string
 }
 
 // Adapters returns a list of (managed) adapters belonging to the given WissKI.
@@ -44,15 +46,20 @@ func (wisski *Adapters) Adapters() []DistilleryAdapter {
 
 func (wisski *Adapters) DefaultAdapter() DistilleryAdapter {
 	liquid := ingredient.GetLiquid(wisski)
+
+	f := liquid.TS.For(liquid.Instance)
+
+	username, password := f.Credentials()
 	return DistilleryAdapter{
 		ID: "default",
 
-		Label:             "Default WissKI Distillery Adapter",
-		Description:       "Default Adapter for " + liquid.Domain(),
-		InstanceDomain:    liquid.Domain(),
-		GraphDBRepository: liquid.GraphDBRepository,
-		GraphDBUsername:   liquid.GraphDBUsername,
-		GraphDBPassword:   liquid.GraphDBPassword,
+		Label:           "Default WissKI Distillery Adapter",
+		Description:     "Default Adapter for " + liquid.Domain(),
+		InstanceDomain:  liquid.Domain(),
+		ReadURL:         f.ReadURL(),
+		WriteURL:        f.WriteURL(),
+		GraphDBUsername: username,
+		GraphDBPassword: password,
 	}
 }
 
@@ -62,7 +69,7 @@ func (wisski *Adapters) SetAdapter(ctx context.Context, server *phpx.Server, ada
 	err = wisski.dependencies.PHP.ExecScript(
 		ctx, server, &created, adaptersPHP,
 		"create_or_update_distillery_adapter",
-		adapter.Label, adapter.ID, adapter.Description, adapter.InstanceDomain, adapter.GraphDBRepository, adapter.GraphDBUsername, adapter.GraphDBPassword,
+		adapter.Label, adapter.ID, adapter.Description, adapter.InstanceDomain, adapter.ReadURL, adapter.WriteURL, adapter.GraphDBUsername, adapter.GraphDBPassword,
 	)
 	return
 }

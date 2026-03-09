@@ -80,7 +80,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 	if _, err := logging.LogMessage(out, "Purging triplestore"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := liquid.TS.Purge(ctx, liquid.Instance, liquid.Domain()); err != nil {
+	if err := liquid.TS.For(liquid.Instance).Purge(ctx); err != nil {
 		return 0, fmt.Errorf("failed to purge triplestore data: %w", err)
 	}
 
@@ -123,7 +123,7 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 
 	{
 		liquid := ingredient.GetLiquid(trb)
-		size, err := liquid.TS.SnapshotDB(ctx, zippedFile, liquid.GraphDBRepository)
+		size, err := liquid.TS.For(liquid.Instance).SnapshotDB(ctx, zippedFile)
 		if err != nil {
 			return "", 0, fmt.Errorf("failed to snapshot db: %w", err)
 		}
@@ -150,7 +150,7 @@ func (trb *TRB) restoreBackup(ctx context.Context, path string) (e error) {
 	defer errorsx.Close(decompressedReader, &e, "gzip reader")
 
 	liquid := ingredient.GetLiquid(trb)
-	if err := liquid.TS.RestoreDB(ctx, liquid.GraphDBRepository, decompressedReader); err != nil {
+	if err := liquid.TS.For(liquid.Instance).RestoreDB(ctx, decompressedReader); err != nil {
 		return fmt.Errorf("failed to restore database: %w", err)
 	}
 	return nil

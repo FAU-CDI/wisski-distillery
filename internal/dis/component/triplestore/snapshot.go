@@ -16,9 +16,10 @@ func (Triplestore) SnapshotNeedsRunning(wisski models.Instance) bool { return fa
 func (Triplestore) SnapshotName() string { return "triplestore" }
 
 func (ts *Triplestore) Snapshot(wisski models.Instance, scontext *component.StagingContext) error {
+	bound := ts.For(wisski)
 	if err := scontext.AddDirectory(".", func(ctx context.Context) error {
 		if err := scontext.AddFile(wisski.GraphDBRepository+".nq", func(ctx context.Context, file io.Writer) error {
-			_, err := ts.globalClient().ExportContent(ctx, file, wisski.GraphDBRepository)
+			_, err := bound.SnapshotDB(ctx, file)
 			if err != nil {
 				return fmt.Errorf("failed to snapshot database: %w", err)
 			}

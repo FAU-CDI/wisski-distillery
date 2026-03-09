@@ -10,7 +10,6 @@ import (
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
-	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore/client"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
@@ -23,7 +22,7 @@ type createRepoContext struct {
 }
 
 func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
-	return ts.CreateRepository(ctx, instance.GraphDBRepository, domain, instance.GraphDBUsername, instance.GraphDBPassword)
+	return ts.For(instance).Provision(ctx, domain)
 }
 
 func (ts *Triplestore) ProvisionNeedsStack(instance models.Instance) bool {
@@ -41,37 +40,4 @@ type TriplestoreUserAppSettings struct {
 	DefaultSameas         bool `json:"DEFAULT_SAMEAS"`
 	IgnoreSharedQueries   bool `json:"IGNORE_SHARED_QUERIES"`
 	ExecuteCount          bool `json:"EXECUTE_COUNT"`
-}
-
-func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user, password string) (e error) {
-	cl := ts.globalClient()
-	if err := cl.Wait(ctx); err != nil {
-		return err
-	}
-
-	// create the repository
-	if err := cl.CreateRepository(ctx, name, domain, user, password); err != nil {
-		return fmt.Errorf("failed to create repository: %w", err)
-	}
-
-	// create the user and grant them access
-	if err := cl.CreateUser(ctx, user, client.TriplestoreUserPayload{
-		Password: password,
-		AppSettings: client.TriplestoreUserAppSettings{
-			DefaultInference:      true,
-			DefaultVisGraphSchema: true,
-			DefaultSameas:         true,
-			IgnoreSharedQueries:   false,
-			ExecuteCount:          true,
-		},
-		GrantedAuthorities: []string{
-			"ROLE_USER",
-			"READ_REPO_" + name,
-			"WRITE_REPO_" + name,
-		},
-	}); err != nil {
-		return fmt.Errorf("failed to create user: %w", err)
-	}
-
-	return nil
 }

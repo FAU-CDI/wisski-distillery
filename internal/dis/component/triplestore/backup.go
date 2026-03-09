@@ -14,22 +14,23 @@ func (ts *Triplestore) BackupName() string { return "triplestore" }
 
 // Backup makes a backup of all Triplestore repositories databases into the path dest.
 func (ts *Triplestore) Backup(scontext *component.StagingContext) error {
+	globalClient := ts.globalClient()
 	if err := scontext.AddDirectory("", func(ctx context.Context) error {
 		// list all the directories
-		repos, err := ts.globalClient().ListRepositories(ctx)
+		repos, err := globalClient.ListRepositories(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to list repositories: %w", err)
 		}
 
 		for _, repo := range repos {
 			if err := scontext.AddFile(repo.ID+".nq", func(ctx context.Context, file io.Writer) error {
-				_, err := ts.globalClient().ExportContent(ctx, file, repo.ID)
+				_, err := globalClient.ExportContent(ctx, file, repo.ID)
 				if err != nil {
 					return fmt.Errorf("failed to snapshot database: %w", err)
 				}
 				return nil
 			}); err != nil {
-				return fmt.Errorf("failed to %s.nq: %w", repo.ID, err)
+				return fmt.Errorf("failed to add %s.nq: %w", repo.ID, err)
 			}
 		}
 		return nil

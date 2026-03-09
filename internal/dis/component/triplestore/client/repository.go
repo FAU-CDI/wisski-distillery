@@ -29,24 +29,20 @@ var createRepoTpl string
 // And should only be used with KNOWN GOOD input.
 var createRepoTemplate = template.Must(template.New("create-repo.tpl").Parse(createRepoTpl))
 
-type createRepoContext struct {
+type CreateOpts struct {
 	RepositoryID string
 	Label        string
-	BaseURL      string
+	BaseURL      string `json:"-"`
 }
 
-func (ts *Client) CreateRepository(ctx context.Context, id, domain, user, password string) (e error) {
+func (ts *Client) CreateRepository(ctx context.Context, opts CreateOpts) (e error) {
 	if err := ts.Wait(ctx); err != nil {
 		return fmt.Errorf("failed to wait for repository to be ready: %w", err)
 	}
 
 	// prepare the create repo request
 	var createRepo bytes.Buffer
-	if err := createRepoTemplate.Execute(&createRepo, createRepoContext{
-		RepositoryID: id,
-		Label:        domain,
-		BaseURL:      "http://" + domain + "/",
-	}); err != nil {
+	if err := createRepoTemplate.Execute(&createRepo, opts); err != nil {
 		return fmt.Errorf("failed to execute template: %w", err)
 	}
 
