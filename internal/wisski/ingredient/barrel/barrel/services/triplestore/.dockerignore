@@ -1,0 +1,7 @@
+# Ignore everything
+*
+
+# allow the following files:
+!entrypoint.sh
+!healthcheck.sh
+!ROOT/*

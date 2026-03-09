@@ -16,13 +16,15 @@ type System struct {
 
 	ContentSecurityPolicy string `gorm:"column:csp;not null"` // content security policy for the system
 
-	DedicatedSQL bool `gorm:"column:dedicated_sql;not null;default:false"` // should we use a dedicated SQL server?
+	DedicatedSQL         bool `gorm:"column:dedicated_sql;not null;default:false"`         // should we use a dedicated SQL server?
+	DedicatedTriplestore bool `gorm:"column:dedicated_triplestore;not null;default:false"` // should we use a dedicated Triplestore?
 }
 
 // Called to get the final System info for the given current configuration.
 // This ensures that specific fields cannot be changed.
 func (system System) ApplyTo(current System) System {
 	system.DedicatedSQL = current.DedicatedSQL
+	system.DedicatedTriplestore = current.DedicatedTriplestore
 	return system
 }
 

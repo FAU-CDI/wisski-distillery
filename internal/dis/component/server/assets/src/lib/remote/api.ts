@@ -17,6 +17,7 @@ interface System {
   ContentSecurityPolicy: string
   IPAllowlist: string
   DedicatedSQL?: boolean
+  DedicatedTriplestore?: boolean
 }
 
 /** Rebuild the specified instance */

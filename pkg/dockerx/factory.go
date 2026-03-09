@@ -55,17 +55,3 @@ func WithFunc0(factory Factory, f func(*Client) error) (e error) {
 	}
 	return nil
 }
-
-func WithFunc2[T, U any](factory Factory, f func(*Client) (T, U, error)) (t T, u U, e error) {
-	client, err := factory.NewClient()
-	if err != nil {
-		return t, u, fmt.Errorf("failed to create client: %w", err)
-	}
-	defer errorsx.Close(client, &e, "client")
-
-	res1, res2, err := f(client)
-	if err != nil {
-		return t, u, fmt.Errorf("failed to execute func: %w", err)
-	}
-	return res1, res2, nil
-}

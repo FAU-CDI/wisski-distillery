@@ -1,7 +1,7 @@
 services:
   barrel:
     build:
-      context: barrel
+      context: services/barrel
       args:
         BARREL_BASE_IMAGE: ${BARREL_BASE_IMAGE}
         PHP_CONFIG_MODE: ${PHP_CONFIG_MODE}
@@ -35,16 +35,18 @@ services:
       - ${PHP_INI_PATH}:${PHP_INI_MOUNT}:ro
     
     networks:
-      - local # only needed for dedicated sql
-      - global
+      - distillery
+      - default
  
     depends_on:
+      # dynamic update based on configuration
       - dedicatedsql
+      - dedicatedtriplestore
 
   dedicatedsql:
-    # Setup a dedicated SQL server.
-    # Only enabled when dedicated SQL is needed.
+    # dedicated sql server, removed when not needed
     image: mariadb:11.8
+    restart: always
     volumes:
         - "${SQL_PATH}/data:/var/lib/mysql"
         - "${SQL_PATH}/config/conf.d/:/etc/mysql/conf.d:ro"
@@ -56,10 +58,33 @@ services:
         - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
         - "MYSQL_ROOT_HOST=localhost"
     networks:
-      - local
+      - default
+
+  dedicatedtriplestore:
+    build:
+      # dedicated triplestore, removed when not needed
+      context: services/triplestore
+      args:
+        RDF4J_VERSION: 5.2.2-tomcat
+    restart: always
+    environment:
+      JAVA_OPTS: "-Xms1g -Xmx4g"
+    volumes:
+      - ${TS_PATH}/data:/var/rdf4j
+      - ${TS_PATH}/logs:/usr/local/tomcat/logs
+    networks:
+      - default 
+    healthcheck:
+      test: ["CMD", "/bin/bash", "/healthcheck.sh"]
+      start_period: 1m
+      start_interval: 10s
+      interval: 1m
+      timeout: 5s
+      retries: 3
 
 networks:
-  global:
+  default:
+  distillery:
     name: ${DOCKER_NETWORK_NAME}
     external: true
-  local:
+

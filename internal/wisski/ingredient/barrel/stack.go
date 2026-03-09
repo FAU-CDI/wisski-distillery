@@ -43,6 +43,9 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 	if liquid.DedicatedSQL {
 		makeDirs = append(makeDirs, "sql")
 	}
+	if liquid.DedicatedTriplestore {
+		makeDirs = append(makeDirs, "triplestore")
+	}
 
 	return component.StackWithResources{
 		Stack: stack,
@@ -73,23 +76,52 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 				return nil, fmt.Errorf("failed to replace labels: %w", err)
 			}
 
-			// If not in use, remove the dedicated sql service from the docker-compose.yml file.
+			// find the depends_on of the barrel service
+			dependencyMap := map[string]struct{}{}
+			{
+				barrelDependsOn, err := yamlx.Find(root, "services", "barrel", "depends_on")
+				if err != nil {
+					return nil, fmt.Errorf("failed to find depends_on: %w", err)
+				}
+				var dependsOn []string
+				if err := barrelDependsOn.Decode(&dependsOn); err != nil {
+					return nil, fmt.Errorf("failed to decode depends_on: %w", err)
+				}
+				for _, dependency := range dependsOn {
+					dependencyMap[dependency] = struct{}{}
+				}
+			}
+
+			// remove the non-dedicated services.
 			if !liquid.DedicatedSQL {
+				delete(dependencyMap, "dedicatedsql")
 				if err := yamlx.Remove(root, "services", "dedicatedsql"); err != nil {
 					return nil, fmt.Errorf("failed to remove dedicatedsql service: %w", err)
 				}
-				if err := yamlx.Remove(root, "services", "barrel", "depends_on"); err != nil {
-					return nil, fmt.Errorf("failed to remove depends_on: %w", err)
-				}
-
-				// remove network 'local' because we don't need it.
-				if err := yamlx.Remove(root, "networks", "local"); err != nil {
-					return nil, fmt.Errorf("failed to remove local network: %w", err)
-				}
-				if err := yamlx.ReplaceWith(root, []string{"global"}, "services", "barrel", "networks"); err != nil {
-					return nil, fmt.Errorf("failed to update networks: %w", err)
+			}
+			if !liquid.DedicatedTriplestore {
+				delete(dependencyMap, "dedicatedtriplestore")
+				if err := yamlx.Remove(root, "services", "dedicatedtriplestore"); err != nil {
+					return nil, fmt.Errorf("failed to remove dedicatedtriplestore service: %w", err)
 				}
 			}
+
+			// if we don't have any dedicated services, remove the default network
+			if !liquid.DedicatedSQL && !liquid.DedicatedTriplestore {
+				if err := yamlx.Remove(root, "networks", "default"); err != nil {
+					return nil, fmt.Errorf("failed to remove default network: %w", err)
+				}
+			}
+
+			// re-create the depends_on list of the barrel service
+			dependsOnKeys := make([]string, 0, len(dependencyMap))
+			for key := range dependencyMap {
+				dependsOnKeys = append(dependsOnKeys, key)
+			}
+			if err := yamlx.ReplaceWith(root, dependsOnKeys, "services", "barrel", "depends_on"); err != nil {
+				return nil, fmt.Errorf("failed to update depends_on: %w", err)
+			}
+
 			return root, nil
 		},
 
@@ -103,6 +135,7 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 
 			"DATA_PATH":   filepath.Join(liquid.FilesystemBase, "data"),
 			"SQL_PATH":    filepath.Join(liquid.FilesystemBase, "sql"),
+			"TS_PATH":     filepath.Join(liquid.FilesystemBase, "triplestore"),
 			"RUNTIME_DIR": config.Paths.RuntimeDir(),
 
 			"LOCAL_SETTINGS_PATH":  filepath.Join(liquid.FilesystemBase, localSettingsName),

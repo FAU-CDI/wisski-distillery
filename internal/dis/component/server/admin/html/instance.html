@@ -224,10 +224,19 @@
                     </tr>
                     <tr>
                         <td>
+                            Dedicated Triplestore
+                        </td>
+                        <td>
+                            <code>{{ .Instance.System.DedicatedTriplestore }}</code>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
                             TS Repo
 
                             {{ $ts := .DistilleryConfig.HTTP.TSURL }}
-                            {{ if $ts }}
+                            {{ $globalts := not .Instance.System.DedicatedTriplestore }}
+                            {{ if and $ts $globalts }}
                                 <br>
                                 <a href="{{ $ts }}" class="pure-button" target="_blank" rel="noopener noreferer">Workbench</a>
                             {{ end }}

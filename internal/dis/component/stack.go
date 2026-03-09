@@ -212,6 +212,13 @@ func addComposeFileHeader(path string) (e error) {
 		return fmt.Errorf("failed to read file: %w", err)
 	}
 
+	// parse proper yaml
+	var node yaml.Node
+	if err := yaml.Unmarshal(bytes, &node); err != nil {
+		return fmt.Errorf("failed to unmarshal bytes: %w", err)
+	}
+	clearYAMLComments(&node)
+
 	// overwrite the file
 	f, err := os.OpenFile(path, os.O_WRONLY|os.O_TRUNC, umaskfree.DefaultFilePerm) // #nosec G304 -- intended
 	if err != nil {
@@ -224,12 +231,28 @@ func addComposeFileHeader(path string) (e error) {
 		return nil
 	}
 
-	// write the original content
-	if _, err := f.Write(bytes); err != nil {
+	// re-encode yaml bytes
+	encoder := yaml.NewEncoder(f)
+	encoder.SetIndent(2)
+
+	if err := encoder.Encode(&node); err != nil {
 		return fmt.Errorf("failed to write compose file; %w", err)
 	}
 
+	if err := encoder.Close(); err != nil {
+		return fmt.Errorf("failed to close encoder: %w", err)
+	}
+
 	return nil
+}
+
+func clearYAMLComments(node *yaml.Node) {
+	node.HeadComment = ""
+	node.LineComment = ""
+	node.FootComment = ""
+	for _, child := range node.Content {
+		clearYAMLComments(child)
+	}
 }
 
 // doComposeFile updates the compose file using the update function.

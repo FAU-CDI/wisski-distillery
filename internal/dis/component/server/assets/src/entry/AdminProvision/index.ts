@@ -10,6 +10,7 @@ const phpDevelopment = document.getElementById('phpDevelopment') as HTMLInputEle
 const contentSecurityPolicy = document.getElementById('contentsecuritypolicy') as HTMLInputElement
 const iipserver = document.getElementById('iipserver') as HTMLInputElement
 const dedicatedsql = document.getElementById('dedicatedsql') as HTMLInputElement
+const dedicatedtriplestore = document.getElementById('dedicatedtriplestore') as HTMLInputElement
 const ipAllowlist = document.getElementById('ipallowlist') as HTMLInputElement
 
 // add an event handler to open the modal form!
@@ -22,7 +23,15 @@ system.addEventListener('submit', (evt) => {
   Provision({
     Slug: slug.value,
     Flavor: flavor,
-    System: { PHP: php.value, IIPServer: iipserver.checked, PHPDevelopment: phpDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value, DedicatedSQL: dedicatedsql.checked, IPAllowlist: ipAllowlist.value }
+    System: {
+      PHP: php.value,
+      IIPServer: iipserver.checked,
+      PHPDevelopment: phpDevelopment.checked,
+      ContentSecurityPolicy: contentSecurityPolicy.value,
+      DedicatedSQL: dedicatedsql.checked,
+      DedicatedTriplestore: dedicatedtriplestore.checked,
+      IPAllowlist: ipAllowlist.value,
+    },
   })
     .then(slug => {
       location.href = '/admin/instance/' + slug
