@@ -41,10 +41,18 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 
 	makeDirs := []string{"data", ".composer"}
 	if liquid.DedicatedSQL {
-		makeDirs = append(makeDirs, "sql")
+		makeDirs = append(
+			makeDirs,
+			filepath.Join("sql", "data"),
+			filepath.Join("sql", "imports"),
+		)
 	}
 	if liquid.DedicatedTriplestore {
-		makeDirs = append(makeDirs, "triplestore")
+		makeDirs = append(
+			makeDirs,
+			filepath.Join("triplestore", "data"),
+			filepath.Join("triplestore", "logs"),
+		)
 	}
 
 	return component.StackWithResources{

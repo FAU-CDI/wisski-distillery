@@ -51,37 +51,18 @@ func New(service string, openStack func() (*dockerx.Stack, error)) *Impl {
 // If the container is already running, it simply waits for the sql database to be up, runs the function, and then returns.
 // It checks if the sql database is up by executing a 'select 1' query.
 func (sql *Impl) do(ctx context.Context, progress io.Writer, fn func(stack *dockerx.Stack) error) (e error) {
-	// Open the stack
-	stack, err := sql.OpenStack()
-	if err != nil {
-		return err
-	}
-	defer errorsx.Close(stack, &e, "stack")
-
-	running, err := stack.Running(ctx, sql.Service)
-	if err != nil {
-		return fmt.Errorf("failed to check if container is running: %w", err)
-	}
-
-	// Start the containiner if it is not running
-	if !running {
-		if err := stack.Start(ctx, progress, sql.Service); err != nil {
-			return fmt.Errorf("failed to start container: %w", err)
+	if err := dockerx.Do(ctx, progress, true, sql.OpenStack, func(stack *dockerx.Stack) error {
+		// wait for the sql database to be up
+		if err := sql.wait(ctx, progress, stack); err != nil {
+			return fmt.Errorf("failed to wait for sql database to be up: %w", err)
 		}
 
-		defer func() {
-			if err := stack.Down(ctx, progress, sql.Service); err != nil {
-				e = errorsx.Combine(e, fmt.Errorf("failed to stop container: %w", err))
-			}
-		}()
+		// and run the actual function
+		return fn(stack)
+	}, sql.Service); err != nil {
+		return fmt.Errorf("dockerx.Do returned: %w", err)
 	}
-
-	if err := sql.wait(ctx, progress, stack); err != nil {
-		return fmt.Errorf("failed to wait for sql database to be up: %w", err)
-	}
-
-	// and run the actual function
-	return fn(stack)
+	return nil
 }
 
 // wait waits for the sql database to be up and responding to queries.

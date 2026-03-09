@@ -19,6 +19,10 @@ func (*Policy) Provision(ctx context.Context, instance models.Instance, domain s
 	return nil
 }
 
+func (*Policy) PurgeMayFail(instance models.Instance) bool {
+	return false
+}
+
 // Purge purges every policy for the given slug form the database.
 func (pol *Policy) Purge(ctx context.Context, instance models.Instance, domain string) error {
 	table, err := pol.openInterface(ctx)

@@ -15,6 +15,9 @@ type Provisionable interface {
 	// ProvisionNeedsStack indicates if this provisionable should be provisioned after the inital stack is set up.
 	ProvisionNeedsStack(instance models.Instance) bool
 
+	// PurgeMayFail indicates if this provisionable may fail to purge.
+	PurgeMayFail(instance models.Instance) bool
+
 	// Provision provisions resources specific to the provided instance.
 	//
 	// Domain holds the full (unique) domain name of the given instance.

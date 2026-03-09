@@ -41,7 +41,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) (e 
 	}
 
 	// remove docker stack
-	if _, err := logging.LogMessage(out, "Stopping and removing docker container"); err != nil {
+	if _, err := logging.LogMessage(out, "Stopping docker stack"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 
@@ -51,6 +51,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) (e 
 	}
 	defer errorsx.Close(stack, &e, "stack")
 
+	// stop the stack initially
 	if err := stack.Down(ctx, out); err != nil {
 		_, _ = fmt.Fprintln(out, err)
 	}
@@ -64,13 +65,24 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) (e 
 			}
 			err := pc.Purge(ctx, instance.Instance, domain)
 			if err != nil {
-				return fmt.Errorf("failed to purge %s for instance %q: %w", pc.Name(), instance.Slug, err)
+				if !pc.PurgeMayFail(instance.Instance) {
+					return fmt.Errorf("failed to purge %s: %w", pc.Name(), err)
+				}
+				if _, err := fmt.Fprintln(out, err); err != nil {
+					return fmt.Errorf("failed to log error: %w", err)
+				}
 			}
 		}
 
 		return nil
 	}, out, "Purging instance-specific resources"); err != nil {
 		return fmt.Errorf("unable to purge instance %q: %w", slug, err)
+	}
+
+	// remove the stack again, in case any of the purging re-created containers.
+	// This *should not* happen, but whatever ....
+	if err := stack.Down(ctx, out); err != nil {
+		_, _ = fmt.Fprintln(out, err)
 	}
 
 	// remove the filesystem

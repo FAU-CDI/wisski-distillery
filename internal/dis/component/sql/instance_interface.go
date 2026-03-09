@@ -31,13 +31,11 @@ func (sql *SQL) Provision(ctx context.Context, instance models.Instance, domain 
 
 var errFailedToPurge = errors.New("failed to purge sql database")
 
+func (sql *SQL) PurgeMayFail(instance models.Instance) bool {
+	return instance.DedicatedSQL
+}
 func (sql *SQL) Purge(ctx context.Context, instance models.Instance, domain string) error {
 	purgeErr := sql.For(instance).Purge(ctx)
-	// ignore error while purging if we are using a dedicated sql server.
-	// because it'll be deleted anyways by deleting the stack.
-	if instance.DedicatedSQL {
-		return nil
-	}
 	if purgeErr == nil {
 		return nil
 	}

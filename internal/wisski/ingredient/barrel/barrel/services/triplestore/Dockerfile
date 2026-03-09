@@ -3,13 +3,13 @@ FROM eclipse/rdf4j-workbench:${RDF4J_VERSION}
 
 ENV RDF4J_REPOSITORY="default" \
     RDF4J_REPOSITORY_LABEL="Automatically created Repository"
-COPY entrypoint.sh healthcheck.sh /
+COPY entrypoint.sh entrypoint2.sh healthcheck.sh /
 
 EXPOSE 8080
 
 VOLUME /var/rdf4j
-VOLUME /usr/local/tomcat/logs
 
+USER root:root
 ENTRYPOINT [ "/bin/bash", "/entrypoint.sh" ]
 CMD [ "catalina.sh", "run" ]
 

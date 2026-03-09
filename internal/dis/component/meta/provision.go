@@ -19,6 +19,10 @@ func (meta *Meta) Provision(ctx context.Context, instance models.Instance, domai
 	return nil
 }
 
+func (*Meta) PurgeMayFail(instance models.Instance) bool {
+	return false
+}
+
 // Purge purges the storage for the given instance.
 func (meta *Meta) Purge(ctx context.Context, instance models.Instance, domain string) error {
 	return meta.Storage(instance.Slug).Purge(ctx)

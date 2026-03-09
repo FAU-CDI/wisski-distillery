@@ -68,10 +68,11 @@ services:
         RDF4J_VERSION: 5.2.2-tomcat
     restart: always
     environment:
+      RDF4J_REPOSITORY: ""
       JAVA_OPTS: "-Xms1g -Xmx4g"
     volumes:
-      - ${TS_PATH}/data:/var/rdf4j
-      - ${TS_PATH}/logs:/usr/local/tomcat/logs
+      - ${TS_PATH}/data:/var/rdf4j:rw
+      - ${TS_PATH}/logs:/var/rdf4j/server/logs:rw
     networks:
       - default 
     healthcheck:

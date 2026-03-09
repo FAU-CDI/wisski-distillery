@@ -27,7 +27,7 @@ type TRB struct {
 
 // RebuildTriplestore rebuilds the triplestore by making a backup, storing it on disk, purging the triplestore, and restoring the backup.
 // Returns the size of the backup dump in bytes.
-func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmptyRepository bool) (size int, e error) {
+func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer) (size int, e error) {
 	// re-create the default adapter
 	if _, err := logging.LogMessage(out, "Re-creating adapter"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
@@ -69,7 +69,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 	if _, err := logging.LogMessage(out, "Storing triplestore content"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
-	dumpPath, _, err := trb.makeBackup(ctx, allowEmptyRepository)
+	dumpPath, err := trb.makeBackup(ctx)
 	if err != nil {
 		return 0, fmt.Errorf("failed to make backup: %w", err)
 	}
@@ -110,10 +110,10 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer, allowEmpt
 
 var errBackupEmpty = errors.New("no data contained in backup file (is the repository empty?)")
 
-func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path string, size int64, e error) {
+func (trb *TRB) makeBackup(ctx context.Context) (path string, e error) {
 	file, err := os.CreateTemp("", "*.nq.gz")
 	if err != nil {
-		return "", 0, fmt.Errorf("failed to create temporary file: %w", err)
+		return "", fmt.Errorf("failed to create temporary file: %w", err)
 	}
 	defer errorsx.Close(file, &e, "file")
 
@@ -123,16 +123,11 @@ func (trb *TRB) makeBackup(ctx context.Context, allowEmptyRepository bool) (path
 
 	{
 		liquid := ingredient.GetLiquid(trb)
-		size, err := liquid.TS.For(liquid.Instance).SnapshotDB(ctx, zippedFile)
+		err := liquid.TS.For(liquid.Instance).SnapshotDB(ctx, zippedFile)
 		if err != nil {
-			return "", 0, fmt.Errorf("failed to snapshot db: %w", err)
+			return "", fmt.Errorf("failed to snapshot db: %w", err)
 		}
-
-		if size == 0 && !allowEmptyRepository {
-			return "", 0, errBackupEmpty
-		}
-
-		return file.Name(), size, nil
+		return file.Name(), nil
 	}
 }
 

@@ -25,4 +25,3 @@ If the `RDF4J_REPOSITORY` variable is set, it checks that the given repository h
 ## Volumes
 
 - `/var/rdf4j`
-- `/usr/local/tomcat/logs`

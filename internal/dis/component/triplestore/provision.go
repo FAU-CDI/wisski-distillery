@@ -26,7 +26,7 @@ func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, 
 }
 
 func (ts *Triplestore) ProvisionNeedsStack(instance models.Instance) bool {
-	return false
+	return instance.DedicatedTriplestore
 }
 
 type TriplestoreUserPayload struct {

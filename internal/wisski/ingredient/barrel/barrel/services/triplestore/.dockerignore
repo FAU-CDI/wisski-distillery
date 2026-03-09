@@ -3,5 +3,6 @@
 
 # allow the following files:
 !entrypoint.sh
+!entrypoint2.sh
 !healthcheck.sh
 !ROOT/*

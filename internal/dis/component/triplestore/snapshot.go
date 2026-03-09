@@ -19,7 +19,7 @@ func (ts *Triplestore) Snapshot(wisski models.Instance, scontext *component.Stag
 	bound := ts.For(wisski)
 	if err := scontext.AddDirectory(".", func(ctx context.Context) error {
 		if err := scontext.AddFile(wisski.GraphDBRepository+".nq", func(ctx context.Context, file io.Writer) error {
-			_, err := bound.SnapshotDB(ctx, file)
+			err := bound.SnapshotDB(ctx, file)
 			if err != nil {
 				return fmt.Errorf("failed to snapshot database: %w", err)
 			}

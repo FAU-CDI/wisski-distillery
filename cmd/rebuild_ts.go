@@ -19,15 +19,11 @@ func NewRebuildTSCommand() *cobra.Command {
 		RunE:    impl.Exec,
 	}
 
-	flags := cmd.Flags()
-	flags.BoolVar(&impl.AllowEmptyRepository, "allow-empty", false, "don't abort if repository is empty")
-
 	return cmd
 }
 
 type rebuildTS struct {
-	AllowEmptyRepository bool
-	Positionals          struct {
+	Positionals struct {
 		Slug string
 	}
 }
@@ -52,7 +48,7 @@ func (rts *rebuildTS) Exec(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get WissKI: %w", err)
 	}
 
-	_, err = instance.TRB().RebuildTriplestore(cmd.Context(), cmd.OutOrStdout(), rts.AllowEmptyRepository)
+	_, err = instance.TRB().RebuildTriplestore(cmd.Context(), cmd.OutOrStdout())
 	if err != nil {
 		return fmt.Errorf("failed to rebuild triplestore: %w", err)
 	}

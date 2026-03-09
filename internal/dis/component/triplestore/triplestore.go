@@ -45,6 +45,10 @@ func (Triplestore) Context(parent component.InstallationContext) component.Insta
 	return parent
 }
 
+func (ts *Triplestore) PurgeMayFail(instance models.Instance) bool {
+	return instance.DedicatedTriplestore
+}
+
 func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, domain string) error {
 	return ts.For(instance).Purge(ctx)
 }
