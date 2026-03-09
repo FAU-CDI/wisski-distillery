@@ -44,7 +44,7 @@ type TriplestoreUserAppSettings struct {
 }
 
 func (ts *Triplestore) CreateRepository(ctx context.Context, name, domain, user, password string) (e error) {
-	cl := ts.client()
+	cl := ts.globalClient()
 	if err := cl.Wait(ctx); err != nil {
 		return err
 	}

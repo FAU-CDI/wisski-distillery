@@ -37,7 +37,7 @@ type createRepoContext struct {
 
 func (ts *Client) CreateRepository(ctx context.Context, id, domain, user, password string) (e error) {
 	if err := ts.Wait(ctx); err != nil {
-		return err
+		return fmt.Errorf("failed to wait for repository to be ready: %w", err)
 	}
 
 	// prepare the create repo request
@@ -47,20 +47,20 @@ func (ts *Client) CreateRepository(ctx context.Context, id, domain, user, passwo
 		Label:        domain,
 		BaseURL:      "http://" + domain + "/",
 	}); err != nil {
-		return fmt.Errorf("failed to create repository with template: %w", err)
+		return fmt.Errorf("failed to execute template: %w", err)
 	}
 
 	// do the create!
 	{
-		res, err := ts.doRestWithForm(ctx, http.MethodPost, "/rest/repositories", nil, "config", &createRepo)
+		res, err := ts.doRestWithForm(ctx, http.MethodPost, "/rest/repositories", headers{}, "config", &createRepo)
 		if err != nil {
-			return fmt.Errorf("repository create endpoint failed: %w", err)
+			return fmt.Errorf("failed to send http request to repositories endpoint: %w", err)
 		}
 		defer errorsx.Close(res.Body, &e, "response body")
-		if res.StatusCode != http.StatusCreated {
-			return fmt.Errorf("failed to create repository: %w", errCreateWrongStatusCode)
-		}
 
+		if err := newStatusError(res, true, http.StatusCreated); err != nil {
+			return fmt.Errorf("repositories endpoint responded: %w", err)
+		}
 		return nil
 	}
 }
@@ -68,13 +68,14 @@ func (ts *Client) CreateRepository(ctx context.Context, id, domain, user, passwo
 // DeleteRepository deletes the specified repo from the triplestore.
 // When the repo does not exist, returns no error.
 func (client *Client) DeleteRepository(ctx context.Context, repo string) (e error) {
-	res, err := client.rest(ctx, http.MethodDelete, "/rest/repositories/"+url.PathEscape(repo), nil)
+	res, err := client.rest(ctx, http.MethodDelete, "/rest/repositories/"+url.PathEscape(repo), headers{})
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to send http request to repositories endpoint: %w", err)
 	}
 	defer errorsx.Close(res.Body, &e, "response body")
-	if res.StatusCode != http.StatusOK && res.StatusCode != http.StatusNotFound {
-		return fmt.Errorf("%w: %d", errDeleteUserStatusCode, res.StatusCode)
+
+	if err := newStatusError(res, true, http.StatusOK, http.StatusNotFound); err != nil {
+		return fmt.Errorf("repositories endpoint responded: %w", err)
 	}
 	return nil
 }
@@ -92,12 +93,19 @@ type Repository struct {
 }
 
 func (client *Client) ListRepositories(ctx context.Context) (repos []Repository, e error) {
-	res, err := client.rest(ctx, http.MethodGet, "/rest/repositories", &requestHeaders{Accept: "application/json"})
+	res, err := client.rest(ctx, http.MethodGet, "/rest/repositories", headers{Accept: "application/json"})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to send http request to repositories endpoint: %w", err)
 	}
 	defer errorsx.Close(res.Body, &e, "response body")
 
-	e = json.NewDecoder(res.Body).Decode(&repos)
-	return
+	if err := newStatusError(res, true, http.StatusOK); err != nil {
+		return nil, fmt.Errorf("repositories endpoint responded: %w", err)
+	}
+
+	err = json.NewDecoder(res.Body).Decode(&repos)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode repositories: %w", err)
+	}
+	return repos, nil
 }

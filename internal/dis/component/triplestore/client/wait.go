@@ -14,7 +14,7 @@ import (
 // This is achieved using a polling strategy.
 func (client *Client) Wait(ctx context.Context) error {
 	if err := timex.TickUntilFunc(func(time.Time) bool {
-		res, err := client.rest(ctx, http.MethodGet, "/rest/repositories", nil)
+		res, err := client.rest(ctx, http.MethodGet, "/rest/repositories", headers{})
 		wdlog.Of(ctx).Debug(
 			"Triplestore Wait",
 			"error", err,

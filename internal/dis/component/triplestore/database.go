@@ -13,8 +13,8 @@ import (
 // This includes e.g. CRUDing a specific repo.
 const tsTrivialTimeout = time.Minute
 
-// client() returns a new client for the triplestore API.
-func (ts *Triplestore) client() *client.Client {
+// globalClient() returns a new globalClient for the triplestore API.
+func (ts *Triplestore) globalClient() *client.Client {
 	config := component.GetStill(ts).Config.TS
 	client := client.NewClient(tsTrivialTimeout, ts.BaseURL, config.AdminUsername, config.AdminPassword)
 	client.PollInterval = ts.PollInterval

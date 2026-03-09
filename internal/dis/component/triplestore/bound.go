@@ -12,12 +12,12 @@ import (
 
 // RestoreDB snapshots the provided repository into dst.
 func (ts Triplestore) RestoreDB(ctx context.Context, repo string, reader io.Reader) (e error) {
-	return ts.client().ReplaceContent(ctx, repo, reader)
+	return ts.globalClient().ReplaceContent(ctx, repo, reader)
 }
 
 // Purge purges the given repository and user.
 func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, domain string) error {
-	client := ts.client()
+	client := ts.globalClient()
 	return errorsx.Combine(
 		client.DeleteRepository(ctx, instance.GraphDBRepository),
 		client.DeleteUser(ctx, instance.GraphDBUsername),
@@ -26,5 +26,5 @@ func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, doma
 
 // SnapshotDB snapshots the provided repository into dst.
 func (ts Triplestore) SnapshotDB(ctx context.Context, dst io.Writer, repo string) (c int64, e error) {
-	return ts.client().ExportContent(ctx, dst, repo)
+	return ts.globalClient().ExportContent(ctx, dst, repo)
 }

@@ -16,14 +16,14 @@ func (ts *Triplestore) BackupName() string { return "triplestore" }
 func (ts *Triplestore) Backup(scontext *component.StagingContext) error {
 	if err := scontext.AddDirectory("", func(ctx context.Context) error {
 		// list all the directories
-		repos, err := ts.client().ListRepositories(ctx)
+		repos, err := ts.globalClient().ListRepositories(ctx)
 		if err != nil {
 			return fmt.Errorf("failed to list repositories: %w", err)
 		}
 
 		for _, repo := range repos {
 			if err := scontext.AddFile(repo.ID+".nq", func(ctx context.Context, file io.Writer) error {
-				_, err := ts.client().ExportContent(ctx, file, repo.ID)
+				_, err := ts.globalClient().ExportContent(ctx, file, repo.ID)
 				if err != nil {
 					return fmt.Errorf("failed to snapshot database: %w", err)
 				}

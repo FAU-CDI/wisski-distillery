@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore/client"
@@ -16,7 +17,7 @@ import (
 var errTriplestoreFailedSecurity = errors.New("failed to enable triplestore security: request did not succeed with HTTP 200 OK")
 
 func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) (e error) {
-	cl := ts.client()
+	cl := ts.globalClient()
 	if _, err := logging.LogMessage(progress, "Waiting for Triplestore"); err != nil {
 		return fmt.Errorf("failed to log message: %w", err)
 	}
@@ -41,7 +42,9 @@ func (ts *Triplestore) Update(ctx context.Context, progress io.Writer) (e error)
 			},
 			GrantedAuthorities: []string{"ROLE_ADMIN"},
 		})
-		if errors.Is(err, client.ErrUpdateUserUnauthorized) {
+
+		var errWrongStatus client.ErrWrongStatus
+		if errors.As(err, &errWrongStatus) && errWrongStatus.Got == http.StatusUnauthorized {
 			if _, err := logging.LogMessage(progress, "Security is already enabled"); err != nil {
 				return fmt.Errorf("failed to log message: %w", err)
 			}
