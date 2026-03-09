@@ -35,7 +35,7 @@ type BoundTriplestore interface {
 
 	// Provisions or purges the repository belonging to this instance.
 	Provision(ctx context.Context, domain string) error
-	Purge(ctx context.Context) error
+	Purge(ctx context.Context, mustCreate bool) error
 
 	// Snapshots or restores the repository belonging to this instance.
 	SnapshotDB(ctx context.Context, dst io.Writer) error

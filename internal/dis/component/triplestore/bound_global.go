@@ -35,7 +35,7 @@ func (bound *boundGlobal) RestoreDB(ctx context.Context, reader io.Reader) (e er
 }
 
 // Purge purges the given repository and user.
-func (bound *boundGlobal) Purge(ctx context.Context) error {
+func (bound *boundGlobal) Purge(ctx context.Context, allowCreate bool) error {
 	return errorsx.Combine(
 		bound.client.DeleteRepository(ctx, bound.instance.GraphDBRepository),
 		bound.client.DeleteUser(ctx, bound.instance.GraphDBUsername),

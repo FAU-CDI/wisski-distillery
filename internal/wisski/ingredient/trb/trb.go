@@ -80,7 +80,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer) (size int
 	if _, err := logging.LogMessage(out, "Purging triplestore"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := liquid.TS.For(liquid.Instance).Purge(ctx); err != nil {
+	if err := liquid.TS.For(liquid.Instance).Purge(ctx, true); err != nil {
 		return 0, fmt.Errorf("failed to purge triplestore data: %w", err)
 	}
 

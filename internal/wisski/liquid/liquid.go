@@ -7,6 +7,7 @@ package liquid
 import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/instances/malt"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/sql/impl"
+	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/triplestore"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
 )
 
@@ -23,4 +24,8 @@ func (liquid *Liquid) BoundSQL() *impl.Bound {
 	// Note: We cannot cache here, as the implementation itself might switch between global and local sql
 	// depending on the configuration.
 	return liquid.SQL.For(liquid.Instance)
+}
+
+func (liquid *Liquid) BoundTriplestore() triplestore.BoundTriplestore {
+	return liquid.TS.For(liquid.Instance)
 }

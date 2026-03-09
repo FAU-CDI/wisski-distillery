@@ -24,16 +24,19 @@ import (
 var createRepoTemplate = template.Must(template.New("bound_dedicated_createrepo.tpl").Parse(`
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
 @prefix config: <tag:rdf4j.org,2023:config/>.
+
 [] a config:Repository ;
-config:rep.id "{{ .RepositoryID }}" ;
-rdfs:label "{{ .Label }}" ;
-config:rep.impl [
-    config:rep.type "openrdf:SailRepository" ;
-    config:sail.impl [
+   config:rep.id "{{ .RepositoryID }}" ;
+   rdfs:label "{{ .Label }}" ;
+   config:rep.impl [
+      config:rep.type "openrdf:SailRepository" ;
+      config:sail.impl [
         config:sail.type "openrdf:NativeStore" ;
-        config:native.tripleIndexes "spoc,posc"
-    ]
-].
+         config:sail.iterationCacheSyncThreshold "10000";
+         config:sail.defaultQueryEvaluationMode "STANDARD";
+         config:native.tripleIndexes "spoc,posc"
+      ]
+   ].
 `))
 
 // boundDedicated implements a wrapper around the dedicated triplestore client.
@@ -69,8 +72,8 @@ func (bound *boundDedicated) RestoreDB(ctx context.Context, reader io.Reader) (e
 }
 
 // Purge purges the given repository.
-func (bound *boundDedicated) Purge(ctx context.Context) error {
-	return bound.do(ctx, stream.Null, false, func(stack *dockerx.Stack) error {
+func (bound *boundDedicated) Purge(ctx context.Context, allowCreate bool) error {
+	return bound.do(ctx, stream.Null, allowCreate, func(stack *dockerx.Stack) error {
 		return bound.curl(ctx, stack, stream.Null, "DELETE", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository), nil, nil)
 	})
 }
@@ -79,7 +82,7 @@ func (bound *boundDedicated) Purge(ctx context.Context) error {
 func (bound *boundDedicated) SnapshotDB(ctx context.Context, dst io.Writer) error {
 	return bound.do(ctx, stream.Null, true, func(stack *dockerx.Stack) error {
 		return bound.curl(
-			ctx, stack, stream.Null,
+			ctx, stack, dst,
 			"GET", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository)+"/statements?infer=false",
 			map[string]string{"Accept": client.NQuadsContentType},
 			nil,
@@ -136,15 +139,21 @@ func (bound *boundDedicated) curl(ctx context.Context, stack *dockerx.Stack, std
 
 // makeCurlCommand generates a curl command for the given method, url and headers.
 func makeCurlCommand(method string, url string, headers map[string]string, fail bool, stdin bool) []string {
-	command := []string{"curl", "-v", "-X", method, url}
+	command := []string{
+		"curl",
+		"--no-progress-meter",
+		"--verbose",
+		"--request", method,
+	}
 	for key, value := range headers {
-		command = append(command, "-H", fmt.Sprintf("%s: %s", key, value))
+		command = append(command, "--header", fmt.Sprintf("%s: %s", key, value))
 	}
 	if fail {
 		command = append(command, "--fail")
 	}
 	if stdin {
-		command = append(command, "--data-binary", "-")
+		command = append(command, "--data-binary", "@-")
 	}
+	command = append(command, url)
 	return command
 }

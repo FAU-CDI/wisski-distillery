@@ -120,12 +120,15 @@ func NewCommand(ctx context.Context, parameters cli.Params) *cobra.Command {
 
 		// backup & cron
 		NewSnapshotCommand(),
-		NewRebuildTSCommand(),
 		NewBackupCommand(),
 		NewSnapshotRestoreCommand(),
 		NewBackupsPruneCommand(),
 		NewCronCommand(),
 		NewMondayCommand(),
+
+		NewRebuildTSCommand(),
+		NewExportTSCommand(),
+		NewExportSQLCommand(),
 
 		// servers
 		NewServerCommand(),

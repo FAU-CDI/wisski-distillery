@@ -627,7 +627,7 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Purging triplestore repository"); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
-	if err := liquid.TS.For(liquid.Instance).Purge(cmd.Context()); err != nil {
+	if err := liquid.TS.For(liquid.Instance).Purge(cmd.Context(), true); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToPurgeTriplestoreData, err)
 	}
 
