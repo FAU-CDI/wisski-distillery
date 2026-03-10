@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"al.essio.dev/pkg/shellescape"
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
 	"github.com/FAU-CDI/wisski-distillery/internal/status"
@@ -27,19 +28,26 @@ func NewInfoCommand() *cobra.Command {
 
 	flags := cmd.Flags()
 	flags.BoolVar(&impl.JSON, "json", false, "print information as JSON instead of as string")
+	flags.BoolVar(&impl.ReProvision, "reprovision", false, "print CLI command to re-provision the instance")
 
 	return cmd
 }
 
 type info struct {
 	JSON        bool
+	ReProvision bool
 	Positionals struct {
 		Slug string
 	}
 }
 
+var errInfoReProvisionAndJSON = exit.NewErrorWithCode("cannot use --reprovision and --json together", cli.ExitCommandArguments)
+
 func (i *info) ParseArgs(cmd *cobra.Command, args []string) error {
 	i.Positionals.Slug = args[0]
+	if i.ReProvision && i.JSON {
+		return errInfoReProvisionAndJSON
+	}
 	return nil
 }
 
@@ -68,6 +76,10 @@ func (i *info) exec(cmd *cobra.Command, dis *dis.Distillery) (err error) {
 	instance, err := dis.Instances().WissKI(cmd.Context(), i.Positionals.Slug)
 	if err != nil {
 		return fmt.Errorf("failed to get instance: %w", err)
+	}
+
+	if i.ReProvision {
+		return i.printReProvisionCommand(cmd, instance)
 	}
 
 	info, err := instance.Info().Information(cmd.Context(), false)
@@ -152,5 +164,41 @@ func (i *info) exec(cmd *cobra.Command, dis *dis.Distillery) (err error) {
 		_, _ = fmt.Fprintf(cmd.OutOrStdout(), "- %v\n", req)
 	}
 
+	return nil
+}
+
+func (i *info) printReProvisionCommand(cmd *cobra.Command, instance *wisski.WissKI) error {
+	base := cmd.Root().CommandPath()
+	if base == "" {
+		base = "wdcli"
+	}
+	inst := instance.Liquid
+	args := []string{base, "provision", inst.Slug}
+	if inst.PHP != "" && inst.PHP != "8.3" {
+		args = append(args, "--php", inst.PHP)
+	}
+	if inst.IIPServer {
+		args = append(args, "--iip-server")
+	}
+	if inst.PHPDevelopment {
+		args = append(args, "--php-devel")
+	}
+	if inst.ContentSecurityPolicy != "" {
+		args = append(args, "--content-security-policy", inst.ContentSecurityPolicy)
+	}
+	if inst.IPAllowlist != "" {
+		args = append(args, "--ip-allowlist", inst.IPAllowlist)
+	}
+	if inst.DedicatedSQL {
+		args = append(args, "--dedicated-sql")
+	}
+	if inst.DedicatedTriplestore {
+		args = append(args, "--dedicated-triplestore")
+	}
+
+	_, err := fmt.Fprintf(cmd.OutOrStdout(), "%s\n", shellescape.QuoteCommand(args))
+	if err != nil {
+		return fmt.Errorf("failed to print re-provision command: %w", err)
+	}
 	return nil
 }

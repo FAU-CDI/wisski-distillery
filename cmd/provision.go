@@ -25,6 +25,7 @@ func NewProvisionCommand() *cobra.Command {
 		RunE:    impl.Exec,
 	}
 
+	// If you update these flags, don't forget to update info.go --reprovision!
 	flags := cmd.Flags()
 	flags.StringVar(&impl.PHPVersion, "php", "", "specific php version to use for instance. See 'provision --list-php-versions' for available versions.")
 	flags.BoolVar(&impl.ListPHPVersions, "list-php-versions", false, "List available php versions")
