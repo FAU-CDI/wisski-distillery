@@ -12,7 +12,7 @@ import (
 
 // Bound represents an SQL implementation bound to a specific database, username and password.
 type Bound struct {
-	Impl *Impl
+	Impl Impl
 
 	Username string
 	Password string

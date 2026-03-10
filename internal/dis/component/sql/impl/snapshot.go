@@ -19,7 +19,7 @@ func (impl *Impl) SnapshotDB(ctx context.Context, progress io.Writer, dest io.Wr
 			ctx,
 			stream.NewIOStream(dest, progress, nil),
 			dockerx.ExecOptions{
-				Service: "sql",
+				Service: impl.Service,
 				Cmd:     impl.DumpExecutable,
 				Args:    []string{"--databases", database},
 			},

@@ -411,7 +411,7 @@ func readArchiveParts(path string, archive exporter.Snapshot) (parts archivePart
 	}
 
 	{
-		local, err := findSQLPath(archive)
+		local, err := findPartPath(archive, "sql", "sql", "sql")
 		if err != nil {
 			return archiveParts{}, err
 		}
@@ -423,46 +423,51 @@ func readArchiveParts(path string, archive exporter.Snapshot) (parts archivePart
 	}
 
 	{
-		if !slices.Contains(archive.Description.Parts, "triplestore") {
-			return archiveParts{}, errSnapshotMissingTriplestorePart
+		local, err := findPartPath(archive, "triplestore", "triplestore", "nq")
+		if err != nil {
+			return archiveParts{}, err
 		}
 
-		parts.TSFilePath = filepath.Join(path, "triplestore", archive.Instance.GraphDBRepository+".nq")
+		parts.TSFilePath = filepath.Join(path, local)
 		if isFile, err := fsx.IsRegular(parts.TSFilePath, false); !isFile {
-			return archiveParts{}, fmt.Errorf("%w: %w", errTriplestoreDataNotRegularFile, cmp.Or(err, fs.ErrNotExist))
+			return archiveParts{}, fmt.Errorf("%w: %s: %w", errTriplestoreDataNotRegularFile, parts.TSFilePath, cmp.Or(err, fs.ErrNotExist))
 		}
 	}
 
 	return parts, nil
 }
 
-func findSQLPath(archive exporter.Snapshot) (string, error) {
+var errSnapshotMissingPart = errors.New("snapshot missing part")
+var errDataNotFoundInSnapshot = errors.New("data not found in snapshot")
+
+func findPartPath(archive exporter.Snapshot, part string, dir string, extension string) (string, error) {
 	hasSQLPart := false
-	for _, part := range archive.Description.Parts {
-		if part != "sql" {
+	for _, name := range archive.Description.Parts {
+		if name != part {
 			continue
 		}
 		hasSQLPart = true
 	}
 	if !hasSQLPart {
-		return "", errSnapshotMissingSQLPart
+		return "", fmt.Errorf("%w: %s", errSnapshotMissingPart, part)
 	}
 
+	extension = "." + extension
 	var candidates []string
 	for _, path := range archive.Manifest {
 		// TODO: This is a very ugly search of the manifest
 		// But it's good enough for now.
-		if !strings.HasPrefix(path, "sql/") || !strings.HasSuffix(path, ".sql") {
+		if !strings.HasPrefix(path, dir+"/") || !strings.HasSuffix(path, extension) {
 			continue
 		}
 		candidates = append(candidates, path)
 	}
 
 	if len(candidates) == 0 {
-		return "", fmt.Errorf("%w: No sql files found in manifest", errSQLDataNotFoundInSnapshot)
+		return "", fmt.Errorf("%w: No %s files found in manifest", errDataNotFoundInSnapshot, extension)
 	}
 	if len(candidates) > 1 {
-		return "", fmt.Errorf("%w: Multiple sql files found in manifest", errSQLDataNotFoundInSnapshot)
+		return "", fmt.Errorf("%w: Multiple %s files found in manifest", errDataNotFoundInSnapshot, extension)
 	}
 	return candidates[0], nil
 }

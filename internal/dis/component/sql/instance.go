@@ -32,7 +32,7 @@ func (sql *SQL) For(instance models.Instance) *impl.Bound {
 		Password: instance.SqlPassword,
 		Database: instance.SqlDatabase,
 
-		Impl: impl.New(service, openStack),
+		Impl: *impl.New(service, openStack),
 	}
 }
 
@@ -44,7 +44,7 @@ func (sql *SQL) Global() *impl.Bound {
 		Password: config.AdminPassword,
 		Database: config.Database,
 
-		Impl: impl.New("sql", func() (*dockerx.Stack, error) {
+		Impl: *impl.New("sql", func() (*dockerx.Stack, error) {
 			stack, err := sql.OpenStack()
 			if err != nil {
 				return nil, err
