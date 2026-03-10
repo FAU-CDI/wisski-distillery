@@ -36,7 +36,7 @@ func (manager *Manager) Provision(ctx context.Context, progress io.Writer, syste
 
 	liquid := ingredient.GetLiquid(manager)
 	for _, pc := range lateProvisionables {
-		if err := pc.Provision(ctx, liquid.Instance, liquid.Domain(), &stack); err != nil {
+		if err := pc.Provision(ctx, progress, liquid.Instance, liquid.Domain(), &stack); err != nil {
 			return fmt.Errorf("failed to provision %s: %w", pc.Name(), err)
 		}
 	}

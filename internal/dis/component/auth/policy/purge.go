@@ -5,6 +5,7 @@ package policy
 import (
 	"context"
 	"fmt"
+	"io"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
@@ -14,7 +15,7 @@ func (*Policy) ProvisionNeedsStack(instance models.Instance) bool {
 	return false
 }
 
-func (*Policy) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
+func (*Policy) Provision(ctx context.Context, progress io.Writer, instance models.Instance, domain string, stack *component.StackWithResources) error {
 	// component is purge-only
 	return nil
 }
@@ -24,7 +25,7 @@ func (*Policy) PurgeMayFail(instance models.Instance) bool {
 }
 
 // Purge purges every policy for the given slug form the database.
-func (pol *Policy) Purge(ctx context.Context, instance models.Instance, domain string) error {
+func (pol *Policy) Purge(ctx context.Context, progress io.Writer, instance models.Instance, domain string) error {
 	table, err := pol.openInterface(ctx)
 	if err != nil {
 		return err

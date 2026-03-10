@@ -141,7 +141,7 @@ func (pv *Provision) Provision(progress io.Writer, ctx context.Context, flags Fl
 			if _, err := logging.LogMessage(progress, "Provisioning %s resources", pc.Name()); err != nil {
 				return fmt.Errorf("failed to log message: %w", err)
 			}
-			err := pc.Provision(ctx, instance.Instance, domain, nil)
+			err := pc.Provision(ctx, progress, instance.Instance, domain, nil)
 			if err != nil {
 				return fmt.Errorf("failed to provision instance: %w", err)
 			}

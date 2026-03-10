@@ -5,16 +5,16 @@ package triplestore
 import (
 	"context"
 	"fmt"
+	"io"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
-	"go.tkw01536.de/pkglib/stream"
 )
 
-func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
-	if err := ts.For(instance).Provision(ctx, stream.Null, domain); err != nil {
+func (ts *Triplestore) Provision(ctx context.Context, progress io.Writer, instance models.Instance, domain string, stack *component.StackWithResources) error {
+	if err := ts.For(instance).Provision(ctx, progress, domain); err != nil {
 		return fmt.Errorf("failed to provision triplestore: %w", err)
 	}
 	return nil

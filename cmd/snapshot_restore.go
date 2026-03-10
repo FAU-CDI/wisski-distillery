@@ -619,6 +619,7 @@ func copyFile(src, dst string) (e error) {
 }
 
 func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
+	progress := cmd.OutOrStdout()
 	liquid := ingredient.GetLiquid(instance.TRB())
 
 	stack, err := instance.Barrel().OpenStack()
@@ -627,21 +628,21 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 	}
 	defer errorsx.Close(stack, &e, "stack")
 
-	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Purging triplestore repository"); err != nil {
+	if _, err := logging.LogMessage(progress, "Purging triplestore repository"); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
-	if err := liquid.TS.For(liquid.Instance).Purge(cmd.Context(), cmd.OutOrStdout(), true); err != nil {
+	if err := liquid.TS.For(liquid.Instance).Purge(cmd.Context(), progress, true); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToPurgeTriplestoreData, err)
 	}
 
-	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Re-provisioning triplestore repository"); err != nil {
+	if _, err := logging.LogMessage(progress, "Re-provisioning triplestore repository"); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
-	if err := liquid.TS.Provision(cmd.Context(), liquid.Instance, liquid.Domain(), &stack); err != nil {
+	if err := liquid.TS.Provision(cmd.Context(), progress, liquid.Instance, liquid.Domain(), &stack); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToProvisionTriplestore, err)
 	}
 
-	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Restoring triplestore contents"); err != nil {
+	if _, err := logging.LogMessage(progress, "Restoring triplestore contents"); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
 
@@ -652,7 +653,7 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 	defer func() {
 		_ = file.Close()
 	}()
-	if err := liquid.TS.For(liquid.Instance).RestoreDB(cmd.Context(), cmd.OutOrStdout(), file); err != nil {
+	if err := liquid.TS.For(liquid.Instance).RestoreDB(cmd.Context(), progress, file); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToRestoreTriplestoreContents, err)
 	}
 	return nil
@@ -660,22 +661,23 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 
 func (parts archiveParts) restoreSQL(cmd *cobra.Command, instance *wisski.WissKI) (e error) {
 	liquid := ingredient.GetLiquid(instance.TRB())
+	progress := cmd.OutOrStdout()
 
-	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Purging SQL database"); err != nil {
+	if _, err := logging.LogMessage(progress, "Purging SQL database"); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
-	if err := liquid.BoundSQL().Purge(cmd.Context()); err != nil {
+	if err := liquid.BoundSQL().Purge(cmd.Context(), progress); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToPurgeSQLDatabase, err)
 	}
 
-	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Re-provisioning SQL database"); err != nil {
+	if _, err := logging.LogMessage(progress, "Re-provisioning SQL database"); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
-	if err := liquid.BoundSQL().Provision(cmd.Context()); err != nil {
+	if err := liquid.BoundSQL().Provision(cmd.Context(), progress); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToProvisionSQLDatabase, err)
 	}
 
-	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Restoring SQL contents"); err != nil {
+	if _, err := logging.LogMessage(progress, "Restoring SQL contents"); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
 
@@ -685,7 +687,7 @@ func (parts archiveParts) restoreSQL(cmd *cobra.Command, instance *wisski.WissKI
 	}
 	defer errorsx.Close(file, &e, "file")
 
-	if err := liquid.BoundSQL().Restore(cmd.Context(), file, stream.NewIOStream(cmd.OutOrStdout(), cmd.ErrOrStderr(), nil)); err != nil {
+	if err := liquid.BoundSQL().Restore(cmd.Context(), file, stream.NewIOStream(progress, cmd.ErrOrStderr(), nil)); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToRestoreSQLContents, err)
 	}
 	return nil

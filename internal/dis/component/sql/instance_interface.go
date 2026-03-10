@@ -21,8 +21,8 @@ func (sql *SQL) ProvisionNeedsStack(instance models.Instance) bool {
 
 var errFailedToProvision = errors.New("failed to provision sql database")
 
-func (sql *SQL) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
-	provisionErr := sql.For(instance).Provision(ctx)
+func (sql *SQL) Provision(ctx context.Context, progress io.Writer, instance models.Instance, domain string, stack *component.StackWithResources) error {
+	provisionErr := sql.For(instance).Provision(ctx, progress)
 	if provisionErr == nil {
 		return nil
 	}
@@ -34,8 +34,8 @@ var errFailedToPurge = errors.New("failed to purge sql database")
 func (sql *SQL) PurgeMayFail(instance models.Instance) bool {
 	return instance.DedicatedSQL
 }
-func (sql *SQL) Purge(ctx context.Context, instance models.Instance, domain string) error {
-	purgeErr := sql.For(instance).Purge(ctx)
+func (sql *SQL) Purge(ctx context.Context, progress io.Writer, instance models.Instance, domain string) error {
+	purgeErr := sql.For(instance).Purge(ctx, progress)
 	if purgeErr == nil {
 		return nil
 	}

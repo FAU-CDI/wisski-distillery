@@ -26,12 +26,12 @@ func (bound *Bound) SQLUrl() string {
 
 // Provision provisions a new database for the given instance.
 // It ensures that the database container is started and responding to queries afterwards.
-func (bound *Bound) Provision(ctx context.Context) error {
-	if err := bound.Impl.StartAndWait(ctx, stream.Null); err != nil {
+func (bound *Bound) Provision(ctx context.Context, progress io.Writer) error {
+	if err := bound.Impl.StartAndWait(ctx, progress); err != nil {
 		return fmt.Errorf("failed to start and wait for database: %w", err)
 	}
 
-	return bound.Impl.CreateDatabase(ctx, stream.Null, CreateOpts{
+	return bound.Impl.CreateDatabase(ctx, progress, CreateOpts{
 		Name: bound.Database,
 
 		CreateUser: true,
@@ -41,8 +41,8 @@ func (bound *Bound) Provision(ctx context.Context) error {
 }
 
 // Purge purges the database for the given instance.
-func (bound *Bound) Purge(ctx context.Context) error {
-	return bound.Impl.Purge(ctx, stream.Null, bound.Database, bound.Username)
+func (bound *Bound) Purge(ctx context.Context, progress io.Writer) error {
+	return bound.Impl.Purge(ctx, progress, bound.Database, bound.Username)
 }
 
 // Shell opens a shell inside the given sql database.

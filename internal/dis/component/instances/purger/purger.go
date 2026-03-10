@@ -63,7 +63,7 @@ func (purger *Purger) Purge(ctx context.Context, out io.Writer, slug string) (e 
 			if _, err := logging.LogMessage(out, "Purging %s resources", pc.Name()); err != nil {
 				return fmt.Errorf("failed to log message: %w", err)
 			}
-			err := pc.Purge(ctx, instance.Instance, domain)
+			err := pc.Purge(ctx, out, instance.Instance, domain)
 			if err != nil {
 				if !pc.PurgeMayFail(instance.Instance) {
 					return fmt.Errorf("failed to purge %s: %w", pc.Name(), err)
