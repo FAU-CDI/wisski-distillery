@@ -17,7 +17,7 @@ func (client *Client) SetSecurity(ctx context.Context, enabled bool) (e error) {
 	}
 	defer errorsx.Close(res.Body, &e, "response body")
 
-	if err := newStatusError(res, true, http.StatusOK); err != nil {
+	if err := newStatusError(res, http.StatusOK); err != nil {
 		return fmt.Errorf("security endpoint responded: %w", err)
 	}
 
@@ -33,7 +33,7 @@ func (client *Client) DeleteUser(ctx context.Context, user string) (e error) {
 	}
 	defer errorsx.Close(res.Body, &e, "response body")
 
-	if err := newStatusError(res, true, http.StatusNoContent, http.StatusNotFound); err != nil {
+	if err := newStatusError(res, http.StatusNoContent, http.StatusNotFound); err != nil {
 		return fmt.Errorf("users endpoint responded: %w", err)
 	}
 	return nil

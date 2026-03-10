@@ -6,6 +6,7 @@ package dockerx
 //spellchecker:words pkglib errorsx
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -29,6 +30,8 @@ func NewStack(factory Factory, dir string) (*Stack, error) {
 		Client: client,
 	}, nil
 }
+
+var errServicesNotRunning = errors.New("services are not running")
 
 // Do opens a stack using the given function, ensures that all of the services are running, and then runs the given function.
 // If the services were not running, it starts them and then stops them at the end.
@@ -54,7 +57,7 @@ func Do(ctx context.Context, progress io.Writer, allowCreate bool, open func() (
 	// if we have services to start, start them and then stop them again at the end!
 	if len(toStart) > 0 {
 		if !allowCreate {
-			return fmt.Errorf("services %s are not running", strings.Join(toStart, ", "))
+			return fmt.Errorf("%w: %s", errServicesNotRunning, strings.Join(toStart, ", "))
 		}
 
 		if err := stack.Start(ctx, progress, toStart...); err != nil {

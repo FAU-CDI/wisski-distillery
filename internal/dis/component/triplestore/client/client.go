@@ -99,7 +99,6 @@ func (client *Client) doRestWithMarshal(ctx context.Context, method, url string,
 // doRestWithReader performs a http request where the body is copied from the given io.Reader.
 // The caller must ensure the reader is closed.
 func (ts *Client) doRestWithReader(ctx context.Context, method string, url string, h headers, body io.Reader) (*http.Response, error) {
-
 	// create the request and authentication
 	req, err := http.NewRequestWithContext(ctx, method, ts.BaseURL+url, body)
 	if err != nil {
@@ -123,13 +122,13 @@ func (ts *Client) doRestWithReader(ctx context.Context, method string, url strin
 	return res, nil
 }
 
-type ErrWrongStatus struct {
+type WrongStatusError struct {
 	Expected []int
 	Got      int
 	Body     string
 }
 
-func (e ErrWrongStatus) Error() string {
+func (e WrongStatusError) Error() string {
 	expected := make([]string, len(e.Expected))
 	for i, code := range e.Expected {
 		expected[i] = strconv.Itoa(code)
@@ -145,22 +144,16 @@ func (e ErrWrongStatus) Error() string {
 	return fmt.Sprintf("wrong status code: expected %s, got %d", expectedString, e.Got)
 }
 
-// newStatusError checks that the response code of res matches, and returns an [ErrWrongStatus] (or an error that contains it).
+// newStatusError checks that the response code of res matches, and returns an [WrongStatusError] (or an error that contains it).
 // If withBody is true, the body of the response is read and included in the error message.
-func newStatusError(res *http.Response, withBody bool, codes ...int) error {
+func newStatusError(res *http.Response, codes ...int) error {
 	if res == nil || slices.Contains(codes, res.StatusCode) {
 		return nil
 	}
 
-	var (
-		body    []byte
-		bodyErr error
-	)
-	if withBody {
-		body, bodyErr = io.ReadAll(res.Body)
-	}
+	body, bodyErr := io.ReadAll(res.Body)
 
-	result := ErrWrongStatus{Expected: codes, Got: res.StatusCode, Body: string(body)}
+	result := WrongStatusError{Expected: codes, Got: res.StatusCode, Body: string(body)}
 	if bodyErr != nil {
 		return errors.Join(
 			result,

@@ -30,12 +30,15 @@ func (bound *boundGlobal) Credentials() (username string, password string) {
 }
 
 // RestoreDB snapshots the provided repository into dst.
-func (bound *boundGlobal) RestoreDB(ctx context.Context, reader io.Reader) (e error) {
-	return bound.client.ReplaceContent(ctx, bound.instance.GraphDBRepository, reader)
+func (bound *boundGlobal) RestoreDB(ctx context.Context, progress io.Writer, reader io.Reader) (e error) {
+	if err := bound.client.ReplaceContent(ctx, bound.instance.GraphDBRepository, reader); err != nil {
+		return fmt.Errorf("failed to restore content: %w", err)
+	}
+	return nil
 }
 
 // Purge purges the given repository and user.
-func (bound *boundGlobal) Purge(ctx context.Context, allowCreate bool) error {
+func (bound *boundGlobal) Purge(ctx context.Context, progress io.Writer, allowCreate bool) error {
 	return errorsx.Combine(
 		bound.client.DeleteRepository(ctx, bound.instance.GraphDBRepository),
 		bound.client.DeleteUser(ctx, bound.instance.GraphDBUsername),
@@ -43,7 +46,7 @@ func (bound *boundGlobal) Purge(ctx context.Context, allowCreate bool) error {
 }
 
 // SnapshotDB snapshots the provided repository into dst.
-func (bound *boundGlobal) SnapshotDB(ctx context.Context, dst io.Writer) error {
+func (bound *boundGlobal) SnapshotDB(ctx context.Context, progress io.Writer, dst io.Writer) error {
 	_, err := bound.client.ExportContent(ctx, dst, bound.instance.GraphDBRepository)
 	if err == nil {
 		return nil
@@ -52,9 +55,9 @@ func (bound *boundGlobal) SnapshotDB(ctx context.Context, dst io.Writer) error {
 }
 
 // Provision provisions the repository for this instance, possibly deleting any existing repositories.
-func (bound *boundGlobal) Provision(ctx context.Context, domain string) (e error) {
-	if err := bound.client.Wait(ctx); err != nil {
-		return err
+func (bound *boundGlobal) Provision(ctx context.Context, progress io.Writer, domain string) (e error) {
+	if err := bound.client.Wait(ctx, progress); err != nil {
+		return fmt.Errorf("failed to wait for triplestore to be ready: %w", err)
 	}
 
 	// create the repository

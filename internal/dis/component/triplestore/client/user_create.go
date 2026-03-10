@@ -30,7 +30,7 @@ func (client *Client) CreateUser(ctx context.Context, user string, update Triple
 	}
 	defer errorsx.Close(res.Body, &e, "response body")
 
-	if err := newStatusError(res, true, http.StatusCreated); err != nil {
+	if err := newStatusError(res, http.StatusCreated); err != nil {
 		return fmt.Errorf("users endpoint responded: %w", err)
 	}
 	return nil
@@ -44,7 +44,7 @@ func (client *Client) UpdateUser(ctx context.Context, user string, update Triple
 	}
 	defer errorsx.Close(res.Body, &e, "response body")
 
-	if err := newStatusError(res, true, http.StatusOK); err != nil {
+	if err := newStatusError(res, http.StatusOK); err != nil {
 		return fmt.Errorf("users endpoint responded: %w", err)
 	}
 	return nil

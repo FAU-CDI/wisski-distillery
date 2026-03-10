@@ -4,7 +4,6 @@ package trb
 import (
 	"compress/gzip"
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -14,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/wisski/ingredient/php/extras"
 	"github.com/FAU-CDI/wisski-distillery/pkg/logging"
 	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/stream"
 )
 
 type TRB struct {
@@ -27,9 +27,9 @@ type TRB struct {
 
 // RebuildTriplestore rebuilds the triplestore by making a backup, storing it on disk, purging the triplestore, and restoring the backup.
 // Returns the size of the backup dump in bytes.
-func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer) (size int, e error) {
+func (trb *TRB) RebuildTriplestore(ctx context.Context, progress io.Writer) (size int, e error) {
 	// re-create the default adapter
-	if _, err := logging.LogMessage(out, "Re-creating adapter"); err != nil {
+	if _, err := logging.LogMessage(progress, "Re-creating adapter"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	if _, err := trb.dependencies.Adapters.SetAdapter(ctx, nil, trb.dependencies.Adapters.DefaultAdapter()); err != nil {
@@ -37,7 +37,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer) (size int
 	}
 
 	// stop instance, restart when done
-	if _, err := logging.LogMessage(out, "Shutting down instance"); err != nil {
+	if _, err := logging.LogMessage(progress, "Shutting down instance"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 
@@ -47,18 +47,18 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer) (size int
 	}
 	defer errorsx.Close(stack, &e, "stack")
 
-	if err := stack.Down(ctx, out); err != nil {
+	if err := stack.Down(ctx, progress); err != nil {
 		return 0, fmt.Errorf("failed to shut down stack: %w", err)
 	}
 
 	defer func() {
-		if _, e := logging.LogMessage(out, "Restarting instance"); e != nil {
+		if _, e := logging.LogMessage(progress, "Restarting instance"); e != nil {
 			e = fmt.Errorf("failed to log message: %w", err)
 			err = errorsx.Combine(err, e)
 			return
 		}
 
-		e2 := stack.Start(ctx, out)
+		e2 := stack.Start(ctx, progress)
 		if e2 == nil {
 			return
 		}
@@ -66,7 +66,7 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer) (size int
 	}()
 
 	// make the backup
-	if _, err := logging.LogMessage(out, "Storing triplestore content"); err != nil {
+	if _, err := logging.LogMessage(progress, "Storing triplestore content"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	dumpPath, err := trb.makeBackup(ctx)
@@ -77,28 +77,28 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer) (size int
 
 	liquid := ingredient.GetLiquid(trb)
 
-	if _, err := logging.LogMessage(out, "Purging triplestore"); err != nil {
+	if _, err := logging.LogMessage(progress, "Purging triplestore"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
-	if err := liquid.TS.For(liquid.Instance).Purge(ctx, true); err != nil {
+	if err := liquid.TS.For(liquid.Instance).Purge(ctx, progress, true); err != nil {
 		return 0, fmt.Errorf("failed to purge triplestore data: %w", err)
 	}
 
-	if _, err := logging.LogMessage(out, "Provising triplestore"); err != nil {
+	if _, err := logging.LogMessage(progress, "Provising triplestore"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := liquid.TS.Provision(ctx, liquid.Instance, liquid.Domain(), &stack); err != nil {
 		return 0, fmt.Errorf("failed to provision triplestore: %w", err)
 	}
 
-	if _, err := logging.LogMessage(out, "Restoring triplestore"); err != nil {
+	if _, err := logging.LogMessage(progress, "Restoring triplestore"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := trb.restoreBackup(ctx, dumpPath); err != nil {
 		return 0, fmt.Errorf("failed to restore backup: %w", err)
 	}
 
-	if _, err := logging.LogMessage(out, "Deleting dump file"); err != nil {
+	if _, err := logging.LogMessage(progress, "Deleting dump file"); err != nil {
 		return 0, fmt.Errorf("failed to log message: %w", err)
 	}
 	if err := os.Remove(dumpPath); err != nil {
@@ -107,8 +107,6 @@ func (trb *TRB) RebuildTriplestore(ctx context.Context, out io.Writer) (size int
 
 	return
 }
-
-var errBackupEmpty = errors.New("no data contained in backup file (is the repository empty?)")
 
 func (trb *TRB) makeBackup(ctx context.Context) (path string, e error) {
 	file, err := os.CreateTemp("", "*.nq.gz")
@@ -123,7 +121,7 @@ func (trb *TRB) makeBackup(ctx context.Context) (path string, e error) {
 
 	{
 		liquid := ingredient.GetLiquid(trb)
-		err := liquid.TS.For(liquid.Instance).SnapshotDB(ctx, zippedFile)
+		err := liquid.TS.For(liquid.Instance).SnapshotDB(ctx, stream.Null, zippedFile)
 		if err != nil {
 			return "", fmt.Errorf("failed to snapshot db: %w", err)
 		}
@@ -145,7 +143,7 @@ func (trb *TRB) restoreBackup(ctx context.Context, path string) (e error) {
 	defer errorsx.Close(decompressedReader, &e, "gzip reader")
 
 	liquid := ingredient.GetLiquid(trb)
-	if err := liquid.TS.For(liquid.Instance).RestoreDB(ctx, decompressedReader); err != nil {
+	if err := liquid.TS.For(liquid.Instance).RestoreDB(ctx, stream.Null, decompressedReader); err != nil {
 		return fmt.Errorf("failed to restore database: %w", err)
 	}
 	return nil

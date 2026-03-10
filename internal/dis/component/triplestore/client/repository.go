@@ -4,20 +4,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
 
 	"go.tkw01536.de/pkglib/errorsx"
+	"go.tkw01536.de/pkglib/stream"
 
 	_ "embed"
-)
-
-var (
-	errCreateWrongStatusCode = fmt.Errorf("endpoint request did not return status code %d", http.StatusCreated)
-	errDeleteUserStatusCode  = errors.New("delete user returned abnormal exit code")
 )
 
 //go:embed create-repo.tpl
@@ -36,7 +31,7 @@ type CreateOpts struct {
 }
 
 func (ts *Client) CreateRepository(ctx context.Context, opts CreateOpts) (e error) {
-	if err := ts.Wait(ctx); err != nil {
+	if err := ts.Wait(ctx, stream.Null); err != nil {
 		return fmt.Errorf("failed to wait for repository to be ready: %w", err)
 	}
 
@@ -54,7 +49,7 @@ func (ts *Client) CreateRepository(ctx context.Context, opts CreateOpts) (e erro
 		}
 		defer errorsx.Close(res.Body, &e, "response body")
 
-		if err := newStatusError(res, true, http.StatusCreated); err != nil {
+		if err := newStatusError(res, http.StatusCreated); err != nil {
 			return fmt.Errorf("repositories endpoint responded: %w", err)
 		}
 		return nil
@@ -70,7 +65,7 @@ func (client *Client) DeleteRepository(ctx context.Context, repo string) (e erro
 	}
 	defer errorsx.Close(res.Body, &e, "response body")
 
-	if err := newStatusError(res, true, http.StatusOK, http.StatusNotFound); err != nil {
+	if err := newStatusError(res, http.StatusOK, http.StatusNotFound); err != nil {
 		return fmt.Errorf("repositories endpoint responded: %w", err)
 	}
 	return nil
@@ -95,7 +90,7 @@ func (client *Client) ListRepositories(ctx context.Context) (repos []Repository,
 	}
 	defer errorsx.Close(res.Body, &e, "response body")
 
-	if err := newStatusError(res, true, http.StatusOK); err != nil {
+	if err := newStatusError(res, http.StatusOK); err != nil {
 		return nil, fmt.Errorf("repositories endpoint responded: %w", err)
 	}
 

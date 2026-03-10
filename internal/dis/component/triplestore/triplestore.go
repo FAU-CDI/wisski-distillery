@@ -13,6 +13,7 @@ import (
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component/docker"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"go.tkw01536.de/pkglib/stream"
 	"go.tkw01536.de/pkglib/yamlx"
 	"gopkg.in/yaml.v3"
 )
@@ -50,7 +51,10 @@ func (ts *Triplestore) PurgeMayFail(instance models.Instance) bool {
 }
 
 func (ts *Triplestore) Purge(ctx context.Context, instance models.Instance, domain string) error {
-	return ts.For(instance).Purge(ctx, false)
+	if err := ts.For(instance).Purge(ctx, stream.Null, false); err != nil {
+		return fmt.Errorf("failed to purge triplestore: %w", err)
+	}
+	return nil
 }
 
 //go:embed all:triplestore

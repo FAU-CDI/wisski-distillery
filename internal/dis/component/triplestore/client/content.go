@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,11 +12,6 @@ import (
 
 const NQuadsContentType = "application/n-quads"
 
-var (
-	errExportWrongStatusCode  = errors.New("ExportContent: Wrong status code")
-	errReplaceWrongStatusCode = errors.New("ReplaceContent: Wrong status code")
-)
-
 // ExportContent exports the content of the provided repository as an n-quads file and writes them into dst.
 // count contains the total number of bytes written, and any error.
 func (client *Client) ExportContent(ctx context.Context, dst io.Writer, repo string) (c int64, e error) {
@@ -27,7 +21,7 @@ func (client *Client) ExportContent(ctx context.Context, dst io.Writer, repo str
 	}
 	defer errorsx.Close(res.Body, &e, "response body")
 
-	if err := newStatusError(res, true, http.StatusOK); err != nil {
+	if err := newStatusError(res, http.StatusOK); err != nil {
 		return 0, fmt.Errorf("statements endpoint responded: %w", err)
 	}
 	count, err := io.Copy(dst, res.Body)
@@ -49,7 +43,7 @@ func (client *Client) ReplaceContent(ctx context.Context, repo string, reader io
 		_ = res.Body.Close()
 	}()
 
-	if err := newStatusError(res, true, http.StatusNoContent); err != nil {
+	if err := newStatusError(res, http.StatusNoContent); err != nil {
 		return fmt.Errorf("statements endpoint responded: %w", err)
 	}
 	return nil

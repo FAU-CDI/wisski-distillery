@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -12,7 +13,7 @@ import (
 
 // Wait waits for the connection to the Triplestore to succeed.
 // This is achieved using a polling strategy.
-func (client *Client) Wait(ctx context.Context) error {
+func (client *Client) Wait(ctx context.Context, progress io.Writer) error {
 	if err := timex.TickUntilFunc(func(time.Time) bool {
 		res, err := client.rest(ctx, http.MethodGet, "/rest/repositories", headers{})
 		wdlog.Of(ctx).Debug(

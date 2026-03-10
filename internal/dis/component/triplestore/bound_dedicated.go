@@ -3,6 +3,7 @@ package triplestore
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"io"
@@ -60,10 +61,10 @@ func (bound *boundDedicated) Credentials() (username string, password string) {
 }
 
 // RestoreDB snapshots the provided repository into dst.
-func (bound *boundDedicated) RestoreDB(ctx context.Context, reader io.Reader) (e error) {
+func (bound *boundDedicated) RestoreDB(ctx context.Context, progress io.Writer, reader io.Reader) (e error) {
 	return bound.do(ctx, stream.Null, true, func(stack *dockerx.Stack) error {
 		return bound.curl(
-			ctx, stack, stream.Null,
+			ctx, stack, progress,
 			"PUT", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository)+"/statements",
 			map[string]string{"Content-Type": client.NQuadsContentType},
 			reader,
@@ -72,14 +73,14 @@ func (bound *boundDedicated) RestoreDB(ctx context.Context, reader io.Reader) (e
 }
 
 // Purge purges the given repository.
-func (bound *boundDedicated) Purge(ctx context.Context, allowCreate bool) error {
-	return bound.do(ctx, stream.Null, allowCreate, func(stack *dockerx.Stack) error {
-		return bound.curl(ctx, stack, stream.Null, "DELETE", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository), nil, nil)
+func (bound *boundDedicated) Purge(ctx context.Context, progress io.Writer, allowCreate bool) error {
+	return bound.do(ctx, progress, allowCreate, func(stack *dockerx.Stack) error {
+		return bound.curl(ctx, stack, progress, "DELETE", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository), nil, nil)
 	})
 }
 
 // SnapshotDB snapshots the provided repository into dst.
-func (bound *boundDedicated) SnapshotDB(ctx context.Context, dst io.Writer) error {
+func (bound *boundDedicated) SnapshotDB(ctx context.Context, progress io.Writer, dst io.Writer) error {
 	return bound.do(ctx, stream.Null, true, func(stack *dockerx.Stack) error {
 		return bound.curl(
 			ctx, stack, dst,
@@ -91,7 +92,7 @@ func (bound *boundDedicated) SnapshotDB(ctx context.Context, dst io.Writer) erro
 }
 
 // Provision provisions the repository for this instance, possibly deleting any existing repositories.
-func (bound *boundDedicated) Provision(ctx context.Context, domain string) (e error) {
+func (bound *boundDedicated) Provision(ctx context.Context, progress io.Writer, domain string) (e error) {
 	var createRepo bytes.Buffer
 	if err := createRepoTemplate.Execute(&createRepo, client.CreateOpts{
 		RepositoryID: bound.instance.GraphDBRepository,
@@ -101,8 +102,8 @@ func (bound *boundDedicated) Provision(ctx context.Context, domain string) (e er
 		return fmt.Errorf("failed to execute template: %w", err)
 	}
 
-	return bound.do(ctx, stream.Null, true, func(stack *dockerx.Stack) error {
-		return bound.curl(ctx, stack, stream.Null, "PUT", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository), map[string]string{"Content-Type": "text/turtle"}, &createRepo)
+	return bound.do(ctx, progress, true, func(stack *dockerx.Stack) error {
+		return bound.curl(ctx, stack, progress, "PUT", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository), map[string]string{"Content-Type": "text/turtle"}, &createRepo)
 	})
 }
 
@@ -121,6 +122,8 @@ func (bound *boundDedicated) do(ctx context.Context, progress io.Writer, allowCr
 	return nil
 }
 
+var errNonZeroExitCode = errors.New("non-zero exit code")
+
 // curl executes a curl request against the dedicated triplestore.
 func (bound *boundDedicated) curl(ctx context.Context, stack *dockerx.Stack, stdout io.Writer, method string, path string, headers map[string]string, stdin io.Reader) (e error) {
 	command := makeCurlCommand(method, "http://localhost:8080/rdf4j-server"+path, headers, true, stdin != nil)
@@ -132,7 +135,7 @@ func (bound *boundDedicated) curl(ctx context.Context, stack *dockerx.Stack, std
 		Cmd:     command[0],
 		Args:    command[1:],
 	})(); code != 0 {
-		return fmt.Errorf("%s returned non-zero exit code: %d: %s", strings.Join(command, " "), code, errBuf.String())
+		return fmt.Errorf("%w: %s returned non-zero exit code: %d: %s", errNonZeroExitCode, strings.Join(command, " "), code, errBuf.String())
 	}
 	return nil
 }

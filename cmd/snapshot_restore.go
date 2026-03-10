@@ -326,9 +326,7 @@ var (
 	errFailedToOpenReport     = errors.New("failed to open snapshot report")
 	errFailedToDecodeReport   = errors.New("failed to decode snapshot report")
 
-	errSnapshotMissingDataPart        = errors.New("data part is not present in the snapshot")
-	errSnapshotMissingSQLPart         = errors.New("sql part missing from snapshot manifest")
-	errSnapshotMissingTriplestorePart = errors.New("triplestore part missing from snapshot manifest")
+	errSnapshotMissingDataPart = errors.New("data part is not present in the snapshot")
 
 	errDataFolderNotDirectory        = errors.New("data folder is not a directory")
 	errSQLDataNotFoundInSnapshot     = errors.New("sql data not found in snapshot")
@@ -364,6 +362,9 @@ var (
 	errFailedToShutdownInstance = errors.New("failed to shutdown instance")
 	errFailedToStartInstance    = errors.New("failed to start instance")
 	errFailedToWaitSQL          = errors.New("failed to wait for SQL")
+
+	errSnapshotMissingPart    = errors.New("snapshot missing part")
+	errDataNotFoundInSnapshot = errors.New("data not found in snapshot")
 )
 
 func loadArchive(path string) (s exporter.Snapshot, e error) {
@@ -436,9 +437,6 @@ func readArchiveParts(path string, archive exporter.Snapshot) (parts archivePart
 
 	return parts, nil
 }
-
-var errSnapshotMissingPart = errors.New("snapshot missing part")
-var errDataNotFoundInSnapshot = errors.New("data not found in snapshot")
 
 func findPartPath(archive exporter.Snapshot, part string, dir string, extension string) (string, error) {
 	hasSQLPart := false
@@ -632,7 +630,7 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 	if _, err := logging.LogMessage(cmd.OutOrStdout(), "Purging triplestore repository"); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToLogMessage, err)
 	}
-	if err := liquid.TS.For(liquid.Instance).Purge(cmd.Context(), true); err != nil {
+	if err := liquid.TS.For(liquid.Instance).Purge(cmd.Context(), cmd.OutOrStdout(), true); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToPurgeTriplestoreData, err)
 	}
 
@@ -654,7 +652,7 @@ func (parts archiveParts) restoreTriplestore(cmd *cobra.Command, instance *wissk
 	defer func() {
 		_ = file.Close()
 	}()
-	if err := liquid.TS.For(liquid.Instance).RestoreDB(cmd.Context(), file); err != nil {
+	if err := liquid.TS.For(liquid.Instance).RestoreDB(cmd.Context(), cmd.OutOrStdout(), file); err != nil {
 		return fmt.Errorf("%w: %w", errFailedToRestoreTriplestoreContents, err)
 	}
 	return nil

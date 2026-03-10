@@ -5,24 +5,19 @@ package triplestore
 import (
 	"context"
 	"fmt"
-	"net/http"
 
 	_ "embed"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/dis/component"
 	"github.com/FAU-CDI/wisski-distillery/internal/models"
+	"go.tkw01536.de/pkglib/stream"
 )
 
-var errWrongEndpointStatusCode = fmt.Errorf("endpoint request did not return status code %d", http.StatusCreated)
-
-type createRepoContext struct {
-	RepositoryID string
-	Label        string
-	BaseURL      string
-}
-
 func (ts *Triplestore) Provision(ctx context.Context, instance models.Instance, domain string, stack *component.StackWithResources) error {
-	return ts.For(instance).Provision(ctx, domain)
+	if err := ts.For(instance).Provision(ctx, stream.Null, domain); err != nil {
+		return fmt.Errorf("failed to provision triplestore: %w", err)
+	}
+	return nil
 }
 
 func (ts *Triplestore) ProvisionNeedsStack(instance models.Instance) bool {

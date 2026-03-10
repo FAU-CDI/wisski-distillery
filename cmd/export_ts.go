@@ -48,7 +48,7 @@ func (ets *exportTS) Exec(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("failed to get WissKI: %w", err)
 	}
 
-	if err := instance.BoundTriplestore().SnapshotDB(cmd.Context(), cmd.OutOrStdout()); err != nil {
+	if err := instance.BoundTriplestore().SnapshotDB(cmd.Context(), cmd.OutOrStdout(), cmd.ErrOrStderr()); err != nil {
 		return fmt.Errorf("failed to snapshot triplestore: %w", err)
 	}
 	return nil

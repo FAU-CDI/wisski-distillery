@@ -34,10 +34,10 @@ type BoundTriplestore interface {
 	Credentials() (username string, password string)
 
 	// Provisions or purges the repository belonging to this instance.
-	Provision(ctx context.Context, domain string) error
-	Purge(ctx context.Context, mustCreate bool) error
+	Provision(ctx context.Context, progress io.Writer, domain string) error
+	Purge(ctx context.Context, progress io.Writer, mustCreate bool) error
 
 	// Snapshots or restores the repository belonging to this instance.
-	SnapshotDB(ctx context.Context, dst io.Writer) error
-	RestoreDB(ctx context.Context, reader io.Reader) error
+	SnapshotDB(ctx context.Context, progress io.Writer, dst io.Writer) error
+	RestoreDB(ctx context.Context, progress io.Writer, reader io.Reader) error
 }
