@@ -75,7 +75,7 @@ func (bound *boundDedicated) RestoreDB(ctx context.Context, progress io.Writer, 
 // Purge purges the given repository.
 func (bound *boundDedicated) Purge(ctx context.Context, progress io.Writer, allowCreate bool) error {
 	return bound.do(ctx, progress, allowCreate, func(stack *dockerx.Stack) error {
-		return bound.curl(ctx, stack, progress, "DELETE", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository), nil, nil)
+		return bound.curl(ctx, stack, stream.Null, "DELETE", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository), nil, nil)
 	})
 }
 
@@ -103,7 +103,7 @@ func (bound *boundDedicated) Provision(ctx context.Context, progress io.Writer, 
 	}
 
 	return bound.do(ctx, progress, true, func(stack *dockerx.Stack) error {
-		return bound.curl(ctx, stack, progress, "PUT", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository), map[string]string{"Content-Type": "text/turtle"}, &createRepo)
+		return bound.curl(ctx, stack, stream.Null, "PUT", "/repositories/"+url.PathEscape(bound.instance.GraphDBRepository), map[string]string{"Content-Type": "text/turtle"}, &createRepo)
 	})
 }
 
