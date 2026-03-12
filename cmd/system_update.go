@@ -3,8 +3,6 @@ package cmd
 //spellchecker:words sync github wisski distillery internal component execx logging cobra pkglib errorsx exit umaskfree status
 import (
 	"fmt"
-	"io"
-	"sync"
 
 	"github.com/FAU-CDI/wisski-distillery/internal/cli"
 	"github.com/FAU-CDI/wisski-distillery/internal/dis"
@@ -16,7 +14,6 @@ import (
 	"go.tkw01536.de/pkglib/exit"
 	"go.tkw01536.de/pkglib/fsx"
 	"go.tkw01536.de/pkglib/fsx/umaskfree"
-	"go.tkw01536.de/pkglib/status"
 )
 
 func NewSystemUpdateCommand() *cobra.Command {
@@ -173,44 +170,39 @@ func (s *systemupdate) Exec(cmd *cobra.Command, args []string) (e error) {
 	}
 
 	var updated = make(map[string]struct{})
-	var updateMutex sync.Mutex
 
 	if err := logging.LogOperation(func() error {
-		return status.RunErrorGroup(cmd.ErrOrStderr(), status.Group[component.Installable, error]{
-			PrefixString: func(item component.Installable, index int) string {
-				return fmt.Sprintf("[update %q]: ", item.Name())
-			},
-			PrefixAlign: true,
+		for _, item := range dis.Installable() {
+			if _, err := fmt.Fprintf(cmd.ErrOrStderr(), "[update %q]: ", item.Name()); err != nil {
+				return fmt.Errorf("failed to write update prefix for %q: %w", item.Name(), err)
+			}
 
-			Handler: func(item component.Installable, index int, writer io.Writer) (e error) {
-				stack, err := item.OpenStack()
-				if err != nil {
-					return fmt.Errorf("failed open stack: %w", err)
+			var e error
+			writer := cmd.ErrOrStderr()
+
+			stack, err := item.OpenStack()
+			if err != nil {
+				return fmt.Errorf("failed open stack: %w", err)
+			}
+			defer errorsx.Close(stack, &e, "stack")
+
+			if err := stack.Install(cmd.Context(), writer, item.Context(ctx)); err != nil {
+				return fmt.Errorf("failed to install stack: %w", err)
+			}
+
+			if err := stack.Update(cmd.Context(), writer, true); err != nil {
+				return fmt.Errorf("failed to update stack: %w", err)
+			}
+
+			if ud, ok := item.(component.Updatable); ok {
+				if err := ud.Update(cmd.Context(), writer); err != nil {
+					return err
 				}
-				defer errorsx.Close(stack, &e, "stack")
+				updated[item.ID()] = struct{}{}
+			}
+		}
 
-				if err := stack.Install(cmd.Context(), writer, item.Context(ctx)); err != nil {
-					return fmt.Errorf("failed to install stack: %w", err)
-				}
-
-				if err := stack.Update(cmd.Context(), writer, true); err != nil {
-					return fmt.Errorf("failed to update stack: %w", err)
-				}
-
-				ud, ok := item.(component.Updatable)
-				if !ok {
-					return nil
-				}
-
-				defer func() {
-					updateMutex.Lock()
-					defer updateMutex.Unlock()
-					updated[item.ID()] = struct{}{}
-				}()
-
-				return ud.Update(cmd.Context(), writer)
-			},
-		}, dis.Installable())
+		return nil
 	}, cmd.ErrOrStderr(), "Performing Stack Updates"); err != nil {
 		return fmt.Errorf("%w: %w", errSystemUpdateFailedStackUpdate, err)
 	}
