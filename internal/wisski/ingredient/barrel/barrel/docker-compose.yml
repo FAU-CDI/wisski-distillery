@@ -47,6 +47,7 @@ services:
     # dedicated sql server, removed when not needed
     image: mariadb:11.8
     restart: always
+    cpus: 1.0
     volumes:
         - "${SQL_PATH}/data:/var/lib/mysql"
         - "${SQL_PATH}/config/conf.d/:/etc/mysql/conf.d:ro"
@@ -67,6 +68,7 @@ services:
       args:
         RDF4J_VERSION: 5.2.2-tomcat
     restart: always
+    cpus: 1.0
     environment:
       RDF4J_REPOSITORY: ""
       JAVA_OPTS: "-Xms1g -Xmx4g"
