@@ -123,6 +123,7 @@ func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
 		return cookiestore
 	}).Get(r, server.SessionCookie)
 	if err != nil {
+		wdlog.Of(r.Context()).Debug("failed to get session", "error", err)
 		return nil, fmt.Errorf("failed to get session: %w", err)
 	}
 	return sess, nil
