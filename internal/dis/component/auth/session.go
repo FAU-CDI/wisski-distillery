@@ -72,10 +72,7 @@ func (auth *Auth) UserOfSession(r *http.Request) (user *AuthUser, err error) {
 	}
 
 	// first read the session
-	sess, err := auth.session(r)
-	if err != nil {
-		return nil, err
-	}
+	sess := auth.session(r)
 
 	// try to read the name from the session
 	name, ok := sess.Values[server.SessionUserKey]
@@ -110,7 +107,7 @@ func (auth *Auth) checkUser(ctx context.Context, name string) (user *AuthUser, e
 
 // session returns the session that belongs to a given request.
 // If the session is not set, creates a new session.
-func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
+func (auth *Auth) session(r *http.Request) *sessions.Session {
 	sess, err := auth.store.Get(func() sessions.Store {
 		config := component.GetStill(auth).Config
 
@@ -119,14 +116,14 @@ func (auth *Auth) session(r *http.Request) (*sessions.Session, error) {
 		cookiestore.Options.HttpOnly = true
 		cookiestore.Options.Secure = config.HTTP.HTTPSEnabled()
 		cookiestore.Options.SameSite = http.SameSiteStrictMode
+		cookiestore.Options.MaxAge = 60 * 60 * 24 * 30 // 30 days
 
 		return cookiestore
 	}).Get(r, server.SessionCookie)
 	if err != nil {
-		wdlog.Of(r.Context()).Debug("failed to get session", "error", err)
-		return nil, fmt.Errorf("failed to get session: %w", err)
+		wdlog.Of(r.Context()).Debug("failed to decode session, using new session instead", "error", err)
 	}
-	return sess, nil
+	return sess
 }
 
 func (auth *Auth) Menu(r *http.Request) []component.MenuItem {
@@ -154,10 +151,7 @@ var ctxUserKey = contextUserKey{}
 //
 // It is recommended to send a HTTP redirect to make sure a new request is made.
 func (auth *Auth) Login(w http.ResponseWriter, r *http.Request, user *AuthUser) error {
-	sess, err := auth.session(r)
-	if err != nil {
-		return err
-	}
+	sess := auth.session(r)
 	sess.Values[server.SessionUserKey] = user.User.User
 	if err := sess.Save(r, w); err != nil {
 		return fmt.Errorf("failed to save session: %w", err)
@@ -170,10 +164,7 @@ func (auth *Auth) Login(w http.ResponseWriter, r *http.Request, user *AuthUser) 
 // UserOf may return incorrect results until the user makes a new request.
 // It is recommended to send a HTTP redirect to make sure a new request is made.
 func (auth *Auth) Logout(w http.ResponseWriter, r *http.Request) error {
-	sess, err := auth.session(r)
-	if err != nil {
-		return err
-	}
+	sess := auth.session(r)
 	sess.Options.MaxAge = -1
 	if err := sess.Save(r, w); err != nil {
 		return fmt.Errorf("failed to save session: %w", err)
