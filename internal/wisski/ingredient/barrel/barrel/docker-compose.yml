@@ -71,7 +71,7 @@ services:
     cpus: 1.0
     environment:
       RDF4J_REPOSITORY: ""
-      JAVA_OPTS: "-Xms1g -Xmx4g"
+      JAVA_OPTS: "-Xms1g -Xmx8g"
     volumes:
       - ${TS_PATH}/data:/var/rdf4j:rw
       - ${TS_PATH}/logs:/var/rdf4j/server/logs:rw
