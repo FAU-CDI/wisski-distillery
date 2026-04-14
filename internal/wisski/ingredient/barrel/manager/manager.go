@@ -74,6 +74,25 @@ var (
 				"drupal/remove_generator:^2.1",
 			},
 		},
+		"Drupal 11 + WissKI Dev": {
+			Description: "Current Version of Drupal on 8.x-4.x with default packages",
+
+			Drupal: "^11",
+			WissKI: "4.x-dev#4886c3e20f9b191e2ea05cbec6b0dfd8140d879a",
+			InstallModules: []string{
+				"drupal/inline_entity_form:^3.0@RC",
+				"drupal/imagemagick",
+				"drupal/image_effects",
+				"drupal/colorbox",
+			},
+			EnableModules: []string{
+				"drupal/devel:^5.3",
+				"drupal/geofield:^1.64",
+				"drupal/geofield_map:^11.0",
+				"drupal/imce:^3.1",
+				"drupal/remove_generator:^2.1",
+			},
+		},
 	}
 )
 
