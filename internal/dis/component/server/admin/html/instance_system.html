@@ -62,6 +62,20 @@
             {{ end }}
 
             <div class="pure-controls">
+                <label for="solrserver" class="pure-checkbox">
+                    <input type="checkbox" id="solrserver" />
+                    Solr Server
+                </label>
+                <span class="pure-form-message-inline">
+                    Add a Solr server to this instance.
+                    <small>
+                        This option does not configure WissKI to use the Solr server.
+                        It only makes it available for use.
+                    </small>
+                </span>
+            </div>
+
+            <div class="pure-controls">
                 <label for="iipserver" class="pure-checkbox">
                     <input {{ if $rebuild }}{{ if .System.IIPServer }}checked{{end}}{{end}} type="checkbox" id="iipserver" />
                     IIP Image Server

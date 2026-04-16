@@ -42,6 +42,20 @@ services:
       # dynamic update based on configuration
       - dedicatedsql
       - dedicatedtriplestore
+      - solr
+
+  solr:
+    image: docker.io/library/solr:10.0-slim
+    # solr service, removed when not needed
+    restart: always
+    cpus: 1.0
+    environment:
+      - SOLR_HOST=solr
+      - SOLR_HEAP=1g
+    volumes:
+      - ${SOLR_PATH}/data:/var/solr:rw
+    networks:
+      - default
 
   dedicatedsql:
     # dedicated sql server, removed when not needed

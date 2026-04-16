@@ -18,6 +18,7 @@ interface System {
   IPAllowlist: string
   DedicatedSQL?: boolean
   DedicatedTriplestore?: boolean
+  SolrServer?: boolean
 }
 
 /** Rebuild the specified instance */

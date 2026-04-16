@@ -36,7 +36,6 @@ func GetDistillery(cmd *cobra.Command, req Requirements) (d *dis.Distillery, e e
 	d.Upstream = component.Upstream{
 		SQL:         component.HostPort{Host: "127.0.0.1", Port: 3306},
 		Triplestore: component.HostPort{Host: "127.0.0.1", Port: 7200},
-		Solr:        component.HostPort{Host: "127.0.0.1", Port: 8983},
 	}
 
 	// we are within the docker
@@ -46,7 +45,6 @@ func GetDistillery(cmd *cobra.Command, req Requirements) (d *dis.Distillery, e e
 	if flags.InternalInDocker {
 		d.Upstream.SQL = component.HostPort{Host: "sql", Port: 3306}
 		d.Upstream.Triplestore = component.HostPort{Host: "triplestore", Port: 7200}
-		d.Upstream.Solr = component.HostPort{Host: "solr", Port: 8983}
 		params.ConfigPath = os.Getenv("CONFIG_PATH")
 	}
 

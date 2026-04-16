@@ -37,6 +37,7 @@ func NewProvisionCommand() *cobra.Command {
 	flags.StringVar(&impl.IPAllowlist, "ip-allowlist", "", "Setup comman-separated IP (or IP block) allowlist")
 	flags.BoolVar(&impl.DedicatedSQL, "dedicated-sql", false, "Use a dedicated SQL server for this instance")
 	flags.BoolVar(&impl.DedicatedTriplestore, "dedicated-triplestore", false, "Use a dedicated Triplestore for this instance")
+	flags.BoolVar(&impl.SolrServer, "solr-server", false, "Add a dedicated Solr server to this instance")
 
 	return cmd
 }
@@ -52,6 +53,7 @@ type pv struct {
 	ContentSecurityPolicy string
 	DedicatedSQL          bool
 	DedicatedTriplestore  bool
+	SolrServer            bool
 	Positionals           struct {
 		Slug string
 	}
@@ -96,6 +98,7 @@ func (p *pv) Exec(cmd *cobra.Command, args []string) error {
 			IPAllowlist:           p.IPAllowlist,
 			DedicatedSQL:          p.DedicatedSQL,
 			DedicatedTriplestore:  p.DedicatedTriplestore,
+			SolrServer:            p.SolrServer,
 		},
 	})
 	if err != nil {

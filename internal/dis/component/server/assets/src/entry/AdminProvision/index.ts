@@ -12,6 +12,7 @@ const iipserver = document.getElementById('iipserver') as HTMLInputElement
 const dedicatedsql = document.getElementById('dedicatedsql') as HTMLInputElement
 const dedicatedtriplestore = document.getElementById('dedicatedtriplestore') as HTMLInputElement
 const ipAllowlist = document.getElementById('ipallowlist') as HTMLInputElement
+const solrserver = document.getElementById('solrserver') as HTMLInputElement
 
 // add an event handler to open the modal form!
 system.addEventListener('submit', (evt) => {
@@ -31,6 +32,7 @@ system.addEventListener('submit', (evt) => {
       DedicatedSQL: dedicatedsql.checked,
       DedicatedTriplestore: dedicatedtriplestore.checked,
       IPAllowlist: ipAllowlist.value,
+      SolrServer: solrserver.checked,
     },
   })
     .then(slug => {

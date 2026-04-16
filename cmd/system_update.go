@@ -196,7 +196,7 @@ func (s *systemupdate) Exec(cmd *cobra.Command, args []string) (e error) {
 
 			if ud, ok := item.(component.Updatable); ok {
 				if err := ud.Update(cmd.Context(), writer); err != nil {
-					return err
+					return fmt.Errorf("failed to update component %q: %w", item.Name(), err)
 				}
 				updated[item.ID()] = struct{}{}
 			}

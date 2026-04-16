@@ -54,6 +54,12 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 			filepath.Join("triplestore", "logs"),
 		)
 	}
+	if liquid.SolrServer {
+		makeDirs = append(
+			makeDirs,
+			filepath.Join("solr", "data"),
+		)
+	}
 
 	return component.StackWithResources{
 		Stack: stack,
@@ -100,7 +106,7 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 				}
 			}
 
-			// remove the non-dedicated services.
+			// remove non-needed services
 			if !liquid.DedicatedSQL {
 				delete(dependencyMap, "dedicatedsql")
 				if err := yamlx.Remove(root, "services", "dedicatedsql"); err != nil {
@@ -113,9 +119,15 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 					return nil, fmt.Errorf("failed to remove dedicatedtriplestore service: %w", err)
 				}
 			}
+			if !liquid.SolrServer {
+				delete(dependencyMap, "solr")
+				if err := yamlx.Remove(root, "services", "solr"); err != nil {
+					return nil, fmt.Errorf("failed to remove solr service: %w", err)
+				}
+			}
 
-			// if we don't have any dedicated services, remove the default network
-			if !liquid.DedicatedSQL && !liquid.DedicatedTriplestore {
+			// if we don't have any services, remove the default network
+			if len(dependencyMap) == 0 {
 				if err := yamlx.Remove(root, "networks", "default"); err != nil {
 					return nil, fmt.Errorf("failed to remove default network: %w", err)
 				}
@@ -144,6 +156,7 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 			"DATA_PATH":   filepath.Join(liquid.FilesystemBase, "data"),
 			"SQL_PATH":    filepath.Join(liquid.FilesystemBase, "sql"),
 			"TS_PATH":     filepath.Join(liquid.FilesystemBase, "triplestore"),
+			"SOLR_PATH":   filepath.Join(liquid.FilesystemBase, "solr"),
 			"RUNTIME_DIR": config.Paths.RuntimeDir(),
 
 			"LOCAL_SETTINGS_PATH":  filepath.Join(liquid.FilesystemBase, localSettingsName),

@@ -9,21 +9,24 @@ import (
 // It is embedded into the instances struct by gorm.
 type System struct {
 	// NOTE(twiesing): Any changes here should be reflected in instance_{provision,rebuild}.html and remote/api.ts.
-	PHP            string `gorm:"column:php;not null"`                    // php version to use
-	IIPServer      bool   `gorm:"column:iipimage;not null;default:false"` // should we enable the IIPServer?
-	PHPDevelopment bool   `gorm:"column:opcache_devel;not null"`          // php development (sql field name is legacy)
+	PHP            string `gorm:"column:php;not null"`           // php version to use
+	PHPDevelopment bool   `gorm:"column:opcache_devel;not null"` // php development (sql field name is legacy)
 	IPAllowlist    string `gorm:"column:ip_allowlist;not null"`
 
 	ContentSecurityPolicy string `gorm:"column:csp;not null"` // content security policy for the system
 
+	IIPServer bool `gorm:"column:iipimage;not null;default:false"` // should we enable the IIPServer?
+
 	DedicatedSQL         bool `gorm:"column:dedicated_sql;not null;default:false"`         // should we use a dedicated SQL server?
 	DedicatedTriplestore bool `gorm:"column:dedicated_triplestore;not null;default:false"` // should we use a dedicated Triplestore?
+	SolrServer           bool `gorm:"column:solr;not null;default:false"`                  // should we add a solr?
 }
 
 // Called to get the final System info for the given current configuration.
 // This ensures that specific fields cannot be changed.
 func (system System) ApplyTo(current System) System {
 	system.DedicatedSQL = current.DedicatedSQL
+	system.SolrServer = current.SolrServer
 	system.DedicatedTriplestore = current.DedicatedTriplestore
 	return system
 }

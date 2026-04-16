@@ -81,7 +81,6 @@ type Still struct {
 type Upstream struct {
 	SQL         HostPort
 	Triplestore HostPort
-	Solr        HostPort
 }
 
 func (us Upstream) SQLAddr() string {
@@ -90,10 +89,6 @@ func (us Upstream) SQLAddr() string {
 
 func (us Upstream) TriplestoreAddr() string {
 	return us.Triplestore.String()
-}
-
-func (us Upstream) SolrAddr() string {
-	return us.Solr.String()
 }
 
 type HostPort struct {
