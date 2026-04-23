@@ -33,7 +33,7 @@ func NewRebuildCommand() *cobra.Command {
 	flags.StringVar(&impl.Flavor, "flavor", "", "Use specific flavor. Use 'provision --list-flavors' to list flavors.")
 	flags.StringVar(&impl.ContentSecurityPolicy, "content-security-policy", "", "Setup ContentSecurityPolicy")
 	flags.StringVar(&impl.IPAllowlist, "ip-allowlist", "", "Setup comman-separated IP (or IP block) allowlist")
-
+	flags.BoolVar(&impl.SolrServer, "solr-server", false, "Add a Solr server to this instance")
 	return cmd
 }
 
@@ -47,6 +47,7 @@ type rebuild struct {
 	Flavor                string
 	ContentSecurityPolicy string
 	IPAllowlist           string
+	SolrServer            bool
 
 	Positionals struct {
 		Slug []string
@@ -92,6 +93,7 @@ func (rb *rebuild) Exec(cmd *cobra.Command, args []string) (err error) {
 				PHPDevelopment:        rb.PHPDevelopment,
 				ContentSecurityPolicy: rb.ContentSecurityPolicy,
 				IPAllowlist:           rb.IPAllowlist,
+				SolrServer:            rb.SolrServer,
 			}
 		}
 

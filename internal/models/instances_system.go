@@ -26,7 +26,6 @@ type System struct {
 // This ensures that specific fields cannot be changed.
 func (system System) ApplyTo(current System) System {
 	system.DedicatedSQL = current.DedicatedSQL
-	system.SolrServer = current.SolrServer
 	system.DedicatedTriplestore = current.DedicatedTriplestore
 	return system
 }

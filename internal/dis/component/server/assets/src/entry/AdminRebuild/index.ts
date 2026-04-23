@@ -10,12 +10,23 @@ const phpDevelopment = document.getElementById('phpDevelopment') as HTMLInputEle
 const contentSecurityPolicy = document.getElementById('contentsecuritypolicy') as HTMLInputElement
 const iipserver = document.getElementById('iipserver') as HTMLInputElement
 const ipAllowlist = document.getElementById('ipallowlist') as HTMLInputElement
+const solrserver = document.getElementById('solrserver') as HTMLInputElement
 
 // add an event handler to open the modal form!
 system.addEventListener('submit', (evt) => {
   evt.preventDefault()
 
-  Rebuild(slug.value, { PHP: php.value, IIPServer: iipserver.checked, PHPDevelopment: phpDevelopment.checked, ContentSecurityPolicy: contentSecurityPolicy.value, IPAllowlist: ipAllowlist.value })
+  Rebuild(
+    slug.value,
+    {
+      PHP: php.value,
+      IIPServer: iipserver.checked,
+      PHPDevelopment: phpDevelopment.checked,
+      ContentSecurityPolicy: contentSecurityPolicy.value,
+      IPAllowlist: ipAllowlist.value,
+      SolrServer: solrserver.checked,
+    },
+  )
     .then(slug => {
       location.href = '/admin/instance/' + slug
     })
