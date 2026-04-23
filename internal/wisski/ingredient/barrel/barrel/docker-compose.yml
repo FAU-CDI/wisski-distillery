@@ -49,6 +49,7 @@ services:
     # solr service, removed when not needed
     restart: always
     cpus: 1.0
+    command: solr-precreate default
     environment:
       - SOLR_HOST=solr
       - SOLR_HEAP=1g
@@ -82,7 +83,6 @@ services:
       args:
         RDF4J_VERSION: 5.2.2-tomcat
     restart: always
-    command: solr-precreate default
     cpus: 1.0
     environment:
       RDF4J_REPOSITORY: ""
