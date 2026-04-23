@@ -63,7 +63,7 @@
 
             <div class="pure-controls">
                 <label for="solrserver" class="pure-checkbox">
-                    <input type="checkbox" id="solrserver" />
+                    <input type="checkbox" id="solrserver" {{ if $rebuild }}{{ if .System.SolrServer }}checked{{end}}{{end}} />
                     Solr Server
                 </label>
                 <span class="pure-form-message-inline">
