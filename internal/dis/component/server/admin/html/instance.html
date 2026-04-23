@@ -236,6 +236,10 @@
                         </td>
                         <td>
                             <code>{{ .Instance.System.SolrServer }}</code>
+                            {{ if .Instance.System.SolrServer }}
+                                <br>
+                                <code>http://solr:8983</code>
+                            {{ end }}
                         </td>
                     </tr>
                     <tr>

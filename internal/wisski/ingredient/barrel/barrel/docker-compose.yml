@@ -82,6 +82,7 @@ services:
       args:
         RDF4J_VERSION: 5.2.2-tomcat
     restart: always
+    command: solr-precreate default
     cpus: 1.0
     environment:
       RDF4J_REPOSITORY: ""
