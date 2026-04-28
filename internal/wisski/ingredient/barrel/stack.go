@@ -58,6 +58,7 @@ func (barrel *Barrel) OpenStack() (component.StackWithResources, error) {
 		makeDirs = append(
 			makeDirs,
 			filepath.Join("solr", "data"),
+			filepath.Join("solr", "config"),
 		)
 	}
 

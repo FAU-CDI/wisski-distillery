@@ -45,17 +45,17 @@ services:
       - solr
 
   solr:
-    image: docker.io/library/solr:10.0-slim
     # solr service, removed when not needed
+    image: docker.io/library/solr:9.10
     restart: always
     cpus: 1.0
-    command: solr-precreate default
     environment:
       - SOLR_HOST=solr
       - SOLR_HEAP=1g
       - SOLR_MODULES="extraction,langid,ltr,analysis-extras"
     volumes:
       - ${SOLR_PATH}/data:/var/solr:rw
+      - ${SOLR_PATH}/config:/solr_config/conf
     networks:
       - default
 
