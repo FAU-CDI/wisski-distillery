@@ -52,7 +52,7 @@ services:
     environment:
       - SOLR_HOST=solr
       - SOLR_HEAP=1g
-      - SOLR_MODULES="extraction,langid,ltr,analysis-extras"
+      - SOLR_MODULES=extraction,langid,ltr,analysis-extras
     volumes:
       - ${SOLR_PATH}/data:/var/solr:rw
       - ${SOLR_PATH}/config:/solr_config/conf
