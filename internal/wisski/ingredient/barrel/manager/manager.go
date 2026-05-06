@@ -93,6 +93,30 @@ var (
 				"drupal/remove_generator:^2.1",
 			},
 		},
+		"Sarah": {
+			Description: "Versions and packages requested by Sarah",
+
+			Drupal: "^11",
+			WissKI: "4.x-dev#4886c3e20f9b191e2ea05cbec6b0dfd8140d879a",
+			InstallModules: []string{
+				"drupal/inline_entity_form:^3.0@RC",
+				"drupal/imagemagick",
+				"drupal/image_effects",
+				"drupal/colorbox",
+				"drupal/bootstrap5",
+				"drupal/gin",
+				"drupal/geofield",
+				"drupal/ds",
+			},
+			EnableModules: []string{
+				"drupal/devel:^5.3",
+				"drupal/geofield:^1.64",
+				"drupal/geofield_map:^11.0",
+				"drupal/imce:^3.1",
+				"drupal/remove_generator:^2.1",
+				"drupal/imce:^3.1",
+			},
+		},
 	}
 )
 
