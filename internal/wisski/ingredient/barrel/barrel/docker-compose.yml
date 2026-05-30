@@ -85,9 +85,10 @@ services:
         RDF4J_VERSION: 5.2.2-tomcat
     restart: always
     cpus: 1.0
+    mem_limit: 4g
     environment:
       RDF4J_REPOSITORY: ""
-      JAVA_OPTS: "-Xms1g -Xmx8g"
+      JAVA_OPTS: "-Xms1g -Xmx4g -XX:+UseContainerSupport"
     volumes:
       - ${TS_PATH}/data:/var/rdf4j:rw
       - ${TS_PATH}/logs:/var/rdf4j/server/logs:rw
