@@ -57,6 +57,18 @@
                 </div>
             </div>
         </p>
+
+
+        {{ if .Instance.System.DedicatedSQL}}
+        <code>
+            Dedicated SQL
+        </code>
+        {{ end }}
+        {{ if .Instance.System.DedicatedTriplestore }}
+        <code>
+            Dedicated Triplestore
+        </code>
+        {{ end }}
     </div>
 </div>
 {{end}}

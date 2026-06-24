@@ -53,6 +53,8 @@ type WissKI struct {
 	Users        []DrupalUser      // all the known users
 	Grants       []models.Grant
 
+	Instance models.Instance
+
 	// installed drupal modules
 	Modules []DrushExtendedModuleInfo
 }

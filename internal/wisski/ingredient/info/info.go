@@ -39,6 +39,8 @@ func (nfo *Info) Information(ctx context.Context, quick bool) (info status.WissK
 		Context: ctx,
 	}
 
+	info.Instance = ingredient.GetLiquid(nfo).Instance
+
 	var serversUsed uint64
 	pool := sema.Pool[*phpx.Server]{
 		// limit the number of processes running in this container
