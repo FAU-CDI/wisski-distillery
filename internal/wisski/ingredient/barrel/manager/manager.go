@@ -93,11 +93,11 @@ var (
 				"drupal/remove_generator:^2.1",
 			},
 		},
-		"Sarah": {
-			Description: "Versions and packages requested by Sarah",
+		"Drupal 11 + 8.x-4.4-alpha": {
+			Description: "Current Version of Drupal and WissKI 8.x-4.4 alpha-release",
 
 			Drupal: "^11",
-			WissKI: "4.x-dev#4886c3e20f9b191e2ea05cbec6b0dfd8140d879a",
+			WissKI: "^4.4@alpha",
 			InstallModules: []string{
 				"drupal/inline_entity_form:^3.0@RC",
 				"drupal/imagemagick",
