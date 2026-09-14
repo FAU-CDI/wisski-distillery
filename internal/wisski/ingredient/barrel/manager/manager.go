@@ -36,32 +36,13 @@ type Manager struct {
 var (
 	defaultProfile = "Drupal 11"
 	profiles       = map[string]Profile{
-		"Drupal 10": {
-			Description: "Legacy Version Of Drupal",
-
-			Drupal: "^10",
-			WissKI: "^3.16",
-			InstallModules: []string{
-				"drupal/inline_entity_form:^1.0@RC",
-				"drupal/imagemagick",
-				"drupal/image_effects",
-				"drupal/colorbox",
-			},
-			EnableModules: []string{
-				"drupal/devel:^5.0",
-				"drupal/geofield:^1.56",
-				"drupal/geofield_map:^3.0",
-				"drupal/imce:^3.0",
-				"drupal/remove_generator:^2.0",
-			},
-		},
 		"Drupal 11": {
 			Description: "Current Version of Drupal with default packages",
 
-			Drupal: "^11",
-			WissKI: "4.x-dev#ad9ad9a4d95c3e189ff0eb3d2f278d1c8ee27d69",
+			Drupal: "^11.3",
+			WissKI: "^4.4",
 			InstallModules: []string{
-				"drupal/inline_entity_form:^3.0@RC",
+				"drupal/inline_entity_form:^3.0",
 				"drupal/imagemagick",
 				"drupal/image_effects",
 				"drupal/colorbox",
@@ -72,49 +53,6 @@ var (
 				"drupal/geofield_map:^11.0",
 				"drupal/imce:^3.1",
 				"drupal/remove_generator:^2.1",
-			},
-		},
-		"Drupal 11 + WissKI Dev": {
-			Description: "Current Version of Drupal on 8.x-4.x with default packages",
-
-			Drupal: "^11",
-			WissKI: "4.x-dev#4886c3e20f9b191e2ea05cbec6b0dfd8140d879a",
-			InstallModules: []string{
-				"drupal/inline_entity_form:^3.0@RC",
-				"drupal/imagemagick",
-				"drupal/image_effects",
-				"drupal/colorbox",
-			},
-			EnableModules: []string{
-				"drupal/devel:^5.3",
-				"drupal/geofield:^1.64",
-				"drupal/geofield_map:^11.0",
-				"drupal/imce:^3.1",
-				"drupal/remove_generator:^2.1",
-			},
-		},
-		"Drupal 11 + 8.x-4.4-alpha": {
-			Description: "Current Version of Drupal and WissKI 8.x-4.4 alpha-release",
-
-			Drupal: "^11",
-			WissKI: "^4.4@alpha",
-			InstallModules: []string{
-				"drupal/inline_entity_form:^3.0@RC",
-				"drupal/imagemagick",
-				"drupal/image_effects",
-				"drupal/colorbox",
-				"drupal/bootstrap5",
-				"drupal/gin",
-				"drupal/geofield",
-				"drupal/ds",
-			},
-			EnableModules: []string{
-				"drupal/devel:^5.3",
-				"drupal/geofield:^1.64",
-				"drupal/geofield_map:^11.0",
-				"drupal/imce:^3.1",
-				"drupal/remove_generator:^2.1",
-				"drupal/imce:^3.1",
 			},
 		},
 	}
