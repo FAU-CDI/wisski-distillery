@@ -194,7 +194,7 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 		{
-			if err := manager.dependencies.Composer.ExecWissKI(ctx, progress, "install"); err != nil {
+			if err := manager.dependencies.Composer.ExecWissKI(ctx, progress, "install", "--no-dev"); err != nil {
 				return fmt.Errorf("failed to install wisski dependencies: %w", err)
 			}
 		}

@@ -46,7 +46,6 @@ var (
 				"drupal/imagemagick",
 				"drupal/image_effects",
 				"drupal/colorbox",
-				"drupal/potx:^2.0@alpha",
 			},
 			EnableModules: []string{
 				"drupal/devel:^5.3",
