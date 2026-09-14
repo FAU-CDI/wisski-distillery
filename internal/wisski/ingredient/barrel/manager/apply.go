@@ -194,10 +194,13 @@ func (manager *Manager) applyWissKI(ctx context.Context, progress io.Writer, wis
 			return fmt.Errorf("failed to log message: %w", err)
 		}
 		{
+			if err := manager.dependencies.Composer.ExecWissKI(ctx, progress, "config", "allow-plugins", "true"); err != nil {
+				return fmt.Errorf("failed to configure composer: %w", err)
+			}
 			if err := manager.dependencies.Composer.ExecWissKI(ctx, progress, "config", "repositories.drupal", `{"type": "composer", "url": "https://packages.drupal.org/8"}`); err != nil {
 				return fmt.Errorf("failed to install wisski dependencies: %w", err)
 			}
-			if err := manager.dependencies.Composer.ExecWissKI(ctx, progress, "install"); err != nil {
+			if err := manager.dependencies.Composer.ExecWissKI(ctx, progress, "install", "--no-dev"); err != nil {
 				return fmt.Errorf("failed to install wisski dependencies: %w", err)
 			}
 		}

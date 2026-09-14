@@ -15,8 +15,9 @@ composer require "drupal/wisski:$VERSION"
 
 # update the wisski dependencies
 pushd /var/www/data/project/web/modules/contrib/wisski
+composer config allow-plugins true
 composer config repositories.drupal '{"type": "composer", "url": "https://packages.drupal.org/8"}'
-composer update
+composer update --no-dev
 popd
 
 # update the db

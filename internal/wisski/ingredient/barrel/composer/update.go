@@ -26,7 +26,7 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	{
-		err := composer.Exec(ctx, progress, "update")
+		err := composer.Exec(ctx, progress, "update", "--no-dev")
 		if err != nil {
 			return fmt.Errorf("composer run returned error: %w", err)
 		}
@@ -46,8 +46,13 @@ func (composer *Composer) Update(ctx context.Context, progress io.Writer) (err e
 		return fmt.Errorf("failed to log message: %w", err)
 	}
 	{
-		err := composer.Exec(ctx, progress, "update")
-		if err != nil {
+		if err := composer.ExecWissKI(ctx, progress, "config", "allow-plugins", "true"); err != nil {
+			return fmt.Errorf("failed to configure composer: %w", err)
+		}
+		if err := composer.ExecWissKI(ctx, progress, "config", "repositories.drupal", `{"type": "composer", "url": "https://packages.drupal.org/8"}`); err != nil {
+			return fmt.Errorf("failed to configure composer: %w", err)
+		}
+		if err := composer.ExecWissKI(ctx, progress, "update", "--no-dev"); err != nil {
 			return err
 		}
 	}
