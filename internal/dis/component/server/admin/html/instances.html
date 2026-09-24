@@ -46,7 +46,7 @@
         <p>
             
             <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br>
-            <code>Drupal {{ .DrupalVersion }} / PHP {{ .PHPVersion }}</code><br />
+            <code>WissKI {{ if .WisskiVersion }}{{ .WisskiVersion }}{{ else }}unknown{{ end }} / Drupal {{ .DrupalVersion }} / PHP {{ .PHPVersion }}</code><br />
 
             <div class="actions">
                 <div class="pure-button-group" role="group">

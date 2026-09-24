@@ -39,20 +39,20 @@ var (
 		"Drupal 11": {
 			Description: "Current Version of Drupal with default packages",
 
-			Drupal: "^11.3",
-			WissKI: "^4.4",
+			Drupal: "~11.4.7",
+			WissKI: "~4.6.0",
 			InstallModules: []string{
 				"drupal/inline_entity_form:^3.0",
-				"drupal/imagemagick",
-				"drupal/image_effects",
-				"drupal/colorbox",
+				"drupal/imagemagick:~5.0.1",
+				"drupal/image_effects:~5.0.0",
+				"drupal/colorbox:~2.2.1",
 			},
 			EnableModules: []string{
-				"drupal/devel:^5.3",
-				"drupal/geofield:^1.64",
-				"drupal/geofield_map:^11.0",
-				"drupal/imce:^3.1",
-				"drupal/remove_generator:^2.1",
+				"drupal/devel:~5.5.0",
+				"drupal/geofield:~10.3.4",
+				"drupal/geofield_map:~11.1.9",
+				"drupal/imce:~3.1.5",
+				"drupal/remove_generator:~2.1.0",
 			},
 		},
 	}
