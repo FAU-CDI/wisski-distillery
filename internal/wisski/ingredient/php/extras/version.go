@@ -88,7 +88,7 @@ func (v *Version) getVersionsFromLockfile() (wisskiVersion string, drupalVersion
 }
 
 func (v *Version) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.PHPVersion, info.DrupalVersion, info.WisskiVersion, err = v.Get(flags.Context, flags.Server)
+	info.PHPVersion, info.DrupalVersion, info.WissKIVersion, err = v.Get(flags.Context, flags.Server)
 	if !flags.Quick && err != nil {
 		return fmt.Errorf("failed to get versions: %w", err)
 	}

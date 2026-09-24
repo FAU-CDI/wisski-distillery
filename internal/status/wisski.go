@@ -35,7 +35,7 @@ type WissKI struct {
 
 	PHPVersion    string // current php version
 	DrupalVersion string // current drupal version
-	WisskiVersion string // current wisski version
+	WissKIVersion string // current wisski version
 	Theme         string // current default theme
 
 	// Statistics of the WissKI
