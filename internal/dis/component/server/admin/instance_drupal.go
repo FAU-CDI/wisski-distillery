@@ -37,6 +37,7 @@ type instanceDrupalContext struct {
 
 	PHPVersion    string
 	DrupalVersion string
+	WissKIVersion string
 
 	DefaultTheme string
 
@@ -77,7 +78,7 @@ func (admin *Admin) instanceDrupal(context.Context) http.Handler {
 		// get the drupal version
 		//nolint:contextcheck
 		eg.Go(func() (err error) {
-			ctx.DrupalVersion, ctx.PHPVersion, err = ctx.Instance.Version().Get(r.Context(), nil)
+			ctx.DrupalVersion, ctx.PHPVersion, ctx.WissKIVersion, err = ctx.Instance.Version().Get(r.Context(), nil)
 			return
 		})
 

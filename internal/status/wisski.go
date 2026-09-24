@@ -191,17 +191,6 @@ type DrushExtendedModuleInfo struct {
 	Composer *ComposerModuleInfo `json:"composer"`
 }
 
-// GetVersion returns the version of this module, or (if is it empty) the composer version.
-func (e DrushExtendedModuleInfo) GetVersion() string {
-	if e.Version != "" {
-		return e.Version
-	}
-	if e.Composer == nil {
-		return ""
-	}
-	return e.Composer.Version
-}
-
 func (demi DrushExtendedModuleInfo) HasComposer() bool {
 	return demi.Composer != nil
 }

@@ -66,12 +66,10 @@ func (modules *Modules) Get(ctx context.Context, server *phpx.Server) (infos []s
 }
 
 func (modules *Modules) Fetch(flags ingredient.FetcherFlags, info *status.WissKI) (err error) {
-	info.Modules, _ = modules.Get(flags.Context, flags.Server)
-	for _, m := range info.Modules {
-		if m.Name == "wisski" || (m.Composer != nil && m.Composer.Name == "drupal/wisski") {
-			info.WisskiVersion = m.GetVersion()
-			break
-		}
+	if flags.Quick {
+		return nil
 	}
+
+	info.Modules, _ = modules.Get(flags.Context, flags.Server)
 	return
 }
