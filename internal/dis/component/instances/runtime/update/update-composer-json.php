@@ -21,11 +21,6 @@ $config = [
 
     // constraints to add to the given sections
     'add_require_constraints' => [
-        // There's a drupal core bug that fails with 3.30.0.
-        // So we better exclude it from updates.
-        //
-        // See https://www.drupal.org/project/drupal/issues/3625969
-        "twig/twig" => "!=3.30.0",
     ],
     'add_require-dev_constraints' => [
     ],
@@ -41,9 +36,9 @@ $config = [
         "composer/installers" => "~2.3.0",
 
         // Use drupal core 11.4.x
-        "drupal/core-composer-scaffold" => "~11.4.7",
-        "drupal/core-project-message" => "~11.4.7",
-        "drupal/core-recommended" => "~11.4.7",
+        "drupal/core-composer-scaffold" => "~11.4.8",
+        "drupal/core-project-message" => "~11.4.8",
+        "drupal/core-recommended" => "~11.4.8",
     ],
 
     // composer file names
