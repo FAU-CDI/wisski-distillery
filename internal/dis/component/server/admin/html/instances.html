@@ -1,4 +1,3 @@
-
 <div class="pure-u-1">
     <table class="pure-table pure-table-bordered padding">
         <thead>
@@ -27,48 +26,57 @@
 </div>
 
 <div class="pure-u-1">
-    <form class="pure-form">
-        <label for="search">Filter Instances:</label>
-        <input type="text" id="search" data-filter-list="data-slug" />
-    </form>
-
-    <span class="hspace"></span>
-</div>
-
-
-{{range .Instances}}
-<div class="pure-u-1 pure-u-xl-2-3" data-slug="{{.Slug}}" data-filter>
-    <div class="wisski {{ if .Running }}running{{ else }}stopped{{ end }} {{ if not .OK }}broken{{end}}">
-        <h3>
-            {{.Slug}}
-            {{ if not .Running }}&nbsp;<small>not running</small>{{ end }} 
-        </h3>
-        <p>
-            
-            <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a><br>
-            <code>WissKI {{ if .WissKIVersion }}{{ .WissKIVersion }}{{ else }}unknown{{ end }} / Drupal {{ .DrupalVersion }} / PHP {{ .PHPVersion }}</code><br />
-
-            <div class="actions">
-                <div class="pure-button-group" role="group">
-                    {{ if .Running }}
-                        <a class="pure-button pure-button-action" href="{{ .LoginURL }}" target="_blank" rel="noopener noreferer">Login</a>
-                    {{ end }}
-                    <a class="pure-button" href="/admin/instance/{{.Slug}}">Details</a>
-                </div>
-            </div>
-        </p>
-
-
-        {{ if .Instance.System.DedicatedSQL}}
-        <code>
-            Dedicated SQL
-        </code>
-        {{ end }}
-        {{ if .Instance.System.DedicatedTriplestore }}
-        <code>
-            Dedicated Triplestore
-        </code>
-        {{ end }}
+    <div class="h-md-padding">
+        <div class="overflow">
+            <table class="pure-table pure-table-bordered instances-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <form class="pure-form">
+                                <input type="text" id="search" placeholder="Filter…" data-filter-list="data-slug" aria-label="Filter instances" />
+                            </form>
+                        </th>
+                        <th>Status</th>
+                        <th>WissKI</th>
+                        <th>Drupal</th>
+                        <th>PHP</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Instances}}
+                    <tr class="wisski {{ if .Running }}running{{ else }}stopped{{ end }} {{ if not .OK }}broken{{end}}" data-slug="{{.Slug}}">
+                        <td>
+                            <strong>{{.Slug}}</strong><br>
+                            <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a>
+                            {{ if .Instance.System.DedicatedSQL}}
+                            <br><code>Dedicated SQL</code>
+                            {{ end }}
+                            {{ if .Instance.System.DedicatedTriplestore }}
+                            <br><code>Dedicated Triplestore</code>
+                            {{ end }}
+                        </td>
+                        <td>
+                            {{ if .Running }}running{{ else }}stopped{{ end }}
+                            {{ if not .OK }}
+                            <br><span class="wisski-broken-label">STATUS FAILED</span>
+                            {{ end }}
+                        </td>
+                        <td>{{ if .WissKIVersion }}{{ .WissKIVersion }}{{ else }}unknown{{ end }}</td>
+                        <td>{{ .DrupalVersion }}</td>
+                        <td>{{ .PHPVersion }}</td>
+                        <td>
+                            <div class="pure-button-group" role="group">
+                                {{ if .Running }}
+                                    <a class="pure-button pure-button-action" href="{{ .LoginURL }}" target="_blank" rel="noopener noreferrer">Login</a>
+                                {{ end }}
+                                <a class="pure-button" href="/admin/instance/{{.Slug}}">Details</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
-{{end}}

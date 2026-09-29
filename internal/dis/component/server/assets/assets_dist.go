@@ -25,17 +25,17 @@ var AssetsUser = Assets{
 // AssetsAdmin contains assets for the 'Admin' entrypoint.
 var AssetsAdmin = Assets{
 	Scripts: `<script type=module src=/⛰/User.ae7af732.js></script><script type=module src=/⛰/Default.6170ef04.js></script><script type=module src=/⛰/Admin.3b88bd90.js></script>`,
-	Styles:  `<link rel=stylesheet href=/⛰/Default.588cd9f6.css><link rel=stylesheet href=/⛰/User.540c0bee.css><link rel=stylesheet href=/⛰/User.1664d889.css><link rel=stylesheet href=/⛰/Admin.7d5bb717.css><link rel=stylesheet href=/⛰/Admin.0e5ed001.css>`,	
+	Styles:  `<link rel=stylesheet href=/⛰/Default.588cd9f6.css><link rel=stylesheet href=/⛰/User.540c0bee.css><link rel=stylesheet href=/⛰/User.1664d889.css><link rel=stylesheet href=/⛰/Admin.7d5bb717.css><link rel=stylesheet href=/⛰/Admin.b9eafd4d.css>`,	
 }
 
 // AssetsAdminProvision contains assets for the 'AdminProvision' entrypoint.
 var AssetsAdminProvision = Assets{
 	Scripts: `<script type=module src=/⛰/User.ae7af732.js></script><script type=module src=/⛰/Admin.3b88bd90.js></script><script type=module src=/⛰/Default.6170ef04.js></script><script type=module src=/⛰/AdminProvision.cafeb333.js></script>`,
-	Styles:  `<link rel=stylesheet href=/⛰/Default.588cd9f6.css><link rel=stylesheet href=/⛰/User.540c0bee.css><link rel=stylesheet href=/⛰/User.1664d889.css><link rel=stylesheet href=/⛰/Admin.7d5bb717.css><link rel=stylesheet href=/⛰/Admin.0e5ed001.css><link rel=stylesheet href=/⛰/AdminProvision.8569d237.css>`,	
+	Styles:  `<link rel=stylesheet href=/⛰/Default.588cd9f6.css><link rel=stylesheet href=/⛰/User.540c0bee.css><link rel=stylesheet href=/⛰/User.1664d889.css><link rel=stylesheet href=/⛰/Admin.7d5bb717.css><link rel=stylesheet href=/⛰/Admin.b9eafd4d.css><link rel=stylesheet href=/⛰/AdminProvision.8569d237.css>`,	
 }
 
 // AssetsAdminRebuild contains assets for the 'AdminRebuild' entrypoint.
 var AssetsAdminRebuild = Assets{
 	Scripts: `<script type=module src=/⛰/User.ae7af732.js></script><script type=module src=/⛰/Admin.3b88bd90.js></script><script type=module src=/⛰/Default.6170ef04.js></script><script type=module src=/⛰/AdminRebuild.c2544f2b.js></script>`,
-	Styles:  `<link rel=stylesheet href=/⛰/Default.588cd9f6.css><link rel=stylesheet href=/⛰/User.540c0bee.css><link rel=stylesheet href=/⛰/User.1664d889.css><link rel=stylesheet href=/⛰/Admin.7d5bb717.css><link rel=stylesheet href=/⛰/Admin.0e5ed001.css><link rel=stylesheet href=/⛰/AdminRebuild.e554824e.css>`,	
+	Styles:  `<link rel=stylesheet href=/⛰/Default.588cd9f6.css><link rel=stylesheet href=/⛰/User.540c0bee.css><link rel=stylesheet href=/⛰/User.1664d889.css><link rel=stylesheet href=/⛰/Admin.7d5bb717.css><link rel=stylesheet href=/⛰/Admin.b9eafd4d.css><link rel=stylesheet href=/⛰/AdminRebuild.e554824e.css>`,	
 }
