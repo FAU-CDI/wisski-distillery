@@ -34,12 +34,17 @@ func (*Rebuild) Action() InstanceAction {
 
 func (r *Rebuild) Act(ctx context.Context, instance *wisski.WissKI, in io.Reader, out io.Writer, params ...string) (any, error) {
 	// read the flags of the instance to be rebuilt
-	var system models.System
-	if err := json.Unmarshal([]byte(params[0]), &system); err != nil {
+	var flags struct {
+		models.System
+		Comment string
+	}
+	if err := json.Unmarshal([]byte(params[0]), &flags); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal system properties: %w", err)
 	}
 
-	if err := instance.SystemManager().Apply(ctx, out, system); err != nil {
+	instance.Comment = flags.Comment
+
+	if err := instance.SystemManager().Apply(ctx, out, flags.System); err != nil {
 		return nil, fmt.Errorf("failed to apply system properties: %w", err)
 	}
 	return nil, nil

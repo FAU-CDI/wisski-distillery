@@ -21,10 +21,14 @@ interface System {
   SolrServer?: boolean
 }
 
+interface RebuildFlags extends System {
+  Comment?: string
+}
+
 /** Rebuild the specified instance */
-export async function Rebuild (slug: string, system: System): Promise<string> {
+export async function Rebuild (slug: string, flags: RebuildFlags): Promise<string> {
   return await new Promise((resolve, reject) => {
-    createModal('rebuild', [slug, JSON.stringify(system)], {
+    createModal('rebuild', [slug, JSON.stringify(flags)], {
       bufferSize: 0,
       onClose: (success: boolean, message?: string) => {
         if (!success) {

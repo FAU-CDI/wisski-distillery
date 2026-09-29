@@ -21,6 +21,7 @@ interface SystemParams {
   PHP: "Default (8.3)" | "8.0" | "8.1" | "8.2" | "8.3";
   PHPDevelopment: boolean;
   ContentSecurityPolicy: string;
+  Comment?: string;
 }
 
 /** Provision provisions a new instance */

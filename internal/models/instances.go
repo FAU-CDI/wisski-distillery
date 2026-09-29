@@ -26,8 +26,8 @@ type Instance struct {
 	// slug of the system
 	Slug string `gorm:"column:slug;not null;unique"`
 
-	// email address of the system owner (if any)
-	OwnerEmail string `gorm:"column:owner_email;type:varchar(320)"`
+	// free-text admin comment for this instance
+	Comment string `gorm:"column:comment;type:longtext"`
 
 	// should we automatically enable updates for the system?
 	AutoBlindUpdateEnabled SQLBit1 `gorm:"column:auto_blind_update_enabled;default:1"`

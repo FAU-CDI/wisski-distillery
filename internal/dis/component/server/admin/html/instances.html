@@ -36,6 +36,7 @@
                                 <input type="text" id="search" placeholder="Filter…" data-filter-list="data-slug" aria-label="Filter instances" />
                             </form>
                         </th>
+                        <th>Comment</th>
                         <th>Status</th>
                         <th>WissKI</th>
                         <th>Drupal</th>
@@ -56,6 +57,7 @@
                             <br><code>Dedicated Triplestore</code>
                             {{ end }}
                         </td>
+                        <td>{{ .Instance.Comment }}</td>
                         <td>
                             {{ if .Running }}running{{ else }}stopped{{ end }}
                             {{ if not .OK }}

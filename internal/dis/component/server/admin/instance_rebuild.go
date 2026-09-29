@@ -40,6 +40,7 @@ type instanceSystemContext struct {
 	// Are we in rebuild mode?
 	Rebuild bool
 	Slug    string
+	Comment string
 	System  models.System
 
 	// list of known profiles and their descriptions
@@ -83,6 +84,7 @@ func (admin *Admin) instanceRebuild(context.Context) http.Handler {
 		}
 
 		isc.Slug = instance.Slug
+		isc.Comment = instance.Comment
 		isc.System = instance.System
 
 		// replace the menu item

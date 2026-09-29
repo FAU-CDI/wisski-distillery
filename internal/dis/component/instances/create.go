@@ -37,7 +37,6 @@ func (instances *Instances) Create(slug string, system models.System) (wissKI *w
 	wissKI.Slug = slug
 	wissKI.FilesystemBase = filepath.Join(instances.Path(), wissKI.Domain())
 
-	wissKI.OwnerEmail = ""
 	wissKI.AutoBlindUpdateEnabled = true
 
 	config := component.GetStill(instances).Config

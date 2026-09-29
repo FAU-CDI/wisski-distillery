@@ -16,7 +16,18 @@
                     Once set, the <code>slug</code> cannot be changed.
                 </span>
             </div>
-            
+
+            {{ if $rebuild }}
+            <div class="pure-control-group">
+                <label for="comment">Comment</label>
+                <textarea name="comment" id="comment" rows="3">{{ .Comment }}</textarea>
+                <span class="pure-form-message-inline">
+                    Optional free-text note for this instance.
+                    Visible on the instances list and overview.
+                </span>
+            </div>
+            {{ end }}
+
             <div class="pure-controls">
                 <h5>System Parameters</h5>
             </div>

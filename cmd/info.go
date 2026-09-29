@@ -96,6 +96,7 @@ func (i *info) exec(cmd *cobra.Command, dis *dis.Distillery) (err error) {
 
 	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Slug:                 %v\n", info.Slug)
 	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "URL:                  %v\n", info.URL)
+	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Comment:              %v\n", instance.Comment)
 
 	_, _ = fmt.Fprintf(cmd.OutOrStdout(), "Base directory:       %v\n", instance.FilesystemBase)
 

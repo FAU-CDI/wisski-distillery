@@ -5,6 +5,7 @@ import { Rebuild } from '~/src/lib/remote/api'
 
 const system = document.getElementById('system') as HTMLFormElement
 const slug = document.getElementById('slug') as HTMLInputElement
+const comment = document.getElementById('comment') as HTMLTextAreaElement
 const php = document.getElementById('php') as HTMLSelectElement
 const phpDevelopment = document.getElementById('phpDevelopment') as HTMLInputElement
 const contentSecurityPolicy = document.getElementById('contentsecuritypolicy') as HTMLInputElement
@@ -25,6 +26,7 @@ system.addEventListener('submit', (evt) => {
       ContentSecurityPolicy: contentSecurityPolicy.value,
       IPAllowlist: ipAllowlist.value,
       SolrServer: solrserver.checked,
+      Comment: comment.value,
     },
   )
     .then(slug => {
