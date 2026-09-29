@@ -27,13 +27,16 @@
 
 <div class="pure-u-1">
     <div class="h-md-padding">
+        <p>
+            <button type="button" class="pure-button" data-csv-export=".instances-table" data-csv-filename="instances.csv">Export CSV</button>
+        </p>
         <div class="overflow">
             <table class="pure-table pure-table-bordered instances-table">
                 <thead>
                     <tr>
-                        <th>
+                        <th data-export="Slug">
                             <form class="pure-form">
-                                <input type="text" id="search" placeholder="Filter…" data-filter-list="data-slug" aria-label="Filter instances" />
+                                <input type="text" id="search" placeholder="Filter…" data-filter-list="data-slug" data-filter-mode="dim" aria-label="Filter instances" />
                             </form>
                         </th>
                         <th>Comment</th>
@@ -41,13 +44,13 @@
                         <th>WissKI</th>
                         <th>Drupal</th>
                         <th>PHP</th>
-                        <th>Actions</th>
+                        <th data-skip-export>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{range .Instances}}
                     <tr class="wisski {{ if .Running }}running{{ else }}stopped{{ end }} {{ if not .OK }}broken{{end}}" data-slug="{{.Slug}}">
-                        <td>
+                        <td data-export="{{.Slug}}">
                             <strong>{{.Slug}}</strong><br>
                             <a href="{{.URL}}" target="_blank" rel="noopener noreferrer">{{.URL}}</a>
                             {{ if .Instance.System.DedicatedSQL}}
@@ -67,7 +70,7 @@
                         <td>{{ if .WissKIVersion }}{{ .WissKIVersion }}{{ else }}unknown{{ end }}</td>
                         <td>{{ .DrupalVersion }}</td>
                         <td>{{ .PHPVersion }}</td>
-                        <td>
+                        <td data-skip-export>
                             <div class="pure-button-group" role="group">
                                 {{ if .Running }}
                                     <a class="pure-button pure-button-action" href="{{ .LoginURL }}" target="_blank" rel="noopener noreferrer">Login</a>

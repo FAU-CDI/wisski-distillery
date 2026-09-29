@@ -38,6 +38,18 @@ tr.wisski > td:first-child {
     white-space: nowrap;
 }
 
+.instances-table.pure-table,
+.instances-table.pure-table-bordered {
+    border-color: #000;
+}
+
+.instances-table.pure-table td,
+.instances-table.pure-table th,
+.instances-table.pure-table-bordered td,
+.instances-table.pure-table-bordered th {
+    border-color: #000;
+}
+
 .instances-table th:first-child,
 .instances-table td:first-child {
     min-width: 14em;
@@ -48,6 +60,12 @@ tr.wisski > td:first-child {
     width: 100%;
     min-width: 12em;
     box-sizing: border-box;
+}
+
+.instances-table tr.filter-dimmed {
+    opacity: 0.4;
+    filter: grayscale(1) blur(1.5px);
+    pointer-events: none;
 }
 
 .disabled {

@@ -8,6 +8,8 @@ document.querySelectorAll<HTMLInputElement>('input[data-filter-list]').forEach(e
         return;
     }
 
+    const dimMode = element.dataset.filterMode === 'dim';
+
     element.form?.addEventListener('submit', (ev) => ev.preventDefault());
 
     const selector = '*[' + CSS.escape(filterListAttribute) + ']';
@@ -16,7 +18,7 @@ document.querySelectorAll<HTMLInputElement>('input[data-filter-list]').forEach(e
      * Check if the given element matches a query
      * @param element Element to check
      * @param lowercaseQuery Query to match. Assumed to be lowercase.
-     * @returns 
+     * @returns
      */
     const matches = (element: HTMLElement, lowercaseQuery: string): boolean => {
         if (lowercaseQuery.length === 0) {
@@ -27,7 +29,7 @@ document.querySelectorAll<HTMLInputElement>('input[data-filter-list]').forEach(e
         if (typeof value !== 'string') {
             return true;
         }
-        
+
         // simple fuzzy match
         let j = 0;
         const len = lowercaseQuery.length;
@@ -48,7 +50,10 @@ document.querySelectorAll<HTMLInputElement>('input[data-filter-list]').forEach(e
         document
             .querySelectorAll<HTMLElement>(selector)
             .forEach(candidate => {
-                if (matches(candidate, lowercaseQuery)) {
+                const matched = matches(candidate, lowercaseQuery);
+                if (dimMode) {
+                    candidate.classList.toggle('filter-dimmed', !matched);
+                } else if (matched) {
                     candidate.style.display = '';
                 } else {
                     candidate.style.display = 'none';
