@@ -40,7 +40,7 @@ var (
 			Description: "Current Version of Drupal with default packages",
 
 			Drupal: "~11.4.7",
-			WissKI: "~4.6.0",
+			WissKI: "~4.7",
 			InstallModules: []string{
 				"drupal/inline_entity_form:^3.0",
 				"drupal/imagemagick:~5.0.1",
