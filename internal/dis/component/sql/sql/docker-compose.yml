@@ -17,7 +17,7 @@ services:
             - "MYSQL_ROOT_HOST=localhost"
         restart: always
     phpmyadmin:
-        image: phpmyadmin/phpmyadmin
+        image: phpmyadmin:5-apache
         environment:
             - "PMA_HOST=sql"
             - "HIDE_PHP_VERSION=true"
