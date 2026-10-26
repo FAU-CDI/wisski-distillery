@@ -11,10 +11,12 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.middlewares=strip-headers@docker"
       - "--entrypoints.web.proxyProtocol.insecure=true"
       - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.middlewares=strip-headers@docker"
       - "--entrypoints.websecure.proxyProtocol.insecure=true"
-      
+
       - "--certificatesresolvers.distillery.acme.httpchallenge=true"
       - "--certificatesresolvers.distillery.acme.email=${CERT_EMAIL}"
       - "--certificatesresolvers.distillery.acme.storage=/acme.json"
@@ -28,6 +30,11 @@ services:
     #  # - "80:80"
     #  # - "443:443"
     #  # - "127.0.0.1:8888:8080"
+    labels:
+      - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.strip-headers.headers.customresponseheaders.Server="
+      - "traefik.http.middlewares.strip-headers.headers.customresponseheaders.X-Powered-By="
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "./acme.json:/acme.json"

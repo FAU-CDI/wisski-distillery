@@ -7,6 +7,7 @@ services:
       - "--providers.docker.network=${DOCKER_NETWORK_NAME}"
       - "--providers.docker.constraints=Label(`eu.wiss-ki.barrel.distillery`,`${DOCKER_NETWORK_NAME}`)"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.middlewares=strip-headers@docker"
       - "--entrypoints.web.proxyProtocol.insecure=true"
 
       ## for debugging purposes, the following can be enabled.
@@ -14,6 +15,11 @@ services:
     #ports:
     #  # - "80:80"
     #  # - "127.0.0.1:8888:8080"
+    labels:
+      - "eu.wiss-ki.barrel.distillery=${DOCKER_NETWORK_NAME}"
+      - "traefik.enable=true"
+      - "traefik.http.middlewares.strip-headers.headers.customresponseheaders.Server="
+      - "traefik.http.middlewares.strip-headers.headers.customresponseheaders.X-Powered-By="
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     restart: always
